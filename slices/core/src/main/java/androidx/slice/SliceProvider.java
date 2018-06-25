@@ -18,6 +18,7 @@ package androidx.slice;
 import static android.app.slice.Slice.HINT_PERMISSION_REQUEST;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceProvider.SLICE_TYPE;
 
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_BIND_URI;
@@ -42,6 +43,8 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Process;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,12 +52,14 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.CoreComponentFactory;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.compat.CompatPermissionManager;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.compat.SliceProviderWrapperContainer;
 import androidx.slice.core.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -205,19 +210,28 @@ public abstract class SliceProvider extends ContentProvider implements
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static Slice createPermissionSlice(Context context, Uri sliceUri,
             String callingPackage) {
-        Slice.Builder parent = new Slice.Builder(sliceUri);
+        PendingIntent action = createPermissionIntent(context, sliceUri, callingPackage);
 
-        Slice.Builder action = new Slice.Builder(parent)
-                .addHints(HINT_TITLE, HINT_SHORTCUT)
-                .addAction(createPermissionIntent(context, sliceUri, callingPackage),
-                        new Slice.Builder(parent).build(), null);
+        Slice.Builder parent = new Slice.Builder(sliceUri);
+        Slice.Builder childAction = new Slice.Builder(parent)
+                .addIcon(IconCompat.createWithResource(context,
+                        R.drawable.abc_ic_permission), null)
+                .addHints(Arrays.asList(HINT_TITLE, HINT_SHORTCUT))
+                .addAction(action, new Slice.Builder(parent).build(), null);
+
+        TypedValue tv = new TypedValue();
+        new ContextThemeWrapper(context, android.R.style.Theme_DeviceDefault_Light)
+                .getTheme().resolveAttribute(android.R.attr.colorAccent, tv, true);
+        int deviceDefaultAccent = tv.data;
 
         parent.addSubSlice(new Slice.Builder(sliceUri.buildUpon().appendPath("permission").build())
+                .addIcon(IconCompat.createWithResource(context,
+                        R.drawable.abc_ic_arrow_forward), null)
                 .addText(getPermissionString(context, callingPackage), null)
-                .addSubSlice(action.build())
-                .build());
-
-        return parent.addHints(HINT_PERMISSION_REQUEST).build();
+                .addInt(deviceDefaultAccent, SUBTYPE_COLOR)
+                .addSubSlice(childAction.build(), null)
+                .build(), null);
+        return parent.addHints(Arrays.asList(HINT_PERMISSION_REQUEST)).build();
     }
 
     /**
