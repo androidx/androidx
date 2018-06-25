@@ -34,6 +34,8 @@ public class FragmentSupportPreferencesCompat extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Display the fragment as the main content.
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(android.R.id.content,
