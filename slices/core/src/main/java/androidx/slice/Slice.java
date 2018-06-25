@@ -231,6 +231,7 @@ public final class Slice implements VersionedParcelable {
         private ArrayList<SliceItem> mItems = new ArrayList<>();
         private @SliceHint ArrayList<String> mHints = new ArrayList<>();
         private SliceSpec mSpec;
+        private int mChildId;
 
         /**
          * Create a builder which will construct a {@link Slice} for the Given Uri.
@@ -246,8 +247,12 @@ public final class Slice implements VersionedParcelable {
          * @param parent The builder constructing the parent slice
          */
         public Builder(@NonNull Slice.Builder parent) {
-            mUri = parent.mUri.buildUpon().appendPath("_gen")
-                    .appendPath(String.valueOf(mItems.size())).build();
+            mUri = parent.getChildUri();
+        }
+
+        private Uri getChildUri() {
+            return mUri.buildUpon().appendPath("_gen")
+                    .appendPath(String.valueOf(mChildId++)).build();
         }
 
         /**
@@ -500,7 +505,9 @@ public final class Slice implements VersionedParcelable {
             appendHints(sb, mHints);
             sb.append(' ');
         }
-        sb.append("{\n");
+        sb.append('[');
+        sb.append(mUri);
+        sb.append("] {\n");
         final String nextIndent = indent + "  ";
         for (int i = 0; i < mItems.length; i++) {
             SliceItem item = mItems[i];

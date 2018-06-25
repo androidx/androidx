@@ -194,7 +194,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 Slice currentSlice = mSliceView.getSlice();
                 setSlice(null);
                 if (currentSlice != null) {
-                    setSlice(serAndUnSer(currentSlice, getApplicationContext()));
+                    showCached(currentSlice, getApplicationContext());
                 }
                 return true;
         }
@@ -253,37 +253,41 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private void addSlice(Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-            if (mSliceLiveData != null) {
-                mSliceLiveData.removeObservers(this);
-            }
             mSliceView.setTag(uri);
-            mSliceLiveData = SliceLiveData.fromUri(this, uri);
-            mSliceLiveData.observe(this, slice -> {
-                if (slice == null) {
-                    Log.w(TAG, "Slice is null");
-                    mSliceView.setSlice(null);
-                    Toast.makeText(this, "Invalid slice URI", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                mSliceView.setSlice(slice);
-                SliceMetadata metadata = SliceMetadata.from(this, slice);
-                long expiry = metadata.getExpiry();
-                if (expiry != INFINITY) {
-                    // Shows the updated text after the TTL expires.
-                    mSliceView.postDelayed(() -> {
-                        if (mSliceView.getSlice() != null
-                                && mSliceView.getSlice().getUri().equals(slice.getUri())) {
-                            mSliceView.setSlice(slice);
-                        }
-                    }, expiry - System.currentTimeMillis() + 15);
-                }
-            });
-            mSliceLiveData.observe(this, slice -> Log.d(TAG, "Slice: " + slice));
+            showSlice(SliceLiveData.fromUri(this, uri));
         } else {
             Log.w(TAG, "Invalid uri, skipping slice: " + uri);
             mSliceView.setSlice(null);
             Toast.makeText(this, "Invalid slice URI", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showSlice(LiveData<Slice> sliceLiveData) {
+        if (mSliceLiveData != null) {
+            mSliceLiveData.removeObservers(this);
+        }
+        mSliceLiveData = sliceLiveData;
+        mSliceLiveData.observe(this, slice -> {
+            if (slice == null) {
+                Log.w(TAG, "Slice is null");
+                mSliceView.setSlice(null);
+                Toast.makeText(this, "Invalid slice URI", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mSliceView.setSlice(slice);
+            SliceMetadata metadata = SliceMetadata.from(this, slice);
+            long expiry = metadata.getExpiry();
+            if (expiry != INFINITY) {
+                // Shows the updated text after the TTL expires.
+                mSliceView.postDelayed(() -> {
+                    if (mSliceView.getSlice() != null
+                            && mSliceView.getSlice().getUri().equals(slice.getUri())) {
+                        mSliceView.setSlice(slice);
+                    }
+                }, expiry - System.currentTimeMillis() + 15);
+            }
+        });
+        mSliceLiveData.observe(this, slice -> Log.d(TAG, "Slice: " + slice));
     }
 
     private void updateSliceModes() {
@@ -338,7 +342,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         });
     }
 
-    private Slice serAndUnSer(Slice s, Context context) {
+    private void showCached(Slice s, Context context) {
         try {
             Log.d(TAG, "Serializing: " + s);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -353,11 +357,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             byte[] bytes = outputStream.toByteArray();
             Log.d(TAG, "Serialized length: " + bytes.length);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-            return SliceUtils.parseSlice(context, inputStream, "UTF-8",
-                    new SliceUtils.SliceActionListener() {
-                        @Override
-                        public void onSliceAction(Uri actionUri, Context context, Intent intent) { }
-                    });
+            showSlice(SliceLiveData.fromStream(context, inputStream,
+                    (type, source) -> Log.e(TAG, "onSliceError " + type, source)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
