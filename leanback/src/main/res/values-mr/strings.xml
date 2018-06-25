@@ -23,12 +23,8 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"शोधण्यासाठी बोला"</string>
     <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> शोधा"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> शोधण्यासाठी बोला"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for lb_control_display_fast_forward_multiplier (2721825378927619928) -->
-    <skip />
-    <!-- String.format failed for translation -->
-    <!-- no translation found for lb_control_display_rewind_multiplier (6173753802428649303) -->
-    <skip />
+    <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="1590369760862605402">"प्ले"</string>
     <string name="lb_playback_controls_pause" msgid="1769131316742618433">"विराम द्या"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8966769845721269304">"पुढे ढकला"</string>
@@ -57,9 +53,7 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="619396299825306757">"मीडिया नियंत्रणे लपलेली आहेत, दर्शवण्‍यासाठी d-pad दाबा"</string>
     <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"समाप्त"</string>
     <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"सुरू ठेवा"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for lb_media_player_error (8748646000835486516) -->
-    <skip />
+    <string name="lb_media_player_error" msgid="8748646000835486516">"मीडियाप्लेअर एरर कोड %1$d अतिरिक्त %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="7674487829030291492">"सुरू करा"</string>
     <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"पुढील"</string>
 </resources>
