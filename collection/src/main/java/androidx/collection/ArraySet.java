@@ -530,7 +530,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * Perform a {@link #remove(Object)} of all values in <var>array</var>
      * @param array The array whose contents are to be removed.
      */
-    public boolean removeAll(ArraySet<? extends E> array) {
+    public boolean removeAll(@NonNull ArraySet<? extends E> array) {
         // TODO: If array is sufficiently large, a marking approach might be beneficial. In a first
         //       pass, use the property that the sets are sorted by hash to make this linear passes
         //       (except for hash collisions, which means worst case still n*m), then do one
