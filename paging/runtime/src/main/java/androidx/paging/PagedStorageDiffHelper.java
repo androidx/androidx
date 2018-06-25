@@ -108,7 +108,7 @@ class PagedStorageDiffHelper {
 
         @Override
         public void onMoved(int fromPosition, int toPosition) {
-            mCallback.onRemoved(fromPosition + mOffset, toPosition + mOffset);
+            mCallback.onMoved(fromPosition + mOffset, toPosition + mOffset);
         }
 
         @Override
