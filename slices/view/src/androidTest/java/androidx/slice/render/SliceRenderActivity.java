@@ -19,8 +19,11 @@ package androidx.slice.render;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
+@RequiresApi(19)
 public class SliceRenderActivity extends Activity {
     public static final String ACTION_RENDER_DONE = "androidx.slice.render.RENDER_DONE";
 

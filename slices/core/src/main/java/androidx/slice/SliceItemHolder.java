@@ -28,6 +28,7 @@ import android.app.PendingIntent;
 import android.os.Parcelable;
 import android.text.Spanned;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.text.HtmlCompat;
 import androidx.core.util.Pair;
@@ -40,6 +41,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true)
+@RequiresApi(19)
 public class SliceItemHolder implements VersionedParcelable {
 
     // VersionedParcelable fields for custom serialization.

@@ -38,6 +38,7 @@ import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.slice.core.SliceActionImpl;
@@ -48,6 +49,7 @@ import androidx.slice.view.R;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@RequiresApi(19)
 public class SliceActionView extends FrameLayout implements View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "SliceActionView";

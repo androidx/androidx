@@ -23,6 +23,7 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Consumer;
@@ -69,6 +70,7 @@ import java.util.List;
  *
  * @see ListBuilder#addGridRow(GridRowBuilder)
  */
+@RequiresApi(19)
 public class GridRowBuilder {
 
     private final List<CellBuilder> mCells = new ArrayList<>();

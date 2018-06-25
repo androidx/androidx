@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.text.BidiFormatter;
@@ -41,6 +42,7 @@ import androidx.slice.core.R;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public class SlicePermissionActivity extends Activity implements OnClickListener,
         OnDismissListener {
 

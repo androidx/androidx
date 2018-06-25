@@ -20,6 +20,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
 import android.support.test.InstrumentationRegistry
+import android.support.test.filters.SdkSuppress
 import androidx.core.graphics.drawable.IconCompat
 import androidx.slice.SliceProvider
 import androidx.slice.SliceSpecs
@@ -28,6 +29,7 @@ import androidx.slice.builders.ktx.test.R
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SdkSuppress(minSdkVersion = 19)
 class SliceBuildersKtxTest {
     private val testUri = Uri.parse("content://com.example.android.sliceuri")
     private val context = InstrumentationRegistry.getContext()

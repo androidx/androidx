@@ -154,6 +154,7 @@ public abstract class SliceProvider extends ContentProvider implements
      *
      * @return true if the provider was successfully loaded, false otherwise
      */
+    @RequiresApi(19)
     public abstract boolean onCreateSliceProvider();
 
     /**
@@ -161,6 +162,7 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
+    @RequiresApi(19)
     public Object getWrapper() {
         if (Build.VERSION.SDK_INT >= 28) {
             return new SliceProviderWrapperContainer.SliceProviderWrapper(this,
@@ -171,6 +173,7 @@ public abstract class SliceProvider extends ContentProvider implements
 
     @Override
     public final boolean onCreate() {
+        if (Build.VERSION.SDK_INT < 19) return false;
         mPinnedSliceUris = new ArrayList<>(SliceManager.getInstance(
                 getContext()).getPinnedSlices());
         if (Build.VERSION.SDK_INT < 28) {
@@ -186,6 +189,7 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(19)
     protected CompatPermissionManager onCreatePermissionManager(
             String[] autoGrantPermissions) {
         return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
@@ -194,12 +198,14 @@ public abstract class SliceProvider extends ContentProvider implements
 
     @Override
     public final String getType(Uri uri) {
+        if (Build.VERSION.SDK_INT < 19) return null;
         if (DEBUG) Log.d(TAG, "getFormat " + uri);
         return SLICE_TYPE;
     }
 
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
+        if (Build.VERSION.SDK_INT < 19) return null;
         return mCompat != null ? mCompat.call(method, arg, extras) : null;
     }
 
@@ -208,6 +214,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresApi(19)
     public static Slice createPermissionSlice(Context context, Uri sliceUri,
             String callingPackage) {
         PendingIntent action = createPermissionIntent(context, sliceUri, callingPackage);
@@ -239,6 +246,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresApi(19)
     public static PendingIntent createPermissionIntent(Context context, Uri sliceUri,
             String callingPackage) {
         Intent intent = new Intent();
@@ -259,6 +267,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresApi(19)
     public static CharSequence getPermissionString(Context context, String callingPackage) {
         PackageManager pm = context.getPackageManager();
         try {
@@ -285,6 +294,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @see android.app.slice.Slice#HINT_PARTIAL
      */
     // TODO: Provide alternate notifyChange that takes in the slice (i.e. notifyChange(Uri, Slice)).
+    @RequiresApi(19)
     public abstract Slice onBindSlice(Uri sliceUri);
 
     /**
@@ -305,6 +315,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @param sliceUri The uri of the slice being unpinned.
      * @see #onSliceUnpinned(Uri)
      */
+    @RequiresApi(19)
     public void onSlicePinned(Uri sliceUri) {}
 
     /**
@@ -315,12 +326,14 @@ public abstract class SliceProvider extends ContentProvider implements
      * or jobs related to this slice should be cancelled.
      * @see #onSlicePinned(Uri)
      */
+    @RequiresApi(19)
     public void onSliceUnpinned(Uri sliceUri) {}
 
     /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(19)
     public void handleSlicePinned(Uri sliceUri) {
         if (!mPinnedSliceUris.contains(sliceUri)) {
             mPinnedSliceUris.add(sliceUri);
@@ -331,6 +344,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(19)
     public void handleSliceUnpinned(Uri sliceUri) {
         if (mPinnedSliceUris.contains(sliceUri)) {
             mPinnedSliceUris.remove(sliceUri);
@@ -345,6 +359,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @return Uri representing the slice associated with the provided intent.
      * @see android.app.slice.Slice
      */
+    @RequiresApi(19)
     public @NonNull Uri onMapIntentToUri(Intent intent) {
         throw new UnsupportedOperationException(
                 "This provider has not implemented intent to uri mapping");
@@ -360,6 +375,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @return All slices within the space.
      * @see androidx.slice.SliceViewManager#getSliceDescendants(Uri)
      */
+    @RequiresApi(19)
     public Collection<Uri> onGetSliceDescendants(Uri uri) {
         return Collections.emptyList();
     }
@@ -369,6 +385,7 @@ public abstract class SliceProvider extends ContentProvider implements
      *
      * @return All pinned slices.
      */
+    @RequiresApi(19)
     @NonNull public List<Uri> getPinnedSlices() {
         return mPinnedSliceUris;
     }
@@ -432,6 +449,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(19)
     public static void setSpecs(Set<SliceSpec> specs) {
         sSpecs = specs;
     }
@@ -440,6 +458,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresApi(19)
     public static Set<SliceSpec> getCurrentSpecs() {
         return sSpecs;
     }
@@ -448,6 +467,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(19)
     public static void setClock(Clock clock) {
         sClock = clock;
     }
@@ -456,6 +476,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(19)
     public static Clock getClock() {
         return sClock;
     }

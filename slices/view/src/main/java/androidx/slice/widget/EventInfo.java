@@ -17,6 +17,7 @@
 package androidx.slice.widget;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -25,6 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Represents information associated with a logged event on {@link SliceView}.
  */
+@RequiresApi(19)
 public class EventInfo {
 
     /**

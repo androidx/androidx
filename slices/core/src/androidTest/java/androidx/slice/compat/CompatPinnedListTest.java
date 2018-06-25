@@ -25,6 +25,7 @@ import static junit.framework.Assert.assertTrue;
 import android.content.Context;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -44,6 +45,7 @@ import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = 19)
 public class CompatPinnedListTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();

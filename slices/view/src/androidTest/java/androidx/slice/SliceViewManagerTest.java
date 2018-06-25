@@ -50,6 +50,7 @@ import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = 19)
 public class SliceViewManagerTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();
@@ -113,7 +114,7 @@ public class SliceViewManagerTest {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 27)
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
     @Test
     public void testCallback() {
         Uri uri = new Uri.Builder()
@@ -135,7 +136,7 @@ public class SliceViewManagerTest {
         verify(callback, timeout(2000)).onSliceUpdated(any(Slice.class));
     }
 
-    @SdkSuppress(maxSdkVersion = 27)
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
     @Test
     public void testPinnedSpecs() {
         Uri uri = new Uri.Builder()

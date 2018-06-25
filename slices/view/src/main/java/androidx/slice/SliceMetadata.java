@@ -46,6 +46,7 @@ import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Pair;
@@ -66,6 +67,7 @@ import java.util.List;
 /**
  * Utility class to parse a Slice and provide access to some information around its contents.
  */
+@RequiresApi(19)
 public class SliceMetadata {
 
     /**

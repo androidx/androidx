@@ -16,6 +16,7 @@
 package androidx.slice;
 
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.ObjectsCompat;
@@ -26,6 +27,7 @@ import java.lang.reflect.Array;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
+@RequiresApi(19)
 class ArrayUtils {
 
     public static <T> boolean contains(T[] array, T item) {

@@ -37,6 +37,7 @@ import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -53,6 +54,7 @@ import java.io.IOException;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = 19)
 public class SliceXmlTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();

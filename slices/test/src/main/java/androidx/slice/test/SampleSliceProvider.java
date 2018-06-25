@@ -40,6 +40,7 @@ import android.util.SparseArray;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.collection.ArraySet;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
@@ -62,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Examples of using slice template builders.
  */
+@RequiresApi(19)
 public class SampleSliceProvider extends SliceProvider {
 
     private static final String TAG = "SampleSliceProvider";

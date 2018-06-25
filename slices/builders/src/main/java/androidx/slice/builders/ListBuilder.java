@@ -121,6 +121,7 @@ import java.util.Set;
  * @see androidx.slice.SliceProvider#onBindSlice(Uri)
  * @see androidx.slice.widget.SliceView
  */
+@RequiresApi(19)
 public class ListBuilder extends TemplateSliceBuilder {
 
     private boolean mHasSeeMore;
