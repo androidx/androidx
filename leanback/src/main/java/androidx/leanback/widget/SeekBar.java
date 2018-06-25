@@ -131,7 +131,9 @@ public final class SeekBar extends View {
         super.onDraw(canvas);
         final int radius = isFocused() ? mActiveRadius : mBarHeight / 2;
         canvas.drawRoundRect(mBackgroundRect, radius, radius, mBackgroundPaint);
-        canvas.drawRoundRect(mSecondProgressRect, radius, radius, mProgressPaint);
+        if (mSecondProgressRect.right > mSecondProgressRect.left) {
+            canvas.drawRoundRect(mSecondProgressRect, radius, radius, mSecondProgressPaint);
+        }
         canvas.drawRoundRect(mProgressRect, radius, radius, mProgressPaint);
         canvas.drawCircle(mKnobx, getHeight() / 2, radius, mKnobPaint);
     }
@@ -198,6 +200,20 @@ public final class SeekBar extends View {
         mProgressPaint.setColor(color);
     }
 
+    /**
+     * Set color for second progress which is usually for buffering indication.
+     */
+    public void setSecondaryProgressColor(int color) {
+        mSecondProgressPaint.setColor(color);
+    }
+
+    /**
+     * Set color for second progress which is usually for buffering indication.
+     */
+    public int getSecondaryProgressColor() {
+        return mSecondProgressPaint.getColor();
+    }
+
     private void calculate() {
         final int barHeight = isFocused() ? mActiveBarHeight : mBarHeight;
 
@@ -215,7 +231,7 @@ public final class SeekBar extends View {
                 height - verticalPadding);
 
         final float secondProgressPixels = mSecondProgress / (float) mMax * progressWidth;
-        mSecondProgressRect.set(mBarHeight / 2, verticalPadding,
+        mSecondProgressRect.set(mProgressRect.right, verticalPadding,
                 mBarHeight / 2 + secondProgressPixels, height - verticalPadding);
 
         mKnobx = radius + (int) progressPixels;

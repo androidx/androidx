@@ -61,6 +61,7 @@
     <color name="lb_control_button_color">#66EEEEEE</color>
     <color name="lb_control_button_text">#EEEEEE</color>
     <color name="lb_playback_progress_color_no_theme">#ff40c4ff</color>
+    <color name="lb_playback_progress_secondary_color_no_theme">#d3d3d3</color>
     <color name="lb_playback_icon_highlight_no_theme">#ff40c4ff</color>
     <color name="lb_playback_secondary_progress_color">#33FFFFFF</color>
     <color name="lb_playback_background_progress_color">#19FFFFFF</color>
