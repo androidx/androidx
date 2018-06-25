@@ -31,6 +31,7 @@ import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
 import static androidx.media.test.lib.CommonConstants.KEY_RESULT_RECEIVER;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
+import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
 import static androidx.media.test.lib.MediaSession2Constants.CustomCommands.UPDATE_PLAYER;
 import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
         .UPDATE_PLAYER_WITH_VOLUME_PROVIDER;
@@ -132,6 +133,14 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         assertNotNull(controller);
         waitForConnect(controller, false /* expected */);
         waitForDisconnect(controller, true /* expected */);
+    }
+
+    @Test
+    public void testConnection_toLibraryService() throws InterruptedException {
+        prepareLooper();
+        SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
+        MediaController2 controller = createController(token);
+        assertNotNull(controller);
     }
 
     @Test
