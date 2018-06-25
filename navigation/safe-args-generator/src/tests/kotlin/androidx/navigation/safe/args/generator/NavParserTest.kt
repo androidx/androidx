@@ -19,6 +19,7 @@ package androidx.navigation.safe.args.generator
 import androidx.navigation.safe.args.generator.NavType.BOOLEAN
 import androidx.navigation.safe.args.generator.NavType.FLOAT
 import androidx.navigation.safe.args.generator.NavType.INT
+import androidx.navigation.safe.args.generator.NavType.LONG
 import androidx.navigation.safe.args.generator.NavType.REFERENCE
 import androidx.navigation.safe.args.generator.NavType.STRING
 import androidx.navigation.safe.args.generator.models.Action
@@ -85,9 +86,23 @@ class NavParserTest {
     }
 
     @Test
+    fun testLongValueParsing() {
+        assertThat(parseLongValue("foo"), nullValue())
+        assertThat(parseLongValue("10"), nullValue())
+        assertThat(parseLongValue("10L"), `is`(LongValue("10L")))
+        assertThat(parseLongValue("-10L"), `is`(LongValue("-10L")))
+        assertThat(parseLongValue("0xA"), nullValue())
+        assertThat(parseLongValue("0xAL"), `is`(LongValue("0xAL")))
+        assertThat(parseLongValue("0xFFFFFFFFL"), `is`(LongValue("0xFFFFFFFFL")))
+        assertThat(parseLongValue("0x1FFFFFFFFL"), `is`(LongValue("0x1FFFFFFFFL")))
+        assertThat(parseLongValue("0x1FFFFFFFF1FFFFFFFFL"), nullValue())
+    }
+
+    @Test
     fun testArgInference() {
         val infer = { value: String -> inferArgument("foo", value, "a.b") }
         val intArg = { value: String -> Argument("foo", INT, IntValue(value)) }
+        val longArg = { value: String -> Argument("foo", LONG, LongValue(value)) }
         val floatArg = { value: String -> Argument("foo", FLOAT, FloatValue(value)) }
         val stringArg = { value: String -> Argument("foo", STRING, StringValue(value)) }
         val boolArg = { value: String -> Argument("foo", BOOLEAN, BooleanValue(value)) }
@@ -109,5 +124,7 @@ class NavParserTest {
         assertThat(infer(".4"), `is`(floatArg(".4")))
         assertThat(infer("true"), `is`(boolArg("true")))
         assertThat(infer("false"), `is`(boolArg("false")))
+        assertThat(infer("123L"), `is`(longArg("123L")))
+        assertThat(infer("1234123412341234L"), `is`(longArg("1234123412341234L")))
     }
 }
