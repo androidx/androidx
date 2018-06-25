@@ -96,6 +96,17 @@ class PagedStorageDiffHelperTest {
         }
     }
 
+    @Test
+    fun move() {
+        validateTwoListDiff(
+                PagedStorage(5, listOf("a", "b", "c", "d"), 5),
+                PagedStorage(5, listOf("a", "b", "d", "c"), 5)) {
+            // 7, 8 would also be valid, but below is what DiffUtil outputs
+            verify(it).onMoved(8, 7)
+            verifyNoMoreInteractions(it)
+        }
+    }
+
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
