@@ -101,6 +101,7 @@ public class SampleSliceProvider extends SliceProvider {
             "rtlgrid",
             "slices",
             "cat",
+            "permission",
     };
 
     /**
@@ -186,6 +187,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createFoodOptionsSlice(sliceUri);
             case "/cat":
                 return createBigPicSlice(sliceUri);
+            case "/permission":
+                return createPermissionSlice(getContext(), sliceUri, getContext().getPackageName());
         }
         Log.w(TAG, String.format("Unknown uri: %s", sliceUri));
         return null;
