@@ -74,6 +74,7 @@ public class ListContent {
     private Context mContext;
     private int mMinScrollHeight;
     private int mLargeHeight;
+    private int mMaxSmallHeight;
 
     private int mHeaderTitleSize;
     private int mHeaderSubtitleSize;
@@ -145,6 +146,10 @@ public class ListContent {
         populate(slice);
     }
 
+    public void setMaxSmallHeight(int maxSmallHeight) {
+        mMaxSmallHeight = maxSmallHeight;
+    }
+
     /**
      * @return whether this row has content that is valid to display.
      */
@@ -206,7 +211,11 @@ public class ListContent {
      */
     public int getLargeHeight(int maxHeight, boolean scrollable) {
         int desiredHeight = getListHeight(mRowItems);
-        int maxLargeHeight = maxHeight != -1
+        if (maxHeight > 0) {
+            // Always ensure we're at least the height of our small version.
+            maxHeight = Math.max(getSmallHeight(), maxHeight);
+        }
+        int maxLargeHeight = maxHeight > 0
                 ? maxHeight
                 : mLargeHeight;
         // Do we have enough content to reasonably scroll in our max?
@@ -214,7 +223,7 @@ public class ListContent {
 
         // Adjust for scrolling
         int height = bigEnoughToScroll ? maxLargeHeight
-                : maxHeight == -1 ? desiredHeight
+                : maxHeight <= 0 ? desiredHeight
                 : Math.min(maxLargeHeight, desiredHeight);
         if (!scrollable) {
             height = getListHeight(getItemsForNonScrollingList(height));
@@ -269,7 +278,7 @@ public class ListContent {
         // Need to show see more
         if (mSeeMoreItem != null) {
             RowContent rc = new RowContent(mContext, mSeeMoreItem, false /* isHeader */);
-            visibleHeight += rc.getActualHeight();
+            visibleHeight += rc.getActualHeight(mMaxSmallHeight);
         }
         int rowCount = mRowItems.size();
         for (int i = 0; i < rowCount; i++) {
@@ -313,7 +322,8 @@ public class ListContent {
             return height + topPadding + bottomPadding;
         } else {
             RowContent rc = new RowContent(mContext, item, isHeader);
-            return mode == MODE_SMALL ? rc.getSmallHeight() : rc.getActualHeight();
+            return mode == MODE_SMALL ? rc.getSmallHeight(mMaxSmallHeight)
+                    : rc.getActualHeight(mMaxSmallHeight);
         }
     }
 

@@ -52,6 +52,7 @@ public class LargeTemplateView extends SliceChildView {
     private ArrayList<SliceItem> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
     private int[] mLoc = new int[2];
+    private int mMaxSmallHeight;
 
     public LargeTemplateView(Context context) {
         super(context);
@@ -142,6 +143,12 @@ public class LargeTemplateView extends SliceChildView {
             return 0;
         }
         return mListContent.getSmallHeight();
+    }
+
+    @Override
+    public void setMaxSmallHeight(int maxSmallHeight) {
+        mMaxSmallHeight = maxSmallHeight;
+        mAdapter.setMaxSmallHeight(mMaxSmallHeight);
     }
 
     @Override
