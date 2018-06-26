@@ -140,6 +140,12 @@ public class ServiceWorkerClientCompatTest {
         }
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.ServiceWorkerClientTest#testServiceWorkerClientInterceptCallback.
+     * Modifications to this test should be reflected in that test as necessary. See
+     * http://go/modifying-webview-cts.
+     */
     // Test correct invocation of shouldInterceptRequest for Service Workers.
     @Test
     public void testServiceWorkerClientInterceptCallback() throws Exception {

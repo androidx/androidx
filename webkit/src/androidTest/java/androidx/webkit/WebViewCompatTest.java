@@ -66,6 +66,11 @@ public class WebViewCompatTest {
         mWebViewOnUiThread = new androidx.webkit.WebViewOnUiThread();
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testVisualStateCallbackCalled. Modifications to this test
+     * should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testVisualStateCallbackCalled() throws Exception {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.VISUAL_STATE_CALLBACK));
@@ -120,6 +125,11 @@ public class WebViewCompatTest {
         }
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testStartSafeBrowsingUseApplicationContext. Modifications to
+     * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testStartSafeBrowsingUseApplicationContext() throws Exception {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING));
@@ -137,6 +147,12 @@ public class WebViewCompatTest {
         assertTrue(resultLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testStartSafeBrowsingWithNullCallbackDoesntCrash.
+     * Modifications to this test should be reflected in that test as necessary. See
+     * http://go/modifying-webview-cts.
+     */
     @Test
     public void testStartSafeBrowsingWithNullCallbackDoesntCrash() throws Exception {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING));
@@ -144,6 +160,11 @@ public class WebViewCompatTest {
         WebViewCompat.startSafeBrowsing(InstrumentationRegistry.getTargetContext(), null);
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testStartSafeBrowsingInvokesCallback. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testStartSafeBrowsingInvokesCallback() throws Exception {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING));
@@ -161,6 +182,12 @@ public class WebViewCompatTest {
         assertTrue(resultLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testSetSafeBrowsingWhitelistWithMalformedList. Modifications
+     * to this test should be reflected in that test as necessary. See
+     * http://go/modifying-webview-cts.
+     */
     @Test
     public void testSetSafeBrowsingWhitelistWithMalformedList() throws Exception {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_WHITELIST));
@@ -179,6 +206,11 @@ public class WebViewCompatTest {
         assertTrue(resultLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testSetSafeBrowsingWhitelistWithValidList. Modifications to
+     * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testSetSafeBrowsingWhitelistWithValidList() throws Exception {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_WHITELIST));
@@ -218,6 +250,11 @@ public class WebViewCompatTest {
         assertTrue(resultLatch2.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testGetSafeBrowsingPrivacyPolicyUrl. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testGetSafeBrowsingPrivacyPolicyUrl() throws Exception {
         assumeTrue(
@@ -231,6 +268,11 @@ public class WebViewCompatTest {
         }
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testGetWebViewClient. Modifications to this test should be
+     * reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testGetWebViewClient() throws Exception {
@@ -250,6 +292,11 @@ public class WebViewCompatTest {
         assertSame(client2, WebViewOnUiThread.getWebViewClient(webView));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewTest#testGetWebChromeClient. Modifications to this test should be
+     * reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testGetWebChromeClient() throws Exception {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.GET_WEB_CHROME_CLIENT));
