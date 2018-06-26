@@ -37,7 +37,7 @@ public class Preferences {
     private static final String PREFERENCES_FILE_NAME = "androidx.work.util.preferences";
 
     private static final String KEY_LAST_CANCEL_ALL_TIME_MS = "last_cancel_all_time_ms";
-    private static final String KEY_MIGRATE_PERSISTED_JOBS = "migrate_persisted_jobs";
+    private static final String KEY_RESCHEDULE_NEEDED = "reschedule_needed";
 
     private SharedPreferences mSharedPreferences;
 
@@ -46,7 +46,7 @@ public class Preferences {
     }
 
     @VisibleForTesting
-    Preferences(@NonNull SharedPreferences preferences) {
+    public Preferences(@NonNull SharedPreferences preferences) {
         mSharedPreferences = preferences;
     }
 
@@ -75,20 +75,19 @@ public class Preferences {
     }
 
     /**
-     * @return {@code true} When we should migrate from persisted jobs to non-persisted jobs in
-     * {@link android.app.job.JobScheduler}
+     * @return {@code true} When we should reschedule workers.
      */
-    public boolean shouldMigratePersistedJobs() {
+    public boolean needsReschedule() {
+        // This preference is being set by a Room Migration.
         // TODO Remove this before WorkManager 1.0 beta.
-        return mSharedPreferences.getBoolean(KEY_MIGRATE_PERSISTED_JOBS, true);
+        return mSharedPreferences.getBoolean(KEY_RESCHEDULE_NEEDED, false);
     }
 
     /**
-     * Updates the key which indicates that we have migrated all our persisted jobs in
-     * {@link android.app.job.JobScheduler}.
+     * Updates the key which indicates that we have rescheduled jobs.
      */
-    public void setMigratedPersistedJobs() {
-        mSharedPreferences.edit().putBoolean(KEY_MIGRATE_PERSISTED_JOBS, false).apply();
+    public void setNeedsReschedule(boolean needsReschedule) {
+        mSharedPreferences.edit().putBoolean(KEY_RESCHEDULE_NEEDED, needsReschedule).apply();
     }
 
     /**
