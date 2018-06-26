@@ -24,6 +24,7 @@ limitations under the License.
     <style name="Theme.Car.NoActionBar" parent="Theme.AppCompat.NoActionBar">
         <item name="android:alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
         <item name="android:colorAccent">@color/car_accent_light</item>
+        <item name="android:colorForeground">@color/car_body2_light</item>
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="android:buttonStyle">@style/Widget.Car.Button.DarkText</item>
         <item name="android:checkboxStyle">@style/Widget.Car.CheckBox</item>
@@ -43,8 +44,10 @@ limitations under the License.
         <item name="actionMenuTextColor">?android:attr/colorButtonNormal</item>
         <item name="alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
         <item name="carDialogTheme">@style/Theme.Car.Dark.Dialog</item>
+        <item name="colorAccent">?attr/android:colorAccent</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background_light</item>
         <item name="colorPrimary">@color/car_card_dark</item>
+        <item name="colorSwitchThumbNormal">@color/car_body2_light</item>
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
@@ -62,6 +65,7 @@ limitations under the License.
         <item name="android:colorAccent">@color/car_accent</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
         <item name="android:colorControlHighlight">@color/car_card_ripple_background</item>
+        <item name="android:colorForeground">@color/car_body2</item>
         <item name="android:colorPrimary">@color/car_card</item>
         <item name="android:buttonStyle">@style/Widget.Car.Button</item>
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
@@ -77,8 +81,10 @@ limitations under the License.
         <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/colorButtonNormal</item>
         <item name="carDialogTheme">@style/Theme.Car.Dialog</item>
+        <item name="colorAccent">?attr/android:colorAccent</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background</item>
         <item name="colorPrimary">@color/car_card</item>
+        <item name="colorSwitchThumbNormal">@color/car_body2</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
@@ -218,7 +224,6 @@ limitations under the License.
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
     </style>
-
 
     <!-- ================ -->
     <!-- Preference Theme -->
