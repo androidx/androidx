@@ -158,7 +158,7 @@ public class SampleSliceProvider extends SliceProvider {
             case "/toggle2":
                 return createTwoCustomToggleSlices(sliceUri);
             case "/toggletester":
-                return createdToggleTesterSlice(sliceUri);
+                return createToggleTesterSlice(sliceUri);
             case "/contact":
                 return createContact(sliceUri);
             case "/contact2":
@@ -203,7 +203,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createWeather(Uri sliceUri) {
-        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+        SliceAction primaryAction = SliceAction.create(getBroadcastIntent(ACTION_TOAST,
                 "open weather app"),
                 IconCompat.createWithResource(getContext(), R.drawable.weather_1), SMALL_IMAGE,
                 "Weather is happening!");
@@ -247,7 +247,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createGallery(Uri sliceUri) {
-        SliceAction primaryAction = new SliceAction(
+        SliceAction primaryAction = SliceAction.create(
                 getBroadcastIntent(ACTION_TOAST, "open photo album"),
                 IconCompat.createWithResource(getContext(), R.drawable.slices_1),
                 LARGE_IMAGE,
@@ -258,14 +258,14 @@ public class SampleSliceProvider extends SliceProvider {
                 .setTitle("Family trip to Hawaii")
                 .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
                 .setPrimaryAction(primaryAction))
-                .addAction(new SliceAction(
+                .addAction(SliceAction.create(
                         getBroadcastIntent(ACTION_TOAST, "cast photo album"),
-                        IconCompat.createWithResource(getContext(), R.drawable.ic_cast),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_cast), ICON_IMAGE,
                         "Cast photo album"))
-                .addAction(new SliceAction(
+                .addAction(SliceAction.create(
                         getBroadcastIntent(ACTION_TOAST, "share photo album"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_share),
-                        "Share photo album"));
+                        ICON_IMAGE, "Share photo album"));
         int[] galleryResId = new int[] {R.drawable.slices_1, R.drawable.slices_2,
                 R.drawable.slices_3, R.drawable.slices_4};
         int imageCount = 7;
@@ -298,7 +298,7 @@ public class SampleSliceProvider extends SliceProvider {
                 summary.append(", ");
             }
         }
-        SliceAction primaryAction = new SliceAction(
+        SliceAction primaryAction = SliceAction.create(
                 getBroadcastIntent(ACTION_TOAST, "open nearby pizza places"),
                 IconCompat.createWithResource(getContext(), R.drawable.pizza3),
                 LARGE_IMAGE,
@@ -329,7 +329,7 @@ public class SampleSliceProvider extends SliceProvider {
         GridRowBuilder gb = new GridRowBuilder();
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "Cats you follow");
         IconCompat ic = IconCompat.createWithResource(getContext(), R.drawable.cat);
-        SliceAction primaryAction = new SliceAction(pi, ic, LARGE_IMAGE, "Cats you follow");
+        SliceAction primaryAction = SliceAction.create(pi, ic, LARGE_IMAGE, "Cats you follow");
         gb.setPrimaryAction(primaryAction);
         gb.addCell(new GridRowBuilder.CellBuilder()
                 .addImage(ic, LARGE_IMAGE));
@@ -341,7 +341,7 @@ public class SampleSliceProvider extends SliceProvider {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb = new GridRowBuilder();
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "Cats you follow");
-        SliceAction primaryAction = new SliceAction(pi,
+        SliceAction primaryAction = SliceAction.create(pi,
                 IconCompat.createWithResource(getContext(), R.drawable.cat_1),
                 SMALL_IMAGE, "Cats you follow");
         b.setHeader(new HeaderBuilder().setTitle("Cats you follow")
@@ -388,8 +388,8 @@ public class SampleSliceProvider extends SliceProvider {
         ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder();
         GridRowBuilder gb = new GridRowBuilder();
         IconCompat ic = IconCompat.createWithResource(getContext(), R.drawable.mady);
-        SliceAction sliceAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View contact"),
-                ic, SMALL_IMAGE, "View contact");
+        SliceAction sliceAction = SliceAction.create(getBroadcastIntent(ACTION_TOAST,
+                "View contact"), ic, SMALL_IMAGE, "View contact");
         return b.setAccentColor(0xff3949ab)
                 .addRow(rb
                         .setTitle("Mady Pitza")
@@ -427,7 +427,7 @@ public class SampleSliceProvider extends SliceProvider {
         CharSequence lastCalledString = DateUtils.getRelativeTimeSpanString(lastCalled,
                 Calendar.getInstance().getTimeInMillis(),
                 DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
-        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+        SliceAction primaryAction = SliceAction.create(getBroadcastIntent(ACTION_TOAST,
                 "See contact info"), IconCompat.createWithResource(getContext(),
                 R.drawable.mady), SMALL_IMAGE, "Mady");
 
@@ -450,24 +450,24 @@ public class SampleSliceProvider extends SliceProvider {
                                 ICON_IMAGE)
                         .setTitle("You: Coooooool see you then")
                         .addEndItem(System.currentTimeMillis() - 40 * DateUtils.MINUTE_IN_MILLIS))
-                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "call"),
+                .addAction(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "call"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_call),
-                        "Call mady"))
-                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "text"),
+                        ICON_IMAGE, "Call mady"))
+                .addAction(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "text"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_text),
-                        "Text mady"))
-                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "video"),
+                        ICON_IMAGE, "Text mady"))
+                .addAction(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "video"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_video),
-                        "Video call mady"))
-                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "email"),
+                        ICON_IMAGE, "Video call mady"))
+                .addAction(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "email"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_email),
-                        "Email mady"))
+                        ICON_IMAGE, "Email mady"))
                 .build();
     }
 
     private Slice createContact3(Uri sliceUri) {
-        SliceAction sendEmail = new SliceAction(getBroadcastIntent(ACTION_TOAST, "send email"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_email),
+        SliceAction sendEmail = SliceAction.create(getBroadcastIntent(ACTION_TOAST, "send email"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_email), ICON_IMAGE,
                 "send contact email");
         return new ListBuilder(getContext(), sliceUri, INFINITY).addRow(new RowBuilder()
                 .setTitle("Mady")
@@ -478,11 +478,11 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createContact4(Uri sliceUri) {
-        SliceAction sendEmail = new SliceAction(getBroadcastIntent(ACTION_TOAST, "send email"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_email),
+        SliceAction sendEmail = SliceAction.create(getBroadcastIntent(ACTION_TOAST, "send email"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_email), ICON_IMAGE,
                 "send contact email");
-        SliceAction sendNote = new SliceAction(getBroadcastIntent(ACTION_TOAST, "send note"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_note),
+        SliceAction sendNote = SliceAction.create(getBroadcastIntent(ACTION_TOAST, "send note"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_note), ICON_IMAGE,
                 "send contact note");
         return new ListBuilder(getContext(), sliceUri, INFINITY).addRow(new RowBuilder()
                 .setTitle("Mady")
@@ -514,8 +514,8 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createNoteSlice(Uri sliceUri) {
         // TODO: Remote input.
-        SliceAction createNote = new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_create),
+        SliceAction createNote = SliceAction.create(getBroadcastIntent(ACTION_TOAST, "create note"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_create), ICON_IMAGE,
                 "Create note");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xfff4b400)
@@ -523,12 +523,12 @@ public class SampleSliceProvider extends SliceProvider {
                         .setTitle("Create new note")
                         .setPrimaryAction(createNote))
                 .addAction(createNote)
-                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
+                .addAction(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "voice note"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_voice),
-                        "Voice note"))
-                .addAction(new SliceAction(getIntent("android.media.action.IMAGE_CAPTURE"),
+                        ICON_IMAGE, "Voice note"))
+                .addAction(SliceAction.create(getIntent("android.media.action.IMAGE_CAPTURE"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_camera),
-                        "Photo note"))
+                        ICON_IMAGE, "Photo note"))
                 .build();
     }
 
@@ -552,8 +552,9 @@ public class SampleSliceProvider extends SliceProvider {
         }
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xfff4b400);
-        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "Open grocery note"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_note),
+        SliceAction action = SliceAction.create(getBroadcastIntent(ACTION_TOAST,
+                "Open grocery note"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_note), ICON_IMAGE,
                 "Grocery list");
         lb.setHeader(new HeaderBuilder().setTitle("Grocery list")
                 .setSubtitle("Shared with 2 others")
@@ -563,7 +564,7 @@ public class SampleSliceProvider extends SliceProvider {
             ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder();
             rb.setTitle(sGroceryList.get(i));
 
-            SliceAction checkBox = new SliceAction(getGroceryIntent(i),
+            SliceAction checkBox = SliceAction.createToggle(getGroceryIntent(i),
                     IconCompat.createWithResource(getContext(), R.drawable.toggle_check),
                      "Check", false /* unchecked */);
             rb.setTitleItem(checkBox);
@@ -573,7 +574,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createReservationSlice(Uri sliceUri) {
-        SliceAction sliceAction = new SliceAction(
+        SliceAction sliceAction = SliceAction.create(
                 getBroadcastIntent(ACTION_TOAST, "View reservation"),
                 IconCompat.createWithResource(getContext(),
                 R.drawable.reservation), LARGE_IMAGE, "View reservation");
@@ -583,12 +584,12 @@ public class SampleSliceProvider extends SliceProvider {
                         .setTitle("Upcoming trip to Seattle")
                         .setSubtitle("Feb 1 - 19 | 2 guests")
                         .setPrimaryAction(sliceAction))
-                .addAction(new SliceAction(
+                .addAction(SliceAction.create(
                         getBroadcastIntent(ACTION_TOAST, "show location on map"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_location),
-                        "Show reservation location"))
-                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "contact host"),
-                        IconCompat.createWithResource(getContext(), R.drawable.ic_text),
+                        ICON_IMAGE, "Show reservation location"))
+                .addAction(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "contact host"),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_text), ICON_IMAGE,
                         "Contact host"))
                 .addGridRow(new GridRowBuilder()
                         .addCell(new CellBuilder()
@@ -615,8 +616,9 @@ public class SampleSliceProvider extends SliceProvider {
         SpannableString workSubtitle = new SpannableString("44 miles | 1 hour 45 min | $31.41");
         workSubtitle.setSpan(colorSpan, 27, workSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
+        SliceAction primaryAction = SliceAction.create(getBroadcastIntent(ACTION_TOAST, "get ride"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_car),
+                ICON_IMAGE, "Get Ride");
         return new ListBuilder(getContext(), sliceUri, TimeUnit.SECONDS.toMillis(10))
                 .setAccentColor(0xff0F9D58)
                 .setHeader(new HeaderBuilder()
@@ -627,15 +629,15 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(new RowBuilder()
                         .setTitle("Work")
                         .setSubtitle(workSubtitle)
-                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "work"),
+                        .addEndItem(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "work"),
                                 IconCompat.createWithResource(getContext(), R.drawable.ic_work),
-                                "Get ride to work")))
+                                ICON_IMAGE, "Get ride to work")))
                 .addRow(new RowBuilder()
                         .setTitle("Home")
                         .setSubtitle(homeSubtitle)
-                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "home"),
+                        .addEndItem(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "home"),
                                 IconCompat.createWithResource(getContext(), R.drawable.ic_home),
-                                "Get ride home")))
+                                ICON_IMAGE, "Get ride home")))
                 .build();
     }
 
@@ -645,7 +647,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(new RowBuilder()
                         .setTitle("Custom toggle")
                         .setSubtitle("It can support two states")
-                        .setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                        .setPrimaryAction(SliceAction.createToggle(getBroadcastIntent(ACTION_TOAST,
                                 "star toggled"),
                                 IconCompat.createWithResource(getContext(), R.drawable.toggle_star),
                                 "Toggle star", true /* isChecked */)))
@@ -658,15 +660,15 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(new RowBuilder()
                         .setTitle("2 toggles")
                         .setSubtitle("each supports two states")
-                        .setPrimaryAction(new SliceAction(
+                        .setPrimaryAction(SliceAction.create(
                                 getBroadcastIntent(ACTION_TOAST, "open toggle app"),
                                 IconCompat.createWithResource(getContext(), R.drawable.ic_star_on),
-                                "Toggles"))
-                        .addEndItem(new SliceAction(
+                                ICON_IMAGE, "Toggles"))
+                        .addEndItem(SliceAction.createToggle(
                                 getBroadcastIntent(ACTION_TOAST, "first star toggled"),
                                 IconCompat.createWithResource(getContext(), R.drawable.toggle_star),
                                 "Toggle star", true /* isChecked */))
-                        .addEndItem(new SliceAction(
+                        .addEndItem(SliceAction.createToggle(
                                 getBroadcastIntent(ACTION_TOAST, "second star toggled"),
                                 IconCompat.createWithResource(getContext(), R.drawable.toggle_star),
                                 "Toggle star", false /* isChecked */)))
@@ -698,8 +700,9 @@ public class SampleSliceProvider extends SliceProvider {
 
         // Set the first row as a toggle
         boolean finalWifiEnabled = wifiEnabled;
-        SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
+        SliceAction primaryAction = SliceAction.create(getIntent(Settings.ACTION_WIFI_SETTINGS),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_wifi),
+                ICON_IMAGE, "Wi-fi Settings");
         String toggleCDString = wifiEnabled ? "Turn wifi off" : "Turn wifi on";
         String sliceCDString = wifiEnabled ? "Wifi connected to " + state
                 : "Wifi disconnected, 10 networks available";
@@ -710,7 +713,7 @@ public class SampleSliceProvider extends SliceProvider {
                         .setSubtitle(state)
                         .setContentDescription(sliceCDString)
                         .setPrimaryAction(primaryAction))
-                .addAction((new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
+                .addAction((SliceAction.createToggle(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
                         toggleCDString, finalWifiEnabled)));
 
         // Add fake wifi networks
@@ -731,8 +734,8 @@ public class SampleSliceProvider extends SliceProvider {
                 rb.setContentDescription("Connect to " + networkName);
             }
             String message = locked ? "Open wifi password dialog" : "Connect to " + networkName;
-            rb.setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, message), icon,
-                    message));
+            rb.setPrimaryAction(SliceAction.create(
+                    getBroadcastIntent(ACTION_TOAST, message), icon, ICON_IMAGE, message));
             lb.addRow(rb);
         }
 
@@ -758,9 +761,8 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createStarRatingInputRange(Uri sliceUri) {
         IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
-        SliceAction primaryAction =
-                new SliceAction(getBroadcastIntent(ACTION_TOAST, "open star rating"),
-                        icon, "Rate");
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open star rating"), icon, ICON_IMAGE, "Rate");
         String subtitle = "Rated " + sStarRating;
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
@@ -779,9 +781,8 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createDownloadProgressRange(Uri sliceUri) {
         IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
-        SliceAction primaryAction =
-                new SliceAction(
-                        getBroadcastIntent(ACTION_TOAST, "open download"), icon, "Download");
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open download"), icon, ICON_IMAGE,  "Download");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
                 .addRange(new RangeBuilder()
@@ -793,17 +794,18 @@ public class SampleSliceProvider extends SliceProvider {
                 .build();
     }
 
-    private Slice createdToggleTesterSlice(Uri uri) {
+    private Slice createToggleTesterSlice(Uri uri) {
         IconCompat star = IconCompat.createWithResource(getContext(), R.drawable.toggle_star);
         IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
 
-        SliceAction primaryAction = new SliceAction(
-                getBroadcastIntent(ACTION_TOAST, "primary action"), icon, "Primary action");
-        SliceAction toggleAction = new SliceAction(
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "primary action"), icon,
+                ICON_IMAGE, "Primary action");
+        SliceAction toggleAction = SliceAction.createToggle(
                 getBroadcastIntent(ACTION_TOAST, "star note"), star, "Star note", false);
-        SliceAction toggleAction2 = new SliceAction(
+        SliceAction toggleAction2 = SliceAction.createToggle(
                 getBroadcastIntent(ACTION_TOAST, "star note 2"), star, "Star note 2", true);
-        SliceAction toggleAction3 = new SliceAction(
+        SliceAction toggleAction3 = SliceAction.createToggle(
                 getBroadcastIntent(ACTION_TOAST, "star note 3"), star, "Star note 3", false);
 
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
@@ -869,9 +871,9 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createRtlGridSlice(Uri uri) {
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
-        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+        SliceAction action = SliceAction.create(getBroadcastIntent(ACTION_TOAST,
                 "Open language practice"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_speak),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_speak), ICON_IMAGE,
                 "Language practice");
         lb.setHeader(new HeaderBuilder()
                 .setTitle("Language practice")
@@ -904,8 +906,9 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createTranslationSlice(Uri uri) {
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
-        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View translations"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_speak),
+        SliceAction action = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "View translations"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_speak), ICON_IMAGE,
                 "Translations");
         return lb.setLayoutDirection(View.LAYOUT_DIRECTION_LTR)
                 .setHeader(new HeaderBuilder()
@@ -934,7 +937,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private SliceAction getSpeakWordAction(String word) {
-        return new SliceAction(getBroadcastIntent(ACTION_TOAST, word),
+        return SliceAction.create(getBroadcastIntent(ACTION_TOAST, word),
                 IconCompat.createWithResource(getContext(), R.drawable.ic_speak), ICON_IMAGE,
                 "Hear " + word);
     }
@@ -943,10 +946,10 @@ public class SampleSliceProvider extends SliceProvider {
         IconCompat ic2 = IconCompat.createWithResource(getContext(), R.drawable.ic_create);
         IconCompat image = IconCompat.createWithResource(getContext(), R.drawable.cat_3);
         IconCompat toggle = IconCompat.createWithResource(getContext(), R.drawable.toggle_star);
-        SliceAction toggleAction = new SliceAction(
+        SliceAction toggleAction = SliceAction.createToggle(
                 getBroadcastIntent(ACTION_TOAST, "toggle action"), toggle, "toggle", false);
-        SliceAction simpleAction = new SliceAction(
-                getBroadcastIntent(ACTION_TOAST, "icon action"), ic2, "icon");
+        SliceAction simpleAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "icon action"), ic2, ICON_IMAGE, "icon");
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
         return lb.addRow(new ListBuilder.RowBuilder()
                         .setTitle("Single title")
@@ -978,8 +981,8 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createErrorSlice(Uri uri) {
         IconCompat ic2 = IconCompat.createWithResource(getContext(), R.drawable.ic_error);
-        SliceAction simpleAction = new SliceAction(
-                getBroadcastIntent(ACTION_TOAST, "error slice tapped"), ic2, "icon");
+        SliceAction simpleAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "error slice tapped"), ic2, ICON_IMAGE, "icon");
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
         return lb.setIsError(true)
                 .addRow(new RowBuilder()
@@ -1024,8 +1027,10 @@ public class SampleSliceProvider extends SliceProvider {
         CharSequence work = mListSummaries.get(0, "");
         CharSequence home = mListSummaries.get(1, "");
         CharSequence school = mListSummaries.get(2, "");
-        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View traffic info"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Traffic info");
+        SliceAction action = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "View traffic info"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_car),
+                ICON_IMAGE, "Traffic info");
         Slice s = new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(50))
                 .addRow(new RowBuilder()
                         .setTitle("Work")
@@ -1075,8 +1080,10 @@ public class SampleSliceProvider extends SliceProvider {
         CharSequence home = mGridSummaries.get(2, "");
         CharSequence work = mGridSummaries.get(3, "");
         CharSequence school = mGridSummaries.get(4, "");
-        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View traffic info"),
-                IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Traffic info");
+        SliceAction action = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "View traffic info"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_car),
+                ICON_IMAGE, "Traffic info");
         Slice s = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setHeader(new HeaderBuilder()
                         .setTitle(title,
