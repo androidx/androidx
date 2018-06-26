@@ -41,6 +41,7 @@ import java.util.List;
                 MigrationDb.Entity4.class})
 public abstract class MigrationDb extends RoomDatabase {
     static final int LATEST_VERSION = 7;
+    static final int MAX_VERSION = 1000;
     abstract MigrationDao dao();
     @Entity(indices = {@Index(value = "name", unique = true)})
     static class Entity1 {

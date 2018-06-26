@@ -1,7 +1,9 @@
 package androidx.room {
 
   public class DatabaseConfiguration {
-    method public boolean isMigrationRequiredFrom(int);
+    method public boolean isMigrationRequired(int, int);
+    method public deprecated boolean isMigrationRequiredFrom(int);
+    field public final boolean allowDestructiveMigrationOnDowngrade;
     field public final boolean allowMainThreadQueries;
     field public final java.util.List<androidx.room.RoomDatabase.Callback> callbacks;
     field public final android.content.Context context;
@@ -64,6 +66,7 @@ package androidx.room {
     method public T build();
     method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigration();
     method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(int...);
+    method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade();
     method public androidx.room.RoomDatabase.Builder<T> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory);
     method public androidx.room.RoomDatabase.Builder<T> setJournalMode(androidx.room.RoomDatabase.JournalMode);
     method public androidx.room.RoomDatabase.Builder<T> setQueryExecutor(java.util.concurrent.Executor);

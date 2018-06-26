@@ -91,7 +91,8 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
             }
         }
         if (!migrated) {
-            if (mConfiguration != null && !mConfiguration.isMigrationRequiredFrom(oldVersion)) {
+            if (mConfiguration != null
+                    && !mConfiguration.isMigrationRequired(oldVersion, newVersion)) {
                 mDelegate.dropAllTables(db);
                 mDelegate.createAllTables(db);
             } else {

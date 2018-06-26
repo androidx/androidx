@@ -146,6 +146,9 @@ public class BuilderTest {
         DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
         assertThat(config.isMigrationRequiredFrom(1), is(false));
         assertThat(config.isMigrationRequiredFrom(2), is(false));
+
+        assertThat(config.isMigrationRequired(1, 2), is(false));
+        assertThat(config.isMigrationRequired(2, 3), is(false));
     }
 
     @Test
@@ -161,6 +164,11 @@ public class BuilderTest {
         assertThat(config.isMigrationRequiredFrom(2), is(false));
         assertThat(config.isMigrationRequiredFrom(3), is(false));
         assertThat(config.isMigrationRequiredFrom(4), is(false));
+
+        assertThat(config.isMigrationRequired(1, 2), is(false));
+        assertThat(config.isMigrationRequired(2, 3), is(false));
+        assertThat(config.isMigrationRequired(3, 4), is(false));
+        assertThat(config.isMigrationRequired(4, 5), is(false));
     }
 
     @Test
@@ -177,6 +185,68 @@ public class BuilderTest {
         assertThat(config.isMigrationRequiredFrom(5), is(false));
         assertThat(config.isMigrationRequiredFrom(12), is(false));
         assertThat(config.isMigrationRequiredFrom(132), is(false));
+
+        // Upgrades
+        assertThat(config.isMigrationRequired(0, 1), is(false));
+        assertThat(config.isMigrationRequired(1, 2), is(false));
+        assertThat(config.isMigrationRequired(5, 6), is(false));
+        assertThat(config.isMigrationRequired(7, 12), is(false));
+        assertThat(config.isMigrationRequired(132, 150), is(false));
+
+        // Downgrades
+        assertThat(config.isMigrationRequired(1, 0), is(false));
+        assertThat(config.isMigrationRequired(2, 1), is(false));
+        assertThat(config.isMigrationRequired(6, 5), is(false));
+        assertThat(config.isMigrationRequired(7, 12), is(false));
+        assertThat(config.isMigrationRequired(150, 132), is(false));
+    }
+
+    @Test
+    public void isMigrationRequired_destructiveMigrationOnDowngrade_returnTrueWhenUpgrading() {
+        Context context = mock(Context.class);
+
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
+                .fallbackToDestructiveMigrationOnDowngrade()
+                .build();
+
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+
+        // isMigrationRequiredFrom doesn't know about downgrade only so it always returns true
+        assertThat(config.isMigrationRequiredFrom(0), is(true));
+        assertThat(config.isMigrationRequiredFrom(1), is(true));
+        assertThat(config.isMigrationRequiredFrom(5), is(true));
+        assertThat(config.isMigrationRequiredFrom(12), is(true));
+        assertThat(config.isMigrationRequiredFrom(132), is(true));
+
+        assertThat(config.isMigrationRequired(0, 1), is(true));
+        assertThat(config.isMigrationRequired(1, 2), is(true));
+        assertThat(config.isMigrationRequired(5, 6), is(true));
+        assertThat(config.isMigrationRequired(7, 12), is(true));
+        assertThat(config.isMigrationRequired(132, 150), is(true));
+    }
+
+    @Test
+    public void isMigrationRequired_destructiveMigrationOnDowngrade_returnFalseWhenDowngrading() {
+        Context context = mock(Context.class);
+
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
+                .fallbackToDestructiveMigrationOnDowngrade()
+                .build();
+
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+
+        // isMigrationRequiredFrom doesn't know about downgrade only so it always returns true
+        assertThat(config.isMigrationRequiredFrom(0), is(true));
+        assertThat(config.isMigrationRequiredFrom(1), is(true));
+        assertThat(config.isMigrationRequiredFrom(5), is(true));
+        assertThat(config.isMigrationRequiredFrom(12), is(true));
+        assertThat(config.isMigrationRequiredFrom(132), is(true));
+
+        assertThat(config.isMigrationRequired(1, 0), is(false));
+        assertThat(config.isMigrationRequired(2, 1), is(false));
+        assertThat(config.isMigrationRequired(6 , 5), is(false));
+        assertThat(config.isMigrationRequired(12, 7), is(false));
+        assertThat(config.isMigrationRequired(150, 132), is(false));
     }
 
     @Test
@@ -192,6 +262,20 @@ public class BuilderTest {
         assertThat(config.isMigrationRequiredFrom(5), is(true));
         assertThat(config.isMigrationRequiredFrom(12), is(true));
         assertThat(config.isMigrationRequiredFrom(132), is(true));
+
+        // Upgrades
+        assertThat(config.isMigrationRequired(0, 1), is(true));
+        assertThat(config.isMigrationRequired(1, 2), is(true));
+        assertThat(config.isMigrationRequired(5, 6), is(true));
+        assertThat(config.isMigrationRequired(7, 12), is(true));
+        assertThat(config.isMigrationRequired(132, 150), is(true));
+
+        // Downgrades
+        assertThat(config.isMigrationRequired(1, 0), is(true));
+        assertThat(config.isMigrationRequired(2, 1), is(true));
+        assertThat(config.isMigrationRequired(6, 5), is(true));
+        assertThat(config.isMigrationRequired(7, 12), is(true));
+        assertThat(config.isMigrationRequired(150, 132), is(true));
     }
 
     @Test
@@ -206,6 +290,10 @@ public class BuilderTest {
         assertThat(config.isMigrationRequiredFrom(1), is(false));
         assertThat(config.isMigrationRequiredFrom(4), is(false));
         assertThat(config.isMigrationRequiredFrom(81), is(false));
+
+        assertThat(config.isMigrationRequired(1, 2), is(false));
+        assertThat(config.isMigrationRequired(4, 8), is(false));
+        assertThat(config.isMigrationRequired(81, 90), is(false));
     }
 
     @Test
@@ -220,6 +308,33 @@ public class BuilderTest {
         assertThat(config.isMigrationRequiredFrom(2), is(true));
         assertThat(config.isMigrationRequiredFrom(3), is(true));
         assertThat(config.isMigrationRequiredFrom(73), is(true));
+
+        assertThat(config.isMigrationRequired(2, 3), is(true));
+        assertThat(config.isMigrationRequired(3, 4), is(true));
+        assertThat(config.isMigrationRequired(73, 80), is(true));
+    }
+
+    @Test
+    public void fallbackToDestructiveMigrationOnDowngrade_withProvidedValues_falseForDowngrades() {
+        Context context = mock(Context.class);
+
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
+                .fallbackToDestructiveMigrationOnDowngrade()
+                .fallbackToDestructiveMigrationFrom(2, 4).build();
+
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+
+        assertThat(config.isMigrationRequired(1, 2), is(true));
+        assertThat(config.isMigrationRequired(2, 3), is(false));
+        assertThat(config.isMigrationRequired(3, 4), is(true));
+        assertThat(config.isMigrationRequired(4, 5), is(false));
+        assertThat(config.isMigrationRequired(5, 6), is(true));
+
+        assertThat(config.isMigrationRequired(2, 1), is(false));
+        assertThat(config.isMigrationRequired(3, 2), is(false));
+        assertThat(config.isMigrationRequired(4, 3), is(false));
+        assertThat(config.isMigrationRequired(5, 4), is(false));
+        assertThat(config.isMigrationRequired(6, 5), is(false));
     }
 
     @Test

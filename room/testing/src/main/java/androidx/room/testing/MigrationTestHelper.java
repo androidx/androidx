@@ -144,10 +144,17 @@ public class MigrationTestHelper extends TestWatcher {
         SchemaBundle schemaBundle = loadSchema(version);
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mInstrumentation.getTargetContext(), name, mOpenFactory, container, null, true,
+                mInstrumentation.getTargetContext(),
+                name,
+                mOpenFactory,
+                container,
+                null,
+                true,
                 RoomDatabase.JournalMode.TRUNCATE,
                 ArchTaskExecutor.getIOThreadExecutor(),
-                true, Collections.<Integer>emptySet());
+                true,
+                false,
+                Collections.<Integer>emptySet());
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash(),
@@ -201,6 +208,7 @@ public class MigrationTestHelper extends TestWatcher {
                 RoomDatabase.JournalMode.TRUNCATE,
                 ArchTaskExecutor.getIOThreadExecutor(),
                 true,
+                false,
                 Collections.<Integer>emptySet());
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
