@@ -26,6 +26,7 @@ import androidx.room.vo.FieldSetter
 import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import com.google.testing.compile.JavaFileObjects
+import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -68,6 +69,26 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+    }
+
+    @Test
+    fun noGetterInLibraryClass() {
+        val libraryClassLoader = compileLibrarySource(
+                "test.library.MissingGetterEntity",
+                """
+                @Entity
+                public class MissingGetterEntity {
+                    @PrimaryKey
+                    private long id;
+                    public void setId(int id) {this.id = id;}
+                }
+                """)
+        singleEntity("",
+                baseClass = "test.library.MissingGetterEntity",
+                classLoader = libraryClassLoader) { _, _ -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD +
+                        " - id in test.library.MissingGetterEntity")
     }
 
     @Test
@@ -351,8 +372,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo",
                             unique = false,
@@ -387,8 +407,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
@@ -409,8 +428,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public String foo;
                 @ColumnInfo(name = "bar_column")
                 public String bar;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
@@ -432,8 +450,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(
                             name = "index_MyEntity_foo_id",
@@ -453,8 +470,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "myName",
                             unique = false,
@@ -474,8 +490,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyTable_foo",
                             unique = false,
@@ -494,8 +509,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { _, _ ->
+                """, annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
         )
@@ -511,8 +525,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { _, _ ->
+                """, annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.indexColumnDoesNotExist("bar", listOf("id, foo"))
         )
@@ -529,8 +542,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 @ColumnInfo(index = true)
                 public String foo;
-                """
-                , annotation) { _, _ ->
+                """, annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.duplicateIndexInEntity("index_MyEntity_foo")
         )

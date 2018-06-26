@@ -30,6 +30,7 @@ import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
+import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
@@ -227,6 +228,50 @@ class DatabaseProcessorTest {
                 ProcessorErrors.duplicateTableNames("user",
                         listOf("foo.bar.User", "foo.bar.AnotherClass"))
         )
+    }
+
+    @Test
+    fun detectMissingEntityAnnotationInLibraryClass() {
+        val libraryClassLoader = compileLibrarySource(
+                "test.library.MissingEntityAnnotationPojo",
+                """
+                public class MissingEntityAnnotationPojo {
+                    @PrimaryKey
+                    private long id;
+
+                    public void setId(int id) {this.id = id;}
+                    public long getId() {return this.id;}
+                }
+                """)
+        singleDb("""
+                @Database(entities = {test.library.MissingEntityAnnotationPojo.class}, version = 1)
+                public abstract class MyDb extends RoomDatabase {}
+                """,
+                classLoader = libraryClassLoader) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY +
+                        " - test.library.MissingEntityAnnotationPojo")
+    }
+
+    @Test
+    fun detectMissingDaoAnnotationInLibraryClass() {
+        val libraryClassLoader = compileLibrarySource(
+                "test.library.MissingAnnotationsBaseDao",
+                """
+                public interface MissingAnnotationsBaseDao {
+                    int getFoo();
+                }
+                """)
+
+        singleDb("""
+                @Database(entities = {User.class}, version = 1)
+                public abstract class MyDb extends RoomDatabase {
+                    abstract test.library.MissingAnnotationsBaseDao getBadDao();
+                }
+                """, USER, classLoader = libraryClassLoader) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO +
+                        " - test.library.MissingAnnotationsBaseDao")
     }
 
     @Test
@@ -687,13 +732,18 @@ class DatabaseProcessorTest {
                 .processedWith(RoomProcessor())
     }
 
-    fun singleDb(input: String, vararg otherFiles: JavaFileObject,
-                 handler: (Database, TestInvocation) -> Unit): CompileTester {
+    fun singleDb(
+        input: String,
+        vararg otherFiles: JavaFileObject,
+        classLoader: ClassLoader = javaClass.classLoader,
+        handler: (Database, TestInvocation) -> Unit
+    ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(otherFiles.toMutableList()
-                        + JavaFileObjects.forSourceString("foo.bar.MyDb",
+                .that(otherFiles.toMutableList() +
+                        JavaFileObjects.forSourceString("foo.bar.MyDb",
                         DATABASE_PREFIX + input
                 ))
+                .withClasspathFrom(classLoader)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Database::class)
                         .nextRunHandler { invocation ->

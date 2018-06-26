@@ -40,10 +40,14 @@ abstract class BaseEntityParserTest {
         const val ENTITY_SUFFIX = "}"
     }
 
-    fun singleEntity(input: String, attributes: Map<String, String> = mapOf(),
-                     baseClass: String = "",
-                     jfos: List<JavaFileObject> = emptyList(),
-                     handler: (Entity, TestInvocation) -> Unit): CompileTester {
+    fun singleEntity(
+        input: String,
+        attributes: Map<String, String> = mapOf(),
+        baseClass: String = "",
+        jfos: List<JavaFileObject> = emptyList(),
+        classLoader: ClassLoader = javaClass.classLoader,
+        handler: (Entity, TestInvocation) -> Unit
+    ): CompileTester {
         val attributesReplacement: String
         if (attributes.isEmpty()) {
             attributesReplacement = ""
@@ -60,9 +64,10 @@ abstract class BaseEntityParserTest {
         }
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfos + JavaFileObjects.forSourceString("foo.bar.MyEntity",
-                        ENTITY_PREFIX.format(attributesReplacement, baseClassReplacement)
-                                + input + ENTITY_SUFFIX
+                        ENTITY_PREFIX.format(attributesReplacement, baseClassReplacement) +
+                                input + ENTITY_SUFFIX
                 ))
+                .withClasspathFrom(classLoader)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Entity::class,
                                 androidx.room.PrimaryKey::class,
