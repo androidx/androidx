@@ -40,7 +40,7 @@ limitations under the License.
                 android:layout_width="@dimen/car_primary_icon_size"
                 android:layout_height="@dimen/car_primary_icon_size"
                 android:layout_gravity="center"
-                android:tint="@color/car_tint"
+                android:tint="?attr/drawerBackButtonTint"
                 android:src="@drawable/ic_nav_arrow_back"
                 android:scaleType="fitCenter" />
         </FrameLayout>

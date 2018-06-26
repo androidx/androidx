@@ -189,6 +189,9 @@ limitations under the License.
     <!-- Styles for TextInputLayout hints. -->
     <style name="TextAppearance.Car.Hint" parent="TextAppearance.Car.Body2" />
 
+    <!-- A style for TextInputLayout hints that is fixed to a light color. -->
+    <style name="TextAppearance.Car.Hint.Light" parent="TextAppearance.Car.Body2.Light" />
+
     <!-- ======= -->
     <!-- Widgets -->
     <!-- ======= -->
@@ -206,6 +209,12 @@ limitations under the License.
         <item name="navigationIcon">@drawable/ic_nav_arrow_back</item>
     </style>
 
+    <!-- The styling of a Toolbar that is fixed to light-colored text. -->
+    <style name="Widget.Car.Toolbar.Light">
+        <item name="subtitleTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Car.Title2.Light</item>
+    </style>
+
     <!-- The styling for the navigation button in action bar. -->
     <style name="Widget.Car.Toolbar.Button.Navigation"
            parent="Widget.AppCompat.Toolbar.Button.Navigation">
@@ -214,6 +223,7 @@ limitations under the License.
         <item name="android:tint">@color/car_tint</item>
     </style>
 
+    <!-- A styling for action buttons within a toolbar. -->
     <style name="Widget.Car.ActionButton" parent="Widget.AppCompat.ActionButton">
         <item name="android:background">?attr/actionBarItemBackground</item>
         <item name="android:minHeight">@dimen/car_action_bar_height</item>
@@ -223,9 +233,14 @@ limitations under the License.
         <item name="android:tint">@color/car_tint</item>
     </style>
 
+    <!-- A styling for action buttons within a toolbar that is fixed to light colors. -->
+    <style name="Widget.Car.ActionButton.Light">
+        <item name="android:tint">@color/car_tint_light</item>
+    </style>
+
     <!-- The style for the menu bar (i.e. hamburger) and back arrow in the navigation drawer. -->
     <style name="Widget.Car.DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
-        <item name="color">@color/car_title2</item>
+        <item name="color">?attr/drawerHeaderColor</item>
         <item name="spinBars">true</item>
         <item name="barLength">@dimen/car_menu_bar_length</item>
         <item name="thickness">@dimen/car_arrow_thickness</item>
@@ -247,6 +262,11 @@ limitations under the License.
         <item name="android:textColor">@color/car_action1</item>
     </style>
 
+    <!-- A style for buttons that is fixed with dark-colored text. -->
+    <style name="Widget.Car.Button.DarkText">
+        <item name="android:textColor">@color/car_action1_dark</item>
+    </style>
+
     <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
@@ -254,14 +274,6 @@ limitations under the License.
         <item name="android:paddingStart">@dimen/car_borderless_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_borderless_button_horizontal_padding</item>
         <item name="android:textSize">@dimen/car_action1_size</item>
-        <item name="android:textColor">?android:attr/colorButtonNormal</item>
-    </style>
-
-    <style name="Widget.Car.Button.Borderless.Colored.Light">
-        <item name="android:textColor">?android:attr/colorButtonNormal</item>
-    </style>
-
-    <style name="Widget.Car.Button.Borderless.Colored.Dark">
         <item name="android:textColor">?android:attr/colorButtonNormal</item>
     </style>
 
@@ -372,6 +384,16 @@ limitations under the License.
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
+    </style>
+
+    <!-- =============== -->
+    <!-- Checkbox Themes -->
+    <!-- =============== -->
+    <eat-comment />
+
+    <style name="Widget.Car.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="buttonTint">?android:attr/colorAccent</item>
     </style>
 
     <!-- ============= -->

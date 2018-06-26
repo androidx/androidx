@@ -19,9 +19,46 @@ limitations under the License.
     <!-- =============== -->
     <eat-comment />
 
-    <!-- Base style for the Car. This theme has light colors for card backgrounds and dark
-         text. These colors will invert for night. -->
+    <!-- Base style for the Car that will have dark colors for card backgrounds and light color for
+         text. The colors will not change for night mode. -->
     <style name="Theme.Car.NoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
+        <item name="android:colorAccent">@color/car_accent_light</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
+        <item name="android:buttonStyle">@style/Widget.Car.Button.DarkText</item>
+        <item name="android:checkboxStyle">@style/Widget.Car.CheckBox</item>
+        <item name="android:colorButtonNormal">@color/car_accent_light</item>
+        <item name="android:colorControlHighlight">@color/car_card_ripple_background_inverse</item>
+        <item name="android:colorControlNormal">@color/car_body2_light</item>
+        <item name="android:colorPrimary">@color/car_card_dark</item>
+        <item name="android:editTextColor">@color/car_body1_light</item>
+        <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
+        <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
+        <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
+        <item name="android:textColorHint">@color/car_body2_light</item>
+        <item name="actionBarItemBackground">@drawable/car_card_ripple_background</item>
+        <item name="actionBarSize">@dimen/car_app_bar_height</item>
+        <item name="actionButtonStyle">@style/Widget.Car.ActionButton.Light</item>
+        <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
+        <item name="actionMenuTextColor">?android:attr/colorButtonNormal</item>
+        <item name="alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
+        <item name="carDialogTheme">@style/Theme.Car.Dark.Dialog</item>
+        <item name="colorControlHighlight">@color/car_card_ripple_background_light</item>
+        <item name="colorPrimary">@color/car_card_dark</item>
+        <item name="listItemBackgroundColor">@color/car_card_dark</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
+        <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
+        <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="pagedListViewStyle">@style/Widget.Car.Light.List.LightDivider</item>
+        <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
+        <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
+        <item name="toolbarStyle">@style/Widget.Car.Toolbar.Light</item>
+    </style>
+
+    <!-- Light theme for the Car. This theme has light colors for card backgrounds and dark
+         text. These colors will invert for night. -->
+    <style name="Theme.Car.Light.NoActionBar" parent="Theme.Car.NoActionBar">
+        <item name="android:alertDialogTheme">@style/Theme.Car.Light.Dialog.Alert</item>
         <item name="android:colorAccent">@color/car_accent</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
         <item name="android:colorControlHighlight">@color/car_card_ripple_background</item>
@@ -52,49 +89,16 @@ limitations under the License.
         <item name="toolbarStyle">@style/Widget.Car.Toolbar</item>
     </style>
 
-    <!-- Theme for the Car that is a passthrough for the default theme. -->
-    <style name="Theme.Car.Light.NoActionBar" parent="Theme.Car.NoActionBar" />
+    <!-- Theme that is a pass-through for Theme.Car.NoActionBar. -->
+    <style name="Theme.Car.Dark.NoActionBar" parent="Theme.Car.NoActionBar" />
 
-    <!-- Theme for the Car that will have dark colors for card backgrounds and light color for
-         text. The colors will not change for night mode. -->
-    <style name="Theme.Car.Dark.NoActionBar" parent="Theme.Car.NoActionBar">
-        <item name="android:alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
-        <item name="android:colorControlHighlight">@color/car_card_ripple_background_inverse</item>
-        <item name="android:colorPrimary">@color/car_card_dark</item>
-        <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
-        <item name="alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
-        <item name="carDialogTheme">@style/Theme.Car.Dark.Dialog</item>
-        <item name="colorControlHighlight">@color/car_card_ripple_background_inverse</item>
-        <item name="colorPrimary">@color/car_card_dark</item>
-        <item name="pagedListViewStyle">@style/Widget.Car.Light.List.LightDivider</item>
-        <item name="listItemBackgroundColor">@color/car_card_dark</item>
-        <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
-        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
-        <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
-    </style>
-
-    <!-- A Theme for activities that have a drawer affordance. This theme will automatically switch
-         to darker colors during night mode. -->
+    <!-- A Theme for activities that have a drawer affordance. This theme will be dark-colored. -->
     <style name="Theme.Car.NoActionBar.Drawer">
-        <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
-        <item name="drawerBackgroundColor">@color/car_card</item>
-        <item name="drawerRippleColor">@color/car_card_ripple_background</item>
-        <item name="drawerHeaderColor">@color/car_title2</item>
-        <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
-        <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
-        <item name="drawerListStyle">@style/Widget.Car.List</item>
         <item name="drawerBackButtonId">@id/car_drawer_back_button</item>
+        <item name="drawerBackButtonTint">@color/car_tint_light</item>
         <item name="drawerListId">@id/car_drawer_list</item>
         <item name="drawerTitleId">@id/car_drawer_title</item>
         <item name="drawerProgressId">@id/car_drawer_progress</item>
-    </style>
-
-    <!-- A Theme for activities that have a drawer affordance. This theme will automatically switch
-         to darker colors during night mode. -->
-    <style name="Theme.Car.Light.NoActionBar.Drawer" parent="Theme.Car.NoActionBar.Drawer" />
-
-    <!-- A dark-colored theme for activities that have a drawer affordance. -->
-    <style name="Theme.Car.Dark.NoActionBar.Drawer">
         <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
         <item name="drawerBackgroundColor">@color/car_card_dark</item>
         <item name="drawerRippleColor">@color/car_card_ripple_background_light</item>
@@ -104,6 +108,22 @@ limitations under the License.
         <item name="drawerListStyle">@style/Widget.Car.Light.List.LightDivider</item>
     </style>
 
+    <!-- A Theme for activities that have a drawer affordance. This theme will automatically switch
+         to darker colors during night mode. -->
+    <style name="Theme.Car.Light.NoActionBar.Drawer" parent="Theme.Car.NoActionBar.Drawer">
+        <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
+        <item name="drawerBackButtonTint">@color/car_tint</item>
+        <item name="drawerBackgroundColor">@color/car_card</item>
+        <item name="drawerRippleColor">@color/car_card_ripple_background</item>
+        <item name="drawerHeaderColor">@color/car_title2</item>
+        <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
+        <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
+        <item name="drawerListStyle">@style/Widget.Car.List</item>
+    </style>
+
+    <!-- A theme that is a pass-through for the base theme. -->
+    <style name="Theme.Car.Dark.NoActionBar.Drawer" />
+
     <!-- ============= -->
     <!-- Dialog Themes -->
     <!-- ============= -->
@@ -111,6 +131,7 @@ limitations under the License.
 
     <!-- Base style for dialogs provided by the car support library. -->
     <style name="Theme.Car.Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:colorButtonNormal">@color/car_accent</item>
         <item name="android:colorControlHighlight">@color/car_card_ripple_background</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -124,6 +145,7 @@ limitations under the License.
 
     <!-- Styling for dialogs provided by the car support library that is fixed in a dark-color. -->
     <style name="Theme.Car.Dark.Dialog" parent="Theme.Car.Dialog">
+        <item name="android:colorButtonNormal">@color/car_accent_light</item>
         <item name="android:colorControlHighlight">@color/car_card_ripple_background_inverse</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background_inverse</item>
         <item name="dialogButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
