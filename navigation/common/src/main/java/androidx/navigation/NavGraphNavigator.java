@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayDeque;
+
 /**
  * A Navigator built specifically for {@link NavGraph} elements. Handles navigating to the
  * correct destination when the NavGraph is the target of navigation actions.
@@ -28,6 +30,7 @@ import android.support.annotation.Nullable;
 @Navigator.Name("navigation")
 public class NavGraphNavigator extends Navigator<NavGraph> {
     private Context mContext;
+    private ArrayDeque<NavGraph> mBackStack = new ArrayDeque<>();
 
     /**
      * Construct a Navigator capable of routing incoming navigation requests to the proper
@@ -65,12 +68,48 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is not a direct child of this NavGraph");
         }
-        dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
+        if (navOptions != null && navOptions.shouldLaunchSingleTop()
+                && isAlreadyTop(destination.getId())) {
+            dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_UNCHANGED);
+        } else {
+            mBackStack.add(destination);
+            dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
+        }
         startDestination.navigate(args, navOptions);
+    }
+
+    /**
+     * This method to checks to see if navigating to the given destId would result in you
+     * being right back where you started (we want to avoid creating a duplicate stack of the
+     * same destinations).
+     *
+     * Because you can have a NavGraph as the start destination of another graph, we need to both
+     * check the current NavGraph (i.e., no direct singleTop copies) and all of the parents that
+     * start the current NavGraph via their start destinations.
+     */
+    private boolean isAlreadyTop(int destId) {
+        if (mBackStack.isEmpty()) {
+            return false;
+        }
+        NavGraph current = mBackStack.peekLast();
+        while (current.getId() != destId) {
+            NavGraph parent = current.getParent();
+            if (parent == null || parent.getStartDestination() != current.getId()) {
+                return false;
+            }
+            current = parent;
+        }
+        return true;
     }
 
     @Override
     public boolean popBackStack() {
-        return false;
+        if (mBackStack.isEmpty()) {
+            return false;
+        }
+        mBackStack.removeLast();
+        int destId = mBackStack.isEmpty() ? 0 : mBackStack.peekLast().getId();
+        dispatchOnNavigatorNavigated(destId, BACK_STACK_DESTINATION_POPPED);
+        return true;
     }
 }
