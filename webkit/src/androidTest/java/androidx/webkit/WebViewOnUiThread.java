@@ -36,6 +36,14 @@ import androidx.annotation.Nullable;
 
 import java.util.concurrent.Callable;
 
+/**
+ * A wrapper around a WebView instance, to run View methods on the UI thread. This also includes
+ * static helper methods related to the UI thread.
+ *
+ * This should remain functionally equivalent to android.webkit.cts.WebViewOnUiThread.
+ * Modifications to this class should be reflected in that class as necessary. See
+ * http://go/modifying-webview-cts.
+ */
 class WebViewOnUiThread {
     /**
      * The maximum time, in milliseconds (10 seconds) to wait for a load

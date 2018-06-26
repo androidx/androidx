@@ -55,6 +55,11 @@ public class WebViewClientCompatTest {
         mWebViewOnUiThread = new WebViewOnUiThread();
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testShouldOverrideUrlLoadingDefault. Modifications to
+     * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     @SdkSuppress(minSdkVersion = 21) // to instantiate WebResourceRequest
     public void testShouldOverrideUrlLoadingDefault() {
@@ -99,6 +104,11 @@ public class WebViewClientCompatTest {
                 mWebViewOnUiThread.getWebViewOnCurrentThread(), resourceRequest));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testShouldOverrideUrlLoading. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testShouldOverrideUrlLoading() throws InterruptedException {
         Assume.assumeTrue(
@@ -147,6 +157,11 @@ public class WebViewClientCompatTest {
         Assert.assertTrue(callbackLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnReceivedError. Modifications to this test should
+     * be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testOnReceivedError() throws Exception {
         Assume.assumeTrue(
@@ -165,6 +180,11 @@ public class WebViewClientCompatTest {
                 webViewClient.getOnReceivedResourceError().getErrorCode());
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnReceivedErrorForSubresource. Modifications to
+     * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testOnReceivedErrorForSubresource() throws Exception {
         Assume.assumeTrue(
@@ -186,6 +206,11 @@ public class WebViewClientCompatTest {
                 webViewClient.getOnReceivedResourceError().getErrorCode());
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnSafeBrowsingHitBackToSafety. Modifications to
+     * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testOnSafeBrowsingHitBackToSafety() throws Throwable {
         Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
@@ -216,6 +241,11 @@ public class WebViewClientCompatTest {
         Assert.assertEquals(originalUrl, mWebViewOnUiThread.getUrl());
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnSafeBrowsingHitProceed. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testOnSafeBrowsingHitProceed() throws Throwable {
         Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
@@ -253,6 +283,11 @@ public class WebViewClientCompatTest {
         Assert.assertTrue(client.getOnSafeBrowsingHitRequest().isForMainFrame());
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnPageCommitVisibleCalled. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testOnPageCommitVisibleCalled() throws Exception {
         Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.VISUAL_STATE_CALLBACK));

@@ -38,6 +38,11 @@ public class ServiceWorkerWebSettingsCompatTest {
         mSettings = ServiceWorkerControllerCompat.getInstance().getServiceWorkerWebSettings();
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.ServiceWorkerWebSettingsTest#testCacheMode. Modifications to this test
+     * should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testCacheMode() {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_CACHE_MODE));
@@ -50,6 +55,11 @@ public class ServiceWorkerWebSettingsCompatTest {
         }
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.ServiceWorkerWebSettingsTest#testAllowContentAccess. Modifications to
+     * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testAllowContentAccess() {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS));
@@ -61,6 +71,11 @@ public class ServiceWorkerWebSettingsCompatTest {
         }
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.ServiceWorkerWebSettingsTest#testAllowFileAccess. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testAllowFileAccess() {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_FILE_ACCESS));
@@ -72,6 +87,11 @@ public class ServiceWorkerWebSettingsCompatTest {
         }
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.ServiceWorkerWebSettingsTest#testBlockNetworkLoads. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testBlockNetworkLoads() {
         assumeTrue(WebViewFeature.isFeatureSupported(

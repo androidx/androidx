@@ -24,7 +24,9 @@ import java.util.concurrent.Callable;
  * A class for checking a specific statement {@link #check()} through polling, either until the
  * statement is true, or until timing out.
  *
- * Copy-pasted from CTS: com.android.compatibility.common.util.PollingCheck.
+ * This should remain functionally equivalent to
+ * com.android.compatibility.common.util.PollingCheck. Modifications to this class should be
+ * reflected in that class as necessary. See http://go/modifying-webview-cts.
  */
 public abstract class PollingCheck {
     private static final long TIME_SLICE = 50;

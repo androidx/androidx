@@ -39,6 +39,11 @@ public class WebSettingsCompatTest {
         mWebViewOnUiThread = new androidx.webkit.WebViewOnUiThread();
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebSettingsTest#testOffscreenPreRaster. Modifications to this test should
+     * be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testOffscreenPreRaster() {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.OFF_SCREEN_PRERASTER));
@@ -49,6 +54,11 @@ public class WebSettingsCompatTest {
         assertTrue(WebSettingsCompat.getOffscreenPreRaster(mWebViewOnUiThread.getSettings()));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebSettingsTest#testEnableSafeBrowsing. Modifications to this test should
+     * be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testEnableSafeBrowsing() throws Throwable {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE));
@@ -57,6 +67,11 @@ public class WebSettingsCompatTest {
         assertFalse(WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings()));
     }
 
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebSettingsTest#testDisabledActionModeMenuItems. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
     @Test
     public void testDisabledActionModeMenuItems() throws Throwable {
         assumeTrue(
