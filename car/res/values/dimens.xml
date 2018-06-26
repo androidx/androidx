@@ -146,12 +146,9 @@ limitations under the License.
 
     <!-- Seekbar -->
     <dimen name="car_seekbar_height">6dp</dimen>
-    <dimen name="car_seekbar_padding">26dp</dimen>
+    <dimen name="car_seekbar_padding">10dp</dimen>
     <dimen name="car_seekbar_thumb_size">24dp</dimen>
     <dimen name="car_seekbar_thumb_stroke">1dp</dimen>
-    <!-- The space between seekbar and text in ListItem. This value is based on car_seekbar_padding.
-         It brings seekbar and text closer for visual balance while maintaining touch area. -->
-    <dimen name="car_seekbar_text_overlap">-20dp</dimen>
 
     <!-- Scroll Bar Thumb -->
     <dimen name="car_scroll_bar_thumb_width">6dp</dimen>

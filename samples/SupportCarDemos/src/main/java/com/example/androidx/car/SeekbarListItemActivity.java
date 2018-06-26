@@ -134,6 +134,15 @@ public class SeekbarListItemActivity extends Activity {
                     "Primary icon clicked!", Toast.LENGTH_SHORT).show());
             mItems.add(item);
 
+            // Clickable PrimaryActionIcon and end icon.
+            item = initSeekbarListItem();
+            item.setText("with clickable Primary icon and end icon");
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIconListener(v -> Toast.makeText(mContext,
+                    "Primary icon clicked!", Toast.LENGTH_SHORT).show());
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+            mItems.add(item);
+
             // End icon with divider.
             subheaderItem = new SubheaderListItem(mContext, "With Supplemental Action");
             mItems.add(subheaderItem);
