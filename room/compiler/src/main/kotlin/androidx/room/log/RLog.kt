@@ -19,16 +19,22 @@
 package androidx.room.log
 
 import androidx.room.vo.Warning
+import java.io.StringWriter
 import java.util.UnknownFormatConversionException
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
+import javax.lang.model.util.Elements
 import javax.tools.Diagnostic
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.NOTE
 import javax.tools.Diagnostic.Kind.WARNING
 
-class RLog(val messager: Messager, val suppressedWarnings: Set<Warning>,
-           val defaultElement: Element?) {
+class RLog(
+    val messager: Messager,
+    val suppressedWarnings: Set<Warning>,
+    val defaultElement: Element?
+) {
     private fun String.safeFormat(vararg args: Any): String {
         try {
             return format(args)
@@ -76,7 +82,14 @@ class RLog(val messager: Messager, val suppressedWarnings: Set<Warning>,
 
     class ProcessingEnvMessager(val processingEnv: ProcessingEnvironment) : Messager {
         override fun printMessage(kind: Diagnostic.Kind, msg: String, element: Element?) {
-            processingEnv.messager.printMessage(kind, msg, element)
+            processingEnv.messager.printMessage(
+                    kind,
+                    if (element != null && element.isFromCompiledClass()) {
+                        msg.appendElement(processingEnv.elementUtils, element)
+                    } else {
+                        msg
+                    },
+                    element)
         }
     }
 
@@ -93,10 +106,64 @@ class RLog(val messager: Messager, val suppressedWarnings: Set<Warning>,
         fun writeTo(env: ProcessingEnvironment) {
             messages.forEach { pair ->
                 val kind = pair.key
-                pair.value.forEach {
-                    env.messager.printMessage(kind, it.first, it.second)
+                pair.value.forEach { (msg, element) ->
+                    env.messager.printMessage(
+                            kind,
+                            if (element != null && element.isFromCompiledClass()) {
+                                msg.appendElement(env.elementUtils, element)
+                            } else {
+                                msg
+                            },
+                            element)
                 }
             }
+        }
+    }
+
+    companion object {
+
+        /**
+         * Indicates whether an element comes from a compiled class.
+         *
+         * If this method fails to identify if the element comes from a compiled class it will
+         * default to returning false. Note that this is a poor-man's method of identifying if the
+         * java source of the element is available without depending on compiler tools.
+         */
+        private fun Element.isFromCompiledClass(): Boolean {
+            fun getClassFileString(symbol: Any): String =
+                    try {
+                        symbol.javaClass.getDeclaredField("classfile").get(symbol).toString()
+                    } catch (ex: NoSuchFieldException) {
+                        getClassFileString(
+                                symbol.javaClass.superclass.getDeclaredField("owner").get(symbol))
+                    }
+
+            return try {
+                getClassFileString(this).let {
+                    it.contains(".jar") || it.contains(".class")
+                }
+            } catch (ex: Throwable) {
+                false
+            }
+        }
+
+        private fun String.appendElement(elementUtils: Elements, element: Element): String {
+            return StringBuilder(this).apply {
+                append(" - ")
+                when (element.kind) {
+                    ElementKind.CLASS, ElementKind.INTERFACE, ElementKind.CONSTRUCTOR ->
+                        append(element)
+                    ElementKind.FIELD, ElementKind.METHOD, ElementKind.PARAMETER ->
+                        append("$element in ${element.enclosingElement}")
+                    else -> {
+                        // Not sure how to nicely print the element, delegate to utils then.
+                        append("In:\n")
+                        append(StringWriter().apply {
+                            elementUtils.printElements(this, element)
+                        }.toString())
+                    }
+                }
+            }.toString()
         }
     }
 }
