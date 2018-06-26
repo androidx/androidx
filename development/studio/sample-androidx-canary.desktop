@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Android Studio AndroidX
+
+# Update to the path of your studio
+Icon=/path/to/android-studio/bin/studio.png
+# Update to the paths of your studio and checkout of AndroidX
+Exec=env STUDIO_PROPERTIES=/path/to/androidx/frameworks/support/development/studio/idea.properties "/path/to/android-studio/bin/studio.sh" %f
+
+Categories=Development;IDE;
+Terminal=false
+StartupWMClass=jetbrains-studio
