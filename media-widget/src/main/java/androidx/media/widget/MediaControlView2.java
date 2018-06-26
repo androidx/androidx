@@ -393,7 +393,6 @@ public class MediaControlView2 extends BaseLayout {
      * Sets MediaSession2 token to control corresponding MediaSession2. It makes it possible to
      * send and receive data between MediaControlView2 and VideoView2.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public void setMediaSessionToken2(SessionToken2 token) {
         if (mController != null) {
             mController.close();
