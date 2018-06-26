@@ -53,8 +53,8 @@ package androidx.room {
     method public void runInTransaction(java.lang.Runnable);
     method public <V> V runInTransaction(java.util.concurrent.Callable<V>);
     method public void setTransactionSuccessful();
-    field protected java.util.List<androidx.room.RoomDatabase.Callback> mCallbacks;
-    field protected volatile androidx.sqlite.db.SupportSQLiteDatabase mDatabase;
+    field protected deprecated java.util.List<androidx.room.RoomDatabase.Callback> mCallbacks;
+    field protected deprecated volatile androidx.sqlite.db.SupportSQLiteDatabase mDatabase;
   }
 
   public static class RoomDatabase.Builder<T extends androidx.room.RoomDatabase> {
