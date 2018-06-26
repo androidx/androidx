@@ -29,8 +29,10 @@ import java.util.ArrayDeque;
  */
 @Navigator.Name("navigation")
 public class NavGraphNavigator extends Navigator<NavGraph> {
+    private static final String KEY_BACK_STACK_IDS = "androidx-nav-graph:navigator:backStackIds";
+
     private Context mContext;
-    private ArrayDeque<NavGraph> mBackStack = new ArrayDeque<>();
+    private ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
 
     /**
      * Construct a Navigator capable of routing incoming navigation requests to the proper
@@ -69,10 +71,10 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
                     + " is not a direct child of this NavGraph");
         }
         if (navOptions != null && navOptions.shouldLaunchSingleTop()
-                && isAlreadyTop(destination.getId())) {
+                && isAlreadyTop(destination)) {
             dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_UNCHANGED);
         } else {
-            mBackStack.add(destination);
+            mBackStack.add(destination.getId());
             dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
         }
         startDestination.navigate(args, navOptions);
@@ -87,17 +89,19 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
      * check the current NavGraph (i.e., no direct singleTop copies) and all of the parents that
      * start the current NavGraph via their start destinations.
      */
-    private boolean isAlreadyTop(int destId) {
+    private boolean isAlreadyTop(NavGraph destination) {
         if (mBackStack.isEmpty()) {
             return false;
         }
-        NavGraph current = mBackStack.peekLast();
-        while (current.getId() != destId) {
-            NavGraph parent = current.getParent();
-            if (parent == null || parent.getStartDestination() != current.getId()) {
+        int topDestId = mBackStack.peekLast();
+        NavGraph current = destination;
+        while (current.getId() != topDestId) {
+            NavDestination startDestination = current.findNode(current.getStartDestination());
+            if (startDestination instanceof NavGraph) {
+                current = (NavGraph) startDestination;
+            } else {
                 return false;
             }
-            current = parent;
         }
         return true;
     }
@@ -108,8 +112,34 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
             return false;
         }
         mBackStack.removeLast();
-        int destId = mBackStack.isEmpty() ? 0 : mBackStack.peekLast().getId();
+        int destId = mBackStack.isEmpty() ? 0 : mBackStack.peekLast();
         dispatchOnNavigatorNavigated(destId, BACK_STACK_DESTINATION_POPPED);
         return true;
+    }
+
+    @Override
+    @Nullable
+    public Bundle onSaveState() {
+        Bundle b = new Bundle();
+        int[] backStack = new int[mBackStack.size()];
+        int index = 0;
+        for (Integer id : mBackStack) {
+            backStack[index++] = id;
+        }
+        b.putIntArray(KEY_BACK_STACK_IDS, backStack);
+        return b;
+    }
+
+    @Override
+    public void onRestoreState(@Nullable Bundle savedState) {
+        if (savedState != null) {
+            int[] backStack = savedState.getIntArray(KEY_BACK_STACK_IDS);
+            if (backStack != null) {
+                mBackStack.clear();
+                for (int destId : backStack) {
+                    mBackStack.add(destId);
+                }
+            }
+        }
     }
 }
