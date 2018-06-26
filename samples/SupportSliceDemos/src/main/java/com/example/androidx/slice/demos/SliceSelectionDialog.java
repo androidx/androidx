@@ -79,7 +79,7 @@ public class SliceSelectionDialog {
 
         ProgressDialog dialog = ProgressDialog.show(context, null, "Loading...");
 
-        AsyncTask.execute(() -> {
+        new Thread(() -> {
             for (PackageInfo app : apps) {
                 if (app.providers == null || app.providers.length == 0) {
                     continue;
@@ -137,14 +137,14 @@ public class SliceSelectionDialog {
                         .setAdapter(adapter, clickListener)
                         .show();
             });
-        });
+        }).start();
     }
 
     private static void showSliceList(Context context, Consumer<Uri> selectedCallback,
             ProviderInfo provider, String label) {
         ProgressDialog dialog = ProgressDialog.show(context, null, "Loading...");
 
-        AsyncTask.execute(() -> {
+        new Thread(() -> {
             String authority = provider.authority.split(";")[0];
             HashMap<String, String> labels = new HashMap<>();
             SliceViewManager sliceViewManager = SliceViewManager.getInstance(context);
@@ -198,7 +198,7 @@ public class SliceSelectionDialog {
                         .setAdapter(adapter, clickListener)
                         .show();
             });
-        });
+        }).start();
     }
 
     private static String loadLabel(Context context, SliceViewManager sliceViewManager, Uri slice) {

@@ -16,7 +16,13 @@
 
 package androidx.slice;
 
+import static androidx.slice.SliceViewManagerTest.TestSliceProvider.sSliceProviderReceiver;
 import static androidx.slice.core.SliceHints.INFINITY;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -46,7 +52,7 @@ import org.junit.runner.RunWith;
 public class SliceBuilderTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();
-    private final Uri mUri = Uri.parse("content://pkg/slice");
+    private final Uri mUri = Uri.parse("content://androidx.slice.view.test/slice");
 
     @Before
     public void setup() {
@@ -136,6 +142,26 @@ public class SliceBuilderTest {
         ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
         lb.addRow(new ListBuilder.RowBuilder().addEndItem(System.currentTimeMillis()));
         lb.build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowForNotBinding() {
+        SliceProvider.setSpecs(null);
+        new ListBuilder(mContext, mUri, INFINITY);
+    }
+
+    @Test
+    public void testGetPinnedSpecs() throws InterruptedException {
+        sSliceProviderReceiver = mock(SliceProvider.class);
+        SliceViewManager.getInstance(mContext).pinSlice(mUri);
+        try {
+            SliceProvider.setSpecs(null);
+            verify(sSliceProviderReceiver, timeout(2000)).onSlicePinned(eq(mUri));
+            new ListBuilder(mContext, mUri, INFINITY);
+        } finally {
+            SliceViewManager.getInstance(mContext).unpinSlice(mUri);
+            verify(sSliceProviderReceiver, timeout(2000)).onSliceUnpinned(eq(mUri));
+        }
     }
 
     public void testNoThrowForFirstRow() {

@@ -20,22 +20,21 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Clock;
 import androidx.slice.Slice;
+import androidx.slice.SliceManager;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
-import androidx.slice.SliceSpecs;
 import androidx.slice.SystemClock;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base class of builders of various template types.
@@ -65,26 +64,11 @@ public abstract class TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    protected TemplateSliceBuilder(Slice.Builder b, Context context) {
-        mBuilder = b;
-        mContext = context;
-        mSpecs = getSpecs();
-        mImpl = selectImpl();
-        if (mImpl == null) {
-            throw new IllegalArgumentException("No valid specs found");
-        }
-        setImpl(mImpl);
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
     public TemplateSliceBuilder(Context context, Uri uri) {
         mBuilder = new Slice.Builder(uri);
         mContext = context;
-        mSpecs = getSpecs();
-        mImpl = selectImpl();
+        mSpecs = getSpecs(uri);
+        mImpl = selectImpl(uri);
         if (mImpl == null) {
             throw new IllegalArgumentException("No valid specs found");
         }
@@ -116,7 +100,7 @@ public abstract class TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    protected TemplateBuilderImpl selectImpl() {
+    protected TemplateBuilderImpl selectImpl(Uri uri) {
         return null;
     }
 
@@ -124,7 +108,7 @@ public abstract class TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    protected boolean checkCompatible(SliceSpec candidate) {
+    protected boolean checkCompatible(SliceSpec candidate, Uri uri) {
         final int size = mSpecs.size();
         for (int i = 0; i < size; i++) {
             if (mSpecs.get(i).canRender(candidate)) {
@@ -134,13 +118,12 @@ public abstract class TemplateSliceBuilder {
         return false;
     }
 
-    private List<SliceSpec> getSpecs() {
+    private List<SliceSpec> getSpecs(Uri uri) {
         if (SliceProvider.getCurrentSpecs() != null) {
             return new ArrayList<>(SliceProvider.getCurrentSpecs());
         }
-        // TODO: Support getting specs from pinned info.
-        Log.w(TAG, "Not currently bunding a slice");
-        return Arrays.asList(SliceSpecs.BASIC);
+        Set<SliceSpec> pinnedSpecs = SliceManager.getInstance(mContext).getPinnedSpecs(uri);
+        return new ArrayList<>(pinnedSpecs);
     }
 
     /**
