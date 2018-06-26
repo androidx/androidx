@@ -17,6 +17,7 @@
 package com.android.tools.build.jetifier.processor.transform.bytecode.asm
 
 import com.android.tools.build.jetifier.core.type.JavaType
+import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.transform.bytecode.CoreRemapper
 import org.objectweb.asm.commons.Remapper
 
@@ -26,23 +27,28 @@ import org.objectweb.asm.commons.Remapper
 class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
 
     override fun map(typeName: String): String {
-        if (typeName.endsWith(".FakeClassName")) {
-            // If ASM detects a package it adds ".FakeClassName" as a suffix. That breaks us because
-            // we don't expect '.' as a package separator.
-            return mapInternal(typeName.removeSuffix(".FakeClassName")) + ".FakeClassName"
-        }
-
-        return mapInternal(typeName)
+        return remapper.rewriteType(JavaType(typeName)).fullName
     }
 
-    private fun mapInternal(typeName: String) = remapper.rewriteType(JavaType(typeName)).fullName
+    override fun mapPackageName(name: String): String {
+        return remapper.rewriteType(JavaType(name)).fullName
+    }
 
     override fun mapValue(value: Any?): Any? {
-        val stringMaybe = value as? String
-        if (stringMaybe == null) {
+        val stringVal = value as? String
+        if (stringVal == null) {
             return super.mapValue(value)
         }
 
-        return remapper.rewriteString(stringMaybe)
+        if (stringVal.startsWith("L") && stringVal.endsWith(";")) {
+            // L denotes a type declaration. For some reason there are references in the constant
+            // pool that ASM skips.
+            val typeDeclaration = stringVal.substring(1, stringVal.length - 1)
+            if (typeDeclaration.isEmpty()) {
+                return value
+            }
+            return "L" + remapper.rewriteString(typeDeclaration) + ";"
+        }
+        return remapper.rewriteString(stringVal)
     }
 }
