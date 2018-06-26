@@ -122,6 +122,12 @@ public abstract class SliceChildView extends FrameLayout {
     }
 
     /**
+     * Overrides the normal maximum height for a slice displayed in {@link SliceView#MODE_SMALL}.
+     */
+    public void setMaxSmallHeight(int maxSmallHeight) {
+    }
+
+    /**
      * Set the mode of the slice being presented.
      */
     public void setMode(int mode) {

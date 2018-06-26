@@ -152,6 +152,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private boolean mCurrentSliceLoggedVisible = false;
 
     private int mShortcutSize;
+    private int mMinTemplateHeight;
     private int mLargeHeight;
     private int mActionRowHeight;
 
@@ -202,6 +203,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         }
         mShortcutSize = getContext().getResources()
                 .getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
+        mMinTemplateHeight = getContext().getResources()
+                .getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
         mLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_large_height);
         mActionRowHeight = getResources().getDimensionPixelSize(
                 R.dimen.abc_slice_action_row_height);
@@ -337,6 +340,14 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         if (mode == MODE_SHORTCUT) {
             return mShortcutSize;
         }
+        if (maxHeight > 0 && maxHeight <= mMinTemplateHeight) {
+            maxHeight = mMinTemplateHeight;
+            mListContent.setMaxSmallHeight(mMinTemplateHeight);
+            mCurrentView.setMaxSmallHeight(mMinTemplateHeight);
+        } else {
+            mListContent.setMaxSmallHeight(0);
+            mCurrentView.setMaxSmallHeight(0);
+        }
         return mode == MODE_LARGE
                 ? mListContent.getLargeHeight(maxHeight, mIsScrollable)
                 : mListContent.getSmallHeight();
@@ -380,6 +391,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             } else if (getMode() == MODE_SHORTCUT) {
                 // TODO: consider scaling the shortcut to fit if too small
                 height = mShortcutSize;
+            } else if (height <= mMinTemplateHeight) {
+                height = sliceHeight;
             }
         }
 
@@ -453,10 +466,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         mActions = mListContent.getSliceActions();
 
         // Check if the slice content is expired and show when it was last updated
-        // TODO: schedule something to update the view when it expires?
         SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
         long lastUpdated = sliceMetadata.getLastUpdatedTime();
-        long expiry = sliceMetadata.getExpiry();
         mCurrentView.setLastUpdated(lastUpdated);
         mCurrentView.setShowLastUpdated(mShowLastUpdated && isExpired());
 
