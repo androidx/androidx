@@ -90,14 +90,18 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
 
     @Override
     public boolean popBackStack() {
-        if (mFragmentManager.getBackStackEntryCount() == 0) {
+        if (mBackStack.isEmpty()) {
             return false;
         }
-        mFragmentManager.popBackStack();
+        boolean popped = false;
+        if (mFragmentManager.getBackStackEntryCount() > 0) {
+            mFragmentManager.popBackStack();
+            popped = true;
+        }
         mBackStack.removeLast();
         int destId = mBackStack.isEmpty() ? 0 : mBackStack.peekLast();
         dispatchOnNavigatorNavigated(destId, BACK_STACK_DESTINATION_POPPED);
-        return true;
+        return popped;
     }
 
     @NonNull
