@@ -27,13 +27,13 @@ import androidx.navigation.NavController
  * the destination changes (assuming there is a valid
  * [label][androidx.navigation.NavDestination.getLabel]).
  *
- * The action bar will also display the Up button when you are on a non-root destination and
+ * The Toolbar will also display the Up button when you are on a non-root destination and
  * the drawer icon when on the root destination, automatically animating between them. This
  * method will call [DrawerLayout.navigateUp] when the navigation icon
  * is clicked.
  *
  * @param navController The NavController whose navigation actions will be reflected
- *                      in the title of the action bar.
+ *                      in the title of the Toolbar.
  * @param drawerLayout The DrawerLayout that should be toggled from the home button
  */
 fun Toolbar.setupWithNavController(
