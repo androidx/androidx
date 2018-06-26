@@ -210,8 +210,8 @@ public final class PagedListViewTest {
         setUpPagedListView(ITEMS_PER_PAGE * 2 /* itemCount */);
 
         // Go down one page, then swipe down (going up).
-        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(ITEMS_PER_PAGE));
-        onView(withId(R.id.car_recycler_view))
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(ITEMS_PER_PAGE));
+        onView(withId(R.id.recycler_view))
                 .perform(actionOnItemAtPosition(ITEMS_PER_PAGE, swipeDown()));
 
         verifyItemSnappedToListTop();
@@ -222,7 +222,7 @@ public final class PagedListViewTest {
         setUpPagedListView(ITEMS_PER_PAGE * 2 /* itemCount */);
 
         // Swipe up (going down).
-        onView(withId(R.id.car_recycler_view))
+        onView(withId(R.id.recycler_view))
                 .perform(actionOnItemAtPosition(ITEMS_PER_PAGE, swipeUp()));
 
         verifyItemSnappedToListTop();
@@ -527,7 +527,7 @@ public final class PagedListViewTest {
             mPagedListView.setItemSpacing(0);
         });
         // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(0));
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
 
         for (int i = 0; i < SPAN_COUNT; i++) {
             assertThat(mPagedListView.getRecyclerView().getChildAt(i).getTop(),
@@ -571,7 +571,7 @@ public final class PagedListViewTest {
         // Scrolling from top, scrollToPosition() either aligns the pos-1 item to bottom,
         // or scrolls to the center of long item. So we hack a bit by scrolling the distance of one
         // item height over pos-1 item.
-        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(longItemPos - 1));
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(longItemPos - 1));
         // Scroll by the height of an item so the long item is partially visible.
         mActivityRule.runOnUiThread(() -> mPagedListView.getRecyclerView().scrollBy(0,
                 mPagedListView.getRecyclerView().getChildAt(0).getHeight()));
@@ -631,7 +631,7 @@ public final class PagedListViewTest {
                 mPagedListView.getRecyclerView().getLayoutManager());
 
         // Scroll to a position where long item is partially shown.
-        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(longItemPos + 1));
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(longItemPos + 1));
 
         // Verify long item is partially shown.
         View longItem = findLongItem();

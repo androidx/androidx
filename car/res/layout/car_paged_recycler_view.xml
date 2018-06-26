@@ -19,8 +19,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- This id is the same as the preference support library recycler view. The Auto recycler
+     view can then be used when displaying preferences.  -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/car_recycler_view"
+        android:id="@+id/recycler_view"
         android:layout_gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
