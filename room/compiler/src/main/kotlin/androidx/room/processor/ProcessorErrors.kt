@@ -44,8 +44,10 @@ object ProcessorErrors {
     val TRANSACTION_REFERENCE_DOCS = "https://developer.android.com/reference/android/arch/" +
             "persistence/room/Transaction.html"
 
-    fun insertionMethodReturnTypeMismatch(definedReturn: TypeName,
-                                          expectedReturnTypes: List<TypeName>): String {
+    fun insertionMethodReturnTypeMismatch(
+        definedReturn: TypeName,
+        expectedReturnTypes: List<TypeName>
+    ): String {
         return "Method returns $definedReturn but it should return one of the following: `" +
                 expectedReturnTypes.joinToString(", ") + "`. If you want to return the list of" +
                 " row ids from the query, your insertion method can receive only 1 parameter."
@@ -108,6 +110,9 @@ object ProcessorErrors {
 
     val ENTITY_TABLE_NAME_CANNOT_BE_EMPTY = "Entity table name cannot be blank. If you don't want" +
             " to set it, just remove the tableName property."
+
+    val ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE =
+        "Entity table name cannot start with \"sqlite_\"."
 
     val CANNOT_BIND_QUERY_PARAMETER_INTO_STMT = "Query method parameters should either be a" +
             " type that can be converted into a database column or a List / Array that contains" +
@@ -214,8 +219,11 @@ object ProcessorErrors {
                 """.trim()
     }
 
-    fun pojoMissingNonNull(pojoTypeName: TypeName, missingPojoFields: List<String>,
-                           allQueryColumns: List<String>): String {
+    fun pojoMissingNonNull(
+        pojoTypeName: TypeName,
+        missingPojoFields: List<String>,
+        allQueryColumns: List<String>
+    ): String {
         return """
         The columns returned by the query does not have the fields
         [${missingPojoFields.joinToString(",")}] in $pojoTypeName even though they are
@@ -224,9 +232,13 @@ object ProcessorErrors {
         """.trim()
     }
 
-    fun cursorPojoMismatch(pojoTypeName: TypeName,
-                           unusedColumns: List<String>, allColumns: List<String>,
-                           unusedFields: List<Field>, allFields: List<Field>): String {
+    fun cursorPojoMismatch(
+        pojoTypeName: TypeName,
+        unusedColumns: List<String>,
+        allColumns: List<String>,
+        unusedFields: List<Field>,
+        allFields: List<Field>
+    ): String {
         val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) {
             """
                 The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
@@ -319,8 +331,11 @@ object ProcessorErrors {
                 " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
     }
 
-    fun droppedSuperClassFieldIndex(fieldName: String, childEntity: String,
-                                    superEntity: String): String {
+    fun droppedSuperClassFieldIndex(
+        fieldName: String,
+        childEntity: String,
+        superEntity: String
+    ): String {
         return "Index defined on field `$fieldName` in $superEntity will NOT be re-used in" +
                 " $childEntity. " +
                 "If you want to inherit it, you must re-declare it in $childEntity." +
@@ -329,14 +344,20 @@ object ProcessorErrors {
 
     val RELATION_NOT_COLLECTION = "Fields annotated with @Relation must be a List or Set."
 
-    fun relationCannotFindEntityField(entityName: String, columnName: String,
-                                      availableColumns: List<String>): String {
+    fun relationCannotFindEntityField(
+        entityName: String,
+        columnName: String,
+        availableColumns: List<String>
+    ): String {
         return "Cannot find the child entity column `$columnName` in $entityName." +
                 " Options: ${availableColumns.joinToString(", ")}"
     }
 
-    fun relationCannotFindParentEntityField(entityName: String, columnName: String,
-                                            availableColumns: List<String>): String {
+    fun relationCannotFindParentEntityField(
+        entityName: String,
+        columnName: String,
+        availableColumns: List<String>
+    ): String {
         return "Cannot find the parent entity column `$columnName` in $entityName." +
                 " Options: ${availableColumns.joinToString(", ")}"
     }
@@ -345,9 +366,12 @@ object ProcessorErrors {
 
     val CANNOT_FIND_TYPE = "Cannot find type."
 
-    fun relationAffinityMismatch(parentColumn: String, childColumn: String,
-                                 parentAffinity: SQLTypeAffinity?,
-                                 childAffinity: SQLTypeAffinity?): String {
+    fun relationAffinityMismatch(
+        parentColumn: String,
+        childColumn: String,
+        parentAffinity: SQLTypeAffinity?,
+        childAffinity: SQLTypeAffinity?
+    ): String {
         return """
         The affinity of parent column ($parentColumn : $parentAffinity) does not match the type
         affinity of the child column ($childColumn : $childAffinity).
@@ -359,8 +383,11 @@ object ProcessorErrors {
         it.java.simpleName
     }
 
-    fun relationBadProject(entityQName: String, missingColumnNames: List<String>,
-                           availableColumnNames: List<String>): String {
+    fun relationBadProject(
+        entityQName: String,
+        missingColumnNames: List<String>,
+        availableColumnNames: List<String>
+    ): String {
         return """
         $entityQName does not have the following columns: ${missingColumnNames.joinToString(",")}.
         Available columns are: ${availableColumnNames.joinToString(",")}
@@ -388,9 +415,11 @@ object ProcessorErrors {
                 " Available column names:${allColumns.joinToString(", ")}"
     }
 
-    fun foreignKeyParentColumnDoesNotExist(parentEntity: String,
-                                           missingColumn: String,
-                                           allColumns: List<String>): String {
+    fun foreignKeyParentColumnDoesNotExist(
+        parentEntity: String,
+        missingColumn: String,
+        allColumns: List<String>
+    ): String {
         return "($missingColumn) does not exist in $parentEntity. Available columns are" +
                 " ${allColumns.joinToString(",")}"
     }
@@ -400,7 +429,9 @@ object ProcessorErrors {
     val FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST = "Must specify at least 1 column name for the parent"
 
     fun foreignKeyColumnNumberMismatch(
-            childColumns: List<String>, parentColumns: List<String>): String {
+        childColumns: List<String>,
+        parentColumns: List<String>
+    ): String {
         return """
                 Number of child columns in foreign key must match number of parent columns.
                 Child reference has ${childColumns.joinToString(",")} and parent reference has
@@ -415,8 +446,12 @@ object ProcessorErrors {
                 the @Database annotation?""".trim()
     }
 
-    fun foreignKeyMissingIndexInParent(parentEntity: String, parentColumns: List<String>,
-                                       childEntity: String, childColumns: List<String>): String {
+    fun foreignKeyMissingIndexInParent(
+        parentEntity: String,
+        parentColumns: List<String>,
+        childEntity: String,
+        childColumns: List<String>
+    ): String {
         return """
                 $childEntity has a foreign key (${childColumns.joinToString(",")}) that references
                 $parentEntity (${parentColumns.joinToString(",")}) but $parentEntity does not have
@@ -458,7 +493,10 @@ object ProcessorErrors {
             " artifact from Room as a dependency. androidx.room:rxjava2:<version>"
 
     fun ambigiousConstructor(
-            pojo: String, paramName: String, matchingFields: List<String>): String {
+        pojo: String,
+        paramName: String,
+        matchingFields: List<String>
+    ): String {
         return """
             Ambiguous constructor. The parameter ($paramName) in $pojo matches multiple fields:
             [${matchingFields.joinToString(",")}]. If you don't want to use this constructor,

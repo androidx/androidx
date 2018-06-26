@@ -255,6 +255,17 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
+    fun customNamePrefixedWithSqlite() {
+        singleEntity("""
+                @PrimaryKey
+                int x;
+                """, hashMapOf(Pair("tableName", "\"sqlite_mytable\""))) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE
+        )
+    }
+
+    @Test
     fun emptyCustomName() {
         singleEntity("""
                 @PrimaryKey
@@ -351,8 +362,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo",
                             unique = false,
@@ -387,8 +397,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
@@ -409,8 +418,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public String foo;
                 @ColumnInfo(name = "bar_column")
                 public String bar;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
@@ -432,8 +440,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(
                             name = "index_MyEntity_foo_id",
@@ -453,8 +460,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "myName",
                             unique = false,
@@ -474,8 +480,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { entity, _ ->
+                """, annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyTable_foo",
                             unique = false,
@@ -494,8 +499,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { _, _ ->
+                """, annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
         )
@@ -511,8 +515,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 public String foo;
-                """
-                , annotation) { _, _ ->
+                """, annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.indexColumnDoesNotExist("bar", listOf("id, foo"))
         )
@@ -529,8 +532,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 @ColumnInfo(index = true)
                 public String foo;
-                """
-                , annotation) { _, _ ->
+                """, annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.duplicateIndexInEntity("index_MyEntity_foo")
         )
