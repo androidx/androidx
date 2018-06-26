@@ -203,6 +203,8 @@ limitations under the License.
 
         <!-- The background color of the drawer. -->
         <attr name="drawerBackgroundColor" format="color"/>
+        <!-- The tint on the back button of the drawer. -->
+        <attr name="drawerBackButtonTint" format="color"/>
         <!-- The color of the header text and arrow in the drawer. -->
         <attr name="drawerHeaderColor" format="color"/>
         <!-- The ripple color for items in the drawer. -->
