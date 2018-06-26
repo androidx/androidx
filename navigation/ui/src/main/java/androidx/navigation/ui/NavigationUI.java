@@ -188,7 +188,7 @@ public class NavigationUI {
      *
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
      * @param navController The NavController whose navigation actions will be reflected
-     *                      in the title of the action bar.
+     *                      in the title of the Toolbar.
      * @param drawerLayout The DrawerLayout that should be toggled from the home button
      */
     public static void setupWithNavController(@NonNull Toolbar toolbar,
