@@ -90,7 +90,6 @@ public class IconCompat extends CustomVersionedParcelable {
 
     /**
      * Value returned when the type of an {@link Icon} cannot be determined.
-     * @see #getType(Icon)
      */
     public static final int TYPE_UNKNOWN = -1;
 
