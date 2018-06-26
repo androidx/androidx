@@ -188,7 +188,11 @@ public class SliceProviderCompat {
         } else if (method.equals(METHOD_GET_PINNED_SPECS)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
             Bundle b = new Bundle();
-            addSpecs(b, mPinnedList.getSpecs(uri));
+            ArraySet<SliceSpec> specs = mPinnedList.getSpecs(uri);
+            if (specs.size() == 0) {
+                throw new IllegalStateException(uri + " is not pinned");
+            }
+            addSpecs(b, specs);
             return b;
         } else if (method.equals(METHOD_GET_DESCENDANTS)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
