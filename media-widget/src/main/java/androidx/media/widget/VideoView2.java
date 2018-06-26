@@ -226,7 +226,6 @@ public class VideoView2 extends BaseLayout {
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public SessionToken2 getMediaSessionToken2() {
         return mImpl.getMediaSessionToken2();
     }
