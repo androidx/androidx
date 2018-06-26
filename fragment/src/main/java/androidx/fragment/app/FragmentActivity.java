@@ -689,7 +689,10 @@ public class FragmentActivity extends ComponentActivity implements
                 writer.print(mCreated); writer.print(" mResumed=");
                 writer.print(mResumed); writer.print(" mStopped=");
                 writer.print(mStopped);
-        LoaderManager.getInstance(this).dump(innerPrefix, fd, writer, args);
+
+        if (getApplication() != null) {
+            LoaderManager.getInstance(this).dump(innerPrefix, fd, writer, args);
+        }
         mFragments.getSupportFragmentManager().dump(prefix, fd, writer, args);
     }
 
