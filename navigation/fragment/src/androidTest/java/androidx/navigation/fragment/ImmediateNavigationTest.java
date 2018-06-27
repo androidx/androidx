@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 
 import androidx.navigation.NavController;
@@ -32,7 +32,7 @@ import androidx.navigation.fragment.test.R;
 import org.junit.Rule;
 import org.junit.Test;
 
-@SmallTest
+@LargeTest
 public class ImmediateNavigationTest {
 
     @Rule
