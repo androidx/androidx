@@ -84,8 +84,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
     public void apply(Slice.Builder builder) {
         builder.addHints(HINT_HORIZONTAL);
         if (mPrimaryAction != null) {
-            Slice.Builder actionBuilder = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
-            builder.addSubSlice(mPrimaryAction.buildSlice(actionBuilder));
+            mPrimaryAction.setPrimaryAction(builder);
         }
     }
 

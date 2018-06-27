@@ -245,8 +245,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
             if (mIconCompat == null && mSliceAction.getIcon() != null) {
                 mIconCompat = mSliceAction.getIcon();
             }
-            slice.addSubSlice(mSliceAction.buildSlice(
-                    new Slice.Builder(getBuilder()).addHints(HINT_TITLE)));
+            mSliceAction.setPrimaryAction(slice);
         }
         if (mTitle != null) {
             slice.addItem(new SliceItem(mTitle, FORMAT_TEXT, null, new String[] { HINT_TITLE }));
