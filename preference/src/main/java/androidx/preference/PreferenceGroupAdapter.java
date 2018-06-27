@@ -316,6 +316,11 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
             for (removalIndex = 0; removalIndex < listSize; removalIndex++) {
                 if (preference.equals(mPreferenceList.get(removalIndex))) {
                     break;
+                } else if (removalIndex == listSize - 1) {
+                    // Return if this preference can not be found in this list. This can happen
+                    // if the preference was removed from this list asynchronously (for example
+                    // in onPreferenceHierarchyChange)
+                    return;
                 }
             }
             mPreferenceList.remove(removalIndex);
