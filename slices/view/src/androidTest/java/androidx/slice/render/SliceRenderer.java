@@ -71,6 +71,7 @@ public class SliceRenderer {
     private final Handler mHandler;
     private final SampleSliceProvider mSliceCreator;
     private CountDownLatch mDoneLatch;
+    private ProgressDialog mDialog;
 
     public SliceRenderer(Activity context) {
         mContext = context;
@@ -269,7 +270,7 @@ public class SliceRenderer {
     }
 
     public void renderAll(final Runnable runnable) {
-        final ProgressDialog dialog = ProgressDialog.show(mContext, null, "Rendering...");
+        mDialog = ProgressDialog.show(mContext, null, "Rendering...");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -277,11 +278,17 @@ public class SliceRenderer {
                 mContext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        dialog.dismiss();
+                        mDialog.dismiss();
                         runnable.run();
                     }
                 });
             }
         }).start();
+    }
+
+    public void dismissDialog() {
+        if (mDialog != null && mDialog.isShowing()) {
+            mDialog.cancel();
+        }
     }
 }
