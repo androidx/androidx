@@ -71,8 +71,7 @@
                 android:paddingEnd="@dimen/preference_seekbar_padding_end"
                 android:focusable="false"
                 android:clickable="false"
-                android:background="@null"
-                style="@style/Widget.Car.SeekBar"/>
+                android:background="@null" />
 
             <TextView
                 android:id="@+id/seekbar_value"

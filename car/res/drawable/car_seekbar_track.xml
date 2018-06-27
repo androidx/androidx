@@ -20,7 +20,7 @@
         <shape android:shape="line">
             <stroke
                 android:width="@dimen/car_seekbar_height"
-                android:color="@color/car_seekbar_track_background" />
+                android:color="?android:attr/progressBackgroundTint" />
         </shape>
     </item>
     <item android:id="@android:id/secondaryProgress">
@@ -28,7 +28,7 @@
             <shape android:shape="line">
                 <stroke
                     android:width="@dimen/car_seekbar_height"
-                    android:color="@color/car_seekbar_track_secondary_progress" />
+                    android:color="?android:attr/secondaryProgressTint" />
             </shape>
         </clip>
     </item>
@@ -37,7 +37,7 @@
             <shape android:shape="line">
                 <stroke
                     android:width="@dimen/car_seekbar_height"
-                    android:color="@color/car_accent" />
+                    android:color="?android:attr/colorControlActivated" />
             </shape>
         </clip>
     </item>

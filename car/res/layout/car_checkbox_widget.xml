@@ -22,5 +22,4 @@
     android:layout_width="@dimen/car_primary_icon_size"
     android:layout_height="@dimen/car_primary_icon_size"
     android:button="@null"
-    android:background="?android:attr/listChoiceIndicatorMultiple"
-    style="@android:style/Widget.Material.CompoundButton.CheckBox" />
+    android:background="?android:attr/listChoiceIndicatorMultiple" />

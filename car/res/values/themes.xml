@@ -35,6 +35,9 @@ limitations under the License.
         <item name="android:editTextColor">@color/car_body1_light</item>
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
         <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
+        <item name="android:progressBackgroundTint">@color/car_seekbar_track_background_dark</item>
+        <item name="android:progressTint">?attr/android:colorControlActivated</item>
+        <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
         <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="android:textColorHint">@color/car_body2_light</item>
         <item name="actionBarItemBackground">@drawable/car_card_ripple_background</item>
@@ -55,6 +58,7 @@ limitations under the License.
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="pagedListViewStyle">@style/Widget.Car.Light.List.LightDivider</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
+        <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
         <item name="toolbarStyle">@style/Widget.Car.Toolbar.Light</item>
     </style>
@@ -71,6 +75,9 @@ limitations under the License.
         <item name="android:buttonStyle">@style/Widget.Car.Button</item>
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
+        <item name="android:progressBackgroundTint">@color/car_seekbar_track_background</item>
+        <item name="android:progressTint">?attr/android:colorControlActivated</item>
+        <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
         <item name="android:textColorHint">@color/car_body2</item>
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
         <item name="android:editTextColor">@color/car_body1</item>
@@ -93,6 +100,7 @@ limitations under the License.
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar</item>
+        <item name="checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
         <item name="toolbarStyle">@style/Widget.Car.Toolbar</item>
     </style>
