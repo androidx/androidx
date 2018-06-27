@@ -27,17 +27,26 @@ import androidx.annotation.RequiresApi;
 public class SliceRenderActivity extends Activity {
     public static final String ACTION_RENDER_DONE = "androidx.slice.render.RENDER_DONE";
 
+    private SliceRenderer mRenderer;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        new SliceRenderer(this).renderAll(new Runnable() {
-
+        mRenderer = new SliceRenderer(this);
+        mRenderer.renderAll(new Runnable() {
             @Override
             public void run() {
                 sendBroadcast(new Intent(ACTION_RENDER_DONE));
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mRenderer != null) {
+            mRenderer.dismissDialog();
+        }
     }
 }
