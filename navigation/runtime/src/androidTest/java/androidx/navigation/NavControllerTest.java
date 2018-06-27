@@ -231,6 +231,21 @@ public class NavControllerTest {
     }
 
     @Test
+    public void testNavigateThenNavigateWithPop() {
+        NavController navController = createNavController();
+        navController.setGraph(R.navigation.nav_simple);
+        TestNavigator navigator = navController.getNavigatorProvider()
+                .getNavigator(TestNavigator.class);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.navigate(R.id.second_test, null,
+                new NavOptions.Builder().setPopUpTo(R.id.start_test, true).build());
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
     public void testNavigateThenNavigateUp() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
