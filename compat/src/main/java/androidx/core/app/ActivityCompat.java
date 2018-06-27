@@ -359,7 +359,10 @@ public class ActivityCompat extends ContextCompat {
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @NonNull
     public static <T extends View> T requireViewById(@NonNull Activity activity, @IdRes int id) {
-        // TODO: use and link to Activity#requireViewById() directly, once available
+        if (Build.VERSION.SDK_INT >= 28) {
+            return activity.requireViewById(id);
+        }
+
         T view = activity.findViewById(id);
         if (view == null) {
             throw new IllegalArgumentException("ID does not reference a View inside this Activity");

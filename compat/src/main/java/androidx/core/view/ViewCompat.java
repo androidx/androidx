@@ -1355,7 +1355,10 @@ public class ViewCompat {
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @NonNull
     public static <T extends View> T requireViewById(@NonNull View view, @IdRes int id) {
-        // TODO: use and link to View#requireViewById() directly, once available
+        if (Build.VERSION.SDK_INT >= 28) {
+            return view.requireViewById(id);
+        }
+
         T targetView = view.findViewById(id);
         if (targetView == null) {
             throw new IllegalArgumentException("ID does not reference a View inside this View");
