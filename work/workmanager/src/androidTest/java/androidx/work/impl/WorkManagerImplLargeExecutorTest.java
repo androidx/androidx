@@ -66,7 +66,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplLargeExecutorTest {
 
-    private static final int NUM_WORKERS = 500;
+    private static final int NUM_WORKERS = 200;
     private static final int TEST_TIMEOUT_SECONDS = 90;
 
     // ThreadPoolExecutor parameters.

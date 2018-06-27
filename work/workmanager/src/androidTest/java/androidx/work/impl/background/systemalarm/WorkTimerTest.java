@@ -49,7 +49,7 @@ public class WorkTimerTest {
     public void testTimer_withListenerAndCleanUp() throws InterruptedException {
         TestTimeLimitExceededListener listenerSpy = spy(mListener);
         mWorkTimer.startTimer(WORKSPEC_ID_1, 0, listenerSpy);
-        Thread.sleep(10); // introduce a small delay
+        Thread.sleep(100); // introduce a small delay
         verify(listenerSpy, times(1)).onTimeLimitExceeded(WORKSPEC_ID_1);
         assertThat(mWorkTimer.getTimerMap().size(), is(0));
         assertThat(mWorkTimer.getListeners().size(), is(0));
