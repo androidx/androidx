@@ -38,6 +38,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+import androidx.media.MediaSessionManager;
+import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
@@ -83,6 +85,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     final MediaSession2.SupportLibraryImpl mSession;
     final Context mContext;
+    final MediaSessionManager mSessionManager;
 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -98,6 +101,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     MediaSession2Stub(MediaSession2.SupportLibraryImpl session) {
         mSession = session;
         mContext = mSession.getContext();
+        mSessionManager = MediaSessionManager.getSessionManager(mContext);
     }
 
     List<ControllerInfo> getConnectedControllers() {
@@ -212,7 +216,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     void removeControllerInfo(ControllerInfo controller) {
         synchronized (mLock) {
-            controller = mControllers.remove(controller.getId());
+            controller = mControllers.remove(
+                    ((Controller2Cb) controller.getControllerCb()).getCallbackBinder());
             if (DEBUG) {
                 Log.d(TAG, "releasing " + controller);
             }
@@ -245,8 +250,11 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void connect(final IMediaController2 caller, final String callingPackage)
             throws RuntimeException {
-        final ControllerInfo controllerInfo = new ControllerInfo(callingPackage,
-                Binder.getCallingPid(), Binder.getCallingUid(), new Controller2Cb(caller));
+        RemoteUserInfo remoteUserInfo = new RemoteUserInfo(
+                callingPackage, Binder.getCallingPid(), Binder.getCallingUid());
+        final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
+                mSessionManager.isTrustedForMediaControl(remoteUserInfo),
+                new Controller2Cb(caller));
         mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -257,7 +265,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     // Keep connecting controllers.
                     // This helps sessions to call APIs in the onConnect()
                     // (e.g. setCustomLayout()) instead of pending them.
-                    mConnectingControllers.add(controllerInfo.getId());
+                    mConnectingControllers.add(
+                            ((Controller2Cb) controllerInfo.getControllerCb()).getCallbackBinder());
                 }
                 SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
                         mSession.getInstance(), controllerInfo);
@@ -276,8 +285,10 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         allowedCommands = new SessionCommandGroup2();
                     }
                     synchronized (mLock) {
-                        mConnectingControllers.remove(controllerInfo.getId());
-                        mControllers.put(controllerInfo.getId(), controllerInfo);
+                        IBinder callbackBinder = ((Controller2Cb) controllerInfo.getControllerCb())
+                                .getCallbackBinder();
+                        mConnectingControllers.remove(callbackBinder);
+                        mControllers.put(callbackBinder, controllerInfo);
                         mAllowedCommandGroupMap.put(controllerInfo, allowedCommands);
                     }
                     // If connection is accepted, notify the current state to the controller.
@@ -320,7 +331,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     }
                 } else {
                     synchronized (mLock) {
-                        mConnectingControllers.remove(controllerInfo.getId());
+                        mConnectingControllers.remove(((Controller2Cb)
+                                controllerInfo.getControllerCb()).getCallbackBinder());
                     }
                     if (DEBUG) {
                         Log.d(TAG, "Rejecting connection, controllerInfo=" + controllerInfo);
@@ -930,8 +942,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             mIControllerCallback = callback;
         }
 
-        @Override
-        @NonNull IBinder getId() {
+        @NonNull IBinder getCallbackBinder() {
             return mIControllerCallback.asBinder();
         }
 

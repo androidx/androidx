@@ -60,6 +60,7 @@ import androidx.media2.MediaPlaylistAgent.PlaylistEventCallback;
 import androidx.media2.MediaSession2.ErrorCode;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
@@ -116,7 +117,6 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         mHandler = new Handler(mHandlerThread.getLooper());
 
         mSession2Stub = new MediaSession2Stub(this);
-        mSessionLegacyStub = new MediaSessionLegacyStub(this);
         mSessionActivity = sessionActivity;
 
         mCallback = callback;
@@ -148,6 +148,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
         mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mSessionToken.toBundle());
+        // NOTE: mSessionLegacyStub should be created after mSessionCompat created.
+        mSessionLegacyStub = new MediaSessionLegacyStub(this);
         mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
         mSessionCompat.setSessionActivity(sessionActivity);
         updatePlayer(player, playlistAgent, volumeProvider);
@@ -323,7 +325,10 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
 
     @Override
     public @NonNull List<ControllerInfo> getConnectedControllers() {
-        return mSession2Stub.getConnectedControllers();
+        List<ControllerInfo> controllers = new ArrayList<>();
+        controllers.addAll(mSession2Stub.getConnectedControllers());
+        controllers.addAll(mSessionLegacyStub.getConnectedControllers());
+        return controllers;
     }
 
     @Override
@@ -1154,10 +1159,12 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     }
 
     void notifyToAllControllers(@NonNull NotifyRunnable runnable) {
-        List<ControllerInfo> controllers = getConnectedControllers();
+        List<ControllerInfo> controllers = mSession2Stub.getConnectedControllers();
         for (int i = 0; i < controllers.size(); i++) {
             notifyToController(controllers.get(i), runnable);
         }
+        ControllerInfo controller = mSessionLegacyStub.getControllersForAll();
+        notifyToController(controller, runnable);
     }
 
     ///////////////////////////////////////////////////
