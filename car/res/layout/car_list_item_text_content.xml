@@ -72,6 +72,7 @@
     <!-- End icon with divider. -->
     <View
         android:id="@+id/supplemental_icon_divider"
+        android:background="?attr/listItemActionDividerColor"
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/car_padding_4"
         app:layout_constraintTop_toTopOf="parent"
@@ -92,6 +93,7 @@
     <!-- Switch with divider. -->
     <View
         android:id="@+id/switch_divider"
+        android:background="?attr/listItemActionDividerColor"
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/car_padding_4"
         app:layout_constraintTop_toTopOf="parent"
@@ -111,6 +113,7 @@
     <!-- Up to 2 action buttons with dividers. -->
     <View
         android:id="@+id/action2_divider"
+        android:background="?attr/listItemActionDividerColor"
         android:layout_marginEnd="@dimen/car_padding_4"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -131,6 +134,7 @@
         style="?android:attr/borderlessButtonStyle"/>
     <View
         android:id="@+id/action1_divider"
+        android:background="?attr/listItemActionDividerColor"
         android:layout_marginEnd="@dimen/car_padding_4"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

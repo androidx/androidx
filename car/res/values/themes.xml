@@ -48,6 +48,7 @@ limitations under the License.
         <item name="colorControlHighlight">@color/car_card_ripple_background_light</item>
         <item name="colorPrimary">@color/car_card_dark</item>
         <item name="colorSwitchThumbNormal">@color/car_body2_light</item>
+        <item name="listItemActionDividerColor">@color/car_list_divider_light</item>
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
@@ -85,6 +86,7 @@ limitations under the License.
         <item name="colorControlHighlight">@color/car_card_ripple_background</item>
         <item name="colorPrimary">@color/car_card</item>
         <item name="colorSwitchThumbNormal">@color/car_body2</item>
+        <item name="listItemActionDividerColor">@color/car_list_divider</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
