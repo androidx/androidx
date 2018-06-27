@@ -21,6 +21,7 @@ import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -103,6 +104,7 @@ class MediaBrowserServiceCompatApi26 {
         @Override
         public void onLoadChildren(String parentId, Result<List<MediaBrowser.MediaItem>> result,
                 Bundle options) {
+            MediaSessionCompat.ensureClassLoader(options);
             ((ServiceCompatProxy) mServiceProxy).onLoadChildren(
                     parentId, new ResultWrapper(result), options);
         }

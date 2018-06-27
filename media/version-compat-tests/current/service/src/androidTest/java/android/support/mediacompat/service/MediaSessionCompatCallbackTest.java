@@ -90,6 +90,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -869,6 +870,58 @@ public class MediaSessionCompatCallbackTest {
             mWaitLock.wait(TIME_OUT_MS);
             assertEquals(7, vp.getCurrentVolume());
         }
+    }
+
+    @Test
+    @SmallTest
+    public void testReceivingMediaParcelables() throws Exception {
+        mCallback.reset(1);
+        final String action = "test-action";
+
+        Bundle arguments = new Bundle();
+        arguments.putString("action", action);
+
+        final MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
+                .setMediaId("testMediaId")
+                .build();
+        final MediaSessionCompat.QueueItem queueItem =
+                new MediaSessionCompat.QueueItem(desc, 1 /* flags */);
+        final MediaBrowserCompat.MediaItem mediaItem =
+                new MediaBrowserCompat.MediaItem(desc, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+        final PlaybackStateCompat state =  new PlaybackStateCompat.Builder()
+                .setBufferedPosition(1000)
+                .build();
+
+        Bundle extras = new Bundle();
+        extras.putParcelable("description", desc);
+        extras.putParcelable("queueItem", queueItem);
+        extras.putParcelable("mediaItem", mediaItem);
+        extras.putParcelable("state", state);
+
+        arguments.putBundle("extras", extras);
+        callTransportControlsMethod(
+                SEND_CUSTOM_ACTION, arguments, getContext(), mSession.getSessionToken());
+
+        mCallback.await(TIME_OUT_MS);
+        assertTrue(mCallback.mOnCustomActionCalled);
+        assertEquals(action, mCallback.mAction);
+
+        // Viewing the contents of bundle from remote process should not throw any exceptions.
+        // Also check whether the bundle has expected contents.
+        Bundle extrasOut = mCallback.mExtras;
+        assertNotNull(extrasOut);
+
+        MediaDescriptionCompat descOut = extrasOut.getParcelable("description");
+        assertEquals(desc.getMediaId(), descOut.getMediaId());
+
+        MediaSessionCompat.QueueItem queueItemOut = extrasOut.getParcelable("queueItem");
+        assertEquals(queueItem.getQueueId(), queueItemOut.getQueueId());
+
+        MediaBrowserCompat.MediaItem mediaItemOut = extrasOut.getParcelable("mediaItem");
+        assertEquals(mediaItem.getFlags(), mediaItemOut.getFlags());
+
+        PlaybackStateCompat stateOut = extrasOut.getParcelable("state");
+        assertEquals(state.getBufferedPosition(), stateOut.getBufferedPosition());
     }
 
     private void setPlaybackState(int state) {

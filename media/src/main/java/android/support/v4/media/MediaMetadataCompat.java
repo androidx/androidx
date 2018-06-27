@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.media.session.MediaControllerCompat.TransportControls;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -366,12 +367,11 @@ public final class MediaMetadataCompat implements Parcelable {
 
     MediaMetadataCompat(Bundle bundle) {
         mBundle = new Bundle(bundle);
-        mBundle.setClassLoader(MediaMetadataCompat.class.getClassLoader());
+        MediaSessionCompat.ensureClassLoader(mBundle);
     }
 
     MediaMetadataCompat(Parcel in) {
-        mBundle = in.readBundle();
-        mBundle.setClassLoader(MediaMetadataCompat.class.getClassLoader());
+        mBundle = in.readBundle(MediaSessionCompat.class.getClassLoader());
     }
 
     /**
@@ -675,7 +675,7 @@ public final class MediaMetadataCompat implements Parcelable {
          */
         public Builder(MediaMetadataCompat source) {
             mBundle = new Bundle(source.mBundle);
-            mBundle.setClassLoader(MediaMetadataCompat.class.getClassLoader());
+            MediaSessionCompat.ensureClassLoader(mBundle);
         }
 
         /**
