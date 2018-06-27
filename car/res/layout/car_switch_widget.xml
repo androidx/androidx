@@ -20,5 +20,4 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/switch_widget"
     android:layout_width="@dimen/car_primary_icon_size"
-    android:layout_height="@dimen/car_primary_icon_size"
-    style="@style/Widget.Car.Switch"/>
+    android:layout_height="@dimen/car_primary_icon_size" />

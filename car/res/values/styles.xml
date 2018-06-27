@@ -306,18 +306,6 @@ limitations under the License.
         <item name="android:thumb">@drawable/car_seekbar_thumb_light</item>
     </style>
 
-    <!-- Styling for the switch. -->
-    <style name="Widget.Car.Switch" parent="@android:style/Widget.Material.CompoundButton.Switch">
-        <item name="android:thumbTint">@drawable/car_switch_thumb</item>
-        <item name="android:trackTint">@drawable/car_switch_track</item>
-    </style>
-
-    <!-- Styling for the switch compat. -->
-    <style name="Widget.Car.Switch.Compat" parent="Widget.AppCompat.CompoundButton.Switch">
-        <item name="thumbTint">@drawable/car_switch_thumb</item>
-        <item name="trackTint">@drawable/car_switch_compat_track</item>
-    </style>
-
     <style name="CarListVerticalDivider">
         <item name="android:layout_width">@dimen/car_vertical_line_divider_width</item>
         <item name="android:layout_height">@dimen/car_vertical_line_divider_height</item>
