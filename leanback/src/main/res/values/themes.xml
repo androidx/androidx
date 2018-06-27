@@ -20,6 +20,7 @@
     <!-- LeanbackBase may be overridden for specific api levels -->
     <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
         <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
+        <item name="playbackProgressSecondaryColor">@color/lb_playback_progress_secondary_color_no_theme</item>
         <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
         <item name="defaultBrandColor">@color/lb_default_brand_color</item>
         <item name="defaultBrandColorDark">@color/lb_default_brand_color_dark</item>
