@@ -128,6 +128,8 @@ limitations under the License.
         <attr name="listItemBodyTextAppearance" format="reference"/>
         <!-- The TextAppearance of the text in the Subheader ListItem. -->
         <attr name="listItemSubheaderTextAppearance" format="reference"/>
+        <!-- The color of the divider before any supplemental actions or icons. -->
+        <attr name="listItemActionDividerColor" format="color"/>
     </declare-styleable>
 
     <!-- The attributes for customizing the appearance of the hamburger and back arrow in the
