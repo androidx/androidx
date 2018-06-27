@@ -1144,6 +1144,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET);
             commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
             commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND);
             commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
             commands.addCommand(SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME);
             commands.addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME);
