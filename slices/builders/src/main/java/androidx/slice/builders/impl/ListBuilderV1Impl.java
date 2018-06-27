@@ -35,6 +35,7 @@ import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_RANGE;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
+import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
@@ -134,8 +135,10 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         boolean isLoading = SliceQuery.find(slice, null, HINT_PARTIAL, null) != null;
         boolean isEmpty = SliceQuery.find(slice, FORMAT_SLICE, HINT_LIST_ITEM, null) == null;
         String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
+        SliceItem action = SliceQuery.find(slice, FORMAT_ACTION, hints, null);
         List<SliceItem> possiblePrimaries = SliceQuery.findAll(slice, FORMAT_SLICE, hints, null);
-        if (!isLoading && !isEmpty && (possiblePrimaries == null || possiblePrimaries.isEmpty())) {
+        if (!isLoading && !isEmpty && action == null
+                && (possiblePrimaries == null || possiblePrimaries.isEmpty())) {
             throw new IllegalStateException("A slice requires a primary action; ensure one of your "
                     + "builders has called #setPrimaryAction with a valid SliceAction.");
         }
@@ -342,8 +345,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             if (mPrimaryAction != null) {
-                Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
-                builder.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
+                mPrimaryAction.setPrimaryAction(builder);
             }
             if (mLayoutDir != -1) {
                 builder.addInt(mLayoutDir, SUBTYPE_LAYOUT_DIRECTION);
@@ -648,8 +650,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 b.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             if (mPrimaryAction != null) {
-                Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
-                b.addSubSlice(mPrimaryAction.buildSlice(sb), null);
+                mPrimaryAction.setPrimaryAction(b);
             }
         }
     }
@@ -715,8 +716,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 b.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             if (mPrimaryAction != null) {
-                Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
-                b.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
+                mPrimaryAction.setPrimaryAction(b);
             }
             if (mSubtitleItem == null && mTitleItem == null) {
                 throw new IllegalStateException("Header requires a title or subtitle to be set.");
