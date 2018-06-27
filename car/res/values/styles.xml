@@ -296,14 +296,14 @@ limitations under the License.
 
     <!-- Styling for seek bars that is fixed to a dark color for thumb and progress. -->
     <style name="Widget.Car.SeekBar.Dark">
-        <item name="android:progressDrawable">@drawable/car_seekbar_track_light</item>
-        <item name="android:thumb">@drawable/car_seekbar_thumb_dark</item>
+        <item name="android:progressDrawable">@drawable/car_seekbar_track</item>
+        <item name="android:thumb">@drawable/car_seekbar_thumb</item>
     </style>
 
     <!-- Styling for seek bars that is fixed to a light color for thumb and progress. -->
     <style name="Widget.Car.SeekBar.Light">
-        <item name="android:progressDrawable">@drawable/car_seekbar_track_dark</item>
-        <item name="android:thumb">@drawable/car_seekbar_thumb_light</item>
+        <item name="android:progressDrawable">@drawable/car_seekbar_track</item>
+        <item name="android:thumb">@drawable/car_seekbar_thumb</item>
     </style>
 
     <style name="CarListVerticalDivider">
@@ -380,8 +380,16 @@ limitations under the License.
     <eat-comment />
 
     <style name="Widget.Car.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="buttonTint">?android:attr/colorAccent</item>
+    </style>
+
+    <style name="Widget.Car.CheckBox.Light">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Light</item>
+    </style>
+
+    <style name="Widget.Car.CheckBox.Dark">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Dark</item>
     </style>
 
     <!-- ============= -->
