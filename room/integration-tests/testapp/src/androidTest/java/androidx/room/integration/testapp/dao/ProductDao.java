@@ -19,6 +19,7 @@ package androidx.room.integration.testapp.dao;
 import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.Query;
 import androidx.room.integration.testapp.vo.Product;
 
 @Dao
@@ -27,4 +28,24 @@ public interface ProductDao {
     @Insert
     long insert(@NonNull Product product);
 
+    /**
+     * Insert a new product with the given name.
+     */
+    @Query("INSERT INTO products (name) VALUES (:name)")
+    void insert(String name);
+
+    /**
+     * Insert a new product with the given name and return the id of the new row.
+     */
+    @Query("INSERT INTO products (name) VALUES (:name)")
+    long insertForLong(String name);
+
+    @Query("INSERT INTO products (name) SELECT 'Product X' WHERE MAX(0, :ints)")
+    long insertVarArgs(int... ints);
+
+    @Query("SELECT COUNT(*) FROM products")
+    int countProducts();
+
+    @Query("SELECT * FROM products WHERE id = :id")
+    Product getProductById(long id);
 }

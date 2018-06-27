@@ -24,13 +24,30 @@ import androidx.room.PrimaryKey;
 public class Product {
 
     @PrimaryKey(autoGenerate = true)
-    public final int id;
+    public final long id;
 
     @NonNull
     public final String name;
 
-    public Product(int id, @NonNull String name) {
+    public Product(long id, @NonNull String name) {
         this.id = id;
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Product product = (Product) o;
+        if (id != product.id) return false;
+        return name == null ? product.name == null : name.equals(product.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Long.hashCode(id);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
     }
 }

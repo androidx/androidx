@@ -30,10 +30,10 @@ import javax.lang.model.type.TypeMirror
 
 @Suppress("FunctionName")
 class QueryVisitor(
-        private val original: String,
-        private val syntaxErrors: ArrayList<String>,
-        statement: ParseTree,
-        private val forRuntimeQuery: Boolean
+    private val original: String,
+    private val syntaxErrors: ArrayList<String>,
+    statement: ParseTree,
+    private val forRuntimeQuery: Boolean
 ) : SQLiteBaseVisitor<Void?>() {
     private val bindingExpressions = arrayListOf<TerminalNode>()
     // table name alias mappings
@@ -93,7 +93,8 @@ class QueryVisitor(
     }
 
     override fun visitCommon_table_expression(
-            ctx: SQLiteParser.Common_table_expressionContext): Void? {
+        ctx: SQLiteParser.Common_table_expressionContext
+    ): Void? {
         val tableName = ctx.table_name()?.text
         if (tableName != null) {
             withClauseNames.add(unescapeIdentifier(tableName))
@@ -140,9 +141,13 @@ class SqlParser {
             val syntaxErrors = arrayListOf<String>()
             parser.addErrorListener(object : BaseErrorListener() {
                 override fun syntaxError(
-                        recognizer: Recognizer<*, *>, offendingSymbol: Any,
-                        line: Int, charPositionInLine: Int, msg: String,
-                        e: RecognitionException?) {
+                    recognizer: Recognizer<*, *>,
+                    offendingSymbol: Any,
+                    line: Int,
+                    charPositionInLine: Int,
+                    msg: String,
+                    e: RecognitionException?
+                ) {
                     syntaxErrors.add(msg)
                 }
             })
@@ -201,7 +206,7 @@ enum class QueryType {
 
     companion object {
         // IF you change this, don't forget to update @Query documentation.
-        val SUPPORTED = hashSetOf(SELECT, DELETE, UPDATE)
+        val SUPPORTED = hashSetOf(SELECT, DELETE, UPDATE, INSERT)
     }
 }
 

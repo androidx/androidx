@@ -109,6 +109,26 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void insertQueryForVoid() {
+        mProductDao.insert("Product X");
+        assertThat(mProductDao.countProducts(), is(1));
+    }
+
+    @Test
+    public void insertQueryForLong() {
+        final String name = "Product X";
+        final long newId = mProductDao.insertForLong(name);
+        assertThat(mProductDao.countProducts(), is(1));
+        assertThat(mProductDao.getProductById(newId), equalTo(new Product(newId, name)));
+    }
+
+    @Test
+    public void insertQueryVararg() {
+        mProductDao.insertVarArgs(1, 2, 3);
+        assertThat(mProductDao.countProducts(), is(1));
+    }
+
+    @Test
     public void insertDifferentEntities() throws Exception {
         User user1 = TestUtil.createUser(3);
         user1.setName("george");

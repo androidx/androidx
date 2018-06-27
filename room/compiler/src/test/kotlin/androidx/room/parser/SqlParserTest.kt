@@ -58,6 +58,14 @@ class SqlParserTest {
     }
 
     @Test
+    fun insertQuery() {
+        val parsed = SqlParser.parse(
+            "INSERT OR REPLACE INTO notes (id, content) VALUES (:id, :content)")
+        assertThat(parsed.errors, `is`(emptyList()))
+        assertThat(parsed.type, `is`(QueryType.INSERT))
+    }
+
+    @Test
     fun explain() {
         assertErrors("EXPLAIN QUERY PLAN SELECT * FROM users",
                 ParserErrors.invalidQueryType(QueryType.EXPLAIN))

@@ -43,10 +43,10 @@ import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 
 class QueryMethodProcessor(
-        baseContext: Context,
-        val containing: DeclaredType,
-        val executableElement: ExecutableElement,
-        val dbVerifier: DatabaseVerifier? = null
+    baseContext: Context,
+    val containing: DeclaredType,
+    val executableElement: ExecutableElement,
+    val dbVerifier: DatabaseVerifier? = null
 ) : KotlinMetadataProcessor {
     val context = baseContext.fork(executableElement)
 
@@ -102,6 +102,12 @@ class QueryMethodProcessor(
                     executableElement,
                     ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
             )
+        } else if (query.type == QueryType.INSERT) {
+            context.checker.check(
+                returnTypeName == TypeName.VOID || returnTypeName == TypeName.LONG,
+                executableElement,
+                ProcessorErrors.PREPARED_INSERT_METHOD_INVALID_RETURN_TYPE
+            )
         }
         val resultBinder = context.typeAdapterStore
                 .findQueryResultBinder(executableType.returnType, query)
@@ -120,10 +126,9 @@ class QueryMethodProcessor(
         if (query.type == QueryType.SELECT && !inTransaction) {
             // put a warning if it is has relations and not annotated w/ transaction
             resultBinder.adapter?.rowAdapter?.let { rowAdapter ->
-                if (rowAdapter is PojoRowAdapter
-                        && rowAdapter.relationCollectors.isNotEmpty()) {
+                if (rowAdapter is PojoRowAdapter && rowAdapter.relationCollectors.isNotEmpty()) {
                     context.logger.w(Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
-                            executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
+                        executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
                 }
             }
         }
