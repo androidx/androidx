@@ -18,7 +18,7 @@ limitations under the License.
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="lb_navigation_menu_contentDescription" msgid="8126335323963415494">"নেভিগেশন মেনু"</string>
-    <string name="orb_search_action" msgid="7534843523462177008">"খোঁজার কার্যকলাপ"</string>
+    <string name="orb_search_action" msgid="7534843523462177008">"খোঁজার অ্যাক্টিভিটি"</string>
     <string name="lb_search_bar_hint" msgid="4819380969103509861">"সার্চ"</string>
     <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"বলার মাধ্যমে খুঁজুন"</string>
     <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> খুঁজুন"</string>
@@ -33,7 +33,7 @@ limitations under the License.
     <string name="lb_playback_controls_rewind_multiplier" msgid="8651612807713092781">"%1$dX স্পিডে পিছিয়ে যান"</string>
     <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"সরাসরি পরেরটিতে চলে যান"</string>
     <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"সরাসরি আগেরটিতে চলে যান"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"আরও কার্যকলাপ"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"আরও অ্যাক্টিভিটি"</string>
     <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"উপরের দিকে করা বুড়ো আঙ্গুলের চিহ্নকে বাদ দিন"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"উপরের দিকে করা বুড়ো আঙ্গুলের চিহ্নকে বেছে নিন"</string>
     <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"নিচের দিকে করা বুড়ো আঙ্গুলের চিহ্নকে বাদ দিন"</string>
