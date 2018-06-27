@@ -21,6 +21,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.arch.lifecycle.Lifecycle;
 import android.support.test.annotation.UiThreadTest;
@@ -30,6 +33,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
 import androidx.navigation.NavOptions;
+import androidx.navigation.Navigator;
 import androidx.navigation.fragment.test.EmptyActivity;
 import androidx.navigation.fragment.test.EmptyFragment;
 import androidx.navigation.fragment.test.R;
@@ -41,6 +45,8 @@ import org.junit.Test;
 
 @SmallTest
 public class FragmentNavigatorTest {
+
+    private static final int INITIAL_FRAGMENT = 1;
 
     @Rule
     public ActivityTestRule<EmptyActivity> mActivityRule =
@@ -127,5 +133,35 @@ public class FragmentNavigatorTest {
                 is(not(equalTo(fragment))));
         assertThat("Old instance should be destroyed", fragment.getLifecycle().getCurrentState(),
                 is(equalTo(Lifecycle.State.DESTROYED)));
+    }
+
+    @UiThreadTest
+    @Test
+    public void testPopInitial() {
+        FragmentNavigator fragmentNavigator = new FragmentNavigator(mEmptyActivity,
+                mFragmentManager, R.id.container);
+        Navigator.OnNavigatorNavigatedListener listener =
+                mock(Navigator.OnNavigatorNavigatedListener.class);
+        fragmentNavigator.addOnNavigatorNavigatedListener(listener);
+        FragmentNavigator.Destination destination = fragmentNavigator.createDestination();
+        destination.setId(INITIAL_FRAGMENT);
+        destination.setFragmentClass(EmptyFragment.class);
+
+        // First push an initial Fragment
+        fragmentNavigator.navigate(destination, null, null);
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+
+        // Now pop the initial Fragment
+        boolean popped = fragmentNavigator.popBackStack();
+        assertThat("FragmentNavigator should return false when popping the initial Fragment",
+                popped, is(false));
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                0,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
+        verifyNoMoreInteractions(listener);
     }
 }
