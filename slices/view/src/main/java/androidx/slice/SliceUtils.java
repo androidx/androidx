@@ -18,8 +18,12 @@ package androidx.slice;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_KEYWORDS;
+import static android.app.slice.Slice.HINT_LAST_UPDATED;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.HINT_TTL;
+import static android.app.slice.Slice.SUBTYPE_COLOR;
+import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -31,6 +35,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.slice.SliceMetadata.LOADED_ALL;
 import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
+import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -49,7 +54,11 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
+import androidx.slice.core.SliceAction;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
+import androidx.slice.widget.ListContent;
+import androidx.slice.widget.ShortcutContent;
 import androidx.slice.widget.SliceView;
 import androidx.slice.widget.SliceView.SliceMode;
 import androidx.versionedparcelable.ParcelUtils;
@@ -90,7 +99,81 @@ public class SliceUtils {
      */
     @NonNull
     public static Slice stripSlice(@NonNull Slice s, @SliceMode int mode, boolean isScrollable) {
+        ListContent listContent = new ListContent(null, s, null, 0, 0);
+        if (listContent != null && listContent.isValid()) {
+            Slice.Builder slice = copyMetadata(s);
+            switch (mode) {
+                case SliceView.MODE_SHORTCUT:
+                    return new ShortcutContent(listContent).buildSlice(slice);
+                case SliceView.MODE_SMALL:
+                    slice.addItem(listContent.getHeaderItem());
+                    List<SliceAction> actions = listContent.getSliceActions();
+                    if (actions != null && actions.size() > 0) {
+                        Slice.Builder sb = new Slice.Builder(slice);
+                        for (SliceAction action : actions) {
+                            Slice.Builder b = new Slice.Builder(sb).addHints(HINT_ACTIONS);
+                            sb.addSubSlice(((SliceActionImpl) action).buildSlice(b));
+                        }
+                        slice.addSubSlice(sb.addHints(HINT_ACTIONS).build());
+                    }
+                    return slice.build();
+                case SliceView.MODE_LARGE:
+                    // TODO: Implement stripping for large mode
+                default:
+                    return s;
+            }
+        }
         return s;
+    }
+
+    /**
+     * @return A slice builder that contains slice metadata from top-level items.
+     */
+    private static Slice.Builder copyMetadata(@NonNull Slice s) {
+        Slice.Builder slice = new Slice.Builder(s.getUri());
+
+        // Adds TTL item into new slice builder.
+        SliceItem ttlItem = SliceQuery.findTopLevelItem(s, FORMAT_LONG, HINT_TTL, null, null);
+        if (ttlItem != null) {
+            slice.addLong(ttlItem.getLong(), SUBTYPE_MILLIS, HINT_TTL);
+        }
+
+        // Adds last updated item into new slice builder.
+        SliceItem updatedItem = SliceQuery.findTopLevelItem(
+                s, FORMAT_LONG, HINT_LAST_UPDATED, null, null);
+        if (updatedItem != null) {
+            slice.addLong(updatedItem.getLong(), SUBTYPE_MILLIS, HINT_LAST_UPDATED);
+        }
+
+        // Adds color item into new slice builder.
+        SliceItem colorItem = SliceQuery.findTopLevelItem(s, FORMAT_INT, SUBTYPE_COLOR, null, null);
+        if (colorItem != null) {
+            slice.addInt(colorItem.getInt(), SUBTYPE_COLOR);
+        }
+
+        // Adds layout direction item into new slice builder.
+        SliceItem layoutDirItem = SliceQuery.findTopLevelItem(
+                s, FORMAT_INT, SUBTYPE_LAYOUT_DIRECTION, null, null);
+        if (layoutDirItem != null) {
+            slice.addInt(layoutDirItem.getInt(), SUBTYPE_LAYOUT_DIRECTION);
+        }
+
+        // Adds key words item into new slice builder.
+        List<String> keyWords = getSliceKeywords(s);
+        if (keyWords != null && keyWords.size() > 0) {
+            Slice.Builder sb = new Slice.Builder(slice);
+            for (String keyword : keyWords) {
+                sb.addText(keyword, null);
+            }
+            slice.addSubSlice(sb.addHints(HINT_KEYWORDS).build());
+        }
+
+        // Adds top-level hints into new slice builder.
+        List<String> hints = s.getHints();
+        if (hints.size() > 0) {
+            slice.addHints(hints);
+        }
+        return slice;
     }
 
     /**

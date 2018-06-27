@@ -147,30 +147,44 @@ public class SliceRenderer {
         for (final String slice : SampleSliceProvider.URI_PATHS) {
             final Slice s = mSliceCreator.onBindSlice(SampleSliceProvider.getUri(slice, mContext));
 
+            // Render original slices.
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     doRender(slice, s, new File(output, String.format("%s.png", slice)),
-                            true /* scrollable */, false /* without padding */);
+                            true /* scrollable */, false /* without padding */,
+                            false /* not stripped */);
                 }
             });
 
+            // Render slices with paddings
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     doRender(slice + "-padding", s, new File(output, String.format(
                             "%s-padding.png", slice)), true /* scrollable */,
-                            true /* with padding */);
+                            true /* with padding */, false /* not stripped */);
                 }
             });
 
+            // Render stripped slices.
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    doRender(slice + "-stripped", s, new File(output, String.format(
+                            "%s-stripped.png", slice)), true /* scrollable */,
+                            false /* without padding */, true /* stripped */);
+                }
+            });
+
+            // Render serialized and then unserialized slices.
             final Slice serialized = serAndUnSer(s);
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     doRender(slice + "-ser", serialized, new File(output, String.format(
                             "%s-serialized.png", slice)), true /* scrollable */,
-                            false /* without padding */);
+                            false /* without padding */, false /* not stripped */);
                 }
             });
             // When changing this make sure to update the size of mDoneLatch so
@@ -183,7 +197,7 @@ public class SliceRenderer {
                         setPadding(false);
                         doRender(slice + "-ns", s, new File(output, String.format(
                                 "%s-no-scroll.png", slice)), false /* scrollable */,
-                                false /* without padding */);
+                                false /* without padding */, false /* not stripped */);
                     }
                 });
             }
@@ -227,7 +241,7 @@ public class SliceRenderer {
     }
 
     private void doRender(final String slice, final Slice s, final File file,
-            final boolean scrollable, final boolean withPadding) {
+            final boolean scrollable, final boolean withPadding, final boolean stripped) {
         Log.d(TAG, "Rendering " + slice + " to " + file.getAbsolutePath());
         try {
             final CountDownLatch l = new CountDownLatch(1);
@@ -237,9 +251,14 @@ public class SliceRenderer {
                     @Override
                     public void run() {
                         setPadding(withPadding);
-                        mSV1.setSlice(s);
-                        mSV2.setSlice(s);
-                        mSV3.setSlice(s);
+                        mSV1.setSlice(stripped
+                                ? SliceUtils.stripSlice(s, SliceView.MODE_SHORTCUT, scrollable)
+                                : s);
+                        mSV2.setSlice(stripped
+                                ? SliceUtils.stripSlice(s, SliceView.MODE_SMALL, scrollable)
+                                : s);
+                        mSV3.setSlice(stripped
+                                ? SliceUtils.stripSlice(s, SliceView.MODE_LARGE, scrollable) : s);
                         mSV3.setScrollable(scrollable);
                         mSV1.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                             @Override
