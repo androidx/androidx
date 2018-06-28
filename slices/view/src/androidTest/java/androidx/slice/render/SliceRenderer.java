@@ -141,7 +141,7 @@ public class SliceRenderer {
         if (!output.exists()) {
             output.mkdir();
         }
-        mDoneLatch = new CountDownLatch(SampleSliceProvider.URI_PATHS.length * 2 + 1);
+        mDoneLatch = new CountDownLatch(SampleSliceProvider.URI_PATHS.length * 3 + 1);
 
         ExecutorService executor = Executors.newFixedThreadPool(5);
         for (final String slice : SampleSliceProvider.URI_PATHS) {
@@ -151,15 +151,26 @@ public class SliceRenderer {
                 @Override
                 public void run() {
                     doRender(slice, s, new File(output, String.format("%s.png", slice)),
-                            true /* scrollable */);
+                            true /* scrollable */, false /* without padding */);
                 }
             });
+
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    doRender(slice + "-padding", s, new File(output, String.format(
+                            "%s-padding.png", slice)), true /* scrollable */,
+                            true /* with padding */);
+                }
+            });
+
             final Slice serialized = serAndUnSer(s);
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     doRender(slice + "-ser", serialized, new File(output, String.format(
-                            "%s-serialized.png", slice)), true /* scrollable */);
+                            "%s-serialized.png", slice)), true /* scrollable */,
+                            false /* without padding */);
                 }
             });
             // When changing this make sure to update the size of mDoneLatch so
@@ -169,8 +180,10 @@ public class SliceRenderer {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
+                        setPadding(false);
                         doRender(slice + "-ns", s, new File(output, String.format(
-                                "%s-no-scroll.png", slice)), false /* scrollable */);
+                                "%s-no-scroll.png", slice)), false /* scrollable */,
+                                false /* without padding */);
                     }
                 });
             }
@@ -214,9 +227,8 @@ public class SliceRenderer {
     }
 
     private void doRender(final String slice, final Slice s, final File file,
-            final boolean scrollable) {
+            final boolean scrollable, final boolean withPadding) {
         Log.d(TAG, "Rendering " + slice + " to " + file.getAbsolutePath());
-
         try {
             final CountDownLatch l = new CountDownLatch(1);
             final Bitmap[] b = new Bitmap[1];
@@ -224,6 +236,7 @@ public class SliceRenderer {
                 mContext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        setPadding(withPadding);
                         mSV1.setSlice(s);
                         mSV2.setSlice(s);
                         mSV3.setSlice(s);
@@ -255,6 +268,18 @@ public class SliceRenderer {
             doCompress(slice, b[0], new FileOutputStream(file));
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void setPadding(boolean withPadding) {
+        if (withPadding) {
+            mSV1.setPadding(30, 15, 20, 25);
+            mSV2.setPadding(30, 15, 20, 25);
+            mSV3.setPadding(30, 15, 20, 25);
+        } else {
+            mSV1.setPadding(0, 0, 0, 0);
+            mSV2.setPadding(0, 0, 0, 0);
+            mSV3.setPadding(0, 0, 0, 0);
         }
     }
 
