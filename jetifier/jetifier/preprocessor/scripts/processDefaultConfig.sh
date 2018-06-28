@@ -65,6 +65,8 @@ rm -rf $OUT_DIR
 mkdir $OUT_DIR
 echo "OUT dir is at '$OUT_DIR'"
 
+FETCH_ARTIFACT="/google/data/ro/projects/android/fetch_artifact"
+
 function getPreRenamedSupportLib() {
 	printSectionStart "Downloading all affected support libraries"
 	mkdir -p "$SUPPORT_LIBS_DOWNLOADED"
