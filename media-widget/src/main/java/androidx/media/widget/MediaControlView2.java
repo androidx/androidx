@@ -359,6 +359,7 @@ public class MediaControlView2 extends BaseLayout {
     List<String> mVideoQualityList;
     List<String> mPlaybackSpeedTextList;
     List<Float> mPlaybackSpeedList;
+    List<Long> mSeekList;
 
     AnimatorSet mHideMainBarsAnimator;
     AnimatorSet mHideProgressBarAnimator;
@@ -794,6 +795,7 @@ public class MediaControlView2 extends BaseLayout {
             mProgress.setMax(MAX_PROGRESS);
         }
         mProgressBuffer = v.findViewById(R.id.progress_buffer);
+        mSeekList = new ArrayList<>();
 
         // Relating to Bottom Bar View
         mBottomBar = v.findViewById(R.id.bottom_bar);
@@ -1360,9 +1362,22 @@ public class MediaControlView2 extends BaseLayout {
                 // the progress bar's position.
                 return;
             }
-            if (mDuration > 0) {
-                int position = (int) ((mDuration * progress) / MAX_PROGRESS);
-                mController.seekTo(position);
+            // Check if progress bar is being dragged since this method may be called after
+            // onStopTrackingTouch() is called.
+            if (mDragging && mDuration > 0) {
+                long position = ((mDuration * progress) / MAX_PROGRESS);
+
+                if (mSeekList.size() == 0) {
+                    mSeekList.add(position);
+                    // Seek now only if there are no additional seek commands in the queue.
+                    mController.seekTo(position);
+                } else if (mSeekList.size() == 1) {
+                    mSeekList.add(position);
+                } else if (mSeekList.size() == 2) {
+                    // If there are already two commands in the queue, replace the second one with
+                    // the new one.
+                    mSeekList.set(1, position);
+                }
 
                 if (mCurrentTime != null) {
                     mCurrentTime.setText(stringForTime(position));
@@ -1377,13 +1392,14 @@ public class MediaControlView2 extends BaseLayout {
             }
             mDragging = false;
 
-            setProgress();
-
-            // Ensure that progress is properly updated in the future,
-            // the call to show() does not guarantee this because it is a
-            // no-op if we are already showing.
-            post(mUpdateProgress);
-            postDelayed(mHideMainBars, mShowControllerIntervalMs);
+            // If there still are seek commands in the queue, set the position on the progress bar
+            // to the last place the touch was released except for the first and the last.
+            if (mSeekList.size() > 0) {
+                long lastSeekPosition = mSeekList.get(mSeekList.size() - 1);
+                int positionOnProgressBar = (int) (MAX_PROGRESS * lastSeekPosition / mDuration);
+                mProgress.setProgress(positionOnProgressBar);
+                mCurrentTime.setText(stringForTime(lastSeekPosition));
+            }
         }
     };
 
@@ -2429,6 +2445,26 @@ public class MediaControlView2 extends BaseLayout {
                             break;
                     }
                     mPrevState = mPlaybackState;
+                }
+            }
+
+            @Override
+            public void onSeekCompleted(MediaController2 controller, long position) {
+                if (mSeekList.size() > 0) {
+                    mSeekList.remove(0);
+
+                    // Check if there are still seek commands in the queue.
+                    if (mSeekList.size() > 0) {
+                        mController.seekTo(mSeekList.get(0));
+                    } else {
+                        // If there are no more seek commands in the queue, check if the bar has
+                        // stopped being dragged. In this case, all the seek commands have been
+                        // called so start to update progress.
+                        if (!mDragging) {
+                            post(mUpdateProgress);
+                            postDelayed(mHideMainBars, mShowControllerIntervalMs);
+                        }
+                    }
                 }
             }
 
