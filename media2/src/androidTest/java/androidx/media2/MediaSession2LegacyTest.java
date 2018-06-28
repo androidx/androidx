@@ -18,7 +18,6 @@ package androidx.media2;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
@@ -113,7 +112,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
 
         final MediaControllerCompat controller = mSession.getSessionCompat().getController();
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
-        controllerCallback.reset(2);
+        controllerCallback.reset(1);
         controller.registerCallback(controllerCallback, sHandler);
 
         mPlayer.notifyPlaybackState(targetState);
@@ -124,6 +123,93 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         assertEquals(targetState,
                 MediaUtils2.convertToPlayerState(controller.getPlaybackState().getState()));
     }
+
+    @Test
+    public void testRepeatModeChange() throws InterruptedException {
+        prepareLooper();
+        final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
+        final MediaPlaylistAgent agent = new MockPlaylistAgent() {
+            @Override
+            public int getRepeatMode() {
+                return testRepeatMode;
+            }
+        };
+
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCallback controllerCallback = new MediaControllerCallback();
+        controllerCallback.reset(1);
+        controller.registerCallback(controllerCallback, sHandler);
+
+        mSession.updatePlayer(mPlayer, agent, null);
+        agent.notifyRepeatModeChanged();
+        assertTrue(controllerCallback.await(WAIT_TIME_MS));
+        assertTrue(controllerCallback.mOnRepeatModeChangedCalled);
+        assertEquals(testRepeatMode, controller.getRepeatMode());
+    }
+
+    @Test
+    public void testShuffleModeChange() throws InterruptedException {
+        prepareLooper();
+        final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
+        final MediaPlaylistAgent agent = new MockPlaylistAgent() {
+            @Override
+            public int getShuffleMode() {
+                return testShuffleMode;
+            }
+        };
+
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCallback controllerCallback = new MediaControllerCallback();
+        controllerCallback.reset(1);
+        controller.registerCallback(controllerCallback, sHandler);
+
+        mSession.updatePlayer(mPlayer, agent, null);
+        agent.notifyShuffleModeChanged();
+        assertTrue(controllerCallback.await(WAIT_TIME_MS));
+        assertTrue(controllerCallback.mOnShuffleModeChangedCalled);
+        assertEquals(testShuffleMode, controller.getShuffleMode());
+    }
+
+    @Test
+    public void testClose() throws InterruptedException {
+        prepareLooper();
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCallback controllerCallback = new MediaControllerCallback();
+        controllerCallback.reset(1);
+        controller.registerCallback(controllerCallback, sHandler);
+
+        mSession.close();
+        assertTrue(controllerCallback.await(WAIT_TIME_MS));
+        assertTrue(controllerCallback.mOnSessionDestroyedCalled);
+    }
+
+//    /**
+//     * This also tests {@link ControllerCallback#onRepeatModeChanged(MediaController2, int)}.
+//     */
+//    @Test
+//    public void testGetRepeatMode() throws InterruptedException {
+//        prepareLooper();
+//        final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
+//        final MediaPlaylistAgent agent = new MockPlaylistAgent() {
+//            @Override
+//            public int getRepeatMode() {
+//                return testRepeatMode;
+//            }
+//        };
+//        final CountDownLatch latch = new CountDownLatch(1);
+//        final ControllerCallback callback = new ControllerCallback() {
+//            @Override
+//            public void onRepeatModeChanged(MediaController2 controller, int repeatMode) {
+//                assertEquals(testRepeatMode, repeatMode);
+//                latch.countDown();
+//            }
+//        };
+//        mSession.updatePlayer(mPlayer, agent, null);
+//        MediaController2 controller = createController(mSession.getToken(), true, callback);
+//        agent.notifyRepeatModeChanged();
+//        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+//        assertEquals(testRepeatMode, controller.getRepeatMode());
+//    }
 
 //    @Test
 //    public void testBufferingStateChange() throws Exception {
@@ -253,36 +339,36 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
 //            assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 //        }
 //    }
-
-    @Test
-    public void testMediaPrepared() throws Exception {
-        prepareLooper();
-        final int listSize = 5;
-        final List<MediaItem2> list = TestUtils.createPlaylist(listSize);
-        mMockAgent.setPlaylist(list, null);
-
-        final MediaItem2 currentItem = list.get(3);
-
-        final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
-                .setPlaylistAgent(mMockAgent)
-                .setId("testMediaPrepared")
-                .setSessionCallback(sHandlerExecutor, new SessionCallback() {
-                    @Override
-                    public void onMediaPrepared(MediaSession2 session, BaseMediaPlayer player,
-                            MediaItem2 itemOut) {
-                        assertSame(currentItem, itemOut);
-                        latchForSessionCallback.countDown();
-                    }
-                }).build()) {
-
-            mPlayer.notifyMediaPrepared(currentItem.getDataSourceDesc());
-            assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-            // TODO(jaewan): Test that controllers are also notified. (b/74505936)
-        }
-    }
-
+//
+//    @Test
+//    public void testMediaPrepared() throws Exception {
+//        prepareLooper();
+//        final int listSize = 5;
+//        final List<MediaItem2> list = TestUtils.createPlaylist(listSize);
+//        mMockAgent.setPlaylist(list, null);
+//
+//        final MediaItem2 currentItem = list.get(3);
+//
+//        final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
+//        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+//                .setPlayer(mPlayer)
+//                .setPlaylistAgent(mMockAgent)
+//                .setId("testMediaPrepared")
+//                .setSessionCallback(sHandlerExecutor, new SessionCallback() {
+//                    @Override
+//                    public void onMediaPrepared(MediaSession2 session, BaseMediaPlayer player,
+//                            MediaItem2 itemOut) {
+//                        assertSame(currentItem, itemOut);
+//                        latchForSessionCallback.countDown();
+//                    }
+//                }).build()) {
+//
+//            mPlayer.notifyMediaPrepared(currentItem.getDataSourceDesc());
+//            assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+//            // TODO(jaewan): Test that controllers are also notified. (b/74505936)
+//        }
+//    }
+//
 //    @Test
 //    public void testBufferingStateChanged() throws Exception {
 //        prepareLooper();
@@ -449,14 +535,14 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
 //        assertEquals(maxVolume, info.getMaxVolume());
 //        assertEquals(currentVolume, info.getCurrentVolume());
 //    }
-
-    @Test
-    public void testPlay() throws Exception {
-        prepareLooper();
-        mSession.play();
-        assertTrue(mPlayer.mPlayCalled);
-    }
-
+//
+//    @Test
+//    public void testPlay() throws Exception {
+//        prepareLooper();
+//        mSession.play();
+//        assertTrue(mPlayer.mPlayCalled);
+//    }
+//
 //    @Test
 //    public void testPause() throws Exception {
 //        prepareLooper();
@@ -1239,7 +1325,6 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         @Override
         public void onSessionReady() {
             mOnSessionReadyCalled = true;
-            mLatch.countDown();
         }
     }
 }

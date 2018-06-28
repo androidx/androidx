@@ -477,6 +477,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
                         mSession.getInstance(), controller);
                 if (allowedCommands == null) {
+                    try {
+                        controller.getControllerCb().onDisconnected();
+                    } catch (RemoteException ex) {
+                        // Controller may have died prematurely.
+                    }
                     return;
                 }
                 synchronized (mLock) {
@@ -633,16 +638,12 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onShuffleModeChanged(int shuffleMode) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
+            // no-op
         }
 
         @Override
         void onRepeatModeChanged(int repeatMode) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_REPEAT_MODE_CHANGED, bundle);
+            // no-op
         }
 
         @Override
@@ -692,7 +693,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onDisconnected() throws RemoteException {
-            //mIControllerCallback.onSessionDestroyed();
+            // TODO: Find a way to disconnect a specific controller in MediaSessionCompat.
         }
     }
 
@@ -820,16 +821,12 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onShuffleModeChanged(int shuffleMode) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
+            mSession.getSessionCompat().setShuffleMode(shuffleMode);
         }
 
         @Override
         void onRepeatModeChanged(int repeatMode) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_REPEAT_MODE_CHANGED, bundle);
+            mSession.getSessionCompat().setRepeatMode(repeatMode);
         }
 
         @Override
@@ -879,7 +876,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onDisconnected() throws RemoteException {
-            //mIControllerCallback.onSessionDestroyed();
+            mSession.getSessionCompat().release();
         }
     }
 }
