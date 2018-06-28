@@ -203,7 +203,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
                 dataSource = (DataSource<K, T>) ((PositionalDataSource<T>) dataSource)
                         .wrapAsContiguousWithoutPlaceholders();
                 if (key != null) {
-                    lastLoad = (int) key;
+                    lastLoad = (Integer) key;
                 }
             }
             ContiguousDataSource<K, T> contigDataSource = (ContiguousDataSource<K, T>) dataSource;
