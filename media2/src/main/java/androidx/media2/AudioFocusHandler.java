@@ -153,12 +153,9 @@ public class AudioFocusHandler {
         }
 
         private AudioAttributesCompat getAudioAttributesNotLocked() {
-            if (mSession.getVolumeProvider() != null) {
-                // Remote session. Ignore audio attributes.
-                return null;
-            }
             BaseMediaPlayer player = mSession.getPlayer();
-            return player == null ? null : player.getAudioAttributes();
+            return (player == null || player instanceof BaseRemoteMediaPlayer)
+                    ? null : player.getAudioAttributes();
         }
 
         @GuardedBy("mLock")

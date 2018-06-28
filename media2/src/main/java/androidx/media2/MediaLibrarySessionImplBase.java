@@ -30,7 +30,6 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
-import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaLibraryService2.LibraryRoot;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
@@ -51,11 +50,10 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
     private final ArrayMap<ControllerInfo, Set<String>> mSubscriptions = new ArrayMap<>();
 
     MediaLibrarySessionImplBase(MediaLibrarySession instance, Context context, String id,
-            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent,
-            VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
+            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
             Executor callbackExecutor, MediaSession2.SessionCallback callback) {
-        super(instance, context, id, player, playlistAgent, volumeProvider, sessionActivity,
-                callbackExecutor, callback);
+        super(instance, context, id, player, playlistAgent, sessionActivity, callbackExecutor,
+                callback);
         mBrowserServiceLegacyStub = new MediaLibraryService2LegacyStub(this);
         mBrowserServiceLegacyStub.attachToBaseContext(context);
         mBrowserServiceLegacyStub.onCreate();

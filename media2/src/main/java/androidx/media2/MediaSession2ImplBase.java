@@ -100,15 +100,12 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     @GuardedBy("mLock")
     private SessionPlaylistAgentImplBase mSessionPlaylistAgent;
     @GuardedBy("mLock")
-    private VolumeProviderCompat mVolumeProvider;
-    @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
     @GuardedBy("mLock")
     private PlaybackInfo mPlaybackInfo;
 
     MediaSession2ImplBase(MediaSession2 instance, Context context, String id,
-            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent,
-            VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
+            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
             Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
         mInstance = instance;
@@ -152,13 +149,12 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         mSessionLegacyStub = new MediaSessionLegacyStub(this);
         mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
         mSessionCompat.setSessionActivity(sessionActivity);
-        updatePlayer(player, playlistAgent, volumeProvider);
+        updatePlayer(player, playlistAgent);
     }
 
     @Override
     public void updatePlayer(@NonNull BaseMediaPlayer player,
-            @Nullable MediaPlaylistAgent playlistAgent,
-            @Nullable VolumeProviderCompat volumeProvider) {
+            @Nullable MediaPlaylistAgent playlistAgent) {
         if (player == null) {
             throw new IllegalArgumentException("player shouldn't be null");
         }
@@ -167,7 +163,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         final boolean hasPlaybackInfoChanged;
         final BaseMediaPlayer oldPlayer;
         final MediaPlaylistAgent oldAgent;
-        final PlaybackInfo info = createPlaybackInfo(volumeProvider, player.getAudioAttributes());
+        final PlaybackInfo info = createPlaybackInfo(player, player.getAudioAttributes());
         synchronized (mLock) {
             hasPlayerChanged = (mPlayer != player);
             hasAgentChanged = (mPlaylistAgent != playlistAgent);
@@ -183,10 +179,26 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
                 playlistAgent = mSessionPlaylistAgent;
             }
             mPlaylistAgent = playlistAgent;
-            mVolumeProvider = volumeProvider;
             mPlaybackInfo = info;
         }
-        if (volumeProvider == null) {
+        if (player instanceof BaseRemoteMediaPlayer) {
+            final BaseRemoteMediaPlayer remotePlayer = (BaseRemoteMediaPlayer) player;
+            VolumeProviderCompat volumeProvider =
+                    new VolumeProviderCompat(remotePlayer.getVolumeControlType(),
+                            (int) remotePlayer.getMaxPlayerVolume(),
+                            (int) remotePlayer.getPlayerVolume()) {
+                        @Override
+                        public void onSetVolumeTo(int volume) {
+                            remotePlayer.setPlayerVolume(volume);
+                        }
+
+                        @Override
+                        public void onAdjustVolume(int direction) {
+                            remotePlayer.adjustPlayerVolume(direction);
+                        }
+                    };
+            mSessionCompat.setPlaybackToRemote(volumeProvider);
+        } else {
             int stream = getLegacyStreamType(player.getAudioAttributes());
             mSessionCompat.setPlaybackToLocal(stream);
         }
@@ -227,10 +239,10 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         }
     }
 
-    private PlaybackInfo createPlaybackInfo(VolumeProviderCompat volumeProvider,
+    private PlaybackInfo createPlaybackInfo(BaseMediaPlayer player,
             AudioAttributesCompat attrs) {
         PlaybackInfo info;
-        if (volumeProvider == null) {
+        if (!(player instanceof BaseRemoteMediaPlayer)) {
             int stream = getLegacyStreamType(attrs);
             int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
             if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
@@ -243,12 +255,13 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
                     mAudioManager.getStreamMaxVolume(stream),
                     mAudioManager.getStreamVolume(stream));
         } else {
+            BaseRemoteMediaPlayer remotePlayer = (BaseRemoteMediaPlayer) player;
             info = PlaybackInfo.createPlaybackInfo(
                     PlaybackInfo.PLAYBACK_TYPE_REMOTE,
                     attrs,
-                    volumeProvider.getVolumeControl(),
-                    volumeProvider.getMaxVolume(),
-                    volumeProvider.getCurrentVolume());
+                    remotePlayer.getVolumeControlType(),
+                    (int) remotePlayer.getMaxPlayerVolume(),
+                    (int) remotePlayer.getPlayerVolume());
         }
         return info;
     }
@@ -308,13 +321,6 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     public @NonNull MediaPlaylistAgent getPlaylistAgent() {
         synchronized (mLock) {
             return mPlaylistAgent;
-        }
-    }
-
-    @Override
-    public @Nullable VolumeProviderCompat getVolumeProvider() {
-        synchronized (mLock) {
-            return mVolumeProvider;
         }
     }
 

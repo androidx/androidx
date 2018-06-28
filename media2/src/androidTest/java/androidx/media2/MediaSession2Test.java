@@ -44,7 +44,6 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
-import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaSession2.CommandButton;
@@ -431,12 +430,12 @@ public class MediaSession2Test extends MediaSession2TestBase {
         MockPlayer player = new MockPlayer(0);
 
         // Test if setPlayer doesn't crash with various situations.
-        mSession.updatePlayer(mPlayer, null, null);
+        mSession.updatePlayer(mPlayer, null);
         assertEquals(mPlayer, mSession.getPlayer());
         MediaPlaylistAgent agent = mSession.getPlaylistAgent();
         assertNotNull(agent);
 
-        mSession.updatePlayer(player, null, null);
+        mSession.updatePlayer(player, null);
         assertEquals(player, mSession.getPlayer());
         assertNotNull(mSession.getPlaylistAgent());
         assertNotEquals(agent, mSession.getPlaylistAgent());
@@ -457,8 +456,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VOLUME_CONTROL_ABSOLUTE;
-        VolumeProviderCompat volumeProvider = new VolumeProviderCompat(
-                volumeControlType, maxVolume, currentVolume) { };
 
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -473,7 +470,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
             }
         };
 
-        mSession.updatePlayer(player, null, null);
+        mSession.updatePlayer(player, null);
 
         final MediaController2 controller = createController(mSession.getToken(), true, callback);
         PlaybackInfo info = controller.getPlaybackInfo();
@@ -490,7 +487,14 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), info.getMaxVolume());
         assertEquals(manager.getStreamVolume(AudioManager.STREAM_MUSIC), info.getCurrentVolume());
 
-        mSession.updatePlayer(player, null, volumeProvider);
+        MockRemotePlayer remotePlayer = new MockRemotePlayer(
+                volumeControlType, maxVolume, currentVolume) {
+            @Override
+            public AudioAttributesCompat getAudioAttributes() {
+                return attrs;
+            }
+        };
+        mSession.updatePlayer(remotePlayer, null);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         info = controller.getPlaybackInfo();
@@ -861,8 +865,8 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(4); // expected call + 1
         final BadPlayer player = new BadPlayer(0);
 
-        mSession.updatePlayer(player, null, null);
-        mSession.updatePlayer(mPlayer, null, null);
+        mSession.updatePlayer(player, null);
+        mSession.updatePlayer(mPlayer, null);
         player.notifyPlaybackState(BaseMediaPlayer.PLAYER_STATE_PAUSED);
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }

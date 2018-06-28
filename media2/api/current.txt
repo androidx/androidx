@@ -243,7 +243,6 @@ package androidx.media2 {
     method public androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder setPlayer(androidx.media2.BaseMediaPlayer);
     method public androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder setPlaylistAgent(androidx.media2.MediaPlaylistAgent);
     method public androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder setSessionActivity(android.app.PendingIntent);
-    method public androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder setVolumeProvider(androidx.media.VolumeProviderCompat);
   }
 
   public static class MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback extends androidx.media2.MediaSession2.SessionCallback {
@@ -577,7 +576,6 @@ package androidx.media2 {
     method public int getRepeatMode();
     method public int getShuffleMode();
     method public androidx.media2.SessionToken2 getToken();
-    method public androidx.media.VolumeProviderCompat getVolumeProvider();
     method public void notifyError(int, android.os.Bundle);
     method public void notifyRoutesInfoChanged(androidx.media2.MediaSession2.ControllerInfo, java.util.List<android.os.Bundle>);
     method public void pause();
@@ -599,7 +597,7 @@ package androidx.media2 {
     method public void skipToNextItem();
     method public void skipToPlaylistItem(androidx.media2.MediaItem2);
     method public void skipToPreviousItem();
-    method public void updatePlayer(androidx.media2.BaseMediaPlayer, androidx.media2.MediaPlaylistAgent, androidx.media.VolumeProviderCompat);
+    method public void updatePlayer(androidx.media2.BaseMediaPlayer, androidx.media2.MediaPlaylistAgent);
     method public void updatePlaylistMetadata(androidx.media2.MediaMetadata2);
     field public static final int ERROR_CODE_ACTION_ABORTED = 10; // 0xa
     field public static final int ERROR_CODE_APP_ERROR = 1; // 0x1
@@ -624,7 +622,6 @@ package androidx.media2 {
     method public androidx.media2.MediaSession2.Builder setPlaylistAgent(androidx.media2.MediaPlaylistAgent);
     method public androidx.media2.MediaSession2.Builder setSessionActivity(android.app.PendingIntent);
     method public androidx.media2.MediaSession2.Builder setSessionCallback(java.util.concurrent.Executor, androidx.media2.MediaSession2.SessionCallback);
-    method public androidx.media2.MediaSession2.Builder setVolumeProvider(androidx.media.VolumeProviderCompat);
   }
 
   public static final class MediaSession2.CommandButton {

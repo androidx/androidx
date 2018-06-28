@@ -27,10 +27,11 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.media.VolumeProviderCompat;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockPlaylistAgent;
+import androidx.media.test.service.MockRemotePlayer;
 import androidx.media.test.service.RemoteMediaController2;
+import androidx.media2.BaseRemoteMediaPlayer;
 import androidx.media2.MediaSession2;
 import androidx.media2.SessionCommandGroup2;
 
@@ -39,16 +40,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests whether the methods of {@link VolumeProviderCompat} are triggered by the controller.
+ * Tests whether the methods of {@link BaseRemoteMediaPlayer} are triggered by the controller.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class VolumeProviderCompatTest extends MediaSession2TestBase {
+public class BaseRemoteMediaPlayerTest extends MediaSession2TestBase {
 
     MediaSession2 mSession;
     RemoteMediaController2 mController2;
@@ -87,65 +87,39 @@ public class VolumeProviderCompatTest extends MediaSession2TestBase {
     @Test
     public void testSetVolumeToByController() throws Exception {
         prepareLooper();
-        final int maxVolume = 100;
-        final int currentVolume = 23;
-        final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-        TestVolumeProvider volumeProvider =
-                new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
+        final float maxVolume = 100;
+        final float currentVolume = 23;
+        final int volumeControlType = BaseRemoteMediaPlayer.VOLUME_CONTROL_ABSOLUTE;
+        MockRemotePlayer remotePlayer = new MockRemotePlayer(
+                volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(new MockPlayer(0), null, volumeProvider);
+        mSession.updatePlayer(remotePlayer, null);
 
         final int targetVolume = 50;
         mController2.setVolumeTo(targetVolume, 0 /* flags */);
 
-        assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertTrue(volumeProvider.mSetVolumeToCalled);
-        assertEquals(targetVolume, volumeProvider.mVolume);
+        assertTrue(remotePlayer.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(remotePlayer.mSetVolumeToCalled);
+        assertEquals(targetVolume, remotePlayer.mCurrentVolume, 0.001f);
     }
 
     @Test
     public void testAdjustVolumeByController() throws Exception {
         prepareLooper();
-        final int maxVolume = 100;
-        final int currentVolume = 23;
-        final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-        TestVolumeProvider volumeProvider =
-                new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
+        final float maxVolume = 100.0f;
+        final float currentVolume = 23.0f;
+        final int volumeControlType = BaseRemoteMediaPlayer.VOLUME_CONTROL_ABSOLUTE;
 
-        mSession.updatePlayer(new MockPlayer(0), null, volumeProvider);
+        MockRemotePlayer remotePlayer = new MockRemotePlayer(
+                volumeControlType, maxVolume, currentVolume);
+
+        mSession.updatePlayer(remotePlayer, null);
 
         final int direction = AudioManager.ADJUST_RAISE;
         mController2.adjustVolume(direction, 0 /* flags */);
 
-        assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertTrue(volumeProvider.mAdjustVolumeCalled);
-        assertEquals(direction, volumeProvider.mDirection);
-    }
-
-
-    class TestVolumeProvider extends VolumeProviderCompat {
-        final CountDownLatch mLatch = new CountDownLatch(1);
-        boolean mSetVolumeToCalled;
-        boolean mAdjustVolumeCalled;
-        int mVolume;
-        int mDirection;
-
-        TestVolumeProvider(int controlType, int maxVolume, int currentVolume) {
-            super(controlType, maxVolume, currentVolume);
-        }
-
-        @Override
-        public void onSetVolumeTo(int volume) {
-            mSetVolumeToCalled = true;
-            mVolume = volume;
-            mLatch.countDown();
-        }
-
-        @Override
-        public void onAdjustVolume(int direction) {
-            mAdjustVolumeCalled = true;
-            mDirection = direction;
-            mLatch.countDown();
-        }
+        assertTrue(remotePlayer.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(remotePlayer.mAdjustVolumeCalled);
+        assertEquals(direction, remotePlayer.mDirection);
     }
 }

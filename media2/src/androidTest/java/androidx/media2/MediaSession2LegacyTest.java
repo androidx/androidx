@@ -140,7 +140,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         controllerCallback.reset(1);
         controller.registerCallback(controllerCallback, sHandler);
 
-        mSession.updatePlayer(mPlayer, agent, null);
+        mSession.updatePlayer(mPlayer, agent);
         agent.notifyRepeatModeChanged();
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnRepeatModeChangedCalled);
@@ -163,7 +163,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         controllerCallback.reset(1);
         controller.registerCallback(controllerCallback, sHandler);
 
-        mSession.updatePlayer(mPlayer, agent, null);
+        mSession.updatePlayer(mPlayer, agent);
         agent.notifyShuffleModeChanged();
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnShuffleModeChangedCalled);

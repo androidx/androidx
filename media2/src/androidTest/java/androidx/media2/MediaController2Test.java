@@ -277,7 +277,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         MockPlaylistAgent agent = new MockPlaylistAgent();
         agent.mPlaylist = testPlaylist;
 
-        mSession.updatePlayer(player, agent, null);
+        mSession.updatePlayer(player, agent);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -629,7 +629,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        mSession.updatePlayer(mPlayer, agent, null);
+        mSession.updatePlayer(mPlayer, agent);
         MediaController2 controller = createController(mSession.getToken(), true, callback);
         agent.notifyShuffleModeChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -668,7 +668,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        mSession.updatePlayer(mPlayer, agent, null);
+        mSession.updatePlayer(mPlayer, agent);
         MediaController2 controller = createController(mSession.getToken(), true, callback);
         agent.notifyRepeatModeChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -692,17 +692,17 @@ public class MediaController2Test extends MediaSession2TestBase {
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-        TestVolumeProvider volumeProvider =
-                new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
+        MockRemotePlayer remotePlayer =
+                new MockRemotePlayer(volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(new MockPlayer(0), null, volumeProvider);
+        mSession.updatePlayer(remotePlayer, null);
         final MediaController2 controller = createController(mSession.getToken(), true, null);
 
         final int targetVolume = 50;
         controller.setVolumeTo(targetVolume, 0 /* flags */);
-        assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertTrue(volumeProvider.mSetVolumeToCalled);
-        assertEquals(targetVolume, volumeProvider.mVolume);
+        assertTrue(remotePlayer.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(remotePlayer.mSetVolumeToCalled);
+        assertEquals(targetVolume, (int) remotePlayer.mCurrentVolume);
     }
 
     @Test
@@ -711,17 +711,17 @@ public class MediaController2Test extends MediaSession2TestBase {
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-        TestVolumeProvider volumeProvider =
-                new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
+        MockRemotePlayer remotePlayer =
+                new MockRemotePlayer(volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(new MockPlayer(0), null, volumeProvider);
+        mSession.updatePlayer(remotePlayer, null);
         final MediaController2 controller = createController(mSession.getToken(), true, null);
 
         final int direction = AudioManager.ADJUST_RAISE;
         controller.adjustVolume(direction, 0 /* flags */);
-        assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertTrue(volumeProvider.mAdjustVolumeCalled);
-        assertEquals(direction, volumeProvider.mDirection);
+        assertTrue(remotePlayer.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(remotePlayer.mAdjustVolumeCalled);
+        assertEquals(direction, remotePlayer.mDirection);
     }
 
     @Test
@@ -746,7 +746,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .setLegacyStreamType(stream)
                 .build();
         mPlayer.setAudioAttributes(attrs);
-        mSession.updatePlayer(mPlayer, null, null);
+        mSession.updatePlayer(mPlayer, null);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
@@ -786,7 +786,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .setLegacyStreamType(stream)
                 .build();
         mPlayer.setAudioAttributes(attrs);
-        mSession.updatePlayer(mPlayer, null, null);
+        mSession.updatePlayer(mPlayer, null);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int direction = originalVolume == minVolume
@@ -1467,32 +1467,6 @@ public class MediaController2Test extends MediaSession2TestBase {
 
     // TODO(jaewan): Add  test for service connect rejection, when we differentiate session
     //               active/inactive and connection accept/refuse
-
-    class TestVolumeProvider extends VolumeProviderCompat {
-        final CountDownLatch mLatch = new CountDownLatch(1);
-        boolean mSetVolumeToCalled;
-        boolean mAdjustVolumeCalled;
-        int mVolume;
-        int mDirection;
-
-        TestVolumeProvider(int controlType, int maxVolume, int currentVolume) {
-            super(controlType, maxVolume, currentVolume);
-        }
-
-        @Override
-        public void onSetVolumeTo(int volume) {
-            mSetVolumeToCalled = true;
-            mVolume = volume;
-            mLatch.countDown();
-        }
-
-        @Override
-        public void onAdjustVolume(int direction) {
-            mAdjustVolumeCalled = true;
-            mDirection = direction;
-            mLatch.countDown();
-        }
-    }
 
     class TestSessionCallback extends SessionCallback {
         CountDownLatch mLatch;
