@@ -1096,6 +1096,7 @@ public class MediaControlView2 extends BaseLayout {
     /**
      * Disable pause or seek buttons if the stream cannot be paused or seeked.
      * This requires the control interface to be a MediaPlayerControlExt
+     * TODO: b/110905302
      */
     private void disableUnsupportedButtons() {
         try {
@@ -2014,6 +2015,7 @@ public class MediaControlView2 extends BaseLayout {
 
         if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE)) {
             mPlayPauseButton.setVisibility(View.VISIBLE);
+            mPlayPauseButton.setEnabled(true);
         } else {
             mPlayPauseButton.setVisibility(View.GONE);
         }
@@ -2021,6 +2023,7 @@ public class MediaControlView2 extends BaseLayout {
                 && mMediaType != MEDIA_TYPE_MUSIC) {
             if (mRewButton != null) {
                 mRewButton.setVisibility(View.VISIBLE);
+                mRewButton.setEnabled(true);
             }
         } else {
             if (mRewButton != null) {
@@ -2031,13 +2034,17 @@ public class MediaControlView2 extends BaseLayout {
                 && mMediaType != MEDIA_TYPE_MUSIC) {
             if (mFfwdButton != null) {
                 mFfwdButton.setVisibility(View.VISIBLE);
+                mFfwdButton.setEnabled(true);
             }
         } else {
             if (mFfwdButton != null) {
                 mFfwdButton.setVisibility(View.GONE);
             }
         }
-        mSeekAvailable = commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
+        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO)) {
+            mSeekAvailable = true;
+            mProgress.setEnabled(true);
+        }
 
         if (commands.hasCommand(new SessionCommand2(COMMAND_SHOW_SUBTITLE, null))
                 && commands.hasCommand(new SessionCommand2(COMMAND_HIDE_SUBTITLE, null))) {
