@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.BaseMediaPlayer.BuffState;
 import androidx.media2.BaseMediaPlayer.PlayerState;
@@ -199,7 +200,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     MediaSession2(Context context, String id, BaseMediaPlayer player,
             MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
             PendingIntent sessionActivity, Executor callbackExecutor,
-            MediaSession2.SessionCallback callback) {
+            SessionCallback callback) {
         mImpl = createImpl(context, id, player, playlistAgent,
                 volumeProvider, sessionActivity, callbackExecutor, callback);
     }
@@ -207,7 +208,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     SupportLibraryImpl createImpl(Context context, String id, BaseMediaPlayer player,
             MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
             PendingIntent sessionActivity, Executor callbackExecutor,
-            MediaSession2.SessionCallback callback) {
+            SessionCallback callback) {
         return new MediaSession2ImplBase(this, context, id, player, playlistAgent,
                 volumeProvider, sessionActivity, callbackExecutor, callback);
     }
@@ -1283,8 +1284,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      * Information of a controller.
      */
     public static final class ControllerInfo {
-        private final int mUid;
-        private final String mPackageName;
+        private final RemoteUserInfo mRemoteUserInfo;
         private final boolean mIsTrusted;
         private final ControllerCb mControllerCb;
 
@@ -1292,25 +1292,33 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        ControllerInfo(@NonNull String packageName, int pid, int uid, @NonNull ControllerCb cb) {
-            mUid = uid;
-            mPackageName = packageName;
-            mIsTrusted = false;
+        ControllerInfo(@NonNull RemoteUserInfo remoteUserInfo, boolean trusted,
+                @NonNull ControllerCb cb) {
+            mRemoteUserInfo = remoteUserInfo;
+            mIsTrusted = trusted;
             mControllerCb = cb;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public @NonNull RemoteUserInfo getRemoteUserInfo() {
+            return mRemoteUserInfo;
         }
 
         /**
          * @return package name of the controller
          */
         public @NonNull String getPackageName() {
-            return mPackageName;
+            return mRemoteUserInfo.getPackageName();
         }
 
         /**
          * @return uid of the controller
          */
         public int getUid() {
-            return mUid;
+            return mRemoteUserInfo.getUid();
         }
 
         /**
@@ -1342,11 +1350,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
 
         @Override
         public String toString() {
-            return "ControllerInfo {pkg=" + mPackageName + ", uid=" + mUid + "})";
-        }
-
-        @NonNull IBinder getId() {
-            return mControllerCb.getId();
+            return "ControllerInfo {pkg=" + mRemoteUserInfo.getPackageName() + ", uid="
+                    + mRemoteUserInfo.getUid() + "})";
         }
 
         @NonNull ControllerCb getControllerCb() {
@@ -1551,22 +1556,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     }
 
     abstract static class ControllerCb {
-        @Override
-        public int hashCode() {
-            return getId().hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof ControllerCb)) {
-                return false;
-            }
-            ControllerCb other = (ControllerCb) obj;
-            return getId().equals(other.getId());
-        }
-
-        abstract @NonNull IBinder getId();
-
         // Mostly matched with the methods in MediaController2.ControllerCallback
         abstract void onCustomLayoutChanged(@NonNull List<CommandButton> layout)
                 throws RemoteException;

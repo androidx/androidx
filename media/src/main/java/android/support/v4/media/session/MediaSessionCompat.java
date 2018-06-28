@@ -715,6 +715,18 @@ public class MediaSessionCompat {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setPlaybackState(@NonNull RemoteUserInfo remoteUserInfo,
+            PlaybackStateCompat state) {
+        if (remoteUserInfo == null) {
+            return;
+        }
+        mImpl.setPlaybackState(remoteUserInfo, state);
+    }
+
+    /**
      * Updates the current metadata. New metadata can be created using
      * {@link android.support.v4.media.MediaMetadataCompat.Builder}. This operation may take time
      * proportional to the size of the bitmap to replace large bitmaps with a scaled down copy.
@@ -1932,6 +1944,7 @@ public class MediaSessionCompat {
         void release();
         Token getSessionToken();
         void setPlaybackState(PlaybackStateCompat state);
+        void setPlaybackState(RemoteUserInfo remoteUserInfo, PlaybackStateCompat state);
         PlaybackStateCompat getPlaybackState();
         void setMetadata(MediaMetadataCompat metadata);
 
@@ -2162,6 +2175,26 @@ public class MediaSessionCompat {
                 mRcc.setTransportControlFlags(
                         getRccTransportControlFlagsFromActions(state.getActions()));
             }
+        }
+
+        @Override
+        public void setPlaybackState(RemoteUserInfo remoteUserInfo, PlaybackStateCompat state) {
+            synchronized (mLock) {
+                mState = state;
+            }
+            int size = mControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                RemoteUserInfo info = (RemoteUserInfo) mControllerCallbacks.getBroadcastCookie(i);
+                if (!info.equals(remoteUserInfo)) {
+                    continue;
+                }
+                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onPlaybackStateChanged(state);
+                } catch (RemoteException e) {
+                }
+            }
+            mControllerCallbacks.finishBroadcast();
         }
 
         @Override
@@ -2651,7 +2684,9 @@ public class MediaSessionCompat {
                     }
                     return;
                 }
-                mControllerCallbacks.register(cb);
+                RemoteUserInfo info = new RemoteUserInfo(
+                        getCallingPackage(), getCallingPid(), getCallingUid());
+                mControllerCallbacks.register(cb, info);
             }
 
             @Override
@@ -3335,8 +3370,8 @@ public class MediaSessionCompat {
 
     @RequiresApi(21)
     static class MediaSessionImplApi21 implements MediaSessionImpl {
-        private final Object mSessionObj;
-        private final Token mToken;
+        final Object mSessionObj;
+        final Token mToken;
 
         boolean mDestroyed = false;
         final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
@@ -3438,6 +3473,25 @@ public class MediaSessionCompat {
             mExtraControllerCallbacks.finishBroadcast();
             MediaSessionCompatApi21.setPlaybackState(mSessionObj,
                     state == null ? null : state.getPlaybackState());
+        }
+
+        @Override
+        public void setPlaybackState(RemoteUserInfo remoteUserInfo, PlaybackStateCompat state) {
+            mPlaybackState = state;
+            int size = mExtraControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                RemoteUserInfo info = (RemoteUserInfo)
+                        mExtraControllerCallbacks.getBroadcastCookie(i);
+                if (!info.equals(remoteUserInfo)) {
+                    continue;
+                }
+                IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onPlaybackStateChanged(state);
+                } catch (RemoteException e) {
+                }
+            }
+            mExtraControllerCallbacks.finishBroadcast();
         }
 
         @Override
@@ -3582,7 +3636,9 @@ public class MediaSessionCompat {
             @Override
             public void registerCallbackListener(IMediaControllerCallback cb) {
                 if (!mDestroyed) {
-                    mExtraControllerCallbacks.register(cb);
+                    RemoteUserInfo info = new RemoteUserInfo(
+                            getCallingPackage(), getCallingPid(), getCallingUid());
+                    mExtraControllerCallbacks.register(cb, info);
                 }
             }
 
@@ -3862,21 +3918,18 @@ public class MediaSessionCompat {
 
     @RequiresApi(28)
     static class MediaSessionImplApi28 extends MediaSessionImplApi21 {
-        private MediaSession mSession;
-
         MediaSessionImplApi28(Context context, String tag, Bundle token2Bundle) {
             super(context, tag, token2Bundle);
         }
 
         MediaSessionImplApi28(Object mediaSession) {
             super(mediaSession);
-            mSession = (MediaSession) mediaSession;
         }
 
         @Override
         public final @NonNull RemoteUserInfo getCurrentControllerInfo() {
             android.media.session.MediaSessionManager.RemoteUserInfo info =
-                    mSession.getCurrentControllerInfo();
+                    ((MediaSession) mSessionObj).getCurrentControllerInfo();
             return new RemoteUserInfo(info.getPackageName(), info.getPid(), info.getUid());
         }
     }
