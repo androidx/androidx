@@ -32,6 +32,7 @@ import android.util.StateSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -383,6 +384,7 @@ class StateListDrawable extends DrawableContainer {
     }
 
     @Override
+    @RequiresApi(21)
     public void applyTheme(@NonNull Theme theme) {
         super.applyTheme(theme);
         onStateChange(getState());

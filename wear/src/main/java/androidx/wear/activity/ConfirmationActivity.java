@@ -16,10 +16,8 @@
 
 package androidx.wear.activity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseIntArray;
 
@@ -52,7 +50,6 @@ import androidx.wear.widget.ConfirmationOverlay;
  * An optional message, included in the extra {@link #EXTRA_MESSAGE} will be displayed horizontally
  * centered below the animation.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class ConfirmationActivity extends Activity {
 
     public static final String EXTRA_MESSAGE = "androidx.wear.activity.extra.MESSAGE";

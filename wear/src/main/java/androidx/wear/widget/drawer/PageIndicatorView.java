@@ -26,11 +26,9 @@ import android.graphics.Paint.Style;
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.viewpager.widget.PagerAdapter;
@@ -54,7 +52,6 @@ import java.util.concurrent.TimeUnit;
  *
  * @hide
  */
-@RequiresApi(Build.VERSION_CODES.M)
 @RestrictTo(Scope.LIBRARY)
 public class PageIndicatorView extends View implements OnPageChangeListener {
 

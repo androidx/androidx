@@ -20,7 +20,6 @@ package androidx.drawerlayout.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -342,7 +341,6 @@ public class DrawerLayout extends ViewGroup {
         if (ViewCompat.getFitsSystemWindows(this)) {
             if (Build.VERSION.SDK_INT >= 21) {
                 setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                    @TargetApi(21)
                     @Override
                     public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
                         final DrawerLayout drawerLayout = (DrawerLayout) view;

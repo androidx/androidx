@@ -16,8 +16,8 @@
 
 package androidx.room.integration.testapp.dao;
 
-import android.annotation.TargetApi;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -26,7 +26,7 @@ import androidx.room.Query;
 import java.util.List;
 
 @Dao
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public interface WithClauseDao {
     @Query("WITH RECURSIVE factorial(n, fact) AS \n"
             + "(SELECT 0, 1 \n"

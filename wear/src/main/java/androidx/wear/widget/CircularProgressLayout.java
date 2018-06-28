@@ -21,7 +21,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -31,7 +30,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import androidx.wear.R;
@@ -49,7 +47,6 @@ import androidx.wear.R;
  * <p>Alternatively, this layout can be used to show indeterminate progress by calling {@link
  * #setIndeterminate(boolean)} method.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class CircularProgressLayout extends FrameLayout {
 
     /**

@@ -16,7 +16,6 @@
 
 package androidx.appcompat.graphics.drawable;
 
-import static android.os.Build.VERSION_CODES.KITKAT;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
@@ -41,6 +40,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 
@@ -129,7 +129,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         return result;
     }
 
-    @TargetApi(LOLLIPOP)
+    @RequiresApi(LOLLIPOP)
     @Override
     public void getOutline(@NonNull Outline outline) {
         if (mCurrDrawable != null) {
@@ -231,7 +231,6 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         return mDrawableContainerState.isStateful();
     }
 
-    @TargetApi(KITKAT)
     @Override
     public void setAutoMirrored(boolean mirrored) {
         if (mDrawableContainerState.mAutoMirrored != mirrored) {
@@ -276,7 +275,6 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         }
     }
 
-    @TargetApi(LOLLIPOP)
     @Override
     public void setHotspot(float x, float y) {
         if (mCurrDrawable != null) {
@@ -284,7 +282,6 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         }
     }
 
-    @TargetApi(LOLLIPOP)
     @Override
     public void setHotspotBounds(int left, int top, int right, int bottom) {
         if (mHotspotBounds == null) {
@@ -596,11 +593,13 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     }
 
     @Override
+    @RequiresApi(21)
     public void applyTheme(@NonNull Theme theme) {
         mDrawableContainerState.applyTheme(theme);
     }
 
     @Override
+    @RequiresApi(21)
     public boolean canApplyTheme() {
         return mDrawableContainerState.canApplyTheme();
     }
@@ -894,7 +893,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
             }
         }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @RequiresApi(LOLLIPOP)
         final void applyTheme(Theme theme) {
             if (theme != null) {
                 createAllFutures();
@@ -911,7 +910,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
             }
         }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @RequiresApi(LOLLIPOP)
         @Override
         public boolean canApplyTheme() {
             final int count = mNumChildren;

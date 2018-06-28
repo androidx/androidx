@@ -17,9 +17,7 @@
 package androidx.wear.widget;
 
 import android.animation.Animator;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -29,7 +27,6 @@ import androidx.annotation.RestrictTo.Scope;
  *
  * @hide Hidden until this goes through review
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT_WATCH)
 @RestrictTo(Scope.LIBRARY)
 public class SimpleAnimatorListener implements Animator.AnimatorListener {
 

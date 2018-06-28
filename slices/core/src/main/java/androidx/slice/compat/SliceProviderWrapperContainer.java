@@ -18,7 +18,6 @@ package androidx.slice.compat;
 
 import static androidx.slice.SliceConvert.wrap;
 
-import android.annotation.TargetApi;
 import android.app.slice.Slice;
 import android.app.slice.SliceProvider;
 import android.app.slice.SliceSpec;
@@ -40,12 +39,11 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@TargetApi(28)
-@RequiresApi(19)
 public class SliceProviderWrapperContainer {
 
     /**
      */
+    @RequiresApi(28)
     public static class SliceProviderWrapper extends SliceProvider {
         private static final String TAG = "SliceProviderWrapper";
 

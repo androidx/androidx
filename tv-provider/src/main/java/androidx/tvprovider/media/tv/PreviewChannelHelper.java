@@ -17,7 +17,6 @@ package androidx.tvprovider.media.tv;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -61,7 +60,6 @@ import java.util.List;
  * All calls to methods in the class should be made on worker threads.
  */
 
-@TargetApi(26)
 @WorkerThread
 public class PreviewChannelHelper {
 
