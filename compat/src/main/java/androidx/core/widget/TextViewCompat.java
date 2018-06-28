@@ -26,7 +26,6 @@ import static android.view.View.TEXT_DIRECTION_RTL;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -528,7 +527,7 @@ public final class TextViewCompat {
         return new OreoCallback(callback, textView);
     }
 
-    @TargetApi(26) // TODO was anonymous but https://issuetracker.google.com/issues/76458979
+    @RequiresApi(26)
     private static class OreoCallback implements ActionMode.Callback {
         // This constant should be correlated with its definition in the
         // android.widget.Editor class.
