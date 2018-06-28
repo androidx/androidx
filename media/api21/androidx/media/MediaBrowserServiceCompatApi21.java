@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
+import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.RequiresApi;
 
@@ -118,6 +119,7 @@ class MediaBrowserServiceCompatApi21 {
         @Override
         public MediaBrowserService.BrowserRoot onGetRoot(String clientPackageName, int clientUid,
                 Bundle rootHints) {
+            MediaSessionCompat.ensureClassLoader(rootHints);
             MediaBrowserServiceCompatApi21.BrowserRoot browserRoot = mServiceProxy.onGetRoot(
                     clientPackageName, clientUid, rootHints == null ? null : new Bundle(rootHints));
             return browserRoot == null ? null : new MediaBrowserService.BrowserRoot(

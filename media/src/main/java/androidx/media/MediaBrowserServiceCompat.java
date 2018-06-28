@@ -573,51 +573,82 @@ public abstract class MediaBrowserServiceCompat extends Service {
         public void handleMessage(Message msg) {
             Bundle data = msg.getData();
             switch (msg.what) {
-                case CLIENT_MSG_CONNECT:
-                    mServiceBinderImpl.connect(data.getString(DATA_PACKAGE_NAME),
-                            data.getInt(DATA_CALLING_PID), data.getInt(DATA_CALLING_UID),
-                            data.getBundle(DATA_ROOT_HINTS),
+                case CLIENT_MSG_CONNECT: {
+                    Bundle rootHints = data.getBundle(DATA_ROOT_HINTS);
+                    MediaSessionCompat.ensureClassLoader(rootHints);
+
+                    mServiceBinderImpl.connect(
+                            data.getString(DATA_PACKAGE_NAME),
+                            data.getInt(DATA_CALLING_PID),
+                            data.getInt(DATA_CALLING_UID),
+                            rootHints,
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
+                }
                 case CLIENT_MSG_DISCONNECT:
                     mServiceBinderImpl.disconnect(new ServiceCallbacksCompat(msg.replyTo));
                     break;
-                case CLIENT_MSG_ADD_SUBSCRIPTION:
-                    mServiceBinderImpl.addSubscription(data.getString(DATA_MEDIA_ITEM_ID),
+                case CLIENT_MSG_ADD_SUBSCRIPTION: {
+                    Bundle options = data.getBundle(DATA_OPTIONS);
+                    MediaSessionCompat.ensureClassLoader(options);
+
+                    mServiceBinderImpl.addSubscription(
+                            data.getString(DATA_MEDIA_ITEM_ID),
                             BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
-                            data.getBundle(DATA_OPTIONS),
+                            options,
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
+                }
                 case CLIENT_MSG_REMOVE_SUBSCRIPTION:
-                    mServiceBinderImpl.removeSubscription(data.getString(DATA_MEDIA_ITEM_ID),
+                    mServiceBinderImpl.removeSubscription(
+                            data.getString(DATA_MEDIA_ITEM_ID),
                             BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
                 case CLIENT_MSG_GET_MEDIA_ITEM:
-                    mServiceBinderImpl.getMediaItem(data.getString(DATA_MEDIA_ITEM_ID),
+                    mServiceBinderImpl.getMediaItem(
+                            data.getString(DATA_MEDIA_ITEM_ID),
                             (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
-                case CLIENT_MSG_REGISTER_CALLBACK_MESSENGER:
-                    mServiceBinderImpl.registerCallbacks(new ServiceCallbacksCompat(msg.replyTo),
-                            data.getString(DATA_PACKAGE_NAME), data.getInt(DATA_CALLING_PID),
-                            data.getInt(DATA_CALLING_UID), data.getBundle(DATA_ROOT_HINTS));
+                case CLIENT_MSG_REGISTER_CALLBACK_MESSENGER: {
+                    Bundle rootHints = data.getBundle(DATA_ROOT_HINTS);
+                    MediaSessionCompat.ensureClassLoader(rootHints);
+
+                    mServiceBinderImpl.registerCallbacks(
+                            new ServiceCallbacksCompat(msg.replyTo),
+                            data.getString(DATA_PACKAGE_NAME),
+                            data.getInt(DATA_CALLING_PID),
+                            data.getInt(DATA_CALLING_UID),
+                            rootHints);
                     break;
+                }
                 case CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER:
-                    mServiceBinderImpl.unregisterCallbacks(new ServiceCallbacksCompat(msg.replyTo));
+                    mServiceBinderImpl.unregisterCallbacks(
+                            new ServiceCallbacksCompat(msg.replyTo));
                     break;
-                case CLIENT_MSG_SEARCH:
-                    mServiceBinderImpl.search(data.getString(DATA_SEARCH_QUERY),
-                            data.getBundle(DATA_SEARCH_EXTRAS),
+                case CLIENT_MSG_SEARCH: {
+                    Bundle searchExtras = data.getBundle(DATA_SEARCH_EXTRAS);
+                    MediaSessionCompat.ensureClassLoader(searchExtras);
+
+                    mServiceBinderImpl.search(
+                            data.getString(DATA_SEARCH_QUERY),
+                            searchExtras,
                             (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
-                case CLIENT_MSG_SEND_CUSTOM_ACTION:
-                    mServiceBinderImpl.sendCustomAction(data.getString(DATA_CUSTOM_ACTION),
-                            data.getBundle(DATA_CUSTOM_ACTION_EXTRAS),
+                }
+                case CLIENT_MSG_SEND_CUSTOM_ACTION: {
+                    Bundle customActionExtras = data.getBundle(DATA_CUSTOM_ACTION_EXTRAS);
+                    MediaSessionCompat.ensureClassLoader(customActionExtras);
+
+                    mServiceBinderImpl.sendCustomAction(
+                            data.getString(DATA_CUSTOM_ACTION),
+                            customActionExtras,
                             (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
+                }
                 default:
                     Log.w(TAG, "Unhandled message: " + msg
                             + "\n  Service version: " + SERVICE_VERSION_CURRENT

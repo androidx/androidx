@@ -59,6 +59,7 @@ import android.view.ViewConfiguration;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
@@ -929,6 +930,18 @@ public class MediaSessionCompat {
         return null;
     }
 
+    /**
+     * A helper method for setting the class loader to {@link Bundle} objects.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static void ensureClassLoader(@Nullable Bundle bundle) {
+        if (bundle != null) {
+            bundle.setClassLoader(MediaSessionCompat.class.getClassLoader());
+        }
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static PlaybackStateCompat getStateWithUpdatedPosition(
             PlaybackStateCompat state, MediaMetadataCompat metadata) {
@@ -1348,18 +1361,15 @@ public class MediaSessionCompat {
                             cb.send(0, result);
                         }
                     } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
-                        extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
                         Callback.this.onAddQueueItem(
                                 (MediaDescriptionCompat) extras.getParcelable(
                                         MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
                     } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM_AT)) {
-                        extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
                         Callback.this.onAddQueueItem(
                                 (MediaDescriptionCompat) extras.getParcelable(
                                         MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION),
                                 extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX));
                     } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM)) {
-                        extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
                         Callback.this.onRemoveQueueItem(
                                 (MediaDescriptionCompat) extras.getParcelable(
                                         MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
@@ -1451,28 +1461,27 @@ public class MediaSessionCompat {
 
             @Override
             public void onSetRating(Object ratingObj, Bundle extras) {
-                Callback.this.onSetRating(RatingCompat.fromRating(ratingObj), extras);
+                // This method will not be called.
             }
 
             @Override
             public void onCustomAction(String action, Bundle extras) {
+                Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                ensureClassLoader(bundle);
+
                 if (action.equals(ACTION_PLAY_FROM_URI)) {
                     Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
-                    Bundle bundle = extras.getParcelable(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPlayFromUri(uri, bundle);
                 } else if (action.equals(ACTION_PREPARE)) {
                     Callback.this.onPrepare();
                 } else if (action.equals(ACTION_PREPARE_FROM_MEDIA_ID)) {
                     String mediaId = extras.getString(ACTION_ARGUMENT_MEDIA_ID);
-                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPrepareFromMediaId(mediaId, bundle);
                 } else if (action.equals(ACTION_PREPARE_FROM_SEARCH)) {
                     String query = extras.getString(ACTION_ARGUMENT_QUERY);
-                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPrepareFromSearch(query, bundle);
                 } else if (action.equals(ACTION_PREPARE_FROM_URI)) {
                     Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
-                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPrepareFromUri(uri, bundle);
                 } else if (action.equals(ACTION_SET_CAPTIONING_ENABLED)) {
                     boolean enabled = extras.getBoolean(ACTION_ARGUMENT_CAPTIONING_ENABLED);
@@ -1484,9 +1493,7 @@ public class MediaSessionCompat {
                     int shuffleMode = extras.getInt(ACTION_ARGUMENT_SHUFFLE_MODE);
                     Callback.this.onSetShuffleMode(shuffleMode);
                 } else if (action.equals(ACTION_SET_RATING)) {
-                    extras.setClassLoader(RatingCompat.class.getClassLoader());
                     RatingCompat rating = extras.getParcelable(ACTION_ARGUMENT_RATING);
-                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onSetRating(rating, bundle);
                 } else {
                     Callback.this.onCustomAction(action, extras);
@@ -2071,6 +2078,7 @@ public class MediaSessionCompat {
                     data.putInt(DATA_CALLING_PID, Binder.getCallingPid());
                     data.putInt(DATA_CALLING_UID, Binder.getCallingUid());
                     if (extras != null) {
+                        ensureClassLoader(data);
                         data.putBundle(DATA_EXTRAS, extras);
                     }
                     msg.setData(data);

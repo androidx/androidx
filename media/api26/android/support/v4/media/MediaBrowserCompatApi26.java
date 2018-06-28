@@ -18,6 +18,7 @@ package android.support.v4.media;
 
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
+import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -56,11 +57,13 @@ class MediaBrowserCompatApi26 {
         @Override
         public void onChildrenLoaded(@NonNull String parentId,
                 List<MediaBrowser.MediaItem> children, @NonNull Bundle options) {
+            MediaSessionCompat.ensureClassLoader(options);
             mSubscriptionCallback.onChildrenLoaded(parentId, children, options);
         }
 
         @Override
         public void onError(@NonNull String parentId, @NonNull Bundle options) {
+            MediaSessionCompat.ensureClassLoader(options);
             mSubscriptionCallback.onError(parentId, options);
         }
     }
