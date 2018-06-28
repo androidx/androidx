@@ -39,7 +39,7 @@ dependencies {
 supportLibrary {
     name = "Android Support Media Widget"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.MEDIA_WIDGET
     mavenGroup = LibraryGroups.MEDIA
     inceptionYear = "2011"
     description = "Android Support Media Widget"

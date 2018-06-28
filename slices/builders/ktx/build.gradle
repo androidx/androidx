@@ -45,7 +45,7 @@ dependencies {
 supportLibrary {
     name = "Slice builders KTX"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.SLICE_BUILDERS_KTX
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2018"
     description = "A set of Kotlin extension methods built on top of slice-builders APIs."
