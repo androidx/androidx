@@ -52,7 +52,7 @@ public abstract class TextClassifier {
     // TODO: describe in the class documentation how a TC implementation in chosen/located.
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    static final String DEFAULT_LOG_TAG = "androidx_tc";
+    public static final String DEFAULT_LOG_TAG = "androidx_tc";
 
     /** Signifies that the TextClassifier did not identify an entity. */
     public static final String TYPE_UNKNOWN = "";
