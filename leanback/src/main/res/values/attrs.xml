@@ -334,6 +334,7 @@
         <attr name="defaultSearchIcon" format="reference" />
 
         <attr name="playbackProgressPrimaryColor" format="reference|color" />
+        <attr name="playbackProgressSecondaryColor" format="reference|color" />
         <attr name="playbackControlsIconHighlightColor" format="reference|color" />
         <attr name="playbackControlsActionIcons" format="reference" />
         <!-- Milliseconds to auto hide playback controls when media start playing. -->

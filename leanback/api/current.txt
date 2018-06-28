@@ -2609,11 +2609,13 @@ package androidx.leanback.widget {
     method public float getDefaultSeekIncrement();
     method public androidx.leanback.widget.OnActionClickedListener getOnActionClickedListener();
     method public int getProgressColor();
+    method public int getSecondaryProgressColor();
     method protected void onProgressBarClicked(androidx.leanback.widget.PlaybackTransportRowPresenter.ViewHolder);
     method public void setDefaultSeekIncrement(float);
     method public void setDescriptionPresenter(androidx.leanback.widget.Presenter);
     method public void setOnActionClickedListener(androidx.leanback.widget.OnActionClickedListener);
     method public void setProgressColor(int);
+    method public void setSecondaryProgressColor(int);
   }
 
   public class PlaybackTransportRowPresenter.ViewHolder extends androidx.leanback.widget.PlaybackRowPresenter.ViewHolder implements androidx.leanback.widget.PlaybackSeekUi {

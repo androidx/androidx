@@ -541,7 +541,9 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
 
     float mDefaultSeekIncrement = 0.01f;
     int mProgressColor = Color.TRANSPARENT;
+    int mSecondaryProgressColor = Color.TRANSPARENT;
     boolean mProgressColorSet;
+    boolean mSecondaryProgressColorSet;
     Presenter mDescriptionPresenter;
     ControlBarPresenter mPlaybackControlsPresenter;
     ControlBarPresenter mSecondaryControlsPresenter;
@@ -631,6 +633,25 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
         return mProgressColor;
     }
 
+    /**
+     * Sets the secondary color for the progress bar.  If not set, a default from
+     * the theme {@link R.attr#playbackProgressSecondaryColor} will be used.
+     * @param color Color used to draw secondary progress.
+     */
+    public void setSecondaryProgressColor(@ColorInt int color) {
+        mSecondaryProgressColor = color;
+        mSecondaryProgressColorSet = true;
+    }
+
+    /**
+     * Returns the secondary color for the progress bar.  If no color was set, transparent
+     * is returned.
+     */
+    @ColorInt
+    public int getSecondaryProgressColor() {
+        return mSecondaryProgressColor;
+    }
+
     @Override
     public void onReappear(RowPresenter.ViewHolder rowViewHolder) {
         ViewHolder vh = (ViewHolder) rowViewHolder;
@@ -639,13 +660,23 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
         }
     }
 
-    private int getDefaultProgressColor(Context context) {
+    private static int getDefaultProgressColor(Context context) {
         TypedValue outValue = new TypedValue();
         if (context.getTheme()
                 .resolveAttribute(R.attr.playbackProgressPrimaryColor, outValue, true)) {
             return context.getResources().getColor(outValue.resourceId);
         }
         return context.getResources().getColor(R.color.lb_playback_progress_color_no_theme);
+    }
+
+    private static int getDefaultSecondaryProgressColor(Context context) {
+        TypedValue outValue = new TypedValue();
+        if (context.getTheme()
+                .resolveAttribute(R.attr.playbackProgressSecondaryColor, outValue, true)) {
+            return context.getResources().getColor(outValue.resourceId);
+        }
+        return context.getResources().getColor(
+                R.color.lb_playback_progress_secondary_color_no_theme);
     }
 
     @Override
@@ -662,6 +693,9 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
                 .onCreateViewHolder(vh.mControlsDock);
         vh.mProgressBar.setProgressColor(mProgressColorSet ? mProgressColor
                 : getDefaultProgressColor(vh.mControlsDock.getContext()));
+        vh.mProgressBar.setSecondaryProgressColor(mSecondaryProgressColorSet
+                ? mSecondaryProgressColor
+                : getDefaultSecondaryProgressColor(vh.mControlsDock.getContext()));
         vh.mControlsDock.addView(vh.mControlsVh.view);
 
         vh.mSecondaryControlsVh = (ControlBarPresenter.ViewHolder) mSecondaryControlsPresenter
