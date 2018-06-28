@@ -41,7 +41,6 @@ import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
@@ -184,7 +183,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         mBinders.clear();
 
         // Create binders that adjust layout params of each view.
-        setItemLayoutHeight();
         setPrimaryAction();
         setText();
         setSupplementalActions();
@@ -230,35 +228,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private void hideSubViews(ViewHolder vh) {
         for (View v : vh.getWidgetViews()) {
             v.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * Sets the height of item depending on which text field is set.
-     */
-    private void setItemLayoutHeight() {
-        if (TextUtils.isEmpty(mBody)) {
-            // If the item only has title or no text, it uses fixed-height as single line.
-            int height = mContext.getResources().getDimensionPixelSize(
-                     R.dimen.car_single_line_list_item_height);
-            mBinders.add(vh -> {
-                ViewGroup.LayoutParams layoutParams = vh.itemView.getLayoutParams();
-                layoutParams.height = height;
-                vh.itemView.requestLayout();
-            });
-        } else {
-            // If body is present, the item should be at least as tall as min height, and wraps
-            // content.
-            int minHeight = mContext.getResources().getDimensionPixelSize(
-                        R.dimen.car_double_line_list_item_height);
-            mBinders.add(vh -> {
-                vh.itemView.setMinimumHeight(minHeight);
-                vh.getContainerLayout().setMinimumHeight(minHeight);
-
-                ViewGroup.LayoutParams layoutParams = vh.itemView.getLayoutParams();
-                layoutParams.height = RecyclerView.LayoutParams.WRAP_CONTENT;
-                vh.itemView.requestLayout();
-            });
         }
     }
 
@@ -434,7 +403,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
     private void setTextEndMargin() {
         int endMargin = mSupplementalActionType == SUPPLEMENTAL_ACTION_NO_ACTION
-                ? 0
+                ? mContext.getResources().getDimensionPixelSize(R.dimen.car_keyline_1)
                 : mContext.getResources().getDimensionPixelSize(R.dimen.car_padding_4);
 
         mBinders.add(vh -> {
@@ -510,8 +479,12 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                     vh.getSupplementalIcon().setImageDrawable(mSupplementalIconDrawable);
                     vh.getSupplementalIcon().setOnClickListener(
                             mSupplementalIconOnClickListener);
-                    vh.getSupplementalIcon().setClickable(
-                            mSupplementalIconOnClickListener != null);
+
+                    boolean hasClickListener = mSupplementalIconOnClickListener != null;
+                    vh.getSupplementalIcon().setClickable(hasClickListener);
+                    vh.getClickInterceptView().setClickable(hasClickListener);
+                    vh.getClickInterceptView().setVisibility(
+                            hasClickListener ? View.VISIBLE : View.GONE);
                 });
                 break;
             case SUPPLEMENTAL_ACTION_TWO_ACTIONS:
@@ -534,10 +507,15 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
                     vh.getAction1().setText(mAction1Text);
                     vh.getAction1().setOnClickListener(mAction1OnClickListener);
+
+                    // Buttons are always clickable, so activate the intercept view.
+                    vh.getClickInterceptView().setClickable(true);
+                    vh.getClickInterceptView().setVisibility(View.VISIBLE);
                 });
                 break;
             case SUPPLEMENTAL_ACTION_NO_ACTION:
-                // Do nothing
+                // If there's not action, then no need for the intercept view to stop touches.
+                mBinders.add(vh -> vh.getClickInterceptView().setClickable(false));
                 break;
             case SUPPLEMENTAL_ACTION_SWITCH:
                 mBinders.add(vh -> {
@@ -547,6 +525,10 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                     if (mShowSwitchDivider) {
                         vh.getSwitchDivider().setVisibility(View.VISIBLE);
                     }
+
+                    // The switch is always touch-able, so activate the intercept view.
+                    vh.getClickInterceptView().setClickable(true);
+                    vh.getClickInterceptView().setVisibility(View.VISIBLE);
                 });
                 break;
             default:
@@ -845,6 +827,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
         private Switch mSwitch;
         private View mSwitchDivider;
+        private View mClickInterceptor;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -867,6 +850,8 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             mAction2 = itemView.findViewById(R.id.action2);
             mAction2Divider = itemView.findViewById(R.id.action2_divider);
 
+            mClickInterceptor = itemView.findViewById(R.id.click_interceptor);
+
             int minTouchSize = itemView.getContext().getResources()
                     .getDimensionPixelSize(R.dimen.car_touch_target_size);
 
@@ -875,7 +860,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
             // Each line groups relevant child views in an effort to help keep this view array
             // updated with actual child views in the ViewHolder.
-            mWidgetViews = new View[]{
+            mWidgetViews = new View[] {
                     // Primary action.
                     mPrimaryIcon,
                     // Text.
@@ -883,7 +868,10 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                     // Supplemental actions include icon, action button, and switch.
                     mSupplementalIcon, mSupplementalIconDivider,
                     mAction1, mAction1Divider, mAction2, mAction2Divider,
-                    mSwitch, mSwitchDivider};
+                    mSwitch, mSwitchDivider,
+                    // Click intercept view that is underneath any supplemental actions
+                    mClickInterceptor
+            };
         }
 
         /**
@@ -961,6 +949,15 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         @NonNull
         View[] getWidgetViews() {
             return mWidgetViews;
+        }
+
+        /**
+         * Returns the view that will intercept clicks beneath the supplemental icon and action
+         * views.
+         */
+        @NonNull
+        View getClickInterceptView() {
+            return mClickInterceptor;
         }
     }
 }

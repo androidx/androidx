@@ -864,6 +864,137 @@ public class TextListItemTest {
         assertFalse(clicked[0]);
     }
 
+    @Test
+    public void testClickInterceptor_ClickableIfSupplmentalIconClickable() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+
+        // Set supplemental icon with a click listener.
+        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true, v -> { });
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().isClickable());
+    }
+
+    @Test
+    public void testClickInterceptor_VisibleIfSupplmentalIconClickable() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+
+        // Set supplemental icon with a click listener.
+        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true, v -> { });
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().getVisibility() == View.VISIBLE);
+    }
+
+    @Test
+    public void testClickInterceptor_NotClickableIfSupplmentalIconNotClickable() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+
+        // Set supplemental icon with no click listener.
+        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertFalse(viewHolder.getClickInterceptView().isClickable());
+    }
+
+    @Test
+    public void testClickInterceptor_GoneIfSupplmentalIconClickable() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+
+        // Set supplemental icon with no click listener.
+        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().getVisibility() == View.GONE);
+    }
+
+    @Test
+    public void testClickInterceptor_ClickableIfSwitchSet() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+        item.setSwitch(/* checked= */ false, /* showDivider= */ false, /* listener= */ null);
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().isClickable());
+    }
+
+    @Test
+    public void testClickInterceptor_VisibleIfSwitchSet() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+        item.setSwitch(/* checked= */ false, /* showDivider= */ false, /* listener= */ null);
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().getVisibility() == View.VISIBLE);
+    }
+
+    @Test
+    public void testClickInterceptor_ClickableIfOneActionSet() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+        item.setAction("text", /* showDivider= */ true, v -> { });
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().isClickable());
+    }
+
+    @Test
+    public void testClickInterceptor_VisibleIfOneActionSet() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+        item.setAction("text", /* showDivider= */ true, v -> { });
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().getVisibility() == View.VISIBLE);
+    }
+
+    @Test
+    public void testClickInterceptor_ClickableIfTwoActionsSet() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+        item.setActions("text", /* showDivider= */ true, v -> { },
+                "text", /* showDivider= */ true, v -> { });
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().isClickable());
+    }
+
+    @Test
+    public void testClickInterceptor_VisibleIfTwoActionsSet() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setEnabled(true);
+        item.setActions("text", /* showDivider= */ true, v -> { },
+                "text", /* showDivider= */ true, v -> { });
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertTrue(viewHolder.getClickInterceptView().getVisibility() == View.VISIBLE);
+    }
+
+
     private static ViewAction clickChildViewWithId(final int id) {
         return new ViewAction() {
             @Override

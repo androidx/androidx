@@ -138,6 +138,7 @@ public class TextListItemActivity extends Activity {
             mItems.add(item);
 
             item = new TextListItem(mContext);
+            item.setOnClickListener(mOnClickListener);
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setTitle("clickable single line with small icon and clickable end icon");
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true, mGetParentHeight);
