@@ -32,6 +32,7 @@ class SnapshotPagedList<T> extends PagedList<T> {
                 pagedList.mConfig);
         mDataSource = pagedList.getDataSource();
         mContiguous = pagedList.isContiguous();
+        mLastLoad = pagedList.mLastLoad;
         mLastKey = pagedList.getLastKey();
     }
 

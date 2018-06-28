@@ -107,6 +107,104 @@ class PagedStorageDiffHelperTest {
         }
     }
 
+    @Test
+    fun transformAnchorIndex_removal() {
+        validateTwoListDiffTransform(
+                PagedStorage(5, listOf("a", "b", "c", "d", "e"), 5),
+                PagedStorage(5, listOf("a", "d", "e"), 5)) { transformAnchorIndex ->
+            // a doesn't move
+            assertEquals(5, transformAnchorIndex(5))
+
+            // b / c missing, so impl maps b -> a's position, c -> d's
+            assertEquals(5, transformAnchorIndex(6))
+            assertEquals(6, transformAnchorIndex(7))
+
+            // d / e move forward
+            assertEquals(6, transformAnchorIndex(8))
+            assertEquals(7, transformAnchorIndex(9))
+        }
+    }
+
+    @Test
+    fun transformAnchorIndex_insert() {
+        validateTwoListDiffTransform(
+                PagedStorage(5, listOf("a", "d", "e"), 5),
+                PagedStorage(5, listOf("a", "b", "c", "d", "e"), 5)) { transformAnchorIndex ->
+            // a doesn't move
+            assertEquals(5, transformAnchorIndex(5))
+
+            // d / e move back
+            assertEquals(8, transformAnchorIndex(6))
+            assertEquals(9, transformAnchorIndex(7))
+        }
+    }
+
+    @Test
+    fun transformAnchorIndex_move() {
+        validateTwoListDiffTransform(
+                PagedStorage(5, listOf("a", "d", "e", "b", "c"), 5),
+                PagedStorage(5, listOf("a", "b", "c", "d", "e"), 5)) { transformAnchorIndex ->
+            assertEquals(5, transformAnchorIndex(5))
+            assertEquals(8, transformAnchorIndex(6))
+            assertEquals(9, transformAnchorIndex(7))
+            assertEquals(6, transformAnchorIndex(8))
+            assertEquals(7, transformAnchorIndex(9))
+        }
+    }
+
+    @Test
+    fun transformAnchorIndex_allMissing() {
+        validateTwoListDiffTransform(
+                PagedStorage(5, listOf("a", "d", "e", "b", "c"), 5),
+                PagedStorage(5, listOf("f", "g", "h", "i", "j"), 5)) { transformAnchorIndex ->
+            assertEquals(5, transformAnchorIndex(5))
+            assertEquals(6, transformAnchorIndex(6))
+            assertEquals(7, transformAnchorIndex(7))
+            assertEquals(8, transformAnchorIndex(8))
+            assertEquals(9, transformAnchorIndex(9))
+        }
+    }
+
+    @Test
+    fun transformAnchorIndex_offset() {
+        validateTwoListDiffTransform(
+                PagedStorage(5, listOf("a"), 6),
+                PagedStorage(7, listOf("a"), 8)) { transformAnchorIndex ->
+            assertEquals(7, transformAnchorIndex(5))
+        }
+    }
+
+    @Test
+    fun transformAnchorIndex_nullBehavior() {
+        validateTwoListDiffTransform(
+                PagedStorage(3, listOf("a"), 4),
+                PagedStorage(1, listOf("a"), 2)) { transformAnchorIndex ->
+            // null, so map to same position in new list
+            assertEquals(0, transformAnchorIndex(0))
+            assertEquals(1, transformAnchorIndex(1))
+            assertEquals(2, transformAnchorIndex(2))
+            // a -> a, handling offsets
+            assertEquals(1, transformAnchorIndex(3))
+            // for rest, clamp to list size
+            assertEquals(3, transformAnchorIndex(4))
+            assertEquals(3, transformAnchorIndex(5))
+            assertEquals(3, transformAnchorIndex(6))
+            assertEquals(3, transformAnchorIndex(7))
+            assertEquals(3, transformAnchorIndex(8))
+        }
+    }
+
+    @Test
+    fun transformAnchorIndex_boundaryBehavior() {
+        validateTwoListDiffTransform(
+                PagedStorage(3, listOf("a"), 4),
+                PagedStorage(1, listOf("a"), 2)) { transformAnchorIndex ->
+            // shouldn't happen, but to be safe, indices are clamped
+            assertEquals(0, transformAnchorIndex(-1))
+            assertEquals(3, transformAnchorIndex(100))
+        }
+    }
+
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
@@ -125,11 +223,23 @@ class PagedStorageDiffHelperTest {
             validator: (callback: ListUpdateCallback) -> Unit
         ) {
             val diffResult = PagedStorageDiffHelper.computeDiff(oldList, newList, DIFF_CALLBACK)
-
             val listUpdateCallback = mock(ListUpdateCallback::class.java)
             PagedStorageDiffHelper.dispatchDiff(listUpdateCallback, oldList, newList, diffResult)
 
             validator(listUpdateCallback)
+        }
+        private fun validateTwoListDiffTransform(
+            oldList: PagedStorage<String>,
+            newList: PagedStorage<String>,
+            validator: (positionMapper: (Int) -> Int) -> Unit
+        ) {
+            validator {
+                PagedStorageDiffHelper.transformAnchorIndex(
+                        PagedStorageDiffHelper.computeDiff(oldList, newList, DIFF_CALLBACK),
+                        oldList,
+                        newList,
+                        it)
+            }
         }
     }
 }

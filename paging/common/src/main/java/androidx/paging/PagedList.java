@@ -506,7 +506,11 @@ public abstract class PagedList<T> extends AbstractList<T> {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    void offsetBoundaryAccessIndices(int offset) {
+    void offsetAccessIndices(int offset) {
+        // update last loadAround index
+        mLastLoad += offset;
+
+        // update access range
         mLowestIndexAccessed += offset;
         mHighestIndexAccessed += offset;
     }
