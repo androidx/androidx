@@ -55,7 +55,6 @@ import android.support.mediacompat.testlib.IRemoteMediaSession2;
 import android.util.Log;
 
 import androidx.media.AudioAttributesCompat;
-import androidx.media.VolumeProviderCompat;
 import androidx.media.test.lib.MockActivity;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media2.DataSourceDesc2;
@@ -190,7 +189,7 @@ public class RemoteMediaSession2Service extends Service {
                     newAgent.mPlaylist = MediaTestUtils.playlistFromParcelableList(
                             args.getParcelableArrayList(KEY_PLAYLIST), false /* createDsd */);
 
-                    session2.updatePlayer(newPlayer, newAgent, null);
+                    session2.updatePlayer(newPlayer, newAgent);
                     break;
                 }
                 case UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE: {
@@ -201,18 +200,17 @@ public class RemoteMediaSession2Service extends Service {
                             .build();
                     MockPlayer newPlayer = new MockPlayer(0);
                     newPlayer.setAudioAttributes(attrs);
-                    session2.updatePlayer(newPlayer, null, null);
+                    session2.updatePlayer(newPlayer, null);
                     break;
                 }
                 case UPDATE_PLAYER_WITH_VOLUME_PROVIDER: {
-                    VolumeProviderCompat vp = new VolumeProviderCompat(
+                    MockRemotePlayer remotePlayer = new MockRemotePlayer(
                             args.getInt(KEY_VOLUME_CONTROL_TYPE),
                             args.getInt(KEY_MAX_VOLUME),
-                            args.getInt(KEY_CURRENT_VOLUME)) {};
-                    MockPlayer newPlayer = new MockPlayer(0);
-                    newPlayer.setAudioAttributes(AudioAttributesCompat.fromBundle(
+                            args.getInt(KEY_CURRENT_VOLUME));
+                    remotePlayer.setAudioAttributes(AudioAttributesCompat.fromBundle(
                             (Bundle) args.getParcelable(KEY_AUDIO_ATTRIBUTES)));
-                    session2.updatePlayer(newPlayer, null, vp);
+                    session2.updatePlayer(remotePlayer, null);
                     break;
                 }
                 case CUSTOM_METHOD_SET_MULTIPLE_VALUES: {

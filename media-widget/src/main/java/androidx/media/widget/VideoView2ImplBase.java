@@ -46,6 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.BaseMediaPlayer;
+import androidx.media2.BaseRemoteMediaPlayer;
 import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
@@ -159,8 +160,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 mRoutePlayer.setDataSource(mMediaItem.getDataSourceDesc());
                 mRoutePlayer.setCurrentPosition(localPlaybackPosition);
                 if (mMediaSession != null) {
-                    mMediaSession.updatePlayer(mRoutePlayer, mMediaSession.getPlaylistAgent(),
-                            null);
+                    mMediaSession.updatePlayer(mRoutePlayer, mMediaSession.getPlaylistAgent());
                 } else {
                     final Context context = mInstance.getContext();
                     mMediaSession = new MediaSession2.Builder(context)
@@ -547,7 +547,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
             if (mMediaSession != null) {
                 mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
-                        mMediaSession.getPlaylistAgent(), null);
+                        mMediaSession.getPlaylistAgent());
             }
         } else {
             if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
@@ -751,7 +751,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         .build();
             } else {
                 mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
-                        mMediaSession.getPlaylistAgent(), null);
+                        mMediaSession.getPlaylistAgent());
             }
 
             final Context context = mInstance.getContext();
@@ -801,7 +801,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     boolean isRemotePlayback() {
         return mRoutePlayer != null
-                && mMediaSession != null && mMediaSession.getVolumeProvider() != null;
+                && mMediaSession != null
+                && (mMediaSession.getPlayer() instanceof BaseRemoteMediaPlayer);
     }
 
     private void selectOrDeselectSubtitle(boolean select) {

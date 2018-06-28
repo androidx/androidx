@@ -24,7 +24,6 @@ import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 
@@ -233,12 +232,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             }
 
             @Override
-            public @NonNull Builder setVolumeProvider(
-                    @Nullable VolumeProviderCompat volumeProvider) {
-                return super.setVolumeProvider(volumeProvider);
-            }
-
-            @Override
             public @NonNull Builder setSessionActivity(@Nullable PendingIntent pi) {
                 return super.setSessionActivity(pi);
             }
@@ -257,25 +250,22 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                     mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
                 }
                 return new MediaLibrarySession(mContext, mId, mPlayer, mPlaylistAgent,
-                        mVolumeProvider, mSessionActivity, mCallbackExecutor, mCallback);
+                        mSessionActivity, mCallbackExecutor, mCallback);
             }
         }
 
         MediaLibrarySession(Context context, String id, BaseMediaPlayer player,
-                MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
-                PendingIntent sessionActivity, Executor callbackExecutor,
-                MediaSession2.SessionCallback callback) {
-            super(context, id, player, playlistAgent, volumeProvider, sessionActivity,
-                    callbackExecutor, callback);
+                MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
+                Executor callbackExecutor, MediaSession2.SessionCallback callback) {
+            super(context, id, player, playlistAgent, sessionActivity, callbackExecutor, callback);
         }
 
         @Override
         SupportLibraryImpl createImpl(Context context, String id, BaseMediaPlayer player,
-                MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
-                PendingIntent sessionActivity, Executor callbackExecutor,
-                MediaSession2.SessionCallback callback) {
+                MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
+                Executor callbackExecutor, MediaSession2.SessionCallback callback) {
             return new MediaLibrarySessionImplBase(this, context, id, player, playlistAgent,
-                    volumeProvider, sessionActivity, callbackExecutor, callback);
+                    sessionActivity, callbackExecutor, callback);
         }
 
         @Override

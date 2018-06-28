@@ -46,6 +46,9 @@ import androidx.core.hardware.display.DisplayManagerCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.VolumeProviderCompat;
+import androidx.media2.BaseMediaPlayer;
+import androidx.media2.MediaPlaylistAgent;
+import androidx.media2.MediaSession2;
 import androidx.mediarouter.app.MediaRouteDiscoveryFragment;
 import androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata;
 import androidx.mediarouter.media.MediaRouteProvider.RouteController;
@@ -783,6 +786,19 @@ public final class MediaRouter {
             Log.d(TAG, "addMediaSessionCompat: " + mediaSession);
         }
         sGlobal.setMediaSessionCompat(mediaSession);
+    }
+
+    /**
+     * Sets a {@link MediaSession2}, {@link RouteMediaPlayer}, and {@link MediaPlaylistAgent}
+     * to be used when a router is selected and playback becomes remote.
+     *
+     * @param session2 a media session2
+     * @param routePlayer route player.
+     * @param agent a playlist agent
+     */
+    public void setMediaSession2(@NonNull MediaSession2 session2,
+            @NonNull RouteMediaPlayer routePlayer, @NonNull MediaPlaylistAgent agent) {
+        sGlobal.setMediaSession2(session2, routePlayer, agent);
     }
 
     public MediaSessionCompat.Token getMediaSessionToken() {
@@ -2723,6 +2739,12 @@ public final class MediaRouter {
             }
         }
 
+        public void setMediaSession2(MediaSession2 session2, RouteMediaPlayer remotePlayer,
+                MediaPlaylistAgent agent) {
+            setMediaSessionRecord(session2 != null
+                    ? new MediaSessionRecord(session2, remotePlayer, agent) : null);
+        }
+
         private void setMediaSessionRecord(MediaSessionRecord mediaSessionRecord) {
             if (mMediaSession != null) {
                 mMediaSession.clearVolumeHandling();
@@ -2803,62 +2825,99 @@ public final class MediaRouter {
         private final class MediaSessionRecord {
             private final MediaSessionCompat mMsCompat;
 
+            private final MediaSession2 mMediaSession2;
+            private final RouteMediaPlayer mRoutePlayer;
+            private final BaseMediaPlayer mLocalPlayer;
+            private final MediaPlaylistAgent mPlaylistAgent;
+
             private @VolumeProviderCompat.ControlType int mControlType;
             private int mMaxVolume;
             private VolumeProviderCompat mVpCompat;
 
-            public MediaSessionRecord(Object mediaSession) {
-                mMsCompat = MediaSessionCompat.fromMediaSession(mApplicationContext, mediaSession);
+            MediaSessionRecord(Object mediaSession) {
+                this(MediaSessionCompat.fromMediaSession(mApplicationContext, mediaSession));
             }
 
-            public MediaSessionRecord(MediaSessionCompat mediaSessionCompat) {
+            MediaSessionRecord(MediaSessionCompat mediaSessionCompat) {
                 mMsCompat = mediaSessionCompat;
+                mMediaSession2 = null;
+                mRoutePlayer = null;
+                mLocalPlayer = null;
+                mPlaylistAgent = null;
+            }
+
+            MediaSessionRecord(MediaSession2 session2, RouteMediaPlayer remotePlayer,
+                    MediaPlaylistAgent agent) {
+                mMsCompat = null;
+                mMediaSession2 = session2;
+                mRoutePlayer = remotePlayer;
+                mLocalPlayer = session2.getPlayer();
+                mPlaylistAgent = agent;
             }
 
             public void configureVolume(@VolumeProviderCompat.ControlType int controlType,
                     int max, int current) {
-                if (mVpCompat != null && controlType == mControlType && max == mMaxVolume) {
-                    // If we haven't changed control type or max just set the
-                    // new current volume
-                    mVpCompat.setCurrentVolume(current);
-                } else {
-                    // Otherwise create a new provider and update
-                    mVpCompat = new VolumeProviderCompat(controlType, max, current) {
-                        @Override
-                        public void onSetVolumeTo(final int volume) {
-                            mCallbackHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSelectedRoute != null) {
-                                        mSelectedRoute.requestSetVolume(volume);
+                if (mMsCompat != null) {
+                    if (mVpCompat != null && controlType == mControlType && max == mMaxVolume) {
+                        // If we haven't changed control type or max just set the
+                        // new current volume
+                        mVpCompat.setCurrentVolume(current);
+                    } else {
+                        // Otherwise create a new provider and update
+                        mVpCompat = new VolumeProviderCompat(controlType, max, current) {
+                            @Override
+                            public void onSetVolumeTo(final int volume) {
+                                mCallbackHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (mSelectedRoute != null) {
+                                            mSelectedRoute.requestSetVolume(volume);
+                                        }
                                     }
-                                }
-                            });
-                        }
+                                });
+                            }
 
-                        @Override
-                        public void onAdjustVolume(final int direction) {
-                            mCallbackHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSelectedRoute != null) {
-                                        mSelectedRoute.requestUpdateVolume(direction);
+                            @Override
+                            public void onAdjustVolume(final int direction) {
+                                mCallbackHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (mSelectedRoute != null) {
+                                            mSelectedRoute.requestUpdateVolume(direction);
+                                        }
                                     }
-                                }
-                            });
-                        }
-                    };
-                    mMsCompat.setPlaybackToRemote(mVpCompat);
+                                });
+                            }
+                        };
+                        mMsCompat.setPlaybackToRemote(mVpCompat);
+                    }
+                } else if (mMediaSession2 != null) {
+                    // RouteMediaPlayer will handle volume changes that mVpCompat is doing.
+                    mRoutePlayer.updateRouteInfo(mSelectedRoute);
+                    mMediaSession2.updatePlayer(mRoutePlayer, mPlaylistAgent);
                 }
             }
 
             public void clearVolumeHandling() {
-                mMsCompat.setPlaybackToLocal(mPlaybackInfo.playbackStream);
-                mVpCompat = null;
+                if (mMsCompat != null) {
+                    mMsCompat.setPlaybackToLocal(mPlaybackInfo.playbackStream);
+                    mVpCompat = null;
+                } else if (mMediaSession2 != null) {
+                    if (mRoutePlayer != null) {
+                        mRoutePlayer.updateRouteInfo(null);
+                    }
+                    mMediaSession2.updatePlayer(mLocalPlayer, mPlaylistAgent);
+                }
             }
 
             public MediaSessionCompat.Token getToken() {
-                return mMsCompat.getSessionToken();
+                if (mMsCompat != null) {
+                    return mMsCompat.getSessionToken();
+                } else if (mMediaSession2 != null) {
+                    // For backward compatibility.
+                    return mMediaSession2.getSessionCompat().getSessionToken();
+                }
+                return null;
             }
         }
 

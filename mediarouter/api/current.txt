@@ -313,6 +313,7 @@ package androidx.mediarouter.media {
     method public void removeRemoteControlClient(java.lang.Object);
     method public void selectRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method public void setMediaSession(java.lang.Object);
+    method public void setMediaSession2(androidx.media2.MediaSession2, androidx.mediarouter.media.RouteMediaPlayer, androidx.media2.MediaPlaylistAgent);
     method public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat);
     method public void unselect(int);
     method public androidx.mediarouter.media.MediaRouter.RouteInfo updateSelectedRoute(androidx.mediarouter.media.MediaRouteSelector);
@@ -472,6 +473,26 @@ package androidx.mediarouter.media {
     method public void onItemStatusChanged(android.os.Bundle, java.lang.String, androidx.mediarouter.media.MediaSessionStatus, java.lang.String, androidx.mediarouter.media.MediaItemStatus);
     method public void onSessionChanged(java.lang.String);
     method public void onSessionStatusChanged(android.os.Bundle, java.lang.String, androidx.mediarouter.media.MediaSessionStatus);
+  }
+
+  public abstract class RouteMediaPlayer extends androidx.media2.BaseRemoteMediaPlayer {
+    ctor public RouteMediaPlayer();
+    method public final void adjustPlayerVolume(int);
+    method public final float getMaxPlayerVolume();
+    method public final float getPlayerVolume();
+    method public final int getVolumeControlType();
+    method public final void notifyBufferingStateChanged(androidx.media2.DataSourceDesc2, int);
+    method public final void notifyCurrentDataSourceChanged();
+    method public final void notifyMediaPrepared(androidx.media2.DataSourceDesc2);
+    method public final void notifyPlaybackCompleted();
+    method public final void notifyPlaybackSpeedChanged();
+    method public final void notifyPlayerStateChanged();
+    method public final void notifyPlayerVolumeChanged();
+    method public final void notifySeekCompleted(long);
+    method public final void registerPlayerEventCallback(java.util.concurrent.Executor, androidx.media2.BaseMediaPlayer.PlayerEventCallback);
+    method public final void setPlayerVolume(float);
+    method public final void unregisterPlayerEventCallback(androidx.media2.BaseMediaPlayer.PlayerEventCallback);
+    method public final void updateRouteInfo(androidx.mediarouter.media.MediaRouter.RouteInfo);
   }
 
 }

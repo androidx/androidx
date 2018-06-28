@@ -162,6 +162,10 @@ class PackageMap(private val rules: List<PackageRule>) {
                 to = "androidx/media"
             ),
             PackageRule(
+                from = "android/support/media2",
+                to = "androidx/media2"
+            ),
+            PackageRule(
                 from = "android/support/fragment",
                 to = "androidx/fragment"
             ),
