@@ -31,6 +31,7 @@
         <argument app:type="string" android:name="test_string2" android:defaultValue="true" />
         <argument app:type="string" android:name="test_string3" android:defaultValue="123L" />
         <argument app:type="string" android:name="test_string4" android:defaultValue="123" />
+        <argument app:type="string" android:name="test_string_no_default" />
         <argument app:type="long" android:name="test_long" android:defaultValue="456789013456L" />
         <argument android:name="test_long2" android:defaultValue="456789013456L" />
         <argument android:name="test_long3" android:defaultValue="123L" />

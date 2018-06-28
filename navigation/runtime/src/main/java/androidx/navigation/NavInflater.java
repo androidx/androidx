@@ -187,50 +187,54 @@ public class NavInflater {
             sTmpValue.set(value);
         }
         String argType = a.getString(R.styleable.NavArgument_type);
-        if ("string".equals(argType)) {
-            dest.getDefaultArguments()
-                    .putString(name, a.getString(R.styleable.NavArgument_android_defaultValue));
-        } else if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
-            switch (value.type) {
-                case TypedValue.TYPE_STRING:
-                    String stringValue = value.string.toString();
-                    if (argType == null) {
-                        Long longValue = parseLongValue(stringValue);
-                        if (longValue != null) {
-                            dest.getDefaultArguments().putLong(name, longValue);
-                            break;
+        if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
+            if ("string".equals(argType)) {
+                dest.getDefaultArguments()
+                        .putString(name, a.getString(R.styleable.NavArgument_android_defaultValue));
+            } else {
+                switch (value.type) {
+                    case TypedValue.TYPE_STRING:
+                        String stringValue = value.string.toString();
+                        if (argType == null) {
+                            Long longValue = parseLongValue(stringValue);
+                            if (longValue != null) {
+                                dest.getDefaultArguments().putLong(name, longValue);
+                                break;
+                            }
+                        } else if ("long".equals(argType)) {
+                            Long longValue = parseLongValue(stringValue);
+                            if (longValue != null) {
+                                dest.getDefaultArguments().putLong(name, longValue);
+                                break;
+                            }
+                            throw new XmlPullParserException(
+                                    "unsupported long value " + value.string);
                         }
-                    } else if ("long".equals(argType)) {
-                        Long longValue = parseLongValue(stringValue);
-                        if (longValue != null) {
-                            dest.getDefaultArguments().putLong(name, longValue);
-                            break;
-                        }
-                        throw new XmlPullParserException("unsupported long value " + value.string);
-                    }
-                    dest.getDefaultArguments().putString(name, stringValue);
-                    break;
-                case TypedValue.TYPE_DIMENSION:
-                    dest.getDefaultArguments().putInt(name,
-                            (int) value.getDimension(res.getDisplayMetrics()));
-                    break;
-                case TypedValue.TYPE_FLOAT:
-                    dest.getDefaultArguments().putFloat(name, value.getFloat());
-                    break;
-                case TypedValue.TYPE_REFERENCE:
-                    dest.getDefaultArguments().putInt(name, value.data);
-                    break;
-                default:
-                    if (value.type >= TypedValue.TYPE_FIRST_INT
-                            && value.type <= TypedValue.TYPE_LAST_INT) {
-                        if (value.type == TypedValue.TYPE_INT_BOOLEAN) {
-                            dest.getDefaultArguments().putBoolean(name, value.data != 0);
+                        dest.getDefaultArguments().putString(name, stringValue);
+                        break;
+                    case TypedValue.TYPE_DIMENSION:
+                        dest.getDefaultArguments().putInt(name,
+                                (int) value.getDimension(res.getDisplayMetrics()));
+                        break;
+                    case TypedValue.TYPE_FLOAT:
+                        dest.getDefaultArguments().putFloat(name, value.getFloat());
+                        break;
+                    case TypedValue.TYPE_REFERENCE:
+                        dest.getDefaultArguments().putInt(name, value.data);
+                        break;
+                    default:
+                        if (value.type >= TypedValue.TYPE_FIRST_INT
+                                && value.type <= TypedValue.TYPE_LAST_INT) {
+                            if (value.type == TypedValue.TYPE_INT_BOOLEAN) {
+                                dest.getDefaultArguments().putBoolean(name, value.data != 0);
+                            } else {
+                                dest.getDefaultArguments().putInt(name, value.data);
+                            }
                         } else {
-                            dest.getDefaultArguments().putInt(name, value.data);
+                            throw new XmlPullParserException(
+                                    "unsupported argument type " + value.type);
                         }
-                    } else {
-                        throw new XmlPullParserException("unsupported argument type " + value.type);
-                    }
+                }
             }
         }
         a.recycle();
