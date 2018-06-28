@@ -23,8 +23,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="@dimen/car_single_line_list_item_height"
-    android:foreground="@drawable/car_card_ripple_background"
-    android:paddingEnd="@dimen/car_keyline_1" >
+    android:foreground="@drawable/car_card_ripple_background" >
 
     <!-- Primary Action. -->
     <ImageView
@@ -68,6 +67,18 @@
         app:barrierAllowsGoneWidgets="false"
         app:constraint_referenced_ids="supplemental_icon_divider,supplemental_icon,switch_divider,switch_widget,action2_divider,action2,action1_divider,action1" />
 
+    <!-- A view that will be underneath all the supplemental icons and action buttons. It is meant
+         to intercept clicks if the icon or buttons are clickable, preventing accidental touches
+         on the main view. -->
+    <View
+        android:id="@+id/click_interceptor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/barrier"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Supplemental action(s) - only one of the following groups should be visible. -->
     <!-- End icon with divider. -->
     <View
@@ -85,6 +96,7 @@
         android:background="@drawable/car_button_ripple_background"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
+        android:layout_marginEnd="@dimen/car_keyline_1"
         android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -106,6 +118,7 @@
         android:id="@+id/switch_widget"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
+        android:layout_marginEnd="@dimen/car_keyline_1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -144,6 +157,7 @@
         android:id="@+id/action1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/car_keyline_1"
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
