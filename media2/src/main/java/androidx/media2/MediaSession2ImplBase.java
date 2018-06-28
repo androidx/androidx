@@ -298,7 +298,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public @NonNull BaseMediaPlayer getPlayer() {
+    public @Nullable BaseMediaPlayer getPlayer() {
         synchronized (mLock) {
             return mPlayer;
         }
