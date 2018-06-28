@@ -59,32 +59,32 @@ public final class Target {
     /**
      * A target which has the characteristics of a vibrant color which is light in luminance.
     */
-    public static final Target LIGHT_VIBRANT;
+    public static final @NonNull Target LIGHT_VIBRANT;
 
     /**
      * A target which has the characteristics of a vibrant color which is neither light or dark.
      */
-    public static final Target VIBRANT;
+    public static final @NonNull Target VIBRANT;
 
     /**
      * A target which has the characteristics of a vibrant color which is dark in luminance.
      */
-    public static final Target DARK_VIBRANT;
+    public static final @NonNull Target DARK_VIBRANT;
 
     /**
      * A target which has the characteristics of a muted color which is light in luminance.
      */
-    public static final Target LIGHT_MUTED;
+    public static final @NonNull Target LIGHT_MUTED;
 
     /**
      * A target which has the characteristics of a muted color which is neither light or dark.
      */
-    public static final Target MUTED;
+    public static final @NonNull Target MUTED;
 
     /**
      * A target which has the characteristics of a muted color which is dark in luminance.
      */
-    public static final Target DARK_MUTED;
+    public static final @NonNull Target DARK_MUTED;
 
     static {
         LIGHT_VIBRANT = new Target();
