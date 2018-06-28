@@ -120,6 +120,7 @@ public class NavInflaterTest {
         assertThat(defaultArguments.getString("test_string2"), is("true"));
         assertThat(defaultArguments.getString("test_string3"), is("123L"));
         assertThat(defaultArguments.getString("test_string4"), is("123"));
+        assertThat(defaultArguments.containsKey("test_string_no_default"), is(false));
     }
 
     @Test
