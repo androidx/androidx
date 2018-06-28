@@ -18,8 +18,11 @@ package androidx.work.impl;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.migration.Migration;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+
+import androidx.work.impl.utils.Preferences;
 
 /**
  * Migration helpers for {@link androidx.work.impl.WorkDatabase}.
@@ -36,6 +39,7 @@ public class WorkDatabaseMigrations {
     // Known WorkDatabase versions
     private static final int VERSION_1 = 1;
     private static final int VERSION_2 = 2;
+    private static final int VERSION_3 = 3;
 
     private static final String CREATE_SYSTEM_ID_INFO =
             "CREATE TABLE IF NOT EXISTS `SystemIdInfo` (`work_spec_id` TEXT NOT NULL, `system_id`"
@@ -63,4 +67,22 @@ public class WorkDatabaseMigrations {
                     + "SELECT worker_class_name AS tag, id AS work_spec_id FROM workspec");
         }
     };
+
+    /**
+     * Migrates {@link WorkDatabase} version 2 to 3.
+     */
+    public static class Migration2To3 extends Migration {
+        final Context mContext;
+
+        public Migration2To3(@NonNull Context context) {
+            super(VERSION_2, VERSION_3);
+            mContext = context;
+        }
+
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            Preferences preferences = new Preferences(mContext);
+            preferences.setNeedsReschedule(true);
+        }
+    }
 }

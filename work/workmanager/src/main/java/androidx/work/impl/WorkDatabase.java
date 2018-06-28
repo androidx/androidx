@@ -56,12 +56,14 @@ import java.util.concurrent.TimeUnit;
         WorkTag.class,
         SystemIdInfo.class,
         WorkName.class},
-        version = 2)
+        version = 3)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "androidx.work.workdb";
-    private static final String CLEANUP_SQL = "UPDATE workspec SET state=" + ENQUEUED
+    private static final String CLEANUP_SQL = "UPDATE workspec "
+            + "SET state=" + ENQUEUED + ","
+            + " schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
             + " WHERE state=" + RUNNING;
 
     // Delete rows in the workspec table that...
@@ -97,6 +99,7 @@ public abstract class WorkDatabase extends RoomDatabase {
         }
         return builder.addCallback(generateCleanupCallback())
                 .addMigrations(WorkDatabaseMigrations.MIGRATION_1_2)
+                .addMigrations(new WorkDatabaseMigrations.Migration2To3(context))
                 .fallbackToDestructiveMigration()
                 .build();
     }
