@@ -291,6 +291,7 @@ class MediaControllerCompatApi21 {
 
         @Override
         public void onSessionEvent(String event, Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onSessionEvent(event, extras);
         }
 
@@ -316,6 +317,7 @@ class MediaControllerCompatApi21 {
 
         @Override
         public void onExtrasChanged(Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onExtrasChanged(extras);
         }
 

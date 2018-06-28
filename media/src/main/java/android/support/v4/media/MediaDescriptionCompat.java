@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
@@ -202,10 +203,12 @@ public final class MediaDescriptionCompat implements Parcelable {
         mTitle = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
         mSubtitle = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
         mDescription = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
-        mIcon = in.readParcelable(null);
-        mIconUri = in.readParcelable(null);
-        mExtras = in.readBundle();
-        mMediaUri = in.readParcelable(null);
+
+        ClassLoader loader = getClass().getClassLoader();
+        mIcon = in.readParcelable(loader);
+        mIconUri = in.readParcelable(loader);
+        mExtras = in.readBundle(loader);
+        mMediaUri = in.readParcelable(loader);
     }
 
     /**
@@ -380,7 +383,7 @@ public final class MediaDescriptionCompat implements Parcelable {
             Bundle extras = MediaDescriptionCompatApi21.getExtras(descriptionObj);
             Uri mediaUri = null;
             if (extras != null) {
-                extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                MediaSessionCompat.ensureClassLoader(extras);
                 mediaUri = extras.getParcelable(DESCRIPTION_KEY_MEDIA_URI);
             }
             if (mediaUri != null) {

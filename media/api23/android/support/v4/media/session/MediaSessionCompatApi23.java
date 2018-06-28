@@ -32,13 +32,15 @@ class MediaSessionCompatApi23 {
         public void onPlayFromUri(Uri uri, Bundle extras);
     }
 
-    static class CallbackProxy<T extends Callback> extends MediaSessionCompatApi21.CallbackProxy<T> {
+    static class CallbackProxy<T extends Callback>
+            extends MediaSessionCompatApi21.CallbackProxy<T> {
         public CallbackProxy(T callback) {
             super(callback);
         }
 
         @Override
         public void onPlayFromUri(Uri uri, Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onPlayFromUri(uri, extras);
         }
     }

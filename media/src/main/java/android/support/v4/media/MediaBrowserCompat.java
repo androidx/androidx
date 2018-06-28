@@ -1185,7 +1185,7 @@ public final class MediaBrowserCompat {
                 mSubscriptions.put(parentId, sub);
             }
             Bundle copiedOptions = options == null ? null : new Bundle(options);
-            sub.putCallback(mContext, copiedOptions, callback);
+            sub.putCallback(copiedOptions, callback);
 
             // If we are connected, tell the service that we are watching. If we aren't
             // connected, the service will be told when we connect.
@@ -1411,7 +1411,7 @@ public final class MediaBrowserCompat {
             }
 
             // Tell the app.
-            SubscriptionCallback subscriptionCallback = subscription.getCallback(mContext, options);
+            SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
             if (subscriptionCallback != null) {
                 if (options == null) {
                     if (list == null) {
@@ -1692,7 +1692,7 @@ public final class MediaBrowserCompat {
             }
             callback.setSubscription(sub);
             Bundle copiedOptions = options == null ? null : new Bundle(options);
-            sub.putCallback(mContext, copiedOptions, callback);
+            sub.putCallback(copiedOptions, callback);
 
             if (mServiceBinderWrapper == null) {
                 // TODO: When MediaBrowser is connected to framework's MediaBrowserService,
@@ -1946,7 +1946,7 @@ public final class MediaBrowserCompat {
             }
 
             // Tell the app.
-            SubscriptionCallback subscriptionCallback = subscription.getCallback(mContext, options);
+            SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
             if (subscriptionCallback != null) {
                 if (options == null) {
                     if (list == null) {
@@ -2054,10 +2054,7 @@ public final class MediaBrowserCompat {
             return mCallbacks;
         }
 
-        public SubscriptionCallback getCallback(Context context, Bundle options) {
-            if (options != null) {
-                options.setClassLoader(context.getClassLoader());
-            }
+        public SubscriptionCallback getCallback(Bundle options) {
             for (int i = 0; i < mOptionsList.size(); ++i) {
                 if (MediaBrowserCompatUtils.areSameOptions(mOptionsList.get(i), options)) {
                     return mCallbacks.get(i);
@@ -2066,10 +2063,7 @@ public final class MediaBrowserCompat {
             return null;
         }
 
-        public void putCallback(Context context, Bundle options, SubscriptionCallback callback) {
-            if (options != null) {
-                options.setClassLoader(context.getClassLoader());
-            }
+        public void putCallback(Bundle options, SubscriptionCallback callback) {
             for (int i = 0; i < mOptionsList.size(); ++i) {
                 if (MediaBrowserCompatUtils.areSameOptions(mOptionsList.get(i), options)) {
                     mCallbacks.set(i, callback);
@@ -2097,28 +2091,40 @@ public final class MediaBrowserCompat {
                 return;
             }
             Bundle data = msg.getData();
-            data.setClassLoader(MediaSessionCompat.class.getClassLoader());
+            MediaSessionCompat.ensureClassLoader(data);
             MediaBrowserServiceCallbackImpl serviceCallback = mCallbackImplRef.get();
             Messenger callbacksMessenger = mCallbacksMessengerRef.get();
             try {
                 switch (msg.what) {
-                    case SERVICE_MSG_ON_CONNECT:
+                    case SERVICE_MSG_ON_CONNECT: {
+                        Bundle rootHints = data.getBundle(DATA_ROOT_HINTS);
+                        MediaSessionCompat.ensureClassLoader(rootHints);
+
                         serviceCallback.onServiceConnected(callbacksMessenger,
                                 data.getString(DATA_MEDIA_ITEM_ID),
                                 (MediaSessionCompat.Token) data.getParcelable(
                                         DATA_MEDIA_SESSION_TOKEN),
-                                data.getBundle(DATA_ROOT_HINTS));
+                                rootHints);
                         break;
+                    }
                     case SERVICE_MSG_ON_CONNECT_FAILED:
                         serviceCallback.onConnectionFailed(callbacksMessenger);
                         break;
-                    case SERVICE_MSG_ON_LOAD_CHILDREN:
+                    case SERVICE_MSG_ON_LOAD_CHILDREN: {
+                        Bundle options = data.getBundle(DATA_OPTIONS);
+                        MediaSessionCompat.ensureClassLoader(options);
+
+                        Bundle notifyChildrenChangedOptions =
+                                data.getBundle(DATA_NOTIFY_CHILDREN_CHANGED_OPTIONS);
+                        MediaSessionCompat.ensureClassLoader(notifyChildrenChangedOptions);
+
                         serviceCallback.onLoadChildren(callbacksMessenger,
                                 data.getString(DATA_MEDIA_ITEM_ID),
                                 data.getParcelableArrayList(DATA_MEDIA_ITEM_LIST),
-                                data.getBundle(DATA_OPTIONS),
-                                data.getBundle(DATA_NOTIFY_CHILDREN_CHANGED_OPTIONS));
+                                options,
+                                notifyChildrenChangedOptions);
                         break;
+                    }
                     default:
                         Log.w(TAG, "Unhandled message: " + msg
                                 + "\n  Client version: " + CLIENT_VERSION_CURRENT
@@ -2240,9 +2246,7 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultData != null) {
-                resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
-            }
+            MediaSessionCompat.ensureClassLoader(resultData);
             if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
                 mCallback.onError(mMediaId);
@@ -2272,9 +2276,7 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultData != null) {
-                resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
-            }
+            MediaSessionCompat.ensureClassLoader(resultData);
             if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_SEARCH_RESULTS)) {
                 mCallback.onError(mQuery, mExtras);
@@ -2311,6 +2313,7 @@ public final class MediaBrowserCompat {
             if (mCallback == null) {
                 return;
             }
+            MediaSessionCompat.ensureClassLoader(resultData);
             switch (resultCode) {
                 case MediaBrowserServiceCompat.RESULT_PROGRESS_UPDATE:
                     mCallback.onProgressUpdate(mAction, mExtras, resultData);

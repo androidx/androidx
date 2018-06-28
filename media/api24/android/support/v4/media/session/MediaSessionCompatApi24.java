@@ -65,16 +65,19 @@ class MediaSessionCompatApi24 {
 
         @Override
         public void onPrepareFromMediaId(String mediaId, Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onPrepareFromMediaId(mediaId, extras);
         }
 
         @Override
         public void onPrepareFromSearch(String query, Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onPrepareFromSearch(query, extras);
         }
 
         @Override
         public void onPrepareFromUri(Uri uri, Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onPrepareFromUri(uri, extras);
         }
     }

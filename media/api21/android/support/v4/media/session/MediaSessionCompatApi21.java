@@ -181,6 +181,7 @@ class MediaSessionCompatApi21 {
 
         @Override
         public void onCommand(String command, Bundle args, ResultReceiver cb) {
+            MediaSessionCompat.ensureClassLoader(args);
             mCallback.onCommand(command, args, cb);
         }
 
@@ -197,11 +198,13 @@ class MediaSessionCompatApi21 {
 
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onPlayFromMediaId(mediaId, extras);
         }
 
         @Override
         public void onPlayFromSearch(String search, Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onPlayFromSearch(search, extras);
         }
 
@@ -252,6 +255,7 @@ class MediaSessionCompatApi21 {
 
         @Override
         public void onCustomAction(String action, Bundle extras) {
+            MediaSessionCompat.ensureClassLoader(extras);
             mCallback.onCustomAction(action, extras);
         }
     }

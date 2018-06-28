@@ -577,7 +577,7 @@ public final class PlaybackStateCompat implements Parcelable {
         mErrorMessage = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
         mCustomActions = in.createTypedArrayList(CustomAction.CREATOR);
         mActiveItemId = in.readLong();
-        mExtras = in.readBundle();
+        mExtras = in.readBundle(MediaSessionCompat.class.getClassLoader());
         // New attributes should be added at the end for backward compatibility.
         mErrorCode = in.readInt();
     }
@@ -901,7 +901,7 @@ public final class PlaybackStateCompat implements Parcelable {
             mAction = in.readString();
             mName = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
             mIcon = in.readInt();
-            mExtras = in.readBundle();
+            mExtras = in.readBundle(MediaSessionCompat.class.getClassLoader());
         }
 
         @Override

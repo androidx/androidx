@@ -1074,9 +1074,12 @@ public final class MediaControllerCompat {
                     return;
                 }
                 switch (msg.what) {
-                    case MSG_EVENT:
-                        onSessionEvent((String) msg.obj, msg.getData());
+                    case MSG_EVENT: {
+                        Bundle extras = msg.getData();
+                        MediaSessionCompat.ensureClassLoader(extras);
+                        onSessionEvent((String) msg.obj, extras);
                         break;
+                    }
                     case MSG_UPDATE_PLAYBACK_STATE:
                         onPlaybackStateChanged((PlaybackStateCompat) msg.obj);
                         break;
@@ -1098,9 +1101,12 @@ public final class MediaControllerCompat {
                     case MSG_UPDATE_SHUFFLE_MODE:
                         onShuffleModeChanged((int) msg.obj);
                         break;
-                    case MSG_UPDATE_EXTRAS:
-                        onExtrasChanged((Bundle) msg.obj);
+                    case MSG_UPDATE_EXTRAS: {
+                        Bundle extras = (Bundle) msg.obj;
+                        MediaSessionCompat.ensureClassLoader(extras);
+                        onExtrasChanged(extras);
                         break;
+                    }
                     case MSG_UPDATE_VOLUME:
                         onAudioInfoChanged((PlaybackInfo) msg.obj);
                         break;
@@ -2367,7 +2373,7 @@ public final class MediaControllerCompat {
         public void setRating(RatingCompat rating, Bundle extras) {
             Bundle bundle = new Bundle();
             bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_RATING, rating);
-            bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
+            bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
             sendCustomAction(MediaSessionCompat.ACTION_SET_RATING, bundle);
         }
 
@@ -2412,7 +2418,7 @@ public final class MediaControllerCompat {
             }
             Bundle bundle = new Bundle();
             bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_URI, uri);
-            bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
+            bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
             sendCustomAction(MediaSessionCompat.ACTION_PLAY_FROM_URI, bundle);
         }
 
