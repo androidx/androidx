@@ -138,7 +138,7 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
             final Uri uri = font.getUri();
             ByteBuffer buffer = bufferCache.get(uri);
             if (buffer == null) {
-                buffer = TypefaceCompatUtil.mmap(context, cancellationSignal, uri);
+                buffer = TypefaceCompatLegacyUtil.mmap(context, cancellationSignal, uri);
                 bufferCache.put(uri, buffer);
             }
             if (!addFontWeightStyle(family, buffer, font.getTtcIndex(), font.getWeight(),
@@ -155,8 +155,8 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
             FontFamilyFilesResourceEntry entry, Resources resources, int style) {
         Object family = newFamily();
         for (final FontFileResourceEntry e : entry.getEntries()) {
-            final ByteBuffer buffer =
-                    TypefaceCompatUtil.copyToDirectBuffer(context, resources, e.getResourceId());
+            final ByteBuffer buffer = TypefaceCompatLegacyUtil.copyToDirectBuffer(
+                    context, resources, e.getResourceId());
             if (buffer == null) {
                 return null;
             }

@@ -83,12 +83,12 @@ class TypefaceCompatBaseImpl {
 
     // Caller must close the stream.
     protected Typeface createFromInputStream(Context context, InputStream is) {
-        final File tmpFile = TypefaceCompatUtil.getTempFile(context);
+        final File tmpFile = TypefaceCompatLegacyUtil.getTempFile(context);
         if (tmpFile == null) {
             return null;
         }
         try {
-            if (!TypefaceCompatUtil.copyToFile(tmpFile, is)) {
+            if (!TypefaceCompatLegacyUtil.copyToFile(tmpFile, is)) {
                 return null;
             }
             return Typeface.createFromFile(tmpFile.getPath());
@@ -116,7 +116,7 @@ class TypefaceCompatBaseImpl {
         } catch (IOException e) {
             return null;
         } finally {
-            TypefaceCompatUtil.closeQuietly(is);
+            TypefaceCompatLegacyUtil.closeQuietly(is);
         }
     }
 
@@ -141,7 +141,7 @@ class TypefaceCompatBaseImpl {
         if (best == null) {
             return null;
         }
-        return TypefaceCompat.createFromResourcesFontFile(
+        return TypefaceCompatLegacy.createFromResourcesFontFile(
                 context, resources, best.getResourceId(), best.getFileName(), style);
     }
 
@@ -151,12 +151,12 @@ class TypefaceCompatBaseImpl {
     @Nullable
     public Typeface createFromResourcesFontFile(
             Context context, Resources resources, int id, String path, int style) {
-        final File tmpFile = TypefaceCompatUtil.getTempFile(context);
+        final File tmpFile = TypefaceCompatLegacyUtil.getTempFile(context);
         if (tmpFile == null) {
             return null;
         }
         try {
-            if (!TypefaceCompatUtil.copyToFile(tmpFile, resources, id)) {
+            if (!TypefaceCompatLegacyUtil.copyToFile(tmpFile, resources, id)) {
                 return null;
             }
             return Typeface.createFromFile(tmpFile.getPath());
