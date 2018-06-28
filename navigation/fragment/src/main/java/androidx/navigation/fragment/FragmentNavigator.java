@@ -84,8 +84,16 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         mContext = context;
         mFragmentManager = manager;
         mContainerId = containerId;
+    }
 
+    @Override
+    public void onActive() {
         mFragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener);
+    }
+
+    @Override
+    public void onInactive() {
+        mFragmentManager.removeOnBackStackChangedListener(mOnBackStackChangedListener);
     }
 
     @Override

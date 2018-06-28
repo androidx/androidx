@@ -161,6 +161,18 @@ public abstract class Navigator<D extends NavDestination> {
     }
 
     /**
+     * Called when the number of {@link OnNavigatorNavigatedListener listeners} change from 0 to 1
+     */
+    public void onActive() {
+    }
+
+    /**
+     * Called when the number of {@link OnNavigatorNavigatedListener listeners} change from 1 to 0
+     */
+    public void onInactive() {
+    }
+
+    /**
      * Add a listener to be notified when this navigator changes navigation destinations.
      *
      * <p>Most application code should use
@@ -171,7 +183,10 @@ public abstract class Navigator<D extends NavDestination> {
      */
     public final void addOnNavigatorNavigatedListener(
             @NonNull OnNavigatorNavigatedListener listener) {
-        mOnNavigatedListeners.add(listener);
+        boolean added = mOnNavigatedListeners.add(listener);
+        if (added && mOnNavigatedListeners.size() == 1) {
+            onActive();
+        }
     }
 
     /**
@@ -182,7 +197,10 @@ public abstract class Navigator<D extends NavDestination> {
      */
     public final void removeOnNavigatorNavigatedListener(
             @NonNull OnNavigatorNavigatedListener listener) {
-        mOnNavigatedListeners.remove(listener);
+        boolean removed = mOnNavigatedListeners.remove(listener);
+        if (removed && mOnNavigatedListeners.isEmpty()) {
+            onInactive();
+        }
     }
 
     /**
