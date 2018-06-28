@@ -42,8 +42,10 @@ class AsyncPagedListDifferTest {
     private val mDiffThread = TestExecutor()
     private val mPageLoadingThread = TestExecutor()
 
-    private fun <T> createDiffer(listUpdateCallback: ListUpdateCallback,
-                                 diffCallback: DiffUtil.ItemCallback<T>): AsyncPagedListDiffer<T> {
+    private fun <T> createDiffer(
+        listUpdateCallback: ListUpdateCallback,
+        diffCallback: DiffUtil.ItemCallback<T>
+    ): AsyncPagedListDiffer<T> {
         val differ = AsyncPagedListDiffer(listUpdateCallback,
                 AsyncDifferConfig.Builder<T>(diffCallback)
                         .setBackgroundThreadExecutor(mDiffThread)
@@ -55,7 +57,10 @@ class AsyncPagedListDifferTest {
     }
 
     private fun <V> createPagedListFromListAndPos(
-            config: PagedList.Config, data: List<V>, initialKey: Int): PagedList<V> {
+        config: PagedList.Config,
+        data: List<V>,
+        initialKey: Int
+    ): PagedList<V> {
         return PagedList.Builder<Int, V>(ListDataSource(data), config)
                 .setInitialKey(initialKey)
                 .setNotifyExecutor(mMainThread)
@@ -297,6 +302,27 @@ class AsyncPagedListDifferTest {
         assertEquals(10, differ.itemCount)
         differ.submitList(null)
         assertEquals(0, differ.itemCount)
+    }
+
+    @Test
+    fun loadAroundHandlePrepend() {
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+
+        val config = PagedList.Config.Builder()
+                .setPageSize(5)
+                .setEnablePlaceholders(false)
+                .build()
+
+        // initialize, initial key position is 0
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(10, 20), 0))
+        differ.currentList!!.loadAround(0)
+        drain()
+        assertEquals(differ.currentList!!.lastKey, 0)
+
+        // if 10 items are prepended, lastKey should be updated to point to same item
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 20), 0))
+        drain()
+        assertEquals(differ.currentList!!.lastKey, 10)
     }
 
     private fun drainExceptDiffThread() {

@@ -349,7 +349,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         notifyChanged(leadingNulls, changedCount);
         notifyInserted(0, addedCount);
 
-        offsetBoundaryAccessIndices(addedCount);
+        offsetAccessIndices(addedCount);
     }
 
     @MainThread

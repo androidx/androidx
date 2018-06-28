@@ -133,6 +133,7 @@ public class AsyncPagedListDiffer<T> {
     PagedListListener<T> mListener;
 
     private boolean mIsContiguous;
+    private int mLastAccessIndex;
 
     private PagedList<T> mPagedList;
     private PagedList<T> mSnapshot;
@@ -308,7 +309,7 @@ public class AsyncPagedListDiffer<T> {
                     @Override
                     public void run() {
                         if (mMaxScheduledGeneration == runGeneration) {
-                            latchPagedList(pagedList, newSnapshot, result);
+                            latchPagedList(pagedList, newSnapshot, result, oldSnapshot.mLastLoad);
                         }
                     }
                 });
@@ -318,8 +319,10 @@ public class AsyncPagedListDiffer<T> {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void latchPagedList(
-            PagedList<T> newList, PagedList<T> diffSnapshot,
-            DiffUtil.DiffResult diffResult) {
+            @NonNull PagedList<T> newList,
+            @NonNull PagedList<T> diffSnapshot,
+            @NonNull DiffUtil.DiffResult diffResult,
+            int lastAccessIndex) {
         if (mSnapshot == null || mPagedList != null) {
             throw new IllegalStateException("must be in snapshot state to apply diff");
         }
@@ -333,6 +336,15 @@ public class AsyncPagedListDiffer<T> {
                 previousSnapshot.mStorage, newList.mStorage, diffResult);
 
         newList.addWeakCallback(diffSnapshot, mPagedListCallback);
+
+        // Transform the last loadAround() index from the old list to the new list by passing it
+        // through the DiffResult. This ensures the lastKey of a positional PagedList is carried
+        // to new list even if no in-viewport item changes (AsyncPagedListDiffer#get not called)
+        int newPosition = PagedStorageDiffHelper.transformAnchorIndex(
+                diffResult, previousSnapshot.mStorage, newList.mStorage, lastAccessIndex);
+        // copy lastLoad position, clamped to list bounds
+        mPagedList.mLastLoad = Math.max(0, Math.min(mPagedList.size(), newPosition));
+
         if (mListener != null) {
             mListener.onCurrentListChanged(mPagedList);
         }
