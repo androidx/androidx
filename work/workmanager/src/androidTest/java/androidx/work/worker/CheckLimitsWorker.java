@@ -21,6 +21,7 @@ import static androidx.work.Worker.Result.SUCCESS;
 import android.support.annotation.NonNull;
 
 import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.Worker;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
@@ -30,6 +31,7 @@ import java.util.List;
 
 public class CheckLimitsWorker extends Worker {
     /* The limit to enforce */
+    public static final String KEY_RECURSIVE = "recursive";
     public static final String KEY_LIMIT_TO_ENFORCE = "limit";
 
     /* The output key which tells us if we exceeded the scheduler limits. */
@@ -39,6 +41,7 @@ public class CheckLimitsWorker extends Worker {
     @Override
     public Result doWork() {
         Data input = getInputData();
+        boolean isRecursive = input.getBoolean(KEY_RECURSIVE, false);
         int limitToEnforce = input.getInt(KEY_LIMIT_TO_ENFORCE, Scheduler.MAX_SCHEDULER_LIMIT);
         WorkManagerImpl workManager = WorkManagerImpl.getInstance();
         List<WorkSpec> eligibleWorkSpecs = workManager.getWorkDatabase()
@@ -49,8 +52,19 @@ public class CheckLimitsWorker extends Worker {
         Data output = new Data.Builder()
                 .putBoolean(KEY_EXCEEDS_SCHEDULER_LIMIT, exceedsLimits)
                 .build();
-
         setOutputData(output);
+        if (isRecursive) {
+            // kick off another Worker, which is not recursive.
+            Data newRequestData = new Data.Builder()
+                    .putAll(getInputData())
+                    .putBoolean(KEY_RECURSIVE, false)
+                    .build();
+
+            OneTimeWorkRequest newRequest = new OneTimeWorkRequest.Builder(CheckLimitsWorker.class)
+                    .setInputData(newRequestData)
+                    .build();
+            workManager.enqueue(newRequest);
+        }
         return SUCCESS;
     }
 }
