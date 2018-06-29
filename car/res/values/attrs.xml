@@ -130,6 +130,10 @@ limitations under the License.
         <attr name="listItemSubheaderTextAppearance" format="reference"/>
         <!-- The color of the divider before any supplemental actions or icons. -->
         <attr name="listItemActionDividerColor" format="color"/>
+        <!-- A tint over the primary icon of a list item. -->
+        <attr name="listItemPrimaryIconTint" format="color"/>
+        <!-- A tint over the supplemental icon of a list item. -->
+        <attr name="listItemSupplementalIconTint" format="color"/>
     </declare-styleable>
 
     <!-- The attributes for customizing the appearance of the hamburger and back arrow in the

@@ -30,6 +30,7 @@
         android:id="@+id/primary_icon"
         android:layout_width="@dimen/car_single_line_list_item_height"
         android:layout_height="@dimen/car_single_line_list_item_height"
+        android:tint="?attr/listItemPrimaryIconTint"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -97,6 +98,7 @@
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
         android:layout_marginEnd="@dimen/car_keyline_1"
+        android:tint="?attr/listItemSupplementalIconTint"
         android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

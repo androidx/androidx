@@ -54,6 +54,8 @@ limitations under the License.
         <item name="listItemActionDividerColor">@color/car_list_divider_light</item>
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
+        <item name="listItemPrimaryIconTint">@null</item>
+        <item name="listItemSupplementalIconTint">@null</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="pagedListViewStyle">@style/Widget.Car.Light.List.LightDivider</item>
