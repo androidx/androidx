@@ -36,6 +36,10 @@ private const val ATTRIBUTE_DEFAULT_VALUE = "defaultValue"
 private const val ATTRIBUTE_NAME = "name"
 private const val ATTRIBUTE_TYPE = "type"
 
+const val VALUE_NULL = "@null"
+private const val VALUE_TRUE = "true"
+private const val VALUE_FALSE = "false"
+
 private const val NAMESPACE_RES_AUTO = "http://schemas.android.com/apk/res-auto"
 private const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
 
@@ -111,29 +115,35 @@ internal class NavParser(
         }
 
         val type = NavType.from(typeString)
-        if (type == null) {
-            context.logger.error(NavParserErrors.unknownType(typeString), xmlPosition)
-            return context.createStubArg()
-        }
 
         if (defaultValue == null) {
             return Argument(name, type, null)
         }
 
         val defaultTypedValue = when (type) {
-            NavType.INT -> parseIntValue(defaultValue)
-            NavType.LONG -> parseLongValue(defaultValue)
-            NavType.FLOAT -> parseFloatValue(defaultValue)
-            NavType.BOOLEAN -> parseBoolean(defaultValue)
-            NavType.REFERENCE -> parseReference(defaultValue, rFilePackage)?.let {
+            IntType -> parseIntValue(defaultValue)
+            LongType -> parseLongValue(defaultValue)
+            FloatType -> parseFloatValue(defaultValue)
+            BoolType -> parseBoolean(defaultValue)
+            ReferenceType -> parseReference(defaultValue, rFilePackage)?.let {
                 ReferenceValue(it)
             }
-            NavType.STRING -> StringValue(defaultValue)
+            StringType -> StringValue(defaultValue)
+            is ParcelableType -> {
+                if (defaultValue == VALUE_NULL) {
+                    NullValue
+                } else {
+                    NavParserErrors.defaultValueParcelable(typeString).also { errorMsg ->
+                        context.logger.error(errorMsg, xmlPosition)
+                    }
+                    return context.createStubArg()
+                }
+            }
         }
 
         if (defaultTypedValue == null) {
             val errorMessage = when (type) {
-                NavType.REFERENCE -> NavParserErrors.invalidDefaultValueReference(defaultValue)
+                ReferenceType -> NavParserErrors.invalidDefaultValueReference(defaultValue)
                 else -> NavParserErrors.invalidDefaultValue(defaultValue, type)
             }
             context.logger.error(errorMessage, xmlPosition)
@@ -186,25 +196,25 @@ internal class NavParser(
 internal fun inferArgument(name: String, defaultValue: String, rFilePackage: String): Argument {
     val reference = parseReference(defaultValue, rFilePackage)
     if (reference != null) {
-        return Argument(name, NavType.REFERENCE, ReferenceValue(reference))
+        return Argument(name, ReferenceType, ReferenceValue(reference))
     }
     val longValue = parseLongValue(defaultValue)
     if (longValue != null) {
-        return Argument(name, NavType.LONG, longValue)
+        return Argument(name, LongType, longValue)
     }
     val intValue = parseIntValue(defaultValue)
     if (intValue != null) {
-        return Argument(name, NavType.INT, intValue)
+        return Argument(name, IntType, intValue)
     }
     val floatValue = parseFloatValue(defaultValue)
     if (floatValue != null) {
-        return Argument(name, NavType.FLOAT, floatValue)
+        return Argument(name, FloatType, floatValue)
     }
     val boolValue = parseBoolean(defaultValue)
     if (boolValue != null) {
-        return Argument(name, NavType.BOOLEAN, boolValue)
+        return Argument(name, BoolType, boolValue)
     }
-    return Argument(name, NavType.STRING, StringValue(defaultValue))
+    return Argument(name, StringType, StringValue(defaultValue))
 }
 
 // @[+][package:]id/resource_name -> package.R.id.resource_name
@@ -253,7 +263,7 @@ private fun parseFloatValue(value: String): FloatValue? =
         value.toFloatOrNull()?.let { FloatValue(value) }
 
 private fun parseBoolean(value: String): BooleanValue? {
-    if (value == "true" || value == "false") {
+    if (value == VALUE_TRUE || value == VALUE_FALSE) {
         return BooleanValue(value)
     }
     return null

@@ -16,12 +16,6 @@
 
 package androidx.navigation.safe.args.generator
 
-import androidx.navigation.safe.args.generator.NavType.BOOLEAN
-import androidx.navigation.safe.args.generator.NavType.FLOAT
-import androidx.navigation.safe.args.generator.NavType.INT
-import androidx.navigation.safe.args.generator.NavType.STRING
-import androidx.navigation.safe.args.generator.NavType.REFERENCE
-
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
@@ -86,10 +80,19 @@ class NavWriterTest {
     fun testDirectionClassGeneration() {
         val actionSpec = generateDirectionsTypeSpec(Action(id("next"), id("destA"),
                 listOf(
-                        Argument("main", STRING),
-                        Argument("mainInt", INT),
-                        Argument("optional", STRING, StringValue("bla")),
-                        Argument("optionalInt", INT, IntValue("239")))))
+                        Argument("main", StringType),
+                        Argument("mainInt", IntType),
+                        Argument("optional", StringType, StringValue("bla")),
+                        Argument("optionalInt", IntType, IntValue("239")),
+                        Argument(
+                                "optionalParcelable",
+                                ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
+                                NullValue
+                        ),
+                        Argument(
+                                "parcelable",
+                                ParcelableType(ClassName.get("android.content.pm", "ActivityInfo"))
+                        ))))
         val actual = toJavaFileObject(actionSpec)
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Next")
         // actions spec must be inner class to be compiled, because of static modifier on class
@@ -109,13 +112,13 @@ class NavWriterTest {
     fun testDirectionsClassGeneration() {
         val nextAction = Action(id("next"), id("destA"),
                 listOf(
-                        Argument("main", STRING),
-                        Argument("optional", STRING, StringValue("bla"))))
+                        Argument("main", StringType),
+                        Argument("optional", StringType, StringValue("bla"))))
 
         val prevAction = Action(id("previous"), id("destB"),
                 listOf(
-                        Argument("arg1", STRING),
-                        Argument("arg2", STRING)))
+                        Argument("arg1", StringType),
+                        Argument("arg2", StringType)))
 
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
                 listOf(prevAction, nextAction))
@@ -129,13 +132,13 @@ class NavWriterTest {
     fun testDirectionsClassGeneration_sanitizedNames() {
         val nextAction = Action(id("next_action"), id("destA"),
                 listOf(
-                        Argument("main_arg", STRING),
-                        Argument("optional.arg", STRING, StringValue("bla"))))
+                        Argument("main_arg", StringType),
+                        Argument("optional.arg", StringType, StringValue("bla"))))
 
         val prevAction = Action(id("previous_action"), id("destB"),
                 listOf(
-                        Argument("arg_1", STRING),
-                        Argument("arg.2", STRING)))
+                        Argument("arg_1", StringType),
+                        Argument("arg.2", StringType)))
 
         val dest = Destination(null, ClassName.get("a.b", "SanitizedMainFragment"),
                 "fragment", listOf(), listOf(prevAction, nextAction))
@@ -148,12 +151,17 @@ class NavWriterTest {
     @Test
     fun testArgumentsClassGeneration() {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(
-                Argument("main", STRING),
-                Argument("optional", INT, IntValue("-1")),
-                Argument("reference", REFERENCE, ReferenceValue(ResReference("a.b", "drawable",
+                Argument("main", StringType),
+                Argument("optional", IntType, IntValue("-1")),
+                Argument("reference", ReferenceType, ReferenceValue(ResReference("a.b", "drawable",
                         "background"))),
-                Argument("floatArg", FLOAT, FloatValue("1")),
-                Argument("boolArg", BOOLEAN, BooleanValue("true"))),
+                Argument("floatArg", FloatType, FloatValue("1")),
+                Argument("boolArg", BoolType, BooleanValue("true")),
+                Argument(
+                        "optionalParcelable",
+                        ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
+                        NullValue
+                )),
                 listOf())
 
         val actual = toJavaFileObject(generateArgsJavaFile(dest))
@@ -165,9 +173,9 @@ class NavWriterTest {
     fun testArgumentsClassGeneration_sanitizedNames() {
         val dest = Destination(null, ClassName.get("a.b", "SanitizedMainFragment"),
                 "fragment", listOf(
-                Argument("name.with.dot", INT),
-                Argument("name_with_underscore", INT),
-                Argument("name with spaces", INT)),
+                Argument("name.with.dot", IntType),
+                Argument("name_with_underscore", IntType),
+                Argument("name with spaces", IntType)),
                 listOf())
 
         val actual = toJavaFileObject(generateArgsJavaFile(dest))

@@ -1,5 +1,6 @@
 package a.b;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import java.lang.IllegalArgumentException;
 import java.lang.Object;
@@ -17,11 +18,14 @@ public class MainFragmentArgs {
 
     private boolean boolArg = true;
 
+    private ActivityInfo optionalParcelable = null;
+
     private MainFragmentArgs() {
     }
 
     public static MainFragmentArgs fromBundle(Bundle bundle) {
         MainFragmentArgs result = new MainFragmentArgs();
+        bundle.setClassLoader(MainFragmentArgs.class.getClassLoader());
         if (bundle.containsKey("main")) {
             result.main = bundle.getString("main");
         } else {
@@ -38,6 +42,9 @@ public class MainFragmentArgs {
         }
         if (bundle.containsKey("boolArg")) {
             result.boolArg = bundle.getBoolean("boolArg");
+        }
+        if (bundle.containsKey("optionalParcelable")) {
+            result.optionalParcelable = bundle.getParcelable("optionalParcelable");
         }
         return result;
     }
@@ -62,6 +69,10 @@ public class MainFragmentArgs {
         return boolArg;
     }
 
+    public ActivityInfo getOptionalParcelable() {
+        return optionalParcelable;
+    }
+
     public Bundle toBundle() {
         Bundle __outBundle = new Bundle();
         __outBundle.putString("main", this.main);
@@ -69,6 +80,7 @@ public class MainFragmentArgs {
         __outBundle.putInt("reference", this.reference);
         __outBundle.putFloat("floatArg", this.floatArg);
         __outBundle.putBoolean("boolArg", this.boolArg);
+        __outBundle.putParcelable("optionalParcelable", this.optionalParcelable);
         return __outBundle;
     }
 
@@ -99,6 +111,9 @@ public class MainFragmentArgs {
         if (boolArg != that.boolArg) {
             return false;
         }
+        if (optionalParcelable != null ? !optionalParcelable.equals(that.optionalParcelable) : that.optionalParcelable != null) {
+            return false;
+        }
         return true;
     }
 
@@ -110,6 +125,7 @@ public class MainFragmentArgs {
         result = 31 * result + reference;
         result = 31 * result + Float.floatToIntBits(floatArg);
         result = 31 * result + (boolArg ? 1 : 0);
+        result = 31 * result + (optionalParcelable != null ? optionalParcelable.hashCode() : 0);
         return result;
     }
 
@@ -124,12 +140,15 @@ public class MainFragmentArgs {
 
         private boolean boolArg = true;
 
+        private ActivityInfo optionalParcelable = null;
+
         public Builder(MainFragmentArgs original) {
             this.main = original.main;
             this.optional = original.optional;
             this.reference = original.reference;
             this.floatArg = original.floatArg;
             this.boolArg = original.boolArg;
+            this.optionalParcelable = original.optionalParcelable;
         }
 
         public Builder(String main) {
@@ -143,6 +162,7 @@ public class MainFragmentArgs {
             result.reference = this.reference;
             result.floatArg = this.floatArg;
             result.boolArg = this.boolArg;
+            result.optionalParcelable = this.optionalParcelable;
             return result;
         }
 
@@ -171,6 +191,11 @@ public class MainFragmentArgs {
             return this;
         }
 
+        public Builder setOptionalParcelable(ActivityInfo optionalParcelable) {
+            this.optionalParcelable = optionalParcelable;
+            return this;
+        }
+
         public String getMain() {
             return main;
         }
@@ -189,6 +214,10 @@ public class MainFragmentArgs {
 
         public boolean getBoolArg() {
             return boolArg;
+        }
+
+        public ActivityInfo getOptionalParcelable() {
+            return optionalParcelable;
         }
     }
 }

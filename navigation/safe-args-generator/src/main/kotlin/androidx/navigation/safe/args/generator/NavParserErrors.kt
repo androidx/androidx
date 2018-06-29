@@ -32,7 +32,8 @@ object NavParserErrors {
     fun invalidId(value: String) = "Failed to parse $value as id. 'id' must be in the format:" +
         " @[+][package:]id/resource_name "
 
-    fun unknownType(type: String?) = "Unknown type '$type'"
+    fun defaultValueParcelable(type: String?) = "Parcelable ('$type') " +
+            "doesn't allow default values other than @null"
 
     fun sameSanitizedNameArguments(sanitizedName: String, args: List<Argument>) =
             "Multiple same name arguments. The named arguments: " +

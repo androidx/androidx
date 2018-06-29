@@ -41,12 +41,12 @@ class InvalidXmlTest(private val testCase: ErrorMessage) {
             ErrorMessage("invalid_default_value_reference.xml", 23, 9,
                 invalidDefaultValueReference("foo/")),
             ErrorMessage("invalid_default_value_int.xml", 24, 9,
-                invalidDefaultValue("101034f", NavType.INT)),
+                invalidDefaultValue("101034f", IntType)),
             ErrorMessage("invalid_id_action.xml", 22, 44, invalidId("@+fppid/finish")),
             ErrorMessage("invalid_id_destination.xml", 17, 1, invalidId("@1234234+id/foo")),
             ErrorMessage("action_no_id.xml", 22, 5, mandatoryAttrMissingError("action", "id")),
             ErrorMessage("same_name_args.xml", 23, 9, sameSanitizedNameArguments("myArg", listOf(
-                    Argument("my_arg", NavType.STRING), Argument("my.arg", NavType.STRING)))),
+                    Argument("my_arg", StringType), Argument("my.arg", StringType)))),
             ErrorMessage("same_name_actions.xml", 22, 5,
                     sameSanitizedNameActions("NextAction", listOf(
                             Action(ResReference("a.b", "id", "next_action"),

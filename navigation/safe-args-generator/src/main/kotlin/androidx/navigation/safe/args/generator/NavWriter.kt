@@ -116,11 +116,14 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         addStatement("${className.simpleName()} that = (${className.simpleName()}) object")
         args.forEach { (_, type, _, sanitizedName) ->
             val compareExpression = when (type) {
-                NavType.INT, NavType.BOOLEAN, NavType.REFERENCE, NavType.LONG ->
-                    "$sanitizedName != that.$sanitizedName"
-                NavType.FLOAT -> "Float.compare(that.$sanitizedName, $sanitizedName) != 0"
-                NavType.STRING -> "$sanitizedName != null ? " +
-                        "!$sanitizedName.equals(that.$sanitizedName) : that.$sanitizedName != null"
+                IntType,
+                BoolType,
+                ReferenceType,
+                LongType -> "$sanitizedName != that.$sanitizedName"
+                FloatType -> "Float.compare(that.$sanitizedName, $sanitizedName) != 0"
+                StringType, is ParcelableType ->
+                    "$sanitizedName != null ? !$sanitizedName.equals(that.$sanitizedName) " +
+                        ": that.$sanitizedName != null"
             }
             beginControlFlow("if ($N)", compareExpression).apply {
                 addStatement("return false")
@@ -137,11 +140,12 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         addStatement("int result = super.hashCode()")
         args.forEach { (_, type, _, sanitizedName) ->
             val hashCodeExpression = when (type) {
-                NavType.INT, NavType.REFERENCE -> sanitizedName
-                NavType.FLOAT -> "Float.floatToIntBits($sanitizedName)"
-                NavType.STRING -> "($sanitizedName != null ? $sanitizedName.hashCode() : 0)"
-                NavType.BOOLEAN -> "($sanitizedName ? 1 : 0)"
-                NavType.LONG -> "(int)($sanitizedName ^ ($sanitizedName >>> 32))"
+                IntType, ReferenceType -> sanitizedName
+                FloatType -> "Float.floatToIntBits($sanitizedName)"
+                StringType, is ParcelableType ->
+                    "($sanitizedName != null ? $sanitizedName.hashCode() : 0)"
+                BoolType -> "($sanitizedName ? 1 : 0)"
+                LongType -> "(int)($sanitizedName ^ ($sanitizedName >>> 32))"
             }
             addStatement("result = 31 * result + $N", hashCodeExpression)
         }
@@ -213,6 +217,7 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
         returns(className)
         val result = "result"
         addStatement("$T $N = new $T()", className, result, className)
+        addStatement("$N.setClassLoader($T.class.getClassLoader())", bundle, className)
         args.forEach { arg ->
             beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
                 addStatement("$N.$N = $N.$N($S)", result, arg.sanitizedName, bundle,

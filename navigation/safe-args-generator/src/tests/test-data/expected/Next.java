@@ -16,6 +16,7 @@
 
 package a.b;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.navigation.NavDirections;
 import java.lang.String;
@@ -29,9 +30,14 @@ public static class Next implements NavDirections {
 
     private int optionalInt = 239;
 
-    public Next(String main, int mainInt) {
+    private ActivityInfo optionalParcelable = null;
+
+    private ActivityInfo parcelable;
+
+    public Next(String main, int mainInt, ActivityInfo parcelable) {
         this.main = main;
         this.mainInt = mainInt;
+        this.parcelable = parcelable;
     }
 
     public Next setMain(String main) {
@@ -54,12 +60,24 @@ public static class Next implements NavDirections {
         return this;
     }
 
+    public Next setOptionalParcelable(ActivityInfo optionalParcelable) {
+        this.optionalParcelable = optionalParcelable;
+        return this;
+    }
+
+    public Next setParcelable(ActivityInfo parcelable) {
+        this.parcelable = parcelable;
+        return this;
+    }
+
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
         __outBundle.putString("main", this.main);
         __outBundle.putInt("mainInt", this.mainInt);
         __outBundle.putString("optional", this.optional);
         __outBundle.putInt("optionalInt", this.optionalInt);
+        __outBundle.putParcelable("optionalParcelable", this.optionalParcelable);
+        __outBundle.putParcelable("parcelable", this.parcelable);
         return __outBundle;
     }
 
