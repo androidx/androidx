@@ -910,6 +910,7 @@ public class MediaSessionCompatCallbackTest {
         // Also check whether the bundle has expected contents.
         Bundle extrasOut = mCallback.mExtras;
         assertNotNull(extrasOut);
+        assertNotNull(extrasOut.getClassLoader());
 
         MediaDescriptionCompat descOut = extrasOut.getParcelable("description");
         assertEquals(desc.getMediaId(), descOut.getMediaId());
