@@ -115,7 +115,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/minimal_extra_view"
+        android:id="@+id/minimal_fullscreen_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="right">
@@ -243,7 +243,8 @@
 
             <ImageButton
                 android:id="@+id/fullscreen"
-                style="@style/BottomBarButton.FullScreen" />
+                style="@style/BottomBarButton.FullScreen"
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout

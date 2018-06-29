@@ -312,11 +312,11 @@ public class MediaControlView2 extends BaseLayout {
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
 
-    // Relating to Minimal Extra View
-    private LinearLayout mMinimalExtraView;
+    // Relating to Minimal Size Fullscreen View
+    private LinearLayout mMinimalSizeFullScreenView;
 
     // Relating to Progress Bar View
-    private View mProgressBar;
+    View mProgressBar;
     ProgressBar mProgress;
     private View mProgressBuffer;
 
@@ -421,10 +421,12 @@ public class MediaControlView2 extends BaseLayout {
 
     /**
      * Registers a callback to be invoked when the fullscreen mode should be changed.
+     * This needs to be implemented in order to display the fullscreen button.
      * @param l The callback that will be run
      */
     public void setOnFullScreenListener(OnFullScreenListener l) {
         mOnFullScreenListener = l;
+        mFullScreenButton.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -481,7 +483,7 @@ public class MediaControlView2 extends BaseLayout {
                 }
                 break;
             case MediaControlView2.BUTTON_FULL_SCREEN:
-                if (mFullScreenButton != null) {
+                if (mFullScreenButton != null && mOnFullScreenListener != null) {
                     mFullScreenButton.setVisibility(visibility);
                 }
                 break;
@@ -768,15 +770,16 @@ public class MediaControlView2 extends BaseLayout {
         mTransportControls = inflateTransportControls(R.layout.embedded_transport_controls);
         mCenterView.addView(mTransportControls);
 
-        // Relating to Minimal Extra View
-        mMinimalExtraView = (LinearLayout) v.findViewById(R.id.minimal_extra_view);
+        // Relating to Minimal Size FullScreen View. This view is visible only when the current
+        // size type is Minimal and it is a view that stretches from left to right end
+        // and helps locate the fullscreen button at the right end of the screen.
+        mMinimalSizeFullScreenView = (LinearLayout) v.findViewById(R.id.minimal_fullscreen_view);
         LinearLayout.LayoutParams params =
-                (LinearLayout.LayoutParams) mMinimalExtraView.getLayoutParams();
+                (LinearLayout.LayoutParams) mMinimalSizeFullScreenView.getLayoutParams();
         int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
-        int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
-        params.setMargins(0, (iconSize + marginSize * 2) * (-1), 0, 0);
-        mMinimalExtraView.setLayoutParams(params);
-        mMinimalExtraView.setVisibility(View.GONE);
+        params.setMargins(0, iconSize * (-1), 0, 0);
+        mMinimalSizeFullScreenView.setLayoutParams(params);
+        mMinimalSizeFullScreenView.setVisibility(View.GONE);
 
         // Relating to Progress Bar View
         mProgressBar = v.findViewById(R.id.progress_bar);
@@ -875,21 +878,28 @@ public class MediaControlView2 extends BaseLayout {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float alpha = (float) animation.getAnimatedValue();
                 SeekBar seekBar = (SeekBar) mProgress;
-                GradientDrawable thumb = (GradientDrawable)
-                        mResources.getDrawable(R.drawable.custom_progress_thumb);
-                int newSize = (int) (mResources.getDimensionPixelSize(
-                        R.dimen.mcv2_custom_progress_thumb_size) * alpha);
-                thumb.setSize(newSize, newSize);
-                seekBar.setThumb(thumb);
+                if (mSizeType != SIZE_TYPE_MINIMAL) {
+                    GradientDrawable thumb = (GradientDrawable)
+                            mResources.getDrawable(R.drawable.custom_progress_thumb);
+                    int newSize = (int) (mResources.getDimensionPixelSize(
+                            R.dimen.mcv2_custom_progress_thumb_size) * alpha);
+                    thumb.setSize(newSize, newSize);
+                    seekBar.setThumb(thumb);
+                }
 
                 mTransportControls.setAlpha(alpha);
-                if (mSizeType == SIZE_TYPE_MINIMAL) {
-                    mFullScreenButton.setAlpha(alpha);
-                }
                 if (alpha == 0.0f) {
                     mTransportControls.setVisibility(View.GONE);
                 } else if (alpha == 1.0f) {
                     setEnabled(false);
+                }
+                if (mSizeType == SIZE_TYPE_MINIMAL) {
+                    mFullScreenButton.setAlpha(alpha);
+                    mProgressBar.setAlpha(alpha);
+                    if (alpha == 0.0f) {
+                        mFullScreenButton.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.GONE);
+                    }
                 }
             }
         });
@@ -901,21 +911,29 @@ public class MediaControlView2 extends BaseLayout {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float alpha = (float) animation.getAnimatedValue();
                 SeekBar seekBar = (SeekBar) mProgress;
-                GradientDrawable thumb =
-                        (GradientDrawable) mResources.getDrawable(R.drawable.custom_progress_thumb);
-                int newSize = (int) (mResources.getDimensionPixelSize(
-                        R.dimen.mcv2_custom_progress_thumb_size) * alpha);
-                thumb.setSize(newSize, newSize);
-                seekBar.setThumb(thumb);
+                if (mSizeType != SIZE_TYPE_MINIMAL) {
+                    GradientDrawable thumb =
+                            (GradientDrawable) mResources.getDrawable(
+                                    R.drawable.custom_progress_thumb);
+                    int newSize = (int) (mResources.getDimensionPixelSize(
+                            R.dimen.mcv2_custom_progress_thumb_size) * alpha);
+                    thumb.setSize(newSize, newSize);
+                    seekBar.setThumb(thumb);
+                }
 
                 mTransportControls.setAlpha(alpha);
-                if (mSizeType == SIZE_TYPE_MINIMAL) {
-                    mFullScreenButton.setAlpha(alpha);
-                }
                 if (alpha == 0.0f) {
                     mTransportControls.setVisibility(View.VISIBLE);
                 } else if (alpha == 1.0f) {
                     setEnabled(true);
+                }
+                if (mSizeType == SIZE_TYPE_MINIMAL) {
+                    mFullScreenButton.setAlpha(alpha);
+                    mProgressBar.setAlpha(alpha);
+                    if (alpha == 0.0f) {
+                        mFullScreenButton.setVisibility(View.VISIBLE);
+                        mProgressBar.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });
@@ -1755,9 +1773,11 @@ public class MediaControlView2 extends BaseLayout {
                         mTitleView.getPaddingBottom());
 
                 // Relating to Full Screen Button
-                mMinimalExtraView.setVisibility(View.GONE);
-                mFullScreenButton = mBasicControls.findViewById(R.id.fullscreen);
-                mFullScreenButton.setOnClickListener(mFullScreenListener);
+                if (mOnFullScreenListener != null) {
+                    mMinimalSizeFullScreenView.setVisibility(View.GONE);
+                    mFullScreenButton = mBasicControls.findViewById(R.id.fullscreen);
+                    mFullScreenButton.setOnClickListener(mFullScreenListener);
+                }
 
                 // Relating to Center View
                 mCenterView.removeAllViews();
@@ -1795,9 +1815,11 @@ public class MediaControlView2 extends BaseLayout {
                         mTitleView.getPaddingBottom());
 
                 // Relating to Full Screen Button
-                mMinimalExtraView.setVisibility(View.GONE);
-                mFullScreenButton = mBasicControls.findViewById(R.id.fullscreen);
-                mFullScreenButton.setOnClickListener(mFullScreenListener);
+                if (mOnFullScreenListener != null) {
+                    mMinimalSizeFullScreenView.setVisibility(View.GONE);
+                    mFullScreenButton = mBasicControls.findViewById(R.id.fullscreen);
+                    mFullScreenButton.setOnClickListener(mFullScreenListener);
+                }
 
                 // Relating to Center View
                 mCenterView.removeAllViews();
@@ -1823,9 +1845,12 @@ public class MediaControlView2 extends BaseLayout {
                 mBackButton.setVisibility(View.GONE);
 
                 // Relating to Full Screen Button
-                mMinimalExtraView.setVisibility(View.VISIBLE);
-                mFullScreenButton = mMinimalExtraView.findViewById(R.id.minimal_fullscreen);
-                mFullScreenButton.setOnClickListener(mFullScreenListener);
+                if (mOnFullScreenListener != null) {
+                    mMinimalSizeFullScreenView.setVisibility(View.VISIBLE);
+                    mFullScreenButton = mMinimalSizeFullScreenView.findViewById(
+                            R.id.minimal_fullscreen);
+                    mFullScreenButton.setOnClickListener(mFullScreenListener);
+                }
 
                 // Relating to Center View
                 mCenterView.removeAllViews();
