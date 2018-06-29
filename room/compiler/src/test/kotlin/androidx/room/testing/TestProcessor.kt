@@ -23,12 +23,16 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import kotlin.reflect.KClass
 
-@SupportedSourceVersion(SourceVersion.RELEASE_8)// test are compiled w/ J_8
-class TestProcessor(val handlers: List<(TestInvocation) -> Boolean>,
-                    val annotations: MutableSet<String>) : AbstractProcessor() {
+@SupportedSourceVersion(SourceVersion.RELEASE_8) // test are compiled w/ J_8
+class TestProcessor(
+    val handlers: List<(TestInvocation) -> Boolean>,
+    val annotations: MutableSet<String>
+) : AbstractProcessor() {
     var count = 0
     override fun process(
-            annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
+        annotations: MutableSet<out TypeElement>,
+        roundEnv: RoundEnvironment
+    ): Boolean {
         return handlers.getOrNull(count++)?.invoke(
                     TestInvocation(processingEnv, annotations, roundEnv)) ?: true
     }
@@ -47,6 +51,11 @@ class TestProcessor(val handlers: List<(TestInvocation) -> Boolean>,
 
         fun forAnnotations(vararg klasses: KClass<*>): Builder {
             annotations.addAll(klasses.map { it.java.canonicalName })
+            return this
+        }
+
+        fun forAnnotations(vararg names: String): Builder {
+            annotations.addAll(names)
             return this
         }
 

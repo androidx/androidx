@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.room.ColumnInfo
-import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.Relation
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
@@ -117,22 +112,14 @@ fun simpleRun(
     f: (TestInvocation) -> Unit
 ): CompileTester {
     return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfos.toList() + JavaFileObjects.forSourceString("foo.bar.MyClass",
-                    """
-                    package foo.bar;
-                    abstract public class MyClass {
-                    @androidx.room.Query("foo")
-                    abstract public void setFoo(String foo);
-                    }
-                    """))
+            .that(jfos.toList() + JavaFileObjects.forSourceLines("Dummy", "final class Dummy {}"))
             .withClasspathFrom(classLoader)
             .processedWith(TestProcessor.builder()
                     .nextRunHandler {
                         f(it)
                         true
                     }
-                    .forAnnotations(Query::class, PrimaryKey::class, Embedded::class,
-                            ColumnInfo::class, Relation::class, Entity::class)
+                    .forAnnotations("*")
                     .build())
 }
 
