@@ -180,13 +180,6 @@ package androidx.car.widget {
     ctor public AlphaJumpOverlayView(android.content.Context);
   }
 
-  public class ClickThroughToolbar extends androidx.appcompat.widget.Toolbar {
-    ctor public ClickThroughToolbar(android.content.Context);
-    ctor public ClickThroughToolbar(android.content.Context, android.util.AttributeSet);
-    ctor public ClickThroughToolbar(android.content.Context, android.util.AttributeSet, int);
-    method public void setClickPassThrough(boolean);
-  }
-
   public final class ColumnCardView extends androidx.cardview.widget.CardView {
     ctor public ColumnCardView(android.content.Context);
     ctor public ColumnCardView(android.content.Context, android.util.AttributeSet);
