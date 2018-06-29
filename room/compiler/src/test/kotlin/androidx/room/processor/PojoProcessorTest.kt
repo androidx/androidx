@@ -37,6 +37,7 @@ import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
+import simpleRun
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
@@ -49,7 +50,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
-import simpleRun
 import javax.lang.model.element.Element
 import javax.tools.JavaFileObject
 
@@ -980,6 +980,40 @@ class PojoProcessorTest {
                         "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
     }
 
+    @Test
+    fun dataClass_primaryConstructor() {
+        listOf(
+                TestData.AllDefaultVals::class.java.canonicalName,
+                TestData.AllDefaultVars::class.java.canonicalName,
+                TestData.SomeDefaultVals::class.java.canonicalName,
+                TestData.SomeDefaultVars::class.java.canonicalName,
+                TestData.WithJvmOverloads::class.java.canonicalName
+        ).forEach {
+            simpleRun { invocation ->
+                PojoProcessor(
+                        baseContext = invocation.context,
+                        element = invocation.typeElement(it),
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null
+                ).process()
+            }.compilesWithoutError().withWarningCount(0)
+        }
+    }
+
+    @Test
+    fun dataClass_withJvmOverloads_primaryConstructor() {
+        simpleRun { invocation ->
+            PojoProcessor(
+                    baseContext = invocation.context,
+                    element = invocation.typeElement(
+                            TestData.WithJvmOverloads::class.java.canonicalName
+                    ),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null
+            ).process()
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
     private fun singleRun(
         code: String,
         vararg jfos: JavaFileObject,
@@ -1026,5 +1060,39 @@ class PojoProcessorTest {
                 invocation
             )
         }
+    }
+
+    // Kotlin data classes to verify the PojoProcessor.
+    private class TestData {
+        data class AllDefaultVals(
+            val name: String = "",
+            val number: Int = 0,
+            val bit: Boolean = false
+        )
+
+        data class AllDefaultVars(
+            var name: String = "",
+            var number: Int = 0,
+            var bit: Boolean = false
+        )
+
+        data class SomeDefaultVals(
+            val name: String,
+            val number: Int = 0,
+            val bit: Boolean
+        )
+
+        data class SomeDefaultVars(
+            var name: String,
+            var number: Int = 0,
+            var bit: Boolean
+        )
+
+        data class WithJvmOverloads @JvmOverloads constructor(
+            val name: String,
+            val lastName: String = "",
+            var number: Int = 0,
+            var bit: Boolean
+        )
     }
 }
