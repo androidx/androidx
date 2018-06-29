@@ -33,6 +33,7 @@
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
         android:layout_marginStart="@dimen/car_keyline_1"
+        android:tint="?attr/listItemPrimaryIconTint"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -93,6 +94,7 @@
         android:background="@drawable/car_button_ripple_background"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
+        android:tint="?attr/listItemSupplementalIconTint"
         android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
