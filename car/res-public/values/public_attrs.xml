@@ -18,4 +18,71 @@
 <resources>
     <!-- ColumnCardView -->
     <public type="attr" name="columnSpan" />
+
+    <!-- PagedListView -->
+    <public type="attr" name="offsetScrollBar" />
+    <public type="attr" name="gutter" />
+    <public type="attr" name="gutterSize" />
+    <public type="attr" name="scrollBarEnabled" />
+    <public type="attr" name="scrollBarColor" />
+    <public type="attr" name="scrollBarTopMargin" />
+    <public type="attr" name="scrollBarContainerWidth" />
+    <public type="attr" name="scrollBarGravity" />
+    <public type="attr" name="showPagedListViewDivider" />
+    <public type="attr" name="alignDividerStartTo" />
+    <public type="attr" name="alignDividerEndTo" />
+    <public type="attr" name="dividerStartMargin" />
+    <public type="attr" name="dividerEndMargin" />
+    <public type="attr" name="listDividerColor" />
+    <public type="attr" name="listEndMargin" />
+    <public type="attr" name="itemSpacing" />
+    <public type="attr" name="upButtonIcon" />
+    <public type="attr" name="downButtonIcon" />
+    <public type="attr" name="listContentTopOffset" />
+    <public type="attr" name="verticallyCenterListContent" />
+    <public type="attr" name="dayNightStyle" />
+
+    <!-- ListItem -->
+    <public type="attr" name="listItemBackgroundColor" />
+    <public type="attr" name="listItemTitleTextAppearance" />
+    <public type="attr" name="listItemBodyTextAppearance" />
+    <public type="attr" name="listItemSubheaderTextAppearance" />
+    <public type="attr" name="listItemActionDividerColor" />
+
+    <!-- DrawerArrowDrawable -->
+    <public type="attr" name="carArrowColor" />
+    <public type="attr" name="carArrowAnimate" />
+    <public type="attr" name="carArrowSize" />
+    <public type="attr" name="carArrowHeadLength" />
+    <public type="attr" name="carArrowShaftLength" />
+    <public type="attr" name="carArrowThickness" />
+    <public type="attr" name="carMenuBarSpacing" />
+    <public type="attr" name="carMenuBarThickness" />
+
+    <!-- ActionBar -->
+    <public type="attr" name="columns" />
+
+    <!-- CarTheme -->
+    <public type="attr" name="carDialogTheme" />
+    <public type="attr" name="pagedListViewStyle" />
+
+    <!-- CarTheme dialog styles -->
+    <public type="attr" name="dialogBackgroundColor" />
+    <public type="attr" name="dialogTitleStyle" />
+    <public type="attr" name="dialogBodyStyle" />
+    <public type="attr" name="dialogButtonStyle" />
+    <public type="attr" name="dialogListTheme" />
+
+    <!-- CarTheme drawer attributes -->
+    <public type="attr" name="drawerBackgroundColor" />
+    <public type="attr" name="drawerBackButtonTint" />
+    <public type="attr" name="drawerHeaderColor" />
+    <public type="attr" name="drawerRippleColor" />
+    <public type="attr" name="drawerItemTitleTextAppearance" />
+    <public type="attr" name="drawerItemBodyTextAppearance" />
+    <public type="attr" name="drawerListStyle" />
+    <public type="attr" name="drawerBackButtonId" />
+    <public type="attr" name="drawerListId" />
+    <public type="attr" name="drawerTitleId" />
+    <public type="attr" name="drawerProgressId" />
 </resources>

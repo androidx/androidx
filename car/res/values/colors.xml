@@ -122,9 +122,6 @@
          car_card_ripple_background. -->
     <color name="car_card_ripple_background_inverse">@color/car_card_ripple_background_light</color>
 
-    <!-- The top margin before the start of content in an application. -->
-    <dimen name="app_header_height">96dp</dimen>
-
     <!-- The lighter and darker color for the scrollbar thumb. -->
     <color name="car_scrollbar_thumb_light">#99ffffff</color>
     <color name="car_scrollbar_thumb_dark">#7f0b0f12</color>
@@ -150,8 +147,8 @@
     <!-- Colors for the switch widget (thumb and track) -->
     <color name="car_switch_thumb_on">@color/car_teal_700</color>
     <color name="car_switch_thumb_on_disabled">@color/car_teal_700_disabled</color>
-    <color name="car_switch_track_on">@color/car_teal_700</color>
     <color name="car_switch_thumb_off">@color/car_body2</color>
+    <color name="car_switch_track_on">@color/car_teal_700</color>
     <color name="car_switch_track_off">@color/car_body2</color>
     <color name="car_switch_compat_track_on">@color/car_teal_700_disabled</color>
     <color name="car_switch_compat_track_off">@color/car_grey_400</color>
