@@ -16,8 +16,11 @@
 
 package androidx.media2;
 
+import static androidx.media2.MediaItem2.FLAG_PLAYABLE;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.media.AudioManager;
@@ -30,6 +33,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.media.AudioAttributesCompat;
@@ -156,12 +160,16 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         final int testBufferingPosition = 1500;
         final float testSpeed = 1.5f;
         final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
+        final String testPlaylistTitle = "testPlaylistTitle";
+        final MediaMetadata2 testPlaylistMetadata = new MediaMetadata2.Builder()
+                .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, testPlaylistTitle).build();
+
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
 
         final MediaControllerCompat controller = mSession.getSessionCompat().getController();
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
-        controllerCallback.reset(3);
+        controllerCallback.reset(6);
         controller.registerCallback(controllerCallback, sHandler);
 
         MockPlayer player = new MockPlayer(0);
@@ -173,8 +181,9 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         MockPlaylistAgent agent = new MockPlaylistAgent();
         agent.mPlaylist = testPlaylist;
         agent.mCurrentMediaItem = testPlaylist.get(0);
-
+        agent.mMetadata = testPlaylistMetadata;
         mSession.updatePlayer(player, agent);
+
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);
         assertEquals(testState,
@@ -183,7 +192,18 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
                 controllerCallback.mPlaybackState.getBufferedPosition());
         assertEquals(testSpeed, controllerCallback.mPlaybackState.getPlaybackSpeed(), 0.0f);
 
-        // TODO: Also test playlistAgent / playbackInfo callbacks
+        assertTrue(controllerCallback.mOnMetadataChangedCalled);
+        assertTrue(controllerCallback.mOnQueueChangedCalled);
+        assertTrue(controllerCallback.mOnQueueTitleChangedCalled);
+        List<QueueItem> queue = controller.getQueue();
+        assertNotNull(queue);
+        assertEquals(testPlaylist.size(), queue.size());
+        for (int i = 0; i < testPlaylist.size(); i++) {
+            assertEquals(testPlaylist.get(i).getMediaId(),
+                    queue.get(i).getDescription().getMediaId());
+        }
+        assertEquals(testPlaylistTitle, controllerCallback.mTitle);
+        // TODO: Also test playbackInfo callbacks.
     }
 
 
@@ -280,6 +300,85 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         assertEquals(errorCode, controllerCallback.mPlaybackState.getErrorCode());
         assertTrue(TestUtils.equals(extras, controllerCallback.mPlaybackState.getExtras()));
     }
+
+    @Test
+    public void testCurrentMediaItemChange() throws InterruptedException {
+        prepareLooper();
+
+        String displayTitle = "displayTitle";
+        MediaMetadata2 metadata = new MediaMetadata2.Builder()
+                .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, displayTitle).build();
+        MediaItem2 currentMediaItem = new MediaItem2.Builder(FLAG_PLAYABLE)
+                .setMetadata(metadata).setDataSourceDesc(TestUtils.createDSD()).build();
+
+        List<MediaItem2> playlist = TestUtils.createPlaylist(5);
+        playlist.set(3, currentMediaItem);
+        mMockAgent.mPlaylist = playlist;
+
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCallback controllerCallback = new MediaControllerCallback();
+        controllerCallback.reset(1);
+        controller.registerCallback(controllerCallback, sHandler);
+
+        mMockAgent.mCurrentMediaItem = currentMediaItem;
+        mPlayer.notifyCurrentDataSourceChanged(currentMediaItem.getDataSourceDesc());
+
+        assertTrue(controllerCallback.await(TIMEOUT_MS));
+        assertTrue(controllerCallback.mOnMetadataChangedCalled);
+        assertEquals(displayTitle, controllerCallback.mMediaMetadata
+                .getString(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE));
+    }
+
+    @Test
+    public void testPlaylistAndPlaylistMetadataChange() throws InterruptedException {
+        prepareLooper();
+        final List<MediaItem2> playlist = TestUtils.createPlaylist(5);
+        final String playlistTitle = "playlistTitle";
+        MediaMetadata2 playlistMetadata = new MediaMetadata2.Builder()
+                .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, playlistTitle).build();
+
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCallback controllerCallback = new MediaControllerCallback();
+        controllerCallback.reset(2);
+        controller.registerCallback(controllerCallback, sHandler);
+
+        mMockAgent.mPlaylist = playlist;
+        mMockAgent.mMetadata = playlistMetadata;
+        mMockAgent.notifyPlaylistChanged();
+
+        assertTrue(controllerCallback.await(TIMEOUT_MS));
+        assertTrue(controllerCallback.mOnQueueChangedCalled);
+        assertTrue(controllerCallback.mOnQueueTitleChangedCalled);
+
+        List<QueueItem> queue = controller.getQueue();
+        assertNotNull(queue);
+        assertEquals(playlist.size(), queue.size());
+        for (int i = 0; i < playlist.size(); i++) {
+            assertEquals(playlist.get(i).getMediaId(), queue.get(i).getDescription().getMediaId());
+        }
+        assertEquals(playlistTitle, controllerCallback.mTitle);
+    }
+
+    @Test
+    public void testPlaylistMetadataChange() throws InterruptedException {
+        prepareLooper();
+        final String playlistTitle = "playlistTitle";
+        MediaMetadata2 playlistMetadata = new MediaMetadata2.Builder()
+                .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, playlistTitle).build();
+
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCallback controllerCallback = new MediaControllerCallback();
+        controllerCallback.reset(1);
+        controller.registerCallback(controllerCallback, sHandler);
+
+        mMockAgent.mMetadata = playlistMetadata;
+        mMockAgent.notifyPlaylistMetadataChanged();
+
+        assertTrue(controllerCallback.await(TIMEOUT_MS));
+        assertTrue(controllerCallback.mOnQueueTitleChangedCalled);
+        assertEquals(playlistTitle, controllerCallback.mTitle);
+    }
+
 
 //    /**
 //     * This also tests {@link ControllerCallback#onRepeatModeChanged(MediaController2, int)}.

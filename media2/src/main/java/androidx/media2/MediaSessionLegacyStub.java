@@ -16,6 +16,8 @@
 
 package androidx.media2;
 
+import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_TITLE;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 
 import android.annotation.TargetApi;
@@ -31,6 +33,7 @@ import android.os.ResultReceiver;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -577,28 +580,18 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onCurrentMediaItemChanged(MediaItem2 item) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_MEDIA_ITEM, (item == null) ? null : item.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelableArray(ARGUMENT_PLAYLIST,
-//                    MediaUtils2.convertMediaItem2ListToParcelableArray(playlist));
-//            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-//                    metadata == null ? null : metadata.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onPlaylistMetadataChanged(MediaMetadata2 metadata) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-//                    metadata == null ? null : metadata.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
@@ -741,28 +734,33 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onCurrentMediaItemChanged(MediaItem2 item) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_MEDIA_ITEM, (item == null) ? null : item.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
+            mSession.getSessionCompat().setMetadata(item == null ? null
+                    : MediaUtils2.convertToMediaMetadataCompat(item.getMetadata()));
         }
 
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelableArray(ARGUMENT_PLAYLIST,
-//                    MediaUtils2.convertMediaItem2ListToParcelableArray(playlist));
-//            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-//                    metadata == null ? null : metadata.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
+            mSession.getSessionCompat().setQueue(MediaUtils2.convertToQueueItemList(playlist));
+            onPlaylistMetadataChanged(metadata);
         }
 
         @Override
         void onPlaylistMetadataChanged(MediaMetadata2 metadata) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-//                    metadata == null ? null : metadata.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
+            // Since there is no 'queue metadata', only set title of the queue.
+            CharSequence oldTitle = mSession.getSessionCompat().getController().getQueueTitle();
+            CharSequence newTitle = null;
+
+            if (metadata != null) {
+                newTitle = metadata.getText(METADATA_KEY_DISPLAY_TITLE);
+                if (newTitle == null) {
+                    newTitle = metadata.getText(METADATA_KEY_TITLE);
+                }
+            }
+
+            if (!TextUtils.equals(oldTitle, newTitle)) {
+                mSession.getSessionCompat().setQueueTitle(newTitle);
+            }
         }
 
         @Override
