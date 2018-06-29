@@ -243,9 +243,9 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     }
 
     /**
-     * @return player
+     * @return player. Can be {@code null} if and only if the session is released.
      */
-    public @NonNull BaseMediaPlayer getPlayer() {
+    public @Nullable BaseMediaPlayer getPlayer() {
         return mImpl.getPlayer();
     }
 
