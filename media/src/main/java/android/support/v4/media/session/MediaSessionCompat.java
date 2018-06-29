@@ -2078,7 +2078,6 @@ public class MediaSessionCompat {
                     data.putInt(DATA_CALLING_PID, Binder.getCallingPid());
                     data.putInt(DATA_CALLING_UID, Binder.getCallingUid());
                     if (extras != null) {
-                        ensureClassLoader(data);
                         data.putBundle(DATA_EXTRAS, extras);
                     }
                     msg.setData(data);
@@ -3051,9 +3050,12 @@ public class MediaSessionCompat {
                 }
 
                 Bundle data = msg.getData();
+                ensureClassLoader(data);
                 mRemoteUserInfo = new RemoteUserInfo(data.getString(DATA_CALLING_PACKAGE),
                         data.getInt(DATA_CALLING_PID), data.getInt(DATA_CALLING_UID));
-                data = data.getBundle(DATA_EXTRAS);
+
+                Bundle extras = data.getBundle(DATA_EXTRAS);
+                ensureClassLoader(extras);
 
                 try {
                     switch (msg.what) {
@@ -3075,25 +3077,25 @@ public class MediaSessionCompat {
                             cb.onPrepare();
                             break;
                         case MSG_PREPARE_MEDIA_ID:
-                            cb.onPrepareFromMediaId((String) msg.obj, data);
+                            cb.onPrepareFromMediaId((String) msg.obj, extras);
                             break;
                         case MSG_PREPARE_SEARCH:
-                            cb.onPrepareFromSearch((String) msg.obj, data);
+                            cb.onPrepareFromSearch((String) msg.obj, extras);
                             break;
                         case MSG_PREPARE_URI:
-                            cb.onPrepareFromUri((Uri) msg.obj, data);
+                            cb.onPrepareFromUri((Uri) msg.obj, extras);
                             break;
                         case MSG_PLAY:
                             cb.onPlay();
                             break;
                         case MSG_PLAY_MEDIA_ID:
-                            cb.onPlayFromMediaId((String) msg.obj, data);
+                            cb.onPlayFromMediaId((String) msg.obj, extras);
                             break;
                         case MSG_PLAY_SEARCH:
-                            cb.onPlayFromSearch((String) msg.obj, data);
+                            cb.onPlayFromSearch((String) msg.obj, extras);
                             break;
                         case MSG_PLAY_URI:
-                            cb.onPlayFromUri((Uri) msg.obj, data);
+                            cb.onPlayFromUri((Uri) msg.obj, extras);
                             break;
                         case MSG_SKIP_TO_ITEM:
                             cb.onSkipToQueueItem((Long) msg.obj);
@@ -3123,10 +3125,10 @@ public class MediaSessionCompat {
                             cb.onSetRating((RatingCompat) msg.obj);
                             break;
                         case MSG_RATE_EXTRA:
-                            cb.onSetRating((RatingCompat) msg.obj, data);
+                            cb.onSetRating((RatingCompat) msg.obj, extras);
                             break;
                         case MSG_CUSTOM_ACTION:
-                            cb.onCustomAction((String) msg.obj, data);
+                            cb.onCustomAction((String) msg.obj, extras);
                             break;
                         case MSG_ADD_QUEUE_ITEM:
                             cb.onAddQueueItem((MediaDescriptionCompat) msg.obj);

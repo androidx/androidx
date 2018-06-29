@@ -652,6 +652,59 @@ public class MediaControllerCompatCallbackTest {
         }
     }
 
+    @Test
+    @SmallTest
+    public void testReceivingParcelables() throws Exception {
+        Bundle arguments = new Bundle();
+        arguments.putString("event", TEST_SESSION_EVENT);
+
+        final MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
+                .setMediaId("testMediaId")
+                .build();
+        final MediaSessionCompat.QueueItem queueItem =
+                new MediaSessionCompat.QueueItem(desc, 1 /* flags */);
+        final MediaBrowserCompat.MediaItem mediaItem =
+                new MediaBrowserCompat.MediaItem(desc, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+        final PlaybackStateCompat state =  new PlaybackStateCompat.Builder()
+                .setBufferedPosition(1000)
+                .build();
+
+        Bundle extras = new Bundle();
+        extras.putParcelable("description", desc);
+        extras.putParcelable("queueItem", queueItem);
+        extras.putParcelable("mediaItem", mediaItem);
+        extras.putParcelable("state", state);
+
+        arguments.putBundle("extras", extras);
+
+        synchronized (mWaitLock) {
+            mMediaControllerCallback.resetLocked();
+            callMediaSessionMethod(SEND_SESSION_EVENT, arguments, getContext());
+            mWaitLock.wait(TIME_OUT_MS);
+
+            assertTrue(mMediaControllerCallback.mOnSessionEventCalled);
+            assertEquals(TEST_SESSION_EVENT, mMediaControllerCallback.mEvent);
+
+            Bundle extrasOut = mMediaControllerCallback.mExtras;
+            // Viewing the contents of bundle from remote process should not throw any exceptions.
+            // Also check whether the bundle has expected contents.
+            assertNotNull(extrasOut);
+            assertNotNull(extrasOut.getClassLoader());
+
+            MediaDescriptionCompat descOut = extrasOut.getParcelable("description");
+            assertEquals(desc.getMediaId(), descOut.getMediaId());
+
+            MediaSessionCompat.QueueItem queueItemOut = extrasOut.getParcelable("queueItem");
+            assertEquals(queueItem.getQueueId(), queueItemOut.getQueueId());
+
+            MediaBrowserCompat.MediaItem mediaItemOut = extrasOut.getParcelable("mediaItem");
+            assertEquals(mediaItem.getFlags(), mediaItemOut.getFlags());
+
+            PlaybackStateCompat stateOut = extrasOut.getParcelable("state");
+            assertEquals(state.getBufferedPosition(), stateOut.getBufferedPosition());
+        }
+    }
+
     private void assertQueueEquals(List<QueueItem> expected, List<QueueItem> observed) {
         if (expected == null || observed == null) {
             assertTrue(expected == observed);
