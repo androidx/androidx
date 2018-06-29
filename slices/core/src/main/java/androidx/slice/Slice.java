@@ -311,8 +311,7 @@ public final class Slice implements VersionedParcelable {
                 @NonNull Slice s, @Nullable String subType) {
             Preconditions.checkNotNull(action);
             Preconditions.checkNotNull(s);
-            @SliceHint String[] hints = s != null
-                    ? s.getHints().toArray(new String[s.getHints().size()]) : new String[0];
+            @SliceHint String[] hints = s.getHints().toArray(new String[s.getHints().size()]);
             mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
             return this;
         }
@@ -326,8 +325,7 @@ public final class Slice implements VersionedParcelable {
         public Slice.Builder addAction(@NonNull SliceItem.ActionHandler action,
                 @NonNull Slice s, @Nullable String subType) {
             Preconditions.checkNotNull(s);
-            @SliceHint String[] hints = s != null
-                    ? s.getHints().toArray(new String[s.getHints().size()]) : new String[0];
+            @SliceHint String[] hints = s.getHints().toArray(new String[s.getHints().size()]);
             mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
             return this;
         }
