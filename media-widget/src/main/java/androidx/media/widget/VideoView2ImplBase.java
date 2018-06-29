@@ -280,7 +280,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     @Override
     public void setMediaControlView2(MediaControlView2 mediaControlView, long intervalMs) {
         mMediaControlView = mediaControlView;
-        mMediaControlView.setRouteSelector(mRouteSelector);
         mMediaControlView.setShowControllerInterval(intervalMs);
 
         if (mInstance.isAttachedToWindow()) {
@@ -766,15 +765,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             // target state that was there before.
             mCurrentState = STATE_PREPARING;
             mMediaSession.prepare();
-
-            // Save file name as title since the file may not have a title Metadata.
-            Uri uri = dsd == null ? null : dsd.getUri();
-            mTitle = uri != null ? uri.getPath() : null;
-            String scheme = uri != null ? uri.getScheme() : null;
-            if (scheme != null && scheme.equals("file")) {
-                mTitle = uri.getLastPathSegment();
-            }
-
         } catch (IllegalArgumentException ex) {
             Log.w(TAG, "Unable to open content: " + mMediaItem, ex);
             mCurrentState = STATE_ERROR;
@@ -879,10 +869,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         // Save file name as title since the file may not have a title Metadata.
         String scheme = uri.getScheme();
-        if (scheme != null && scheme.equals("file")) {
-            mTitle = uri.getLastPathSegment();
-        } else {
-            mTitle = uri.getPath();
+        if (scheme != null) {
+            if (scheme.equals("file")) {
+                mTitle = uri.getLastPathSegment();
+                mMediaControlView.setRouteSelector(null);
+            } else if (scheme.equals("http") || scheme.equals("https")) {
+                mTitle = uri.getPath();
+                mMediaControlView.setRouteSelector(mRouteSelector);
+            }
         }
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
