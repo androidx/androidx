@@ -60,6 +60,7 @@ class SafeArgsPlugin : Plugin<Project> {
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
                 task.incrementalFolder = File(project.buildDir,
                         "$INTERMEDIATES_PATH/${variant.dirName}")
+                task.useAndroidX = (project.findProperty("android.useAndroidX") == "true")
                 task.variantName = variant.name
             }
             variant.registerJavaGeneratingTask(task, task.outputDir)

@@ -35,6 +35,7 @@ private const val ATTRIBUTE_DESTINATION = "destination"
 private const val ATTRIBUTE_DEFAULT_VALUE = "defaultValue"
 private const val ATTRIBUTE_NAME = "name"
 private const val ATTRIBUTE_TYPE = "type"
+private const val ATTRIBUTE_NULLABLE = "nullable"
 
 const val VALUE_NULL = "@null"
 private const val VALUE_TRUE = "true"
@@ -108,6 +109,10 @@ internal class NavParser(
         val name = parser.attrValueOrError(NAMESPACE_ANDROID, ATTRIBUTE_NAME)
         val defaultValue = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_DEFAULT_VALUE)
         val typeString = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_TYPE)
+        val nullable = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_NULLABLE)?.let {
+            it == VALUE_TRUE
+        } ?: false
+
         if (name == null) return context.createStubArg()
 
         if (typeString == null && defaultValue != null) {
@@ -115,9 +120,15 @@ internal class NavParser(
         }
 
         val type = NavType.from(typeString)
+        if (nullable && !type.allowsNullable()) {
+            NavParserErrors.typeIsNotNullable(typeString).also { errorMsg ->
+                context.logger.error(errorMsg, xmlPosition)
+            }
+            return context.createStubArg()
+        }
 
         if (defaultValue == null) {
-            return Argument(name, type, null)
+            return Argument(name, type, null, nullable)
         }
 
         val defaultTypedValue = when (type) {
@@ -128,7 +139,13 @@ internal class NavParser(
             ReferenceType -> parseReference(defaultValue, rFilePackage)?.let {
                 ReferenceValue(it)
             }
-            StringType -> StringValue(defaultValue)
+            StringType -> {
+                if (defaultValue == VALUE_NULL) {
+                    NullValue
+                } else {
+                    StringValue(defaultValue)
+                }
+            }
             is ParcelableType -> {
                 if (defaultValue == VALUE_NULL) {
                     NullValue
@@ -150,7 +167,14 @@ internal class NavParser(
             return context.createStubArg()
         }
 
-        return Argument(name, type, defaultTypedValue)
+        if (!nullable && defaultTypedValue == NullValue) {
+            NavParserErrors.defaultNullButNotNullable(name).also { errorMsg ->
+                context.logger.error(errorMsg, xmlPosition)
+            }
+            return context.createStubArg()
+        }
+
+        return Argument(name, type, defaultTypedValue, nullable)
     }
 
     private fun parseAction(): Action {

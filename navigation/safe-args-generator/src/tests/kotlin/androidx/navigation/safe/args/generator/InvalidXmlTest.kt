@@ -17,11 +17,13 @@
 package androidx.navigation.safe.args.generator
 
 import androidx.navigation.safe.args.generator.NavParserErrors.UNNAMED_DESTINATION
+import androidx.navigation.safe.args.generator.NavParserErrors.defaultNullButNotNullable
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultValue
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultValueReference
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidId
 import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameActions
 import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameArguments
+import androidx.navigation.safe.args.generator.NavParserErrors.typeIsNotNullable
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.ResReference
@@ -52,7 +54,9 @@ class InvalidXmlTest(private val testCase: ErrorMessage) {
                             Action(ResReference("a.b", "id", "next_action"),
                                     ResReference("a.b", "id", "first_screen")),
                             Action(ResReference("a.b", "id", "nextAction"),
-                                    ResReference("a.b", "id", "first_screen")))))
+                                    ResReference("a.b", "id", "first_screen"))))),
+            ErrorMessage("null_but_not_nullable.xml", 24, 13, defaultNullButNotNullable("myArg")),
+            ErrorMessage("type_is_not_nullable.xml", 24, 13, typeIsNotNullable("integer"))
         )
     }
 

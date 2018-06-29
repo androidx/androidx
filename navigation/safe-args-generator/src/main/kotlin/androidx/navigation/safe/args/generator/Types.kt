@@ -27,6 +27,7 @@ sealed class NavType {
     abstract fun typeName(): TypeName
     abstract fun bundlePutMethod(): String
     abstract fun bundleGetMethod(): String
+    abstract fun allowsNullable(): Boolean
 
     companion object {
         fun from(name: String?) = when (name) {
@@ -50,6 +51,7 @@ object IntType : NavType() {
     override fun bundlePutMethod() = "putInt"
     override fun bundleGetMethod() = "getInt"
     override fun toString() = "integer"
+    override fun allowsNullable() = false
 }
 
 object LongType : NavType() {
@@ -57,6 +59,7 @@ object LongType : NavType() {
     override fun bundlePutMethod() = "putLong"
     override fun bundleGetMethod() = "getLong"
     override fun toString() = "long"
+    override fun allowsNullable() = false
 }
 
 object FloatType : NavType() {
@@ -64,6 +67,7 @@ object FloatType : NavType() {
     override fun bundlePutMethod() = "putFloat"
     override fun bundleGetMethod() = "getFloat"
     override fun toString() = "float"
+    override fun allowsNullable() = false
 }
 
 object StringType : NavType() {
@@ -71,6 +75,7 @@ object StringType : NavType() {
     override fun bundlePutMethod() = "putString"
     override fun bundleGetMethod() = "getString"
     override fun toString() = "string"
+    override fun allowsNullable() = true
 }
 
 object BoolType : NavType() {
@@ -78,6 +83,7 @@ object BoolType : NavType() {
     override fun bundlePutMethod() = "putBoolean"
     override fun bundleGetMethod() = "getBoolean"
     override fun toString() = "boolean"
+    override fun allowsNullable() = false
 }
 
 object ReferenceType : NavType() {
@@ -88,6 +94,7 @@ object ReferenceType : NavType() {
     override fun bundlePutMethod() = "putInt"
     override fun bundleGetMethod() = "getInt"
     override fun toString() = "reference"
+    override fun allowsNullable() = false
 }
 
 data class ParcelableType(private val typeName: TypeName) : NavType() {
@@ -95,6 +102,7 @@ data class ParcelableType(private val typeName: TypeName) : NavType() {
     override fun bundlePutMethod() = "putParcelable"
     override fun bundleGetMethod() = "getParcelable"
     override fun toString() = "parcelable"
+    override fun allowsNullable() = true
 }
 
 sealed class WriteableValue {
@@ -106,13 +114,7 @@ data class ReferenceValue(private val resReference: ResReference) : WriteableVal
 }
 
 data class StringValue(private val value: String) : WriteableValue() {
-    override fun write(): CodeBlock {
-        if (VALUE_NULL == value) {
-            return CodeBlock.of("null")
-        } else {
-            return CodeBlock.of(S, value)
-        }
-    }
+    override fun write(): CodeBlock = CodeBlock.of(S, value)
 }
 
 // keeping value as String, it will help to preserve client format of it: hex, dec

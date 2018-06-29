@@ -37,6 +37,9 @@ open class ArgumentsGenerationTask : IncrementalTask() {
     @get:Input
     lateinit var applicationId: String
 
+    @get:Input
+    var useAndroidX: Boolean = false
+
     @get:OutputDirectory
     lateinit var outputDir: File
 
@@ -44,7 +47,7 @@ open class ArgumentsGenerationTask : IncrementalTask() {
     var navigationFiles: List<File> = emptyList()
 
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
-        val output = generateSafeArgs(rFilePackage, applicationId, file, out)
+        val output = generateSafeArgs(rFilePackage, applicationId, file, out, useAndroidX)
         Mapping(file.relativeTo(project.projectDir).path, output.files) to output.errors
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 

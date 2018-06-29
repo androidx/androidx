@@ -30,6 +30,7 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
@@ -38,12 +39,47 @@ private const val NAVIGATION_PACKAGE = "androidx.navigation"
 private val NAV_DIRECTION_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavDirections")
 private val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
 
-private class ClassWithArgsSpecs(val args: List<Argument>) {
+internal abstract class Annotations {
+    abstract val NULLABLE_CLASSNAME: ClassName
+    abstract val NONNULL_CLASSNAME: ClassName
+
+    private object AndroidAnnotations : Annotations() {
+        override val NULLABLE_CLASSNAME = ClassName.get("android.support.annotation", "Nullable")
+        override val NONNULL_CLASSNAME = ClassName.get("android.support.annotation", "NonNull")
+    }
+
+    private object AndroidXAnnotations : Annotations() {
+        override val NULLABLE_CLASSNAME = ClassName.get("androidx.annotation", "Nullable")
+        override val NONNULL_CLASSNAME = ClassName.get("androidx.annotation", "NonNull")
+    }
+
+    companion object {
+        fun getInstance(useAndroidX: Boolean): Annotations {
+            if (useAndroidX) {
+                return AndroidXAnnotations
+            } else {
+                return AndroidAnnotations
+            }
+        }
+    }
+}
+
+private class ClassWithArgsSpecs(
+    val args: List<Argument>,
+    val annotations: Annotations
+) {
 
     fun fieldSpecs() = args.map { arg ->
         FieldSpec.builder(arg.type.typeName(), arg.sanitizedName)
                 .apply {
                     addModifiers(Modifier.PRIVATE)
+                    if (arg.type.allowsNullable()) {
+                        if (arg.isNullable) {
+                            addAnnotation(annotations.NULLABLE_CLASSNAME)
+                        } else {
+                            addAnnotation(annotations.NONNULL_CLASSNAME)
+                        }
+                    }
                     if (arg.isOptional()) {
                         initializer(arg.defaultValue!!.write())
                     }
@@ -51,21 +87,21 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
                 .build()
     }
 
-    fun setters(thisClassName: ClassName) = args.map { (_, type, _, sanitizedName) ->
-        MethodSpec.methodBuilder("set${sanitizedName.capitalize()}")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(type.typeName(), sanitizedName)
-                .addStatement("this.$N = $N", sanitizedName, sanitizedName)
-                .addStatement("return this")
-                .returns(thisClassName)
-                .build()
+    fun setters(thisClassName: ClassName) = args.map { arg ->
+        MethodSpec.methodBuilder("set${arg.sanitizedName.capitalize()}").apply {
+            addModifiers(Modifier.PUBLIC)
+            addParameter(generateParameterSpec(arg))
+            addStatement("this.$N = $N", arg.sanitizedName, arg.sanitizedName)
+            addStatement("return this")
+            returns(thisClassName)
+        }.build()
     }
 
     fun constructor() = MethodSpec.constructorBuilder().apply {
         addModifiers(Modifier.PUBLIC)
-        args.filterNot(Argument::isOptional).forEach { (_, type, _, sanitizedName) ->
-            addParameter(type.typeName(), sanitizedName)
-            addStatement("this.$N = $N", sanitizedName, sanitizedName)
+        args.filterNot(Argument::isOptional).forEach { arg ->
+            addParameter(generateParameterSpec(arg))
+            addStatement("this.$N = $N", arg.sanitizedName, arg.sanitizedName)
         }
     }.build()
 
@@ -74,7 +110,7 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         returns(BUNDLE_CLASSNAME)
         val bundleName = "__outBundle"
         addStatement("$T $N = new $T()", BUNDLE_CLASSNAME, bundleName, BUNDLE_CLASSNAME)
-        args.forEach { (name, type, _, sanitizedName) ->
+        args.forEach { (name, type, _, _, sanitizedName) ->
             addStatement("$N.$N($S, this.$N)", bundleName, type.bundlePutMethod(), name,
                     sanitizedName)
         }
@@ -83,18 +119,25 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
 
     fun copyProperties(to: String, from: String) = CodeBlock.builder()
             .apply {
-                args.forEach { (_, _, _, sanitizedName) ->
+                args.forEach { (_, _, _, _, sanitizedName) ->
                     addStatement("$to.$sanitizedName = $from.$sanitizedName")
                 }
             }
             .build()
 
-    fun getters() = args.map { (_, type, _, sanitizedName) ->
-        MethodSpec.methodBuilder("get${sanitizedName.capitalize()}")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $N", sanitizedName)
-                .returns(type.typeName())
-                .build()
+    fun getters() = args.map { arg ->
+        MethodSpec.methodBuilder("get${arg.sanitizedName.capitalize()}").apply {
+            addModifiers(Modifier.PUBLIC)
+            if (arg.type.allowsNullable()) {
+                if (arg.isNullable) {
+                    addAnnotation(annotations.NULLABLE_CLASSNAME)
+                } else {
+                    addAnnotation(annotations.NONNULL_CLASSNAME)
+                }
+            }
+            addStatement("return $N", arg.sanitizedName)
+            returns(arg.type.typeName())
+        }.build()
     }
 
     fun equalsMethod(className: ClassName) = MethodSpec.methodBuilder("equals").apply {
@@ -114,7 +157,7 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
 
                 """.trimIndent())
         addStatement("${className.simpleName()} that = (${className.simpleName()}) object")
-        args.forEach { (_, type, _, sanitizedName) ->
+        args.forEach { (_, type, _, _, sanitizedName) ->
             val compareExpression = when (type) {
                 IntType,
                 BoolType,
@@ -138,7 +181,7 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)
         addStatement("int result = super.hashCode()")
-        args.forEach { (_, type, _, sanitizedName) ->
+        args.forEach { (_, type, _, _, sanitizedName) ->
             val hashCodeExpression = when (type) {
                 IntType, ReferenceType -> sanitizedName
                 FloatType -> "Float.floatToIntBits($sanitizedName)"
@@ -152,14 +195,27 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         addStatement("return result")
         returns(TypeName.INT)
     }.build()
+
+    private fun generateParameterSpec(arg: Argument): ParameterSpec {
+        return ParameterSpec.builder(arg.type.typeName(), arg.sanitizedName).apply {
+            if (arg.type.allowsNullable()) {
+                if (arg.isNullable) {
+                    addAnnotation(annotations.NULLABLE_CLASSNAME)
+                } else {
+                    addAnnotation(annotations.NONNULL_CLASSNAME)
+                }
+            }
+        }.build()
+    }
 }
 
 fun generateDestinationDirectionsTypeSpec(
     className: ClassName,
-    destination: Destination
+    destination: Destination,
+    useAndroidX: Boolean
 ): TypeSpec {
     val actionTypes = destination.actions.map { action ->
-        action to generateDirectionsTypeSpec(action)
+        action to generateDirectionsTypeSpec(action, useAndroidX)
     }
 
     val getters = actionTypes
@@ -182,8 +238,9 @@ fun generateDestinationDirectionsTypeSpec(
             .build()
 }
 
-fun generateDirectionsTypeSpec(action: Action): TypeSpec {
-    val specs = ClassWithArgsSpecs(action.args)
+fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
+    val annotations = Annotations.getInstance(useAndroidX)
+    val specs = ClassWithArgsSpecs(action.args, annotations)
 
     val getDestIdMethod = MethodSpec.methodBuilder("getActionId")
             .addModifiers(Modifier.PUBLIC)
@@ -203,12 +260,13 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
             .build()
 }
 
-internal fun generateArgsJavaFile(destination: Destination): JavaFile {
+internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean): JavaFile {
+    val annotations = Annotations.getInstance(useAndroidX)
     val destName = destination.name
             ?: throw IllegalStateException("Destination with arguments must have name")
     val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Args")
     val args = destination.args
-    val specs = ClassWithArgsSpecs(args)
+    val specs = ClassWithArgsSpecs(args, annotations)
 
     val fromBundleMethod = MethodSpec.methodBuilder("fromBundle").apply {
         addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -276,10 +334,10 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
     return JavaFile.builder(className.packageName(), typeSpec).build()
 }
 
-fun generateDirectionsJavaFile(destination: Destination): JavaFile {
+fun generateDirectionsJavaFile(destination: Destination, useAndroidX: Boolean): JavaFile {
     val destName = destination.name
             ?: throw IllegalStateException("Destination with actions must have name")
     val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Directions")
-    val typeSpec = generateDestinationDirectionsTypeSpec(className, destination)
+    val typeSpec = generateDestinationDirectionsTypeSpec(className, destination, useAndroidX)
     return JavaFile.builder(className.packageName(), typeSpec).build()
 }

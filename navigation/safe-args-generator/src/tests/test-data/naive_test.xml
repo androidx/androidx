@@ -27,6 +27,7 @@
             <argument android:name="intArgument" app:type="integer" android:defaultValue="261"/>
             <argument android:name="activityInfo" app:type="android.content.pm.ActivityInfo"/>
             <argument android:name="activityInfoNull"
+                      app:nullable="true"
                       app:type="android.content.pm.ActivityInfo"
                       android:defaultValue="@null"
             />

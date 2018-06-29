@@ -70,7 +70,14 @@ class NavWriterTest {
             toJavaFileObject(JavaFile.builder("a.b", spec).build())
 
     private fun assertCompilesWithoutError(javaFileObject: JavaFileObject) {
-        JavaSourcesSubject.assertThat(load("a.b.R", "a/b"), javaFileObject).compilesWithoutError()
+        JavaSourcesSubject.assertThat(
+                load("a.b.R", "a/b"),
+                JavaFileObjects.forSourceString("android.support.annotation.NonNull",
+                        "package android.support.annotation; public @interface NonNull {}"),
+                JavaFileObjects.forSourceString("android.support.annotation.Nullable",
+                        "package android.support.annotation; public @interface Nullable {}"),
+                javaFileObject
+        ).compilesWithoutError()
     }
 
     private fun JavaSourcesSubject.parsesAs(fullClassName: String) =
@@ -87,12 +94,13 @@ class NavWriterTest {
                         Argument(
                                 "optionalParcelable",
                                 ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
-                                NullValue
+                                NullValue,
+                                true
                         ),
                         Argument(
                                 "parcelable",
                                 ParcelableType(ClassName.get("android.content.pm", "ActivityInfo"))
-                        ))))
+                        ))), false)
         val actual = toJavaFileObject(actionSpec)
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Next")
         // actions spec must be inner class to be compiled, because of static modifier on class
@@ -101,7 +109,7 @@ class NavWriterTest {
 
     @Test
     fun testDirectionNoIdClassGeneration() {
-        val actionSpec = generateDirectionsTypeSpec(Action(id("finish"), null, emptyList()))
+        val actionSpec = generateDirectionsTypeSpec(Action(id("finish"), null, emptyList()), false)
         val actual = toJavaFileObject(actionSpec)
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Finish")
         // actions spec must be inner class to be compiled, because of static modifier on class
@@ -123,7 +131,7 @@ class NavWriterTest {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
                 listOf(prevAction, nextAction))
 
-        val actual = toJavaFileObject(generateDirectionsJavaFile(dest))
+        val actual = toJavaFileObject(generateDirectionsJavaFile(dest, false))
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragmentDirections")
         assertCompilesWithoutError(actual)
     }
@@ -143,7 +151,7 @@ class NavWriterTest {
         val dest = Destination(null, ClassName.get("a.b", "SanitizedMainFragment"),
                 "fragment", listOf(), listOf(prevAction, nextAction))
 
-        val actual = toJavaFileObject(generateDirectionsJavaFile(dest))
+        val actual = toJavaFileObject(generateDirectionsJavaFile(dest, false))
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.SanitizedMainFragmentDirections")
         assertCompilesWithoutError(actual)
     }
@@ -160,11 +168,12 @@ class NavWriterTest {
                 Argument(
                         "optionalParcelable",
                         ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
-                        NullValue
+                        NullValue,
+                        true
                 )),
                 listOf())
 
-        val actual = toJavaFileObject(generateArgsJavaFile(dest))
+        val actual = toJavaFileObject(generateArgsJavaFile(dest, false))
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragmentArgs")
         assertCompilesWithoutError(actual)
     }
@@ -178,7 +187,7 @@ class NavWriterTest {
                 Argument("name with spaces", IntType)),
                 listOf())
 
-        val actual = toJavaFileObject(generateArgsJavaFile(dest))
+        val actual = toJavaFileObject(generateArgsJavaFile(dest, false))
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.SanitizedMainFragmentArgs")
         assertCompilesWithoutError(actual)
     }

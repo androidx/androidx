@@ -2,12 +2,15 @@ package a.b;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 
 public class MainFragmentArgs {
+    @NonNull
     private String main;
 
     private int optional = -1;
@@ -18,6 +21,7 @@ public class MainFragmentArgs {
 
     private boolean boolArg = true;
 
+    @Nullable
     private ActivityInfo optionalParcelable = null;
 
     private MainFragmentArgs() {
@@ -49,6 +53,7 @@ public class MainFragmentArgs {
         return result;
     }
 
+    @NonNull
     public String getMain() {
         return main;
     }
@@ -69,6 +74,7 @@ public class MainFragmentArgs {
         return boolArg;
     }
 
+    @Nullable
     public ActivityInfo getOptionalParcelable() {
         return optionalParcelable;
     }
@@ -130,6 +136,7 @@ public class MainFragmentArgs {
     }
 
     public static class Builder {
+        @NonNull
         private String main;
 
         private int optional = -1;
@@ -140,6 +147,7 @@ public class MainFragmentArgs {
 
         private boolean boolArg = true;
 
+        @Nullable
         private ActivityInfo optionalParcelable = null;
 
         public Builder(MainFragmentArgs original) {
@@ -151,7 +159,7 @@ public class MainFragmentArgs {
             this.optionalParcelable = original.optionalParcelable;
         }
 
-        public Builder(String main) {
+        public Builder(@NonNull String main) {
             this.main = main;
         }
 
@@ -166,7 +174,7 @@ public class MainFragmentArgs {
             return result;
         }
 
-        public Builder setMain(String main) {
+        public Builder setMain(@NonNull String main) {
             this.main = main;
             return this;
         }
@@ -191,11 +199,12 @@ public class MainFragmentArgs {
             return this;
         }
 
-        public Builder setOptionalParcelable(ActivityInfo optionalParcelable) {
+        public Builder setOptionalParcelable(@Nullable ActivityInfo optionalParcelable) {
             this.optionalParcelable = optionalParcelable;
             return this;
         }
 
+        @NonNull
         public String getMain() {
             return main;
         }
@@ -216,6 +225,7 @@ public class MainFragmentArgs {
             return boolArg;
         }
 
+        @Nullable
         public ActivityInfo getOptionalParcelable() {
             return optionalParcelable;
         }

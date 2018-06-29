@@ -24,6 +24,7 @@
     <declare-styleable name="NavArgument">
         <attr name="android:name" />
         <attr name="android:defaultValue" />
+        <attr name="nullable" format="boolean"/>
         <attr name="type" format="string"/>
     </declare-styleable>
 

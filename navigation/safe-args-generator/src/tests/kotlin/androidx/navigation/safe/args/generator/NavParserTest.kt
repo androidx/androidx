@@ -53,7 +53,8 @@ class NavParserTest {
                         Argument(
                                 "activityInfoNull",
                                 ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
-                                NullValue
+                                NullValue,
+                                true
                         )
                 ))))
 

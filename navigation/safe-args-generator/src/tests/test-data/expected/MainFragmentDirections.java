@@ -17,34 +17,37 @@
 package a.b;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import java.lang.String;
 
 public class MainFragmentDirections {
-    public static Previous previous(String arg1, String arg2) {
+    public static Previous previous(@NonNull String arg1, @NonNull String arg2) {
         return new Previous(arg1, arg2);
     }
 
-    public static Next next(String main) {
+    public static Next next(@NonNull String main) {
         return new Next(main);
     }
 
     public static class Previous implements NavDirections {
+        @NonNull
         private String arg1;
 
+        @NonNull
         private String arg2;
 
-        public Previous(String arg1, String arg2) {
+        public Previous(@NonNull String arg1, @NonNull String arg2) {
             this.arg1 = arg1;
             this.arg2 = arg2;
         }
 
-        public Previous setArg1(String arg1) {
+        public Previous setArg1(@NonNull String arg1) {
             this.arg1 = arg1;
             return this;
         }
 
-        public Previous setArg2(String arg2) {
+        public Previous setArg2(@NonNull String arg2) {
             this.arg2 = arg2;
             return this;
         }
@@ -62,20 +65,22 @@ public class MainFragmentDirections {
     }
 
     public static class Next implements NavDirections {
+        @NonNull
         private String main;
 
+        @NonNull
         private String optional = "bla";
 
-        public Next(String main) {
+        public Next(@NonNull String main) {
             this.main = main;
         }
 
-        public Next setMain(String main) {
+        public Next setMain(@NonNull String main) {
             this.main = main;
             return this;
         }
 
-        public Next setOptional(String optional) {
+        public Next setOptional(@NonNull String optional) {
             this.optional = optional;
             return this;
         }
