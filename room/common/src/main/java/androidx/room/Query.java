@@ -53,7 +53,8 @@ import java.lang.annotation.Target;
  * query as: {@code SELECT * FROM user WHERE uid IN(?, ?, ?)} and bind each item in the
  * {@code userIds} array into the statement.
  * <p>
- * There are 3 types of queries supported in {@code Query} methods: SELECT, UPDATE and DELETE.
+ * There are 4 types of queries supported in {@code Query} methods: SELECT, INSERT, UPDATE, and
+ * DELETE.
  * <p>
  * For SELECT queries, Room will infer the result contents from the method's return type and
  * generate the code that will automatically convert the query result into the method's return
@@ -73,6 +74,10 @@ import java.lang.annotation.Target;
  * use {@code Maybe<T>} or {@code Single<T>}. If a {@code Single<T>} query returns {@code null},
  * Room will throw
  * {@link androidx.room.EmptyResultSetException EmptyResultSetException}.
+ * <p>
+ * INSERT queries can return {@code void} or {@code long}. If it is a {@code long}, the value is the
+ * SQLite rowid of the row inserted by this query. Note that queries which insert multiple rows
+ * cannot return more than one rowid, so avoid such statements if returning {@code long}.
  * <p>
  * UPDATE or DELETE queries can return {@code void} or {@code int}. If it is an {@code int},
  * the value is the number of rows affected by this query.

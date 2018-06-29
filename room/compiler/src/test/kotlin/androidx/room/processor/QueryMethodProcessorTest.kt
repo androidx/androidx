@@ -429,6 +429,49 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun testVoidInsertQuery() {
+        singleQueryMethod(
+                """
+                @Query("insert into user (name) values (:name)")
+                abstract public void insertUsername(String name);
+                """) { parsedQuery, invocation ->
+            assertThat(parsedQuery.name, `is`("insertUsername"))
+            assertThat(parsedQuery.parameters.size, `is`(1))
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
+            assertThat(parsedQuery.parameters.first().type.typeName(),
+                `is`(invocation.context.COMMON_TYPES.STRING.typeName()))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testLongInsertQuery() {
+        singleQueryMethod(
+                """
+                @Query("insert into user (name) values (:name)")
+                abstract public long insertUsername(String name);
+                """) { parsedQuery, invocation ->
+            assertThat(parsedQuery.name, `is`("insertUsername"))
+            assertThat(parsedQuery.parameters.size, `is`(1))
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.LONG))
+            assertThat(parsedQuery.parameters.first().type.typeName(),
+                `is`(invocation.context.COMMON_TYPES.STRING.typeName()))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testInsertQueryWithBadReturnType() {
+        singleQueryMethod(
+                """
+                @Query("insert into user (name) values (:name)")
+                abstract public int insert(String name);
+                """) { parsedQuery, _ ->
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.INT))
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.PREPARED_INSERT_METHOD_INVALID_RETURN_TYPE
+        )
+    }
+
+    @Test
     fun testLiveDataQuery() {
         singleQueryMethod(
                 """
@@ -569,12 +612,15 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Query("SELECT uid from User")
                 abstract public int[] foo();
                 """) { method, invocation ->
-            assertThat(QueryMethodProcessor(
+            assertThat(
+                QueryMethodProcessor(
                     baseContext = invocation.context,
                     containing = Mockito.mock(DeclaredType::class.java),
                     executableElement = method.element,
-                    dbVerifier = null).context.logger.suppressedWarnings
-                    , `is`(setOf(Warning.CURSOR_MISMATCH)))
+                    dbVerifier = null
+                ).context.logger.suppressedWarnings,
+                `is`(setOf(Warning.CURSOR_MISMATCH))
+            )
         }.compilesWithoutError()
     }
 
@@ -779,8 +825,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 ))
     }
 
-    fun pojoTest(pojoFields: String, queryColumns: List<String>,
-                 handler: (PojoRowAdapter?, QueryMethod, TestInvocation) -> Unit): CompileTester? {
+    fun pojoTest(
+        pojoFields: String,
+        queryColumns: List<String>,
+        handler: (PojoRowAdapter?, QueryMethod, TestInvocation) -> Unit
+    ): CompileTester? {
         val assertion = singleQueryMethod(
                 """
                 static class Pojo {

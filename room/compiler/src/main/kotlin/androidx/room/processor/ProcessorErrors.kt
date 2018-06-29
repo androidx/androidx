@@ -555,4 +555,7 @@ object ProcessorErrors {
 
     val RAW_QUERY_STRING_PARAMETER_REMOVED = "RawQuery does not allow passing a string anymore." +
             " Please use ${SupportDbTypeNames.QUERY}."
+
+    val PREPARED_INSERT_METHOD_INVALID_RETURN_TYPE = "Insert methods must either return void or " +
+            "long (the rowid of the inserted row)."
 }
