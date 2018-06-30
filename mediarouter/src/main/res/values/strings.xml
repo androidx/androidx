@@ -81,4 +81,10 @@
 
     <!-- Placeholder text indicating that the user is currently casting screen. [CHAR LIMIT=50] -->
     <string name="mr_controller_casting_screen">Casting screen</string>
+
+    <!-- Section header text of single device section in dialog [CHAR LIMIT=50] -->
+    <string name="mr_dialog_device_header">Cast to a device</string>
+
+    <!-- Section header text of group device section in dialog [CHAR LIMIT=50] -->
+    <string name="mr_dialog_route_header">Play on a group</string>
 </resources>
