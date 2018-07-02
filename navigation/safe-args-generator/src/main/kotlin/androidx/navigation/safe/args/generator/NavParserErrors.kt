@@ -16,6 +16,8 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.models.Argument
+
 object NavParserErrors {
     val UNNAMED_DESTINATION = "Destination with arguments or actions must have " +
         "'name' or 'id' attributes."
@@ -30,4 +32,9 @@ object NavParserErrors {
         " @[+][package:]id/resource_name "
 
     fun unknownType(type: String?) = "Unknown type '$type'"
+
+    fun sameSanitizedNameArguments(sanitizedName: String, args: List<Argument>) =
+            "Multiple same name arguments. The named arguments: " +
+            "[${args.joinToString(", ") { it.name }}] result in the generator using " +
+                    "the same name: '$sanitizedName'."
 }
