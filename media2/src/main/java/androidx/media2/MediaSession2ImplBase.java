@@ -902,7 +902,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public PlaybackStateCompat getPlaybackStateCompat() {
+    public PlaybackStateCompat createPlaybackStateCompat() {
         synchronized (mLock) {
             int state = MediaUtils2.convertToPlaybackStateCompatState(getPlayerState(),
                     getBufferingState());
@@ -924,7 +924,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
                     | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
                     | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
             return new PlaybackStateCompat.Builder()
-                    .setState(state, getCurrentPosition(), getPlaybackSpeed())
+                    .setState(state, getCurrentPosition(), getPlaybackSpeed(),
+                            SystemClock.elapsedRealtime())
                     .setActions(allActions)
                     .setBufferedPosition(getBufferedPosition())
                     .build();

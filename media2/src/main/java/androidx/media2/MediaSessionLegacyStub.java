@@ -16,6 +16,8 @@
 
 package androidx.media2;
 
+import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_TITLE;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 
 import android.annotation.TargetApi;
@@ -31,6 +33,7 @@ import android.os.ResultReceiver;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -89,11 +92,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
             new ArrayMap<>();
-    @GuardedBy("mLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    PlaybackStateCompat mPlaybackState = new PlaybackStateCompat.Builder()
-            .setState(PlaybackStateCompat.STATE_NONE, 0, 1.0f)
-            .build();
 
     MediaSessionLegacyStub(MediaSession2.SupportLibraryImpl session) {
         mSession = session;
@@ -510,6 +508,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         void run(ControllerInfo controller) throws RemoteException;
     }
 
+    @SuppressWarnings("ClassCanBeStatic")
     final class ControllerLegacyCb extends ControllerCb {
         private final RemoteUserInfo mRemoteUserInfo;
 
@@ -553,97 +552,56 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
-            final int state = MediaUtils2.convertToPlaybackStateCompatState(
-                    playerState, mSession.getBufferingState());
-            // Note: current position should be also sent to the controller here for controller
-            // to calculate the position more correctly.
-            PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
-                    .setState(state, positionMs, mSession.getPlaybackSpeed(), eventTimeMs)
-                    .build();
-            synchronized (mLock) {
-                mPlaybackState = playbackState;
-            }
-            mSession.getSessionCompat().setPlaybackState(mRemoteUserInfo, playbackState);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
-//            // Note: current position should be also sent to the controller here for controller
-//            // to calculate the position more correctly.
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelable(
-//                    ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem2 item, int state, long bufferedPositionMs)
+        void onBufferingStateChanged(MediaItem2 item, int bufferingState, long bufferedPositionMs)
                 throws RemoteException {
-//            // Note: buffered position should be also sent to the controller here. It's to
-//            // follow the behavior of BaseMediaPlayer.PlayerEventCallback.
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-//            bundle.putInt(ARGUMENT_BUFFERING_STATE, state);
-//            bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-//                    mSession.getPlaybackStateCompat());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_BUFFERING_STATE_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onSeekCompleted(long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
-//            // Note: current position should be also sent to the controller here because the
-//            // position here may refer to the parameter of the previous seek() API calls.
-//            Bundle bundle = new Bundle();
-//            bundle.putLong(ARGUMENT_SEEK_POSITION, position);
-//            bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-//                    mSession.getPlaybackStateCompat());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_SEEK_COMPLETED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onError(int errorCode, Bundle extras) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
-//            bundle.putBundle(ARGUMENT_EXTRAS, extras);
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_ERROR, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onCurrentMediaItemChanged(MediaItem2 item) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_MEDIA_ITEM, (item == null) ? null : item.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelableArray(ARGUMENT_PLAYLIST,
-//                    MediaUtils2.convertMediaItem2ListToParcelableArray(playlist));
-//            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-//                    metadata == null ? null : metadata.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onPlaylistMetadataChanged(MediaMetadata2 metadata) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-//                    metadata == null ? null : metadata.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onShuffleModeChanged(int shuffleMode) throws RemoteException {
-            // no-op
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onRepeatModeChanged(int repeatMode) throws RemoteException {
-            // no-op
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
@@ -736,87 +694,73 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
-            final int state = MediaUtils2.convertToPlaybackStateCompatState(
-                    playerState, mSession.getBufferingState());
-            // Note: current position should be also sent to the controller here for controller
-            // to calculate the position more correctly.
-            PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
-                    .setState(state, positionMs, mSession.getPlaybackSpeed(), eventTimeMs)
-                    .build();
-            synchronized (mLock) {
-                mPlaybackState = playbackState;
-            }
-            mSession.getSessionCompat().setPlaybackState(playbackState);
+            // Note: This method does not use any of the given arguments.
+            mSession.getSessionCompat().setPlaybackState(mSession.createPlaybackStateCompat());
         }
 
         @Override
         void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
-//            // Note: current position should be also sent to the controller here for controller
-//            // to calculate the position more correctly.
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelable(
-//                    ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED, bundle);
+            // Note: This method does not use any of the given arguments.
+            mSession.getSessionCompat().setPlaybackState(mSession.createPlaybackStateCompat());
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem2 item, int state, long bufferedPositionMs)
+        void onBufferingStateChanged(MediaItem2 item, int bufferingState, long bufferedPositionMs)
                 throws RemoteException {
-//            // Note: buffered position should be also sent to the controller here. It's to
-//            // follow the behavior of BaseMediaPlayer.PlayerEventCallback.
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-//            bundle.putInt(ARGUMENT_BUFFERING_STATE, state);
-//            bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-//                    mSession.getPlaybackStateCompat());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_BUFFERING_STATE_CHANGED, bundle);
+            // Note: This method does not use any of the given arguments.
+            mSession.getSessionCompat().setPlaybackState(mSession.createPlaybackStateCompat());
         }
 
         @Override
         void onSeekCompleted(long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
-//            // Note: current position should be also sent to the controller here because the
-//            // position here may refer to the parameter of the previous seek() API calls.
-//            Bundle bundle = new Bundle();
-//            bundle.putLong(ARGUMENT_SEEK_POSITION, position);
-//            bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-//                    mSession.getPlaybackStateCompat());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_SEEK_COMPLETED, bundle);
+            // Note: This method does not use any of the given arguments.
+            mSession.getSessionCompat().setPlaybackState(mSession.createPlaybackStateCompat());
         }
 
         @Override
         void onError(int errorCode, Bundle extras) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
-//            bundle.putBundle(ARGUMENT_EXTRAS, extras);
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_ERROR, bundle);
+            PlaybackStateCompat stateWithoutError = mSession.createPlaybackStateCompat();
+            // We don't set the state here as PlaybackStateCompat#STATE_ERROR, since
+            // MediaSession2#notifyError() does not affect the player state.
+            // This prevents MediaControllerCompat from remaining long time in error state.
+            PlaybackStateCompat stateWithError = new PlaybackStateCompat.Builder(stateWithoutError)
+                    .setErrorMessage(errorCode, "")
+                    .setExtras(extras)
+                    .build();
+            mSession.getSessionCompat().setPlaybackState(stateWithError);
         }
 
         @Override
         void onCurrentMediaItemChanged(MediaItem2 item) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_MEDIA_ITEM, (item == null) ? null : item.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
+            mSession.getSessionCompat().setMetadata(item == null ? null
+                    : MediaUtils2.convertToMediaMetadataCompat(item.getMetadata()));
         }
 
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelableArray(ARGUMENT_PLAYLIST,
-//                    MediaUtils2.convertMediaItem2ListToParcelableArray(playlist));
-//            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-//                    metadata == null ? null : metadata.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
+            mSession.getSessionCompat().setQueue(MediaUtils2.convertToQueueItemList(playlist));
+            onPlaylistMetadataChanged(metadata);
         }
 
         @Override
         void onPlaylistMetadataChanged(MediaMetadata2 metadata) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-//                    metadata == null ? null : metadata.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
+            // Since there is no 'queue metadata', only set title of the queue.
+            CharSequence oldTitle = mSession.getSessionCompat().getController().getQueueTitle();
+            CharSequence newTitle = null;
+
+            if (metadata != null) {
+                newTitle = metadata.getText(METADATA_KEY_DISPLAY_TITLE);
+                if (newTitle == null) {
+                    newTitle = metadata.getText(METADATA_KEY_TITLE);
+                }
+            }
+
+            if (!TextUtils.equals(oldTitle, newTitle)) {
+                mSession.getSessionCompat().setQueueTitle(newTitle);
+            }
         }
 
         @Override
