@@ -204,6 +204,20 @@ public class AppCompatTextViewTest
     }
 
     @Test
+    @UiThreadTest
+    public void testTextSize_canBeZero() {
+        final TextView textView = mContainer.findViewById(R.id.textview_zero_text_size);
+        // text size should be 0 as set in xml, rather than the text view default (15.0)
+        assertEquals(0.0f, textView.getTextSize(), 0.01f);
+        // text size can be set programmatically to non-negative values
+        textView.setTextSize(20f);
+        assertTrue(textView.getTextSize() > 0.0f);
+        // text size should become 0 when we set a text appearance with 0 text size
+        TextViewCompat.setTextAppearance(textView, R.style.TextView_ZeroTextSize);
+        assertEquals(0f, textView.getTextSize(), 0.01f);
+    }
+
+    @Test
     public void testFontResources_setInStringFamilyName() {
         TextView textView =
                 mContainer.findViewById(R.id.textview_fontresource_fontfamily_string_resource);
