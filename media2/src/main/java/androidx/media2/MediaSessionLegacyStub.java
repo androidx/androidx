@@ -518,35 +518,23 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelableArray(ARGUMENT_COMMAND_BUTTONS,
-//                    MediaUtils2.convertCommandButtonListToParcelableArray(layout));
-//            mIControllerCallback.onEvent(SESSION_EVENT_SET_CUSTOM_LAYOUT, bundle);
+            // no-op.
         }
 
         @Override
         void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_PLAYBACK_INFO, info.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED, bundle);
-
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onAllowedCommandsChanged(SessionCommandGroup2 commands) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_ALLOWED_COMMANDS, commands.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED, bundle);
+            // no-op
         }
 
         @Override
         void onCustomCommand(SessionCommand2 command, Bundle args, ResultReceiver receiver)
                 throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
-//            bundle.putBundle(ARGUMENT_ARGUMENTS, args);
-//            bundle.putParcelable(ARGUMENT_RESULT_RECEIVER, receiver);
-//            mIControllerCallback.onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
+            // no-op
         }
 
         @Override
@@ -606,12 +594,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onRoutesInfoChanged(List<Bundle> routes) throws RemoteException {
-//            Bundle bundle = null;
-//            if (routes != null) {
-//                bundle = new Bundle();
-//                bundle.putParcelableArray(ARGUMENT_ROUTE_BUNDLE, routes.toArray(new Bundle[0]));
-//            }
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_ROUTES_INFO_CHANGED, bundle);
+            // no-op
         }
 
         @Override
@@ -651,7 +634,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onDisconnected() throws RemoteException {
-            // TODO: Find a way to disconnect a specific controller in MediaSessionCompat.
+            // no-op
         }
     }
 
@@ -661,34 +644,24 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelableArray(ARGUMENT_COMMAND_BUTTONS,
-//                    MediaUtils2.convertCommandButtonListToParcelableArray(layout));
-//            mIControllerCallback.onEvent(SESSION_EVENT_SET_CUSTOM_LAYOUT, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_PLAYBACK_INFO, info.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED, bundle);
+            // no-op. Calling MediaSessionCompat#setPlaybackToLocal/Remote
+            // is already done in updatePlayer().
         }
 
         @Override
         void onAllowedCommandsChanged(SessionCommandGroup2 commands) throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_ALLOWED_COMMANDS, commands.toBundle());
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
         void onCustomCommand(SessionCommand2 command, Bundle args, ResultReceiver receiver)
                 throws RemoteException {
-//            Bundle bundle = new Bundle();
-//            bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
-//            bundle.putBundle(ARGUMENT_ARGUMENTS, args);
-//            bundle.putParcelable(ARGUMENT_RESULT_RECEIVER, receiver);
-//            mIControllerCallback.onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
+            // no-op
         }
 
         @Override
@@ -775,12 +748,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onRoutesInfoChanged(List<Bundle> routes) throws RemoteException {
-//            Bundle bundle = null;
-//            if (routes != null) {
-//                bundle = new Bundle();
-//                bundle.putParcelableArray(ARGUMENT_ROUTE_BUNDLE, routes.toArray(new Bundle[0]));
-//            }
-//            mIControllerCallback.onEvent(SESSION_EVENT_ON_ROUTES_INFO_CHANGED, bundle);
+            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
@@ -820,7 +788,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onDisconnected() throws RemoteException {
-            mSession.getSessionCompat().release();
+            // no-op. Calling MediaSessionCompat#release() is already done in close().
         }
     }
 }
