@@ -616,7 +616,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 new Extras(input, Collections.<String>emptyList(), null, 1));
 
         assertThat(worker, is(notNullValue()));
-        assertThat(worker.getInputData().getString(key, null), is(expectedValue));
+        assertThat(worker.getInputData().getString(key), is(expectedValue));
 
         work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         worker = WorkerWrapper.workerFromWorkSpec(

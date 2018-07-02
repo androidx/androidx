@@ -239,15 +239,14 @@ public final class Data {
      * Get the String value for the given key.
      *
      * @param key The key for the argument
-     * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public @Nullable String getString(@NonNull String key, @Nullable String defaultValue) {
+    public @Nullable String getString(@NonNull String key) {
         Object value = mValues.get(key);
         if (value instanceof String) {
             return (String) value;
         } else {
-            return defaultValue;
+            return null;
         }
     }
 
