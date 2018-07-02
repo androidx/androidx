@@ -47,7 +47,7 @@ public class ImageProcessingWorker extends Worker {
     public @NonNull Result doWork() {
         Log.d(TAG, "Started");
 
-        String uriString = getInputData().getString(URI_KEY, null);
+        String uriString = getInputData().getString(URI_KEY);
         if (TextUtils.isEmpty(uriString)) {
             Log.e(TAG, "Invalid URI!");
             return Result.FAILURE;
