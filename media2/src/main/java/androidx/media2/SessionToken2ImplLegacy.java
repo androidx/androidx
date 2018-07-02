@@ -17,8 +17,13 @@
 package androidx.media2;
 
 import static androidx.media2.SessionToken2.KEY_PACKAGE_NAME;
+import static androidx.media2.SessionToken2.KEY_SERVICE_NAME;
+import static androidx.media2.SessionToken2.KEY_SESSION_ID;
 import static androidx.media2.SessionToken2.KEY_TOKEN_LEGACY;
 import static androidx.media2.SessionToken2.KEY_TYPE;
+import static androidx.media2.SessionToken2.KEY_UID;
+import static androidx.media2.SessionToken2.TYPE_BROWSER_SERVICE_LEGACY;
+import static androidx.media2.SessionToken2.TYPE_SESSION_LEGACY;
 import static androidx.media2.SessionToken2.UID_UNKNOWN;
 
 import android.content.ComponentName;
@@ -28,6 +33,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 
 /**
@@ -46,18 +52,39 @@ import androidx.media.MediaSessionManager;
 final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl {
 
     private final MediaSessionCompat.Token mLegacyToken;
+    private final int mUid;
+    private final int mType;
+    private final ComponentName mComponentName;
     private final String mPackageName;
+    private final String mId;
 
-    SessionToken2ImplLegacy(MediaSessionCompat.Token token, String packageName) {
+    SessionToken2ImplLegacy(MediaSessionCompat.Token token, String packageName, int uid) {
         if (token == null) {
-            throw new IllegalArgumentException("token cannot be null.");
+            throw new IllegalArgumentException("token shouldn't be null.");
         }
         if (TextUtils.isEmpty(packageName)) {
-            throw new IllegalArgumentException("Package name cannot be null.");
+            throw new IllegalArgumentException("packageName shouldn't be null.");
         }
 
         mLegacyToken = token;
+        mUid = uid;
         mPackageName = packageName;
+        mComponentName = null;
+        mType = TYPE_SESSION_LEGACY;
+        mId = "";
+    }
+
+    SessionToken2ImplLegacy(ComponentName serviceComponent, int uid, String id) {
+        if (serviceComponent == null) {
+            throw new IllegalArgumentException("serviceComponent shouldn't be null.");
+        }
+
+        mLegacyToken = null;
+        mUid = uid;
+        mType = TYPE_BROWSER_SERVICE_LEGACY;
+        mPackageName = serviceComponent.getPackageName();
+        mComponentName = serviceComponent;
+        mId = id;
     }
 
     @Override
@@ -71,7 +98,15 @@ final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl 
             return false;
         }
         SessionToken2ImplLegacy other = (SessionToken2ImplLegacy) obj;
-        return mLegacyToken.equals(other.mLegacyToken);
+        if (mLegacyToken == null && other.mLegacyToken == null) {
+            return ObjectsCompat.equals(mComponentName, other.mComponentName);
+        }
+        return ObjectsCompat.equals(mLegacyToken, other.mLegacyToken);
+    }
+
+    @Override
+    public boolean isLegacySession() {
+        return true;
     }
 
     @Override
@@ -91,30 +126,40 @@ final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl 
 
     @Override
     public @Nullable String getServiceName() {
-        return null;
+        return mComponentName == null ? null : mComponentName.getClassName();
     }
 
     @Override
     public ComponentName getComponentName() {
-        return null;
+        return mComponentName;
     }
 
     @Override
     public String getSessionId() {
-        return null;
+        return mId;
     }
 
     @Override
     public @SessionToken2.TokenType int getType() {
+        switch (mType) {
+            case TYPE_SESSION_LEGACY:
+                return SessionToken2.TYPE_SESSION;
+            case TYPE_BROWSER_SERVICE_LEGACY:
+                return SessionToken2.TYPE_LIBRARY_SERVICE;
+        }
         return SessionToken2.TYPE_SESSION;
     }
 
     @Override
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
-        bundle.putInt(KEY_TYPE, SessionToken2.TYPE_SESSION_LEGACY);
-        bundle.putBundle(KEY_TOKEN_LEGACY, mLegacyToken.toBundle());
+        bundle.putBundle(KEY_TOKEN_LEGACY, (mLegacyToken == null) ? null : mLegacyToken.toBundle());
+        bundle.putInt(KEY_UID, mUid);
+        bundle.putInt(KEY_TYPE, mType);
         bundle.putString(KEY_PACKAGE_NAME, mPackageName);
+        bundle.putString(KEY_SERVICE_NAME,
+                mComponentName == null ? null : mComponentName.getClassName());
+        bundle.putString(KEY_SESSION_ID, mId);
         return bundle;
     }
 
@@ -129,8 +174,20 @@ final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl 
      * @return SessionToken2 object
      */
     public static SessionToken2ImplLegacy fromBundle(@NonNull Bundle bundle) {
-        Bundle legacyTokenBundle = bundle.getBundle(KEY_TOKEN_LEGACY);
-        return new SessionToken2ImplLegacy(MediaSessionCompat.Token.fromBundle(legacyTokenBundle),
-                bundle.getString(KEY_PACKAGE_NAME));
+        int type = bundle.getInt(KEY_TYPE);
+        switch (type) {
+            case TYPE_SESSION_LEGACY:
+                return new SessionToken2ImplLegacy(
+                        MediaSessionCompat.Token.fromBundle(bundle.getBundle(KEY_TOKEN_LEGACY)),
+                        bundle.getString(KEY_PACKAGE_NAME),
+                        bundle.getInt(KEY_UID));
+            case TYPE_BROWSER_SERVICE_LEGACY:
+                return new SessionToken2ImplLegacy(
+                        new ComponentName(bundle.getString(KEY_PACKAGE_NAME),
+                                bundle.getString(KEY_SERVICE_NAME)),
+                        bundle.getInt(KEY_UID),
+                        bundle.getString(KEY_SESSION_ID));
+        }
+        return null;
     }
 }

@@ -21,7 +21,6 @@ import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_Q
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -54,7 +53,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -117,7 +115,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
 
     private void createControllerAndWaitConnection(final ControllerCallback callback)
             throws Exception {
-        final TestControllerCallback testControllerCallback = new TestControllerCallback(callback);
+        final MockControllerCallback testControllerCallback = new MockControllerCallback(callback);
         SessionToken2.createSessionToken2(mContext, mSession.getSessionToken(),
                 sHandlerExecutor, new SessionToken2.OnSessionToken2CreatedListener() {
                     @Override
@@ -131,24 +129,6 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
 
         if (mController == null) {
             testControllerCallback.waitForConnect(true);
-        }
-    }
-
-    /**
-     * Test if the {@link MediaSession2TestBase.TestControllerCallback} wraps the callback proxy
-     * without missing any method.
-     */
-    @Test
-    public void testTestControllerCallback() {
-        prepareLooper();
-        Method[] methods = TestControllerCallback.class.getMethods();
-        assertNotNull(methods);
-        for (int i = 0; i < methods.length; i++) {
-            // For any methods in the controller callback, TestControllerCallback should have
-            // overriden the method and call matching API in the callback proxy.
-            assertNotEquals("TestControllerCallback should override " + methods[i]
-                            + " and call callback proxy",
-                    ControllerCallback.class, methods[i].getDeclaringClass());
         }
     }
 

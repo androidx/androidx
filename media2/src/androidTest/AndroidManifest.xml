@@ -48,6 +48,12 @@
             </intent-filter>
             <meta-data android:name="android.media.session" android:value="TestLibrary" />
         </service>
+        <!-- Keep the test services synced together with the MockMediaSessionService2 -->
+        <service android:name="androidx.media2.MockMediaBrowserServiceCompat">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
 
         <receiver android:name="androidx.media.session.MediaButtonReceiver" >
             <intent-filter>

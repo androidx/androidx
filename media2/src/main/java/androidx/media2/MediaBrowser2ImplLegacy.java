@@ -16,10 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaConstants2.ARGUMENT_EXTRAS;
-
 import android.content.Context;
-import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.ItemCallback;
@@ -41,8 +38,6 @@ import java.util.concurrent.Executor;
  */
 class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
         implements MediaBrowser2.SupportLibraryImpl {
-    public static final String EXTRA_ITEM_COUNT = "android.media.browse.extra.ITEM_COUNT";
-
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final HashMap<Bundle, MediaBrowserCompat> mBrowserCompats = new HashMap<>();
@@ -121,9 +116,7 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
             list.add(callback);
         }
 
-        Bundle options = new Bundle();
-        options.putBundle(ARGUMENT_EXTRAS, extras);
-        browser.subscribe(parentId, options, callback);
+        browser.subscribe(parentId, extras, callback);
     }
 
     @Override
@@ -162,7 +155,7 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
             return;
         }
 
-        Bundle options = MediaUtils2.createBundle(extras);
+        Bundle options = createBundle(extras);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
         browser.subscribe(parentId, options, new GetChildrenCallback(parentId, page, pageSize));
@@ -211,15 +204,30 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
                 getCallbackExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
+                        // Set extra null here, because 'extra' have different meanings between old
+                        // API and new API as follows.
+                        // - Old API: Extra/Option specified with search().
+                        // - New API: Extra from MediaLibraryService2 to MediaBrowser2
+                        // TODO(Post-P): Cache search result for later getSearchResult() calls.
                         getCallback().onSearchResultChanged(
-                                getInstance(), query, items.size(), extras);
+                                getInstance(), query, items.size(), null);
                     }
                 });
             }
 
             @Override
             public void onError(final String query, final Bundle extras) {
-                // Currently no way to tell failures in MediaBrowser2#search().
+                getCallbackExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Set extra null here, because 'extra' have different meanings between old
+                        // API and new API as follows.
+                        // - Old API: Extra/Option specified with search().
+                        // - New API: Extra from MediaLibraryService2 to MediaBrowser2
+                        getCallback().onSearchResultChanged(
+                                getInstance(), query, 0, null);
+                    }
+                });
             }
         });
     }
@@ -231,7 +239,7 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
         if (browser == null) {
             return;
         }
-        Bundle options = MediaUtils2.createBundle(extras);
+        Bundle options = createBundle(extras);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
         browser.search(query, options, new MediaBrowserCompat.SearchCallback() {
@@ -243,8 +251,12 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
                     public void run() {
                         List<MediaItem2> item2List =
                                 MediaUtils2.convertMediaItemListToMediaItem2List(items);
+                        // Set extra null here, because 'extra' have different meanings between old
+                        // API and new API as follows.
+                        // - Old API: Extra/Option specified with search().
+                        // - New API: Extra from MediaLibraryService2 to MediaBrowser2
                         getCallback().onGetSearchResultDone(
-                                getInstance(), query, page, pageSize, item2List, extras);
+                                getInstance(), query, page, pageSize, item2List, null);
                     }
                 });
             }
@@ -254,8 +266,12 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
                 getCallbackExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
+                        // Set extra null here, because 'extra' have different meanings between old
+                        // API and new API as follows.
+                        // - Old API: Extra/Option specified with search().
+                        // - New API: Extra from MediaLibraryService2 to MediaBrowser2
                         getCallback().onGetSearchResultDone(
-                                getInstance(), query, page, pageSize, null, extras);
+                                getInstance(), query, page, pageSize, null, null);
                     }
                 });
             }
@@ -273,19 +289,8 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
         }
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Bundle getExtrasWithoutPagination(Bundle extras) {
-        if (extras == null) {
-            return null;
-        }
-        extras.setClassLoader(getContext().getClassLoader());
-        try {
-            extras.remove(MediaBrowserCompat.EXTRA_PAGE);
-            extras.remove(MediaBrowserCompat.EXTRA_PAGE_SIZE);
-        } catch (BadParcelableException e) {
-            // Pass through...
-        }
-        return extras;
+    private Bundle createBundle(Bundle bundle) {
+        return bundle == null ? new Bundle() : new Bundle(bundle);
     }
 
     private class GetLibraryRootCallback extends MediaBrowserCompat.ConnectionCallback {
@@ -348,21 +353,24 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
         @Override
         public void onChildrenLoaded(final String parentId, List<MediaItem> children,
                 final Bundle options) {
+            final MediaBrowserCompat browser = getBrowserCompat();
+            if (browser == null) {
+                // Browser is closed.
+                return;
+            }
             final int itemCount;
-            if (options != null && options.containsKey(EXTRA_ITEM_COUNT)) {
-                itemCount = options.getInt(EXTRA_ITEM_COUNT);
-            } else if (children != null) {
+            if (children != null) {
                 itemCount = children.size();
             } else {
                 // Currently no way to tell failures in MediaBrowser2#subscribe().
                 return;
             }
 
-            final Bundle notifyChildrenChangedOptions =
-                    getBrowserCompat().getNotifyChildrenChangedOptions();
+            final Bundle notifyChildrenChangedOptions = browser.getNotifyChildrenChangedOptions();
             getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
+                    // TODO(Post-P): Cache children result for later getChildren() calls.
                     getCallback().onChildrenChanged(getInstance(), parentId, itemCount,
                             notifyChildrenChangedOptions);
                 }
@@ -409,7 +417,6 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
                     items.add(MediaUtils2.convertToMediaItem2(children.get(i)));
                 }
             }
-            final Bundle extras = getExtrasWithoutPagination(options);
             getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -417,8 +424,12 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
                     if (browser == null) {
                         return;
                     }
+                    // Set extra null here, because 'extra' have different meanings between old
+                    // API and new API as follows.
+                    // - Old API: Extra/Option specified with subscribe().
+                    // - New API: Extra from MediaLibraryService2 to MediaBrowser2
                     getCallback().onGetChildrenDone(getInstance(), parentId, mPage, mPageSize,
-                            items, extras);
+                            items, null);
                     browser.unsubscribe(mParentId, GetChildrenCallback.this);
                 }
             });
