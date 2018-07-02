@@ -1173,6 +1173,9 @@ public class MediaControlView2 extends BaseLayout {
         }
         int positionOnProgressBar = 0;
         long currentPosition = getCurrentPosition();
+        if (currentPosition > mDuration) {
+            currentPosition = mDuration;
+        }
         if (mDuration > 0) {
             positionOnProgressBar = (int) (MAX_PROGRESS * currentPosition / mDuration);
         }
@@ -1365,23 +1368,9 @@ public class MediaControlView2 extends BaseLayout {
             // Check if progress bar is being dragged since this method may be called after
             // onStopTrackingTouch() is called.
             if (mDragging && mDuration > 0) {
-                long position = ((mDuration * progress) / MAX_PROGRESS);
-
-                if (mSeekList.size() == 0) {
-                    mSeekList.add(position);
-                    // Seek now only if there are no additional seek commands in the queue.
-                    mController.seekTo(position);
-                } else if (mSeekList.size() == 1) {
-                    mSeekList.add(position);
-                } else if (mSeekList.size() == 2) {
-                    // If there are already two commands in the queue, replace the second one with
-                    // the new one.
-                    mSeekList.set(1, position);
-                }
-
-                if (mCurrentTime != null) {
-                    mCurrentTime.setText(stringForTime(position));
-                }
+                long newPosition = ((mDuration * progress) / MAX_PROGRESS);
+                updateSeekList(newPosition);
+                mCurrentTime.setText(stringForTime(newPosition));
             }
         }
 
@@ -1415,9 +1404,21 @@ public class MediaControlView2 extends BaseLayout {
         @Override
         public void onClick(View v) {
             resetHideCallbacks();
-            long pos = getCurrentPosition() - REWIND_TIME_MS;
-            mController.seekTo(pos);
-            setProgress();
+            removeCallbacks(mUpdateProgress);
+
+            // When the rewind button is pressed multiple times and the seek commands have not been
+            // processed yet, getCurrentPosition() will return a value that does not reflect the
+            // previous rewind button clicks. In order to prevent this, check if mSeekList is not
+            // empty and replace the next seek position.
+            long currentPosition = (mSeekList.size() > 0) ? mSeekList.get(mSeekList.size() - 1)
+                    : getCurrentPosition();
+            long newPosition = Math.max(currentPosition - REWIND_TIME_MS, 0);
+            updateSeekList(newPosition);
+
+            // Update progress bar position and current time text.
+            int positionOnProgressBar = (int) (MAX_PROGRESS * newPosition / mDuration);
+            mProgress.setProgress(positionOnProgressBar);
+            mCurrentTime.setText(stringForTime(newPosition));
         }
     };
 
@@ -1425,9 +1426,21 @@ public class MediaControlView2 extends BaseLayout {
         @Override
         public void onClick(View v) {
             resetHideCallbacks();
-            long pos = getCurrentPosition() + FORWARD_TIME_MS;
-            mController.seekTo(pos);
-            setProgress();
+            removeCallbacks(mUpdateProgress);
+
+            // When the ffwd button is pressed multiple times and the seek commands have not been
+            // processed yet, getCurrentPosition() will return a value that does not reflect the
+            // previous ffwd button clicks. In order to prevent this, check if mSeekList is not
+            // empty and replace the next seek position.
+            long currentPosition = (mSeekList.size() > 0) ? mSeekList.get(mSeekList.size() - 1)
+                    : getCurrentPosition();
+            long newPosition = Math.min(currentPosition + FORWARD_TIME_MS, mDuration);
+            updateSeekList(newPosition);
+
+            // Update progress bar position and current time text.
+            int positionOnProgressBar = (int) (MAX_PROGRESS * newPosition / mDuration);
+            mProgress.setProgress(positionOnProgressBar);
+            mCurrentTime.setText(stringForTime(newPosition));
         }
     };
 
@@ -2101,6 +2114,20 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
+    void updateSeekList(long position) {
+        if (mSeekList.size() == 0) {
+            mSeekList.add(position);
+            // Seek now only if there are no additional seek commands in the queue.
+            mController.seekTo(position);
+        } else if (mSeekList.size() == 1) {
+            mSeekList.add(position);
+        } else if (mSeekList.size() == 2) {
+            // If there are already two commands in the queue, replace the second one with
+            // the new one.
+            mSeekList.set(1, position);
+        }
+    }
+
     private class SettingsAdapter extends BaseAdapter {
         private List<Integer> mIconIds;
         private List<String> mMainTexts;
@@ -2480,6 +2507,9 @@ public class MediaControlView2 extends BaseLayout {
                     mPlayPauseButton.setContentDescription(
                             mResources.getString(R.string.mcv2_replay_button_desc));
                     mIsStopped = true;
+                    // The progress bar and current time text may not have been updated.
+                    mProgress.setProgress(MAX_PROGRESS);
+                    mCurrentTime.setText(stringForTime(mDuration));
                 }
             }
 
@@ -2743,6 +2773,9 @@ public class MediaControlView2 extends BaseLayout {
                             mPlayPauseButton.setContentDescription(
                                     mResources.getString(R.string.mcv2_replay_button_desc));
                             mIsStopped = true;
+                            // The progress bar and current time text may not have been updated.
+                            mProgress.setProgress(MAX_PROGRESS);
+                            mCurrentTime.setText(stringForTime(mDuration));
                             break;
                         default:
                             break;
