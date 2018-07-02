@@ -19,6 +19,7 @@ package androidx.work;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Test;
@@ -125,14 +126,14 @@ public class DataTest {
         Data data = dataBuilder.build();
         assertThat(data.getInt("int", 0), is(1));
         assertThat(data.getFloat("float", 0f), is(99f));
-        assertThat(data.getString("String", null), is("two"));
+        assertThat(data.getString("String"), is("two"));
         long[] longArray = data.getLongArray("long array");
         assertThat(longArray, is(notNullValue()));
         assertThat(longArray.length, is(3));
         assertThat(longArray[0], is(1L));
         assertThat(longArray[1], is(2L));
         assertThat(longArray[2], is(3L));
-        assertThat(data.getString("null", "dummy"), is("dummy"));
+        assertThat(data.getString("null"), is(nullValue()));
     }
 
     @Test

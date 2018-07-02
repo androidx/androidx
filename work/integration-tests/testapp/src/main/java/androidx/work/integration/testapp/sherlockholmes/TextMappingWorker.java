@@ -57,7 +57,7 @@ public class TextMappingWorker extends Worker {
     @Override
     public @NonNull Result doWork() {
         Data input = getInputData();
-        String inputFileName = input.getString(INPUT_FILE, null);
+        String inputFileName = input.getString(INPUT_FILE);
         String outputFileName = "out_" + inputFileName;
 
         AssetManager assetManager = getApplicationContext().getAssets();
