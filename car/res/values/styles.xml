@@ -313,9 +313,9 @@ limitations under the License.
         <item name="android:background">@color/car_list_divider</item>
     </style>
 
-    <!-- ============= -->
-    <!-- List Themes -->
-    <!-- ============= -->
+    <!-- =========== -->
+    <!-- List Styles -->
+    <!-- =========== -->
     <eat-comment />
 
     <!-- The default styling for a PagedListView. -->
@@ -353,9 +353,9 @@ limitations under the License.
         <item name="listDividerColor">@color/car_list_divider_light</item>
     </style>
 
-    <!-- ============= -->
-    <!-- ListItem Themes -->
-    <!-- ============= -->
+    <!-- =============== -->
+    <!-- ListItem Styles -->
+    <!-- =============== -->
     <eat-comment />
 
     <!-- A styling for ListItems that has dark text on a light-colored background. This style
@@ -375,7 +375,7 @@ limitations under the License.
     </style>
 
     <!-- =============== -->
-    <!-- Checkbox Themes -->
+    <!-- Checkbox Styles -->
     <!-- =============== -->
     <eat-comment />
 
@@ -393,7 +393,7 @@ limitations under the License.
     </style>
 
     <!-- ============= -->
-    <!-- Dialog Themes -->
+    <!-- Dialog Styles -->
     <!-- ============= -->
     <eat-comment />
 
@@ -434,7 +434,7 @@ limitations under the License.
     </style>
 
     <!-- ================ -->
-    <!-- ActionBar Themes -->
+    <!-- ActionBar Styles -->
     <!-- ================ -->
     <eat-comment />
 
@@ -447,7 +447,7 @@ limitations under the License.
     </style>
 
     <!-- ================= -->
-    <!-- Preference Themes -->
+    <!-- Preference Styles -->
     <!-- ================= -->
     <eat-comment />
 
