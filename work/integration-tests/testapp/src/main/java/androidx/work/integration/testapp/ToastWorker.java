@@ -45,12 +45,16 @@ public class ToastWorker extends Worker {
     @Override
     public @NonNull Result doWork() {
         Data input = getInputData();
-        final String message = input.getString(ARG_MESSAGE, "completed!");
+        String message = input.getString(ARG_MESSAGE);
+        if (message == null) {
+            message = "completed!";
+        }
+        final String displayMessage = message;
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                Log.d("ToastWorker", message);
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                Log.d("ToastWorker", displayMessage);
+                Toast.makeText(getApplicationContext(), displayMessage, Toast.LENGTH_SHORT).show();
             }
         });
         return Result.SUCCESS;

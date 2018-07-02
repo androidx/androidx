@@ -32,7 +32,7 @@ class DataTest {
         val data = map.toWorkData()
         assertEquals(data.getInt("one", 0), 1)
         assertEquals(data.getLong("two", 0L), 2L)
-        assertEquals(data.getString("three", null), "Three")
+        assertEquals(data.getString("three"), "Three")
         val longArray = data.getLongArray("four")
         assertNotNull(longArray)
         assertEquals(longArray!!.size, 2)

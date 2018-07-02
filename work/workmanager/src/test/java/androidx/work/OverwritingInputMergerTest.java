@@ -42,7 +42,7 @@ public class OverwritingInputMergerTest {
         Data output = getOutputFor(input);
 
         assertThat(output.size(), is(1));
-        assertThat(output.getString(key, null), is(value));
+        assertThat(output.getString(key), is(value));
     }
 
     @Test
@@ -67,9 +67,9 @@ public class OverwritingInputMergerTest {
         Data output = getOutputFor(input1, input2);
 
         assertThat(output.size(), is(3));
-        assertThat(output.getString(key1, null), is(value1a));
-        assertThat(output.getString(key2, null), is(value2));
-        assertThat(output.getString(key3, null), is(value3));
+        assertThat(output.getString(key1), is(value1a));
+        assertThat(output.getString(key2), is(value2));
+        assertThat(output.getString(key3), is(value3));
     }
 
     private Data getOutputFor(Data... inputs) {

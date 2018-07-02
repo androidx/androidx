@@ -1509,7 +1509,7 @@ public class WorkManagerImplTest {
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
         assertThat(workSpec.input.getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME),
                 is(TestWorker.class.getName()));
     }
 
@@ -1527,7 +1527,7 @@ public class WorkManagerImplTest {
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
         assertThat(workSpec.input.getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME),
                 is(TestWorker.class.getName()));
     }
 
