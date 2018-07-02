@@ -18,6 +18,7 @@ package androidx.work.impl;
 
 import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
@@ -74,6 +75,8 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     private List<Scheduler> mSchedulers;
     private Processor mProcessor;
     private Preferences mPreferences;
+    private boolean mForceStopRunnableCompleted;
+    private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
 
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
@@ -174,6 +177,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
                 getSchedulers(),
                 configuration.getExecutor());
         mPreferences = new Preferences(mContext);
+        mForceStopRunnableCompleted = false;
 
         // Checks for app force stops.
         mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
@@ -525,6 +529,42 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         // Using getters here so we can use from a mocked instance
         // of WorkManagerImpl.
         Schedulers.schedule(getConfiguration(), getWorkDatabase(), getSchedulers());
+    }
+
+    /**
+     * A way for {@link ForceStopRunnable} to tell {@link WorkManagerImpl} that it has completed.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void onForceStopRunnableCompleted() {
+        synchronized (sLock) {
+            mForceStopRunnableCompleted = true;
+            if (mRescheduleReceiverResult != null) {
+                mRescheduleReceiverResult.finish();
+                mRescheduleReceiverResult = null;
+            }
+        }
+    }
+
+    /**
+     * This method is invoked by
+     * {@link androidx.work.impl.background.systemalarm.RescheduleReceiver}
+     * after a call to {@link BroadcastReceiver#goAsync()}. Once {@link ForceStopRunnable} is done,
+     * we can safely call {@link BroadcastReceiver.PendingResult#finish()}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setReschedulePendingResult(
+            @NonNull BroadcastReceiver.PendingResult rescheduleReceiverResult) {
+        synchronized (sLock) {
+            mRescheduleReceiverResult = rescheduleReceiverResult;
+            if (mForceStopRunnableCompleted) {
+                mRescheduleReceiverResult.finish();
+                mRescheduleReceiverResult = null;
+            }
+        }
     }
 
     private void assertBackgroundThread(String errorMessage) {
