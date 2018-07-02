@@ -716,18 +716,6 @@ public class MediaSessionCompat {
     }
 
     /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setPlaybackState(@NonNull RemoteUserInfo remoteUserInfo,
-            PlaybackStateCompat state) {
-        if (remoteUserInfo == null) {
-            return;
-        }
-        mImpl.setPlaybackState(remoteUserInfo, state);
-    }
-
-    /**
      * Updates the current metadata. New metadata can be created using
      * {@link android.support.v4.media.MediaMetadataCompat.Builder}. This operation may take time
      * proportional to the size of the bitmap to replace large bitmaps with a scaled down copy.
@@ -1951,7 +1939,6 @@ public class MediaSessionCompat {
         void release();
         Token getSessionToken();
         void setPlaybackState(PlaybackStateCompat state);
-        void setPlaybackState(RemoteUserInfo remoteUserInfo, PlaybackStateCompat state);
         PlaybackStateCompat getPlaybackState();
         void setMetadata(MediaMetadataCompat metadata);
 
@@ -2182,26 +2169,6 @@ public class MediaSessionCompat {
                 mRcc.setTransportControlFlags(
                         getRccTransportControlFlagsFromActions(state.getActions()));
             }
-        }
-
-        @Override
-        public void setPlaybackState(RemoteUserInfo remoteUserInfo, PlaybackStateCompat state) {
-            synchronized (mLock) {
-                mState = state;
-            }
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                RemoteUserInfo info = (RemoteUserInfo) mControllerCallbacks.getBroadcastCookie(i);
-                if (!info.equals(remoteUserInfo)) {
-                    continue;
-                }
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onPlaybackStateChanged(state);
-                } catch (RemoteException e) {
-                }
-            }
-            mControllerCallbacks.finishBroadcast();
         }
 
         @Override
@@ -3483,25 +3450,6 @@ public class MediaSessionCompat {
             mExtraControllerCallbacks.finishBroadcast();
             MediaSessionCompatApi21.setPlaybackState(mSessionObj,
                     state == null ? null : state.getPlaybackState());
-        }
-
-        @Override
-        public void setPlaybackState(RemoteUserInfo remoteUserInfo, PlaybackStateCompat state) {
-            mPlaybackState = state;
-            int size = mExtraControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                RemoteUserInfo info = (RemoteUserInfo)
-                        mExtraControllerCallbacks.getBroadcastCookie(i);
-                if (!info.equals(remoteUserInfo)) {
-                    continue;
-                }
-                IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onPlaybackStateChanged(state);
-                } catch (RemoteException e) {
-                }
-            }
-            mExtraControllerCallbacks.finishBroadcast();
         }
 
         @Override

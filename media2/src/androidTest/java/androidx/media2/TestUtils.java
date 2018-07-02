@@ -141,7 +141,7 @@ public final class TestUtils {
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
     }
 
-    private static DataSourceDesc2 createDSD() {
+    public static DataSourceDesc2 createDSD() {
         return new DataSourceDesc2.Builder().setDataSource(new FileDescriptor()).build();
     }
 

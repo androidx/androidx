@@ -969,10 +969,10 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem2 item, int state, long bufferedPositionMs)
+        void onBufferingStateChanged(MediaItem2 item, int bufferingState, long bufferedPositionMs)
                 throws RemoteException {
             mIControllerCallback.onBufferingStateChanged(
-                    item == null ? null : item.toBundle(), state, bufferedPositionMs);
+                    item == null ? null : item.toBundle(), bufferingState, bufferedPositionMs);
         }
 
         @Override

@@ -1550,8 +1550,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
                 throws RemoteException;
         abstract void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
                 throws RemoteException;
-        abstract void onBufferingStateChanged(@NonNull MediaItem2 item, @BuffState int state,
-                long bufferedPositionMs) throws RemoteException;
+        abstract void onBufferingStateChanged(@NonNull MediaItem2 item,
+                @BuffState int bufferingState, long bufferedPositionMs) throws RemoteException;
         abstract void onSeekCompleted(long eventTimeMs, long positionMs, long position)
                 throws RemoteException;
         abstract void onError(@ErrorCode int errorCode, @Nullable Bundle extras)
@@ -1610,7 +1610,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         Executor getCallbackExecutor();
         SessionCallback getCallback();
         boolean isClosed();
-        PlaybackStateCompat getPlaybackStateCompat();
+        PlaybackStateCompat createPlaybackStateCompat();
         PlaybackInfo getPlaybackInfo();
         AudioFocusHandler getAudioFocusHandler();
         PendingIntent getSessionActivity();
