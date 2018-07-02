@@ -64,7 +64,7 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
 
     @Override
     public @NonNull Result doWork() {
-        String className = getInputData().getString(ARGUMENT_CLASS_NAME, null);
+        String className = getInputData().getString(ARGUMENT_CLASS_NAME);
         if (TextUtils.isEmpty(className)) {
             Log.d(TAG, "No worker to delegate to.");
             return Result.FAILURE;
