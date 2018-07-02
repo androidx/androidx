@@ -2376,7 +2376,6 @@ public class DrawerLayout extends ViewGroup {
             // This view reports itself as focusable so that it can intercept
             // the back button, but we should prevent this view from reporting
             // itself as focusable to accessibility services.
-            info.setFocusable(false);
             info.setFocused(false);
             info.removeAction(AccessibilityActionCompat.ACTION_FOCUS);
             info.removeAction(AccessibilityActionCompat.ACTION_CLEAR_FOCUS);
@@ -2453,12 +2452,9 @@ public class DrawerLayout extends ViewGroup {
             dest.setContentDescription(src.getContentDescription());
 
             dest.setEnabled(src.isEnabled());
-            dest.setClickable(src.isClickable());
-            dest.setFocusable(src.isFocusable());
             dest.setFocused(src.isFocused());
             dest.setAccessibilityFocused(src.isAccessibilityFocused());
             dest.setSelected(src.isSelected());
-            dest.setLongClickable(src.isLongClickable());
 
             dest.addAction(src.getActions());
         }
