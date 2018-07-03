@@ -362,8 +362,10 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     @Override
     public @NonNull List<ControllerInfo> getConnectedControllers() {
         List<ControllerInfo> controllers = new ArrayList<>();
-        controllers.addAll(mSession2Stub.getConnectedControllers());
-        controllers.addAll(mSessionLegacyStub.getConnectedControllers());
+        controllers.addAll(mSession2Stub.getConnectedControllersManager()
+                .getConnectedControllers());
+        controllers.addAll(mSessionLegacyStub.getConnectedControllersManager()
+                .getConnectedControllers());
         return controllers;
     }
 
@@ -393,13 +395,20 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         if (commands == null) {
             throw new IllegalArgumentException("commands shouldn't be null");
         }
-        mSession2Stub.setAllowedCommands(controller, commands);
-        notifyToController(controller, new NotifyRunnable() {
-            @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onAllowedCommandsChanged(commands);
-            }
-        });
+
+        if (mSession2Stub.getConnectedControllersManager().isConnected(controller)) {
+            mSession2Stub.getConnectedControllersManager()
+                    .updateAllowedCommands(controller, commands);
+            notifyToController(controller, new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onAllowedCommandsChanged(commands);
+                }
+            });
+        } else {
+            mSessionLegacyStub.getConnectedControllersManager()
+                    .updateAllowedCommands(controller, commands);
+        }
     }
 
     @Override
@@ -1212,13 +1221,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             }
             // Note: Only removing from MediaSession2Stub would be fine for now, because other
             //       (legacy) stubs wouldn't throw DeadObjectException.
-            mSession2Stub.removeControllerInfo(controller);
-            mCallbackExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mCallback.onDisconnected(MediaSession2ImplBase.this.getInstance(), controller);
-                }
-            });
+            mSession2Stub.getConnectedControllersManager().removeController(controller);
         } catch (RemoteException e) {
             // Currently it's TransactionTooLargeException or DeadSystemException.
             // We'd better to leave log for those cases because
@@ -1230,7 +1233,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     }
 
     void notifyToAllControllers(@NonNull NotifyRunnable runnable) {
-        List<ControllerInfo> controllers = mSession2Stub.getConnectedControllers();
+        List<ControllerInfo> controllers =
+                mSession2Stub.getConnectedControllersManager().getConnectedControllers();
         for (int i = 0; i < controllers.size(); i++) {
             notifyToController(controllers.get(i), runnable);
         }

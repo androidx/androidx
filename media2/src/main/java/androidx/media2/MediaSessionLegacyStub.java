@@ -36,10 +36,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController2.PlaybackInfo;
@@ -47,7 +45,6 @@ import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -74,20 +71,14 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
     }
 
+    final ConnectedControllersManager<RemoteUserInfo> mConnectedControllersManager;
+
     final Object mLock = new Object();
 
     final MediaSession2.SupportLibraryImpl mSession;
     final MediaSessionManager mSessionManager;
     final Context mContext;
     final ControllerInfo mControllerInfoForAll;
-
-    @GuardedBy("mLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ArrayMap<RemoteUserInfo, ControllerInfo> mControllers = new ArrayMap<>();
-    @GuardedBy("mLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
-            new ArrayMap<>();
 
     MediaSessionLegacyStub(MediaSession2.SupportLibraryImpl session) {
         mSession = session;
@@ -98,6 +89,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         RemoteUserInfo.LEGACY_CONTROLLER, Process.myPid(), Process.myUid()),
                 false /* trusted */,
                 new ControllerLegacyCbForAll());
+        mConnectedControllersManager = new ConnectedControllersManager<>(session);
     }
 
     @Override
@@ -240,55 +232,17 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         // Here, we don't call MediaPlayerConnector#reset() since it may result removing
         // all callbacks from the player. Instead, we pause and seek to zero.
         // Here, we check both permissions: Pause / SeekTo.
-        if (mSession.isClosed()) {
-            return;
-        }
-
-        RemoteUserInfo remoteUserInfo = mSession.getSessionCompat().getCurrentControllerInfo();
-        final ControllerInfo controller;
-        synchronized (mLock) {
-            if (remoteUserInfo == null) {
-                controller = null;
-            } else if (mControllers.containsKey(remoteUserInfo)) {
-                controller = mControllers.get(remoteUserInfo);
-            } else {
-                controller = new ControllerInfo(
-                        remoteUserInfo,
-                        mSessionManager.isTrustedForMediaControl(remoteUserInfo),
-                        new ControllerLegacyCb(remoteUserInfo));
-                connect(controller);
-            }
-        }
-
-        final SessionCommand2 pauseCommand =
-                new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
-        final SessionCommand2 seekToCommand =
-                new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
-
-        mSession.getCallbackExecutor().execute(new Runnable() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE, new SessionRunnable() {
             @Override
-            public void run() {
-                synchronized (mLock) {
-                    if (controller != null && !mControllers.containsValue(controller)) {
-                        return;
-                    }
-                }
-                MediaSession2.SessionCallback callback = mSession.getCallback();
-                MediaSession2 instance = mSession.getInstance();
-
-                boolean accepted = callback.onCommandRequest(instance, controller, pauseCommand)
-                        && callback.onCommandRequest(instance, controller, seekToCommand);
-
-                if (!accepted) {
-                    // Don't run rejected command.
-                    if (DEBUG) {
-                        Log.d(TAG, "Command (Stop) from " + controller + " was rejected by "
-                                + mSession);
-                    }
-                    return;
-                }
-                mSession.getInstance().pause();
-                mSession.getInstance().seekTo(0);
+            public void run(ControllerInfo controller) throws RemoteException {
+                handleCommandOnExecutor(controller, null,
+                        SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO, new SessionRunnable() {
+                            @Override
+                            public void run(ControllerInfo controller) throws RemoteException {
+                                mSession.getInstance().pause();
+                                mSession.getInstance().seekTo(0);
+                            }
+                        });
             }
         });
     }
@@ -481,42 +435,12 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 });
     }
 
-    List<ControllerInfo> getConnectedControllers() {
-        ArrayList<ControllerInfo> controllers = new ArrayList<>();
-        synchronized (mLock) {
-            for (int i = 0; i < mControllers.size(); i++) {
-                controllers.add(mControllers.valueAt(i));
-            }
-        }
-        return controllers;
-    }
-
     ControllerInfo getControllersForAll() {
         return mControllerInfoForAll;
     }
 
-    void setAllowedCommands(ControllerInfo controller, final SessionCommandGroup2 commands) {
-        synchronized (mLock) {
-            mAllowedCommandGroupMap.put(controller, commands);
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean isAllowedCommand(ControllerInfo controller, SessionCommand2 command) {
-        SessionCommandGroup2 allowedCommands;
-        synchronized (mLock) {
-            allowedCommands = mAllowedCommandGroupMap.get(controller);
-        }
-        return allowedCommands != null && allowedCommands.hasCommand(command);
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean isAllowedCommand(ControllerInfo controller, int commandCode) {
-        SessionCommandGroup2 allowedCommands;
-        synchronized (mLock) {
-            allowedCommands = mAllowedCommandGroupMap.get(controller);
-        }
-        return allowedCommands != null && allowedCommands.hasCommand(commandCode);
+    ConnectedControllersManager getConnectedControllersManager() {
+        return mConnectedControllersManager;
     }
 
     private void onSessionCommand(final int commandCode, @NonNull final SessionRunnable runnable) {
@@ -542,62 +466,71 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 // Due to this, on those API versions no MediaControllerCompat can send command
                 // to the session.
                 controller = null;
-            } else if (mControllers.containsKey(remoteUserInfo)) {
-                controller = mControllers.get(remoteUserInfo);
             } else {
-                controller = new ControllerInfo(
-                        remoteUserInfo,
-                        mSessionManager.isTrustedForMediaControl(remoteUserInfo),
-                        new ControllerLegacyCb(remoteUserInfo));
-                connect(controller);
+                ControllerInfo ctrl = mConnectedControllersManager.getController(remoteUserInfo);
+                if (ctrl != null) {
+                    controller = ctrl;
+                } else {
+                    controller = new ControllerInfo(
+                            remoteUserInfo,
+                            mSessionManager.isTrustedForMediaControl(remoteUserInfo),
+                            new ControllerLegacyCb(remoteUserInfo));
+                    connect(controller);
+                }
             }
         }
-
         mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 synchronized (mLock) {
-                    if (controller != null && !mControllers.containsValue(controller)) {
+                    if (controller != null
+                            && !mConnectedControllersManager.isConnected(controller)) {
                         return;
                     }
                 }
-
-                SessionCommand2 command;
-                if (sessionCommand != null) {
-                    if (!isAllowedCommand(controller, sessionCommand)) {
-                        return;
-                    }
-                    command = sCommandsForOnCommandRequest.get(sessionCommand.getCommandCode());
-                } else {
-                    if (!isAllowedCommand(controller, commandCode)) {
-                        return;
-                    }
-                    command = sCommandsForOnCommandRequest.get(commandCode);
-                }
-                if (command != null) {
-                    boolean accepted = mSession.getCallback().onCommandRequest(
-                            mSession.getInstance(), controller, command);
-                    if (!accepted) {
-                        // Don't run rejected command.
-                        if (DEBUG) {
-                            Log.d(TAG, "Command (" + command + ") from "
-                                    + controller + " was rejected by " + mSession);
-                        }
-                        return;
-                    }
-                }
-                try {
-                    runnable.run(controller);
-                } catch (RemoteException e) {
-                    // Currently it's TransactionTooLargeException or DeadSystemException.
-                    // We'd better to leave log for those cases because
-                    //   - TransactionTooLargeException means that we may need to fix our code.
-                    //     (e.g. add pagination or special way to deliver Bitmap)
-                    //   - DeadSystemException means that errors around it can be ignored.
-                    Log.w(TAG, "Exception in " + controller.toString(), e);
-                }
+                handleCommandOnExecutor(controller, sessionCommand, commandCode, runnable);
             }
         });
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handleCommandOnExecutor(@Nullable final ControllerInfo controller,
+            @Nullable final SessionCommand2 sessionCommand, final int commandCode,
+            @NonNull final SessionRunnable runnable) {
+        SessionCommand2 command;
+        if (sessionCommand != null) {
+            if (!mConnectedControllersManager.isAllowedCommand(controller, sessionCommand)) {
+                return;
+            }
+            command = sCommandsForOnCommandRequest.get(sessionCommand.getCommandCode());
+        } else {
+            if (!mConnectedControllersManager.isAllowedCommand(controller, commandCode)) {
+                return;
+            }
+            command = sCommandsForOnCommandRequest.get(commandCode);
+        }
+        if (command != null) {
+            boolean accepted = mSession.getCallback().onCommandRequest(
+                    mSession.getInstance(), controller, command);
+            if (!accepted) {
+                // Don't run rejected command.
+                if (DEBUG) {
+                    Log.d(TAG, "Command (" + command + ") from "
+                            + controller + " was rejected by " + mSession);
+                }
+                return;
+            }
+        }
+        try {
+            runnable.run(controller);
+        } catch (RemoteException e) {
+            // Currently it's TransactionTooLargeException or DeadSystemException.
+            // We'd better to leave log for those cases because
+            //   - TransactionTooLargeException means that we may need to fix our code.
+            //     (e.g. add pagination or special way to deliver Bitmap)
+            //   - DeadSystemException means that errors around it can be ignored.
+            Log.w(TAG, "Exception in " + controller.toString(), e);
+        }
     }
 
     private void connect(final ControllerInfo controller) {
@@ -617,10 +550,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                     }
                     return;
                 }
-                synchronized (mLock) {
-                    mControllers.put(controller.getRemoteUserInfo(), controller);
-                    mAllowedCommandGroupMap.put(controller, allowedCommands);
-                }
+                mConnectedControllersManager.addController(
+                        controller.getRemoteUserInfo(), controller, allowedCommands);
             }
         });
     }

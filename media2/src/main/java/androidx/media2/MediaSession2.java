@@ -39,7 +39,6 @@ import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
-import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaPlayerConnector.BuffState;
 import androidx.media2.MediaPlayerConnector.PlayerState;
@@ -52,7 +51,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -903,7 +901,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * <ul>
          *  <li> {@link MediaPlayerConnector} </li>
          *  <li> {@link MediaPlaylistAgent} </li>
-         *  <li> {@link android.media.AudioManager} or {@link VolumeProviderCompat} </li>
+         *  <li> {@link android.media.AudioManager}</li>
          * </ul>
          * Return {@code false} here to reject the request and stop sending command.
          *
@@ -1384,6 +1382,9 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
             if (!(obj instanceof ControllerInfo)) {
                 return false;
             }
+            if (this == obj) {
+                return true;
+            }
             ControllerInfo other = (ControllerInfo) obj;
             if (mControllerCb != null || other.mControllerCb != null) {
                 return ObjectsCompat.equals(mControllerCb, other.mControllerCb);
@@ -1717,7 +1718,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         Executor mCallbackExecutor;
         C mCallback;
         MediaPlaylistAgent mPlaylistAgent;
-        VolumeProviderCompat mVolumeProvider;
         PendingIntent mSessionActivity;
 
         BuilderBase(Context context) {

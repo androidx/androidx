@@ -34,6 +34,8 @@ import java.util.List;
  */
 class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
     private final MediaSession2.SupportLibraryImpl mSessionImpl;
+    private final ConnectedControllersManager<RemoteUserInfo> mConnectedControllersManager;
+
     final MediaSessionManager mManager;
 
     MediaSessionService2LegacyStub(Context context,
@@ -44,6 +46,7 @@ class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
         setSessionToken(token);
         mManager = MediaSessionManager.getSessionManager(context);
         mSessionImpl = session;
+        mConnectedControllersManager = new ConnectedControllersManager<>(session);
     }
 
     @Override
@@ -65,6 +68,7 @@ class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
         if (connectResult == null) {
             return null;
         }
+        mConnectedControllersManager.addController(info, controller, connectResult);
         // No library root, but keep browser compat connected to allow getting session.
         return MediaUtils2.sDefaultBrowserRoot;
     }
@@ -75,28 +79,10 @@ class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
     }
 
     ControllerInfo createControllerInfo(RemoteUserInfo info) {
-        // TODO: Keep newly created ControllerInfo from onGetRoot, and don't create controller
-        //       in other places.
         return new ControllerInfo(info, mManager.isTrustedForMediaControl(info), null);
     }
 
-    ControllerInfo getController() {
-        RemoteUserInfo info = getCurrentBrowserInfo();
-        if (info == null) {
-            return null;
-        }
-
-        List<ControllerInfo> controllers = mSessionImpl.getConnectedControllers();
-        // Try to match reference equalities as well.
-        for (int i = 0; i < controllers.size(); i++) {
-            ControllerInfo controller = controllers.get(i);
-            if (controller.getPackageName().equals(info.getPackageName())
-                    && controller.getUid() == info.getUid()) {
-                return controller;
-            }
-        }
-        // TODO: Keep newly created ControllerInfo from onGetRoot, and don't create controller
-        //       in other places.
-        return createControllerInfo(info);
+    ConnectedControllersManager<RemoteUserInfo> getConnectedControllersManager() {
+        return mConnectedControllersManager;
     }
 }
