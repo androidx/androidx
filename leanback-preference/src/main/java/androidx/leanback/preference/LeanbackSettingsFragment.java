@@ -50,8 +50,7 @@ import androidx.preference.PreferenceScreen;
  * {@link PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen(PreferenceFragment, PreferenceScreen)},
  * and {@link #onPreferenceStartInitialScreen()}:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/android/supportpreference/FragmentSupportPreferencesLeanback.java
- *      support_fragment_leanback}
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/LeanbackPreferences.java leanback_preferences}
  * @deprecated Use {@link LeanbackSettingsFragmentCompat}
  */
 @Deprecated

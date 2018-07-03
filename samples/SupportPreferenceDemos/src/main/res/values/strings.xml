@@ -16,79 +16,88 @@
   -->
 
 <resources>
-    <string name="fragment_support_preferences_demo">Support PreferenceFragment</string>
-    <string name="fragment_support_preferences_compat_demo">Support PreferenceFragmentCompat</string>
-    <string name="fragment_support_preferences_leanback_demo">Support LeanbackPreferenceFragment</string>
-    <string name="fragment_support_preferences_car_demo">Support Car PreferenceFragment</string>
+    <!--App title-->
+    <string name="title">Preferences Demo</string>
 
-    <string name="root_title">Preferences Demo</string>
+    <!--Fragment titles-->
+    <string name="preferences">Preferences</string>
+    <string name="leanback_preferences">Leanback Preferences</string>
+    <string name="car_preferences">Car Preferences</string>
 
-    <string name="title_basic_preference">Basic preference</string>
-    <string name="summary_basic_preference">This is a basic preference</string>
+    <!--This section is for basic attributes -->
+    <string name="basic_preferences">Basic attributes</string>
+
+    <string name="title_basic_preference">Preference</string>
+    <string name="summary_basic_preference">Simple preference with no special attributes</string>
 
     <string name="title_stylish_preference"><b>Very</b> <i>stylish</i> <u>preference</u></string>
-    <string name="summary_stylish_preference">This is a <b>very</b> <i>stylish</i> <u>preference</u></string>
+    <string name="summary_stylish_preference">Define style tags such as &lt;b&gt; in a string resource to customize a preference\'s text</string>
 
-    <string name="inline_preferences">In-line preferences</string>
-    <string name="dialog_based_preferences">Dialog-based preferences</string>
-    <string name="launch_preferences">Launch preferences</string>
-    <string name="preference_attributes">Preference attributes</string>
+    <string name="title_icon_preference">Icon preference</string>
+    <string name="summary_icon_preference">Define a drawable to display it at the start of the preference</string>
+
+    <string name="title_single_line_title_preference">Single line title preference - no matter how long the title is it will never wrap to multiple lines</string>
+    <string name="summary_single_line_title_preference">This title will be ellipsized instead of wrapping to another line</string>
+
+    <!--This section is for preferences that contain a widget in their layout -->
+    <string name="widgets">Widgets</string>
 
     <string name="title_checkbox_preference">Checkbox preference</string>
-    <string name="summary_checkbox_preference">This is a checkbox</string>
-
-    <string name="title_dropdown_preference">Dropdown preference</string>
-    <string name="summary_dropdown_preference">This is a dropdown</string>
+    <string name="summary_checkbox_preference">Tap anywhere in this preference to toggle state</string>
 
     <string name="title_switch_preference">Switch preference</string>
-    <string name="summary_switch_preference">This is a switch</string>
-    <string name="summary_switch_preference_yes_no">This is a switch with custom text</string>
+    <string name="summary_switch_preference">Tap anywhere in this preference to toggle state</string>
 
-    <string name="title_yesno_preference">Yes or no preference</string>
-    <string name="summary_yesno_preference">An example that uses a yes/no dialog</string>
-    <string name="dialog_title_yesno_preference">Do you like bananas?</string>
+    <string name="title_dropdown_preference">Dropdown preference</string>
+    <string name="summary_dropdown_preference">Displays a list of options in a dropdown menu</string>
 
-    <string name="title_edittext_preference">Edit text preference</string>
-    <string name="summary_edittext_preference">An example that uses an edit text dialog</string>
-    <string name="dialog_title_edittext_preference">Enter your favorite animal</string>
+    <string name="title_seekbar_preference">Seekbar preference</string>
+    <string name="summary_seekbar_preference">This seekbar has a default value of 5 and a max value of 10</string>
+
+    <!--This section is for preferences that launch a dialog to edit the preference -->
+    <string name="dialogs">Dialogs</string>
+
+    <string name="title_edittext_preference">EditText preference</string>
+    <string name="summary_edittext_preference">Shows a dialog with an editable field</string>
+    <string name="dialog_title_edittext_preference">This title can be changed!</string>
 
     <string name="title_list_preference">List preference</string>
-    <string name="summary_list_preference">An example that uses a list dialog</string>
-    <string name="dialog_title_list_preference">Choose one</string>
+    <string name="summary_list_preference">Shows a dialog with a list of options</string>
+    <string name="dialog_title_list_preference">Choose one option!</string>
 
     <string name="title_multi_list_preference">Multi-select list preference</string>
-    <string name="summary_multi_list_preference">An example that uses a multi-select list dialog</string>
-    <string name="dialog_title_multi_list_preference">Choose some</string>
+    <string name="summary_multi_list_preference">Shows a dialog with multiple choice options</string>
+    <string name="dialog_title_multi_list_preference">Choose some options!</string>
+
+    <!--This section is for preferences that have a specific action when clicked -->
+    <string name="launchable">Launchable</string>
 
     <string name="title_screen_preference">Screen preference</string>
-    <string name="summary_screen_preference">Shows another screen of preferences</string>
+    <string name="summary_screen_preference">Shows a nested screen of preferences</string>
 
-    <string name="title_fragment_preference">Fragment preference</string>
-    <string name="summary_fragment_preference">Shows another fragment of preferences</string>
-
-    <string name="title_next_screen_toggle_preference">Toggle preference</string>
-    <string name="summary_next_screen_toggle_preference">Preference that is on the next screen but same hierarchy</string>
+    <!--This preference shows up in the screen preference above-->
+    <string name="title_nested_preference">Nested preference</string>
+    <string name="summary_nested_preference">This preference is only shown on this screen but is part of the same hierarchy as the other preferences (defined in the same XML)</string>
 
     <string name="title_intent_preference">Intent preference</string>
-    <string name="summary_intent_preference">Launches an Activity from an Intent</string>
+    <string name="summary_intent_preference">Launches an intent when pressed</string>
 
-    <string name="title_my_preference">My preference</string>
-    <string name="summary_my_preference">This is a custom counter preference</string>
+    <!--This section is for advanced attributes-->
+    <string name="advanced_attributes">Advanced attributes</string>
 
-    <string name="title_advanced_toggle_preference">Haunted preference</string>
-    <string name="summary_on_advanced_toggle_preference">I\'m on! :)</string>
-    <string name="summary_off_advanced_toggle_preference">I\'m off! :(</string>
+    <string name="title_expandable_preference">Expandable preference group</string>
+    <string name="summary_expandable_preference">This group shows one item and collapses the rest into the advanced button below</string>
 
-    <string name="title_parent_preference">Parent checkbox preference</string>
-    <string name="summary_parent_preference">This is visually a parent</string>
-    <string name="title_child_preference">Child checkbox preference</string>
-    <string name="summary_child_preference">This is visually a child</string>
+    <string name="title_parent_preference">Parent preference</string>
+    <string name="summary_parent_preference">Toggling this preference will change the enabled state of the preference below</string>
 
-    <string name="example_preference_dependency">Example preference dependency</string>
-    <string name="title_wifi">WiFi</string>
-    <string name="title_wifi_settings">WiFi settings</string>
+    <string name="title_child_preference">Child preference</string>
+    <string name="summary_child_preference">The enabled state of this preference is controlled by the preference above</string>
 
-    <string name="default_value_list_preference">beta</string>
-    <string name="default_value_edittext_preference">Default value</string>
+    <string name="title_toggle_summary_preference">Variable summary preference</string>
+    <string name="summary_on_toggle_summary_preference">On! :) - the summary of this preference changes depending on its state</string>
+    <string name="summary_off_toggle_summary_preference">Off! :( - the summary of this preference changes depending on its state</string>
 
+    <string name="title_copyable_preference">Copyable preference</string>
+    <string name="summary_copyable_preference">Long press on this preference to copy its summary</string>
 </resources>

@@ -16,22 +16,11 @@
   -->
 
 <resources>
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar"/>
 
-    <style name="DemoTheme" parent="android:Theme.Holo.Light.DarkActionBar"/>
-
-    <style name="DemoThemeCompat" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="PreferenceTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">#3F51B5</item>
         <item name="colorPrimaryDark">#303F9F</item>
         <item name="colorAccent">#FF4081</item>
     </style>
-
-    <style name="SupportPreferenceLeanback" parent="Theme.Leanback">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlayLeanback</item>
-    </style>
-
-    <style name="SupportPreferenceCar" parent="Theme.Car.Light.NoActionBar">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlayCar</item>
-        <item name="android:windowBackground">@color/car_card</item>
-    </style>
-
 </resources>
