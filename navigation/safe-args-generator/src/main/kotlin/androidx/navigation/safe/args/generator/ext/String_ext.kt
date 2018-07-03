@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package a.b;
+package androidx.navigation.safe.args.generator.ext
 
-// fake R class to compile against for WriterTest
-public class R {
+fun String.toCamelCase(): String {
+    val split = this.split("_")
+    if (split.size == 0) return ""
+    if (split.size == 1) return split[0].capitalize()
+    return split.joinToCamelCase()
+}
 
-    public static final class id {
-        public static final int finish = 0x7f060000;
-        public static final int previous = 0x7f060001;
-        public static final int next = 0x7f060002;
-        public static final int previous_action = 0x7f060003;
-        public static final int next_action = 0x7f060004;
-    }
-
-    public static final class drawable {
-        public static int background = 0x7f090001;
-    }
+fun String.toCamelCaseAsVar(): String {
+    val split = this.split("_")
+    if (split.size == 0) return ""
+    if (split.size == 1) return split[0]
+    return split.joinToCamelCaseAsVar()
 }

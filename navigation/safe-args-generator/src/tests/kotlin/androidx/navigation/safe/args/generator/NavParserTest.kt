@@ -30,6 +30,7 @@ import com.squareup.javapoet.ClassName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -126,5 +127,31 @@ class NavParserTest {
         assertThat(infer("false"), `is`(boolArg("false")))
         assertThat(infer("123L"), `is`(longArg("123L")))
         assertThat(infer("1234123412341234L"), `is`(longArg("1234123412341234L")))
+    }
+
+    @Test
+    fun testArgSanitizedName() {
+        assertEquals("camelCaseName",
+                Argument("camelCaseName", INT).sanitizedName)
+        assertEquals("ALLCAPSNAME",
+                Argument("ALLCAPSNAME", INT).sanitizedName)
+        assertEquals("alllowercasename",
+                Argument("alllowercasename", INT).sanitizedName)
+        assertEquals("nameWithUnderscore",
+                Argument("name_with_underscore", INT).sanitizedName)
+        assertEquals("NameWithUnderscore",
+                Argument("Name_With_Underscore", INT).sanitizedName)
+        assertEquals("NAMEWITHUNDERSCORE",
+                Argument("NAME_WITH_UNDERSCORE", INT).sanitizedName)
+        assertEquals("nameWithSpaces",
+                Argument("name with spaces", INT).sanitizedName)
+        assertEquals("nameWithDot",
+                Argument("name.with.dot", INT).sanitizedName)
+        assertEquals("nameWithDollars",
+                Argument("name\$with\$dollars", INT).sanitizedName)
+        assertEquals("nameWithBangs",
+                Argument("name!with!bangs", INT).sanitizedName)
+        assertEquals("nameWithHyphens",
+                Argument("name-with-hyphens", INT).sanitizedName)
     }
 }
