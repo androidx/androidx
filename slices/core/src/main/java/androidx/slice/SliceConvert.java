@@ -25,6 +25,8 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -39,6 +41,8 @@ import java.util.Set;
  */
 @RequiresApi(28)
 public class SliceConvert {
+
+    private static final String TAG = "SliceConvert";
 
     /**
      * Convert {@link androidx.slice.Slice androidx.slice.Slice} to
@@ -110,8 +114,12 @@ public class SliceConvert {
                     builder.addSubSlice(wrap(item.getSlice(), context), item.getSubType());
                     break;
                 case FORMAT_IMAGE:
-                    builder.addIcon(IconCompat.createFromIcon(context, item.getIcon()),
-                            item.getSubType(), item.getHints());
+                    try {
+                        builder.addIcon(IconCompat.createFromIcon(context, item.getIcon()),
+                                item.getSubType(), item.getHints());
+                    } catch (Resources.NotFoundException e) {
+                        Log.w(TAG, "The icon resource isn't available.", e);
+                    }
                     break;
                 case FORMAT_REMOTE_INPUT:
                     builder.addRemoteInput(item.getRemoteInput(), item.getSubType(),
