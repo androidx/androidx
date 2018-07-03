@@ -24,12 +24,16 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
 
 import java.util.Collection;
 import java.util.Set;
@@ -41,6 +45,8 @@ import java.util.Set;
 @RequiresApi(api = 28)
 class SliceViewManagerWrapper extends SliceViewManagerBase {
 
+    private final ArrayMap<String, Boolean> mCachedSuspendFlags = new ArrayMap<>();
+    private final ArrayMap<String, String> mCachedAuthorities = new ArrayMap<>();
     private final android.app.slice.SliceManager mManager;
     private final Set<SliceSpec> mSpecs;
 
@@ -69,13 +75,60 @@ class SliceViewManagerWrapper extends SliceViewManagerBase {
     @Nullable
     @Override
     public androidx.slice.Slice bindSlice(@NonNull Uri uri) {
+        if (isAuthoritySuspended(uri.getAuthority())) {
+            return null;
+        }
         return SliceConvert.wrap(mManager.bindSlice(uri, mSpecs), mContext);
     }
 
     @Nullable
     @Override
     public androidx.slice.Slice bindSlice(@NonNull Intent intent) {
+        if (isPackageSuspended(intent)) {
+            return null;
+        }
         return SliceConvert.wrap(mManager.bindSlice(intent, mSpecs), mContext);
+    }
+
+    private boolean isPackageSuspended(Intent intent) {
+        if (intent.getComponent() != null) {
+            return isPackageSuspended(intent.getComponent().getPackageName());
+        }
+        if (intent.getPackage() != null) {
+            return isPackageSuspended(intent.getPackage());
+        }
+        if (intent.getData() != null) {
+            return isAuthoritySuspended(intent.getData().getAuthority());
+        }
+        return false;
+    }
+
+    private boolean isAuthoritySuspended(String authority) {
+        String pkg = mCachedAuthorities.get(authority);
+        if (pkg == null) {
+            ProviderInfo providerInfo = mContext.getPackageManager()
+                    .resolveContentProvider(authority, 0);
+            if (providerInfo == null) {
+                return false;
+            }
+            pkg = providerInfo.packageName;
+            mCachedAuthorities.put(authority, pkg);
+        }
+        return isPackageSuspended(pkg);
+    }
+
+    private boolean isPackageSuspended(String pkg) {
+        Boolean isSuspended = mCachedSuspendFlags.get(pkg);
+        if (isSuspended == null) {
+            try {
+                isSuspended = (mContext.getPackageManager().getApplicationInfo(pkg, 0).flags
+                        & ApplicationInfo.FLAG_SUSPENDED) != 0;
+                mCachedSuspendFlags.put(pkg, isSuspended);
+            } catch (NameNotFoundException e) {
+                return false;
+            }
+        }
+        return isSuspended;
     }
 
     @Override
