@@ -18,13 +18,8 @@ package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_NO_TINT;
-import static android.app.slice.Slice.HINT_TITLE;
-import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_IMAGE;
-import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
-import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
@@ -47,7 +42,6 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
-import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
 /**
@@ -82,11 +76,14 @@ public class ShortcutView extends SliceChildView {
         if (mListContent == null) {
             return;
         }
-        determineShortcutItems(getContext());
-        SliceItem colorItem = mListContent.getColorItem();
-        if (colorItem == null) {
-            colorItem = SliceQuery.findSubtype(sliceContent.getSlice(), FORMAT_INT, SUBTYPE_COLOR);
+        ShortcutContent shortcutContent = new ShortcutContent(sliceContent);
+        mActionItem = shortcutContent.getActionItem();
+        mIcon = shortcutContent.getIcon();
+        mLabel = shortcutContent.getLabel();
+        if (mIcon == null || mIcon.getIcon() == null || mLabel == null || mActionItem == null) {
+            useAppDataAsFallbackItems(getContext());
         }
+        SliceItem colorItem = shortcutContent.getColorItem();
         final int color = colorItem != null
                 ? colorItem.getInt()
                 : SliceViewUtil.getColorAccent(getContext());
@@ -152,68 +149,31 @@ public class ShortcutView extends SliceChildView {
     }
 
     /**
-     * Looks at the slice and determines which items are best to use to compose the shortcut.
+     * Uses app data as the last fallback items for shortcut view.
      */
-    private void determineShortcutItems(Context context) {
-        if (mListContent == null) {
-            return;
-        }
-        SliceItem primaryAction = mListContent.getPrimaryAction();
+    private void useAppDataAsFallbackItems(Context context) {
         Slice slice = mListContent.getSlice();
-
-        if (primaryAction != null && primaryAction.getSlice().getItems().size() != 0) {
-            // Preferred case: slice has a primary action
-            mActionItem = primaryAction.getSlice().getItems().get(0);
-            mIcon = SliceQuery.find(primaryAction.getSlice(), FORMAT_IMAGE, (String) null,
-                    null);
-            mLabel = SliceQuery.find(primaryAction.getSlice(), FORMAT_TEXT, (String) null,
-                    null);
-        } else {
-            // No hinted action; just use the first one
-            mActionItem = SliceQuery.find(slice, FORMAT_ACTION, (String) null, null);
-        }
-        // First fallback: any hinted image and text
-        if (mIcon == null || mIcon.getIcon() == null) {
-            mIcon = SliceQuery.find(slice, FORMAT_IMAGE, HINT_TITLE,
-                    null);
-        }
-        if (mLabel == null) {
-            mLabel = SliceQuery.find(slice, FORMAT_TEXT, HINT_TITLE,
-                    null);
-        }
-        // Second fallback: first image and text
-        if (mIcon == null || mIcon.getIcon() == null) {
-            mIcon = SliceQuery.find(slice, FORMAT_IMAGE, (String) null,
-                    null);
-        }
-        if (mLabel == null) {
-            mLabel = SliceQuery.find(slice, FORMAT_TEXT, (String) null,
-                    null);
-        }
-        // Final fallback: use app info
-        if (mIcon == null || mIcon.getIcon() == null || mLabel == null || mActionItem == null) {
-            PackageManager pm = context.getPackageManager();
-            ProviderInfo providerInfo = pm.resolveContentProvider(
-                    slice.getUri().getAuthority(), 0);
-            ApplicationInfo appInfo = providerInfo.applicationInfo;
-            if (appInfo != null) {
-                if (mIcon == null || mIcon.getIcon() == null) {
-                    Slice.Builder sb = new Slice.Builder(slice.getUri());
-                    Drawable icon = pm.getApplicationIcon(appInfo);
-                    sb.addIcon(SliceViewUtil.createIconFromDrawable(icon), HINT_LARGE);
-                    mIcon = sb.build().getItems().get(0);
-                }
-                if (mLabel == null) {
-                    Slice.Builder sb = new Slice.Builder(slice.getUri());
-                    sb.addText(pm.getApplicationLabel(appInfo), null);
-                    mLabel = sb.build().getItems().get(0);
-                }
-                if (mActionItem == null) {
-                    mActionItem = new SliceItem(PendingIntent.getActivity(context, 0,
-                            pm.getLaunchIntentForPackage(appInfo.packageName), 0),
-                            new Slice.Builder(slice.getUri()).build(), FORMAT_ACTION,
-                            null /* subtype */, null);
-                }
+        PackageManager pm = context.getPackageManager();
+        ProviderInfo providerInfo = pm.resolveContentProvider(
+                slice.getUri().getAuthority(), 0);
+        ApplicationInfo appInfo = providerInfo.applicationInfo;
+        if (appInfo != null) {
+            if (mIcon == null || mIcon.getIcon() == null) {
+                Slice.Builder sb = new Slice.Builder(slice.getUri());
+                Drawable icon = pm.getApplicationIcon(appInfo);
+                sb.addIcon(SliceViewUtil.createIconFromDrawable(icon), HINT_LARGE);
+                mIcon = sb.build().getItems().get(0);
+            }
+            if (mLabel == null) {
+                Slice.Builder sb = new Slice.Builder(slice.getUri());
+                sb.addText(pm.getApplicationLabel(appInfo), null);
+                mLabel = sb.build().getItems().get(0);
+            }
+            if (mActionItem == null) {
+                mActionItem = new SliceItem(PendingIntent.getActivity(context, 0,
+                        pm.getLaunchIntentForPackage(appInfo.packageName), 0),
+                        new Slice.Builder(slice.getUri()).build(), FORMAT_ACTION,
+                        null /* subtype */, null);
             }
         }
     }

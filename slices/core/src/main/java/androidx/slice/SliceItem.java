@@ -218,7 +218,11 @@ public final class SliceItem extends CustomVersionedParcelable {
      * SliceItem
      */
     public PendingIntent getAction() {
-        return (PendingIntent) ((Pair<Object, Slice>) mObj).first;
+        Object action = ((Pair<Object, Slice>) mObj).first;
+        if (action instanceof PendingIntent) {
+            return (PendingIntent) action;
+        }
+        return null;
     }
 
     /**
