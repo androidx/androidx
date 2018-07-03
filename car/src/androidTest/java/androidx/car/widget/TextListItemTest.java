@@ -100,7 +100,7 @@ public class TextListItemTest {
             throw new RuntimeException(throwable);
         }
         // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(0));
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
     }
 
     private void setupPagedListView(List<TextListItem> items) {
@@ -522,7 +522,7 @@ public class TextListItemTest {
         setupPagedListView(items);
 
         for (int i = 1; i < items.size(); i++) {
-            onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(i));
+            onView(withId(R.id.recycler_view)).perform(scrollToPosition(i));
             // Implementation uses integer division so it may be off by 1 vs centered vertically.
             assertThat((double) getViewHolderAtPosition(i - 1).getPrimaryIcon().getTop(),
                     is(closeTo(
@@ -553,11 +553,11 @@ public class TextListItemTest {
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
-        onView(withId(R.id.car_recycler_view)).perform(actionOnItemAtPosition(0, click()));
+        onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition(0, click()));
         assertTrue(clicked[0]);
         assertFalse(clicked[1]);
 
-        onView(withId(R.id.car_recycler_view)).perform(
+        onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.supplemental_icon)));
         assertTrue(clicked[1]);
     }
@@ -573,7 +573,7 @@ public class TextListItemTest {
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
-        onView(withId(R.id.car_recycler_view)).perform(
+        onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.supplemental_icon)));
         assertTrue(clicked[0]);
     }
@@ -611,11 +611,11 @@ public class TextListItemTest {
         List<TextListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
 
-        onView(withId(R.id.car_recycler_view)).perform(
+        onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.switch_widget)));
         assertTrue(clicked[0]);
 
-        onView(withId(R.id.car_recycler_view)).perform(
+        onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(1, clickChildViewWithId(R.id.switch_widget)));
         assertTrue(clicked[1]);
     }
@@ -630,7 +630,7 @@ public class TextListItemTest {
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
-        onView(withId(R.id.car_recycler_view)).perform(
+        onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.action1)));
         assertTrue(clicked[0]);
     }
@@ -646,12 +646,12 @@ public class TextListItemTest {
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
-        onView(withId(R.id.car_recycler_view)).perform(
+        onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.action1)));
         assertTrue(clicked[0]);
         assertFalse(clicked[1]);
 
-        onView(withId(R.id.car_recycler_view)).perform(
+        onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.action2)));
         assertTrue(clicked[1]);
     }
@@ -756,7 +756,7 @@ public class TextListItemTest {
 
         setupPagedListView(Arrays.asList(item0));
 
-        onView(withId(R.id.car_recycler_view)).perform(actionOnItemAtPosition(0, click()));
+        onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition(0, click()));
         assertTrue(clicked[0]);
 
         // item1 does not have onClickListener.
@@ -767,7 +767,7 @@ public class TextListItemTest {
 
         // Reset for testing.
         clicked[0] = false;
-        onView(withId(R.id.car_recycler_view)).perform(actionOnItemAtPosition(0, click()));
+        onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition(0, click()));
         assertFalse(clicked[0]);
     }
 
@@ -858,7 +858,7 @@ public class TextListItemTest {
 
         setupPagedListView(Arrays.asList(item));
 
-        onView(withId(R.id.car_recycler_view)).perform(
+        onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(0, click()));
 
         assertFalse(clicked[0]);
