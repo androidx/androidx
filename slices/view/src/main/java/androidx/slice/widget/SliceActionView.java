@@ -34,6 +34,7 @@ import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 
 import androidx.annotation.NonNull;
@@ -41,6 +42,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.slice.SliceItem;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.view.R;
 
@@ -58,11 +60,17 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
             android.R.attr.state_checked
     };
 
+    interface SliceActionLoadingListener {
+        void onSliceActionLoading(SliceItem actionItem, int position);
+    }
+
     private SliceActionImpl mSliceAction;
     private EventInfo mEventInfo;
     private SliceView.OnSliceActionListener mObserver;
+    private SliceActionLoadingListener mLoadingListener;
 
     private View mActionView;
+    private ProgressBar mProgressView;
 
     private int mIconSize;
     private int mImageSize;
@@ -78,11 +86,21 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
      * Populates the view with the provided action.
      */
     public void setAction(@NonNull SliceActionImpl action, EventInfo info,
-                          SliceView.OnSliceActionListener listener, int color) {
+            SliceView.OnSliceActionListener listener, int color,
+            SliceActionLoadingListener loadingListener) {
+        if (mActionView != null) {
+            removeView(mActionView);
+            mActionView = null;
+        }
+        if (mProgressView != null) {
+            removeView(mProgressView);
+            mProgressView = null;
+        }
         mSliceAction = action;
         mEventInfo = info;
         mObserver = listener;
         mActionView = null;
+        mLoadingListener = loadingListener;
 
         if (action.isDefaultToggle()) {
             Switch switchView = (Switch) LayoutInflater.from(getContext()).inflate(
@@ -142,6 +160,22 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
     }
 
     /**
+     * Indicates whether this action should show loading or not.
+     */
+    public void setLoading(boolean isLoading) {
+        if (isLoading) {
+            if (mProgressView == null) {
+                mProgressView = (ProgressBar) LayoutInflater.from(getContext()).inflate(
+                        R.layout.abc_slice_progress_view, this, false);
+                addView(mProgressView);
+            }
+            SliceViewUtil.tintIndeterminateProgressBar(getContext(), mProgressView);
+        }
+        mActionView.setVisibility(isLoading ? GONE : VISIBLE);
+        mProgressView.setVisibility(isLoading ? VISIBLE : GONE);
+    }
+
+    /**
      * Toggles this action if it is toggleable.
      */
     public void toggle() {
@@ -163,7 +197,7 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
         if (mSliceAction == null || mActionView == null) {
             return;
         }
-        sendAction();
+        sendActionInternal();
     }
 
     @Override
@@ -171,26 +205,49 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
         if (mSliceAction == null || mActionView == null) {
             return;
         }
-        sendAction();
+        sendActionInternal();
     }
 
-    private void sendAction() {
-        // TODO - Show loading indicator here?
+    /**
+     * Triggers the action associated with this action view; if it is a toggle it will update
+     * the toggle state.
+     */
+    public void sendAction() {
+        if (mSliceAction == null) {
+            return;
+        }
+        if (mSliceAction.isToggle()) {
+            toggle();
+        } else {
+            sendActionInternal();
+        }
+    }
+
+    private void sendActionInternal() {
+        if (mSliceAction == null || mSliceAction.getActionItem() == null) {
+            return;
+        }
         try {
+            Intent i = null;
             if (mSliceAction.isToggle()) {
                 // Update the intent extra state
                 boolean isChecked = ((Checkable) mActionView).isChecked();
-                Intent i = new Intent()
+                i = new Intent()
                         .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
                         .putExtra(EXTRA_TOGGLE_STATE, isChecked);
-                mSliceAction.getActionItem().fireAction(getContext(), i);
-
                 // Update event info state
                 if (mEventInfo != null) {
                     mEventInfo.state = isChecked ? EventInfo.STATE_ON : EventInfo.STATE_OFF;
                 }
-            } else {
-                mSliceAction.getActionItem().fireAction(null, null);
+            }
+            SliceItem actionItem = mSliceAction.getActionItem();
+            boolean isLoading = actionItem.fireActionInternal(getContext(), i);
+            if (isLoading) {
+                setLoading(true);
+                if (mLoadingListener != null) {
+                    int position = mEventInfo != null ? mEventInfo.rowIndex : -1;
+                    mLoadingListener.onSliceActionLoading(mSliceAction.getSliceItem(), position);
+                }
             }
             if (mObserver != null && mEventInfo != null) {
                 mObserver.onSliceAction(mEventInfo, mSliceAction.getSliceItem());

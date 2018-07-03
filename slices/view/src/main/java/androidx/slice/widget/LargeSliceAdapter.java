@@ -17,7 +17,6 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_HORIZONTAL;
-import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.SUBTYPE_MESSAGE;
 import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
@@ -44,14 +43,17 @@ import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
-public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.SliceViewHolder> {
+public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.SliceViewHolder>
+        implements SliceActionView.SliceActionLoadingListener {
 
     static final int TYPE_DEFAULT       = 1;
     static final int TYPE_HEADER        = 2; // TODO: headers shouldn't scroll off
@@ -95,6 +97,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     int mInsetBottom;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mMaxSmallHeight;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Set<SliceItem> mLoadingActions = new HashSet<>();
 
     public LargeSliceAdapter(Context context) {
         mContext = context;
@@ -141,6 +145,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
      */
     public void setSliceItems(List<SliceItem> slices, int color, int mode) {
         if (slices == null) {
+            mLoadingActions.clear();
             mSlices.clear();
         } else {
             mIdGen.resetUsage();
@@ -167,16 +172,49 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
      * Sets whether the last updated time should be shown on the slice.
      */
     public void setShowLastUpdated(boolean showLastUpdated) {
-        mShowLastUpdated = showLastUpdated;
-        notifyHeaderChanged();
+        if (mShowLastUpdated != showLastUpdated) {
+            mShowLastUpdated = showLastUpdated;
+            notifyHeaderChanged();
+        }
     }
 
     /**
      * Sets when the slice was last updated.
      */
     public void setLastUpdated(long lastUpdated) {
-        mLastUpdated = lastUpdated;
-        notifyHeaderChanged();
+        if (mLastUpdated != lastUpdated) {
+            mLastUpdated = lastUpdated;
+            notifyHeaderChanged();
+        }
+    }
+
+    /**
+     * Indicates that no actions should be loading and updates the views.
+     */
+    public void setLoadingActions(Set<SliceItem> actions) {
+        if (actions == null) {
+            mLoadingActions.clear();
+        } else {
+            mLoadingActions = actions;
+        }
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Returns the currently loading actions.
+     */
+    public Set<SliceItem> getLoadingActions() {
+        return mLoadingActions;
+    }
+
+    @Override
+    public void onSliceActionLoading(SliceItem actionItem, int position) {
+        mLoadingActions.add(actionItem);
+        if (getItemCount() > position) {
+            notifyItemChanged(position);
+        } else {
+            notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -190,8 +228,10 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
      * Overrides the normal maximum height for a slice displayed in {@link SliceView#MODE_SMALL}.
      */
     public void setMaxSmallHeight(int maxSmallHeight) {
-        mMaxSmallHeight = maxSmallHeight;
-        notifyHeaderChanged();
+        if (mMaxSmallHeight != maxSmallHeight) {
+            mMaxSmallHeight = maxSmallHeight;
+            notifyHeaderChanged();
+        }
     }
 
     @Override
@@ -246,7 +286,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         public SliceWrapper(SliceItem item, IdGenerator idGen, int mode) {
             mItem = item;
             mType = getFormat(item);
-            mId = idGen.getId(item, mode);
+            mId = idGen.getId(item);
         }
 
         public static int getFormat(SliceItem item) {
@@ -288,6 +328,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             mSliceChildView.setOnClickListener(this);
             // Touch listener used to pipe events to touch feedback drawable
             mSliceChildView.setOnTouchListener(this);
+            mSliceChildView.setSliceActionLoadingListener(LargeSliceAdapter.this);
 
             // A RowBuilder or HeaderBuilder might be in first position where certain things
             // can be added to it (e.g. last updated, slice actions). Headers are styled slightly
@@ -295,14 +336,13 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             final boolean isFirstPosition = position == HEADER_INDEX;
             final boolean isHeader = ListContent.isValidHeader(item);
             int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
+            mSliceChildView.setLoadingActions(mLoadingActions);
             mSliceChildView.setMode(mode);
             mSliceChildView.setMaxSmallHeight(mMaxSmallHeight);
             mSliceChildView.setTint(mColor);
             mSliceChildView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
-            mSliceChildView.setSliceItem(item, isHeader, position, getItemCount(), mSliceObserver);
-            mSliceChildView.setSliceActions(isFirstPosition ? mSliceActions : null);
-            mSliceChildView.setLastUpdated(isFirstPosition ? mLastUpdated : -1);
             mSliceChildView.setShowLastUpdated(isFirstPosition && mShowLastUpdated);
+            mSliceChildView.setLastUpdated(isFirstPosition ? mLastUpdated : -1);
             // Only apply top / bottom insets to first / last rows
             int top = position == 0 ? mInsetTop : 0;
             int bottom = position == getItemCount() - 1 ? mInsetBottom : 0;
@@ -310,6 +350,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             if (mSliceChildView instanceof RowView) {
                 ((RowView) mSliceChildView).setSingleItem(getItemCount() == 1);
             }
+            mSliceChildView.setSliceActions(isFirstPosition ? mSliceActions : null);
+            mSliceChildView.setSliceItem(item, isHeader, position, getItemCount(), mSliceObserver);
             int[] info = new int[2];
             info[0] = ListContent.getRowType(mContext, item, isHeader, mSliceActions);
             info[1] = position;
@@ -341,12 +383,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         IdGenerator() {
         }
 
-        public long getId(SliceItem item, int mode) {
+        public long getId(SliceItem item) {
             String str = genString(item);
-            SliceItem summary = SliceQuery.find(item, null, HINT_SUMMARY, null);
-            if (summary != null) {
-                str += mode; // mode matters
-            }
             if (!mCurrentIds.containsKey(str)) {
                 mCurrentIds.put(str, mNextLong++);
             }

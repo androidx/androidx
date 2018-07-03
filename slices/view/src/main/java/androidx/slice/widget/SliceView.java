@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A view for displaying a {@link Slice} which is a piece of app content and actions. SliceView is
@@ -255,7 +256,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         if (mListContent != null && mListContent.getPrimaryAction() != null) {
             try {
                 SliceActionImpl sa = new SliceActionImpl(mListContent.getPrimaryAction());
-                sa.getAction().send();
+                boolean loading = sa.getActionItem().fireActionInternal(getContext(), null);
+                if (loading) {
+                    mCurrentView.setActionLoading(sa.getSliceItem());
+                }
                 if (mSliceObserver != null && mClickInfo != null && mClickInfo.length > 1) {
                     EventInfo eventInfo = new EventInfo(getMode(),
                             EventInfo.ACTION_TYPE_CONTENT, mClickInfo[0], mClickInfo[1]);
@@ -464,6 +468,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             return;
         }
         mActions = mListContent.getSliceActions();
+        // New slice means we shouldn't have any actions loading
+        mCurrentView.setLoadingActions(null);
 
         // Check if the slice content is expired and show when it was last updated
         SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
@@ -670,6 +676,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         // Check if our view is right for the current mode
         int mode = getMode();
         boolean isCurrentViewShortcut = mCurrentView instanceof ShortcutView;
+        Set<SliceItem> loadingActions = mCurrentView.getLoadingActions();
         if (mode == MODE_SHORTCUT && !isCurrentViewShortcut) {
             removeView(mCurrentView);
             mCurrentView = new ShortcutView(getContext());
@@ -693,6 +700,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             if (mListContent != null && mListContent.isValid()) {
                 mCurrentView.setSliceContent(mListContent);
             }
+            mCurrentView.setLoadingActions(loadingActions);
         }
         updateActions();
     }
