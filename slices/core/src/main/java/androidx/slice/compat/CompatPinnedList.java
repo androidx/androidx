@@ -168,6 +168,7 @@ public class CompatPinnedList {
         }
         pins.remove(pkg);
         setPins(uri, pins);
+        setSpecs(uri, new ArraySet<SliceSpec>());
         return pins.size() == 0;
     }
 
