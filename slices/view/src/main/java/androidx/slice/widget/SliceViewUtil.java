@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
@@ -42,7 +43,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.slice.view.R;
 
 import java.util.Calendar;
 
@@ -220,6 +223,18 @@ public class SliceViewUtil {
             return layoutDir;
         }
         return -1;
+    }
+
+    /**
+     */
+    public static void tintIndeterminateProgressBar(Context context, ProgressBar bar) {
+        int color = SliceViewUtil.getColorAttr(context, R.attr.colorControlHighlight);
+        Drawable progressDrawable = DrawableCompat.wrap(
+                bar.getIndeterminateDrawable());
+        if (progressDrawable != null) {
+            progressDrawable.setColorFilter(color, android.graphics.PorterDuff.Mode.MULTIPLY);
+            bar.setProgressDrawable(progressDrawable);
+        }
     }
 
     private SliceViewUtil() {

@@ -232,11 +232,22 @@ public final class SliceItem extends CustomVersionedParcelable {
      */
     public void fireAction(@Nullable Context context, @Nullable Intent i)
             throws PendingIntent.CanceledException {
+        fireActionInternal(context, i);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean fireActionInternal(@Nullable Context context, @Nullable Intent i)
+            throws PendingIntent.CanceledException {
         Object action = ((Pair<Object, Slice>) mObj).first;
         if (action instanceof PendingIntent) {
             ((PendingIntent) action).send(context, 0, i, null, null);
+            return false;
         } else {
             ((ActionHandler) action).onAction(this, context, i);
+            return true;
         }
     }
 
