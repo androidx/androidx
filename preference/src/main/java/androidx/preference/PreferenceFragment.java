@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -281,7 +282,11 @@ public abstract class PreferenceFragment extends Fragment implements
         }
         mDividerDecoration.setAllowDividerAfterLastItem(allowDividerAfterLastItem);
 
-        listContainer.addView(mList);
+        // If mList isn't present in the view hierarchy, add it. mList is automatically inflated
+        // on an Auto device so don't need to add it.
+        if (mList.getParent() == null) {
+            listContainer.addView(mList);
+        }
         mHandler.post(mRequestFocus);
 
         return view;
@@ -563,6 +568,15 @@ public abstract class PreferenceFragment extends Fragment implements
      */
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
+        // If device detected is Auto, use Auto's custom layout that contains a custom ViewGroup
+        // wrapping a RecyclerView
+        if (mStyledContext.getPackageManager().hasSystemFeature(PackageManager
+                .FEATURE_AUTOMOTIVE)) {
+            RecyclerView recyclerView = parent.findViewById(R.id.recycler_view);
+            if (recyclerView != null) {
+                return recyclerView;
+            }
+        }
         RecyclerView recyclerView = (RecyclerView) inflater.inflate(
                 R.layout.preference_recyclerview, parent, false);
 
