@@ -73,7 +73,9 @@ import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Row item is in small template format and can be used to construct list items for use
@@ -106,26 +108,41 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private TextView mLastUpdatedText;
     private View mDivider;
     private ArrayMap<SliceActionImpl, SliceActionView> mToggles = new ArrayMap<>();
+    private ArrayMap<SliceActionImpl, SliceActionView> mActions = new ArrayMap<>();
     private LinearLayout mEndContainer;
     private View mSeeMoreView;
     private ProgressBar mRangeBar;
+    private ProgressBar mActionSpinner;
+    protected Set<SliceItem> mLoadingActions = new HashSet<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mShowActionSpinner;
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mRowIndex;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     RowContent mRowContent;
     private SliceActionImpl mRowAction;
+    private SliceItem mStartItem;
     private boolean mIsHeader;
     private List<SliceAction> mHeaderActions;
     private boolean mIsSingleItem;
 
     // Indicates if there's a slider in this row that is currently being interacted with.
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mIsRangeSliding;
     // Indicates that there was an update to the row but we skipped it while the slice was
     // being interacted with.
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mRangeHasPendingUpdate;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mRangeUpdaterRunning;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     Handler mHandler;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mLastSentRangeUpdate;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mRangeValue;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mRangeMinValue;
     private SliceItem mRangeItem;
 
@@ -152,6 +169,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mSecondaryText = (TextView) findViewById(android.R.id.summary);
         mLastUpdatedText = (TextView) findViewById(R.id.last_updated);
         mDivider = findViewById(R.id.divider);
+        mActionSpinner = findViewById(R.id.action_sent_indicator);
+        SliceViewUtil.tintIndeterminateProgressBar(getContext(), mActionSpinner);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
 
         mIdealRangeHeight = context.getResources().getDimensionPixelSize(
@@ -223,7 +242,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     public void setSliceActions(List<SliceAction> actions) {
         mHeaderActions = actions;
         if (mRowContent != null) {
-            populateViews(true);
+            updateEndItems();
         }
     }
 
@@ -296,17 +315,17 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             boolean sameStructure = new SliceStructure(slice.getSlice()).equals(prevSs);
             isUpdate = sameSliceId && sameStructure;
         }
+        mShowActionSpinner = false;
         mIsHeader = isHeader;
         mRowContent = new RowContent(getContext(), slice, mIsHeader);
         mRowIndex = index;
-        mHeaderActions = null;
         populateViews(isUpdate);
     }
 
     private void populateViews(boolean isUpdate) {
         boolean skipSliderUpdate = isUpdate && mIsRangeSliding;
         if (!skipSliderUpdate) {
-            resetView();
+            resetViewState();
         }
 
         if (mRowContent.getLayoutDirItem() != null) {
@@ -320,10 +339,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (contentDescr != null) {
             mContent.setContentDescription(contentDescr);
         }
-        final SliceItem startItem = mRowContent.getStartItem();
-        boolean showStart = startItem != null && mRowIndex > 0;
+        mStartItem = mRowContent.getStartItem();
+        boolean showStart = mStartItem != null && mRowIndex > 0;
         if (showStart) {
-            showStart = addItem(startItem, mTintColor, true /* isStart */);
+            showStart = addItem(mStartItem, mTintColor, true /* isStart */);
         }
         mStartContainer.setVisibility(showStart ? View.VISIBLE : View.GONE);
 
@@ -337,13 +356,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mPrimaryText.setTextColor(mTitleColor);
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
 
-        final SliceItem subtitleItem = getMode() == MODE_SMALL
-                ? mRowContent.getSummaryItem()
-                : mRowContent.getSubtitleItem();
-        addSubtitle(subtitleItem);
+        addSubtitle();
 
         SliceItem primaryAction = mRowContent.getPrimaryAction();
-        if (primaryAction != null && primaryAction != startItem) {
+        if (primaryAction != null && primaryAction != mStartItem) {
             mRowAction = new SliceActionImpl(primaryAction);
             if (mRowAction.isToggle()) {
                 // If primary action is a toggle, add it and we're done
@@ -368,6 +384,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             }
             return;
         }
+        updateEndItems();
+        updateActionSpinner();
+    }
+
+    private void updateEndItems() {
+        if (mRowContent == null) {
+            return;
+        }
+        mEndContainer.removeAllViews();
 
         // If we're here we can can show end items; check for top level actions first
         List endItems = mRowContent.getEndItems();
@@ -376,9 +401,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             endItems = mHeaderActions;
         }
         // Add start item to end of row for the top row if end items are empty.
-        if (mRowIndex == 0 && startItem != null && endItems.isEmpty()) {
-            endItems.add(startItem);
+        if (mRowIndex == 0 && mStartItem != null && endItems.isEmpty()) {
+            endItems.add(mStartItem);
         }
+
         // If we're here we might be able to show end items
         int endItemCount = 0;
         boolean firstItemIsADefaultToggle = false;
@@ -400,28 +426,50 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 }
             }
         }
+        mEndContainer.setVisibility(endItemCount > 0 ? VISIBLE : GONE);
 
         // If there is a row action and the first end item is a default toggle, show the divider.
         mDivider.setVisibility(mRowAction != null && firstItemIsADefaultToggle
                 ? View.VISIBLE : View.GONE);
-        boolean hasStartAction = startItem != null
-                && SliceQuery.find(startItem, FORMAT_ACTION) != null;
+        boolean hasStartAction = mStartItem != null
+                && SliceQuery.find(mStartItem, FORMAT_ACTION) != null;
         boolean hasEndItemAction = endAction != null;
 
+        boolean endAndRowActionTheSame = false;
         if (mRowAction != null) {
             setViewClickable(mRootView, true);
         } else if (hasEndItemAction != hasStartAction && (endItemCount == 1 || hasStartAction)) {
-            // Single action; make whole row clickable for it
+            // This row only has 1 action in start or end position; make whole row clickable for it
+            endAndRowActionTheSame = true;
             if (!mToggles.isEmpty()) {
                 mRowAction = mToggles.keySet().iterator().next();
-            } else {
-                mRowAction = new SliceActionImpl(endAction != null ? endAction : startItem);
+            } else if (!mActions.isEmpty() && mActions.size() == 1) {
+                mRowAction = mActions.valueAt(0).getAction();
             }
             setViewClickable(mRootView, true);
         }
+
+        if (mRowAction != null && !endAndRowActionTheSame
+                && mLoadingActions.contains(mRowAction.getSliceItem())) {
+            mShowActionSpinner = true;
+        }
     }
 
-    private void addSubtitle(final SliceItem subtitleItem) {
+    @Override
+    public void setLastUpdated(long lastUpdated) {
+        super.setLastUpdated(lastUpdated);
+        if (mRowContent != null) {
+            addSubtitle();
+        }
+    }
+
+    private void addSubtitle() {
+        if (mRowContent == null) {
+            return;
+        }
+        final SliceItem subtitleItem = getMode() == MODE_SMALL
+                ? mRowContent.getSummaryItem()
+                : mRowContent.getSubtitleItem();
         CharSequence subtitleTimeString = null;
         if (mShowLastUpdated && mLastUpdated != -1) {
             CharSequence relativeTime = getRelativeTimeString(mLastUpdated);
@@ -582,6 +630,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                            boolean isStart) {
         SliceActionView sav = new SliceActionView(getContext());
         container.addView(sav);
+        if (container.getVisibility() == GONE) {
+            container.setVisibility(VISIBLE);
+        }
 
         boolean isToggle = actionContent.isToggle();
         int actionType = isToggle ? ACTION_TYPE_TOGGLE : ACTION_TYPE_BUTTON;
@@ -590,9 +641,14 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (isStart) {
             info.setPosition(EventInfo.POSITION_START, 0, 1);
         }
-        sav.setAction(actionContent, info, mObserver, color);
+        sav.setAction(actionContent, info, mObserver, color, mLoadingListener);
+        if (mLoadingActions.contains(actionContent.getSliceItem())) {
+            sav.setLoading(true);
+        }
         if (isToggle) {
             mToggles.put(actionContent, sav);
+        } else {
+            mActions.put(actionContent, sav);
         }
     }
 
@@ -652,7 +708,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     }
 
     private void showSeeMore() {
-        Button b = (Button) LayoutInflater.from(getContext()).inflate(
+        final Button b = (Button) LayoutInflater.from(getContext()).inflate(
                 R.layout.abc_slice_row_show_more, this, false);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -663,7 +719,17 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                                 EventInfo.ROW_TYPE_LIST, mRowIndex);
                         mObserver.onSliceAction(info, mRowContent.getSlice());
                     }
-                    mRowContent.getSlice().fireAction(null, null);
+                    mShowActionSpinner =
+                            mRowContent.getSlice().fireActionInternal(getContext(), null);
+                    if (mShowActionSpinner) {
+                        if (mLoadingListener != null) {
+                            mLoadingListener.onSliceActionLoading(mRowContent.getSlice(),
+                                    mRowIndex);
+                        }
+                        mLoadingActions.add(mRowContent.getSlice());
+                        b.setVisibility(GONE);
+                    }
+                    updateActionSpinner();
                 } catch (CanceledException e) {
                     Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                 }
@@ -674,25 +740,56 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
         mSeeMoreView = b;
         mRootView.addView(mSeeMoreView);
+        if (mLoadingActions.contains(mRowContent.getSlice())) {
+            mShowActionSpinner = true;
+            b.setVisibility(GONE);
+            updateActionSpinner();
+        }
+    }
+
+    void updateActionSpinner() {
+        mActionSpinner.setVisibility(mShowActionSpinner ? VISIBLE : GONE);
+    }
+
+    @Override
+    public void setLoadingActions(Set<SliceItem> actions) {
+        if (actions == null) {
+            mLoadingActions.clear();
+            mShowActionSpinner = false;
+        } else {
+            mLoadingActions = actions;
+        }
+        updateEndItems();
+        updateActionSpinner();
     }
 
     @Override
     public void onClick(View view) {
-        if (mRowAction != null && mRowAction.getActionItem() != null) {
-            // Check if it's a row click for a toggle, in this case need to update the UI
-            if (mRowAction.isToggle() && !(view instanceof SliceActionView)) {
-                SliceActionView sav = mToggles.get(mRowAction);
-                if (sav != null) {
-                    sav.toggle();
-                }
+        if (mRowAction == null || mRowAction.getActionItem() == null) {
+            return;
+        }
+        SliceActionView sav = mRowAction.isToggle()
+                ? mToggles.get(mRowAction)
+                : mActions.get(mRowAction);
+        if (sav != null && !(view instanceof SliceActionView)) {
+            // Row might have a single action item set on it, in that case we activate that item
+            // and it will handle displaying any loading states / updating state for toggles
+            sav.sendAction();
+        } else {
+            if (mRowIndex == 0) {
+                // Header clicks are a little weird and SliceView needs to know about them to
+                // maintain loading state; this is hooked up in LargeSliceAdapter -- it will call
+                // through to SliceView parent which has the info to perform the click.
+                performClick();
             } else {
                 try {
-                    mRowAction.getActionItem().fireAction(null, null);
-                    if (mObserver != null) {
-                        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
-                                EventInfo.ROW_TYPE_LIST, mRowIndex);
-                        mObserver.onSliceAction(info, mRowAction.getSliceItem());
+                    mShowActionSpinner =
+                            mRowAction.getActionItem().fireActionInternal(getContext(), null);
+                    if (mShowActionSpinner && mLoadingListener != null) {
+                        mLoadingListener.onSliceActionLoading(mRowAction.getSliceItem(), mRowIndex);
+                        mLoadingActions.add(mRowAction.getSliceItem());
                     }
+                    updateActionSpinner();
                 } catch (CanceledException e) {
                     Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                 }
@@ -710,18 +807,27 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public void resetView() {
+        mRowContent = null;
+        mLoadingActions.clear();
+        resetViewState();
+    }
+
+    private void resetViewState() {
         mRootView.setVisibility(VISIBLE);
         setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
         setViewClickable(mRootView, false);
         setViewClickable(mContent, false);
         mStartContainer.removeAllViews();
         mEndContainer.removeAllViews();
+        mEndContainer.setVisibility(GONE);
         mPrimaryText.setText(null);
         mSecondaryText.setText(null);
         mLastUpdatedText.setText(null);
         mLastUpdatedText.setVisibility(GONE);
         mToggles.clear();
+        mActions.clear();
         mRowAction = null;
+        mStartItem = null;
         mDivider.setVisibility(GONE);
         if (mSeeMoreView != null) {
             mRootView.removeView(mSeeMoreView);
@@ -738,6 +844,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             removeView(mRangeBar);
             mRangeBar = null;
         }
+        mActionSpinner.setVisibility(GONE);
     }
 
     Runnable mRangeUpdater = new Runnable() {
