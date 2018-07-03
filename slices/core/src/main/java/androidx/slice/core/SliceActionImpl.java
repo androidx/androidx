@@ -156,6 +156,7 @@ public class SliceActionImpl implements SliceAction {
             return;
         }
         mActionItem = actionItem;
+        mAction = actionItem.getAction();
         SliceItem iconItem = SliceQuery.find(actionItem.getSlice(), FORMAT_IMAGE);
         if (iconItem != null) {
             mIcon = iconItem.getIcon();
