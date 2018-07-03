@@ -44,6 +44,8 @@ import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.view.R;
 
+import java.util.Set;
+
 /**
  * @hide
  */
@@ -58,6 +60,7 @@ public class ShortcutView extends SliceChildView {
     private SliceItem mActionItem;
     private SliceItem mLabel;
     private SliceItem mIcon;
+    private Set<SliceItem> mLoadingActions;
 
     private int mLargeIconSize;
     private int mSmallIconSize;
@@ -176,6 +179,16 @@ public class ShortcutView extends SliceChildView {
                         null /* subtype */, null);
             }
         }
+    }
+
+    @Override
+    public void setLoadingActions(Set<SliceItem> actions) {
+        mLoadingActions = actions;
+    }
+
+    @Override
+    public Set<SliceItem> getLoadingActions() {
+        return mLoadingActions;
     }
 
     @Override

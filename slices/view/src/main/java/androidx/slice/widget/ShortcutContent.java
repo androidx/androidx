@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 
 
@@ -50,16 +51,18 @@ public class ShortcutContent {
         mColorItem = content.getColorItem();
         mHasTopLevelColorItem = mColorItem != null;
         if (!mHasTopLevelColorItem) {
-            mColorItem = SliceQuery.findSubtype(content.getSlice(), FORMAT_INT, SUBTYPE_COLOR);
+            mColorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         }
 
+        // Preferred case: slice has a primary action
         SliceItem primaryAction = content.getPrimaryAction();
-        if (primaryAction != null && primaryAction.getSlice().getItems().size() != 0) {
-            // Preferred case: slice has a primary action
-            mActionItem = primaryAction.getSlice().getItems().get(0);
-            mIcon = SliceQuery.find(primaryAction.getSlice(), FORMAT_IMAGE, (String) null, null);
-            mLabel = SliceQuery.find(primaryAction.getSlice(), FORMAT_TEXT, (String) null, null);
-        } else {
+        if (primaryAction != null) {
+            SliceActionImpl sliceAction = new SliceActionImpl(primaryAction);
+            mActionItem = sliceAction.getActionItem();
+            mIcon = SliceQuery.find(sliceAction.getSliceItem(), FORMAT_IMAGE, HINT_TITLE, null);
+            mLabel = SliceQuery.find(sliceAction.getSliceItem(), FORMAT_TEXT, (String) null, null);
+        }
+        if (mActionItem == null) {
             // No hinted action; just use the first one
             mActionItem = SliceQuery.find(slice, FORMAT_ACTION, (String) null, null);
         }

@@ -30,6 +30,7 @@ import androidx.slice.core.SliceAction;
 import androidx.slice.view.R;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base class for children views of {@link SliceView}.
@@ -61,6 +62,7 @@ public abstract class SliceChildView extends FrameLayout {
     protected int mInsetTop;
     protected int mInsetEnd;
     protected int mInsetBottom;
+    protected SliceActionView.SliceActionLoadingListener mLoadingListener;
 
     public SliceChildView(@NonNull Context context) {
         super(context);
@@ -168,6 +170,32 @@ public abstract class SliceChildView extends FrameLayout {
      */
     public void setSliceActionListener(SliceView.OnSliceActionListener observer) {
         mObserver = observer;
+    }
+
+    /**
+     * Sets the listener to notify whenever an action is being loaded.
+     */
+    public void setSliceActionLoadingListener(SliceActionView.SliceActionLoadingListener listener) {
+        mLoadingListener = listener;
+    }
+
+    /**
+     * Indicates that a particular action is being loaded.
+     */
+    public void setActionLoading(SliceItem item) {
+    }
+
+    /**
+     * Sets the actions that are being loaded.
+     */
+    public void setLoadingActions(Set<SliceItem> loadingActions) {
+    }
+
+    /**
+     * The set of currently loading actions.
+     */
+    public Set<SliceItem> getLoadingActions() {
+        return null;
     }
 
     /**

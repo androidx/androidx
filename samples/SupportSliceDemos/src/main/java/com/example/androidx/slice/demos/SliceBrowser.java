@@ -19,7 +19,6 @@ package com.example.androidx.slice.demos;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-import static androidx.slice.core.SliceHints.INFINITY;
 import static androidx.slice.test.SampleSliceProvider.URI_PATHS;
 import static androidx.slice.test.SampleSliceProvider.getUri;
 
@@ -55,7 +54,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
-import androidx.slice.SliceMetadata;
 import androidx.slice.SliceUtils;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
@@ -215,8 +213,12 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 setSlice(null);
                 if (currentSlice != null) {
                     if (mShowingSerialized) {
+                        Toast.makeText(getApplicationContext(), "Showing serialized",
+                                Toast.LENGTH_SHORT).show();
                         showCached(currentSlice, getApplicationContext());
                     } else {
+                        Toast.makeText(getApplicationContext(), "Showing live",
+                                Toast.LENGTH_SHORT).show();
                         addSlice(currentSlice.getUri());
                     }
                 }
@@ -321,24 +323,11 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mSliceLiveData.observe(this, slice -> {
             if (slice == null) {
                 Log.w(TAG, "Slice is null");
-                mSliceView.setSlice(null);
                 Toast.makeText(this, "Invalid slice URI", Toast.LENGTH_SHORT).show();
-                return;
             }
+            mShowingSerialized = false;
             mSliceView.setSlice(slice);
-            SliceMetadata metadata = SliceMetadata.from(this, slice);
-            long expiry = metadata.getExpiry();
-            if (expiry != INFINITY) {
-                // Shows the updated text after the TTL expires.
-                mSliceView.postDelayed(() -> {
-                    if (mSliceView.getSlice() != null
-                            && mSliceView.getSlice().getUri().equals(slice.getUri())) {
-                        mSliceView.setSlice(slice);
-                    }
-                }, expiry - System.currentTimeMillis() + 15);
-            }
         });
-        mSliceLiveData.observe(this, slice -> Log.d(TAG, "Slice: " + slice));
     }
 
     private void updateSliceModes() {

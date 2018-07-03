@@ -35,6 +35,7 @@ import androidx.slice.core.SliceAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @hide
@@ -53,6 +54,7 @@ public class LargeTemplateView extends SliceChildView {
     private int mDisplayedItemsHeight = 0;
     private int[] mLoc = new int[2];
     private int mMaxSmallHeight;
+    private boolean mShowActionSpinner;
 
     public LargeTemplateView(Context context) {
         super(context);
@@ -149,6 +151,21 @@ public class LargeTemplateView extends SliceChildView {
     public void setMaxSmallHeight(int maxSmallHeight) {
         mMaxSmallHeight = maxSmallHeight;
         mAdapter.setMaxSmallHeight(mMaxSmallHeight);
+    }
+
+    @Override
+    public void setActionLoading(SliceItem item) {
+        mAdapter.onSliceActionLoading(item, 0 /* header position */);
+    }
+
+    @Override
+    public void setLoadingActions(Set<SliceItem> loadingActions) {
+        mAdapter.setLoadingActions(loadingActions);
+    }
+
+    @Override
+    public Set<SliceItem> getLoadingActions() {
+        return mAdapter.getLoadingActions();
     }
 
     @Override
