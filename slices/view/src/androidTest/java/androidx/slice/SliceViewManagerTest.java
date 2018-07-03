@@ -17,6 +17,7 @@
 package androidx.slice;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -29,7 +30,11 @@ import static org.mockito.Mockito.when;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
@@ -190,6 +195,37 @@ public class SliceViewManagerTest {
 
         assertEquals(allUris, collection);
         verify(mSliceProvider).onGetSliceDescendants(eq(uri));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testSuspended() throws PackageManager.NameNotFoundException {
+        Uri uri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(mContext.getPackageName())
+                .build();
+
+        // Create a PM that reports package as suspended.
+        PackageManager realPm = mContext.getPackageManager();
+        final PackageManager pm = mock(PackageManager.class);
+        ProviderInfo providerInfo = mContext.getPackageManager()
+                .resolveContentProvider(mContext.getPackageName(), 0);
+        ApplicationInfo info = realPm
+                .getApplicationInfo(mContext.getPackageName(), 0);
+        info.flags |= ApplicationInfo.FLAG_SUSPENDED;
+        when(pm.getApplicationInfo(mContext.getPackageName(), 0)).thenReturn(info);
+        when(pm.resolveContentProvider(mContext.getPackageName(), 0)).thenReturn(providerInfo);
+        Context c = new ContextWrapper(mContext) {
+            @Override
+            public PackageManager getPackageManager() {
+                return pm;
+            }
+        };
+
+        mViewManager = SliceViewManager.getInstance(c);
+        when(mSliceProvider.onBindSlice(uri)).thenReturn(new Slice.Builder(uri).build());
+
+        assertNull(mViewManager.bindSlice(uri));
     }
 
     public static class TestSliceProvider extends SliceProvider {
