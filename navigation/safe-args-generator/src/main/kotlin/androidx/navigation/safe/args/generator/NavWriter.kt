@@ -19,6 +19,8 @@ package androidx.navigation.safe.args.generator
 import androidx.navigation.safe.args.generator.ext.N
 import androidx.navigation.safe.args.generator.ext.S
 import androidx.navigation.safe.args.generator.ext.T
+import androidx.navigation.safe.args.generator.ext.toCamelCase
+import androidx.navigation.safe.args.generator.ext.toCamelCaseAsVar
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
@@ -39,7 +41,7 @@ private val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
 private class ClassWithArgsSpecs(val args: List<Argument>) {
 
     fun fieldSpecs() = args.map { arg ->
-        FieldSpec.builder(arg.type.typeName(), arg.name)
+        FieldSpec.builder(arg.type.typeName(), arg.sanitizedName)
                 .apply {
                     addModifiers(Modifier.PRIVATE)
                     if (arg.isOptional()) {
@@ -49,11 +51,11 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
                 .build()
     }
 
-    fun setters(thisClassName: ClassName) = args.map { (name, type) ->
-        MethodSpec.methodBuilder("set${name.capitalize()}")
+    fun setters(thisClassName: ClassName) = args.map { (_, type, _, sanitizedName) ->
+        MethodSpec.methodBuilder("set${sanitizedName.capitalize()}")
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(type.typeName(), name)
-                .addStatement("this.$N = $N", name, name)
+                .addParameter(type.typeName(), sanitizedName)
+                .addStatement("this.$N = $N", sanitizedName, sanitizedName)
                 .addStatement("return this")
                 .returns(thisClassName)
                 .build()
@@ -61,9 +63,9 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
 
     fun constructor() = MethodSpec.constructorBuilder().apply {
         addModifiers(Modifier.PUBLIC)
-        args.filterNot(Argument::isOptional).forEach { (argName, type) ->
-            addParameter(type.typeName(), argName)
-            addStatement("this.$N = $N", argName, argName)
+        args.filterNot(Argument::isOptional).forEach { (_, type, _, sanitizedName) ->
+            addParameter(type.typeName(), sanitizedName)
+            addStatement("this.$N = $N", sanitizedName, sanitizedName)
         }
     }.build()
 
@@ -72,23 +74,26 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         returns(BUNDLE_CLASSNAME)
         val bundleName = "__outBundle"
         addStatement("$T $N = new $T()", BUNDLE_CLASSNAME, bundleName, BUNDLE_CLASSNAME)
-        args.forEach { (argName, type) ->
-            addStatement("$N.$N($S, this.$N)", bundleName, type.bundlePutMethod(), argName, argName)
+        args.forEach { (name, type, _, sanitizedName) ->
+            addStatement("$N.$N($S, this.$N)", bundleName, type.bundlePutMethod(), name,
+                    sanitizedName)
         }
         addStatement("return $N", bundleName)
     }.build()
 
     fun copyProperties(to: String, from: String) = CodeBlock.builder()
             .apply {
-                args.forEach { arg -> addStatement("$to.${arg.name} = $from.${arg.name}") }
+                args.forEach { (_, _, _, sanitizedName) ->
+                    addStatement("$to.$sanitizedName = $from.$sanitizedName")
+                }
             }
             .build()
 
-    fun getters() = args.map { arg ->
-        MethodSpec.methodBuilder("get${arg.name.capitalize()}")
+    fun getters() = args.map { (_, type, _, sanitizedName) ->
+        MethodSpec.methodBuilder("get${sanitizedName.capitalize()}")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $N", arg.name)
-                .returns(arg.type.typeName())
+                .addStatement("return $N", sanitizedName)
+                .returns(type.typeName())
                 .build()
     }
 
@@ -109,13 +114,13 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
 
                 """.trimIndent())
         addStatement("${className.simpleName()} that = (${className.simpleName()}) object")
-        args.forEach {
-            val compareExpression = when (it.type) {
+        args.forEach { (_, type, _, sanitizedName) ->
+            val compareExpression = when (type) {
                 NavType.INT, NavType.BOOLEAN, NavType.REFERENCE, NavType.LONG ->
-                    "${it.name} != that.${it.name}"
-                NavType.FLOAT -> "Float.compare(that.${it.name}, ${it.name}) != 0"
-                NavType.STRING -> "${it.name} != null ? !${it.name}.equals(that.${it.name}) " +
-                        ": that.${it.name} != null"
+                    "$sanitizedName != that.$sanitizedName"
+                NavType.FLOAT -> "Float.compare(that.$sanitizedName, $sanitizedName) != 0"
+                NavType.STRING -> "$sanitizedName != null ? " +
+                        "!$sanitizedName.equals(that.$sanitizedName) : that.$sanitizedName != null"
             }
             beginControlFlow("if ($N)", compareExpression).apply {
                 addStatement("return false")
@@ -130,13 +135,13 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)
         addStatement("int result = super.hashCode()")
-        args.forEach {
-            val hashCodeExpression = when (it.type) {
-                NavType.INT, NavType.REFERENCE -> it.name
-                NavType.FLOAT -> "Float.floatToIntBits(${it.name})"
-                NavType.STRING -> "(${it.name} != null ? ${it.name}.hashCode() : 0)"
-                NavType.BOOLEAN -> "(${it.name} ? 1 : 0)"
-                NavType.LONG -> "(int)(${it.name} ^ (${it.name} >>> 32))"
+        args.forEach { (_, type, _, sanitizedName) ->
+            val hashCodeExpression = when (type) {
+                NavType.INT, NavType.REFERENCE -> sanitizedName
+                NavType.FLOAT -> "Float.floatToIntBits($sanitizedName)"
+                NavType.STRING -> "($sanitizedName != null ? $sanitizedName.hashCode() : 0)"
+                NavType.BOOLEAN -> "($sanitizedName ? 1 : 0)"
+                NavType.LONG -> "(int)($sanitizedName ^ ($sanitizedName >>> 32))"
             }
             addStatement("result = 31 * result + $N", hashCodeExpression)
         }
@@ -158,7 +163,7 @@ fun generateDestinationDirectionsTypeSpec(
                 val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
                 val params = constructor.parameters.joinToString(", ") { param -> param.name }
                 val actionTypeName = ClassName.get("", actionType.name)
-                MethodSpec.methodBuilder(action.id.name)
+                MethodSpec.methodBuilder(action.id.name.toCamelCaseAsVar())
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .addParameters(constructor.parameters)
                         .returns(actionTypeName)
@@ -182,7 +187,7 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
             .addStatement("return $N", action.id.accessor())
             .build()
 
-    val className = ClassName.get("", action.id.name.capitalize())
+    val className = ClassName.get("", action.id.name.toCamelCase())
     return TypeSpec.classBuilder(className)
             .addSuperinterface(NAV_DIRECTION_CLASSNAME)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -210,7 +215,7 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
         addStatement("$T $N = new $T()", className, result, className)
         args.forEach { arg ->
             beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
-                addStatement("$N.$N = $N.$N($S)", result, arg.name, bundle,
+                addStatement("$N.$N = $N.$N($S)", result, arg.sanitizedName, bundle,
                         arg.type.bundleGetMethod(), arg.name)
             }
             if (!arg.isOptional()) {

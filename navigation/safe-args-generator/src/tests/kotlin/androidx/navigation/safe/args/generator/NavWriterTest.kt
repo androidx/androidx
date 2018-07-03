@@ -43,7 +43,7 @@ import java.nio.charset.Charset
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
-class WriterTest {
+class NavWriterTest {
 
     @get:Rule
     @Suppress("MemberVisibilityCanBePrivate")
@@ -126,6 +126,26 @@ class WriterTest {
     }
 
     @Test
+    fun testDirectionsClassGeneration_sanitizedNames() {
+        val nextAction = Action(id("next_action"), id("destA"),
+                listOf(
+                        Argument("main_arg", STRING),
+                        Argument("optional.arg", STRING, StringValue("bla"))))
+
+        val prevAction = Action(id("previous_action"), id("destB"),
+                listOf(
+                        Argument("arg_1", STRING),
+                        Argument("arg.2", STRING)))
+
+        val dest = Destination(null, ClassName.get("a.b", "SanitizedMainFragment"),
+                "fragment", listOf(), listOf(prevAction, nextAction))
+
+        val actual = toJavaFileObject(generateDirectionsJavaFile(dest))
+        JavaSourcesSubject.assertThat(actual).parsesAs("a.b.SanitizedMainFragmentDirections")
+        assertCompilesWithoutError(actual)
+    }
+
+    @Test
     fun testArgumentsClassGeneration() {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(
                 Argument("main", STRING),
@@ -138,6 +158,20 @@ class WriterTest {
 
         val actual = toJavaFileObject(generateArgsJavaFile(dest))
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragmentArgs")
+        assertCompilesWithoutError(actual)
+    }
+
+    @Test
+    fun testArgumentsClassGeneration_sanitizedNames() {
+        val dest = Destination(null, ClassName.get("a.b", "SanitizedMainFragment"),
+                "fragment", listOf(
+                Argument("name.with.dot", INT),
+                Argument("name_with_underscore", INT),
+                Argument("name with spaces", INT)),
+                listOf())
+
+        val actual = toJavaFileObject(generateArgsJavaFile(dest))
+        JavaSourcesSubject.assertThat(actual).parsesAs("a.b.SanitizedMainFragmentArgs")
         assertCompilesWithoutError(actual)
     }
 }

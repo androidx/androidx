@@ -16,6 +16,7 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameArguments
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
@@ -71,6 +72,12 @@ internal class NavParser(
                 parser.name() == TAG_ACTION -> actions.add(parseAction())
                 parser.name() == TAG_ARGUMENT -> args.add(parseArgument())
                 type == TAG_NAVIGATION -> nested.add(parseDestination())
+            }
+        }
+
+        args.groupBy { it.sanitizedName }.forEach { (sanitizedName, args) ->
+            if (args.size > 1) {
+                context.logger.error(sameSanitizedNameArguments(sanitizedName, args), position)
             }
         }
 
@@ -136,6 +143,12 @@ internal class NavParser(
         parser.traverseInnerStartTags {
             if (parser.name() == TAG_ARGUMENT) {
                 args.add(parseArgument())
+            }
+        }
+
+        args.groupBy { it.sanitizedName }.forEach { (sanitizedName, args) ->
+            if (args.size > 1) {
+                context.logger.error(sameSanitizedNameArguments(sanitizedName, args), position)
             }
         }
 
