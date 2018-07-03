@@ -103,7 +103,6 @@ public class SliceRenderer {
         mHandler = new Handler();
         ((ViewGroup) mContext.getWindow().getDecorView()).addView(mParent);
         mParent.addView(mLayout);
-        SliceProvider.setSpecs(SliceLiveData.SUPPORTED_SPECS);
         mSliceCreator = new SampleSliceProvider();
         mSliceCreator.attachInfo(context, null);
     }
@@ -145,6 +144,7 @@ public class SliceRenderer {
 
         ExecutorService executor = Executors.newFixedThreadPool(5);
         for (final String slice : SampleSliceProvider.URI_PATHS) {
+            SliceProvider.setSpecs(SliceLiveData.SUPPORTED_SPECS);
             final Slice s = mSliceCreator.onBindSlice(SampleSliceProvider.getUri(slice, mContext));
 
             executor.execute(new Runnable() {
