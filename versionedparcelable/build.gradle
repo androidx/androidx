@@ -32,6 +32,12 @@ dependencies {
     androidTestAnnotationProcessor project(":versionedparcelable-annotation")
 }
 
+android {
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
+}
+
 supportLibrary {
     name = "VersionedParcelable and friends"
     publish = true
