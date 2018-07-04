@@ -16,19 +16,18 @@
 
 package androidx.preference.tests;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.preference.AndroidResources;
 import androidx.preference.Preference;
@@ -37,65 +36,64 @@ import androidx.preference.PreferenceViewHolder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-@SdkSuppress(maxSdkVersion = 27) // This test only works pre-P due to mocking final methods.
+@SmallTest
 @RunWith(AndroidJUnit4.class)
-@LargeTest
 public class PreferenceIconSpaceTest {
 
+    private PreferenceViewHolder mHolder;
     private Preference mPreference;
-
-    @Mock
-    private ViewGroup mViewGroup;
-    @Mock
-    private ImageView mIconView;
-    @Mock
+    private ImageView mImageView;
     private View mImageFrame;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        when(mViewGroup.findViewById(AndroidResources.ANDROID_R_ICON_FRAME))
-                .thenReturn(mImageFrame);
-        when(mViewGroup.findViewById(android.R.id.icon))
-                .thenReturn(mIconView);
+        Context context = InstrumentationRegistry.getTargetContext();
 
-        mPreference = new Preference(InstrumentationRegistry.getTargetContext());
+        mImageView = new ImageView(context);
+        mImageFrame = new View(context);
+
+        // Set the correct id so when findViewById() is called we return the relevant view
+        mImageView.setId(android.R.id.icon);
+        mImageFrame.setId(AndroidResources.ANDROID_R_ICON_FRAME);
+
+        LinearLayout layout = new LinearLayout(context);
+        layout.addView(mImageView);
+        layout.addView(mImageFrame);
+
+        mHolder = PreferenceViewHolder.createInstanceForTests(layout);
+
+        mPreference = new Preference(context);
     }
 
     @Test
     @UiThreadTest
     public void bindViewHolder_iconSpaceReserved_shouldReserveIconSpace() {
-        PreferenceViewHolder holder = PreferenceViewHolder.createInstanceForTests(mViewGroup);
         mPreference.setIconSpaceReserved(true);
-        mPreference.onBindViewHolder(holder);
+        mPreference.onBindViewHolder(mHolder);
 
-        verify(mIconView).setVisibility(View.INVISIBLE);
-        verify(mImageFrame).setVisibility(View.INVISIBLE);
+        assertEquals(View.INVISIBLE, mImageView.getVisibility());
+        assertEquals(View.INVISIBLE, mImageFrame.getVisibility());
     }
 
-    @LargeTest
     @Test
     @UiThreadTest
     public void bindViewHolder_iconSpaceNotReserved_shouldNotReserveIconSpace() {
-        PreferenceViewHolder holder = PreferenceViewHolder.createInstanceForTests(mViewGroup);
         mPreference.setIconSpaceReserved(false);
-        mPreference.onBindViewHolder(holder);
+        mPreference.onBindViewHolder(mHolder);
 
-        verify(mIconView).setVisibility(View.GONE);
-        verify(mImageFrame).setVisibility(View.GONE);
+        assertEquals(View.GONE, mImageView.getVisibility());
+        assertEquals(View.GONE, mImageFrame.getVisibility());
     }
 
     @Test
     @UiThreadTest
     public void bindViewHolder_hasIcon_shouldDisplayIcon() {
-        PreferenceViewHolder holder = PreferenceViewHolder.createInstanceForTests(mViewGroup);
         mPreference.setIcon(new ColorDrawable(Color.BLACK));
-        mPreference.onBindViewHolder(holder);
+        mPreference.onBindViewHolder(mHolder);
 
-        verify(mIconView).setVisibility(View.VISIBLE);
-        verify(mImageFrame).setVisibility(View.VISIBLE);
+        assertEquals(View.VISIBLE, mImageView.getVisibility());
+        assertEquals(View.VISIBLE, mImageFrame.getVisibility());
     }
 }
+
