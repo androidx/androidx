@@ -95,18 +95,28 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
-        if (mWorkSpec == null) {
-            Log.e(TAG,  String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
-            notifyListener(false, false);
-            return;
-        }
+        mWorkDatabase.beginTransaction();
+        try {
+            mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
+            if (mWorkSpec == null) {
+                Log.e(TAG, String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
+                notifyListener(false, false);
+                return;
+            }
 
-        // Do a quick check to make sure we don't need to bail out in case this work is already
-        // running, finished, or is blocked.
-        if (mWorkSpec.state != ENQUEUED) {
-            notifyIncorrectStatus();
-            return;
+            // Do a quick check to make sure we don't need to bail out in case this work is already
+            // running, finished, or is blocked.
+            if (mWorkSpec.state != ENQUEUED) {
+                notifyIncorrectStatus();
+                mWorkDatabase.setTransactionSuccessful();
+                return;
+            }
+
+            // Needed for nested transactions, such as when we're in a dependent work request when
+            // using a SynchronousExecutor.
+            mWorkDatabase.setTransactionSuccessful();
+        } finally {
+            mWorkDatabase.endTransaction();
         }
 
         // Merge inputs.  This can be potentially expensive code, so this should not be done inside
@@ -281,9 +291,9 @@ public class WorkerWrapper implements Runnable {
             if (currentState == ENQUEUED) {
                 mWorkSpecDao.setState(RUNNING, mWorkSpecId);
                 mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
-                mWorkDatabase.setTransactionSuccessful();
                 setToRunning = true;
             }
+            mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
         }
