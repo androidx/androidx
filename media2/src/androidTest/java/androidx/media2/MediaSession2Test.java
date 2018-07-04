@@ -278,7 +278,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
             final CountDownLatch latchForControllerCallback = new CountDownLatch(2);
             final MediaController2 controller =
-                    createController(mSession.getToken(), true, new ControllerCallback() {
+                    createController(session.getToken(), true, new ControllerCallback() {
                         @Override
                         public void onCurrentMediaItemChanged(MediaController2 controller,
                                 MediaItem2 item) {
@@ -390,7 +390,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
             final CountDownLatch latchForControllerCallback = new CountDownLatch(1);
             final MediaController2 controller =
-                    createController(mSession.getToken(), true, new ControllerCallback() {
+                    createController(session.getToken(), true, new ControllerCallback() {
                         @Override
                         public void onPlaybackSpeedChanged(MediaController2 controller,
                                 float speedOut) {

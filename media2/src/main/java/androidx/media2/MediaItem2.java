@@ -142,7 +142,8 @@ public class MediaItem2 {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MediaItem2{");
-        sb.append("mFlags=").append(mFlags);
+        sb.append("mId=").append(mId);
+        sb.append(", mFlags=").append(mFlags);
         sb.append(", mMetadata=").append(mMetadata);
         sb.append('}');
         return sb.toString();

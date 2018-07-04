@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.content.res.AssetFileDescriptor;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
@@ -29,6 +31,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.media2.MediaPlaylistAgent.PlaylistEventCallback;
 import androidx.media2.MediaSession2.OnDataSourceMissingHelper;
+import androidx.media2.test.R;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,6 +54,10 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
     private static final int WAIT_TIME_MS = 300;
     private static final int INVALID_SHUFFLE_MODE = -1000;
     private static final int INVALID_REPEAT_MODE = -1000;
+    private static final int VIDEO_RES_1 =
+            R.raw.video_480x360_mp4_h264_500kbps_30fps_aac_stereo_128kbps_44100hz;
+    private static final int VIDEO_RES_2 =
+            R.raw.video_480x360_mp4_h264_500kbps_25fps_aac_stereo_128kbps_44100hz;
 
     private MediaPlayer2 mMediaPlayer;
     private BaseMediaPlayer mBasePlayer;
@@ -58,6 +65,9 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
     private SessionPlaylistAgentImplBase mPlaylistAgent;
     private OnDataSourceMissingHelper mDataSourceHelper;
     private PlaylistEventCallbackLatch mPlaylistEventCallback;
+
+    private Resources mResources;
+    private List<AssetFileDescriptor> mFdsToClose = new ArrayList<>();
 
     @Before
     @Override
@@ -89,6 +99,8 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
         mPlaylistEventCallback = new PlaylistEventCallbackLatch(1);
         mPlaylistAgent = (SessionPlaylistAgentImplBase) mSession.getPlaylistAgent();
         mPlaylistAgent.registerPlaylistEventCallback(sHandlerExecutor, mPlaylistEventCallback);
+
+        mResources = mContext.getResources();
     }
 
     @After
@@ -100,6 +112,9 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
         if (mMediaPlayer != null) {
             mMediaPlayer.close();
             mMediaPlayer = null;
+        }
+        for (AssetFileDescriptor afd : mFdsToClose) {
+            afd.close();
         }
     }
 
@@ -425,6 +440,67 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
 
         mPlaylistAgent.skipToPreviousItem();
         assertEquals(0, mPlaylistAgent.getCurShuffledIndex());
+    }
+
+    @Test
+    public void testCurrentMediaItemChangedAfterSetPlayList() throws Exception {
+        prepareLooper();
+        final List<MediaItem2> list = new ArrayList<>();
+        list.add(TestUtils.createMediaItem("testItem1", createDataSourceDesc(VIDEO_RES_1)));
+        list.add(TestUtils.createMediaItem("testItem2", createDataSourceDesc(VIDEO_RES_2)));
+
+        final List<MediaItem2> list2 = new ArrayList<>();
+        list2.add(TestUtils.createMediaItem("testItem3", createDataSourceDesc(VIDEO_RES_2)));
+        list2.add(TestUtils.createMediaItem("testItem4", createDataSourceDesc(VIDEO_RES_1)));
+
+        final CountDownLatch mediaItemChangedLatch = new CountDownLatch(2);
+        final CountDownLatch playerStateLatch = new CountDownLatch(1);
+
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(mBasePlayer)
+                .setId("testCurrentDataSourceChanged")
+                .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
+                    @Override
+                    public void onCurrentMediaItemChanged(MediaSession2 session,
+                            BaseMediaPlayer player, MediaItem2 item) {
+                        assertEquals(list2.get(0), item);
+                        mediaItemChangedLatch.countDown();
+                    }
+                    public void onPlayerStateChanged(MediaSession2 session, BaseMediaPlayer player,
+                            int state) {
+                        if (state == BaseMediaPlayer.PLAYER_STATE_PAUSED) {
+                            assertEquals(list.get(0), session.getCurrentMediaItem());
+                            playerStateLatch.countDown();
+                        }
+                    }
+                }).build()) {
+
+            final MediaController2 controller = createController(session.getToken(), true,
+                    new MediaController2.ControllerCallback() {
+                        @Override
+                        public void onCurrentMediaItemChanged(MediaController2 controller,
+                                MediaItem2 item) {
+                            assertEquals(list2.get(0), item);
+                            mediaItemChangedLatch.countDown();
+                        }
+                    });
+
+            // MP2 doesn't call onCurrentMediaItemChanged when setDataSource while it is in idle
+            // state. To catch the event, we should monitor player state instead.
+            session.setPlaylist(list, null);
+            assertTrue(playerStateLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+            session.setPlaylist(list2, null);
+            assertTrue(mediaItemChangedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    private DataSourceDesc2 createDataSourceDesc(int resid) throws Exception {
+        AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
+        mFdsToClose.add(afd);
+        return new DataSourceDesc2.Builder()
+                .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
+                .build();
     }
 
     private List<MediaItem2> createAndSetPlaylist(int listSize) throws Exception {

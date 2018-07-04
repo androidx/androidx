@@ -110,11 +110,14 @@ public final class TestUtils {
         final List<MediaItem2> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
-            list.add(new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                    .setMediaId(caller + "_item_" + (size + 1))
-                    .setDataSourceDesc(createDSD()).build());
+            list.add(createMediaItem(caller + "_item_" + (size + 1), createDSD()));
         }
         return list;
+    }
+
+    public static MediaItem2 createMediaItem(String id, DataSourceDesc2 dsd) {
+        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+                .setMediaId(id).setDataSourceDesc(dsd).build();
     }
 
     /**
