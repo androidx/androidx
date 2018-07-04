@@ -32,10 +32,12 @@ import static androidx.media.AudioAttributesCompat.USAGE_ALARM;
 import static androidx.media.AudioAttributesCompat.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static androidx.media.AudioAttributesCompat.USAGE_GAME;
 import static androidx.media.AudioAttributesCompat.USAGE_MEDIA;
+import static androidx.media.AudioAttributesCompat.USAGE_UNKNOWN;
 import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_PAUSED;
 import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_PLAYING;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -245,6 +247,11 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
         mAudioFocusListener.waitFor(targetFocusGain);
     }
 
+    private void assertNoAudioFocusChanges(int expectedFocusGain) throws InterruptedException {
+        assertNotNull(mAudioFocusListener);
+        mAudioFocusListener.assertNoAudioFocusChanges(expectedFocusGain);
+    }
+
     private void abandonAudioFocus() {
         if (mAudioFocusListener != null) {
             mAudioManager.abandonAudioFocus(mAudioFocusListener);
@@ -273,13 +280,50 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
      * Tests whether the session requests audio focus, so previsouly focused one loss focus.
      */
     @Test
-    public void testAudioFocus_requestFocusWhenPlay() throws InterruptedException {
+    public void testAudioFocus_requestFocusWhenSessionPlay() throws InterruptedException {
         prepareLooper();
 
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
         AudioAttributesCompat attrs = createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA);
+        try (MediaSession2 session = createSession(attrs)) {
+            // Play should request audio focus with AUDIOFOCUS_GAIN for USAGE_MEDIA
+            session.play();
+
+            // Previously focused one should loss audio focus
+            waitForAudioFocus(AUDIOFOCUS_LOSS);
+        }
+    }
+
+    /**
+     * Tests whether the session requests audio focus, so previsouly focused one loss focus.
+     */
+    @Test
+    public void testAudioFocus_requestFocusWhenPlayerPlay() throws InterruptedException {
+        prepareLooper();
+
+        // Request an audio focus in advance.
+        requestAudioFocus(AUDIOFOCUS_GAIN);
+
+        AudioAttributesCompat attrs = createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA);
+        try (MediaSession2 session = createSession(attrs)) {
+            // Play should request audio focus with AUDIOFOCUS_GAIN for USAGE_MEDIA
+            session.getPlayer().play();
+
+            // Previously focused one should loss audio focus
+            waitForAudioFocus(AUDIOFOCUS_LOSS);
+        }
+    }
+
+    @Test
+    public void testAudioFocus_requestFocusWhenUnknown() throws InterruptedException {
+        prepareLooper();
+
+        // Request an audio focus in advance.
+        requestAudioFocus(AUDIOFOCUS_GAIN);
+
+        AudioAttributesCompat attrs = createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_UNKNOWN);
         try (MediaSession2 session = createSession(attrs)) {
             // Play should request audio focus with AUDIOFOCUS_GAIN for USAGE_MEDIA
             session.play();
@@ -320,6 +364,21 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
             session.play();
 
             waitForAudioFocus(AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
+        }
+    }
+
+    @Test
+    public void testAudioFocus_setVolumeZeroWhenAudioAttributesIsMissing()
+            throws InterruptedException {
+        prepareLooper();
+
+        // Request an audio focus in advance.
+        requestAudioFocus(AUDIOFOCUS_GAIN);
+
+        try (MediaSession2 session = createSession(null)) {
+            session.play();
+            assertNoAudioFocusChanges(AUDIOFOCUS_GAIN);
+            assertEquals(0, session.getPlayer().getPlayerVolume(), 0.1f);
         }
     }
 
@@ -437,6 +496,18 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
             assertTrue(
                     "Audio focus didn't change as expected. Expected focusGain=" + targetFocusGain,
                     latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+
+        public void assertNoAudioFocusChanges(int expectedFocusGain) throws InterruptedException {
+            final CountDownLatch latch;
+            synchronized (mLock) {
+                assertEquals(expectedFocusGain, mAudioGain);
+                mTargetAudioGain = AUDIOFOCUS_NONE;
+                mLatch = new CountDownLatch(1);
+                latch = mLatch;
+            }
+            assertFalse("Audio focus unexpectidly changed",
+                    latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         }
     }
 }

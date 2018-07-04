@@ -95,14 +95,50 @@ import java.util.concurrent.RejectedExecutionException;
  * underlying {@link BaseMediaPlayer} by default. You need to set the audio attribute before the
  * session is created, and playback started with the session.
  * <p>
- * For information about the detailed behavior, read following developers guide.
- * <ol>
- * <li><a href="{@docRoot}guide/topics/media-apps/audio-app/mediasession-callbacks.html">Audio app
- * guide for media callbacks</a></li>
- * <li><a href="{@docRoot}guide/topics/media-apps/video-app/mediasession-callbacks.html">Video app
- * guide for media callbacks</a></li>
- * <li><a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a></li>
- * </ol>
+ * Here's the table of automatic audio focus behavior with audio attributes.
+ * <table>
+ * <tr><th>Audio Attributes</th><th>Audio Focus Gain Type</th><th>Misc</th></tr>
+ * <tr><td>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION_SIGNALLING}</td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_NONE}</td>
+ *     <td /></tr>
+ * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_GAME}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_MEDIA}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_UNKNOWN}</li></ul></td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN}</td>
+ *     <td>Developers should specific a proper usage instead of
+ *         {@link AudioAttributesCompat#USAGE_UNKNOWN}</td></tr>
+ * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ALARM}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION}</li></ul></td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT}</td>
+ *     <td /></tr>
+ * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_ASSISTANCE_SONIFICATION}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_COMMUNICATION_DELAYED}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_COMMUNICATION_INSTANT}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_COMMUNICATION_REQUEST}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_EVENT}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_RINGTONE}</li></ul></td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}</td>
+ *     <td /></tr>
+ * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ASSISTANT}</li></ul></td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}</td>
+ *     <td /></tr>
+ * <tr><td>{@link AudioAttributesCompat#USAGE_ASSISTANCE_ACCESSIBILITY}</td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT} if
+ *         {@link AudioAttributesCompat#CONTENT_TYPE_SPEECH},
+ *         {@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} otherwise</td>
+ *     <td /></tr>
+ * <tr><td>{@code null}</td>
+ *     <td>No audio focus handling, and sets the player volume to {@code 0}</td>
+ *     <td>Only valid if your media contents don't have audio</td></tr>
+ * <tr><td>Any other AudioAttributes</td>
+ *     <td>No audio focus handling, and sets the player volume to {@code 0}</td>
+ *     <td>This is to handle error</td></tr>
+ * </table>
+ * <p>
+ * For more information about the audio focus, take a look at
+ * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
  * <p>
  * <a name="Thread"></a>
  * <h3>Thread</h3>
