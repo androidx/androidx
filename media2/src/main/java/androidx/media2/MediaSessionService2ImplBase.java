@@ -22,6 +22,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.MediaSessionService2.MediaNotification;
 
 /**
@@ -60,14 +61,16 @@ class MediaSessionService2ImplBase implements MediaSessionService2.SupportLibrar
 
     @Override
     public IBinder onBind(Intent intent) {
-        if (MediaSessionService2.SERVICE_INTERFACE.equals(intent.getAction())) {
-            synchronized (mLock) {
-                if (mSession != null) {
-                    return mSession.getSessionBinder();
-                } else if (DEBUG) {
-                    Log.d(TAG, "Session hasn't created");
-                }
-            }
+        final MediaSession2 session = getSession();
+        if (session == null) {
+            Log.w(TAG, "Session hasn't created");
+            return null;
+        }
+        switch (intent.getAction()) {
+            case MediaSessionService2.SERVICE_INTERFACE:
+                return session.getSessionBinder();
+            case MediaBrowserServiceCompat.SERVICE_INTERFACE:
+                return session.getLegacyBrowerServiceBinder();
         }
         return null;
     }

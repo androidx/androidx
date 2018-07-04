@@ -35,7 +35,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- /**
  * Mock {@link MediaController2.ControllerCallback} that implements
  * {@link TestControllerCallbackInterface}
  */
