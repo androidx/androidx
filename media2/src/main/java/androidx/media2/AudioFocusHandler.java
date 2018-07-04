@@ -56,7 +56,7 @@ public class AudioFocusHandler {
 
     interface AudioFocusHandlerImpl {
         boolean onPlayRequested();
-        boolean onPauseRequested();
+        void onPauseRequested();
         void onPlayerStateChanged(int playerState);
         void close();
         void sendIntent(Intent intent);
@@ -74,8 +74,9 @@ public class AudioFocusHandler {
      * <p>
      * This matches with the Session.Callback#onPlay() written in the guideline.
      *
-     * @return {@code true} if we don't need to handle audio focus or audio focus was granted.
-     *          {@code false} otherwise (i.e. attempt to request audio focus was failed).
+     * @return {@code true} if it's OK to start playback because audio focus was successfully
+     *         granted or audio focus isn't needed for starting playback. {@code false} otherwise.
+     *         (i.e. Audio focus is needed for starting playback but failed)
      */
     public boolean onPlayRequested() {
         return mImpl.onPlayRequested();
@@ -84,14 +85,9 @@ public class AudioFocusHandler {
     /**
      * Should be called when the {@link MediaSession2#pause()} is called. Returns whether the
      * pause() can be proceed.
-     * <p>
-     * This matches with the Session.Callback#onPlay() written in the guideline.
-     *
-     * @return {@code true} if we don't need to handle audio focus or audio focus was granted.
-     *          {@code false} otherwise (i.e. attempt to request audio focus was failed).
      */
-    public boolean onPauseRequested() {
-        return mImpl.onPauseRequested();
+    public void onPauseRequested() {
+        mImpl.onPauseRequested();
     }
 
     /**
@@ -137,7 +133,7 @@ public class AudioFocusHandler {
         @GuardedBy("mLock")
         AudioAttributesCompat mAudioAttributes;
         @GuardedBy("mLock")
-        private boolean mHasAudioFocus;
+        private int mCurrentFocusGainType;
         @GuardedBy("mLock")
         boolean mResumeWhenAudioFocusGain;
         @GuardedBy("mLock")
@@ -158,45 +154,96 @@ public class AudioFocusHandler {
                     ? null : player.getAudioAttributes();
         }
 
-        @GuardedBy("mLock")
-        private void updateAudioAttributesIfNeededLocked(AudioAttributesCompat attributes) {
-            if (ObjectsCompat.equals(attributes, mAudioAttributes)) {
-                // It's the same.
-                return;
-            }
-            // Keep cache of the audio attributes. Otherwise audio attributes may be changed
-            // between the audio focus request and audio focus change, resulting the unexpected
-            // situation.
-            mAudioAttributes = attributes;
-            if (mHasAudioFocus) {
-                mHasAudioFocus = requestAudioFocusLocked();
-                if (!mHasAudioFocus) {
-                    Log.w(TAG, "Failed to regain audio focus.");
-                }
-            }
-        }
-
         @Override
         public boolean onPlayRequested() {
-            // Instead of registering a listener for audio attribute changes, grabs the new one
-            // here.
-            final AudioAttributesCompat attr = getAudioAttributesNotLocked();
+            final AudioAttributesCompat attrs = getAudioAttributesNotLocked();
+            boolean result = true;
             synchronized (mLock) {
-                updateAudioAttributesIfNeededLocked(attr);
-                // Try getting audio focus.
-                if (!requestAudioFocusLocked()) {
-                    return false;
+                if (attrs == null) {
+                    mAudioAttributes = null;
+                    abandonAudioFocusLocked();
+                } else {
+                    // Keep cache of the audio attributes. Otherwise audio attributes may be changed
+                    // between the audio focus request and audio focus change, resulting the
+                    // unexpected situation.
+                    mAudioAttributes = attrs;
+                    result = requestAudioFocusLocked();
                 }
             }
-            return true;
+            if (attrs == null) {
+                final BaseMediaPlayer player = mSession.getPlayer();
+                if (player != null) {
+                    player.setPlayerVolume(0);
+                }
+            }
+            return result;
         }
 
         @Override
-        public boolean onPauseRequested() {
+        public void onPauseRequested() {
             synchronized (mLock) {
                 mResumeWhenAudioFocusGain = false;
             }
-            return true;
+        }
+
+        /**
+         * Check we need to abandon/request audio focus when playback state becomes playing. It's
+         * needed to handle following cases.
+         *   1. Audio attribute has changed between {@link BaseMediaPlayer#play} and actual start
+         *      of playback. Note that {@link MediaPlayer2} only allows changing audio attributes
+         *      in IDLE state, so such issue wouldn't happen.
+         *   2. Or, playback is started without MediaSession2#play().
+         * <p>
+         * If there's no huge issue, then register noisy intent receiver here.
+         */
+        private void onPlayingNotLocked() {
+            final AudioAttributesCompat attrs = getAudioAttributesNotLocked();
+            final int expectedFocusGain;
+            boolean pauseNeeded = false;
+            synchronized (mLock) {
+                expectedFocusGain = convertAudioAttributesToFocusGain(attrs);
+                if (ObjectsCompat.equals(mAudioAttributes, attrs)
+                        && expectedFocusGain == mCurrentFocusGainType) {
+                    // No change in audio attributes, and audio focus is granted as expected.
+                    // Register noisy intent if it has an audio attribute (i.e. has sound).
+                    if (attrs != null) {
+                        registerReceiverLocked();
+                    }
+                    return;
+                }
+                Log.w(TAG, "Expected " + mAudioAttributes + " and audioFocusGainType="
+                        + mCurrentFocusGainType + " when playback is started, but actually "
+                        + attrs
+                        + " and audioFocusGainType=" + mCurrentFocusGainType + ". Use"
+                        + " MediaSession2#play() for starting playback.");
+                mAudioAttributes = attrs;
+                if (mCurrentFocusGainType != expectedFocusGain) {
+                    // Note: Calling AudioManager#requestAudioFocus() again with the same
+                    //       listener but different focus gain type only updates the focus gain
+                    //       type.
+                    if (expectedFocusGain == AudioManager.AUDIOFOCUS_NONE) {
+                        abandonAudioFocusLocked();
+                    } else {
+                        if (requestAudioFocusLocked()) {
+                            registerReceiverLocked();
+                        } else {
+                            Log.e(TAG, "Playback is started without audio focus, and requesting"
+                                    + " audio focus is failed. Forcefully pausing playback");
+                            pauseNeeded = true;
+                        }
+                    }
+                }
+            }
+            if (attrs == null) {
+                // If attributes becomes null (i.e. no sound)
+                final BaseMediaPlayer player = mSession.getPlayer();
+                if (player != null) {
+                    player.setPlayerVolume(0);
+                }
+            }
+            if (pauseNeeded) {
+                mSession.pause();
+            }
         }
 
         @Override
@@ -209,19 +256,13 @@ public class AudioFocusHandler {
                     break;
                 }
                 case PLAYER_STATE_PAUSED: {
-                    final AudioAttributesCompat attr = getAudioAttributesNotLocked();
                     synchronized (mLock) {
-                        updateAudioAttributesIfNeededLocked(attr);
                         unregisterReceiverLocked();
                     }
                     break;
                 }
                 case PLAYER_STATE_PLAYING: {
-                    final AudioAttributesCompat attr = getAudioAttributesNotLocked();
-                    synchronized (mLock) {
-                        updateAudioAttributesIfNeededLocked(attr);
-                        registerReceiverLocked();
-                    }
+                    onPlayingNotLocked();
                     break;
                 }
                 case PLAYER_STATE_ERROR: {
@@ -247,14 +288,19 @@ public class AudioFocusHandler {
         /**
          * Requests audio focus. This may regain audio focus.
          *
-         * @return {@code true} if we don't need to handle audio focus nor audio focus was granted.
-         *      {@code false} only when the attempt to request audio focus was failed.
+         * @return {@code true} if audio focus is granted or isn't needed.
+         *         {@code false} only when the attempt to request audio focus was failed.
          */
         @GuardedBy("mLock")
         private boolean requestAudioFocusLocked() {
-            int focusGain = convertAudioAttributesToFocusGainLocked();
+            int focusGain = convertAudioAttributesToFocusGain(mAudioAttributes);
             if (focusGain == AudioManager.AUDIOFOCUS_NONE) {
-                // Developer hasn't set audio focus request. Let the developer handle by themselves.
+                if (mAudioAttributes == null && DEBUG) {
+                    // If audio attributes is null, it should be handled outside to set volume
+                    // to zero without holding an lock.
+                    Log.e(TAG, "requestAudioFocusLocked() shouldn't be called when AudioAttributes"
+                            + " is null");
+                }
                 return true;
             }
             // Note: This API is deprecated from the API level 26, but there's not much reason to
@@ -262,17 +308,18 @@ public class AudioFocusHandler {
             int audioFocusRequestResult = mAudioManager.requestAudioFocus(mAudioFocusListener,
                     mAudioAttributes.getVolumeControlStream(), focusGain);
             if (audioFocusRequestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                mHasAudioFocus = true;
+                mCurrentFocusGainType = focusGain;
             } else {
                 Log.w(TAG, "requestAudioFocus(" + focusGain + ") failed (return="
                         + audioFocusRequestResult + ") playback wouldn't start.");
-                mHasAudioFocus = false;
+                mCurrentFocusGainType = AudioManager.AUDIOFOCUS_NONE;
             }
             if (DEBUG) {
-                Log.d(TAG, "requestAudioFocus(" + focusGain + "), result=" + mHasAudioFocus);
+                Log.d(TAG, "requestAudioFocus(" + focusGain + "), result="
+                        + (audioFocusRequestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED));
             }
             mResumeWhenAudioFocusGain = false;
-            return mHasAudioFocus;
+            return mCurrentFocusGainType != AudioManager.AUDIOFOCUS_NONE;
         }
 
         /**
@@ -280,14 +327,14 @@ public class AudioFocusHandler {
          */
         @GuardedBy("mLock")
         private void abandonAudioFocusLocked() {
-            if (!mHasAudioFocus) {
+            if (mCurrentFocusGainType == AudioManager.AUDIOFOCUS_NONE) {
                 return;
             }
             if (DEBUG) {
-                Log.d(TAG, "abandonAudioFocus, result=" + mHasAudioFocus);
+                Log.d(TAG, "abandoningAudioFocusLocked, currently=" + mCurrentFocusGainType);
             }
             mAudioManager.abandonAudioFocus(mAudioFocusListener);
-            mHasAudioFocus = false;
+            mCurrentFocusGainType = AudioManager.AUDIOFOCUS_NONE;
             mResumeWhenAudioFocusGain = false;
         }
 
@@ -319,51 +366,71 @@ public class AudioFocusHandler {
 
         // Converts {@link AudioAttributesCompat} to one of the audio focus request. This follows
         // the class Javadoc of {@link AudioFocusRequest}.
-        // Note: Implementation may not be the perfect match with the Javadoc because there's NO
-        // clear documentation for audio focus handling with the specific usage and content type.
-        @GuardedBy("mLock")
-        private int convertAudioAttributesToFocusGainLocked() {
-            AudioAttributesCompat audioAttributesCompat = mAudioAttributes;
+        // Note: Any change here should also reflects public Javadoc of {@link MediaSession2}.
+        private static int convertAudioAttributesToFocusGain(
+                final AudioAttributesCompat audioAttributesCompat) {
 
             if (audioAttributesCompat == null) {
+                // Don't handle audio focus. It may be either video only contents or developers
+                // want to have more finer grained control. (e.g. adding audio focus listener)
                 return AudioManager.AUDIOFOCUS_NONE;
             }
             // Javadoc here means 'The different types of focus reuqests' written in the
             // {@link AudioFocusRequest}.
             switch (audioAttributesCompat.getUsage()) {
+                // USAGE_VOICE_COMMUNICATION_SIGNALLING is for DTMF that may happen multiple times
+                // during the phone call when AUDIOFOCUS_GAIN_TRANSIENT is requested for that.
+                // Don't request audio focus here.
+                case AudioAttributesCompat.USAGE_VOICE_COMMUNICATION_SIGNALLING:
+                    return AudioManager.AUDIOFOCUS_NONE;
+
                 // Javadoc says 'AUDIOFOCUS_GAIN: Examples of uses of this focus gain are for music
                 // playback, for a game or a video player'
                 case AudioAttributesCompat.USAGE_GAME:
                 case AudioAttributesCompat.USAGE_MEDIA:
                     return AudioManager.AUDIOFOCUS_GAIN;
 
+                // Special usages: USAGE_UNKNOWN shouldn't be used. Request audio focus to prevent
+                // multiple media playback happen at the same time.
+                case AudioAttributesCompat.USAGE_UNKNOWN:
+                    Log.w(TAG, "Specify a proper usage in the audio attributes for audio focus"
+                            + " handling. Using AUDIOFOCUS_GAIN by default.");
+                    return AudioManager.AUDIOFOCUS_GAIN;
+
                 // Javadoc says 'AUDIOFOCUS_GAIN_TRANSIENT: An example is for playing an alarm, or
                 // during a VoIP call'
                 case AudioAttributesCompat.USAGE_ALARM:
                 case AudioAttributesCompat.USAGE_VOICE_COMMUNICATION:
-                case AudioAttributesCompat.USAGE_VOICE_COMMUNICATION_SIGNALLING:
                     return AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
 
                 // Javadoc says 'AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK: Examples are when playing
                 // driving directions or notifications'
-                case AudioAttributesCompat.USAGE_ASSISTANCE_ACCESSIBILITY:
                 case AudioAttributesCompat.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
                 case AudioAttributesCompat.USAGE_ASSISTANCE_SONIFICATION:
-                case AudioAttributesCompat.USAGE_ASSISTANT:
                 case AudioAttributesCompat.USAGE_NOTIFICATION:
                 case AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
                 case AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
                 case AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
                 case AudioAttributesCompat.USAGE_NOTIFICATION_EVENT:
                 case AudioAttributesCompat.USAGE_NOTIFICATION_RINGTONE:
-                case AudioAttributesCompat.USAGE_UNKNOWN:
+                    return AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
+
+                // Javadoc says 'AUDIOFOCUS_GAIN_EXCLUSIVE: This is typically used if you are doing
+                // audio recording or speech recognition'.
+                // Assistant is considered as both recording and notifying developer
+                case AudioAttributesCompat.USAGE_ASSISTANT:
+                    return AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
+
+                // Special usages:
+                case AudioAttributesCompat.USAGE_ASSISTANCE_ACCESSIBILITY:
+                    if (audioAttributesCompat.getContentType()
+                            == AudioAttributesCompat.CONTENT_TYPE_SPEECH) {
+                        // Voice shouldn't be interrupted by other playback.
+                        return AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
+                    }
                     return AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
             }
-            // Javadoc also mentioned about AUDIOFOCUS_GAIN_EXCLUSIVE that 'This is typically used
-            // if you are doing audio recording or speech recognition', but there's no way to
-            // distinguish playback vs recording only with the AudioAttributesCompat, and using
-            // media session for recording doesn't seem like a good use case. Don't handle audio
-            // focus, so developer can can decide more finer grained control.
+            Log.w(TAG, "Unidentified AudioAttribute " + audioAttributesCompat);
             return AudioManager.AUDIOFOCUS_NONE;
         }
 

@@ -51,19 +51,23 @@ public class MockPlayer extends BaseMediaPlayer {
     private AudioAttributesCompat mAudioAttributes;
 
     public MockPlayer(int count) {
-        mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
-        mVolume = getMaxPlayerVolume();
-        mChangePlayerStateWithTransportControl = false;
-        // This prevents MS2#play() from triggering BaseMediaPlayer#prepare().
-        mLastPlayerState = PLAYER_STATE_PAUSED;
+        this(count, false);
     }
 
     public MockPlayer(boolean changePlayerStateWithTransportControl) {
-        mCountDownLatch = null;
+        this(0, changePlayerStateWithTransportControl);
+    }
+
+    private MockPlayer(int count, boolean changePlayerStateWithTransportControl) {
+        mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
         mVolume = getMaxPlayerVolume();
         mChangePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
         // This prevents MS2#play() from triggering BaseMediaPlayer#prepare().
         mLastPlayerState = PLAYER_STATE_PAUSED;
+
+        // Sets default audio attributes to prevent setVolume() from being called with the play().
+        mAudioAttributes = new AudioAttributesCompat.Builder()
+                .setUsage(AudioAttributesCompat.USAGE_MEDIA).build();
     }
 
     @Override
