@@ -576,16 +576,34 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testScheduler() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        insertWork(work);
-        Scheduler mockScheduler = mock(Scheduler.class);
+        OneTimeWorkRequest prerequisiteWork =
+                new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(BLOCKED).build();
+        Dependency dependency = new Dependency(work.getStringId(), prerequisiteWork.getStringId());
 
-        new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, work.getStringId())
-                .withSchedulers(Collections.singletonList(mockScheduler))
+        mDatabase.beginTransaction();
+        try {
+            insertWork(prerequisiteWork);
+            insertWork(work);
+            mDependencyDao.insertDependency(dependency);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+
+        new WorkerWrapper.Builder(
+                mContext,
+                mConfiguration,
+                mDatabase,
+                prerequisiteWork.getStringId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
                 .build()
                 .run();
 
-        verify(mockScheduler).schedule();
+        ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
+        verify(mMockScheduler).schedule(captor.capture());
+        assertThat(captor.getValue().id, is(work.getStringId()));
     }
 
     @Test
