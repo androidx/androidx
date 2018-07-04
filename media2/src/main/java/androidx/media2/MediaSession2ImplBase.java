@@ -44,6 +44,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.MediaSessionCompat.Token;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -53,6 +54,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.BaseMediaPlayer.PlayerEventCallback;
 import androidx.media2.MediaController2.PlaybackInfo;
@@ -90,6 +92,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     final AudioFocusHandler mAudioFocusHandler;
     private final MediaSession2 mInstance;
     private final PendingIntent mSessionActivity;
+    private final MediaBrowserServiceCompat mBrowserServiceLegacyStub;
 
     final Object mLock = new Object();
 
@@ -122,7 +125,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
 
         mPlayerEventCallback = new MyPlayerEventCallback(this);
         mPlaylistEventCallback = new MyPlaylistEventCallback(this);
-        mAudioFocusHandler = new AudioFocusHandler(context, getInstance());
+        mAudioFocusHandler = new AudioFocusHandler(context, instance);
 
         // Infer type from the id and package name.
         String libraryService = getServiceName(context, MediaLibraryService2.SERVICE_INTERFACE, id);
@@ -142,14 +145,30 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
                     TYPE_SESSION, context.getPackageName(), null, id, mSession2Stub));
         }
+
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
+
         mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mSessionToken.toBundle());
         // NOTE: mSessionLegacyStub should be created after mSessionCompat created.
         mSessionLegacyStub = new MediaSessionLegacyStub(this);
-        mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
+
         mSessionCompat.setSessionActivity(sessionActivity);
+        mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
+                | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
+                | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mSessionCompat.setActive(true);
+        if (mSessionToken.getType() == TYPE_SESSION) {
+            mBrowserServiceLegacyStub = null;
+        } else {
+            mBrowserServiceLegacyStub = createLegacyBrowserService(context, mSessionToken,
+                    mSessionCompat.getSessionToken());
+        }
+
         updatePlayer(player, playlistAgent);
+        // Do this at the last moment. Otherwise commands through framework would be sent to this
+        // session while initializing, and end up with unexpected situation.
+        mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
     }
 
     @Override
@@ -942,6 +961,27 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     @Override
     public PendingIntent getSessionActivity() {
         return mSessionActivity;
+    }
+
+    MediaBrowserServiceCompat createLegacyBrowserService(Context context, SessionToken2 token,
+            Token sessionToken) {
+        switch (token.getType()) {
+            case TYPE_SESSION:
+                // Shouldn't be happen.
+                return null;
+            case TYPE_SESSION_SERVICE:
+                return new MediaSessionService2LegacyStub(context, this, sessionToken);
+        }
+        return null;
+    }
+
+    @Override
+    public IBinder getLegacyBrowserServiceBinder() {
+        if (mBrowserServiceLegacyStub != null) {
+            Intent intent = new Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE);
+            return mBrowserServiceLegacyStub.onBind(intent);
+        }
+        return null;
     }
 
     private static String getServiceName(Context context, String serviceAction, String id) {

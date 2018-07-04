@@ -355,9 +355,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
             @Override
             MediaLibrarySessionCallback getCallback();
-
-            // Internally used methods
-            IBinder getLegacySessionBinder();
         }
     }
 

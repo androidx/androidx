@@ -19,7 +19,6 @@ package androidx.media2;
 import android.content.Intent;
 import android.os.IBinder;
 
-import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 
 /**
@@ -28,11 +27,8 @@ import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 class MediaLibraryService2ImplBase extends MediaSessionService2ImplBase {
     @Override
     public IBinder onBind(Intent intent) {
-        switch (intent.getAction()) {
-            case MediaLibraryService2.SERVICE_INTERFACE:
-                return getSession().getSessionBinder();
-            case MediaBrowserServiceCompat.SERVICE_INTERFACE:
-                return getSession().getImpl().getLegacySessionBinder();
+        if (MediaLibraryService2.SERVICE_INTERFACE.equals(intent.getAction())) {
+            return getSession().getSessionBinder();
         }
         return super.onBind(intent);
     }
