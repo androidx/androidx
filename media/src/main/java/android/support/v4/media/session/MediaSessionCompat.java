@@ -2659,7 +2659,7 @@ public class MediaSessionCompat {
                     return;
                 }
                 RemoteUserInfo info = new RemoteUserInfo(
-                        getCallingPackage(), getCallingPid(), getCallingUid());
+                        RemoteUserInfo.LEGACY_CONTROLLER, getCallingPid(), getCallingUid());
                 mControllerCallbacks.register(cb, info);
             }
 
@@ -3594,8 +3594,12 @@ public class MediaSessionCompat {
             @Override
             public void registerCallbackListener(IMediaControllerCallback cb) {
                 if (!mDestroyed) {
+                    String packageName = getCallingPackage();
+                    if (packageName == null) {
+                        packageName = RemoteUserInfo.LEGACY_CONTROLLER;
+                    }
                     RemoteUserInfo info = new RemoteUserInfo(
-                            getCallingPackage(), getCallingPid(), getCallingUid());
+                            packageName, getCallingPid(), getCallingUid());
                     mExtraControllerCallbacks.register(cb, info);
                 }
             }
