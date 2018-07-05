@@ -325,8 +325,8 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
             PlayItem prev = getNextValidPlayItemLocked(mCurrent.shuffledIdx, -1);
             if (prev != mEopPlayItem) {
                 mCurrent = prev;
+                updateCurrentIfNeededLocked();
             }
-            updateCurrentIfNeededLocked();
         }
     }
 
@@ -339,8 +339,8 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
             PlayItem next = getNextValidPlayItemLocked(mCurrent.shuffledIdx, 1);
             if (next != mEopPlayItem) {
                 mCurrent = next;
+                updateCurrentIfNeededLocked();
             }
-            updateCurrentIfNeededLocked();
         }
     }
 
