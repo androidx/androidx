@@ -401,7 +401,8 @@ public abstract class MediaPlaylistAgent {
         }
         for (int i = 0; i < itemList.size(); i++) {
             MediaItem2 item = itemList.get(i);
-            if (item != null && item.getDataSourceDesc().equals(dsd)) {
+            if (item != null && item.getDataSourceDesc() != null
+                    && item.getDataSourceDesc().equals(dsd)) {
                 return item;
             }
         }
