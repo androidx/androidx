@@ -142,9 +142,7 @@ public abstract class TextClassifier {
      * No-op TextClassifier.
      * This may be used to turn off text classifier features.
      */
-    static final TextClassifier NO_OP =
-            new TextClassifier(SessionStrategy.NO_OP) {
-    };
+    public static final TextClassifier NO_OP = new TextClassifier(SessionStrategy.NO_OP) {};
 
     @NonNull
     private SessionStrategy mSessionStrategy;

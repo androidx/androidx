@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 /** Instrumentation unit tests for {@link TextClassificationContext}. */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 28)
 public class TextClassificationContextTest {
     private static final String PKG_NAME = "pkg_name";
     private static final String WIDGET_TYPE = TextClassifier.WIDGET_TYPE_TEXTVIEW;

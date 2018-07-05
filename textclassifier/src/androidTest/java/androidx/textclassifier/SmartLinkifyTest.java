@@ -154,7 +154,7 @@ public class SmartLinkifyTest {
                 .thenReturn(testObject.getTextLinks());
 
         // Insert a TextLinkSpan before calling linkify to verify that the linkify call clears it.
-        final TextLinks.TextLink oldLink = new TextLinks.TextLink(0, 7, noEntities());
+        final TextLinks.TextLink oldLink = new TextLinks.TextLink(0, 7, noEntities(), null);
         final TextLinks.TextLinkSpan oldSpan = new TextLinks.TextLinkSpan(oldLink);
         text.setSpan(oldSpan, oldLink.getStart(), oldLink.getEnd(), 0);
         final TextLinks.TextLinkSpan[] oldSpans =
@@ -491,7 +491,7 @@ public class SmartLinkifyTest {
                 final int start = mText.length();
                 addText(text);
                 final int end = mText.length();
-                mLinks.add(new TextLinks.TextLink(start, end, entityScores(entities)));
+                mLinks.add(new TextLinks.TextLink(start, end, entityScores(entities), null));
                 return this;
             }
 

@@ -32,6 +32,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -44,6 +45,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -217,6 +219,19 @@ public final class TextLinksTest {
 
         TextLinks textLinks = TextLinks.fromPlatform(platformTextLinks, FULL_TEXT);
         assertTextLinks(textLinks);
+    }
+
+    @Test
+    public void testTextLinksWithUrlSpan() {
+        final String url = "http://www.google.com";
+        final TextLinks textLinks = new TextLinks.Builder(FULL_TEXT.toString())
+                .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f), new URLSpan(url))
+                .build();
+
+        Collection<TextLinks.TextLink> links = textLinks.getLinks();
+        assertThat(links).hasSize(1);
+        TextLinks.TextLink textLink = links.iterator().next();
+        assertThat(textLink.getUrlSpan().getURL()).isEqualTo(url);
     }
 
     private TextLinks.Request createTextLinksRequest() {

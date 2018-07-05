@@ -84,7 +84,8 @@ public class TextClassificationManagerTest {
         TextClassifier textClassifier =
                 mTextClassificationManager.createTextClassifier(mTextClassificationContext);
 
-        assertThat(textClassifier).isNull();
+        // fallback should be used.
+        assertThat(textClassifier).isNotNull();
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -122,7 +123,8 @@ public class TextClassificationManagerTest {
         TextClassifier textClassifier =
                 mTextClassificationManager.createTextClassifier(mTextClassificationContext);
 
-        assertThat(textClassifier).isNull();
+        // fallback should be used.
+        assertThat(textClassifier).isNotNull();
     }
 
     @Test
@@ -133,7 +135,41 @@ public class TextClassificationManagerTest {
         TextClassifier textClassifier =
                 mTextClassificationManager.createTextClassifier(mTextClassificationContext);
 
-        assertThat(textClassifier).isNull();
+        // fallback should be used.
+        assertThat(textClassifier).isNotNull();
+    }
+
+    @Test
+    public void testCreateTextClassifier() {
+        mTextClassificationManager.setTextClassifierFactory(
+                new TextClassificationManager.TextClassifierFactory() {
+                    @Override
+                    public TextClassifier create(TextClassificationContext
+                            textClassificationContext) {
+                        return new DummyTextClassifier(textClassificationContext);
+                    }
+                });
+        TextClassifier textClassifier =
+                mTextClassificationManager.createTextClassifier(mTextClassificationContext);
+        assertThat(textClassifier).isInstanceOf(DummyTextClassifier.class);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testFallback_P() throws Exception {
+        setupEnvironment(Collections.<TextClassifierEntry>emptyList(), null);
+        TextClassifier textClassifier =
+                mTextClassificationManager.createTextClassifier(mTextClassificationContext);
+        assertThat(textClassifier).isInstanceOf(PlatformTextClassifierWrapper.class);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 27)
+    public void testFallback_beforeP() throws Exception {
+        setupEnvironment(Collections.<TextClassifierEntry>emptyList(), null);
+        TextClassifier textClassifier =
+                mTextClassificationManager.createTextClassifier(mTextClassificationContext);
+        assertThat(textClassifier).isInstanceOf(LegacyTextClassifier.class);
     }
 
     private void setupEnvironment(
@@ -148,5 +184,11 @@ public class TextClassificationManagerTest {
                 eq(PACKAGE_NAME), anyInt())).thenReturn(applicationInfo);
         when(mTextClassifierEntryParser.parse(xmlRes)).thenReturn(candidates);
         when(mTextClassifierResolver.findBestMatch(candidates)).thenReturn(bestMatch);
+    }
+
+    private static class DummyTextClassifier extends TextClassifier {
+        DummyTextClassifier(TextClassificationContext textClassificationContext) {
+            super(textClassificationContext);
+        }
     }
 }

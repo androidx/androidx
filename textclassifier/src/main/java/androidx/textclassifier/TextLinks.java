@@ -22,6 +22,7 @@ import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.view.View;
 
 import androidx.annotation.FloatRange;
@@ -185,19 +186,25 @@ public final class TextLinks {
         private final EntityConfidence mEntityScores;
         private final int mStart;
         private final int mEnd;
+        // Allows us to fallback to legacy Linkify if necessary. Not parcelled.
+        @Nullable
+        private final URLSpan mUrlSpan;
 
         /**
          * Create a new TextLink.
          *
          * @throws IllegalArgumentException if entityScores is null or empty.
          */
-        TextLink(int start, int end, @NonNull Map<String, Float> entityScores) {
+        TextLink(
+                int start, int end,
+                @NonNull Map<String, Float> entityScores, @Nullable URLSpan urlSpan) {
             Preconditions.checkNotNull(entityScores);
             Preconditions.checkArgument(!entityScores.isEmpty());
             Preconditions.checkArgument(start <= end);
             mStart = start;
             mEnd = end;
             mEntityScores = new EntityConfidence(entityScores);
+            mUrlSpan = urlSpan;
         }
 
         /**
@@ -246,12 +253,21 @@ public final class TextLinks {
             return mEntityScores.getConfidenceScore(entityType);
         }
 
+        /**
+         * @hide
+         */
+        @Nullable
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public URLSpan getUrlSpan() {
+            return mUrlSpan;
+        }
+
         @Override
         @NonNull
         public String toString() {
             return String.format(Locale.US,
-                    "TextLink{start=%s, end=%s, entityScores=%s}",
-                    mStart, mEnd, mEntityScores);
+                    "TextLink{start=%s, end=%s, entityScores=%s, urlSpan=%s}",
+                    mStart, mEnd, mEntityScores, mUrlSpan);
         }
 
         /**
@@ -275,7 +291,8 @@ public final class TextLinks {
             return new TextLink(
                     bundle.getInt(EXTRA_START),
                     bundle.getInt(EXTRA_END),
-                    BundleUtils.getFloatStringMapOrThrow(bundle, EXTRA_ENTITY_SCORES));
+                    BundleUtils.getFloatStringMapOrThrow(bundle, EXTRA_ENTITY_SCORES),
+                    null /* urlSpan */);
         }
     }
 
@@ -291,15 +308,17 @@ public final class TextLinks {
 
         private final CharSequence mText;
         @Nullable private final LocaleListCompat mDefaultLocales;
-        @Nullable private final EntityConfig mEntityConfig;
+        @NonNull private final EntityConfig mEntityConfig;
 
         Request(
-                CharSequence text,
-                LocaleListCompat defaultLocales,
-                EntityConfig entityConfig) {
+                @NonNull CharSequence text,
+                @Nullable LocaleListCompat defaultLocales,
+                @Nullable EntityConfig entityConfig) {
             mText = text;
             mDefaultLocales = defaultLocales;
-            mEntityConfig = entityConfig;
+            mEntityConfig = entityConfig == null
+                    ? new TextClassifier.EntityConfig.Builder().build()
+                    : entityConfig;
         }
 
         /**
@@ -323,7 +342,7 @@ public final class TextLinks {
          * @return The config representing the set of entities to look for
          * @see Builder#setEntityConfig(EntityConfig)
          */
-        @Nullable
+        @NonNull
         public EntityConfig getEntityConfig() {
             return mEntityConfig;
         }
@@ -482,7 +501,19 @@ public final class TextLinks {
          */
         @NonNull
         public Builder addLink(int start, int end, @NonNull Map<String, Float> entityScores) {
-            mLinks.add(new TextLink(start, end, Preconditions.checkNotNull(entityScores)));
+            mLinks.add(new TextLink(start, end, Preconditions.checkNotNull(entityScores), null));
+            return this;
+        }
+
+        /**
+         * @hide
+         */
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public Builder addLink(
+                int start, int end, @NonNull Map<String, Float> entityScores,
+                @Nullable URLSpan urlSpan) {
+            mLinks.add(new TextLink(start, end, Preconditions.checkNotNull(entityScores), urlSpan));
             return this;
         }
 

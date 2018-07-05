@@ -19,6 +19,7 @@ package androidx.textclassifier;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -74,6 +75,7 @@ public class TextClassificationManager {
     private List<TextClassifierEntry> mTextClassifierCandidates;
     @Nullable
     private static TextClassificationManager sInstance;
+    private TextClassifierFactory mTextClassifierFactory;
 
     /** @hide **/
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -106,22 +108,37 @@ public class TextClassificationManager {
      * classifier can't be reused once it is destroyed.
      */
     @SuppressLint("NewApi") // isAosp and isOem already tell us that we have high enough API level.
-    @Nullable
+    @NonNull
     public TextClassifier createTextClassifier(
             @NonNull TextClassificationContext textClassificationContext) {
+        Preconditions.checkNotNull(textClassificationContext);
+        if (mTextClassifierFactory != null) {
+            return mTextClassifierFactory.create(textClassificationContext);
+        }
         if (mTextClassifierCandidates == null) {
             mTextClassifierCandidates = parseTextClassifierCandidates();
         }
         TextClassifierEntry bestMatch =
                 mTextClassifierResolver.findBestMatch(mTextClassifierCandidates);
         if (bestMatch == null) {
-            return null;
+            return defaultTextClassifier(textClassificationContext);
         }
         if (bestMatch.isAosp() || bestMatch.isOem()) {
             return PlatformTextClassifierWrapper.create(mContext, textClassificationContext);
         }
         return new RemoteServiceTextClassifier(
                 mContext, textClassificationContext, bestMatch.packageName);
+    }
+
+    /**
+     * Sets a factory that can create a preferred text classifier. This overrides the preferred
+     * text classifiers specified in AndroidManifest.
+     * <p>
+     * To turn off the feature completely, you can set a factory that returns
+     * {@link TextClassifier#NO_OP}.
+     */
+    public void setTextClassifierFactory(@Nullable TextClassifierFactory factory) {
+        mTextClassifierFactory = factory;
     }
 
     @XmlRes
@@ -151,5 +168,27 @@ public class TextClassificationManager {
             Log.e(TAG, "parseTextClassifierCandidates: ", ex);
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Returns the default text classifier when we need a fallback.
+     */
+    private TextClassifier defaultTextClassifier(
+            @Nullable TextClassificationContext textClassificationContext) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return PlatformTextClassifierWrapper.create(mContext, textClassificationContext);
+        }
+        return LegacyTextClassifier.INSTANCE;
+    }
+
+    /**
+     * Factory that creates {@link TextClassifier}.
+     */
+    public interface TextClassifierFactory {
+        /**
+         * Creates and returns a text classifier.
+         */
+        @NonNull
+        TextClassifier create(@NonNull TextClassificationContext textClassificationContext);
     }
 }
