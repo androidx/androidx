@@ -63,9 +63,6 @@ import java.util.concurrent.TimeUnit;
 public class SmartLinkifyTest {
 
     private static final TextLinksParams PARAMS = new TextLinksParams.Builder().build();
-    private static final CancellationSignal CANCEL = null;
-    private static final Executor EXECUTOR = null;
-
 
     @Mock
     private TextClassifier mClassifier;
@@ -90,7 +87,8 @@ public class SmartLinkifyTest {
                 .thenReturn(testObject.getTextLinks());
         final Spannable text = testObject.getText();
 
-        SmartLinkify.addLinksAsync(text, mClassifier, PARAMS, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                text, mClassifier, PARAMS, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
@@ -114,7 +112,8 @@ public class SmartLinkifyTest {
         textView.setText(testObject.getText().toString());
         assertThat(textView.getText()).isNotInstanceOf(Spannable.class);
 
-        SmartLinkify.addLinksAsync(textView, mClassifier, PARAMS, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                textView, mClassifier, PARAMS, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
@@ -133,7 +132,8 @@ public class SmartLinkifyTest {
         final TextLinks noLinks = new TextLinks.Builder(text.toString()).build();
         when(mClassifier.generateLinks(any(TextLinks.Request.class))).thenReturn(noLinks);
 
-        SmartLinkify.addLinksAsync(text, mClassifier, PARAMS, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                text, mClassifier, PARAMS, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_NO_LINKS_FOUND);
@@ -161,7 +161,8 @@ public class SmartLinkifyTest {
                 text.getSpans(0, text.length(), TextLinks.TextLinkSpan.class);
         assertThat(oldSpans).asList().hasSize(1);
 
-        SmartLinkify.addLinksAsync(text, mClassifier, PARAMS, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                text, mClassifier, PARAMS, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
@@ -186,7 +187,8 @@ public class SmartLinkifyTest {
         textView.setText(testObject.getText());
         assertThat(textView.getMovementMethod()).isNull();
 
-        SmartLinkify.addLinksAsync(textView, mClassifier, PARAMS, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                textView, mClassifier, PARAMS, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
@@ -205,7 +207,8 @@ public class SmartLinkifyTest {
         textView.setText(testObject.getText());
         textView.setMovementMethod(new BaseMovementMethod());
 
-        SmartLinkify.addLinksAsync(textView, mClassifier, PARAMS, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                textView, mClassifier, PARAMS, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
@@ -224,7 +227,8 @@ public class SmartLinkifyTest {
         textView.setText(testObject.getText());
         textView.setLinksClickable(false);
 
-        SmartLinkify.addLinksAsync(textView, mClassifier, PARAMS, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                textView, mClassifier, PARAMS, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
@@ -273,7 +277,8 @@ public class SmartLinkifyTest {
         final Executor executor = mock(Executor.class);
         verifyZeroInteractions(executor);
 
-        SmartLinkify.addLinksAsync(text, mClassifier, PARAMS, CANCEL, executor, mCallback);
+        SmartLinkify.addLinksAsync(
+                text, mClassifier, PARAMS, null /* cancel */, executor, mCallback);
         mCallback.await();  // Block for the result.
 
         verify(executor).execute(any(Runnable.class));
@@ -304,7 +309,8 @@ public class SmartLinkifyTest {
                 })
                 .build();
 
-        SmartLinkify.addLinksAsync(text, mClassifier, params, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                text, mClassifier, params, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
@@ -336,7 +342,8 @@ public class SmartLinkifyTest {
                 .setApplyStrategy(TextLinks.APPLY_STRATEGY_IGNORE)
                 .build();
 
-        SmartLinkify.addLinksAsync(text, mClassifier, params, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                text, mClassifier, params, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_NO_LINKS_APPLIED);
@@ -364,7 +371,8 @@ public class SmartLinkifyTest {
                 .setApplyStrategy(TextLinks.APPLY_STRATEGY_REPLACE)
                 .build();
 
-        SmartLinkify.addLinksAsync(text, mClassifier, params, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                text, mClassifier, params, null /* cancel */, null /* executor */, mCallback);
         mCallback.await();  // Block for the result.
 
         assertThat(mCallback.getStatus()).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
@@ -387,7 +395,8 @@ public class SmartLinkifyTest {
         final TextView textView = new TextView(InstrumentationRegistry.getTargetContext());
         textView.setText(testObject.getText());
 
-        SmartLinkify.addLinksAsync(textView, mClassifier, PARAMS, CANCEL, EXECUTOR, mCallback);
+        SmartLinkify.addLinksAsync(
+                textView, mClassifier, PARAMS, null /* cancel */, null /* executor */, mCallback);
         final Spannable text = new SpannableString("different text");
         textView.setText(text);
         mCallback.await();  // Block for the result.
