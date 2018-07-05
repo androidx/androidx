@@ -4,14 +4,14 @@
 # and hides them for use as part of the implementation of MediaPlayer2 for pre-P
 # Android builds.
 
-TAG=r2.8.1
+TAG=r2.8.2
 FROM_PACKAGE=com.google.android.exoplayer2
-TO_PACKAGE=androidx.media.exoplayer.external
+TO_PACKAGE=androidx.media2.exoplayer.external
 
 REPOSITORY=https://github.com/google/ExoPlayer.git
 SOURCE_DIRECTORY=library/core/src/main/java/${FROM_PACKAGE//./\/}
 SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DESTINATION_DIRECTORY="${SCRIPT_DIRECTORY}/../../../../external/exoplayer-repackaged/src/main/java/${TO_PACKAGE//./\/}"
+DESTINATION_DIRECTORY="${SCRIPT_DIRECTORY}/../../../../external/exoplayer-core_media2/src/main/java/${TO_PACKAGE//./\/}"
 GOOGLE_JAVA_FORMAT="${SCRIPT_DIRECTORY}/../../../../prebuilts/tools/common/google-java-format/google-java-format"
 
 # Check out the required version of ExoPlayer from GitHub.
