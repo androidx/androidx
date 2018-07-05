@@ -56,6 +56,8 @@ public final class TextLinks {
     private final String mFullText;
     private final List<TextLink> mLinks;
 
+    /** Status unknown. */
+    public static final int STATUS_UNKNOWN = -1;
     /** Links were successfully applied to the text. */
     public static final int STATUS_LINKS_APPLIED = 0;
     /** No links exist to apply to text. Links count is zero. */
@@ -69,6 +71,7 @@ public final class TextLinks {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {
+            STATUS_UNKNOWN,
             STATUS_LINKS_APPLIED,
             STATUS_NO_LINKS_FOUND,
             STATUS_NO_LINKS_APPLIED,
@@ -354,7 +357,7 @@ public final class TextLinks {
             /**
              * Sets the entity configuration to use. This determines what types of entities the
              * TextClassifier will look for.
-             * Set to {@code null} for the default entity config and teh TextClassifier will
+             * Set to {@code null} for the default entity config and the TextClassifier will
              * automatically determine what links to generate.
              *
              * @return this builder
@@ -480,6 +483,12 @@ public final class TextLinks {
         @NonNull
         public Builder addLink(int start, int end, @NonNull Map<String, Float> entityScores) {
             mLinks.add(new TextLink(start, end, Preconditions.checkNotNull(entityScores)));
+            return this;
+        }
+
+        @NonNull
+        Builder addLink(TextLink link) {
+            mLinks.add(Preconditions.checkNotNull(link));
             return this;
         }
 
