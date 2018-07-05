@@ -166,6 +166,13 @@ class AppCompatTextHelper {
                         R.styleable.TextAppearance_android_textColorLink);
             }
         }
+        // In P, when the text size attribute is 0, this would not be set. Fix this here.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                && a.hasValue(R.styleable.TextAppearance_android_textSize)) {
+            if (a.getDimensionPixelSize(R.styleable.TextAppearance_android_textSize, -1) == 0) {
+                mView.setTextSize(TypedValue.COMPLEX_UNIT_PX, 0.0f);
+            }
+        }
 
         updateTypefaceAndStyle(context, a);
         a.recycle();
@@ -321,6 +328,12 @@ class AppCompatTextHelper {
                     = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
             if (textColor != null) {
                 mView.setTextColor(textColor);
+            }
+        }
+        // For SDK <= P, when the text size attribute is 0, this would not be set. Fix this here.
+        if (a.hasValue(R.styleable.TextAppearance_android_textSize)) {
+            if (a.getDimensionPixelSize(R.styleable.TextAppearance_android_textSize, -1) == 0) {
+                mView.setTextSize(TypedValue.COMPLEX_UNIT_PX, 0.0f);
             }
         }
 
