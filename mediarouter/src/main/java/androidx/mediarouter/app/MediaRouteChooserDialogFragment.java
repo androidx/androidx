@@ -16,11 +16,14 @@
 
 package androidx.mediarouter.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
 import androidx.mediarouter.media.MediaRouteSelector;
 
@@ -33,8 +36,9 @@ import androidx.mediarouter.media.MediaRouteSelector;
  */
 public class MediaRouteChooserDialogFragment extends DialogFragment {
     private static final String ARGUMENT_SELECTOR = "selector";
+    private static final boolean USE_SUPPORT_DYNAMIC_GROUP = false;
 
-    private MediaRouteChooserDialog mDialog;
+    private Dialog mDialog;
     private MediaRouteSelector mSelector;
 
     /**
@@ -99,6 +103,15 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
     }
 
     /**
+     * Called when the device picker dialog is being created.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public MediaRouteDevicePickerDialog onCreateDevicePickerDialog(Context context) {
+        return new MediaRouteDevicePickerDialog(context);
+    }
+
+    /**
      * Called when the chooser dialog is being created.
      * <p>
      * Subclasses may override this method to customize the dialog.
@@ -111,16 +124,26 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mDialog = onCreateChooserDialog(getContext(), savedInstanceState);
-        mDialog.setRouteSelector(getRouteSelector());
+        if (USE_SUPPORT_DYNAMIC_GROUP) {
+            mDialog = onCreateDevicePickerDialog(getContext());
+            ((MediaRouteDevicePickerDialog) mDialog).setRouteSelector(getRouteSelector());
+        } else {
+            mDialog = onCreateChooserDialog(getContext(), savedInstanceState);
+            ((MediaRouteChooserDialog) mDialog).setRouteSelector(getRouteSelector());
+        }
         return mDialog;
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (mDialog != null) {
-            mDialog.updateLayout();
+        if (mDialog == null) {
+            return;
+        }
+        if (USE_SUPPORT_DYNAMIC_GROUP) {
+            ((MediaRouteDevicePickerDialog) mDialog).updateLayout();
+        } else {
+            ((MediaRouteChooserDialog) mDialog).updateLayout();
         }
     }
 }

@@ -10,6 +10,7 @@ dependencies {
     api(project(":media2"))
     api(project(":appcompat"))
     api(project(":palette"))
+    api(project(":recyclerview"))
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)

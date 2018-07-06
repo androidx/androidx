@@ -24,6 +24,11 @@
          (the screen is in portrait). This may be either a fraction or a dimension.-->
     <dimen name="mr_dialog_fixed_width_minor">320dp</dimen>
 
+    <!-- Dialog update time -->
+    <eat-comment />
+    <!-- Maximum delay Time(milliseconds) of routes update -->
+    <integer name="mr_update_routes_delay_ms">300</integer>
+
     <!-- MediaRouteController's volume group list -->
     <eat-comment />
     <!-- Maximum height of volume group list. -->
