@@ -862,6 +862,20 @@ public class MediaController2 implements AutoCloseable {
 
         /**
          * Called when the session has changed anything related with the {@link PlaybackInfo}.
+         * <p>
+         * Interoperability: When connected to
+         * {@link android.support.v4.media.session.MediaSessionCompat}, this may be called when the
+         * session changes playback info by calling
+         * {@link android.support.v4.media.session.MediaSessionCompat#setPlaybackToLocal(int)} or
+         * {@link android.support.v4.media.session.MediaSessionCompat#setPlaybackToRemote(
+         * VolumeProviderCompat)}}. Specifically:
+         * <ul>
+         * <li> Prior to API 21, this will always be called whenever any of those two methods is
+         *      called.
+         * <li> From API 21 to 22, this is called only when the playback type is changed from local
+         *      to remote (i.e. not from remote to local).
+         * <li> From API 23, this is called only when the playback type is changed.
+         * </ul>
          *
          * @param controller the controller for this event
          * @param info new playback info
@@ -1085,6 +1099,8 @@ public class MediaController2 implements AutoCloseable {
 
         /**
          * Get the maximum volume that may be set for this session.
+         * <p>
+         * This is only meaningful when the playback type is {@link #PLAYBACK_TYPE_REMOTE}.
          *
          * @return The maximum allowed volume where this session is playing.
          */
@@ -1094,6 +1110,8 @@ public class MediaController2 implements AutoCloseable {
 
         /**
          * Get the current volume for this session.
+         * <p>
+         * This is only meaningful when the playback type is {@link #PLAYBACK_TYPE_REMOTE}.
          *
          * @return The current volume where this session is playing.
          */
