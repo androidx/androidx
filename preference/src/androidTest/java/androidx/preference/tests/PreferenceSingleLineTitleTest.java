@@ -18,14 +18,15 @@ package androidx.preference.tests;
 
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.preference.Preference;
@@ -34,52 +35,56 @@ import androidx.preference.PreferenceViewHolder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-@SdkSuppress(maxSdkVersion = 27) // This test only works pre-P due to mocking final methods.
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class PreferenceSingleLineTitleTest {
 
+    private PreferenceViewHolder mHolder;
     private Preference mPreference;
-
-    @Mock
-    private ViewGroup mViewGroup;
-    @Mock
     private TextView mTitleView;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        when(mViewGroup.findViewById(android.R.id.title)).thenReturn(mTitleView);
+        Context context = InstrumentationRegistry.getTargetContext();
 
-        mPreference = new Preference(InstrumentationRegistry.getTargetContext());
+        // Create a spy of the title so we can verify setSingleLine() behaviour
+        mTitleView = spy(new TextView(context));
+
+        // Set the correct id so when findViewById() is called we return the spy
+        mTitleView.setId(android.R.id.title);
+
+        LinearLayout layout = new LinearLayout(context);
+        layout.addView(mTitleView);
+
+        mHolder = PreferenceViewHolder.createInstanceForTests(layout);
+
+        mPreference = new Preference(context);
         mPreference.setTitle("Test Title");
     }
 
     @Test
+    @UiThreadTest
     public void bindViewHolder_singleLineTitleNotSet_shouldNotSetSingleLine() {
-        PreferenceViewHolder holder = PreferenceViewHolder.createInstanceForTests(mViewGroup);
-        mPreference.onBindViewHolder(holder);
+        mPreference.onBindViewHolder(mHolder);
 
         verify(mTitleView, never()).setSingleLine(anyBoolean());
     }
 
     @Test
+    @UiThreadTest
     public void bindViewHolder_singleLineTitleSetToTrue_shouldSetSingleLineToTrue() {
-        PreferenceViewHolder holder = PreferenceViewHolder.createInstanceForTests(mViewGroup);
         mPreference.setSingleLineTitle(true);
-        mPreference.onBindViewHolder(holder);
+        mPreference.onBindViewHolder(mHolder);
 
         verify(mTitleView).setSingleLine(true);
     }
 
     @Test
+    @UiThreadTest
     public void bindViewHolder_singleLineTitleSetToFalse_shouldSetSingleLineToFalse() {
-        PreferenceViewHolder holder = PreferenceViewHolder.createInstanceForTests(mViewGroup);
         mPreference.setSingleLineTitle(false);
-        mPreference.onBindViewHolder(holder);
+        mPreference.onBindViewHolder(mHolder);
 
         verify(mTitleView).setSingleLine(false);
     }
