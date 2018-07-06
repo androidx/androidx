@@ -153,18 +153,14 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         mPlayer.registerPlayerEventCallback(mSession.getCallbackExecutor(), mPlayerCallback);
     }
 
-    public void setPlayer(@NonNull BaseMediaPlayer player) {
-        if (player == null) {
-            throw new IllegalArgumentException("player shouldn't be null");
+    void setPlayer(BaseMediaPlayer player) {
+        if (player == mPlayer) {
+            return;
         }
         synchronized (mLock) {
-            if (player == mPlayer) {
-                return;
-            }
-            mPlayer.unregisterPlayerEventCallback(mPlayerCallback);
+            player.unregisterPlayerEventCallback(mPlayerCallback);
             mPlayer = player;
             mPlayer.registerPlayerEventCallback(mSession.getCallbackExecutor(), mPlayerCallback);
-            updatePlayerDataSourceLocked();
         }
     }
 
@@ -493,13 +489,14 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
 
         if (mCurrent.shuffledIdx >= mShuffledList.size()) {
             mCurrent = getNextValidPlayItemLocked(mShuffledList.size() - 1, 1);
+            updatePlayerDataSourceLocked();
         } else {
             mCurrent.mediaItem = mShuffledList.get(mCurrent.shuffledIdx);
             if (retrieveDataSourceDescLocked(mCurrent.mediaItem) == null) {
                 mCurrent = getNextValidPlayItemLocked(mCurrent.shuffledIdx, 1);
+                updatePlayerDataSourceLocked();
             }
         }
-        updatePlayerDataSourceLocked();
         return;
     }
 
@@ -508,10 +505,14 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         if (mCurrent == null || mCurrent == mEopPlayItem) {
             return;
         }
-        if (mPlayer.getCurrentDataSource() != mCurrent.dsd) {
+        if (mPlayer.getPlayerState() == BaseMediaPlayer.PLAYER_STATE_IDLE) {
             mPlayer.setDataSource(mCurrent.dsd);
-            mPlayer.loopCurrent(mRepeatMode == MediaPlaylistAgent.REPEAT_MODE_ONE);
+            mPlayer.prepare();
+        } else {
+            mPlayer.setNextDataSource(mCurrent.dsd);
+            mPlayer.skipToNext();
         }
+        mPlayer.loopCurrent(mRepeatMode == MediaPlaylistAgent.REPEAT_MODE_ONE);
         // TODO: Call setNextDataSource (b/74090741)
     }
 
