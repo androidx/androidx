@@ -16,11 +16,14 @@
 
 package androidx.mediarouter.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
 
 /**
@@ -31,7 +34,8 @@ import androidx.fragment.app.DialogFragment;
  * </p>
  */
 public class MediaRouteControllerDialogFragment extends DialogFragment {
-    private MediaRouteControllerDialog mDialog;
+    private static final boolean USE_SUPPORT_DYNAMIC_GROUP = false;
+    private Dialog mDialog;
     /**
      * Creates a media route controller dialog fragment.
      * <p>
@@ -40,6 +44,15 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      */
     public MediaRouteControllerDialogFragment() {
         setCancelable(true);
+    }
+
+    /**
+     * Called when the cast dialog is being created.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public MediaRouteCastDialog onCreateCastDialog(Context context) {
+        return new MediaRouteCastDialog(context);
     }
 
     /**
@@ -55,7 +68,11 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mDialog = onCreateControllerDialog(getContext(), savedInstanceState);
+        if (USE_SUPPORT_DYNAMIC_GROUP) {
+            mDialog = onCreateCastDialog(getContext());
+        } else {
+            mDialog = onCreateControllerDialog(getContext(), savedInstanceState);
+        }
         return mDialog;
     }
 
@@ -63,7 +80,9 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     public void onStop() {
         super.onStop();
         if (mDialog != null) {
-            mDialog.clearGroupListAnimation(false);
+            if (!USE_SUPPORT_DYNAMIC_GROUP) {
+                ((MediaRouteControllerDialog) mDialog).clearGroupListAnimation(false);
+            }
         }
     }
 
@@ -71,7 +90,9 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (mDialog != null) {
-            mDialog.updateLayout();
+            if (!USE_SUPPORT_DYNAMIC_GROUP) {
+                ((MediaRouteControllerDialog) mDialog).updateLayout();
+            }
         }
     }
 }
