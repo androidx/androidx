@@ -97,6 +97,10 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     final Object mLock = new Object();
 
     @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    PlaybackInfo mPlaybackInfo;
+
+    @GuardedBy("mLock")
     private BaseMediaPlayer mPlayer;
     @GuardedBy("mLock")
     private MediaPlaylistAgent mPlaylistAgent;
@@ -104,8 +108,6 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     private SessionPlaylistAgentImplBase mSessionPlaylistAgent;
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
-    @GuardedBy("mLock")
-    private PlaybackInfo mPlaybackInfo;
 
     MediaSession2ImplBase(MediaSession2 instance, Context context, String id,
             BaseMediaPlayer player, MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
@@ -186,10 +188,10 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
 
         final BaseMediaPlayer oldPlayer;
         final MediaPlaylistAgent oldPlaylistAgent;
-        final PlaybackInfo info = createPlaybackInfo(player, player.getAudioAttributes());
+        final PlaybackInfo info = createPlaybackInfo(player);
 
         synchronized (mLock) {
-            isPlaybackInfoChanged = (mPlaybackInfo != info);
+            isPlaybackInfoChanged = !info.equals(mPlaybackInfo);
 
             oldPlayer = mPlayer;
             oldPlaylistAgent = mPlaylistAgent;
@@ -240,12 +242,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             if (isPlaybackInfoChanged) {
                 // Currently hasPlaybackInfo is always true, but check this in case that we're
                 // adding PlaybackInfo#equals().
-                notifyToAllControllers(new NotifyRunnable() {
-                    @Override
-                    public void run(ControllerCb callback) throws RemoteException {
-                        callback.onPlaybackInfoChanged(info);
-                    }
-                });
+                notifyPlaybackInfoChangedNotLocked(info);
             }
         }
 
@@ -272,16 +269,16 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         }
     }
 
-    private PlaybackInfo createPlaybackInfo(BaseMediaPlayer player,
-            AudioAttributesCompat attrs) {
-        PlaybackInfo info;
+    @NonNull PlaybackInfo createPlaybackInfo(@NonNull BaseMediaPlayer player) {
+        final AudioAttributesCompat attrs = player.getAudioAttributes();
+
         if (!(player instanceof BaseRemoteMediaPlayer)) {
             int stream = getLegacyStreamType(attrs);
             int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
             if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
                 controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
             }
-            info = PlaybackInfo.createPlaybackInfo(
+            return PlaybackInfo.createPlaybackInfo(
                     PlaybackInfo.PLAYBACK_TYPE_LOCAL,
                     attrs,
                     controlType,
@@ -289,14 +286,13 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
                     mAudioManager.getStreamVolume(stream));
         } else {
             BaseRemoteMediaPlayer remotePlayer = (BaseRemoteMediaPlayer) player;
-            info = PlaybackInfo.createPlaybackInfo(
+            return PlaybackInfo.createPlaybackInfo(
                     PlaybackInfo.PLAYBACK_TYPE_REMOTE,
                     attrs,
                     remotePlayer.getVolumeControlType(),
                     (int) remotePlayer.getMaxPlayerVolume(),
                     (int) remotePlayer.getPlayerVolume());
         }
-        return info;
     }
 
     private int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
@@ -1188,6 +1184,16 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         });
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void notifyPlaybackInfoChangedNotLocked(final PlaybackInfo info) {
+        notifyToAllControllers(new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onPlaybackInfoChanged(info);
+            }
+        });
+    }
+
     void notifyToController(@NonNull final ControllerInfo controller,
             @NonNull NotifyRunnable runnable) {
         if (controller == null) {
@@ -1358,6 +1364,20 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
                                     player.getCurrentPosition(), state);
                         }
                     });
+                    // Currently we don't have a listener to player's AudioAttributes changes.
+                    // Therefore, MediaController2 can get wrong AudioAttributes from
+                    // MediaController2.getPlaybackInfo(). As a remedy, we update the
+                    // AudioAttributes whenever player's state is changed.
+                    PlaybackInfo newInfo = session.createPlaybackInfo(player);
+                    PlaybackInfo oldInfo;
+                    synchronized (session.mLock) {
+                        oldInfo = session.mPlaybackInfo;
+                        session.mPlaybackInfo = newInfo;
+                    }
+                    if (!ObjectsCompat.equals(
+                            newInfo.getAudioAttributes(), oldInfo.getAudioAttributes())) {
+                        session.notifyPlaybackInfoChangedNotLocked(newInfo);
+                    }
                 }
             });
         }
