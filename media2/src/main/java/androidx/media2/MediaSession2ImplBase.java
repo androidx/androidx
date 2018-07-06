@@ -177,29 +177,78 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         if (player == null) {
             throw new IllegalArgumentException("player shouldn't be null");
         }
-        final boolean hasPlayerChanged;
-        final boolean hasAgentChanged;
-        final boolean hasPlaybackInfoChanged;
+
+        if (player == mPlayer && playlistAgent == mPlaylistAgent) {
+            return;
+        }
+
+        final boolean isPlaybackInfoChanged;
+
         final BaseMediaPlayer oldPlayer;
-        final MediaPlaylistAgent oldAgent;
+        final MediaPlaylistAgent oldPlaylistAgent;
         final PlaybackInfo info = createPlaybackInfo(player, player.getAudioAttributes());
+
         synchronized (mLock) {
-            hasPlayerChanged = (mPlayer != player);
-            hasAgentChanged = (mPlaylistAgent != playlistAgent);
-            hasPlaybackInfoChanged = (mPlaybackInfo != info);
+            isPlaybackInfoChanged = (mPlaybackInfo != info);
+
             oldPlayer = mPlayer;
-            oldAgent = mPlaylistAgent;
+            oldPlaylistAgent = mPlaylistAgent;
             mPlayer = player;
+
             if (playlistAgent == null) {
                 mSessionPlaylistAgent = new SessionPlaylistAgentImplBase(this, mPlayer);
                 if (mDsmHelper != null) {
                     mSessionPlaylistAgent.setOnDataSourceMissingHelper(mDsmHelper);
                 }
                 playlistAgent = mSessionPlaylistAgent;
+            } else if (mSessionPlaylistAgent != null) {
+                mSessionPlaylistAgent.setPlayer(mPlayer);
             }
             mPlaylistAgent = playlistAgent;
             mPlaybackInfo = info;
+
+            if (oldPlayer != mPlayer) {
+                if (oldPlayer != null) {
+                    // Warning: Poorly implement player may ignore this
+                    oldPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
+                }
+                // Registering callbacks is critical in case the player is being reused after reset.
+                mPlayer.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
+            }
+
+            if (oldPlaylistAgent != mPlaylistAgent) {
+                if (oldPlaylistAgent != null) {
+                    // Warning: Poorly implement agent may ignore this
+                    oldPlaylistAgent.unregisterPlaylistEventCallback(mPlaylistEventCallback);
+                }
+                mPlaylistAgent.registerPlaylistEventCallback(
+                        mCallbackExecutor, mPlaylistEventCallback);
+            }
         }
+
+        if (oldPlayer != null) {
+            // If it's not the first updatePlayer(), tell changes in the player, agent, and playback
+            // info.
+            if (playlistAgent != oldPlaylistAgent) {
+                // Update agent first. Otherwise current position may be changed off the current
+                // media item's duration, and controller may consider it as a bug.
+                notifyAgentUpdatedNotLocked(oldPlaylistAgent);
+            }
+            if (player != oldPlayer) {
+                notifyPlayerUpdatedNotLocked(oldPlayer);
+            }
+            if (isPlaybackInfoChanged) {
+                // Currently hasPlaybackInfo is always true, but check this in case that we're
+                // adding PlaybackInfo#equals().
+                notifyToAllControllers(new NotifyRunnable() {
+                    @Override
+                    public void run(ControllerCb callback) throws RemoteException {
+                        callback.onPlaybackInfoChanged(info);
+                    }
+                });
+            }
+        }
+
         if (player instanceof BaseRemoteMediaPlayer) {
             final BaseRemoteMediaPlayer remotePlayer = (BaseRemoteMediaPlayer) player;
             VolumeProviderCompat volumeProvider =
@@ -220,41 +269,6 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         } else {
             int stream = getLegacyStreamType(player.getAudioAttributes());
             mSessionCompat.setPlaybackToLocal(stream);
-        }
-        if (oldPlayer != null) {
-            // Warning: Poorly implement player may ignore this
-            oldPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
-        }
-        // Registering callbacks is critical in case the player is being reused after reset.
-        player.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
-
-        if (oldAgent != null) {
-            // Warning: Poorly implement agent may ignore this
-            oldAgent.unregisterPlaylistEventCallback(mPlaylistEventCallback);
-        }
-        playlistAgent.registerPlaylistEventCallback(mCallbackExecutor, mPlaylistEventCallback);
-
-        if (oldPlayer != null) {
-            // If it's not the first updatePlayer(), tell changes in the player, agent, and playback
-            // info.
-            if (hasAgentChanged) {
-                // Update agent first. Otherwise current position may be changed off the current
-                // media item's duration, and controller may consider it as a bug.
-                notifyAgentUpdatedNotLocked(oldAgent);
-            }
-            if (hasPlayerChanged) {
-                notifyPlayerUpdatedNotLocked(oldPlayer);
-            }
-            if (hasPlaybackInfoChanged) {
-                // Currently hasPlaybackInfo is always true, but check this in case that we're
-                // adding PlaybackInfo#equals().
-                notifyToAllControllers(new NotifyRunnable() {
-                    @Override
-                    public void run(ControllerCb callback) throws RemoteException {
-                        callback.onPlaybackInfoChanged(info);
-                    }
-                });
-            }
         }
     }
 
