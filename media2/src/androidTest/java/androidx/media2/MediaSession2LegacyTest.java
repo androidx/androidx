@@ -37,6 +37,7 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.media.AudioAttributesCompat;
+import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.SessionCallback;
 
@@ -164,19 +165,23 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         final MediaMetadata2 testPlaylistMetadata = new MediaMetadata2.Builder()
                 .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, testPlaylistTitle).build();
 
-        final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
-                .setLegacyStreamType(AudioManager.STREAM_RING).build();
-
         final MediaControllerCompat controller = mSession.getSessionCompat().getController();
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
-        controllerCallback.reset(6);
+        // TODO: Make each callback method use their own CountDownLatch.
+        if (Build.VERSION.SDK_INT < 21) {
+            controllerCallback.reset(7);
+        } else {
+            // On API 21+, MediaControllerCompat.Callback.onAudioInfoChanged() is called
+            // only when the playback type is changed. Since this test method does not change
+            // the playback type (local -> local), onAudioInfoChanged will not be called.
+            controllerCallback.reset(6);
+        }
         controller.registerCallback(controllerCallback, sHandler);
 
         MockPlayer player = new MockPlayer(0);
         player.mLastPlayerState = testState;
         player.mBufferedPosition = testBufferingPosition;
         player.mPlaybackSpeed = testSpeed;
-        player.setAudioAttributes(testAudioAttributes);
 
         MockPlaylistAgent agent = new MockPlaylistAgent();
         agent.mPlaylist = testPlaylist;
@@ -203,9 +208,162 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
                     queue.get(i).getDescription().getMediaId());
         }
         assertEquals(testPlaylistTitle, controllerCallback.mTitle);
-        // TODO: Also test playbackInfo callbacks.
     }
 
+    @Test
+    public void testUpdatePlayer_playbackTypeChangedToRemote() throws InterruptedException {
+        prepareLooper();
+        final int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+        final float maxVolume = 25;
+        final float currentVolume = 10;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCompat.Callback controllerCallback =
+                new MediaControllerCompat.Callback() {
+                    @Override
+                    public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
+                        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
+                                info.getPlaybackType());
+                        assertEquals(controlType, info.getVolumeControl());
+                        assertEquals(maxVolume, info.getMaxVolume(), 0.0f);
+                        latch.countDown();
+                    }
+                };
+        controller.registerCallback(controllerCallback, sHandler);
+
+        MockRemotePlayer remotePlayer = new MockRemotePlayer(controlType, maxVolume, currentVolume);
+        mSession.updatePlayer(remotePlayer, null);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        MediaControllerCompat.PlaybackInfo info = controller.getPlaybackInfo();
+        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
+                info.getPlaybackType());
+        assertEquals(controlType, info.getVolumeControl());
+        assertEquals(maxVolume, info.getMaxVolume(), 0.0f);
+        assertEquals(currentVolume, info.getCurrentVolume(), 0.0f);
+    }
+
+    @Test
+    public void testUpdatePlayer_playbackTypeChangedToLocal() throws InterruptedException {
+        prepareLooper();
+        mSession.updatePlayer(
+                new MockRemotePlayer(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 10, 1), null);
+
+        final int legacyStream = AudioManager.STREAM_RING;
+        final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(legacyStream).build();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCompat.Callback controllerCallback =
+                new MediaControllerCompat.Callback() {
+                    @Override
+                    public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
+                        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
+                                info.getPlaybackType());
+                        assertEquals(legacyStream, info.getAudioStream());
+                        latch.countDown();
+                    }
+                };
+        controller.registerCallback(controllerCallback, sHandler);
+
+        MockPlayer player = new MockPlayer(0);
+        player.setAudioAttributes(attrs);
+        mSession.updatePlayer(player, null);
+
+        // In API 21 and 22, onAudioInfoChanged is not called when playback is changed to local.
+        if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
+            Thread.sleep(WAIT_TIME_MS);
+        } else {
+            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        }
+
+        MediaControllerCompat.PlaybackInfo info = controller.getPlaybackInfo();
+        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
+                info.getPlaybackType());
+        assertEquals(legacyStream, info.getAudioStream());
+    }
+
+    @Test
+    public void testUpdatePlayer_playbackTypeNotChanged_local() throws InterruptedException {
+        final int legacyStream = AudioManager.STREAM_RING;
+        final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(legacyStream).build();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCompat.Callback controllerCallback =
+                new MediaControllerCompat.Callback() {
+                    @Override
+                    public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
+                        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
+                                info.getPlaybackType());
+                        assertEquals(legacyStream, info.getAudioStream());
+                        latch.countDown();
+                    }
+                };
+        controller.registerCallback(controllerCallback, sHandler);
+
+        MockPlayer player = new MockPlayer(0);
+        player.setAudioAttributes(attrs);
+        mSession.updatePlayer(player, null);
+
+        // In API 21+, onAudioInfoChanged() is not called when playbackType is not changed.
+        if (Build.VERSION.SDK_INT >= 21) {
+            Thread.sleep(WAIT_TIME_MS);
+        } else {
+            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        }
+
+        MediaControllerCompat.PlaybackInfo info = controller.getPlaybackInfo();
+        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
+                info.getPlaybackType());
+        assertEquals(legacyStream, info.getAudioStream());
+    }
+
+    @Test
+    public void testUpdatePlayer_playbackTypeNotChanged_remote() throws InterruptedException {
+        mSession.updatePlayer(
+                new MockRemotePlayer(VolumeProviderCompat.VOLUME_CONTROL_FIXED, 10, 1), null);
+
+        final int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+        final float maxVolume = 25;
+        final float currentVolume = 10;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        final MediaControllerCompat.Callback controllerCallback =
+                new MediaControllerCompat.Callback() {
+                    @Override
+                    public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
+                        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
+                                info.getPlaybackType());
+                        assertEquals(controlType, info.getVolumeControl());
+                        assertEquals(maxVolume, info.getMaxVolume(), 0.0f);
+                        assertEquals(currentVolume, info.getCurrentVolume(), 0.0f);
+                        latch.countDown();
+                    }
+                };
+        controller.registerCallback(controllerCallback, sHandler);
+
+        MockRemotePlayer remotePlayer = new MockRemotePlayer(controlType, maxVolume, currentVolume);
+        mSession.updatePlayer(remotePlayer, null);
+
+        // In API 21+, onAudioInfoChanged() is not called when playbackType is not changed.
+        if (Build.VERSION.SDK_INT >= 21) {
+            Thread.sleep(WAIT_TIME_MS);
+        } else {
+            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        }
+
+        MediaControllerCompat.PlaybackInfo info = controller.getPlaybackInfo();
+        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
+                info.getPlaybackType());
+        assertEquals(controlType, info.getVolumeControl());
+        assertEquals(maxVolume, info.getMaxVolume(), 0.0f);
+        assertEquals(currentVolume, info.getCurrentVolume(), 0.0f);
+    }
 
     @Test
     public void testPlayerStateChange() throws Exception {
