@@ -477,18 +477,26 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
         // ViewHolder for route list item
         private class RouteViewHolder extends RecyclerView.ViewHolder {
+            View mItemView;
             TextView mTextView;
             ImageView mImageView;
 
             RouteViewHolder(View itemView) {
                 super(itemView);
+                mItemView = itemView;
                 mTextView = itemView.findViewById(R.id.mr_picker_route_name);
                 mImageView = itemView.findViewById(R.id.mr_picker_route_icon);
             }
 
-            public void bindRouteView(Item item) {
-                MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
+            public void bindRouteView(final Item item) {
+                final MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
 
+                mItemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        route.select();
+                    }
+                });
                 mTextView.setText(route.getName());
                 mImageView.setImageDrawable(getIconDrawable(route));
             }
