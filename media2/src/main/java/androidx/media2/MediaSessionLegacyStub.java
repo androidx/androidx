@@ -22,7 +22,6 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +29,7 @@ import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -105,13 +105,18 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     }
 
     @Override
-    public void onCommand(@NonNull String command, @Nullable Bundle args,
-            @Nullable ResultReceiver cb) {
-    }
-
-    @Override
-    public boolean onMediaButtonEvent(@NonNull Intent mediaButtonIntent) {
-        return false;
+    public void onCommand(final String commandName, final Bundle args, final ResultReceiver cb) {
+        if (commandName == null) {
+            return;
+        }
+        final SessionCommand2 command = new SessionCommand2(commandName, null);
+        onSessionCommand(command, new SessionRunnable() {
+            @Override
+            public void run(final ControllerInfo controller) throws RemoteException {
+                mSession.getCallback().onCustomCommand(
+                        mSession.getInstance(), controller, command, args, cb);
+            }
+        });
     }
 
     @Override
@@ -119,13 +124,16 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSession.prepare();
+                mSession.getInstance().prepare();
             }
         });
     }
 
     @Override
     public void onPrepareFromMediaId(final String mediaId, final Bundle extras) {
+        if (mediaId == null) {
+            return;
+        }
         onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
                 new SessionRunnable() {
                     @Override
@@ -138,6 +146,9 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepareFromSearch(final String query, final Bundle extras) {
+        if (query == null) {
+            return;
+        }
         onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
                 new SessionRunnable() {
                     @Override
@@ -150,6 +161,9 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepareFromUri(final Uri uri, final Bundle extras) {
+        if (uri == null) {
+            return;
+        }
         onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI,
                 new SessionRunnable() {
                     @Override
@@ -165,14 +179,17 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSession.play();
+                mSession.getInstance().play();
             }
         });
     }
 
     @Override
     public void onPlayFromMediaId(final String mediaId, final Bundle extras) {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
+        if (mediaId == null) {
+            return;
+        }
+        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -184,7 +201,10 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPlayFromSearch(final String query, final Bundle extras) {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
+        if (query == null) {
+            return;
+        }
+        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -196,7 +216,10 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPlayFromUri(final Uri uri, final Bundle extras) {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI,
+        if (uri == null) {
+            return;
+        }
+        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -211,17 +234,65 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSession.pause();
+                mSession.getInstance().pause();
             }
         });
     }
 
     @Override
     public void onStop() {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET, new SessionRunnable() {
+        // Here, we don't call BaseMediaPlayer#reset() since it may result removing
+        // all callbacks from the player. Instead, we pause and seek to zero.
+        // Here, we check both permissions: Pause / SeekTo.
+        if (mSession.isClosed()) {
+            return;
+        }
+
+        RemoteUserInfo remoteUserInfo = mSession.getSessionCompat().getCurrentControllerInfo();
+        final ControllerInfo controller;
+        synchronized (mLock) {
+            if (remoteUserInfo == null) {
+                controller = null;
+            } else if (mControllers.containsKey(remoteUserInfo)) {
+                controller = mControllers.get(remoteUserInfo);
+            } else {
+                controller = new ControllerInfo(
+                        remoteUserInfo,
+                        mSessionManager.isTrustedForMediaControl(remoteUserInfo),
+                        new ControllerLegacyCb(remoteUserInfo));
+                connect(controller);
+            }
+        }
+
+        final SessionCommand2 pauseCommand =
+                new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
+        final SessionCommand2 seekToCommand =
+                new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
+
+        mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                mSession.reset();
+            public void run() {
+                synchronized (mLock) {
+                    if (controller != null && !mControllers.containsValue(controller)) {
+                        return;
+                    }
+                }
+                MediaSession2.SessionCallback callback = mSession.getCallback();
+                MediaSession2 instance = mSession.getInstance();
+
+                boolean accepted = callback.onCommandRequest(instance, controller, pauseCommand)
+                        && callback.onCommandRequest(instance, controller, seekToCommand);
+
+                if (!accepted) {
+                    // Don't run rejected command.
+                    if (DEBUG) {
+                        Log.d(TAG, "Command (Stop) from " + controller + " was rejected by "
+                                + mSession);
+                    }
+                    return;
+                }
+                mSession.getInstance().pause();
+                mSession.getInstance().seekTo(0);
             }
         });
     }
@@ -231,37 +302,187 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSession.seekTo(pos);
+                mSession.getInstance().seekTo(pos);
             }
         });
     }
 
     @Override
     public void onSkipToNext() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSession.getInstance().skipToNextItem();
+                    }
+                });
     }
 
     @Override
     public void onSkipToPrevious() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSession.getInstance().skipToPreviousItem();
+                    }
+                });
     }
 
     @Override
-    public void onSkipToQueueItem(long id) {
+    public void onSkipToQueueItem(final long id) {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        List<MediaItem2> playlist = mSession.getPlaylistAgent().getPlaylist();
+                        if (playlist == null) {
+                            return;
+                        }
+                        for (int i = 0; i < playlist.size(); i++) {
+                            MediaItem2 item = playlist.get(i);
+                            if (item != null && item.getUuid().getMostSignificantBits() == id) {
+                                mSession.getInstance().skipToPlaylistItem(item);
+                                break;
+                            }
+                        }
+                    }
+                });
     }
 
     @Override
     public void onFastForward() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSession.getCallback().onFastForward(
+                                mSession.getInstance(), controller);
+                    }
+                });
     }
 
     @Override
     public void onRewind() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSession.getCallback().onRewind(mSession.getInstance(), controller);
+                    }
+                });
     }
 
     @Override
-    public void onSetRating(@NonNull RatingCompat rating) {
+    public void onSetRating(final RatingCompat rating) {
+        onSetRating(rating, null);
+    }
+
+    @Override
+    public void onSetRating(final RatingCompat rating, Bundle extras) {
+        if (rating == null) {
+            return;
+        }
+        // extras is ignored.
+        onSessionCommand(SessionCommand2.COMMAND_CODE_SESSION_SET_RATING,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        MediaItem2 currentItem = mSession.getCurrentMediaItem();
+                        if (currentItem == null) {
+                            return;
+                        }
+                        mSession.getCallback().onSetRating(mSession.getInstance(), controller,
+                                currentItem.getMediaId(), MediaUtils2.convertToRating2(rating));
+                    }
+                });
     }
 
     @Override
     public void onCustomAction(@NonNull String action, @Nullable Bundle extras) {
+        // no-op
+    }
+
+    @Override
+    public void onSetCaptioningEnabled(boolean enabled) {
+        // no-op
+    }
+
+    @Override
+    public void onSetRepeatMode(final int repeatMode) {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSession.getInstance().setRepeatMode(repeatMode);
+                    }
+                });
+    }
+
+    @Override
+    public void onSetShuffleMode(final int shuffleMode) {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSession.getInstance().setShuffleMode(shuffleMode);
+                    }
+                });
+    }
+
+    @Override
+    public void onAddQueueItem(final MediaDescriptionCompat description) {
+        if (description == null) {
+            return;
+        }
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        // Add the item at the end of the playlist.
+                        mSession.getInstance().addPlaylistItem(Integer.MAX_VALUE,
+                                MediaUtils2.convertToMediaItem2(description));
+                    }
+                });
+    }
+
+    @Override
+    public void onAddQueueItem(final MediaDescriptionCompat description, final int index) {
+        if (description == null) {
+            return;
+        }
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSession.getInstance().addPlaylistItem(index,
+                                MediaUtils2.convertToMediaItem2(description));
+                    }
+                });
+    }
+
+    @Override
+    public void onRemoveQueueItem(final MediaDescriptionCompat description) {
+        if (description == null) {
+            return;
+        }
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        // Note: Here we cannot simply call
+                        // removePlaylistItem(MediaUtils2.convertToMediaItem2(description)),
+                        // because the result of the method will have different UUID.
+                        List<MediaItem2> playlist = mSession.getInstance().getPlaylist();
+                        for (int i = 0; i < playlist.size(); i++) {
+                            MediaItem2 item = playlist.get(i);
+                            if (TextUtils.equals(item.getMediaId(), description.getMediaId())) {
+                                mSession.getInstance().removePlaylistItem(item);
+                                return;
+                            }
+                        }
+                    }
+                });
     }
 
     List<ControllerInfo> getConnectedControllers() {
@@ -342,30 +563,28 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 }
 
                 SessionCommand2 command;
-                if (sessionCommand == null) {
+                if (sessionCommand != null) {
+                    if (!isAllowedCommand(controller, sessionCommand)) {
+                        return;
+                    }
+                    command = sCommandsForOnCommandRequest.get(sessionCommand.getCommandCode());
+                } else {
                     if (!isAllowedCommand(controller, commandCode)) {
                         return;
                     }
                     command = sCommandsForOnCommandRequest.get(commandCode);
-                } else {
-                    if (!isAllowedCommand(controller, sessionCommand)) {
+                }
+                if (command != null) {
+                    boolean accepted = mSession.getCallback().onCommandRequest(
+                            mSession.getInstance(), controller, command);
+                    if (!accepted) {
+                        // Don't run rejected command.
+                        if (DEBUG) {
+                            Log.d(TAG, "Command (" + command + ") from "
+                                    + controller + " was rejected by " + mSession);
+                        }
                         return;
                     }
-                    command = sessionCommand;
-                }
-
-                if (command == null) {
-                    return;
-                }
-                boolean accepted = mSession.getCallback().onCommandRequest(
-                        mSession.getInstance(), controller, command);
-                if (!accepted) {
-                    // Don't run rejected command.
-                    if (DEBUG) {
-                        Log.d(TAG, "Command (" + command + ") from "
-                                + controller + " was rejected by " + mSession);
-                    }
-                    return;
                 }
                 try {
                     runnable.run(controller);
