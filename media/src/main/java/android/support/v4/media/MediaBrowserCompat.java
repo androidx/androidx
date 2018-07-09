@@ -110,7 +110,7 @@ public final class MediaBrowserCompat {
 
     /**
      * Used as an int extra field to denote the page number to subscribe.
-     * The value of {@code EXTRA_PAGE} should be greater than or equal to 1.
+     * The value of {@code EXTRA_PAGE} should be greater than or equal to 0.
      *
      * @see android.service.media.MediaBrowserService.BrowserRoot
      * @see #EXTRA_PAGE_SIZE
