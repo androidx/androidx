@@ -550,13 +550,12 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param iconResId the resource identifier of the drawable.
      * @param useLargeIcon the size of primary icon. Large Icon is a square as tall as an item.
      *
-     * @deprecated use {@link #setPrimaryActionIconSize(int)} instead.
+     * @deprecated use {@link #setPrimaryActionIcon(int, int)} instead.
      */
     @Deprecated
     public void setPrimaryActionIcon(@DrawableRes int iconResId, boolean useLargeIcon) {
-        setPrimaryActionIcon(iconResId);
-        setPrimaryActionIconSize(useLargeIcon
-                ? PRIMARY_ACTION_ICON_SIZE_LARGE : PRIMARY_ACTION_ICON_SIZE_SMALL);
+        setPrimaryActionIcon(iconResId,
+                useLargeIcon ? PRIMARY_ACTION_ICON_SIZE_LARGE : PRIMARY_ACTION_ICON_SIZE_SMALL);
     }
 
     /**
@@ -565,20 +564,22 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param drawable the Drawable to set, or null to clear the content.
      * @param useLargeIcon the size of primary icon. Large Icon is a square as tall as an item.
      *
-     * @deprecated use {@link #setPrimaryActionIconSize(int)} instead.
+     * @deprecated use {@link #setPrimaryActionIcon(int, int)} instead.
      */
     @Deprecated
     public void setPrimaryActionIcon(Drawable drawable, boolean useLargeIcon) {
-        setPrimaryActionIcon(drawable);
-        setPrimaryActionIconSize(useLargeIcon
-                ? PRIMARY_ACTION_ICON_SIZE_LARGE : PRIMARY_ACTION_ICON_SIZE_SMALL);
+        setPrimaryActionIcon(drawable,
+                useLargeIcon ? PRIMARY_ACTION_ICON_SIZE_LARGE : PRIMARY_ACTION_ICON_SIZE_SMALL);
     }
 
     /**
      * Sets {@code Primary Action} to be represented by an icon.
      *
      * @param iconResId the resource identifier of the drawable.
+     *
+     * @deprecated use {@link #setPrimaryActionIcon(int, int)} instead.
      */
+    @Deprecated
     public void setPrimaryActionIcon(@DrawableRes int iconResId) {
         setPrimaryActionIcon(mContext.getDrawable(iconResId));
     }
@@ -587,7 +588,10 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * Sets {@code Primary Action} to be represented by an icon.
      *
      * @param drawable the Drawable to set, or null to clear the content.
+     *
+     * @deprecated use {@link #setPrimaryActionIcon(int, int)} instead.
      */
+    @Deprecated
     public void setPrimaryActionIcon(@Nullable Drawable drawable) {
         mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
         mPrimaryActionIconDrawable = drawable;
@@ -601,8 +605,38 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
      *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
      *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
+     *
+     * @deprecated use {@link #setPrimaryActionIcon(int, int)} instead.
      */
+    @Deprecated
     public void setPrimaryActionIconSize(@PrimaryActionIconSize int size) {
+        mPrimaryActionIconSize = size;
+        markDirty();
+    }
+
+    /**
+     * Sets {@code Primary Action} to be represented by an icon.
+     *
+     * @param iconResId the resource identifier of the drawable.
+     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
+     */
+    public void setPrimaryActionIcon(@DrawableRes int iconResId, @PrimaryActionIconSize int size) {
+        setPrimaryActionIcon(mContext.getDrawable(iconResId), size);
+    }
+
+    /**
+     * Sets {@code Primary Action} to be represented by an icon.
+     *
+     * @param drawable the Drawable to set, or null to clear the content.
+     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
+     */
+    public void setPrimaryActionIcon(@Nullable Drawable drawable, @PrimaryActionIconSize int size) {
+        mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
+        mPrimaryActionIconDrawable = drawable;
         mPrimaryActionIconSize = size;
         markDirty();
     }

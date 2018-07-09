@@ -463,9 +463,11 @@ package androidx.car.widget {
     method public void setPrimaryActionEmptyIcon();
     method public deprecated void setPrimaryActionIcon(int, boolean);
     method public deprecated void setPrimaryActionIcon(android.graphics.drawable.Drawable, boolean);
-    method public void setPrimaryActionIcon(int);
-    method public void setPrimaryActionIcon(android.graphics.drawable.Drawable);
-    method public void setPrimaryActionIconSize(int);
+    method public deprecated void setPrimaryActionIcon(int);
+    method public deprecated void setPrimaryActionIcon(android.graphics.drawable.Drawable);
+    method public void setPrimaryActionIcon(int, int);
+    method public void setPrimaryActionIcon(android.graphics.drawable.Drawable, int);
+    method public deprecated void setPrimaryActionIconSize(int);
     method public void setPrimaryActionNoIcon();
     method public void setSupplementalIcon(int, boolean);
     method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean);
