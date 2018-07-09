@@ -33,6 +33,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.room.Room;
 import androidx.room.migration.Migration;
+import androidx.room.migration.bundle.SchemaBundle;
 import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -45,6 +46,7 @@ import org.junit.runner.RunWith;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -229,12 +231,42 @@ public class MigrationTest {
     }
 
     @Test
-    public void missingMigration() throws IOException {
+    public void missingMigration_onUpgrade() throws IOException {
         SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 1);
         database.close();
         try {
             Context targetContext = InstrumentationRegistry.getTargetContext();
             MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                    .build();
+            db.dao().loadAllEntity1s();
+            throw new AssertionError("Should've failed :/");
+        } catch (IllegalStateException ignored) {
+        }
+    }
+
+    @Test
+    public void missingMigration_onDowngrade() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, MigrationDb.MAX_VERSION);
+        database.close();
+        try {
+            Context targetContext = InstrumentationRegistry.getTargetContext();
+            MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                    .build();
+            db.dao().loadAllEntity1s();
+            throw new AssertionError("Should've failed :/");
+        } catch (IllegalStateException ignored) {
+        }
+    }
+
+    @Test
+    public void missingMigration_onUpgrade_fallbackToDestructiveMigrationOnDowngrade()
+            throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 1);
+        database.close();
+        try {
+            Context targetContext = InstrumentationRegistry.getTargetContext();
+            MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build();
             db.dao().loadAllEntity1s();
             throw new AssertionError("Should've failed :/");
@@ -347,6 +379,61 @@ public class MigrationTest {
         assertThat(throwable.getMessage(), endsWith("6"));
     }
 
+    @Test
+    public void fallbackToDestructiveMigrationOnDowngrade_onDowngrade()
+            throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, MigrationDb.MAX_VERSION);
+        final MigrationDb.Dao_V1 dao = new MigrationDb.Dao_V1(database);
+        dao.insertIntoEntity1(2, "foo");
+        dao.insertIntoEntity1(3, "bar");
+        database.close();
+
+        Context targetContext = InstrumentationRegistry.getTargetContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .fallbackToDestructiveMigrationOnDowngrade()
+                .build();
+        assertThat(db.dao().loadAllEntity1s().size(), is(0));
+        db.close();
+    }
+
+    @Test
+    public void fallbackToDestructiveMigration_onDowngrade()
+            throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, MigrationDb.MAX_VERSION);
+        final MigrationDb.Dao_V1 dao = new MigrationDb.Dao_V1(database);
+        dao.insertIntoEntity1(2, "foo");
+        dao.insertIntoEntity1(3, "bar");
+        database.close();
+
+        Context targetContext = InstrumentationRegistry.getTargetContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .fallbackToDestructiveMigration()
+                .build();
+        assertThat(db.dao().loadAllEntity1s().size(), is(0));
+        db.close();
+    }
+
+    @Test
+    public void fallbackToDestructiveMigrationOnDowngrade_suppliedMigration()
+            throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, MigrationDb.MAX_VERSION);
+        final MigrationDb.Dao_V1 dao = new MigrationDb.Dao_V1(database);
+        dao.insertIntoEntity1(2, "foo");
+        dao.insertIntoEntity1(3, "bar");
+        database.close();
+
+        Context targetContext = InstrumentationRegistry.getTargetContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .fallbackToDestructiveMigrationOnDowngrade()
+                .addMigrations(MIGRATION_MAX_LATEST)
+                .build();
+        // Check that two dummy values are present, confirming the database migration was successful
+        long dummyRowsCount = db.getOpenHelper().getReadableDatabase().compileStatement(
+                "SELECT count(*) FROM Dummy").simpleQueryForLong();
+        assertThat(dummyRowsCount, is(2L));
+        db.close();
+    }
+
     private void testFailure(int startVersion, int endVersion) throws IOException {
         final SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, startVersion);
         db.close();
@@ -415,6 +502,43 @@ public class MigrationTest {
                     + " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)");
             database.execSQL("CREATE UNIQUE INDEX `index_entity1` ON "
                     + MigrationDb.Entity1.TABLE_NAME + " (`name`)");
+        }
+    };
+
+    /**
+     * Downgrade migration from {@link MigrationDb#MAX_VERSION} to
+     * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
+     * that the post-migration validation passes.
+     *
+     * Additionally, it adds a table named Dummy with two rows to be able to distinguish this
+     * migration from a destructive migration.
+     *
+     * This migration allows us to keep creating new schemas for newer tests without updating the
+     * downgrade tests.
+     */
+    private static final Migration MIGRATION_MAX_LATEST = new Migration(
+            MigrationDb.MAX_VERSION, MigrationDb.LATEST_VERSION) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // Drop Entity1 since its possible that LATEST_VERSION schema defines it differently.
+            database.execSQL("DROP TABLE IF EXISTS " + MigrationDb.Entity1.TABLE_NAME);
+
+            try {
+                Context context = InstrumentationRegistry.getContext();
+                InputStream input = context.getAssets().open(MigrationDb.class.getCanonicalName()
+                        + "/" + MigrationDb.LATEST_VERSION + ".json");
+                SchemaBundle schemaBundle = SchemaBundle.deserialize(input);
+                for (String query : schemaBundle.getDatabase().buildCreateQueries()) {
+                    database.execSQL(query);
+                }
+            } catch (IOException e) {
+                // Re-throw as a runtime exception so test fails if something goes wrong.
+                throw new RuntimeException(e);
+            }
+
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Dummy` (`id` INTEGER NOT NULL,"
+                    + " PRIMARY KEY(`id`))");
+            database.execSQL("INSERT INTO `Dummy` (`id`) VALUES (1), (2)");
         }
     };
 

@@ -433,6 +433,7 @@ public abstract class RoomDatabase {
         private boolean mAllowMainThreadQueries;
         private JournalMode mJournalMode;
         private boolean mRequireMigration;
+        private boolean mAllowDestructiveMigrationOnDowngrade;
         /**
          * Migrations, mapped by from-to pairs.
          */
@@ -571,12 +572,33 @@ public abstract class RoomDatabase {
          * crashing.
          * <p>
          * Note that this will delete all of the data in the database tables managed by Room.
+         * <p>
+         * To let Room fallback to destructive migration only during a schema downgrade then use
+         * {@link #fallbackToDestructiveMigrationOnDowngrade()}.
          *
          * @return this
+         *
+         * @see #fallbackToDestructiveMigrationOnDowngrade()
          */
         @NonNull
         public Builder<T> fallbackToDestructiveMigration() {
             mRequireMigration = false;
+            mAllowDestructiveMigrationOnDowngrade = true;
+            return this;
+        }
+
+        /**
+         * Allows Room to destructively recreate database tables if {@link Migration}s are not
+         * available when downgrading to old schema versions.
+         *
+         * @return this
+         *
+         * @see Builder#fallbackToDestructiveMigration()
+         */
+        @NonNull
+        public Builder<T> fallbackToDestructiveMigrationOnDowngrade() {
+            mRequireMigration = true;
+            mAllowDestructiveMigrationOnDowngrade = true;
             return this;
         }
 
@@ -669,10 +691,9 @@ public abstract class RoomDatabase {
             }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer,
-                            mCallbacks, mAllowMainThreadQueries,
-                            mJournalMode.resolve(mContext),
-                            mQueryExecutor,
-                            mRequireMigration, mMigrationsNotRequiredFrom);
+                            mCallbacks, mAllowMainThreadQueries, mJournalMode.resolve(mContext),
+                            mQueryExecutor, mRequireMigration,
+                            mAllowDestructiveMigrationOnDowngrade, mMigrationsNotRequiredFrom);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
