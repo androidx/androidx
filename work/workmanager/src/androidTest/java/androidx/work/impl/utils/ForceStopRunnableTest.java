@@ -79,6 +79,7 @@ public class ForceStopRunnableTest {
         when(runnable.isForceStopped()).thenReturn(true);
         runnable.run();
         verify(mWorkManager, times(1)).rescheduleEligibleWork();
+        verify(mWorkManager, times(1)).onForceStopRunnableCompleted();
     }
 
     @Test
@@ -88,6 +89,7 @@ public class ForceStopRunnableTest {
         when(runnable.isForceStopped()).thenReturn(false);
         runnable.run();
         verify(mWorkManager, times(0)).rescheduleEligibleWork();
+        verify(mWorkManager, times(1)).onForceStopRunnableCompleted();
     }
 
     @Test

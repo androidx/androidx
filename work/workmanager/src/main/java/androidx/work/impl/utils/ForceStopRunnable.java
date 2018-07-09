@@ -73,6 +73,7 @@ public class ForceStopRunnable implements Runnable {
             Log.d(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
         }
+        mWorkManager.onForceStopRunnableCompleted();
     }
 
     /**
