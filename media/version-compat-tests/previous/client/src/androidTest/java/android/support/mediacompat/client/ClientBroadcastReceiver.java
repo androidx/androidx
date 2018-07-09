@@ -20,6 +20,7 @@ import static android.support.mediacompat.testlib.MediaControllerConstants.ADD_Q
 import static android.support.mediacompat.testlib.MediaControllerConstants
         .ADD_QUEUE_ITEM_WITH_INDEX;
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADJUST_VOLUME;
+import static android.support.mediacompat.testlib.MediaControllerConstants.DISPATCH_MEDIA_BUTTON;
 import static android.support.mediacompat.testlib.MediaControllerConstants.FAST_FORWARD;
 import static android.support.mediacompat.testlib.MediaControllerConstants.PAUSE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.PLAY;
@@ -67,6 +68,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaControllerCompat.TransportControls;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.KeyEvent;
 
 public class ClientBroadcastReceiver extends BroadcastReceiver {
 
@@ -112,6 +114,10 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
                     break;
                 case ADJUST_VOLUME:
                     controller.adjustVolume(extras.getInt(KEY_ARGUMENT), 0);
+                    break;
+                case DISPATCH_MEDIA_BUTTON:
+                    controller.dispatchMediaButtonEvent(
+                            (KeyEvent) extras.getParcelable(KEY_ARGUMENT));
                     break;
             }
         } else if (ACTION_CALL_TRANSPORT_CONTROLS_METHOD.equals(intent.getAction())

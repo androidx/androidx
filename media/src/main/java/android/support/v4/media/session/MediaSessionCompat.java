@@ -1033,13 +1033,14 @@ public class MediaSessionCompat {
             if (keyEvent == null || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
                 return false;
             }
+            RemoteUserInfo remoteUserInfo = impl.getCurrentControllerInfo();
             int keyCode = keyEvent.getKeyCode();
             switch (keyCode) {
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                     if (keyEvent.getRepeatCount() > 0) {
                         // Consider long-press as a single tap.
-                        handleMediaPlayPauseKeySingleTapIfPending();
+                        handleMediaPlayPauseKeySingleTapIfPending(remoteUserInfo);
                     } else if (mMediaPlayPauseKeyPending) {
                         mCallbackHandler.removeMessages(
                                 CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
@@ -1052,21 +1053,22 @@ public class MediaSessionCompat {
                         }
                     } else {
                         mMediaPlayPauseKeyPending = true;
-                        mCallbackHandler.sendEmptyMessageDelayed(
+                        mCallbackHandler.sendMessageDelayed(mCallbackHandler.obtainMessage(
                                 CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT,
+                                remoteUserInfo),
                                 ViewConfiguration.getDoubleTapTimeout());
                     }
                     return true;
                 default:
                     // If another key is pressed within double tap timeout, consider the pending
                     // pending play/pause as a single tap to handle media keys in order.
-                    handleMediaPlayPauseKeySingleTapIfPending();
+                    handleMediaPlayPauseKeySingleTapIfPending(remoteUserInfo);
                     break;
             }
             return false;
         }
 
-        void handleMediaPlayPauseKeySingleTapIfPending() {
+        void handleMediaPlayPauseKeySingleTapIfPending(RemoteUserInfo remoteUserInfo) {
             if (!mMediaPlayPauseKeyPending) {
                 return;
             }
@@ -1085,11 +1087,13 @@ public class MediaSessionCompat {
                         | PlaybackStateCompat.ACTION_PLAY)) != 0;
             boolean canPause = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
                         | PlaybackStateCompat.ACTION_PAUSE)) != 0;
+            impl.setCurrentControllerInfo(remoteUserInfo);
             if (isPlaying && canPause) {
                 onPause();
             } else if (!isPlaying && canPlay) {
                 onPlay();
             }
+            impl.setCurrentControllerInfo(null);
         }
 
         /**
@@ -1330,7 +1334,7 @@ public class MediaSessionCompat {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT) {
-                    handleMediaPlayPauseKeySingleTapIfPending();
+                    handleMediaPlayPauseKeySingleTapIfPending((RemoteUserInfo) msg.obj);
                 }
             }
         }
@@ -1969,6 +1973,9 @@ public class MediaSessionCompat {
 
         String getCallingPackage();
         RemoteUserInfo getCurrentControllerInfo();
+
+        // Internal only method
+        void setCurrentControllerInfo(RemoteUserInfo remoteUserInfo);
     }
 
     static class MediaSessionImplBase implements MediaSessionImpl {
@@ -1995,6 +2002,7 @@ public class MediaSessionCompat {
         private boolean mIsMbrRegistered = false;
         private boolean mIsRccRegistered = false;
         volatile Callback mCallback;
+        private RemoteUserInfo mRemoteUserInfo;
 
         @SessionFlags int mFlags;
 
@@ -2422,11 +2430,15 @@ public class MediaSessionCompat {
         @Override
         public RemoteUserInfo getCurrentControllerInfo() {
             synchronized (mLock) {
-                if (mHandler != null) {
-                    return mHandler.getRemoteUserInfo();
-                }
+                return mRemoteUserInfo;
             }
-            return null;
+        }
+
+        @Override
+        public void setCurrentControllerInfo(RemoteUserInfo remoteUserInfo) {
+            synchronized (mLock) {
+                mRemoteUserInfo = remoteUserInfo;
+            }
         }
 
         // Registers/unregisters components as needed.
@@ -2976,7 +2988,6 @@ public class MediaSessionCompat {
         }
 
         class MessageHandler extends Handler {
-
             private static final int MSG_COMMAND = 1;
             private static final int MSG_ADJUST_VOLUME = 2;
             private static final int MSG_PREPARE = 3;
@@ -3012,8 +3023,6 @@ public class MediaSessionCompat {
             private static final int KEYCODE_MEDIA_PAUSE = 127;
             private static final int KEYCODE_MEDIA_PLAY = 126;
 
-            private RemoteUserInfo mRemoteUserInfo;
-
             public MessageHandler(Looper looper) {
                 super(looper);
             }
@@ -3027,8 +3036,8 @@ public class MediaSessionCompat {
 
                 Bundle data = msg.getData();
                 ensureClassLoader(data);
-                mRemoteUserInfo = new RemoteUserInfo(data.getString(DATA_CALLING_PACKAGE),
-                        data.getInt(DATA_CALLING_PID), data.getInt(DATA_CALLING_UID));
+                setCurrentControllerInfo(new RemoteUserInfo(data.getString(DATA_CALLING_PACKAGE),
+                        data.getInt(DATA_CALLING_PID), data.getInt(DATA_CALLING_UID)));
 
                 Bundle extras = data.getBundle(DATA_EXTRAS);
                 ensureClassLoader(extras);
@@ -3141,7 +3150,7 @@ public class MediaSessionCompat {
                             break;
                     }
                 } finally {
-                    mRemoteUserInfo = null;
+                    setCurrentControllerInfo(null);
                 }
             }
 
@@ -3194,10 +3203,6 @@ public class MediaSessionCompat {
                                 + " already");
                         break;
                 }
-            }
-
-            RemoteUserInfo getRemoteUserInfo() {
-                return mRemoteUserInfo;
             }
         }
     }
@@ -3570,7 +3575,14 @@ public class MediaSessionCompat {
 
         @Override
         public Object getRemoteControlClient() {
+            // Note: When this returns somthing, {@link MediaSessionCompatCallbackTest} and
+            //       {@link #setCurrentUserInfoOverride} should be also updated.
             return null;
+        }
+
+        @Override
+        public void setCurrentControllerInfo(RemoteUserInfo remoteUserInfo) {
+            // No-op, until we return something from {@link #getRemoteControlClient}.
         }
 
         @Override
@@ -3584,6 +3596,7 @@ public class MediaSessionCompat {
 
         @Override
         public RemoteUserInfo getCurrentControllerInfo() {
+            // Note: Update MediaSessionCompatCallbackTest when we return something.
             return null;
         }
 
@@ -3895,6 +3908,11 @@ public class MediaSessionCompat {
 
         MediaSessionImplApi28(Object mediaSession) {
             super(mediaSession);
+        }
+
+        @Override
+        public void setCurrentControllerInfo(RemoteUserInfo remoteUserInfo) {
+            // No-op. {@link MediaSession#getCurrentControllerInfo} would work.
         }
 
         @Override
