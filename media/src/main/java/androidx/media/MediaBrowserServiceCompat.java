@@ -17,6 +17,7 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
@@ -185,7 +186,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         void onCreate();
         IBinder onBind(Intent intent);
         void setSessionToken(MediaSessionCompat.Token token);
-        void notifyChildrenChanged(final String parentId, final Bundle options);
+        void notifyChildrenChanged(String parentId, Bundle options);
+        void notifyChildrenChanged(RemoteUserInfo remoteUserInfo, String parentId, Bundle options);
         Bundle getBrowserRootHints();
         RemoteUserInfo getCurrentBrowserInfo();
         List<RemoteUserInfo> getSubscribingBrowsers(String parentId);
@@ -234,20 +236,41 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 public void run() {
                     for (IBinder binder : mConnections.keySet()) {
                         ConnectionRecord connection = mConnections.get(binder);
-                        List<Pair<IBinder, Bundle>> callbackList =
-                                connection.subscriptions.get(parentId);
-                        if (callbackList != null) {
-                            for (Pair<IBinder, Bundle> callback : callbackList) {
-                                if (MediaBrowserCompatUtils.hasDuplicatedItems(
-                                        options, callback.second)) {
-                                    performLoadChildren(parentId, connection, callback.second,
-                                            options);
-                                }
-                            }
+                        notifyChildrenChangedOnHandler(connection, parentId, options);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void notifyChildrenChanged(@NonNull final RemoteUserInfo remoteUserInfo,
+                @NonNull final String parentId, final Bundle options) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < mConnections.size(); i++) {
+                        ConnectionRecord connection = mConnections.valueAt(i);
+                        if (connection.browserInfo.equals(remoteUserInfo)) {
+                            notifyChildrenChangedOnHandler(connection, parentId, options);
+                            break;
                         }
                     }
                 }
             });
+        }
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        void notifyChildrenChangedOnHandler(final ConnectionRecord connection,
+                final String parentId, final Bundle options) {
+            List<Pair<IBinder, Bundle>> callbackList = connection.subscriptions.get(parentId);
+            if (callbackList != null) {
+                for (Pair<IBinder, Bundle> callback : callbackList) {
+                    if (MediaBrowserCompatUtils.hasDuplicatedItems(options, callback.second)) {
+                        performLoadChildren(parentId, connection, callback.second, options);
+                    }
+                }
+            }
+            // Don't break, because multiple remoteUserInfo may match.
         }
 
         @Override
@@ -326,6 +349,13 @@ public abstract class MediaBrowserServiceCompat extends Service {
         public void notifyChildrenChanged(final String parentId, final Bundle options) {
             notifyChildrenChangedForFramework(parentId, options);
             notifyChildrenChangedForCompat(parentId, options);
+        }
+
+        @Override
+        public void notifyChildrenChanged(final RemoteUserInfo remoteUserInfo,
+                final String parentId, final Bundle options) {
+            // TODO(Post-P): Need a way to notify to a specific browser in framework.
+            notifyChildrenChangedForCompat(remoteUserInfo, parentId, options);
         }
 
         @Override
@@ -416,20 +446,38 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 public void run() {
                     for (IBinder binder : mConnections.keySet()) {
                         ConnectionRecord connection = mConnections.get(binder);
-                        List<Pair<IBinder, Bundle>> callbackList =
-                                connection.subscriptions.get(parentId);
-                        if (callbackList != null) {
-                            for (Pair<IBinder, Bundle> callback : callbackList) {
-                                if (MediaBrowserCompatUtils.hasDuplicatedItems(
-                                        options, callback.second)) {
-                                    performLoadChildren(parentId, connection, callback.second,
-                                            options);
-                                }
-                            }
+                        notifyChildrenChangedForCompatOnHandler(connection, parentId, options);
+                    }
+                }
+            });
+        }
+
+        void notifyChildrenChangedForCompat(final RemoteUserInfo remoteUserInfo,
+                final String parentId, final Bundle options) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < mConnections.size(); i++) {
+                        ConnectionRecord connection = mConnections.valueAt(i);
+                        if (connection.browserInfo.equals(remoteUserInfo)) {
+                            notifyChildrenChangedForCompatOnHandler(connection, parentId, options);
                         }
                     }
                 }
             });
+        }
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        void notifyChildrenChangedForCompatOnHandler(final ConnectionRecord connection,
+                final String parentId, final Bundle options) {
+            List<Pair<IBinder, Bundle>> callbackList = connection.subscriptions.get(parentId);
+            if (callbackList != null) {
+                for (Pair<IBinder, Bundle> callback : callbackList) {
+                    if (MediaBrowserCompatUtils.hasDuplicatedItems(options, callback.second)) {
+                        performLoadChildren(parentId, connection, callback.second, options);
+                    }
+                }
+            }
         }
 
         @Override
@@ -1253,6 +1301,27 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     /**
+     * Called when a {@link MediaBrowserCompat#subscribe} is called.
+     *
+     * @param id id
+     * @param option option
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void onSubscribe(String id, Bundle option) {
+    }
+
+    /**
+     * Called when a {@link MediaBrowserCompat#unsubscribe} is called.
+     *
+     * @param id
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void onUnsubscribe(String id) {
+    }
+
+    /**
      * Called to get information about a specific media item.
      * <p>
      * Implementations must call {@link Result#sendResult result.sendResult}. If
@@ -1420,6 +1489,35 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     /**
+     * Notifies a connected media browsers that the children of
+     * the specified parent id have changed in some way.
+     * This will cause browsers to fetch subscribed content again.
+     *
+     * @param remoteUserInfo to receive this event.
+     * @param parentId The id of the parent media item whose
+     *            children changed.
+     * @param options A bundle of service-specific arguments to send
+     *            to the media browse. The contents of this bundle may
+     *            contain the information about the change.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void notifyChildrenChanged(@NonNull RemoteUserInfo remoteUserInfo,
+            @NonNull String parentId, @NonNull Bundle options) {
+        if (remoteUserInfo == null) {
+            throw new IllegalArgumentException("remoteUserInfo cannot be null in"
+                    + " notifyChildrenChanged");
+        }
+        if (parentId == null) {
+            throw new IllegalArgumentException("parentId cannot be null in notifyChildrenChanged");
+        }
+        if (options == null) {
+            throw new IllegalArgumentException("options cannot be null in notifyChildrenChanged");
+        }
+        mImpl.notifyChildrenChanged(remoteUserInfo, parentId, options);
+    }
+
+    /**
      * Gets {@link RemoteUserInfo} of all browsers which are subscribing to the given parentId.
      * @hide
      */
@@ -1469,30 +1567,40 @@ public abstract class MediaBrowserServiceCompat extends Service {
         connection.subscriptions.put(id, callbackList);
         // send the results
         performLoadChildren(id, connection, options, null);
+
+        mCurConnection = connection;
+        onSubscribe(id, options);
+        mCurConnection = null;
     }
 
     /**
      * Remove the subscription.
      */
     boolean removeSubscription(String id, ConnectionRecord connection, IBinder token) {
-        if (token == null) {
-            return connection.subscriptions.remove(id) != null;
-        }
-        boolean removed = false;
-        List<Pair<IBinder, Bundle>> callbackList = connection.subscriptions.get(id);
-        if (callbackList != null) {
-            Iterator<Pair<IBinder, Bundle>> iter = callbackList.iterator();
-            while (iter.hasNext()){
-                if (token == iter.next().first) {
-                    removed = true;
-                    iter.remove();
+        try {
+            if (token == null) {
+                return connection.subscriptions.remove(id) != null;
+            }
+            boolean removed = false;
+            List<Pair<IBinder, Bundle>> callbackList = connection.subscriptions.get(id);
+            if (callbackList != null) {
+                Iterator<Pair<IBinder, Bundle>> iter = callbackList.iterator();
+                while (iter.hasNext()) {
+                    if (token == iter.next().first) {
+                        removed = true;
+                        iter.remove();
+                    }
+                }
+                if (callbackList.size() == 0) {
+                    connection.subscriptions.remove(id);
                 }
             }
-            if (callbackList.size() == 0) {
-                connection.subscriptions.remove(id);
-            }
+            return removed;
+        } finally {
+            mCurConnection = connection;
+            onUnsubscribe(id);
+            mCurConnection = null;
         }
-        return removed;
     }
 
     /**

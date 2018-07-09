@@ -19,6 +19,7 @@ package androidx.media2;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -139,6 +140,10 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * {@link MediaLibrarySession#notifyChildrenChanged(
              * ControllerInfo, String, int, Bundle)}
              * when the parent is changed.
+             * <p>
+             * Interoperability: This will be called when
+             * {@link android.support.v4.media.MediaBrowserCompat#subscribe} is called.
+             * However, this won't be called when {@link MediaBrowser#subscribe} is called.
              *
              * @param session the session for this event
              * @param controller controller
@@ -153,6 +158,10 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
             /**
              * Called when a controller unsubscribes to the parent.
+             * <p>
+             * Interoperability: This wouldn't be called if {@link MediaBrowser#unsubscribe} is
+             * called while works well with
+             * {@link android.support.v4.media.MediaBrowserCompat#unsubscribe}.
              *
              * @param session the session for this event
              * @param controller controller
@@ -183,6 +192,9 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * requested search previously.
              * <p>
              * Return an empty list for no search result, and return {@code null} for the error.
+             * <p>
+             * This may be called with a query that hasn't called with {@link #onSearch}, especially
+             * when {@link android.support.v4.media.MediaBrowserCompat#search} is used.
              *
              * @param session the session for this event
              * @param controller controller

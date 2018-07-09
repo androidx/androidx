@@ -42,15 +42,15 @@ import java.util.concurrent.TimeUnit;
  */
 @SmallTest
 public class MediaSessionService2LegacyTest extends MediaSession2TestBase {
-    private MediaBrowserCompat mBrowserCompat;
-    private TestConnectionCallback mConnectionCallback;
+    MediaBrowserCompat mBrowserCompat;
+    TestConnectionCallback mConnectionCallback;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
         mConnectionCallback = new TestConnectionCallback();
-        final ComponentName component = new ComponentName(mContext, MockMediaSessionService2.class);
+        final ComponentName component = getServiceComponent();
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
@@ -72,7 +72,11 @@ public class MediaSessionService2LegacyTest extends MediaSession2TestBase {
         }
     }
 
-    private void connectAndWait() throws InterruptedException {
+    ComponentName getServiceComponent() {
+        return new ComponentName(mContext, MockMediaSessionService2.class);
+    }
+
+    void connectAndWait() throws InterruptedException {
         mBrowserCompat.connect();
         assertTrue(mConnectionCallback.mConnectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -129,7 +133,7 @@ public class MediaSessionService2LegacyTest extends MediaSession2TestBase {
         assertTrue(player.mPlayCalled);
     }
 
-    private class TestConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
+    class TestConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
         public final CountDownLatch mConnectedLatch = new CountDownLatch(1);
         public final CountDownLatch mSuspendedLatch = new CountDownLatch(1);
         public final CountDownLatch mFailedLatch = new CountDownLatch(1);
