@@ -147,8 +147,11 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
         if (parentId == null) {
             throw new IllegalArgumentException("parentId shouldn't be null");
         }
-        if (page < 1 || pageSize < 1) {
-            throw new IllegalArgumentException("Neither page nor pageSize should be less than 1");
+        if (page < 0) {
+            throw new IllegalArgumentException("page shouldn't be negative");
+        }
+        if (pageSize < 1) {
+            throw new IllegalArgumentException("pageSize shouldn't be less than 1");
         }
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {

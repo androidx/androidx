@@ -218,8 +218,8 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         }
 
         final int totalItemCount = items.size();
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(page * pageSize, totalItemCount);
+        int fromIndex = page * pageSize;
+        int toIndex = Math.min((page + 1) * pageSize, totalItemCount);
 
         List<MediaItem2> paginatedResult = new ArrayList<>();
         try {

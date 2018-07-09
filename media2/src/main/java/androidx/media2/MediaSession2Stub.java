@@ -838,8 +838,12 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "getChildren(): Ignoring null parentId from " + controller);
                             return;
                         }
-                        if (page < 1 || pageSize < 1) {
-                            Log.w(TAG, "getChildren(): Ignoring page nor pageSize less than 1 from "
+                        if (page < 0) {
+                            Log.w(TAG, "getChildren(): Ignoring negative page from " + controller);
+                            return;
+                        }
+                        if (pageSize < 1) {
+                            Log.w(TAG, "getChildren(): Ignoring pageSize less than 1 from "
                                     + controller);
                             return;
                         }
@@ -876,9 +880,14 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     + controller);
                             return;
                         }
-                        if (page < 1 || pageSize < 1) {
-                            Log.w(TAG, "getSearchResult(): Ignoring page nor pageSize less than 1 "
-                                    + " from " + controller);
+                        if (page < 0) {
+                            Log.w(TAG, "getSearchResult(): Ignoring negative page from "
+                                    + controller);
+                            return;
+                        }
+                        if (pageSize < 1) {
+                            Log.w(TAG, "getSearchResult(): Ignoring pageSize less than 1 from "
+                                    + controller);
                             return;
                         }
                         getLibrarySession().onGetSearchResultOnExecutor(controller,
