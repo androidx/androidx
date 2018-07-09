@@ -117,7 +117,7 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
 
                 Drawable thumbDrawable = DrawableCompat.wrap(switchView.getThumbDrawable());
                 DrawableCompat.setTint(thumbDrawable, color);
-                switchView.setTrackDrawable(thumbDrawable);
+                switchView.setThumbDrawable(thumbDrawable);
             }
             mActionView = switchView;
 
