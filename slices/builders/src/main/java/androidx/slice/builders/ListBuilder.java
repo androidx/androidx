@@ -230,6 +230,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @see InputRangeBuilder#setPrimaryAction(SliceAction)
      * @see RangeBuilder#setPrimaryAction(SliceAction)
      */
+    @NonNull
     @Override
     public Slice build() {
         return ((TemplateBuilderImpl) mImpl).build();
