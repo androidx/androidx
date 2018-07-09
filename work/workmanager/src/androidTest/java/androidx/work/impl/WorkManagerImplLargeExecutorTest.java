@@ -67,7 +67,6 @@ import java.util.concurrent.TimeUnit;
 public class WorkManagerImplLargeExecutorTest {
 
     private static final int NUM_WORKERS = 200;
-    private static final int TEST_TIMEOUT_SECONDS = 90;
 
     // ThreadPoolExecutor parameters.
     private static final int MIN_POOL_SIZE = 0;
@@ -173,7 +172,7 @@ public class WorkManagerImplLargeExecutorTest {
                 });
 
         continuation.enqueue();
-        latch.await(TEST_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        latch.await(120L, TimeUnit.SECONDS);
         assertThat(latch.getCount(), is(0L));
     }
 
@@ -232,7 +231,7 @@ public class WorkManagerImplLargeExecutorTest {
                 });
 
         continuation.enqueue();
-        latch.await(TEST_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        latch.await(240L, TimeUnit.SECONDS);
         assertThat(latch.getCount(), is(0L));
     }
 }
