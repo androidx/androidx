@@ -30,7 +30,7 @@ public abstract class ListItemProvider<VH extends ListItem.ViewHolder> {
     /**
      * Returns {@link ListItem} at requested position.
      */
-    public abstract ListItem<VH> get(int position);
+    public abstract @NonNull ListItem<VH> get(int position);
 
     /**
      * @return number of total items.
@@ -50,7 +50,7 @@ public abstract class ListItemProvider<VH extends ListItem.ViewHolder> {
         }
 
         @Override
-        public ListItem<VH> get(int position) {
+        public @NonNull ListItem<VH> get(int position) {
             return mItems.get(position);
         }
 
