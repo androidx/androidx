@@ -65,6 +65,7 @@ import static android.support.test.InstrumentationRegistry.getTargetContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -83,6 +84,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
+import android.os.Process;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.mediacompat.testlib.util.PollingCheck;
@@ -99,6 +101,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
 
 import org.junit.After;
@@ -217,6 +220,40 @@ public class MediaSessionCompatCallbackTest {
         session.getController().getTransportControls().play();
         mCallback.await(TIME_OUT_MS);
         assertEquals(1, mCallback.mOnPlayCalledCount);
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void testCallers() throws Exception {
+        mCallback.reset(1);
+        mSession.setCallback(mCallback, new Handler(Looper.getMainLooper()));
+        MediaSessionCompat session = MediaSessionCompat.fromMediaSession(
+                getContext(), mSession.getMediaSession());
+        assertEquals(session.getSessionToken(), mSession.getSessionToken());
+
+        MediaControllerCompat controller1 = session.getController();
+        MediaControllerCompat controller2 =
+                new MediaControllerCompat(getContext(), session.getSessionToken());
+
+        controller1.getTransportControls().stop();
+        mCallback.await(TIME_OUT_MS);
+        assertTrue(mCallback.mOnStopCalled);
+        RemoteUserInfo remoteUserInfo1 = mCallback.mRemoteUserInfoForStop;
+        assertEquals(getContext().getPackageName(), remoteUserInfo1.getPackageName());
+        assertEquals(Process.myUid(), remoteUserInfo1.getUid());
+        assertEquals(Process.myPid(), remoteUserInfo1.getPid());
+
+        mCallback.reset(1);
+        controller2.getTransportControls().stop();
+        mCallback.await(TIME_OUT_MS);
+        assertTrue(mCallback.mOnStopCalled);
+        RemoteUserInfo remoteUserInfo2 = mCallback.mRemoteUserInfoForStop;
+        assertEquals(getContext().getPackageName(), remoteUserInfo2.getPackageName());
+        assertEquals(Process.myUid(), remoteUserInfo2.getUid());
+        assertEquals(Process.myPid(), remoteUserInfo2.getPid());
+
+        assertNotEquals(remoteUserInfo1, remoteUserInfo2);
     }
 
     /**
@@ -960,6 +997,7 @@ public class MediaSessionCompatCallbackTest {
 
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
         private CountDownLatch mLatch;
+        private RemoteUserInfo mRemoteUserInfoForStop;
         private long mSeekPosition;
         private long mQueueItemId;
         private RatingCompat mRating;
@@ -1021,6 +1059,7 @@ public class MediaSessionCompatCallbackTest {
             mQueueIndex = -1;
             mQueueDescription = null;
 
+            mRemoteUserInfoForStop = null;
             mOnPlayCalledCount = 0;
             mOnPauseCalled = false;
             mOnStopCalled = false;
@@ -1074,6 +1113,7 @@ public class MediaSessionCompatCallbackTest {
         public void onStop() {
             mOnStopCalled = true;
             setPlaybackState(PlaybackStateCompat.STATE_STOPPED);
+            mRemoteUserInfoForStop = mSession.getCurrentControllerInfo();
             mLatch.countDown();
         }
 
