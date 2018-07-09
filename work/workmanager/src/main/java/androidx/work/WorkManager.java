@@ -19,7 +19,6 @@ package androidx.work;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import androidx.work.impl.WorkManagerImpl;
@@ -125,14 +124,32 @@ public abstract class WorkManager {
      * @return The singleton instance of {@link WorkManager}; this may be {@code null} in unusual
      *         circumstances where you have disabled automatic initialization and have failed to
      *         manually call {@link #initialize(Context, Configuration)}.
+     * @throws IllegalStateException If WorkManager is not initialized properly.  This is most
+     *         likely because you disabled the automatic initialization but forgot to manually
+     *         call {@link WorkManager#initialize(Context, Configuration)}.
      */
-    public static @Nullable WorkManager getInstance() {
-        return WorkManagerImpl.getInstance();
+    public static @NonNull WorkManager getInstance() {
+        WorkManager workManager = WorkManagerImpl.getInstance();
+        if (workManager == null) {
+            throw new IllegalStateException("WorkManager is not initialized properly.  The most "
+                    + "likely cause is that you disabled WorkManagerInitializer in your manifest "
+                    + "but forgot to call WorkManager#initialize in your Application#onCreate or a "
+                    + "ContentProvider.");
+        } else {
+            return workManager;
+        }
     }
 
     /**
-     * Used to do a one-time initialization of the {@link WorkManager} singleton with the default
-     * configuration.
+     * Used to do a one-time initialization of the {@link WorkManager} singleton with a custom
+     * {@link Configuration}.  By default, this method should not be called because WorkManager is
+     * automatically initialized.  To initialize WorkManager yourself, please follow these steps:
+     * <p><ul>
+     * <li>Disable {@code androidx.work.impl.WorkManagerInitializer} in your manifest
+     * <li>In {@code Application#onCreate} or a {@code ContentProvider}, call this method before
+     * calling {@link WorkManager#getInstance()}
+     * </ul></p>
+     * This method has no effect if WorkManager is already initialized.
      *
      * @param context A {@link Context} object for configuration purposes. Internally, this class
      *                will call {@link Context#getApplicationContext()}, so you may safely pass in
