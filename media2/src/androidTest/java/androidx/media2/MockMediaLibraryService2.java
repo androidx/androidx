@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
@@ -140,6 +141,8 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     }
 
     private class TestLibrarySessionCallback extends MediaLibrarySessionCallback {
+        private String mLastQuery;
+
         @Override
         public LibraryRoot onGetLibraryRoot(MediaLibrarySession session, ControllerInfo controller,
                 Bundle rootHints) {
@@ -171,6 +174,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         @Override
         public void onSearch(MediaLibrarySession session, final ControllerInfo controllerInfo,
                 final String query, final Bundle extras) {
+            mLastQuery = query;
             if (SEARCH_QUERY.equals(query)) {
                 mSession.notifySearchResultChanged(controllerInfo, query, SEARCH_RESULT_COUNT,
                         extras);
@@ -194,7 +198,11 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         public List<MediaItem2> onGetSearchResult(MediaLibrarySession session,
                 ControllerInfo controllerInfo, String query, int page, int pageSize,
                 Bundle extras) {
-            if (SEARCH_QUERY.equals(query)) {
+            if (!TextUtils.equals(mLastQuery, query)) {
+                // Ensure whether onSearch() has called before
+                return null;
+            }
+            if (SEARCH_QUERY.equals(query) || SEARCH_QUERY_TAKES_TIME.equals(query)) {
                 return getPaginatedResult(SEARCH_RESULT, page, pageSize);
             } else {
                 return null;

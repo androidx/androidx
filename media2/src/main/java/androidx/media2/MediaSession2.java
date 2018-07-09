@@ -36,6 +36,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
@@ -952,6 +953,11 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         /**
          * Called when a controller sent a custom command through
          * {@link MediaController2#sendCustomCommand(SessionCommand2, Bundle, ResultReceiver)}.
+         * <p>
+         * Interoperability: This would be also called by {@link
+         * android.support.v4.media.MediaBrowserCompat
+         * #sendCustomAction(String, Bundle, CustomActionCallback)}. If so, extra from
+         * sendCustomAction will be considered as args and customCommand would have null extra.
          *
          * @param session the session for this event
          * @param controller controller information
@@ -1314,11 +1320,16 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         private final ControllerCb mControllerCb;
 
         /**
+         * @param remoteUserInfo remote user info
+         * @param trusted {@code true} if trusted, {@code false} otherwise
+         * @param cb ControllerCb. Can be {@code null} only when a MediaBrowserCompat connects to
+         *           MediaSessionService2 and ControllerInfo is needed for
+         *           SessionCallback#onConnected().
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
         ControllerInfo(@NonNull RemoteUserInfo remoteUserInfo, boolean trusted,
-                @NonNull ControllerCb cb) {
+                @Nullable ControllerCb cb) {
             mRemoteUserInfo = remoteUserInfo;
             mIsTrusted = trusted;
             mControllerCb = cb;
@@ -1361,7 +1372,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
 
         @Override
         public int hashCode() {
-            return mControllerCb.hashCode();
+            return mControllerCb != null ? mControllerCb.hashCode() : 0;
         }
 
         @Override
@@ -1370,7 +1381,10 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
                 return false;
             }
             ControllerInfo other = (ControllerInfo) obj;
-            return mControllerCb.equals(other.mControllerCb);
+            if (mControllerCb != null || other.mControllerCb != null) {
+                return ObjectsCompat.equals(mControllerCb, other.mControllerCb);
+            }
+            return mRemoteUserInfo.equals(other.mRemoteUserInfo);
         }
 
         @Override
@@ -1379,7 +1393,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
                     + mRemoteUserInfo.getUid() + "})";
         }
 
-        @NonNull ControllerCb getControllerCb() {
+        @Nullable ControllerCb getControllerCb() {
             return mControllerCb;
         }
     }

@@ -995,6 +995,10 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         return null;
     }
 
+    MediaBrowserServiceCompat getLegacyBrowserService() {
+        return mBrowserServiceLegacyStub;
+    }
+
     private static String getServiceName(Context context, String serviceAction, String id) {
         PackageManager manager = context.getPackageManager();
         Intent serviceIntent = new Intent(serviceAction);
@@ -1199,6 +1203,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             if (DEBUG) {
                 Log.d(TAG, controller.toString() + " is gone", e);
             }
+            // Note: Only removing from MediaSession2Stub would be fine for now, because other
+            //       (legacy) stubs wouldn't throw DeadObjectException.
             mSession2Stub.removeControllerInfo(controller);
             mCallbackExecutor.execute(new Runnable() {
                 @Override

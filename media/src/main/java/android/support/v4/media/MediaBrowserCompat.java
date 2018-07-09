@@ -1622,11 +1622,8 @@ public final class MediaBrowserCompat {
         MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
             mContext = context;
-            if (rootHints == null) {
-                rootHints = new Bundle();
-            }
-            rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
-            mRootHints = new Bundle(rootHints);
+            mRootHints = (rootHints != null ? new Bundle(rootHints) : new Bundle());
+            mRootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
             callback.setInternalConnectionCallback(this);
             mBrowserObj = MediaBrowserCompatApi21.createBrowser(context, serviceComponent,
                     callback.mConnectionCallbackObj, mRootHints);
