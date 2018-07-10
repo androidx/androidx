@@ -162,7 +162,7 @@ public class VideoViewTest extends FragmentActivity {
 
                 ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
                 params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                params.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 mVideoView.setLayoutParams(params);
             } else {
                 // Restore notification bar

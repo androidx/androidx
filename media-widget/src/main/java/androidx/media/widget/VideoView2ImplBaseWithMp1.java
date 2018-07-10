@@ -612,13 +612,11 @@ class VideoView2ImplBaseWithMp1
 
                     if (mSizeType != SIZE_TYPE_FULL) {
                         mSizeType = SIZE_TYPE_FULL;
-                        // TODO: remove MCV2 callback
                     }
                 } else {
                     if (mSizeType != SIZE_TYPE_EMBEDDED) {
                         mSizeType = SIZE_TYPE_EMBEDDED;
                         inflateMusicView(R.layout.embedded_music);
-                        // TODO: remove MCV2 callback
                     }
                 }
                 mPrevWidth = currWidth;
