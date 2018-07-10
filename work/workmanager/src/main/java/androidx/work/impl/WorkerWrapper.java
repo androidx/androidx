@@ -21,6 +21,7 @@ import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
 import static androidx.work.State.SUCCEEDED;
+import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
 import android.content.Context;
 import android.os.Build;
@@ -355,8 +356,17 @@ public class WorkerWrapper implements Runnable {
             mWorkSpecDao.setPeriodStartTime(mWorkSpecId, nextPeriodStartTime);
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
-            // We need to tell the schedulers that this WorkSpec is no longer occupying a slot.
-            mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
+            if (Build.VERSION.SDK_INT < WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
+                // We only need to reset the schedule_requested_at bit for the AlarmManager
+                // implementation because AlarmManager does not know about periodic WorkRequests.
+                // Otherwise we end up double scheduling the Worker with an identical jobId, and
+                // JobScheduler treats it as the first schedule for a PeriodicWorker. With the
+                // AlarmManager implementation, this is not an problem as AlarmManager only cares
+                // about the actual alarm itself.
+
+                // We need to tell the schedulers that this WorkSpec is no longer occupying a slot.
+                mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+            }
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
