@@ -260,10 +260,11 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
                 new MediaControllerCompat.Callback() {
                     @Override
                     public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
-                        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
-                                info.getPlaybackType());
-                        assertEquals(legacyStream, info.getAudioStream());
-                        latch.countDown();
+                        if (MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL
+                                == info.getPlaybackType()
+                                && legacyStream == info.getAudioStream()) {
+                            latch.countDown();
+                        }
                     }
                 };
         controller.registerCallback(controllerCallback, sHandler);
@@ -337,12 +338,13 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
                 new MediaControllerCompat.Callback() {
                     @Override
                     public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
-                        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
-                                info.getPlaybackType());
-                        assertEquals(controlType, info.getVolumeControl());
-                        assertEquals(maxVolume, info.getMaxVolume(), 0.0f);
-                        assertEquals(currentVolume, info.getCurrentVolume(), 0.0f);
-                        latch.countDown();
+                        if (MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE
+                                == info.getPlaybackType()
+                                && controlType == info.getVolumeControl()
+                                && maxVolume == info.getMaxVolume()
+                                && currentVolume == info.getCurrentVolume()) {
+                            latch.countDown();
+                        }
                     }
                 };
         controller.registerCallback(controllerCallback, sHandler);
