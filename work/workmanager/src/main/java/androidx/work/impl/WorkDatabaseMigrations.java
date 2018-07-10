@@ -19,9 +19,12 @@ package androidx.work.impl;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.model.WorkTypeConverters;
 import androidx.work.impl.utils.Preferences;
 
 /**
@@ -37,9 +40,10 @@ public class WorkDatabaseMigrations {
     }
 
     // Known WorkDatabase versions
-    private static final int VERSION_1 = 1;
-    private static final int VERSION_2 = 2;
-    private static final int VERSION_3 = 3;
+    public static final int VERSION_1 = 1;
+    public static final int VERSION_2 = 2;
+    public static final int VERSION_3 = 3;
+    public static final int VERSION_4 = 4;
 
     private static final String CREATE_SYSTEM_ID_INFO =
             "CREATE TABLE IF NOT EXISTS `SystemIdInfo` (`work_spec_id` TEXT NOT NULL, `system_id`"
@@ -49,6 +53,12 @@ public class WorkDatabaseMigrations {
     private static final String MIGRATE_ALARM_INFO_TO_SYSTEM_ID_INFO =
             "INSERT INTO SystemIdInfo(work_spec_id, system_id) "
                     + "SELECT work_spec_id, alarm_id AS system_id FROM alarmInfo";
+
+    private static final String PERIODIC_WORK_SET_SCHEDULE_REQUESTED_AT =
+            "UPDATE workspec SET schedule_requested_at=0"
+                    + " WHERE state NOT IN " + WorkTypeConverters.StateIds.COMPLETED_STATES
+                    + " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+                    + " AND interval_duration<>0";
 
     private static final String REMOVE_ALARM_INFO = "DROP TABLE IF EXISTS alarmInfo";
 
@@ -69,13 +79,13 @@ public class WorkDatabaseMigrations {
     };
 
     /**
-     * Migrates {@link WorkDatabase} version 2 to 3.
+     * A {@link WorkDatabase} migration that reschedules all eligible Workers.
      */
-    public static class Migration2To3 extends Migration {
+    public static class WorkMigration extends Migration {
         final Context mContext;
 
-        public Migration2To3(@NonNull Context context) {
-            super(VERSION_2, VERSION_3);
+        public WorkMigration(@NonNull Context context, int startVersion, int endVersion) {
+            super(startVersion, endVersion);
             mContext = context;
         }
 
@@ -85,4 +95,17 @@ public class WorkDatabaseMigrations {
             preferences.setNeedsReschedule(true);
         }
     }
+
+    /**
+     * Marks {@code SCHEDULE_REQUESTED_AT} to something other than
+     * {@code SCHEDULE_NOT_REQUESTED_AT}.
+     */
+    public static Migration MIGRATION_3_4 = new Migration(VERSION_3, VERSION_4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
+                database.execSQL(PERIODIC_WORK_SET_SCHEDULE_REQUESTED_AT);
+            }
+        }
+    };
 }
