@@ -27,6 +27,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -44,6 +45,7 @@ import java.util.HashMap;
  */
 @Navigator.Name("fragment")
 public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> {
+    private static final String TAG = "FragmentNavigator";
     private static final String KEY_BACK_STACK_IDS = "androidx-nav-fragment:navigator:backStackIds";
 
     private Context mContext;
@@ -101,6 +103,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         if (mBackStack.isEmpty()) {
             return false;
         }
+        if (mFragmentManager.isStateSaved()) {
+            Log.i(TAG, "Ignoring popBackStack() call: FragmentManager has already"
+                    + " saved its state");
+            return false;
+        }
         boolean popped = false;
         if (mFragmentManager.getBackStackEntryCount() > 0) {
             mFragmentManager.popBackStack();
@@ -133,6 +140,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     @Override
     public void navigate(@NonNull Destination destination, @Nullable Bundle args,
                             @Nullable NavOptions navOptions) {
+        if (mFragmentManager.isStateSaved()) {
+            Log.i(TAG, "Ignoring navigate() call: FragmentManager has already"
+                    + " saved its state");
+            return;
+        }
         final Fragment frag = destination.createFragment(args);
         final FragmentTransaction ft = mFragmentManager.beginTransaction();
 
