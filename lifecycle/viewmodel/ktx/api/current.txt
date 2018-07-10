@@ -1,0 +1,8 @@
+package androidx.lifecycle {
+
+  public final class ViewModelProviderKt {
+    ctor public ViewModelProviderKt();
+  }
+
+}
+

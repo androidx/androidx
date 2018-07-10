@@ -52,4 +52,5 @@ supportLibrary {
     minSdkVersion = 19
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
+    useMetalava = true
 }

@@ -1,0 +1,36 @@
+package androidx.work {
+
+  public final class DataKt {
+    ctor public DataKt();
+    method public static <V> androidx.work.Data toWorkData(java.util.Map<java.lang.String,? extends V>);
+  }
+
+  public final class OneTimeWorkRequestKt {
+    ctor public OneTimeWorkRequestKt();
+    method public static androidx.work.OneTimeWorkRequest.Builder setInputMerger(androidx.work.OneTimeWorkRequest.Builder, kotlin.reflect.KClass<? extends androidx.work.InputMerger> inputMerger);
+  }
+
+  public final class PeriodicWorkRequestKt {
+    ctor public PeriodicWorkRequestKt();
+  }
+
+}
+
+package androidx.work.ktx {
+
+  public final class DataKt {
+    ctor public DataKt();
+    method deprecated public static <V> androidx.work.Data toWorkData(java.util.Map<java.lang.String,? extends V>);
+  }
+
+  public final class OneTimeWorkRequestKt {
+    ctor public OneTimeWorkRequestKt();
+    method deprecated public static androidx.work.OneTimeWorkRequest.Builder setInputMerger(androidx.work.OneTimeWorkRequest.Builder, kotlin.reflect.KClass<? extends androidx.work.InputMerger> inputMerger);
+  }
+
+  public final class PeriodicWorkRequestKt {
+    ctor public PeriodicWorkRequestKt();
+  }
+
+}
+
