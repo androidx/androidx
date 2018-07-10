@@ -34,4 +34,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
+    useMetalava = true
 }

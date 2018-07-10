@@ -2,8 +2,8 @@ package androidx.core.animation {
 
   public final class AnimatorKt {
     ctor public AnimatorKt();
-    method public static android.animation.Animator.AnimatorListener addListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>? onEnd = "null", kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>? onStart = "null", kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>? onCancel = "null", kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>? onRepeat = "null");
-    method @RequiresApi(19) public static android.animation.Animator.AnimatorPauseListener addPauseListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>? onResume = "null", kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>? onPause = "null");
+    method public static android.animation.Animator.AnimatorListener addListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onEnd = "{}", kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onStart = "{}", kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onCancel = "{}", kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onRepeat = "{}");
+    method @RequiresApi(19) public static android.animation.Animator.AnimatorPauseListener addPauseListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onResume = "{}", kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onPause = "{}");
     method public static android.animation.Animator.AnimatorListener doOnCancel(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
     method public static android.animation.Animator.AnimatorListener doOnEnd(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
     method @RequiresApi(19) public static android.animation.Animator.AnimatorPauseListener doOnPause(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
@@ -18,7 +18,7 @@ package androidx.core.content {
 
   public final class ContentValuesKt {
     ctor public ContentValuesKt();
-    method public static error.NonExistentClass contentValuesOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method public static android.content.ContentValues contentValuesOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 
   public final class ContextKt {
@@ -62,27 +62,27 @@ package androidx.core.database {
 
   public final class CursorKt {
     ctor public CursorKt();
-    method public static byte[] getBlob(android.database.Cursor, String columnName);
+    method deprecated public static byte[] getBlob(android.database.Cursor, String columnName);
     method public static byte[]? getBlobOrNull(android.database.Cursor, int index);
-    method public static error.NonExistentClass getBlobOrNull(android.database.Cursor, String columnName);
-    method public static double getDouble(android.database.Cursor, String columnName);
+    method deprecated public static byte[]? getBlobOrNull(android.database.Cursor, String columnName);
+    method deprecated public static double getDouble(android.database.Cursor, String columnName);
     method public static Double? getDoubleOrNull(android.database.Cursor, int index);
-    method public static error.NonExistentClass getDoubleOrNull(android.database.Cursor, String columnName);
-    method public static float getFloat(android.database.Cursor, String columnName);
+    method deprecated public static Double? getDoubleOrNull(android.database.Cursor, String columnName);
+    method deprecated public static float getFloat(android.database.Cursor, String columnName);
     method public static Float? getFloatOrNull(android.database.Cursor, int index);
-    method public static error.NonExistentClass getFloatOrNull(android.database.Cursor, String columnName);
-    method public static int getInt(android.database.Cursor, String columnName);
+    method deprecated public static Float? getFloatOrNull(android.database.Cursor, String columnName);
+    method deprecated public static int getInt(android.database.Cursor, String columnName);
     method public static Integer? getIntOrNull(android.database.Cursor, int index);
-    method public static error.NonExistentClass getIntOrNull(android.database.Cursor, String columnName);
-    method public static long getLong(android.database.Cursor, String columnName);
+    method deprecated public static Integer? getIntOrNull(android.database.Cursor, String columnName);
+    method deprecated public static long getLong(android.database.Cursor, String columnName);
     method public static Long? getLongOrNull(android.database.Cursor, int index);
-    method public static error.NonExistentClass getLongOrNull(android.database.Cursor, String columnName);
-    method public static short getShort(android.database.Cursor, String columnName);
+    method deprecated public static Long? getLongOrNull(android.database.Cursor, String columnName);
+    method deprecated public static short getShort(android.database.Cursor, String columnName);
     method public static Short? getShortOrNull(android.database.Cursor, int index);
-    method public static error.NonExistentClass getShortOrNull(android.database.Cursor, String columnName);
-    method public static String getString(android.database.Cursor, String columnName);
+    method deprecated public static Short? getShortOrNull(android.database.Cursor, String columnName);
+    method deprecated public static String getString(android.database.Cursor, String columnName);
     method public static String? getStringOrNull(android.database.Cursor, int index);
-    method public static error.NonExistentClass getStringOrNull(android.database.Cursor, String columnName);
+    method deprecated public static String? getStringOrNull(android.database.Cursor, String columnName);
   }
 
 }
@@ -153,13 +153,19 @@ package androidx.core.graphics {
     method @RequiresApi(26) @ColorLong public static long toColorLong(int);
   }
 
+  public final class ImageDecoderKt {
+    ctor public ImageDecoderKt();
+    method @RequiresApi(28) public static android.graphics.Bitmap decodeBitmap(android.graphics.ImageDecoder.Source, kotlin.jvm.functions.Function3<? super android.graphics.ImageDecoder,? super android.graphics.ImageDecoder.ImageInfo,? super android.graphics.ImageDecoder.Source,kotlin.Unit> action);
+    method @RequiresApi(28) public static android.graphics.drawable.Drawable decodeDrawable(android.graphics.ImageDecoder.Source, kotlin.jvm.functions.Function3<? super android.graphics.ImageDecoder,? super android.graphics.ImageDecoder.ImageInfo,? super android.graphics.ImageDecoder.Source,kotlin.Unit> action);
+  }
+
   public final class MatrixKt {
     ctor public MatrixKt();
-    method public static error.NonExistentClass rotationMatrix(float degrees, float px = "0.0f", float py = "0.0f");
-    method public static error.NonExistentClass scaleMatrix(float sx = "1.0f", float sy = "1.0f");
-    method public static operator error.NonExistentClass times(android.graphics.Matrix, android.graphics.Matrix m);
-    method public static error.NonExistentClass translationMatrix(float tx = "0.0f", float ty = "0.0f");
-    method public static error.NonExistentClass values(android.graphics.Matrix);
+    method public static android.graphics.Matrix rotationMatrix(float degrees, float px = "0.0f", float py = "0.0f");
+    method public static android.graphics.Matrix scaleMatrix(float sx = "1.0f", float sy = "1.0f");
+    method public static operator android.graphics.Matrix times(android.graphics.Matrix, android.graphics.Matrix m);
+    method public static android.graphics.Matrix translationMatrix(float tx = "0.0f", float ty = "0.0f");
+    method public static float[] values(android.graphics.Matrix);
   }
 
   public final class PathKt {
@@ -170,19 +176,6 @@ package androidx.core.graphics {
     method @RequiresApi(19) public static infix android.graphics.Path or(android.graphics.Path, android.graphics.Path p);
     method @RequiresApi(19) public static operator android.graphics.Path plus(android.graphics.Path, android.graphics.Path p);
     method @RequiresApi(19) public static infix android.graphics.Path xor(android.graphics.Path, android.graphics.Path p);
-  }
-
-  public final class PathSegment {
-    ctor public PathSegment(android.graphics.PointF start, float startFraction, android.graphics.PointF end, float endFraction);
-    method public android.graphics.PointF component1();
-    method public float component2();
-    method public android.graphics.PointF component3();
-    method public float component4();
-    method public androidx.core.graphics.PathSegment copy(android.graphics.PointF start, float startFraction, android.graphics.PointF end, float endFraction);
-    method public android.graphics.PointF getEnd();
-    method public float getEndFraction();
-    method public android.graphics.PointF getStart();
-    method public float getStartFraction();
   }
 
   public final class PictureKt {
@@ -248,7 +241,7 @@ package androidx.core.graphics {
     method public static android.graphics.RectF toRectF(android.graphics.Rect);
     method public static android.graphics.Region toRegion(android.graphics.Rect);
     method public static android.graphics.Region toRegion(android.graphics.RectF);
-    method public static error.NonExistentClass transform(android.graphics.RectF, android.graphics.Matrix m);
+    method public static android.graphics.RectF transform(android.graphics.RectF, android.graphics.Matrix m);
     method public static infix android.graphics.Region xor(android.graphics.Rect, android.graphics.Rect r);
     method public static infix android.graphics.Region xor(android.graphics.RectF, android.graphics.RectF r);
   }
@@ -333,7 +326,7 @@ package androidx.core.os {
 
   public final class BundleKt {
     ctor public BundleKt();
-    method public static error.NonExistentClass bundleOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 
   public final class HandlerKt {
@@ -344,7 +337,7 @@ package androidx.core.os {
 
   public final class PersistableBundleKt {
     ctor public PersistableBundleKt();
-    method @RequiresApi(21) public static error.NonExistentClass persistableBundleOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 
   public final class TraceKt {
@@ -358,18 +351,18 @@ package androidx.core.preference {
 
   public final class PreferenceGroupKt {
     ctor public PreferenceGroupKt();
-    method public static operator boolean contains(android.preference.PreferenceGroup, android.preference.Preference preference);
-    method public static void forEach(android.preference.PreferenceGroup, kotlin.jvm.functions.Function1<? super android.preference.Preference,kotlin.Unit> action);
-    method public static void forEachIndexed(android.preference.PreferenceGroup, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super android.preference.Preference,kotlin.Unit> action);
-    method public static operator android.preference.Preference get(android.preference.PreferenceGroup, CharSequence key);
-    method public static operator android.preference.Preference get(android.preference.PreferenceGroup, int index);
-    method public static kotlin.sequences.Sequence<android.preference.Preference> getChildren(android.preference.PreferenceGroup);
-    method public static int getSize(android.preference.PreferenceGroup);
-    method public static boolean isEmpty(android.preference.PreferenceGroup);
-    method public static boolean isNotEmpty(android.preference.PreferenceGroup);
-    method public static operator java.util.Iterator<android.preference.Preference> iterator(android.preference.PreferenceGroup);
-    method public static operator void minusAssign(android.preference.PreferenceGroup, android.preference.Preference preference);
-    method public static operator void plusAssign(android.preference.PreferenceGroup, android.preference.Preference preference);
+    method deprecated public static operator boolean contains(android.preference.PreferenceGroup, android.preference.Preference preference);
+    method deprecated public static void forEach(android.preference.PreferenceGroup, kotlin.jvm.functions.Function1<? super android.preference.Preference,kotlin.Unit> action);
+    method deprecated public static void forEachIndexed(android.preference.PreferenceGroup, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super android.preference.Preference,kotlin.Unit> action);
+    method deprecated public static operator android.preference.Preference get(android.preference.PreferenceGroup, CharSequence key);
+    method deprecated public static operator android.preference.Preference get(android.preference.PreferenceGroup, int index);
+    method deprecated public static kotlin.sequences.Sequence<android.preference.Preference> getChildren(android.preference.PreferenceGroup);
+    method deprecated public static int getSize(android.preference.PreferenceGroup);
+    method deprecated public static boolean isEmpty(android.preference.PreferenceGroup);
+    method deprecated public static boolean isNotEmpty(android.preference.PreferenceGroup);
+    method deprecated public static operator java.util.Iterator<android.preference.Preference> iterator(android.preference.PreferenceGroup);
+    method deprecated public static operator void minusAssign(android.preference.PreferenceGroup, android.preference.Preference preference);
+    method deprecated public static operator void plusAssign(android.preference.PreferenceGroup, android.preference.Preference preference);
   }
 
 }
@@ -386,6 +379,11 @@ package androidx.core.text {
     ctor public HtmlKt();
     method public static android.text.Spanned parseAsHtml(String, int flags = "FROM_HTML_MODE_LEGACY", android.text.Html.ImageGetter? imageGetter = "null", android.text.Html.TagHandler? tagHandler = "null");
     method public static String toHtml(android.text.Spanned, int option = "TO_HTML_PARAGRAPH_LINES_CONSECUTIVE");
+  }
+
+  public final class LocaleKt {
+    ctor public LocaleKt();
+    method @RequiresApi(17) public static int getLayoutDirection(java.util.Locale);
   }
 
   public final class SpannableStringBuilderKt {
@@ -406,9 +404,9 @@ package androidx.core.text {
 
   public final class SpannableStringKt {
     ctor public SpannableStringKt();
-    method public static error.NonExistentClass clearSpans(android.text.Spannable);
-    method public static operator void minusAssign(android.text.Spannable, Object span);
-    method public static operator void plusAssign(android.text.Spannable, Object span);
+    method public static void clearSpans(android.text.Spannable);
+    method deprecated public static operator void minusAssign(android.text.Spannable, Object span);
+    method deprecated public static operator void plusAssign(android.text.Spannable, Object span);
     method public static operator void set(android.text.Spannable, int start, int end, Object span);
     method public static operator void set(android.text.Spannable, kotlin.ranges.IntRange range, Object span);
     method public static android.text.Spannable toSpannable(CharSequence);
@@ -430,12 +428,12 @@ package androidx.core.transition {
 
   public final class TransitionKt {
     ctor public TransitionKt();
-    method @RequiresApi(19) public static void addListener(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>? onEnd = "null", kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>? onStart = "null", kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>? onCancel = "null", kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>? onResume = "null", kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>? onPause = "null");
-    method @RequiresApi(19) public static void doOnCancel(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
-    method @RequiresApi(19) public static void doOnEnd(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
-    method @RequiresApi(19) public static void doOnPause(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
-    method @RequiresApi(19) public static void doOnResume(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
-    method @RequiresApi(19) public static void doOnStart(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method @RequiresApi(19) public static android.transition.Transition.TransitionListener addListener(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onEnd = "{}", kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onStart = "{}", kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onCancel = "{}", kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onResume = "{}", kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onPause = "{}");
+    method @RequiresApi(19) public static android.transition.Transition.TransitionListener doOnCancel(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method @RequiresApi(19) public static android.transition.Transition.TransitionListener doOnEnd(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method @RequiresApi(19) public static android.transition.Transition.TransitionListener doOnPause(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method @RequiresApi(19) public static android.transition.Transition.TransitionListener doOnResume(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method @RequiresApi(19) public static android.transition.Transition.TransitionListener doOnStart(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
   }
 
 }
@@ -444,14 +442,14 @@ package androidx.core.util {
 
   public final class ArrayMapKt {
     ctor public ArrayMapKt();
-    method @RequiresApi(19) public static <K, V> android.util.ArrayMap<K,V> arrayMapOf();
-    method @RequiresApi(19) public static <K, V> android.util.ArrayMap<K,V> arrayMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
+    method @RequiresApi(19) deprecated public static <K, V> android.util.ArrayMap<K,V> arrayMapOf();
+    method @RequiresApi(19) deprecated public static <K, V> android.util.ArrayMap<K,V> arrayMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
   }
 
   public final class ArraySetKt {
     ctor public ArraySetKt();
-    method @RequiresApi(23) public static <T> android.util.ArraySet<T> arraySetOf();
-    method @RequiresApi(23) public static <T> android.util.ArraySet<T> arraySetOf(T... values);
+    method @RequiresApi(23) deprecated public static <T> android.util.ArraySet<T> arraySetOf();
+    method @RequiresApi(23) deprecated public static <T> android.util.ArraySet<T> arraySetOf(T... values);
   }
 
   public final class AtomicFileKt {
@@ -473,7 +471,7 @@ package androidx.core.util {
 
   public final class LocaleKt {
     ctor public LocaleKt();
-    method @RequiresApi(17) public static int getLayoutDirection(java.util.Locale);
+    method @RequiresApi(17) deprecated public static int getLayoutDirection(java.util.Locale);
   }
 
   public final class LongSparseArrayKt {
@@ -552,7 +550,7 @@ package androidx.core.util {
     method public static boolean containsValue(android.util.SparseBooleanArray, boolean value);
     method public static void forEach(android.util.SparseBooleanArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> action);
     method public static boolean getOrDefault(android.util.SparseBooleanArray, int key, boolean defaultValue);
-    method public static error.NonExistentClass getOrElse(android.util.SparseBooleanArray, int key, kotlin.jvm.functions.Function0<java.lang.Boolean> defaultValue);
+    method public static boolean getOrElse(android.util.SparseBooleanArray, int key, kotlin.jvm.functions.Function0<java.lang.Boolean> defaultValue);
     method public static int getSize(android.util.SparseBooleanArray);
     method public static boolean isEmpty(android.util.SparseBooleanArray);
     method public static boolean isNotEmpty(android.util.SparseBooleanArray);
@@ -571,7 +569,7 @@ package androidx.core.util {
     method public static boolean containsValue(android.util.SparseIntArray, int value);
     method public static void forEach(android.util.SparseIntArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
     method public static int getOrDefault(android.util.SparseIntArray, int key, int defaultValue);
-    method public static error.NonExistentClass getOrElse(android.util.SparseIntArray, int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public static int getOrElse(android.util.SparseIntArray, int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public static int getSize(android.util.SparseIntArray);
     method public static boolean isEmpty(android.util.SparseIntArray);
     method public static boolean isNotEmpty(android.util.SparseIntArray);
@@ -590,7 +588,7 @@ package androidx.core.util {
     method @RequiresApi(18) public static boolean containsValue(android.util.SparseLongArray, long value);
     method @RequiresApi(18) public static void forEach(android.util.SparseLongArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> action);
     method @RequiresApi(18) public static long getOrDefault(android.util.SparseLongArray, int key, long defaultValue);
-    method @RequiresApi(18) public static error.NonExistentClass getOrElse(android.util.SparseLongArray, int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method @RequiresApi(18) public static long getOrElse(android.util.SparseLongArray, int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method @RequiresApi(18) public static int getSize(android.util.SparseLongArray);
     method @RequiresApi(18) public static boolean isEmpty(android.util.SparseLongArray);
     method @RequiresApi(18) public static boolean isNotEmpty(android.util.SparseLongArray);
@@ -640,10 +638,17 @@ package androidx.core.view {
 
   public final class ViewKt {
     ctor public ViewKt();
-    method @RequiresApi(16) public static void announceForAccessibility(android.view.View, @StringRes int resource);
+    method @RequiresApi(16) deprecated public static void announceForAccessibility(android.view.View, @StringRes int resource);
     method public static void doOnLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static void doOnNextLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static void doOnPreDraw(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+    method public static android.graphics.Bitmap drawToBitmap(android.view.View, android.graphics.Bitmap.Config config = "Bitmap.Config.ARGB_8888");
+    method public static int getMarginBottom(android.view.View);
+    method public static int getMarginEnd(android.view.View);
+    method public static int getMarginLeft(android.view.View);
+    method public static int getMarginRight(android.view.View);
+    method public static int getMarginStart(android.view.View);
+    method public static int getMarginTop(android.view.View);
     method public static boolean isGone(android.view.View);
     method public static boolean isInvisible(android.view.View);
     method public static boolean isVisible(android.view.View);
@@ -653,7 +658,7 @@ package androidx.core.view {
     method public static void setInvisible(android.view.View, boolean value);
     method public static void setPadding(android.view.View, @Px int size);
     method public static void setVisible(android.view.View, boolean value);
-    method public static android.graphics.Bitmap toBitmap(android.view.View, android.graphics.Bitmap.Config config = "Bitmap.Config.ARGB_8888");
+    method deprecated public static android.graphics.Bitmap toBitmap(android.view.View, android.graphics.Bitmap.Config config = "Bitmap.Config.ARGB_8888");
     method public static void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super android.view.ViewGroup.LayoutParams,kotlin.Unit> block);
     method public static void updatePadding(android.view.View, @Px int left = "paddingLeft", @Px int top = "paddingTop", @Px int right = "paddingRight", @Px int bottom = "paddingBottom");
     method @RequiresApi(17) public static void updatePaddingRelative(android.view.View, @Px int start = "paddingStart", @Px int top = "paddingTop", @Px int end = "paddingEnd", @Px int bottom = "paddingBottom");
@@ -665,8 +670,8 @@ package androidx.core.widget {
 
   public final class ToastKt {
     ctor public ToastKt();
-    method public static android.widget.Toast toast(android.content.Context, CharSequence text, int duration = "Toast.LENGTH_SHORT");
-    method public static android.widget.Toast toast(android.content.Context, @StringRes int resId, int duration = "Toast.LENGTH_SHORT");
+    method deprecated public static android.widget.Toast toast(android.content.Context, CharSequence text, int duration = "Toast.LENGTH_SHORT");
+    method deprecated public static android.widget.Toast toast(android.content.Context, @StringRes int resId, int duration = "Toast.LENGTH_SHORT");
   }
 
 }
