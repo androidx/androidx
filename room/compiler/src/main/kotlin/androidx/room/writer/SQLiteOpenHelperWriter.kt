@@ -29,8 +29,16 @@ import androidx.room.vo.Entity
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeSpec
+import java.util.ArrayDeque
+import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
+
+/**
+ * The threshold amount of statements in a validateMigration() method before creating additional
+ * secondary validate methods.
+ */
+const val VALIDATE_CHUNK_SIZE = 1000
 
 /**
  * Create an open helper using SupportSQLiteOpenHelperFactory
@@ -68,22 +76,51 @@ class SQLiteOpenHelperWriter(val database: Database) {
             addMethod(createDropAllTables())
             addMethod(createOnCreate(scope.fork()))
             addMethod(createOnOpen(scope.fork()))
-            addMethod(createValidateMigration(scope.fork()))
+            addMethods(createValidateMigration(scope.fork()))
         }.build()
     }
 
-    private fun createValidateMigration(scope: CodeGenScope): MethodSpec {
-        return MethodSpec.methodBuilder("validateMigration").apply {
-            addModifiers(PROTECTED)
-            addAnnotation(Override::class.java)
-            val dbParam = ParameterSpec.builder(SupportDbTypeNames.DB, "_db").build()
-            addParameter(dbParam)
-            database.entities.forEach { entity ->
-                val methodScope = scope.fork()
-                TableInfoValidationWriter(entity).write(dbParam, methodScope)
-                addCode(methodScope.builder().build())
+    private fun createValidateMigration(scope: CodeGenScope): List<MethodSpec> {
+        val methodSpecs = mutableListOf<MethodSpec>()
+        val entities = ArrayDeque(database.entities)
+        val dbParam = ParameterSpec.builder(SupportDbTypeNames.DB, "_db").build()
+        while (!entities.isEmpty()) {
+            val isPrimaryMethod = methodSpecs.isEmpty()
+            val methodName = if (isPrimaryMethod) {
+                "validateMigration"
+            } else {
+                "validateMigration${methodSpecs.size + 1}"
             }
-        }.build()
+            methodSpecs.add(MethodSpec.methodBuilder(methodName).apply {
+                if (isPrimaryMethod) {
+                    addModifiers(PROTECTED)
+                    addAnnotation(Override::class.java)
+                } else {
+                    addModifiers(PRIVATE)
+                }
+                addParameter(dbParam)
+                var statementCount = 0
+                while (!entities.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
+                    val methodScope = scope.fork()
+                    val validationWriter = TableInfoValidationWriter(entities.poll())
+                    validationWriter.write(dbParam, methodScope)
+                    addCode(methodScope.builder().build())
+                    statementCount += validationWriter.statementCount()
+                }
+            }.build())
+        }
+
+        // If there are secondary validate methods then add invocation statements to all of them
+        // from the primary method.
+        if (methodSpecs.size > 1) {
+            methodSpecs[0] = methodSpecs[0].toBuilder().apply {
+                methodSpecs.drop(1).forEach {
+                    addStatement("${it.name}($N)", dbParam)
+                }
+            }.build()
+        }
+
+        return methodSpecs
     }
 
     private fun createOnCreate(scope: CodeGenScope): MethodSpec {
