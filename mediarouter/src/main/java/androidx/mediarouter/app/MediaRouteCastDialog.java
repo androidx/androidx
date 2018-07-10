@@ -27,19 +27,20 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
@@ -49,12 +50,15 @@ import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.palette.graphics.Palette;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,6 +76,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     static final String TAG = "MediaRouteCastDialog";
     static final int CONNECTION_TIMEOUT_MILLIS = (int) TimeUnit.SECONDS.toMillis(30L);
 
+    private static final int ITEM_TYPE_GROUP_VOLUME = 1;
+
     final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
     final MediaRouter.RouteInfo mRoute;
@@ -79,12 +85,14 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     Context mContext;
     private boolean mCreated;
     private boolean mAttachedToWindow;
+    private RecyclerAdapter mAdapter;
+    private RecyclerView mRecyclerView;
 
     private ImageButton mCloseButton;
     private Button mStopCastingButton;
 
     private RelativeLayout mMetadataLayout;
-    ImageView mArtView;
+    private ImageView mArtView;
     private TextView mTitleView;
     private TextView mSubtitleView;
 
@@ -111,7 +119,6 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         mRouter = MediaRouter.getInstance(mContext);
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
-
         mControllerCallback = new MediaControllerCallback();
         setMediaSession(mRouter.getMediaSessionToken());
     }
@@ -181,6 +188,12 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 dismiss();
             }
         });
+
+        mAdapter = new RecyclerAdapter();
+        mRecyclerView = findViewById(R.id.mr_cast_list);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
         mMetadataLayout = findViewById(R.id.mr_cast_meta);
         mArtView = findViewById(R.id.mr_cast_meta_art);
         mTitleView = findViewById(R.id.mr_cast_meta_title);
@@ -251,6 +264,11 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         return bitmap != null && bitmap.isRecycled();
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int getDesiredArtHeight(int originalWidth, int originalHeight) {
+        return mArtView.getHeight();
+    }
+
     void updateArtIconIfNeeded() {
         if (!isIconChanged()) {
             return;
@@ -305,8 +323,143 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         }
     }
 
+    // TODO(111421478): Implement actual VolumeChangeListener
+    private class VolumeChangeListener implements SeekBar.OnSeekBarChangeListener {
+        VolumeChangeListener() {
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+        }
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        }
+    }
+
+    private final class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private static final String TAG = "RecyclerAdapter";
+        ArrayList<Item> mItems;
+
+        private final LayoutInflater mInflater;
+        final VolumeChangeListener mVolumeChangeListener;
+        final int mVolumeSliderColor;
+
+        RecyclerAdapter() {
+            mInflater = LayoutInflater.from(mContext);
+            mVolumeChangeListener = new VolumeChangeListener();
+            mVolumeSliderColor = MediaRouterThemeHelper.getControllerColor(mContext, 0);
+            setItems();
+        }
+
+        // Create a list of items with mRoutes and add them to mItems
+        void setItems() {
+            mItems = new ArrayList<>();
+            // Add Group Volume item only when currently casting on a group
+            if (mRoute instanceof MediaRouter.RouteGroup) {
+                mItems.add(new Item(mRoute, ITEM_TYPE_GROUP_VOLUME));
+            }
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view;
+
+            switch (viewType) {
+                case ITEM_TYPE_GROUP_VOLUME:
+                    view = mInflater.inflate(R.layout.mr_cast_group_volume, parent, false);
+                    return new GroupVolumeViewHolder(view);
+                default:
+                    Log.w(TAG, "Cannot create ViewHolder because of wrong view type");
+                    return null;
+            }
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            int viewType = getItemViewType(position);
+            Item item = getItem(position);
+
+            switch (viewType) {
+                case ITEM_TYPE_GROUP_VOLUME:
+                    ((GroupVolumeViewHolder) holder).bindGroupVolumeView(item);
+                    break;
+                default:
+                    Log.w(TAG, "Cannot bind item to ViewHolder because of wrong view type");
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return mItems.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return mItems.get(position).getType();
+        }
+
+        public Item getItem(int position) {
+            return mItems.get(position);
+        }
+
+        /**
+         * Item class contains information of section header(text of section header) and
+         * route(text of route name, icon of route type)
+         */
+        private class Item {
+            private final Object mData;
+            private final int mType;
+
+            Item(Object data, int type) {
+                mData = data;
+                mType = type;
+            }
+
+            public Object getData() {
+                return mData;
+            }
+
+            public int getType() {
+                return mType;
+            }
+        }
+
+        // ViewHolder for route list item
+        private class GroupVolumeViewHolder extends RecyclerView.ViewHolder {
+            TextView mTextView;
+            MediaRouteVolumeSlider mGroupVolumeSlider;
+
+            GroupVolumeViewHolder(View itemView) {
+                super(itemView);
+                mTextView = itemView.findViewById(R.id.mr_group_volume_route_name);
+                mGroupVolumeSlider = itemView.findViewById(R.id.mr_group_volume_slider);
+            }
+
+            public void bindGroupVolumeView(final Item item) {
+                final MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
+
+                mTextView.setText(route.getName().toUpperCase());
+                mGroupVolumeSlider.setColor(mVolumeSliderColor);
+                mGroupVolumeSlider.setTag(route);
+                mGroupVolumeSlider.setProgress(mRoute.getVolume());
+                mGroupVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
+            }
+        }
+    }
+
+
     private final class MediaRouterCallback extends MediaRouter.Callback {
         MediaRouterCallback() {
+        }
+
+        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
+            update();
         }
 
         @Override
@@ -344,7 +497,6 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         private final Bitmap mIconBitmap;
         private final Uri mIconUri;
         private int mBackgroundColor;
-        private long mStartTimeMillis;
 
         FetchArtTask() {
             Bitmap bitmap = mDescription == null ? null : mDescription.getIconBitmap();
@@ -366,7 +518,6 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         @Override
         protected void onPreExecute() {
-            mStartTimeMillis = SystemClock.uptimeMillis();
             clearLoadedBitmap();
         }
 
@@ -402,7 +553,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     }
                     // Calculate required size to decode the art and possibly resize it.
                     options.inJustDecodeBounds = false;
-                    int reqHeight = mArtView.getHeight();
+                    int reqHeight = getDesiredArtHeight(options.outWidth, options.outHeight);
                     int ratio = options.outHeight / reqHeight;
                     options.inSampleSize = Math.max(1, Integer.highestOneBit(ratio));
                     if (isCancelled()) {

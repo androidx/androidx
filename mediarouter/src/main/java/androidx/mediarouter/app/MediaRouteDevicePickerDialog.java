@@ -350,7 +350,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
             switch (viewType) {
                 case ITEM_TYPE_HEADER:
-                    view = mInflater.inflate(R.layout.mr_picker_list_item_header, parent, false);
+                    view = mInflater.inflate(R.layout.mr_dialog_section_header_item, parent, false);
                     return new HeaderViewHolder(view);
                 case ITEM_TYPE_ROUTE:
                     view = mInflater.inflate(R.layout.mr_picker_list_item_route, parent, false);
@@ -462,7 +462,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
             HeaderViewHolder(View itemView) {
                 super(itemView);
-                mTextView = itemView.findViewById(R.id.mr_picker_header_name);
+                mTextView = itemView.findViewById(R.id.mr_dialog_section_header_name);
             }
 
             public void binHeaderView(Item item) {
