@@ -69,6 +69,13 @@ public class ViewModelTest {
     }
 
     @Test
+    public void testSameViewModelStorePrePostOnCreate() {
+        ViewModelActivity activity = mActivityRule.getActivity();
+        assertThat("Pre-onCreate() ViewModelStore should equal the post-onCreate() ViewModelStore",
+                activity.preOnCreateViewModelStore, is(activity.postOnCreateViewModelStore));
+    }
+
+    @Test
     public void testSameActivityViewModels() throws Throwable {
         final TestViewModel[] activityModel = new TestViewModel[1];
         final TestViewModel[] defaultActivityModel = new TestViewModel[1];
