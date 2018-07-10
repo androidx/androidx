@@ -18,6 +18,12 @@ package androidx.work;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL;
 
+import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_1;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_4;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -28,12 +34,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkDatabaseMigrations;
+import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
 import androidx.work.impl.utils.Preferences;
@@ -53,9 +62,6 @@ public class WorkDatabaseMigrationTest {
 
     private static final String TEST_DATABASE = "workdatabase-test";
     private static final boolean VALIDATE_DROPPED_TABLES = true;
-    private static final int VERSION_1 = 1;
-    private static final int VERSION_2 = 2;
-    private static final int VERSION_3 = 3;
     private static final String COLUMN_WORKSPEC_ID = "work_spec_id";
     private static final String COLUMN_SYSTEM_ID = "system_id";
     private static final String COLUMN_ALARM_ID = "alarm_id";
@@ -97,35 +103,12 @@ public class WorkDatabaseMigrationTest {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_1);
 
-        String[] prepopulatedWorkSpecIds = new String[] {
+        String[] prepopulatedWorkSpecIds = new String[]{
                 UUID.randomUUID().toString(),
                 UUID.randomUUID().toString()
         };
         for (String workSpecId : prepopulatedWorkSpecIds) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put("id", workSpecId);
-            contentValues.put("state", WorkTypeConverters.StateIds.ENQUEUED);
-            contentValues.put("worker_class_name", TestWorker.class.getName());
-            contentValues.put("input_merger_class_name", OverwritingInputMerger.class.getName());
-            contentValues.put("input", Data.toByteArray(Data.EMPTY));
-            contentValues.put("output", Data.toByteArray(Data.EMPTY));
-            contentValues.put("initial_delay", 0L);
-            contentValues.put("interval_duration", 0L);
-            contentValues.put("flex_duration", 0L);
-            contentValues.put("required_network_type", false);
-            contentValues.put("requires_charging", false);
-            contentValues.put("requires_device_idle", false);
-            contentValues.put("requires_battery_not_low", false);
-            contentValues.put("requires_storage_not_low", false);
-            contentValues.put("content_uri_triggers",
-                    WorkTypeConverters.contentUriTriggersToByteArray(new ContentUriTriggers()));
-            contentValues.put("run_attempt_count", 0);
-            contentValues.put("backoff_policy",
-                    WorkTypeConverters.backoffPolicyToInt(BackoffPolicy.EXPONENTIAL));
-            contentValues.put("backoff_delay_duration", WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS);
-            contentValues.put("period_start_time", 0L);
-            contentValues.put("minimum_retention_duration", 0L);
-            contentValues.put("schedule_requested_at", WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
+            ContentValues contentValues = contentValues(workSpecId);
             database.insert("workspec", CONFLICT_FAIL, contentValues);
 
             if (workSpecId.equals(prepopulatedWorkSpecIds[0])) {
@@ -193,8 +176,8 @@ public class WorkDatabaseMigrationTest {
     public void testMigrationVersion2To3() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_2);
-        WorkDatabaseMigrations.Migration2To3 migration2To3 = new WorkDatabaseMigrations
-                .Migration2To3(mContext);
+        WorkDatabaseMigrations.WorkMigration migration2To3 =
+                new WorkDatabaseMigrations.WorkMigration(mContext, VERSION_2, VERSION_3);
 
         database = mMigrationTestHelper.runMigrationsAndValidate(
                 TEST_DATABASE,
@@ -205,6 +188,79 @@ public class WorkDatabaseMigrationTest {
         Preferences preferences = new Preferences(mContext);
         assertThat(preferences.needsReschedule(), is(true));
         database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion3To4() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_3);
+
+        String oneTimeWorkSpecId = UUID.randomUUID().toString();
+        long scheduleRequestedAt = System.currentTimeMillis();
+        ContentValues oneTimeWorkSpecContentValues = contentValues(oneTimeWorkSpecId);
+        oneTimeWorkSpecContentValues.put("schedule_requested_at", scheduleRequestedAt);
+
+        String periodicWorkSpecId = UUID.randomUUID().toString();
+        ContentValues periodicWorkSpecContentValues = contentValues(periodicWorkSpecId);
+        periodicWorkSpecContentValues.put("interval_duration", 15 * 60 * 1000L);
+
+        database.insert("workspec", CONFLICT_FAIL, oneTimeWorkSpecContentValues);
+        database.insert("workspec", CONFLICT_FAIL, periodicWorkSpecContentValues);
+
+        database = mMigrationTestHelper.runMigrationsAndValidate(
+                TEST_DATABASE,
+                VERSION_4,
+                VALIDATE_DROPPED_TABLES,
+                MIGRATION_3_4);
+
+        Cursor cursor = database.query("SELECT * from workspec");
+        assertThat(cursor.getCount(), is(2));
+        cursor.moveToFirst();
+        assertThat(cursor.getString(cursor.getColumnIndex("id")),
+                is(oneTimeWorkSpecId));
+        assertThat(cursor.getLong(cursor.getColumnIndex("schedule_requested_at")),
+                is(scheduleRequestedAt));
+        cursor.moveToNext();
+        assertThat(cursor.getString(cursor.getColumnIndex("id")),
+                is(periodicWorkSpecId));
+        if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
+            assertThat(cursor.getLong(cursor.getColumnIndex("schedule_requested_at")),
+                    is(0L));
+        } else {
+            assertThat(cursor.getLong(cursor.getColumnIndex("schedule_requested_at")),
+                    is(WorkSpec.SCHEDULE_NOT_REQUESTED_YET));
+        }
+        database.close();
+    }
+
+    @NonNull
+    private ContentValues contentValues(String workSpecId) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("id", workSpecId);
+        contentValues.put("state", WorkTypeConverters.StateIds.ENQUEUED);
+        contentValues.put("worker_class_name", TestWorker.class.getName());
+        contentValues.put("input_merger_class_name", OverwritingInputMerger.class.getName());
+        contentValues.put("input", Data.toByteArray(Data.EMPTY));
+        contentValues.put("output", Data.toByteArray(Data.EMPTY));
+        contentValues.put("initial_delay", 0L);
+        contentValues.put("interval_duration", 0L);
+        contentValues.put("flex_duration", 0L);
+        contentValues.put("required_network_type", false);
+        contentValues.put("requires_charging", false);
+        contentValues.put("requires_device_idle", false);
+        contentValues.put("requires_battery_not_low", false);
+        contentValues.put("requires_storage_not_low", false);
+        contentValues.put("content_uri_triggers",
+                WorkTypeConverters.contentUriTriggersToByteArray(new ContentUriTriggers()));
+        contentValues.put("run_attempt_count", 0);
+        contentValues.put("backoff_policy",
+                WorkTypeConverters.backoffPolicyToInt(BackoffPolicy.EXPONENTIAL));
+        contentValues.put("backoff_delay_duration", WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS);
+        contentValues.put("period_start_time", 0L);
+        contentValues.put("minimum_retention_duration", 0L);
+        contentValues.put("schedule_requested_at", WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
+        return contentValues;
     }
 
     private boolean checkExists(SupportSQLiteDatabase database, String tableName) {

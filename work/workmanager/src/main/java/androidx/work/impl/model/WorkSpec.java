@@ -114,6 +114,14 @@ public class WorkSpec {
     @ColumnInfo(name = "minimum_retention_duration")
     public long minimumRetentionDuration;
 
+    /**
+     * This field tells us if this {@link WorkSpec} instance, is actually currently scheduled and
+     * being counted against the {@code SCHEDULER_LIMIT}. This bit is reset for PeriodicWorkRequests
+     * in API < 23, because AlarmManager does not know of PeriodicWorkRequests. So for the next
+     * request to be rescheduled this field has to be reset to {@code SCHEDULE_NOT_REQUESTED_AT}.
+     * For the JobScheduler implementation, we don't reset this field because JobScheduler natively
+     * supports PeriodicWorkRequests.
+     */
     @ColumnInfo(name = "schedule_requested_at")
     public long scheduleRequestedAt = SCHEDULE_NOT_REQUESTED_YET;
 
