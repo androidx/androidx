@@ -21,10 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import static java.util.Collections.singletonList;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
@@ -39,6 +35,9 @@ import androidx.room.Relation;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.Transaction;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

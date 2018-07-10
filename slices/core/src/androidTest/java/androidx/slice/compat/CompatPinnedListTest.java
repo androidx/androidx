@@ -24,13 +24,13 @@ import static junit.framework.Assert.assertTrue;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.collection.ArraySet;
 import androidx.slice.SliceSpec;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import junit.framework.AssertionFailedError;
 

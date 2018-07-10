@@ -16,9 +16,9 @@
 
 package androidx.room.integration.kotlintestapp.test
 
-import android.support.test.filters.SmallTest
 import androidx.room.EmptyResultSetException
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
+import androidx.test.filters.SmallTest
 import org.junit.Test
 
 @SmallTest

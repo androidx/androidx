@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import android.support.test.filters.SmallTest
+import androidx.test.filters.SmallTest
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.paging.Config
 import androidx.paging.DataSource

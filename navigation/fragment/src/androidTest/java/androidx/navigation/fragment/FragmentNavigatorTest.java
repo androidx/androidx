@@ -26,9 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.arch.lifecycle.Lifecycle;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
@@ -37,6 +34,9 @@ import androidx.navigation.Navigator;
 import androidx.navigation.fragment.test.EmptyActivity;
 import androidx.navigation.fragment.test.EmptyFragment;
 import androidx.navigation.fragment.test.R;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;

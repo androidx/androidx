@@ -22,15 +22,15 @@ import static org.junit.Assert.assertNull;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.Instrumentation;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.KeyEvent;
 
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.app.test.FragmentTestActivity.TestFragment;
 import androidx.fragment.test.R;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

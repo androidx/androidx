@@ -15,7 +15,7 @@
  */
 package androidx.appcompat.app;
 
-import android.support.test.filters.SmallTest;
+import androidx.test.filters.SmallTest;
 
 /**
  * Testing the default view inflation where appcompat views are used for specific

@@ -16,19 +16,17 @@
 
 package androidx.viewpager2.widget.swipe;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
 import static androidx.core.util.Preconditions.checkArgumentNonnegative;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.allOf;
 
-import android.support.test.espresso.ViewAction;
-import android.support.test.espresso.action.ViewActions;
-
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.ViewActions;
 import androidx.viewpager2.test.R;
 import androidx.viewpager2.widget.ViewPager2;
 

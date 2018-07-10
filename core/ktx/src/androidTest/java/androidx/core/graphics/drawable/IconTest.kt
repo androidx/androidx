@@ -21,8 +21,8 @@ import android.graphics.Bitmap.Config.ARGB_8888
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.Icon
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SdkSuppress
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import org.junit.Assert.assertEquals

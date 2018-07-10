@@ -21,8 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.annotation.SuppressLint;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +33,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.test.R;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Test;

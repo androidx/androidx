@@ -33,10 +33,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -45,6 +41,10 @@ import androidx.slice.SliceItem;
 import androidx.slice.SliceUtils;
 import androidx.slice.SliceViewManager;
 import androidx.slice.SliceViewManager.SliceCallback;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;

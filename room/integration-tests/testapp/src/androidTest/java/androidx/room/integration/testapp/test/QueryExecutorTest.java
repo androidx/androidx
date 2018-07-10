@@ -16,15 +16,11 @@
 
 package androidx.room.integration.testapp.test;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.DefaultTaskExecutor;
@@ -33,6 +29,9 @@ import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.vo.Pet;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;

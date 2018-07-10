@@ -30,9 +30,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.constraints.ConstraintListener;
 
 import org.junit.Before;

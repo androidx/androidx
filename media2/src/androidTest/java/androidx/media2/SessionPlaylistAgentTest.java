@@ -25,13 +25,13 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.media2.MediaPlaylistAgent.PlaylistEventCallback;
 import androidx.media2.MediaSession2.OnDataSourceMissingHelper;
 import androidx.media2.test.R;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;

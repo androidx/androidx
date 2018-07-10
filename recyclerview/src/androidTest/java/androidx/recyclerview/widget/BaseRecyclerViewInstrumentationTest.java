@@ -32,8 +32,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Looper;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +43,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.test.R;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.PollingCheck;
 
 import org.hamcrest.CoreMatchers;

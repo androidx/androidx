@@ -22,14 +22,14 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.MenuItem;
 
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

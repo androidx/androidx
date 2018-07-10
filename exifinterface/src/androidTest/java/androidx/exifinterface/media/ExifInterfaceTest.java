@@ -16,7 +16,7 @@
 
 package androidx.exifinterface.media;
 
-import static android.support.test.InstrumentationRegistry.getContext;
+import static androidx.test.InstrumentationRegistry.getContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,13 +27,13 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Environment;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.util.Pair;
 
 import androidx.exifinterface.test.R;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;

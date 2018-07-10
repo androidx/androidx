@@ -15,13 +15,12 @@
  */
 package androidx.appcompat.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
 import static androidx.appcompat.testutils.TestUtilsActions.setEnabled;
 import static androidx.appcompat.testutils.TestUtilsActions.setTextAppearance;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isBackground;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -34,10 +33,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
 import android.text.PrecomputedText;
 import android.view.View;
 import android.widget.TextView;
@@ -50,6 +45,10 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

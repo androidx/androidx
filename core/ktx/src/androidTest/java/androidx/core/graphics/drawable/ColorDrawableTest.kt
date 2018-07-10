@@ -17,7 +17,7 @@
 package androidx.core.graphics.drawable
 
 import android.graphics.Color
-import android.support.test.filters.SdkSuppress
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

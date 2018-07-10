@@ -18,7 +18,7 @@ package androidx.core.view
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

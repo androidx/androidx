@@ -21,9 +21,9 @@ import static org.junit.Assert.assertEquals;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.support.test.InstrumentationRegistry;
 
 import androidx.palette.test.R;
+import androidx.test.InstrumentationRegistry;
 
 class TestUtils {
 

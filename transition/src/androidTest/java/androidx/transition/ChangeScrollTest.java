@@ -23,9 +23,9 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import android.support.test.filters.MediumTest;
 import android.view.View;
 
+import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
 import org.junit.Test;

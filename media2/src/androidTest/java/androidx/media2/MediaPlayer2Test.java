@@ -33,11 +33,6 @@ import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.util.Pair;
 
@@ -46,6 +41,11 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.BaseMediaPlayer.PlayerEventCallback;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.test.R;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;

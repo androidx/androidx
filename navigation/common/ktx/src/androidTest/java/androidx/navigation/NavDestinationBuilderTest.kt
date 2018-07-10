@@ -18,9 +18,9 @@ package androidx.navigation
 
 import android.os.Bundle
 import android.support.annotation.IdRes
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SmallTest
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SmallTest
+import androidx.test.runner.AndroidJUnit4
 import androidx.navigation.testing.TestNavigator
 import androidx.navigation.testing.TestNavigatorProvider
 import org.junit.Assert.assertEquals

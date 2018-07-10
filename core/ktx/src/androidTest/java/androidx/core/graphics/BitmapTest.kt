@@ -18,7 +18,7 @@ package androidx.core.graphics
 
 import android.graphics.Bitmap
 import android.graphics.ColorSpace
-import android.support.test.filters.SdkSuppress
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

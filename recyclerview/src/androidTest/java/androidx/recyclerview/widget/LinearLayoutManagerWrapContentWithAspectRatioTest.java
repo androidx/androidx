@@ -25,9 +25,10 @@ import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.graphics.Color;
-import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.test.filters.MediumTest;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;

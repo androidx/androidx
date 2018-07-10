@@ -18,9 +18,9 @@ package androidx.leanback.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.test.rule.ActivityTestRule;
 
 import androidx.annotation.CallSuper;
+import androidx.test.rule.ActivityTestRule;
 
 import java.util.HashMap;
 

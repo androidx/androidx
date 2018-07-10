@@ -15,18 +15,17 @@
  */
 package androidx.appcompat.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
 import static androidx.appcompat.testutils.TestUtilsActions.setTextAppearance;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
 
 import android.graphics.Typeface;
-import android.support.test.filters.SmallTest;
 
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

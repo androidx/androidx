@@ -22,8 +22,9 @@ import static org.junit.Assert.fail;
 
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
+
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

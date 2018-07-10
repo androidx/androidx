@@ -16,7 +16,7 @@
 
 package androidx.core.graphics.drawable
 
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import androidx.core.graphics.createBitmap
 import org.junit.Assert.assertEquals
 import org.junit.Test

@@ -28,8 +28,6 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.ThemedYellowActivity;
 import android.support.v4.testutils.TestUtils;
@@ -37,6 +35,8 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 
 import androidx.core.test.R;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -12,7 +12,7 @@ dependencies {
 
     annotationProcessor(NULLAWAY)
 
-    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RUNNER)
 }
 
 supportLibrary {

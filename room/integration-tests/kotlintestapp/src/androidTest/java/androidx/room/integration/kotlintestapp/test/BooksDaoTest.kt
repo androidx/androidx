@@ -17,27 +17,26 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.database.sqlite.SQLiteConstraintException
-import android.support.test.filters.SdkSuppress
-import android.support.test.filters.SmallTest
 import androidx.arch.core.executor.ArchTaskExecutor
-import androidx.room.integration.kotlintestapp.vo.Author
-import androidx.room.integration.kotlintestapp.vo.Book
-import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
-import androidx.room.integration.kotlintestapp.vo.Lang
-import androidx.room.integration.kotlintestapp.vo.Publisher
+import androidx.room.integration.kotlintestapp.vo.*
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import com.google.common.base.Optional
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
 import org.hamcrest.CoreMatchers
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.instanceOf
-import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.util.Date
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.arrayListOf
+import kotlin.collections.first
+import kotlin.collections.listOf
+import kotlin.collections.setOf
 
 @SmallTest
 class BooksDaoTest : TestDatabaseTest() {

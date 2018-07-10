@@ -17,7 +17,6 @@
 package androidx.room.integration.testapp.test;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
@@ -31,6 +30,7 @@ import androidx.room.integration.testapp.dao.ToyDao;
 import androidx.room.integration.testapp.dao.UserDao;
 import androidx.room.integration.testapp.dao.UserPetDao;
 import androidx.room.integration.testapp.dao.WithClauseDao;
+import androidx.test.InstrumentationRegistry;
 
 import org.junit.Before;
 

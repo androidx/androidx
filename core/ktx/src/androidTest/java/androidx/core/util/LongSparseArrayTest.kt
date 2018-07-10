@@ -16,7 +16,7 @@
 
 package androidx.core.util
 
-import android.support.test.filters.SdkSuppress
+import androidx.test.filters.SdkSuppress
 import android.util.LongSparseArray
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat

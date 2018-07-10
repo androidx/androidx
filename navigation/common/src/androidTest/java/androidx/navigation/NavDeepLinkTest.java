@@ -23,7 +23,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.test.filters.SmallTest;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

@@ -22,8 +22,6 @@ import static org.mockito.Mockito.times;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.LargeTest;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
@@ -31,6 +29,8 @@ import androidx.leanback.widget.PlaybackControlsRow;
 import androidx.leanback.widget.PlaybackControlsRowPresenter;
 import androidx.leanback.widget.PlaybackRowPresenter;
 import androidx.leanback.widget.RowPresenter;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.mockito.Mockito;

@@ -19,11 +19,11 @@ package androidx.core.graphics;
 import static org.junit.Assert.assertEquals;
 
 import android.content.res.AssetManager;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
 
 import androidx.core.util.Pair;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

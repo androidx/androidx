@@ -18,10 +18,10 @@ package androidx.core.animation
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
-import android.support.test.InstrumentationRegistry
-import android.support.test.annotation.UiThreadTest
-import android.support.test.filters.SdkSuppress
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.InstrumentationRegistry
+import androidx.test.annotation.UiThreadTest
+import androidx.test.filters.SdkSuppress
+import androidx.test.runner.AndroidJUnit4
 import android.view.View
 import org.junit.Assert.assertTrue
 import org.junit.Before

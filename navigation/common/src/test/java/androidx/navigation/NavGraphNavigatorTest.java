@@ -24,7 +24,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.content.Context;
 import android.support.annotation.IdRes;
-import android.support.test.filters.SmallTest;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -33,10 +33,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.ResultReceiver;
-import android.support.test.filters.FlakyTest;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
@@ -46,6 +42,10 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController2.ControllerCallback;
+import androidx.test.filters.FlakyTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.PollingCheck;
 
 import org.junit.After;

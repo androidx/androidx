@@ -21,12 +21,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.fragment.app.test.NonConfigOnStopActivity;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.FragmentActivityUtils;
 
 import org.junit.Rule;

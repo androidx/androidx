@@ -36,8 +36,6 @@ import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 import android.util.Base64;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -46,6 +44,8 @@ import android.view.WindowManager;
 import androidx.annotation.CallSuper;
 import androidx.media2.MediaPlayer2.DrmInfo;
 import androidx.media2.TestUtils.Monitor;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 
 import org.json.JSONArray;
 import org.json.JSONException;

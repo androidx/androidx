@@ -16,7 +16,7 @@
 
 package androidx.core.view
 
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import android.view.Menu.NONE
 import android.view.MenuItem
 import android.widget.Toolbar

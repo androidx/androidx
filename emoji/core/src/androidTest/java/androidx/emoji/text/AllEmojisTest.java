@@ -23,13 +23,13 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.Paint;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
 import android.text.Spanned;
 
 import androidx.core.graphics.PaintCompat;
 import androidx.emoji.util.TestString;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

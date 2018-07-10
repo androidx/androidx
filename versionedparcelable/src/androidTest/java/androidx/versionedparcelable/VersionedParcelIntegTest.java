@@ -33,10 +33,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
-import android.support.test.filters.SmallTest;
 import android.util.Size;
 import android.util.SizeF;
 import android.util.SparseBooleanArray;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

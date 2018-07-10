@@ -28,8 +28,6 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
@@ -37,6 +35,8 @@ import androidx.annotation.NonNull;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;

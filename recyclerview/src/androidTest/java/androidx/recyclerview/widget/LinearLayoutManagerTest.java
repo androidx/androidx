@@ -35,8 +35,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.SdkSuppress;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
@@ -46,6 +44,8 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 

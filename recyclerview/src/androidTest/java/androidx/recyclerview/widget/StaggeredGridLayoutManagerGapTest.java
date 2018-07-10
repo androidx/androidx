@@ -21,7 +21,8 @@ import static androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLI
 import static org.junit.Assert.assertNull;
 
 import android.graphics.Rect;
-import android.support.test.filters.LargeTest;
+
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

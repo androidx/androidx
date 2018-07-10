@@ -20,11 +20,11 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.TestUtils;

@@ -19,7 +19,7 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import java.util.Date
+import java.util.*
 
 @Entity
 @TypeConverters(DateConverter::class, StringToIntListConverters::class)

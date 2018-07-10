@@ -15,20 +15,20 @@
  */
 package androidx.coordinatorlayout.widget;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.any;
 
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.espresso.UiController;
-import android.support.test.espresso.ViewAction;
 import android.view.View;
 import android.view.ViewStub;
 
 import androidx.annotation.LayoutRes;
 import androidx.coordinatorlayout.test.R;
 import androidx.core.view.ViewCompat;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

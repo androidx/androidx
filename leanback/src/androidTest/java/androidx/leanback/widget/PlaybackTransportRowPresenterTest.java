@@ -30,8 +30,6 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.View;
@@ -40,6 +38,8 @@ import android.view.ViewParent;
 import androidx.leanback.media.PlaybackTransportControlGlue;
 import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.widget.PlaybackSeekDataProvider.ResultCallback;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;

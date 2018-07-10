@@ -16,8 +16,8 @@
 
 package androidx.work
 
-import android.support.test.filters.SmallTest
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.filters.SmallTest
+import androidx.test.runner.AndroidJUnit4
 import androidx.work.workers.TestWorker
 import org.junit.Assert.assertEquals
 import org.junit.Test

@@ -20,8 +20,9 @@ import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 
 import static org.junit.Assert.assertEquals;
 
-import android.support.test.filters.MediumTest;
 import android.widget.FrameLayout;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

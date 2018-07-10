@@ -22,13 +22,13 @@ import static org.junit.Assert.assertTrue;
 import android.content.ComponentName;
 import android.os.Build;
 import android.os.Process;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;

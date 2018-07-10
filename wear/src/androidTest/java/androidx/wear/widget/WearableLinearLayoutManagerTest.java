@@ -19,13 +19,13 @@ package androidx.wear.widget;
 import static org.junit.Assert.assertEquals;
 
 import android.app.Activity;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
 

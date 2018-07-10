@@ -27,9 +27,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NavigationRes;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.TaskStackBuilder;
 
 import androidx.navigation.NavController;
@@ -37,6 +34,9 @@ import androidx.navigation.NavDeepLinkBuilder;
 import androidx.navigation.fragment.test.BaseNavigationActivity;
 import androidx.navigation.fragment.test.R;
 import androidx.navigation.testing.TestNavigator;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;

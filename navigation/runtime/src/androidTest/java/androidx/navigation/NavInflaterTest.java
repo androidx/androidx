@@ -24,13 +24,13 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 
 import androidx.navigation.test.R;
 import androidx.navigation.testing.TestNavigatorProvider;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;

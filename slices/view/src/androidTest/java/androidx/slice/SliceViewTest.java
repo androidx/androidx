@@ -28,11 +28,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.builders.ListBuilder;
@@ -40,6 +35,11 @@ import androidx.slice.builders.SliceAction;
 import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.SliceLiveData;
 import androidx.slice.widget.SliceView;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

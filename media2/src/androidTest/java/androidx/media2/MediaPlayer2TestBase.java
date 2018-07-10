@@ -31,14 +31,14 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.PersistableBundle;
 import android.os.PowerManager;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.TestUtils.Monitor;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;

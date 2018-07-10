@@ -16,8 +16,8 @@
 
 package androidx.core.os
 
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SdkSuppress
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
 import android.view.View
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat

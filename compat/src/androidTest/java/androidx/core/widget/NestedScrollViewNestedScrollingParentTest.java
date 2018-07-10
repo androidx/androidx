@@ -28,8 +28,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +39,8 @@ import androidx.core.test.R;
 import androidx.core.view.NestedScrollingChild2;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -29,8 +29,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.graphics.Color;
-import android.support.test.filters.MediumTest;
 import android.view.View;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;

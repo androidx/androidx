@@ -32,12 +32,12 @@ class CoreRemapperImplTest {
             TypesMap(mapOf(
                 JavaType.fromDotVersion("androidx.test.InputConnectionCompat")
                     to JavaType.fromDotVersion(
-                    "android.support.test.InputConnectionCompat")
+                    "androidx.test.InputConnectionCompat")
             )),
             "androidx/")
 
         val given = "androidx.test.InputConnectionCompat.CONTENT_URI"
-        val expected = "android.support.test.InputConnectionCompat.CONTENT_URI"
+        val expected = "androidx.test.InputConnectionCompat.CONTENT_URI"
 
         Truth.assertThat(remapper.rewriteString(given)).isEqualTo(expected)
     }

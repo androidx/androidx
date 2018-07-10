@@ -16,10 +16,10 @@
 
 package androidx.percentlayout.widget;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 
-import android.support.test.espresso.UiController;
-import android.support.test.espresso.ViewAction;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;

@@ -18,13 +18,13 @@ package androidx.leanback.app;
 import static org.junit.Assert.assertSame;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.LargeTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.leanback.testutils.PollingCheck;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;

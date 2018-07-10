@@ -19,10 +19,11 @@ import static org.junit.Assert.assertEquals;
 
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.testutils.TestUtils;
 import android.view.Gravity;
+
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

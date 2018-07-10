@@ -21,14 +21,13 @@ import static junit.framework.Assert.assertFalse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import androidx.annotation.NonNull;
 import androidx.room.integration.testapp.test.TestDatabaseTest;
 import androidx.room.integration.testapp.test.TestUtil;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.paging.LimitOffsetDataSource;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Test;

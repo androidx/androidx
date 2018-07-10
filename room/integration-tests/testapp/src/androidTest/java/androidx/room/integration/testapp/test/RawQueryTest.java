@@ -22,10 +22,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import static java.util.Collections.emptyList;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import androidx.room.integration.testapp.dao.RawDao;
@@ -36,6 +32,9 @@ import androidx.room.integration.testapp.vo.UserAndAllPets;
 import androidx.room.integration.testapp.vo.UserAndPet;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQuery;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;

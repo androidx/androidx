@@ -21,8 +21,9 @@ import static org.junit.Assert.assertEquals;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.test.filters.LargeTest;
 import android.util.Log;
+
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

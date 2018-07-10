@@ -28,8 +28,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import android.app.Activity;
-import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
 
 import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle.Event;
@@ -37,6 +35,8 @@ import androidx.lifecycle.testapp.CollectingLifecycleOwner;
 import androidx.lifecycle.testapp.CollectingSupportActivity;
 import androidx.lifecycle.testapp.FrameworkLifecycleRegistryActivity;
 import androidx.lifecycle.testapp.TestEvent;
+import androidx.test.filters.LargeTest;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -38,9 +38,6 @@ import static java.util.Collections.singletonList;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Build;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
 
 import androidx.core.util.Pair;
 import androidx.fragment.app.FragmentActivity;
@@ -49,6 +46,9 @@ import androidx.lifecycle.testapp.CollectingSupportActivity;
 import androidx.lifecycle.testapp.CollectingSupportFragment;
 import androidx.lifecycle.testapp.NavigationDialogActivity;
 import androidx.lifecycle.testapp.TestEvent;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.Test;

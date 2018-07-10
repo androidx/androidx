@@ -16,8 +16,8 @@
 
 package androidx.navigation
 
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SmallTest
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SmallTest
 import androidx.navigation.testing.TestNavigator
 import androidx.navigation.testing.test
 import org.junit.Assert.assertTrue

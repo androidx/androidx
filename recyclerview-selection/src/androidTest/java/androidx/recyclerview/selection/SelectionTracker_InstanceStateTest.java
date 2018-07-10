@@ -19,11 +19,11 @@ package androidx.recyclerview.selection;
 import static org.junit.Assert.assertEquals;
 
 import android.os.Bundle;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.recyclerview.selection.testing.Bundles;
 import androidx.recyclerview.selection.testing.SelectionTrackers;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

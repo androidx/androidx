@@ -35,8 +35,6 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.graphics.Rect;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +46,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
 import org.junit.Before;

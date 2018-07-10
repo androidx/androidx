@@ -22,11 +22,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.transition.test.R;
 
 import org.junit.Test;

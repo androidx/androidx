@@ -22,8 +22,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Bundle;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.SparseBooleanArray;
 
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
@@ -32,6 +30,8 @@ import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.TestAdapter;
 import androidx.recyclerview.selection.testing.TestItemKeyProvider;
 import androidx.recyclerview.selection.testing.TestSelectionObserver;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

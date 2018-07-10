@@ -16,9 +16,8 @@
 
 package androidx.navigation.fragment;
 
-import android.support.test.filters.SmallTest;
-
 import androidx.navigation.fragment.test.DynamicNavigationActivity;
+import androidx.test.filters.SmallTest;
 
 @SmallTest
 public class DynamicNavControllerTest extends BaseNavControllerTest<DynamicNavigationActivity> {

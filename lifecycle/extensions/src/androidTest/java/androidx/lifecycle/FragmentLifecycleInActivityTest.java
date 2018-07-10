@@ -30,12 +30,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.activity.FragmentLifecycleActivity;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;

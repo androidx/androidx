@@ -17,8 +17,8 @@
 package androidx.core.content
 
 import android.content.ContextWrapper
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SdkSuppress
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
 import androidx.core.ktx.test.R
 import androidx.core.getAttributeSet
 import org.junit.Assert.assertEquals

@@ -18,7 +18,7 @@ package androidx.core.graphics
 
 import android.graphics.Path
 import android.graphics.RectF
-import android.support.test.filters.SdkSuppress
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue

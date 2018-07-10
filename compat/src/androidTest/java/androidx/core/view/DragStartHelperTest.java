@@ -29,11 +29,6 @@ import static org.mockito.Mockito.when;
 import android.app.Instrumentation;
 import android.graphics.Point;
 import android.os.SystemClock;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,6 +36,11 @@ import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
 import androidx.core.test.R;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

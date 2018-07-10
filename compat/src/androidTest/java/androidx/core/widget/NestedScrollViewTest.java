@@ -22,8 +22,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,6 +29,8 @@ import android.view.ViewGroup;
 
 import androidx.core.test.R;
 import androidx.core.view.NestedScrollingParent2;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

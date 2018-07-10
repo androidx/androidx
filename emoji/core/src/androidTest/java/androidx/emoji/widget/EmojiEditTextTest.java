@@ -24,18 +24,18 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import android.app.Instrumentation;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.emoji.test.R;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.TestActivity;
 import androidx.emoji.text.TestConfigBuilder;
 import androidx.emoji.util.TestString;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.BeforeClass;

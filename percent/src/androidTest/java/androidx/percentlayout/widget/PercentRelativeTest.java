@@ -15,7 +15,7 @@
  */
 package androidx.percentlayout.widget;
 
-import android.support.test.filters.SmallTest;
+import androidx.test.filters.SmallTest;
 import android.view.View;
 
 import androidx.percentlayout.test.R;

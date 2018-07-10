@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.test.filters.SmallTest;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -39,6 +38,7 @@ import androidx.media.MediaBrowserServiceCompat.Result;
 import androidx.media2.MediaBrowser2.BrowserCallback;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.MockMediaBrowserServiceCompat.Proxy;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;

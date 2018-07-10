@@ -18,10 +18,10 @@ package androidx.leanback.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.rules.TestName;

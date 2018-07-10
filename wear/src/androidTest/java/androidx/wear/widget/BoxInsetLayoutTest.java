@@ -16,9 +16,8 @@
 
 package androidx.wear.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.wear.widget.util.MoreViewAssertions.approximateBottom;
 import static androidx.wear.widget.util.MoreViewAssertions.approximateTop;
 import static androidx.wear.widget.util.MoreViewAssertions.bottom;
@@ -35,13 +34,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.DisplayMetrics;
 import android.view.View;
 
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
 

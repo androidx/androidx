@@ -16,8 +16,8 @@
 
 package androidx.appcompat.app;
 
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.SmallTest;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

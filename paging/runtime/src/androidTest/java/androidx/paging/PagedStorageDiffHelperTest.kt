@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import android.support.test.filters.SmallTest
+import androidx.test.filters.SmallTest
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import org.junit.Assert.assertEquals

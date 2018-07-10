@@ -24,7 +24,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.test.filters.SmallTest;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;

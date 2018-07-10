@@ -16,16 +16,14 @@
 
 package androidx.appcompat.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
 import static androidx.appcompat.testutils.TestUtilsActions.setEnabled;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.support.test.filters.SmallTest;
 import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
@@ -37,6 +35,7 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

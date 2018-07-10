@@ -17,14 +17,15 @@ dependencies {
     api(CONSTRAINT_LAYOUT, { transitive = true })
     api(SUPPORT_DESIGN, libs.exclude_for_material)
 
-    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CONTRIB_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 
     testImplementation(JUNIT)
-    testImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    testImplementation(TEST_RUNNER)
     testImplementation(MOCKITO_CORE)
 
     compileOnly fileTree(dir: 'car-stubs', include: ['android.car.jar'])

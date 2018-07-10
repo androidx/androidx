@@ -16,7 +16,7 @@
 
 package androidx.tvprovider.media.tv;
 
-import static android.support.test.InstrumentationRegistry.getContext;
+import static androidx.test.InstrumentationRegistry.getContext;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -31,10 +31,10 @@ import android.graphics.BitmapFactory;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.SystemClock;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.Suppress;
-import android.support.test.runner.AndroidJUnit4;
 
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.Suppress;
+import androidx.test.runner.AndroidJUnit4;
 import androidx.tvprovider.test.R;
 
 import org.junit.After;
