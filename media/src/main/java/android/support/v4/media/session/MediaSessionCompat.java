@@ -3892,7 +3892,7 @@ public class MediaSessionCompat {
         public final @NonNull RemoteUserInfo getCurrentControllerInfo() {
             android.media.session.MediaSessionManager.RemoteUserInfo info =
                     ((MediaSession) mSessionObj).getCurrentControllerInfo();
-            return new RemoteUserInfo(info.getPackageName(), info.getPid(), info.getUid());
+            return new RemoteUserInfo(info);
         }
     }
 }

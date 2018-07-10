@@ -16,14 +16,19 @@
 
 package androidx.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.os.Build;
+import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 /**
  * Provides support for interacting with {@link MediaSessionCompat media sessions} that
@@ -105,9 +110,12 @@ public final class MediaSessionManager {
     }
 
     /**
-     * Information of a remote user of {@link android.support.v4.media.session.MediaSessionCompat}
-     * or {@link MediaBrowserServiceCompat}.
-     * This can be used to decide whether the remote user is trusted app.
+     * Information of a remote user of {@link MediaSessionCompat} or
+     * {@link MediaBrowserServiceCompat}. This can be used to decide whether the remote user is
+     * trusted app, and also differentiate caller of {@link MediaSessionCompat} and
+     * {@link MediaBrowserServiceCompat} callbacks.
+     * <p>
+     * See {@link #equals(Object)} to take a look at how it differentiate media controller.
      *
      * @see #isTrustedForMediaControl(RemoteUserInfo)
      */
@@ -120,12 +128,38 @@ public final class MediaSessionManager {
 
         RemoteUserInfoImpl mImpl;
 
+        /**
+         * Public constructor.
+         * <p>
+         * Can be used for {@link MediaSessionManager#isTrustedForMediaControl(RemoteUserInfo)}}.
+         *
+         * @param packageName package name of the remote user
+         * @param pid pid of the remote user
+         * @param uid uid of the remote user
+         */
         public RemoteUserInfo(@NonNull String packageName, int pid, int uid) {
             if (Build.VERSION.SDK_INT >= 28) {
                 mImpl = new MediaSessionManagerImplApi28.RemoteUserInfo(packageName, pid, uid);
             } else {
+                // Note: We need to include IBinder to distinguish controllers in a process.
                 mImpl = new MediaSessionManagerImplBase.RemoteUserInfo(packageName, pid, uid);
             }
+        }
+
+        /**
+         * Public constructor for internal uses.
+         * <p>
+         * Internal code MUST use this on SDK >= 28 to distinguish individual RemoteUserInfos in a
+         * process.
+         *
+         * @param remoteUserInfo Framework RemoteUserInfo
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @RequiresApi(28)
+        public RemoteUserInfo(
+                android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {
+            mImpl = new MediaSessionManagerImplApi28.RemoteUserInfo(remoteUserInfo);
         }
 
         /**
@@ -150,6 +184,22 @@ public final class MediaSessionManager {
             return mImpl.getUid();
         }
 
+        /**
+         * Returns equality of two RemoteUserInfo.
+         * <p>
+         * Prior to P (SDK<28), two RemoteUserInfos are the same only if then
+         * <p>
+         * On P and beyond (SDK>=28), two RemoteUserInfos are the same only if they're sent to the
+         * same controller (either {@link MediaControllerCompat} or {@link MediaBrowserCompat}. If
+         * it's not nor one of them is triggered by the key presses, they would be considered as
+         * different one.
+         * <p>
+         * If you only want to compare the caller's package, compare them with the
+         * {@link #getPackageName()}, {@link #getPid()}, and/or {@link #getUid()} directly.
+         *
+         * @param obj the reference object with which to compare.
+         * @return {@code true} if equals, {@code false} otherwise
+         */
         @Override
         public boolean equals(@Nullable Object obj) {
             return mImpl.equals(obj);

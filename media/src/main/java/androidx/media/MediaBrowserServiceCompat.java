@@ -606,8 +606,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             }
             android.media.session.MediaSessionManager.RemoteUserInfo userInfoObj =
                     ((MediaBrowserService) mServiceObj).getCurrentBrowserInfo();
-            return new RemoteUserInfo(
-                    userInfoObj.getPackageName(), userInfoObj.getPid(), userInfoObj.getUid());
+            return new RemoteUserInfo(userInfoObj);
         }
     }
 
