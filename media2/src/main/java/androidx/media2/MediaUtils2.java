@@ -158,6 +158,14 @@ class MediaUtils2 {
         return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2).build();
     }
 
+    static MediaItem2 convertToMediaItem2(MediaDescriptionCompat descriptionCompat) {
+        MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat);
+        if (metadata2 == null || metadata2.getMediaId() == null) {
+            return null;
+        }
+        return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2).build();
+    }
+
     static List<MediaItem2> convertToMediaItem2List(Parcelable[] itemParcelableList) {
         List<MediaItem2> playlist = new ArrayList<>();
         if (itemParcelableList != null) {
