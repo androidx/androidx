@@ -20,8 +20,11 @@ import androidx.navigation.safe.args.generator.NavParserErrors.UNNAMED_DESTINATI
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultValue
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultValueReference
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidId
+import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameActions
 import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameArguments
+import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
+import androidx.navigation.safe.args.generator.models.ResReference
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -43,7 +46,13 @@ class InvalidXmlTest(private val testCase: ErrorMessage) {
             ErrorMessage("invalid_id_destination.xml", 17, 1, invalidId("@1234234+id/foo")),
             ErrorMessage("action_no_id.xml", 22, 5, mandatoryAttrMissingError("action", "id")),
             ErrorMessage("same_name_args.xml", 23, 9, sameSanitizedNameArguments("myArg", listOf(
-                    Argument("my_arg", NavType.STRING), Argument("my.arg", NavType.STRING))))
+                    Argument("my_arg", NavType.STRING), Argument("my.arg", NavType.STRING)))),
+            ErrorMessage("same_name_actions.xml", 22, 5,
+                    sameSanitizedNameActions("NextAction", listOf(
+                            Action(ResReference("a.b", "id", "next_action"),
+                                    ResReference("a.b", "id", "first_screen")),
+                            Action(ResReference("a.b", "id", "nextAction"),
+                                    ResReference("a.b", "id", "first_screen")))))
         )
     }
 

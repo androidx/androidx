@@ -25,6 +25,7 @@ public class R {
         public static final int next = 0x7f060002;
         public static final int previous_action = 0x7f060003;
         public static final int next_action = 0x7f060004;
+        public static final int nextAction = 0x7f060004;
     }
 
     public static final class drawable {
