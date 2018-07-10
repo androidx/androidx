@@ -959,8 +959,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         builder.putString(
                 MediaMetadata2.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
         mMediaItem.setMetadata(builder.build());
-        mPlayList.set(0, mMediaItem);
-        mMediaSession.setPlaylist(mPlayList, null);
+        mMediaSession.getPlaylistAgent().replacePlaylistItem(0, mMediaItem);
     }
 
     private int retrieveOrientation() {
