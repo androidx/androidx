@@ -18,14 +18,17 @@ package androidx.work.impl.background.firebase;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
-import androidx.work.Configuration;
 import androidx.work.Logger;
-import androidx.work.impl.Schedulers;
+import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.List;
 
 /**
  * Schedules a {@link WorkSpec} after an initial delay with {@link FirebaseJobScheduler}
@@ -42,7 +45,13 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
         final PendingResult pendingResult = goAsync();
         final String workSpecId = intent.getStringExtra(WORKSPEC_ID_KEY);
         final WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
-        final Configuration configuration = workManagerImpl.getConfiguration();
+        if (workManagerImpl == null) {
+            Logger.error(TAG, "WorkManager is not initialized properly.  The most "
+                    + "likely cause is that you disabled WorkManagerInitializer in your manifest "
+                    + "but forgot to call WorkManager#initialize in your Application#onCreate or a "
+                    + "ContentProvider.");
+            return;
+        }
         final WorkDatabase database = workManagerImpl.getWorkDatabase();
         // TODO (rahulrav@) Use WorkManager's task executor here instead.
         new Thread(new Runnable() {
@@ -50,12 +59,41 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
             public void run() {
                 WorkSpec workSpec = database.workSpecDao().getWorkSpec(workSpecId);
                 if (workSpec != null) {
-                    Schedulers.schedule(configuration, database, workManagerImpl.getSchedulers());
+                    /*
+                     * FirebaseJobScheduler creates alarms for Workers that have an initial delay
+                     * and routes them through this receiver. Here rather than call
+                     * Schedulers#schedule(), we directly call FirebaseJobScheduler#scheduleNow()
+                     * because Schedulers#schedule() will consider the Worker no longer eligible.
+                     */
+                    FirebaseJobScheduler scheduler = getFirebaseJobScheduler(workManagerImpl);
+                    if (scheduler != null) {
+                        Logger.debug(TAG, String.format("Scheduling WorkSpec %s", workSpecId));
+                        scheduler.scheduleNow(workSpec);
+                    } else {
+                        Logger.error(TAG, "FirebaseJobScheduler not found! Cannot schedule!");
+                    }
                 } else {
                     Logger.error(TAG, "WorkSpec not found! Cannot schedule!");
                 }
                 pendingResult.finish();
             }
         }).start();
+    }
+
+    @Nullable
+    static FirebaseJobScheduler getFirebaseJobScheduler(
+            @NonNull WorkManagerImpl workManager) {
+
+        List<Scheduler> schedulers = workManager.getSchedulers();
+        if (schedulers == null || schedulers.isEmpty()) {
+            return null;
+        }
+        for (int i = 0; i < schedulers.size(); i++) {
+            Scheduler scheduler = schedulers.get(i);
+            if (FirebaseJobScheduler.class.isAssignableFrom(scheduler.getClass())) {
+                return (FirebaseJobScheduler) scheduler;
+            }
+        }
+        return null;
     }
 }
