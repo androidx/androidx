@@ -35,11 +35,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 
 import androidx.core.util.Pair;
 import androidx.lifecycle.testapp.TestEvent;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;

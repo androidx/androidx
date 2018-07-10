@@ -24,8 +24,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import android.annotation.SuppressLint;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -33,6 +31,8 @@ import android.text.Spanned;
 import androidx.emoji.text.EmojiMetadata;
 import androidx.emoji.text.EmojiSpan;
 import androidx.emoji.text.TypefaceEmojiSpan;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

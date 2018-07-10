@@ -27,14 +27,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.support.test.filters.MediumTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.EdgeEffect;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.InputDeviceCompat;
+import androidx.test.filters.MediumTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

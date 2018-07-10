@@ -19,13 +19,13 @@ package androidx.media2;
 import android.content.Context;
 import android.os.Build;
 import android.os.HandlerThread;
-import android.support.test.InstrumentationRegistry;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.TestUtils.SyncHandler;
+import androidx.test.InstrumentationRegistry;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

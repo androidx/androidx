@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import android.support.test.filters.SmallTest
+import androidx.test.filters.SmallTest
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.TestScheduler

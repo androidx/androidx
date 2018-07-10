@@ -21,9 +21,6 @@ import static junit.framework.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -33,6 +30,9 @@ import androidx.media2.MediaController2;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.runner.RunWith;
 

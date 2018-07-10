@@ -19,10 +19,10 @@ package androidx.vectordrawable.graphics.drawable.tests;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
-import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.view.animation.Interpolator;
 
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.ActivityTestRule;
 import androidx.vectordrawable.graphics.drawable.AnimationUtilsCompat;
 import androidx.vectordrawable.test.R;
 

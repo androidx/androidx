@@ -63,10 +63,6 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -79,6 +75,10 @@ import android.view.inputmethod.InputConnection;
 
 import androidx.emoji.util.Emoji.EmojiMapping;
 import androidx.emoji.util.TestString;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

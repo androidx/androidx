@@ -20,8 +20,6 @@ import static androidx.recyclerview.selection.testing.TestEvents.Touch.TAP;
 
 import static org.junit.Assert.assertFalse;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.MotionEvent;
 
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
@@ -36,6 +34,8 @@ import androidx.recyclerview.selection.testing.TestOnItemActivatedListener;
 import androidx.recyclerview.selection.testing.TestRunnable;
 import androidx.recyclerview.selection.testing.TestSelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

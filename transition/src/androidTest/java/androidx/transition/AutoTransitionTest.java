@@ -21,11 +21,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import android.graphics.Color;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;

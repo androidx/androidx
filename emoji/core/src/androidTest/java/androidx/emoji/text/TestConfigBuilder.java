@@ -18,10 +18,10 @@ package androidx.emoji.text;
 import static org.junit.Assert.fail;
 
 import android.content.res.AssetManager;
-import android.support.test.InstrumentationRegistry;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.test.InstrumentationRegistry;
 
 import java.util.concurrent.CountDownLatch;
 

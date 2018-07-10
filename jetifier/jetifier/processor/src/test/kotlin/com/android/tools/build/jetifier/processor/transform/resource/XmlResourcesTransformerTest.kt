@@ -277,17 +277,17 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "          package=\"android.support.test\">\n" +
+                "          package=\"androidx.test\">\n" +
                 "</manifest>",
             expectedXml =
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "          package=\"android.support.test\">\n" +
+                "          package=\"androidx.test\">\n" +
                 "</manifest>",
             prefixes = setOf(
                 "android/support/"
             ),
             rulesMap = RewriteRulesMap(
-                RewriteRule("android/support/test/(.*)", "ignore")
+                RewriteRule("androidx.test/(.*)", "ignore")
             ),
             packageMap = PackageMap.EMPTY,
             rewritingSupportLib = true

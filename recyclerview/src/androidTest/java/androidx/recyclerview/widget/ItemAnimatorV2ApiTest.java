@@ -29,11 +29,10 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import android.support.test.filters.MediumTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.test.filters.MediumTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;

@@ -26,10 +26,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.MediumTest;
 import android.view.ViewGroup;
 
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
 import org.junit.Before;

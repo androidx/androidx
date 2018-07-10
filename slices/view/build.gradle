@@ -29,8 +29,9 @@ dependencies {
 
     androidTestImplementation(project(":slice-builders"))
     androidTestImplementation(project(":slice-test"))
-    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }

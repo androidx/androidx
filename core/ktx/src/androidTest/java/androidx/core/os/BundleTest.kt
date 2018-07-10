@@ -19,8 +19,8 @@ package androidx.core.os
 import android.graphics.Rect
 import android.os.Binder
 import android.os.Bundle
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SdkSuppress
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
 import android.util.Size
 import android.util.SizeF
 import android.view.View

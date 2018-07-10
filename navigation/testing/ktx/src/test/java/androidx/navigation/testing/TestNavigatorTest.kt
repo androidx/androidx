@@ -17,7 +17,7 @@
 package androidx.navigation.testing
 
 import android.os.Bundle
-import android.support.test.filters.SmallTest
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

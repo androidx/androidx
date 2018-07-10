@@ -17,8 +17,8 @@
 package androidx.core.content.res
 
 import android.graphics.Color
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SdkSuppress
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
 import androidx.core.ktx.test.R
 import androidx.testutils.assertThrows
 import androidx.core.getAttributeSet

@@ -19,8 +19,8 @@ package androidx.percentlayout.widget;
 import static org.junit.Assert.assertEquals;
 
 import android.app.Activity;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.runner.RunWith;

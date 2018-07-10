@@ -15,27 +15,28 @@
  */
 package androidx.viewpager.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.pressKey;
-import static android.support.test.espresso.action.ViewActions.swipeLeft;
-import static android.support.test.espresso.action.ViewActions.swipeRight;
-import static android.support.test.espresso.assertion.PositionAssertions.isBelow;
-import static android.support.test.espresso.assertion.PositionAssertions.isBottomAlignedWith;
-import static android.support.test.espresso.assertion.PositionAssertions.isLeftAlignedWith;
-import static android.support.test.espresso.assertion.PositionAssertions.isRightAlignedWith;
-import static android.support.test.espresso.assertion.PositionAssertions.isTopAlignedWith;
-import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.v4.testutils.TestUtilsAssertions.hasDisplayedChildren;
 import static android.support.v4.testutils.TestUtilsMatchers.backgroundColor;
 import static android.support.v4.testutils.TestUtilsMatchers.centerAlignedInParent;
 import static android.support.v4.testutils.TestUtilsMatchers.endAlignedToParent;
 import static android.support.v4.testutils.TestUtilsMatchers.isOfClass;
 import static android.support.v4.testutils.TestUtilsMatchers.startAlignedToParent;
+
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.pressKey;
+import static androidx.test.espresso.action.ViewActions.swipeLeft;
+import static androidx.test.espresso.action.ViewActions.swipeRight;
+import static androidx.test.espresso.assertion.PositionAssertions.isBelow;
+import static androidx.test.espresso.assertion.PositionAssertions.isBottomAlignedWith;
+import static androidx.test.espresso.assertion.PositionAssertions.isLeftAlignedWith;
+import static androidx.test.espresso.assertion.PositionAssertions.isRightAlignedWith;
+import static androidx.test.espresso.assertion.PositionAssertions.isTopAlignedWith;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -53,12 +54,6 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.support.test.espresso.ViewAction;
-import android.support.test.espresso.action.EspressoKey;
-import android.support.test.filters.FlakyTest;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.v4.testutils.TestUtilsMatchers;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -69,6 +64,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.EspressoKey;
+import androidx.test.filters.FlakyTest;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.ActivityTestRule;
 import androidx.viewpager.test.R;
 
 import org.junit.After;

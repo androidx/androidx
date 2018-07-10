@@ -1,8 +1,8 @@
 package androidx.fragment.app
 
-import android.support.test.annotation.UiThreadTest
-import android.support.test.filters.MediumTest
-import android.support.test.rule.ActivityTestRule
+import androidx.test.annotation.UiThreadTest
+import androidx.test.filters.MediumTest
+import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

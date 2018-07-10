@@ -21,12 +21,12 @@ import static androidx.contentpager.content.TestContentProvider.UNPAGED_URI;
 
 import android.app.Activity;
 import android.database.Cursor;
-import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.contentpager.content.ContentPager.ContentCallback;
 import androidx.contentpager.content.ContentPager.QueryRunner;
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

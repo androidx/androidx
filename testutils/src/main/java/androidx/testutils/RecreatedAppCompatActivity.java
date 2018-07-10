@@ -17,10 +17,10 @@
 package androidx.testutils;
 
 import android.os.Bundle;
-import android.support.test.rule.ActivityTestRule;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.rule.ActivityTestRule;
 
 import java.util.concurrent.CountDownLatch;
 

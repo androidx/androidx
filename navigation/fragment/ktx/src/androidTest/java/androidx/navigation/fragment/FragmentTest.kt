@@ -16,12 +16,12 @@
 
 package androidx.navigation.fragment
 
-import android.support.test.annotation.UiThreadTest
-import android.support.test.filters.SmallTest
-import android.support.test.rule.ActivityTestRule
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import androidx.navigation.fragment.ktx.test.R
+import androidx.test.annotation.UiThreadTest
+import androidx.test.filters.SmallTest
+import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule

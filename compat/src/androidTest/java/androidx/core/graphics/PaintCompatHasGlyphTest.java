@@ -21,7 +21,8 @@ import static android.os.Build.VERSION.SDK_INT;
 import static org.junit.Assert.assertEquals;
 
 import android.graphics.Paint;
-import android.support.test.filters.SmallTest;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

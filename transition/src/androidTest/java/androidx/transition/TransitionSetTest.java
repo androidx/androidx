@@ -27,12 +27,12 @@ import static org.junit.Assert.assertSame;
 
 import android.animation.TimeInterpolator;
 import android.graphics.Rect;
-import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
+import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
 import org.junit.Before;

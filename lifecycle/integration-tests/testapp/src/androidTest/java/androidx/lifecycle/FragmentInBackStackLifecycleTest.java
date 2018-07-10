@@ -31,16 +31,15 @@ import static org.hamcrest.Matchers.iterableWithSize;
 
 import static java.util.Arrays.asList;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.testapp.EmptyActivity;
 import androidx.lifecycle.testapp.R;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -19,10 +19,10 @@ package androidx.transition;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
+import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
 import org.hamcrest.Description;

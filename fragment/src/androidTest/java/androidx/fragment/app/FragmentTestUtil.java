@@ -24,13 +24,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 import android.util.Pair;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 
 import androidx.fragment.app.test.FragmentTestActivity;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

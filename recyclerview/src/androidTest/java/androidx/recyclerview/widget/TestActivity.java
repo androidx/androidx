@@ -18,8 +18,9 @@ package androidx.recyclerview.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.test.runner.MonitoringInstrumentation;
 import android.view.WindowManager;
+
+import androidx.test.runner.MonitoringInstrumentation;
 
 public class TestActivity extends Activity {
     // This is not great but the only way to do this until test runner adds support to not kill

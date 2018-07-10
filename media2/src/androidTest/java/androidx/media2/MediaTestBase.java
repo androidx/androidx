@@ -19,7 +19,8 @@ package androidx.media2;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Looper;
-import android.support.test.InstrumentationRegistry;
+
+import androidx.test.InstrumentationRegistry;
 
 import org.junit.BeforeClass;
 

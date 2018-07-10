@@ -16,9 +16,6 @@
 
 package androidx.appcompat.app;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
 import static androidx.appcompat.testutils.DrawerLayoutActions.closeDrawer;
 import static androidx.appcompat.testutils.DrawerLayoutActions.openDrawer;
 import static androidx.appcompat.testutils.DrawerLayoutActions.setDrawerLockMode;
@@ -26,6 +23,8 @@ import static androidx.appcompat.testutils.DrawerLayoutActions.wrap;
 import static androidx.appcompat.testutils.TestUtilsMatchers.inAscendingOrder;
 import static androidx.appcompat.testutils.TestUtilsMatchers.inDescendingOrder;
 import static androidx.appcompat.testutils.TestUtilsMatchers.inRange;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -42,22 +41,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.os.Build;
-import android.support.test.espresso.action.GeneralLocation;
-import android.support.test.espresso.action.GeneralSwipeAction;
-import android.support.test.espresso.action.Press;
-import android.support.test.espresso.action.Swipe;
-import android.support.test.filters.FlakyTest;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.Suppress;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 
 import androidx.appcompat.custom.CustomDrawerLayout;
 import androidx.appcompat.test.R;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.test.espresso.action.GeneralLocation;
+import androidx.test.espresso.action.GeneralSwipeAction;
+import androidx.test.espresso.action.Press;
+import androidx.test.espresso.action.Swipe;
+import androidx.test.filters.FlakyTest;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.Suppress;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

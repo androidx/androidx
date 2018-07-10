@@ -16,8 +16,7 @@
 
 package androidx.work;
 
-import android.support.test.InstrumentationRegistry;
-
+import androidx.test.InstrumentationRegistry;
 import androidx.work.impl.WorkDatabase;
 
 import org.junit.After;

@@ -20,7 +20,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.test.InstrumentationRegistry;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -28,6 +27,7 @@ import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media.test.service.RemoteMediaBrowser2;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.SessionToken2;
+import androidx.test.InstrumentationRegistry;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

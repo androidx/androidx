@@ -21,8 +21,9 @@ import static android.os.Build.VERSION_CODES.P;
 import static org.junit.Assert.assertEquals;
 
 import android.content.pm.PackageInfo;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
+
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

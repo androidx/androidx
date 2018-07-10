@@ -19,9 +19,8 @@ package androidx.work;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 import androidx.work.worker.TestWorker;
 
 import org.junit.Before;

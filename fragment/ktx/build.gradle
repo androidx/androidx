@@ -36,8 +36,8 @@ dependencies {
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(TEST_RULES_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
 }
 
 supportLibrary {

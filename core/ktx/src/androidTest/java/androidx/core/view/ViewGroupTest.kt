@@ -16,8 +16,8 @@
 
 package androidx.core.view
 
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SdkSuppress
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout

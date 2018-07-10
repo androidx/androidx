@@ -15,11 +15,11 @@
  */
 package androidx.percentlayout.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import android.os.Build;
-import android.support.test.filters.SmallTest;
+import androidx.test.filters.SmallTest;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;

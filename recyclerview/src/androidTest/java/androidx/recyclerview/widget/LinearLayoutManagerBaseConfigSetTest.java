@@ -29,12 +29,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import android.graphics.Rect;
-import android.support.test.filters.LargeTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

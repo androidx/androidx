@@ -21,7 +21,7 @@ import android.app.Instrumentation;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 import android.util.Log;
 
 import androidx.annotation.NonNull;

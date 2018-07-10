@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import android.support.test.filters.SmallTest
+import androidx.test.filters.SmallTest
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.lifecycle.Lifecycle

@@ -29,10 +29,10 @@ import static java.lang.Integer.MAX_VALUE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.WorkManagerImpl;
 
 import org.junit.Before;

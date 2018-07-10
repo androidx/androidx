@@ -20,7 +20,7 @@ import android.graphics.Bitmap.Config
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import androidx.core.graphics.createBitmap
 import org.junit.Assert.assertEquals
 import org.junit.Test

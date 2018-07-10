@@ -21,14 +21,14 @@ import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 
 import androidx.recyclerview.selection.testing.TestEvents.Mouse;
 import androidx.recyclerview.selection.testing.TestEvents.Touch;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

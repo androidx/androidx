@@ -16,7 +16,7 @@
 
 package androidx.core.util
 
-import android.support.test.filters.SdkSuppress
+import androidx.test.filters.SdkSuppress
 import android.util.Half
 import org.junit.Assert.assertEquals
 import org.junit.Test

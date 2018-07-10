@@ -21,13 +21,7 @@ import androidx.room.RoomDatabase
 import androidx.room.integration.kotlintestapp.dao.BooksDao
 import androidx.room.integration.kotlintestapp.dao.DependencyDao
 import androidx.room.integration.kotlintestapp.dao.DerivedDao
-import androidx.room.integration.kotlintestapp.vo.Author
-import androidx.room.integration.kotlintestapp.vo.Book
-import androidx.room.integration.kotlintestapp.vo.BookAuthor
-import androidx.room.integration.kotlintestapp.vo.DataClassFromDependency
-import androidx.room.integration.kotlintestapp.vo.JavaEntity
-import androidx.room.integration.kotlintestapp.vo.NoArgClass
-import androidx.room.integration.kotlintestapp.vo.Publisher
+import androidx.room.integration.kotlintestapp.vo.*
 
 @Database(
     entities = [Book::class, Author::class, Publisher::class, BookAuthor::class,

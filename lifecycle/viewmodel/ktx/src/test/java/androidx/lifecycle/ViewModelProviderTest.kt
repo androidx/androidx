@@ -16,7 +16,7 @@
 
 package androidx.lifecycle
 
-import android.support.test.filters.SmallTest
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith

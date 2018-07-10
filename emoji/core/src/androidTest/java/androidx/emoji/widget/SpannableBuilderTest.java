@@ -32,8 +32,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.Editable;
 import android.text.SpanWatcher;
 import android.text.Spannable;
@@ -42,6 +40,8 @@ import android.text.TextWatcher;
 import android.text.style.QuoteSpan;
 
 import androidx.emoji.text.EmojiSpan;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

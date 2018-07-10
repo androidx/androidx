@@ -19,12 +19,12 @@ package androidx.recyclerview.widget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.Suppress;
-import android.support.test.rule.ActivityTestRule;
 import android.util.SparseBooleanArray;
 
 import androidx.annotation.UiThread;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.Suppress;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;

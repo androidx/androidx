@@ -15,15 +15,14 @@
  */
 package androidx.appcompat.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
-import android.support.test.espresso.ViewInteraction;
-import android.support.test.filters.SmallTest;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtilsMatchers;
+import androidx.test.espresso.ViewInteraction;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

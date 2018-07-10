@@ -16,11 +16,11 @@
 
 package androidx.room.integration.kotlintestapp.test
 
-import android.support.test.InstrumentationRegistry
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.integration.kotlintestapp.dao.BooksDao
+import androidx.test.InstrumentationRegistry
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

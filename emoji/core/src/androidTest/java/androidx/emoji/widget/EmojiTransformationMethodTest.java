@@ -15,6 +15,8 @@
  */
 package androidx.emoji.widget;
 
+import static androidx.emoji.util.EmojiMatcher.sameCharSequence;
+
 import static junit.framework.TestCase.assertSame;
 
 import static org.junit.Assert.assertNull;
@@ -27,23 +29,21 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import static androidx.emoji.util.EmojiMatcher.sameCharSequence;
-
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.method.TransformationMethod;
 import android.view.View;
 
+import androidx.emoji.text.EmojiCompat;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import androidx.emoji.text.EmojiCompat;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)

@@ -20,9 +20,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
@@ -45,6 +42,8 @@ import androidx.room.RoomDatabase;
 import androidx.room.RoomWarnings;
 import androidx.room.Transaction;
 import androidx.room.paging.LimitOffsetDataSource;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;

@@ -27,7 +27,6 @@ import android.content.ComponentName;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.ResultReceiver;
-import android.support.test.filters.SmallTest;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.CustomActionCallback;
 import android.support.v4.media.MediaBrowserCompat.ItemCallback;
@@ -41,6 +40,7 @@ import androidx.media2.MediaLibraryService2.LibraryRoot;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

@@ -35,10 +35,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.os.ResultReceiver;
-import android.support.test.filters.FlakyTest;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
@@ -50,6 +46,10 @@ import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.SessionCallback;
 import androidx.media2.TestServiceRegistry.SessionServiceCallback;
 import androidx.media2.TestUtils.SyncHandler;
+import androidx.test.filters.FlakyTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.PollingCheck;
 
 import org.junit.After;

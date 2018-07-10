@@ -15,19 +15,16 @@
  */
 package androidx.appcompat.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.RootMatchers.isPlatformPopup;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-
 import static androidx.appcompat.testutils.TestUtilsMatchers.hasChild;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isCombinedBackground;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.res.Resources;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.SmallTest;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -35,6 +32,8 @@ import androidx.annotation.IdRes;
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.SmallTest;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;

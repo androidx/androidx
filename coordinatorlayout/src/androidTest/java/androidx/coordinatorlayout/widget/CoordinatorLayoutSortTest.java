@@ -19,12 +19,12 @@ package androidx.coordinatorlayout.widget;
 import static org.junit.Assert.assertEquals;
 
 import android.app.Instrumentation;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.view.View;
 
 import androidx.coordinatorlayout.testutils.CoordinatorLayoutUtils;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.Test;

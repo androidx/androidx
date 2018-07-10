@@ -18,8 +18,8 @@ package androidx.navigation
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.test.filters.SmallTest
-import android.support.test.rule.ActivityTestRule
+import androidx.test.filters.SmallTest
+import androidx.test.rule.ActivityTestRule
 import android.view.View
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail

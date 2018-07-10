@@ -17,9 +17,6 @@ package androidx.appcompat.view;
 
 import static org.junit.Assert.assertEquals;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +24,9 @@ import android.view.MenuInflater;
 import androidx.appcompat.test.R;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.internal.view.SupportMenuItem;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

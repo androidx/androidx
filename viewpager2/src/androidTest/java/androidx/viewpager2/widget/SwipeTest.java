@@ -16,14 +16,14 @@
 
 package androidx.viewpager2.widget;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.view.View.OVER_SCROLL_NEVER;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL;
 import static androidx.viewpager2.widget.ViewPager2.Orientation.VERTICAL;
 
@@ -35,12 +35,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 import android.os.Build;
-import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
 import android.util.Log;
 import android.util.Pair;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.filters.LargeTest;
+import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.FragmentActivityUtils;
 import androidx.viewpager2.test.R;
 import androidx.viewpager2.widget.swipe.BaseActivity;

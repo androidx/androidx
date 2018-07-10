@@ -18,9 +18,9 @@ package androidx.emoji.text;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

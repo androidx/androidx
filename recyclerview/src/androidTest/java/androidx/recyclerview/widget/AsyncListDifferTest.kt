@@ -16,21 +16,15 @@
 
 package androidx.recyclerview.widget
 
-import android.support.test.filters.SmallTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotSame
-import org.junit.Assert.assertSame
-import org.junit.Assert.fail
+import androidx.test.filters.SmallTest
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.verifyZeroInteractions
+import org.mockito.Mockito.*
 import java.lang.UnsupportedOperationException
+import java.util.*
 import java.util.Collections.emptyList
-import java.util.LinkedList
 import java.util.concurrent.Executor
 
 class TestExecutor : Executor {

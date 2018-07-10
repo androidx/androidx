@@ -20,8 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.test.filters.MediumTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.method.SingleLineTransformationMethod;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
@@ -29,6 +27,8 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.core.widget.TextViewCompat;
+import androidx.test.filters.MediumTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

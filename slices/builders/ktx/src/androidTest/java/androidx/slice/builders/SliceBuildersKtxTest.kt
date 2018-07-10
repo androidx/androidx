@@ -19,8 +19,8 @@ package androidx.slice.builders
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SdkSuppress
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
 import androidx.core.graphics.drawable.IconCompat
 import androidx.slice.SliceProvider
 import androidx.slice.SliceSpecs

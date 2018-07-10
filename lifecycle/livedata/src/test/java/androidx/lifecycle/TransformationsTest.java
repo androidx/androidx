@@ -26,8 +26,8 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import androidx.arch.core.util.Function;
 import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.util.Function;
 import androidx.lifecycle.util.InstantTaskExecutor;
 
 import org.junit.Before;

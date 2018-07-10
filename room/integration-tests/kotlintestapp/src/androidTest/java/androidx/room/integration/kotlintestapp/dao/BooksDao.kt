@@ -17,21 +17,8 @@
 package androidx.room.integration.kotlintestapp.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.TypeConverters
-import androidx.room.integration.kotlintestapp.vo.Author
-import androidx.room.integration.kotlintestapp.vo.Book
-import androidx.room.integration.kotlintestapp.vo.BookAuthor
-import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
-import androidx.room.integration.kotlintestapp.vo.Lang
-import androidx.room.integration.kotlintestapp.vo.Publisher
-import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
-import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
-import androidx.room.integration.kotlintestapp.vo.BookWithJavaEntity
+import androidx.room.*
+import androidx.room.integration.kotlintestapp.vo.*
 import com.google.common.base.Optional
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Flowable

@@ -19,7 +19,7 @@ package androidx.core.database.sqlite
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import org.junit.Assert.assertEquals
 import org.junit.Test

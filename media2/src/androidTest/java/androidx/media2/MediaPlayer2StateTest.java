@@ -47,8 +47,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 
 import android.os.Build;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
 import android.util.Pair;
 
 import androidx.media.AudioAttributesCompat;
@@ -56,6 +54,8 @@ import androidx.media2.MediaPlayer2.MediaPlayer2State;
 import androidx.media2.MediaPlayer2.TrackInfo;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.test.R;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

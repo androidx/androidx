@@ -36,8 +36,8 @@ dependencies {
     api(project(":slice-builders"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
-    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(TEST_RULES_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
     implementation project(":annotation")
     implementation project(path: ':core')
 }

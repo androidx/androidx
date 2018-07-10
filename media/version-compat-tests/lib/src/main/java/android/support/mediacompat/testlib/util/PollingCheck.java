@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Utility used for testing that allows to poll for a certain condition to happen within a timeout.
- * (Copied from testutils/src/main/java/android/support/testutils/PollingCheck.java.)
+ * (Copied from testutils/src/main/java/androidx.testutils/PollingCheck.java.)
  */
 public abstract class PollingCheck {
     private static final long DEFAULT_TIMEOUT = 3000;

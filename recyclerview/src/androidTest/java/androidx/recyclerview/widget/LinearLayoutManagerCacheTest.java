@@ -22,8 +22,9 @@ import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 import static org.junit.Assert.assertEquals;
 
 import android.os.Build;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
+
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

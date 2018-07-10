@@ -29,10 +29,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle.Event;
@@ -40,6 +36,10 @@ import androidx.lifecycle.testapp.NavigationDialogActivity;
 import androidx.lifecycle.testapp.NavigationTestActivityFirst;
 import androidx.lifecycle.testapp.NavigationTestActivitySecond;
 import androidx.lifecycle.testapp.NonSupportActivity;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Rule;

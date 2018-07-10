@@ -20,10 +20,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.DividerRow;
 import androidx.leanback.widget.HeaderItem;
@@ -31,6 +27,9 @@ import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ObjectAdapter;
 import androidx.leanback.widget.PresenterSelector;
 import androidx.leanback.widget.SectionRow;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

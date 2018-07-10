@@ -23,9 +23,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 
 import android.database.sqlite.SQLiteConstraintException;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import androidx.room.Room;
 import androidx.room.integration.testapp.PKeyTestDatabase;
@@ -33,6 +30,9 @@ import androidx.room.integration.testapp.vo.IntAutoIncPKeyEntity;
 import androidx.room.integration.testapp.vo.IntegerAutoIncPKeyEntity;
 import androidx.room.integration.testapp.vo.IntegerPKeyEntity;
 import androidx.room.integration.testapp.vo.ObjectPKeyEntity;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

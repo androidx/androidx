@@ -16,11 +16,7 @@
 
 package androidx.room.integration.kotlintestapp.test
 
-import androidx.room.integration.kotlintestapp.vo.Author
-import androidx.room.integration.kotlintestapp.vo.Book
-import androidx.room.integration.kotlintestapp.vo.BookAuthor
-import androidx.room.integration.kotlintestapp.vo.Lang
-import androidx.room.integration.kotlintestapp.vo.Publisher
+import androidx.room.integration.kotlintestapp.vo.*
 
 class TestUtil {
 

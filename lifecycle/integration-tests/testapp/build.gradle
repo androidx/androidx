@@ -44,6 +44,7 @@ dependencies {
 
     androidTestAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
     androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
 
     testImplementation(JUNIT)

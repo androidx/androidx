@@ -35,7 +35,7 @@ dependencies {
     api(project(":palette"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
-    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RUNNER)
 }
 
 supportLibrary {

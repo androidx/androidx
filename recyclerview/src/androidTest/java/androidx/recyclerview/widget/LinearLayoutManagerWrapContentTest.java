@@ -21,11 +21,11 @@ import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.SdkSuppress;
 import android.view.Gravity;
 
 import androidx.core.view.ViewCompat;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

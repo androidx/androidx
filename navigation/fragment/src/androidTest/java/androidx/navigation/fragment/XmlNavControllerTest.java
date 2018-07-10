@@ -16,9 +16,8 @@
 
 package androidx.navigation.fragment;
 
-import android.support.test.filters.SmallTest;
-
 import androidx.navigation.fragment.test.XmlNavigationActivity;
+import androidx.test.filters.SmallTest;
 
 @SmallTest
 public class XmlNavControllerTest extends BaseNavControllerTest<XmlNavigationActivity> {

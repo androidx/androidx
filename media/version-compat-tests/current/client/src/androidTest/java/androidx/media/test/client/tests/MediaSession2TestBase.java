@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.ResultReceiver;
-import android.support.test.InstrumentationRegistry;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
@@ -40,6 +39,7 @@ import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
+import androidx.test.InstrumentationRegistry;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
