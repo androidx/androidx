@@ -16,6 +16,7 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 
 object NavParserErrors {
@@ -37,4 +38,9 @@ object NavParserErrors {
             "Multiple same name arguments. The named arguments: " +
             "[${args.joinToString(", ") { it.name }}] result in the generator using " +
                     "the same name: '$sanitizedName'."
+
+    fun sameSanitizedNameActions(sanitizedName: String, actions: List<Action>) =
+            "Multiple same name actions. The action ids: " +
+                    "[${actions.joinToString(", ") { it.id.name }}] result in the " +
+                    "generator using the same name: '$sanitizedName'."
 }
