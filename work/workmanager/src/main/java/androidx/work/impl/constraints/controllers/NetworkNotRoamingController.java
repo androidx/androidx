@@ -21,8 +21,8 @@ import static androidx.work.NetworkType.NOT_ROAMING;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
@@ -50,7 +50,7 @@ public class NetworkNotRoamingController extends ConstraintController<NetworkSta
     @Override
     boolean isConstrained(@NonNull NetworkState state) {
         if (Build.VERSION.SDK_INT < 24) {
-            Log.d(TAG, "Not-roaming network constraint is not supported before API 24, "
+            Logger.debug(TAG, "Not-roaming network constraint is not supported before API 24, "
                     + "only checking for connected state.");
             return !state.isConnected();
         }

@@ -19,9 +19,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import androidx.work.Configuration;
+import androidx.work.Logger;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -52,7 +52,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
                 if (workSpec != null) {
                     Schedulers.schedule(configuration, database, workManagerImpl.getSchedulers());
                 } else {
-                    Log.e(TAG, "WorkSpec not found! Cannot schedule!");
+                    Logger.error(TAG, "WorkSpec not found! Cannot schedule!");
                 }
                 pendingResult.finish();
             }

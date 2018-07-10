@@ -18,9 +18,9 @@ package androidx.work.impl;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import androidx.work.Configuration;
+import androidx.work.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,7 +87,7 @@ public class Processor implements ExecutionListener {
         // Work may get triggered multiple times if they have passing constraints and new work with
         // those constraints are added.
         if (mEnqueuedWorkMap.containsKey(id)) {
-            Log.d(TAG, String.format("Work %s is already enqueued for processing", id));
+            Logger.debug(TAG, String.format("Work %s is already enqueued for processing", id));
             return false;
         }
 
@@ -99,7 +99,7 @@ public class Processor implements ExecutionListener {
                         .build();
         mEnqueuedWorkMap.put(id, workWrapper);
         mExecutor.execute(workWrapper);
-        Log.d(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
+        Logger.debug(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
         return true;
     }
 
@@ -110,14 +110,14 @@ public class Processor implements ExecutionListener {
      * @return {@code true} if the work was stopped successfully
      */
     public synchronized boolean stopWork(String id) {
-        Log.d(TAG, String.format("Processor stopping %s", id));
+        Logger.debug(TAG, String.format("Processor stopping %s", id));
         WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
         if (wrapper != null) {
             wrapper.interrupt(false);
-            Log.d(TAG, String.format("WorkerWrapper stopped for %s", id));
+            Logger.debug(TAG, String.format("WorkerWrapper stopped for %s", id));
             return true;
         }
-        Log.d(TAG, String.format("WorkerWrapper could not be found for %s", id));
+        Logger.debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
         return false;
     }
 
@@ -128,15 +128,15 @@ public class Processor implements ExecutionListener {
      * @return {@code true} if the work was stopped successfully
      */
     public synchronized boolean stopAndCancelWork(String id) {
-        Log.d(TAG, String.format("Processor cancelling %s", id));
+        Logger.debug(TAG, String.format("Processor cancelling %s", id));
         mCancelledIds.add(id);
         WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
         if (wrapper != null) {
             wrapper.interrupt(true);
-            Log.d(TAG, String.format("WorkerWrapper cancelled for %s", id));
+            Logger.debug(TAG, String.format("WorkerWrapper cancelled for %s", id));
             return true;
         }
-        Log.d(TAG, String.format("WorkerWrapper could not be found for %s", id));
+        Logger.debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
         return false;
     }
 
@@ -192,7 +192,7 @@ public class Processor implements ExecutionListener {
             boolean needsReschedule) {
 
         mEnqueuedWorkMap.remove(workSpecId);
-        Log.d(TAG, String.format("%s %s executed; isSuccessful = %s, reschedule = %s",
+        Logger.debug(TAG, String.format("%s %s executed; isSuccessful = %s, reschedule = %s",
                 getClass().getSimpleName(), workSpecId, isSuccessful, needsReschedule));
 
         // TODO(sumir): Let's get some synchronization guarantees here.

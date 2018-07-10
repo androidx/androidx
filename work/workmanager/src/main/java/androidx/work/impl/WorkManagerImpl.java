@@ -31,6 +31,7 @@ import android.support.annotation.WorkerThread;
 import androidx.work.Configuration;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.R;
@@ -179,6 +180,8 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
                 configuration.getExecutor());
         mPreferences = new Preferences(mContext);
         mForceStopRunnableCompleted = false;
+
+        Logger.setVerboseLoggingEnabled(mConfiguration.isVerboseLoggingEnabled());
 
         // Checks for app force stops.
         mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));

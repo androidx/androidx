@@ -18,11 +18,11 @@ package androidx.work.impl.background.firebase;
 
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
+import androidx.work.Logger;
 import androidx.work.WorkRequest;
 import androidx.work.impl.model.WorkSpec;
 
@@ -131,13 +131,13 @@ class FirebaseJobConverter {
         }
 
         if (constraints.requiresBatteryNotLow()) {
-            Log.w(TAG,
+            Logger.warning(TAG,
                     "Battery Not Low is not a supported constraint "
                             + "with FirebaseJobDispatcher");
         }
 
         if (constraints.requiresStorageNotLow()) {
-            Log.w(TAG, "Storage Not Low is not a supported constraint "
+            Logger.warning(TAG, "Storage Not Low is not a supported constraint "
                     + "with FirebaseJobDispatcher");
         }
 
@@ -158,14 +158,14 @@ class FirebaseJobConverter {
             }
 
             case NOT_ROAMING: {
-                Log.w(TAG, "Not Roaming Network is not a supported constraint with "
+                Logger.warning(TAG, "Not Roaming Network is not a supported constraint with "
                         + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;
             }
 
             case METERED: {
-                Log.w(TAG, "Metered Network is not a supported constraint with "
+                Logger.warning(TAG, "Metered Network is not a supported constraint with "
                         + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;

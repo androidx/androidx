@@ -18,7 +18,6 @@ package androidx.work.integration.testapp.sherlockholmes;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -122,7 +121,6 @@ public class TextMappingWorker extends Worker {
 
         setOutputData(new Data.Builder().putString(INPUT_FILE, outputFileName).build());
 
-        Log.d("Map", "Mapping finished for " + inputFileName);
         return Result.SUCCESS;
     }
 }

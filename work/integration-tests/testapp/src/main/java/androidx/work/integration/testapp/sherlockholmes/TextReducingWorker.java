@@ -16,7 +16,6 @@
 package androidx.work.integration.testapp.sherlockholmes;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import androidx.work.Data;
 import androidx.work.Worker;
@@ -101,7 +100,6 @@ public class TextReducingWorker extends Worker {
             db.endTransaction();
         }
 
-        Log.d("Reduce", "Reduction finished");
         return Result.SUCCESS;
     }
 }
