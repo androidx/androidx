@@ -314,6 +314,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mViewLifecycleOwnerLiveData;
     }
 
+    /**
+     * Returns the {@link ViewModelStore} associated with this Fragment
+     *
+     * @return a {@code ViewModelStore}
+     * @throws IllegalStateException if called before the Fragment is attached i.e., before
+     * onAttach().
+     */
     @NonNull
     @Override
     public ViewModelStore getViewModelStore() {
