@@ -27,6 +27,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.util.Pair;
+import android.util.Log;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * from a remote server.)</p>
  */
 public class NavController {
+    private static final String TAG = "NavController";
     private static final String KEY_NAVIGATOR_STATE =
             "android-support-nav:controller:navigatorState";
     private static final String KEY_NAVIGATOR_STATE_NAMES =
@@ -253,16 +255,11 @@ public class NavController {
      */
     public boolean popBackStack() {
         if (mBackStack.isEmpty()) {
-            throw new IllegalArgumentException("NavController back stack is empty");
+            // Nothing to pop if the back stack is empty
+            return false;
         }
-        boolean popped = false;
-        while (!mBackStack.isEmpty()) {
-            popped = mBackStack.peekLast().getNavigator().popBackStack();
-            if (popped) {
-                break;
-            }
-        }
-        return popped;
+        // Pop just the current destination off the stack
+        return popBackStack(getCurrentDestination().getId(), true);
     }
 
 
@@ -276,18 +273,29 @@ public class NavController {
      */
     public boolean popBackStack(@IdRes int destinationId, boolean inclusive) {
         if (mBackStack.isEmpty()) {
-            throw new IllegalArgumentException("NavController back stack is empty");
+            // Nothing to pop if the back stack is empty
+            return false;
         }
         ArrayList<NavDestination> destinationsToRemove = new ArrayList<>();
         Iterator<NavDestination> iterator = mBackStack.descendingIterator();
+        boolean foundDestination = false;
         while (iterator.hasNext()) {
             NavDestination destination = iterator.next();
             if (inclusive || destination.getId() != destinationId) {
                 destinationsToRemove.add(destination);
             }
             if (destination.getId() == destinationId) {
+                foundDestination = true;
                 break;
             }
+        }
+        if (!foundDestination) {
+            // We were passed a destinationId that doesn't exist on our back stack.
+            // Better to ignore the popBackStack than accidentally popping the entire stack
+            String destinationName = NavDestination.getDisplayName(mContext, destinationId);
+            Log.i(TAG, "Ignoring popBackStack to destination " + destinationName
+                    + " as it was not found on the current back stack");
+            return false;
         }
         boolean popped = false;
         iterator = destinationsToRemove.iterator();

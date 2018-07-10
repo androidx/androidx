@@ -37,6 +37,7 @@ import org.junit.Test;
 
 @SmallTest
 public class NavControllerTest {
+    private static final int UNKNOWN_DESTINATION_ID = -1;
     private static final String TEST_ARG = "test";
     private static final String TEST_ARG_VALUE = "value";
     private static final String TEST_OVERRIDDEN_VALUE_ARG = "test_overriden_value";
@@ -189,6 +190,37 @@ public class NavControllerTest {
     }
 
     @Test
+    public void testPopRoot() {
+        NavController navController = createNavController();
+        navController.setGraph(R.navigation.nav_simple);
+        TestNavigator navigator = navController.getNavigatorProvider()
+                .getNavigator(TestNavigator.class);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.popBackStack();
+        assertThat(navController.getCurrentDestination(), is(nullValue()));
+        assertThat(navigator.mBackStack.size(), is(0));
+    }
+
+    @Test
+    public void testPopOnEmptyStack() {
+        NavController navController = createNavController();
+        navController.setGraph(R.navigation.nav_simple);
+        TestNavigator navigator = navController.getNavigatorProvider()
+                .getNavigator(TestNavigator.class);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.popBackStack();
+        assertThat(navController.getCurrentDestination(), is(nullValue()));
+        assertThat(navigator.mBackStack.size(), is(0));
+
+        boolean popped = navController.popBackStack();
+        assertThat(popped, is(false));
+    }
+
+    @Test
     public void testNavigateThenPop() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
@@ -204,6 +236,25 @@ public class NavControllerTest {
         navController.popBackStack();
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
+    public void testNavigateThenPopToUnknownDestination() {
+        NavController navController = createNavController();
+        navController.setGraph(R.navigation.nav_simple);
+        TestNavigator navigator = navController.getNavigatorProvider()
+                .getNavigator(TestNavigator.class);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.navigate(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+
+        boolean popped = navController.popBackStack(UNKNOWN_DESTINATION_ID, false);
+        assertThat(popped, is(false));
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
     }
 
     @Test
