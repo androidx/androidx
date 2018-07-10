@@ -204,8 +204,9 @@ public class MediaLibraryService2LegacyTest extends MediaSessionService2LegacyTe
                 assertEquals(pageSize, option.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE));
                 assertNotNull(children);
 
-                int fromIndex = (page - 1) * pageSize;
-                int toIndex = Math.min(page * pageSize, MockMediaLibraryService2.CHILDREN_COUNT);
+                int fromIndex = page * pageSize;
+                int toIndex = Math.min((page + 1) * pageSize,
+                        MockMediaLibraryService2.CHILDREN_COUNT);
 
                 // Compare the given results with originals.
                 for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
@@ -288,9 +289,9 @@ public class MediaLibraryService2LegacyTest extends MediaSessionService2LegacyTe
                         MockMediaLibraryService2.SEARCH_RESULT_COUNT - pageSize * (page - 1)), 0);
                 assertEquals(expectedSize, items.size());
 
-                int fromIndex = (page - 1) * pageSize;
-                int toIndex = Math.min(
-                        page * pageSize, MockMediaLibraryService2.SEARCH_RESULT_COUNT);
+                int fromIndex = page * pageSize;
+                int toIndex = Math.min((page + 1) * pageSize,
+                        MockMediaLibraryService2.SEARCH_RESULT_COUNT);
 
                 // Compare the given results with originals.
                 for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
@@ -352,7 +353,7 @@ public class MediaLibraryService2LegacyTest extends MediaSessionService2LegacyTe
                     ControllerInfo controller,
                     String parentId, int page, int pageSize, Bundle extras) {
                 assertEquals(testParentId, parentId);
-                assertEquals(1, page);
+                assertEquals(0, page);
                 assertEquals(Integer.MAX_VALUE, pageSize);
                 return testList;
             }
@@ -400,7 +401,7 @@ public class MediaLibraryService2LegacyTest extends MediaSessionService2LegacyTe
                     ControllerInfo controller,
                     String parentId, int page, int pageSize, Bundle extras) {
                 assertEquals(testParentId, parentId);
-                assertEquals(1, page);
+                assertEquals(0, page);
                 assertEquals(Integer.MAX_VALUE, pageSize);
                 return testList;
             }

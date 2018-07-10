@@ -201,7 +201,7 @@ public class MediaBrowser2 extends MediaController2 {
      * {@link BrowserCallback#onGetChildrenDone(MediaBrowser2, String, int, int, List, Bundle)}.
      *
      * @param parentId parent id for getting the children.
-     * @param page page number to get the result. Starts from {@code 1}
+     * @param page page number to get the result. Starts from {@code 0}
      * @param pageSize page size. Should be greater or equal to {@code 1}
      * @param extras extra bundle
      */
@@ -239,7 +239,7 @@ public class MediaBrowser2 extends MediaController2 {
      * {@link BrowserCallback#onGetSearchResultDone(MediaBrowser2, String, int, int, List, Bundle)}.
      *
      * @param query search query that you've specified with {@link #search(String, Bundle)}
-     * @param page page number to get search result. Starts from {@code 1}
+     * @param page page number to get search result. Starts from {@code 0}
      * @param pageSize page size. Should be greater or equal to {@code 1}
      * @param extras extra bundle
      */
