@@ -62,7 +62,7 @@ public class Schedulers {
      * @param workDatabase The {@link WorkDatabase}.
      * @param schedulers   The {@link List} of {@link Scheduler}s to delegate to.
      */
-    public static void schedule(
+    public static synchronized void schedule(
             @NonNull Configuration configuration,
             @NonNull WorkDatabase workDatabase,
             List<Scheduler> schedulers) {

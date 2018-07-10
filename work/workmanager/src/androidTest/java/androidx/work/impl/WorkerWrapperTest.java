@@ -31,8 +31,10 @@ import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -134,12 +136,10 @@ public class WorkerWrapperTest extends DatabaseTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(FailureWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, work.getStringId())
-                .withSchedulers(Collections.singletonList(mMockScheduler))
                 .withListener(mMockListener)
                 .build()
                 .run();
         WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
-        assertThat(latestWorkSpec.runAttemptCount, is(1));
     }
 
     @Test
@@ -151,6 +151,22 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         verify(mMockListener).onExecuted(invalidWorkSpecId, false, false);
+    }
+
+    @Test
+    @SmallTest
+    public void testInvalidWorkerClassName() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        work.getWorkSpec().workerClassName = "dummy";
+        insertWork(work);
+        new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, work.getStringId())
+                .withListener(mMockListener)
+                .withSchedulers(Collections.singletonList(mMockScheduler))
+                .build()
+                .run();
+        verify(mMockListener).onExecuted(work.getStringId(), false, false);
+        verify(mMockScheduler, never()).schedule(any(WorkSpec[].class));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
     @Test

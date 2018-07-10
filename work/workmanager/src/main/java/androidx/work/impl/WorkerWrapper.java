@@ -94,6 +94,18 @@ public class WorkerWrapper implements Runnable {
     @WorkerThread
     @Override
     public void run() {
+        runWorker();
+
+        // Try to schedule any newly-unblocked workers, and workers requiring rescheduling (such as
+        // periodic work using AlarmManager).  This code runs after runWorker() because it should
+        // happen in its own transaction.
+        //
+        // Further investigation: This could also happen as part of the Processor's
+        // ExecutionListener callback.  Does that make more sense?
+        Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
+    }
+
+    private void runWorker() {
         if (tryCheckForInterruptionAndNotify()) {
             return;
         }
@@ -321,8 +333,6 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.endTransaction();
             notifyListener(false, false);
         }
-
-        Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
     }
 
     private void recursivelyFailWorkAndDependents(String workSpecId) {
@@ -374,13 +384,6 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.endTransaction();
             notifyListener(isSuccessful, false);
         }
-
-        // We need to tell the Schedulers to pick up this newly ENQUEUED Worker.
-        // TODO (rahulrav@) Move this into the Scheduler itself.
-        if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
-            // Reschedule the periodic work.
-            Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
-        }
     }
 
     private void setSucceededAndNotify() {
@@ -409,9 +412,6 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.endTransaction();
             notifyListener(true, false);
         }
-
-        // This takes of scheduling the dependent workers as they have been marked ENQUEUED.
-        Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
     }
 
     static Worker workerFromWorkSpec(@NonNull Context context,
