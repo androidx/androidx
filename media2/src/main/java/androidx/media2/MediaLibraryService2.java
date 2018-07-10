@@ -121,8 +121,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param session the session for this event
              * @param controller controller
              * @param parentId parent id to get children
-             * @param page number of page
-             * @param pageSize size of the page
+             * @param page page number. Starts from {@code 0}.
+             * @param pageSize page size. Should be greater or equal to {@code 1}.
              * @param extras extra bundle
              * @return list of children. Can be {@code null}.
              * @see SessionCommand2#COMMAND_CODE_LIBRARY_GET_CHILDREN
@@ -200,7 +200,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param controller controller
              * @param query The search query which was previously sent through
              *              {@link #onSearch(MediaLibrarySession, ControllerInfo, String, Bundle)}.
-             * @param page page number. Starts from {@code 1}.
+             * @param page page number. Starts from {@code 0}.
              * @param pageSize page size. Should be greater or equal to {@code 1}.
              * @param extras The bundle of service-specific arguments sent from the media browser.
              * @return search result. {@code null} for error.

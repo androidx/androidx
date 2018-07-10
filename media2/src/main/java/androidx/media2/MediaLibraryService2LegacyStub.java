@@ -157,7 +157,7 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
                 // A MediaBrowserCompat called loadChildren with no pagination option.
                 List<MediaItem2> children = mLibrarySessionImpl.getCallback()
                         .onGetChildren(mLibrarySessionImpl.getInstance(), controller, parentId,
-                                1 /* page */, Integer.MAX_VALUE /* pageSize*/,
+                                0 /* page */, Integer.MAX_VALUE /* pageSize*/,
                                 null /* extras */);
                 result.sendResult(MediaUtils2.convertToMediaItemList(children));
             }
@@ -476,8 +476,8 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
                                 return;
                             }
                         }
-                        if (page < 1 || pageSize < 1) {
-                            page = 1;
+                        if (page < 0 || pageSize < 1) {
+                            page = 0;
                             pageSize = Integer.MAX_VALUE;
                         }
                         List<MediaItem2> searchResult = mLibrarySessionImpl.getCallback()
