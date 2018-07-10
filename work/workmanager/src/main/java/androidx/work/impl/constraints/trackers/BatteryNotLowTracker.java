@@ -21,7 +21,8 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
+
+import androidx.work.Logger;
 
 /**
  * Tracks whether or not the device's battery level is low.
@@ -61,7 +62,7 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent intent = mAppContext.registerReceiver(null, intentFilter);
         if (intent == null) {
-            Log.e(TAG, "getInitialState - null intent received");
+            Logger.error(TAG, "getInitialState - null intent received");
             return null;
         }
         int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, BATTERY_PLUGGED_NONE);
@@ -89,7 +90,7 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
             return;
         }
 
-        Log.d(TAG, String.format("Received %s", intent.getAction()));
+        Logger.debug(TAG, String.format("Received %s", intent.getAction()));
 
         switch (intent.getAction()) {
             case Intent.ACTION_BATTERY_OKAY:

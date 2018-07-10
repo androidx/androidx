@@ -16,6 +16,7 @@
 
 package androidx.work.impl.background.systemjob;
 
+import android.app.Application;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.os.Build;
@@ -24,8 +25,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Extras;
 import androidx.work.impl.WorkManagerImpl;
@@ -49,7 +50,30 @@ public class SystemJobService extends JobService implements ExecutionListener {
     public void onCreate() {
         super.onCreate();
         mWorkManagerImpl = WorkManagerImpl.getInstance();
-        mWorkManagerImpl.getProcessor().addExecutionListener(this);
+        if (mWorkManagerImpl == null) {
+            // This can occur if...
+            // 1. The app is performing an auto-backup.  Prior to O, JobScheduler could erroneously
+            //    try to send commands to JobService in this state (b/32180780).  Since neither
+            //    Application#onCreate nor ContentProviders have run, WorkManager won't be
+            //    initialized.  In this case, we should ignore all JobScheduler commands and tell it
+            //    to retry.
+            // 2. The app is not performing auto-backup.  WorkManagerInitializer has been disabled
+            //    but WorkManager is not manually initialized in Application#onCreate.  This is a
+            //    developer error and we should throw an Exception.
+            if (!Application.class.equals(getApplication().getClass())) {
+                // During auto-backup, we don't get a custom Application subclass.  This code path
+                // indicates we are either performing auto-backup or the user never used a custom
+                // Application class (or both).
+                throw new IllegalStateException("WorkManager needs to be initialized via a "
+                        + "ContentProvider#onCreate() or an Application#onCreate().");
+            }
+            Logger.warning(TAG, "Could not find WorkManager instance; this may be because an "
+                    + "auto-backup is in progress. Ignoring JobScheduler commands for now. Please "
+                    + "make sure that you are initializing WorkManager if you have manually "
+                    + "disabled WorkManagerInitializer.");
+        } else {
+            mWorkManagerImpl.getProcessor().addExecutionListener(this);
+        }
     }
 
     @Override
@@ -60,10 +84,16 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStartJob(JobParameters params) {
+        if (mWorkManagerImpl == null) {
+            Logger.debug(TAG, "WorkManager is not initialized; requesting retry.");
+            jobFinished(params, true);
+            return false;
+        }
+
         PersistableBundle extras = params.getExtras();
         String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
-            Log.e(TAG, "WorkSpec id not found!");
+            Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
 
@@ -71,20 +101,20 @@ public class SystemJobService extends JobService implements ExecutionListener {
             if (mJobParameters.containsKey(workSpecId)) {
                 // This condition may happen due to our workaround for an undesired behavior in API
                 // 23.  See the documentation in {@link SystemJobScheduler#schedule}.
-                Log.d(TAG, String.format(
+                Logger.debug(TAG, String.format(
                         "Job is already being executed by SystemJobService: %s", workSpecId));
                 return false;
             }
 
             boolean isPeriodic = extras.getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC, false);
             if (isPeriodic && params.isOverrideDeadlineExpired()) {
-                Log.d(TAG, String.format(
+                Logger.debug(TAG, String.format(
                         "Override deadline expired for id %s. Retry requested", workSpecId));
                 jobFinished(params, true);
                 return false;
             }
 
-            Log.d(TAG, String.format("onStartJob for %s", workSpecId));
+            Logger.debug(TAG, String.format("onStartJob for %s", workSpecId));
             mJobParameters.put(workSpecId, params);
         }
 
@@ -109,13 +139,18 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStopJob(JobParameters params) {
+        if (mWorkManagerImpl == null) {
+            Logger.debug(TAG, "WorkManager is not initialized; requesting retry.");
+            return true;
+        }
+
         String workSpecId = params.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
-            Log.e(TAG, "WorkSpec id not found!");
+            Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
 
-        Log.d(TAG, String.format("onStopJob for %s", workSpecId));
+        Logger.debug(TAG, String.format("onStopJob for %s", workSpecId));
 
         synchronized (mJobParameters) {
             mJobParameters.remove(workSpecId);
@@ -129,7 +164,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
             @NonNull String workSpecId,
             boolean isSuccessful,
             boolean needsReschedule) {
-        Log.d(TAG, String.format("%s executed on JobScheduler", workSpecId));
+        Logger.debug(TAG, String.format("%s executed on JobScheduler", workSpecId));
         JobParameters parameters;
         synchronized (mJobParameters) {
             parameters = mJobParameters.get(workSpecId);

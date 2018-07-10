@@ -38,7 +38,8 @@ public final class Configuration {
      */
     public static final int MIN_SCHEDULER_LIMIT = 20;
 
-    private final Executor mExecutor;
+    private final @NonNull Executor mExecutor;
+    private final boolean mVerboseLoggingEnabled;
     private final int mMinJobSchedulerId;
     private final int mMaxJobSchedulerId;
     private final int mMaxSchedulerLimit;
@@ -49,6 +50,7 @@ public final class Configuration {
         } else {
             mExecutor = builder.mExecutor;
         }
+        mVerboseLoggingEnabled = builder.mVerboseLoggingEnabled;
         mMinJobSchedulerId = builder.mMinJobSchedulerId;
         mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
         mMaxSchedulerLimit = builder.mMaxSchedulerLimit;
@@ -59,6 +61,15 @@ public final class Configuration {
      */
     public @NonNull Executor getExecutor() {
         return mExecutor;
+    }
+
+    /**
+     * @return {@code true} if verbose logging is enabled.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public boolean isVerboseLoggingEnabled() {
+        return mVerboseLoggingEnabled;
     }
 
     /**
@@ -117,6 +128,7 @@ public final class Configuration {
         int mMinJobSchedulerId = IdGenerator.INITIAL_ID;
         int mMaxJobSchedulerId = Integer.MAX_VALUE;
         int mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
+        boolean mVerboseLoggingEnabled;
         Executor mExecutor;
 
         /**
@@ -189,6 +201,17 @@ public final class Configuration {
         @Deprecated
         public @NonNull Builder withExecutor(@NonNull Executor executor) {
             mExecutor = executor;
+            return this;
+        }
+
+        /**
+         * Specifies whether to enable verbose WorkManager logging in logcat.
+         *
+         * @param verboseLoggingEnabled {@code true} to enable verbose logging
+         * @return This {@link Builder} instance
+         */
+        public @NonNull Builder setVerboseLoggingEnabled(boolean verboseLoggingEnabled) {
+            mVerboseLoggingEnabled = verboseLoggingEnabled;
             return this;
         }
 

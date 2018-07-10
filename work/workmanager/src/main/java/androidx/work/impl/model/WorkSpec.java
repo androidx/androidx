@@ -31,11 +31,11 @@ import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Relation;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
+import androidx.work.Logger;
 import androidx.work.State;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
@@ -135,11 +135,11 @@ public class WorkSpec {
      */
     public void setBackoffDelayDuration(long backoffDelayDuration) {
         if (backoffDelayDuration > MAX_BACKOFF_MILLIS) {
-            Log.w(TAG, "Backoff delay duration exceeds maximum value");
+            Logger.warning(TAG, "Backoff delay duration exceeds maximum value");
             backoffDelayDuration = MAX_BACKOFF_MILLIS;
         }
         if (backoffDelayDuration < MIN_BACKOFF_MILLIS) {
-            Log.w(TAG, "Backoff delay duration less than minimum value");
+            Logger.warning(TAG, "Backoff delay duration less than minimum value");
             backoffDelayDuration = MIN_BACKOFF_MILLIS;
         }
         this.backoffDelayDuration = backoffDelayDuration;
@@ -161,7 +161,7 @@ public class WorkSpec {
      */
     public void setPeriodic(long intervalDuration) {
         if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
-            Log.w(TAG, String.format(
+            Logger.warning(TAG, String.format(
                     "Interval duration lesser than minimum allowed value; Changed to %s",
                     MIN_PERIODIC_INTERVAL_MILLIS));
             intervalDuration = MIN_PERIODIC_INTERVAL_MILLIS;
@@ -177,19 +177,20 @@ public class WorkSpec {
      */
     public void setPeriodic(long intervalDuration, long flexDuration) {
         if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
-            Log.w(TAG, String.format(
+            Logger.warning(TAG, String.format(
                     "Interval duration lesser than minimum allowed value; Changed to %s",
                     MIN_PERIODIC_INTERVAL_MILLIS));
             intervalDuration = MIN_PERIODIC_INTERVAL_MILLIS;
         }
         if (flexDuration < MIN_PERIODIC_FLEX_MILLIS) {
-            Log.w(TAG,
+            Logger.warning(TAG,
                     String.format("Flex duration lesser than minimum allowed value; Changed to %s",
                             MIN_PERIODIC_FLEX_MILLIS));
             flexDuration = MIN_PERIODIC_FLEX_MILLIS;
         }
         if (flexDuration > intervalDuration) {
-            Log.w(TAG, String.format("Flex duration greater than interval duration; Changed to %s",
+            Logger.warning(TAG,
+                    String.format("Flex duration greater than interval duration; Changed to %s",
                     intervalDuration));
             flexDuration = intervalDuration;
         }

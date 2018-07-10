@@ -17,8 +17,8 @@ package androidx.work.impl.constraints.trackers;
 
 import android.content.Context;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.constraints.ConstraintListener;
 
 import java.util.LinkedHashSet;
@@ -54,7 +54,8 @@ public abstract class ConstraintTracker<T> {
         if (mListeners.add(listener)) {
             if (mListeners.size() == 1) {
                 mCurrentState = getInitialState();
-                Log.d(TAG, String.format("%s: initial state = %s", getClass().getSimpleName(),
+                Logger.debug(TAG, String.format("%s: initial state = %s",
+                        getClass().getSimpleName(),
                         mCurrentState));
                 startTracking();
             }

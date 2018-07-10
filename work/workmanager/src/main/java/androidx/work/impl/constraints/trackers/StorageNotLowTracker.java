@@ -20,7 +20,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
+
+import androidx.work.Logger;
 
 /**
  * Tracks whether or not the device's storage is low.
@@ -80,7 +81,7 @@ public class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
             return; // Should never happen since the IntentFilter was configured.
         }
 
-        Log.d(TAG, String.format("Received %s", intent.getAction()));
+        Logger.debug(TAG, String.format("Received %s", intent.getAction()));
 
         switch (intent.getAction()) {
             case Intent.ACTION_DEVICE_STORAGE_OK:

@@ -22,7 +22,8 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
+
+import androidx.work.Logger;
 
 /**
  * Tracks whether or not the device's battery is charging.
@@ -48,7 +49,7 @@ public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<B
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent intent = mAppContext.registerReceiver(null, intentFilter);
         if (intent == null) {
-            Log.e(TAG, "getInitialState - null intent received");
+            Logger.error(TAG, "getInitialState - null intent received");
             return null;
         }
         return isBatteryChangedIntentCharging(intent);
@@ -74,7 +75,7 @@ public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<B
             return;
         }
 
-        Log.d(TAG, String.format("Received %s", action));
+        Logger.debug(TAG, String.format("Received %s", action));
         switch (action) {
             case BatteryManager.ACTION_CHARGING:
                 setState(true);

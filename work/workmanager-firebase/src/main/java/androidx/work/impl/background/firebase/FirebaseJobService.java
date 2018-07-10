@@ -19,8 +19,8 @@ package androidx.work.impl.background.firebase;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkManagerImpl;
 
@@ -58,11 +58,11 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
     public boolean onStartJob(JobParameters params) {
         String workSpecId = params.getTag();
         if (TextUtils.isEmpty(workSpecId)) {
-            Log.e(TAG, "WorkSpec id not found!");
+            Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
 
-        Log.d(TAG, String.format("onStartJob for %s", workSpecId));
+        Logger.debug(TAG, String.format("onStartJob for %s", workSpecId));
         synchronized (mJobParameters) {
             mJobParameters.put(workSpecId, params);
         }
@@ -74,11 +74,11 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
     public boolean onStopJob(JobParameters params) {
         String workSpecId = params.getTag();
         if (TextUtils.isEmpty(workSpecId)) {
-            Log.e(TAG, "WorkSpec id not found!");
+            Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
 
-        Log.d(TAG, String.format("onStopJob for %s", workSpecId));
+        Logger.debug(TAG, String.format("onStopJob for %s", workSpecId));
 
         synchronized (mJobParameters) {
             mJobParameters.remove(workSpecId);
@@ -92,7 +92,7 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
             @NonNull String workSpecId,
             boolean isSuccessful,
             boolean needsReschedule) {
-        Log.d(TAG, String.format("%s executed on FirebaseJobDispatcher", workSpecId));
+        Logger.debug(TAG, String.format("%s executed on FirebaseJobDispatcher", workSpecId));
         JobParameters parameters;
         synchronized (mJobParameters) {
             parameters = mJobParameters.get(workSpecId);
