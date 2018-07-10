@@ -160,7 +160,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
             }
         });
 
-        final CountDownLatch latchForControllerCallback = new CountDownLatch(1);
+        final CountDownLatch latchForControllerCallback = new CountDownLatch(2);
         final MediaController2 controller =
                 createController(mSession.getToken(), true, new ControllerCallback() {
                     @Override
@@ -168,8 +168,17 @@ public class MediaSession2Test extends MediaSession2TestBase {
                         assertEquals(targetState, state);
                         latchForControllerCallback.countDown();
                     }
+
+                    @Override
+                    public void onPlaybackInfoChanged(MediaController2 controller,
+                            PlaybackInfo info) {
+                        // This will be called if AudioAttributesCompat is changed
+                        // when player state changes.
+                        latchForControllerCallback.countDown();
+                    }
                 });
 
+        mPlayer.setAudioAttributes(new AudioAttributesCompat.Builder().build());
         mPlayer.notifyPlaybackState(targetState);
         assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
