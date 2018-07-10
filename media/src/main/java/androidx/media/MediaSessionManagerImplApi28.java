@@ -19,6 +19,7 @@ package androidx.media;
 import android.content.Context;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.util.ObjectsCompat;
 
 @RequiresApi(28)
 class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
@@ -46,6 +47,10 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
                     packageName, pid, uid);
         }
 
+        RemoteUserInfo(android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {
+            mObject = remoteUserInfo;
+        }
+
         @Override
         public String getPackageName() {
             return mObject.getPackageName();
@@ -59,6 +64,23 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
         @Override
         public int getUid() {
             return mObject.getUid();
+        }
+
+        @Override
+        public int hashCode() {
+            return ObjectsCompat.hash(mObject);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof RemoteUserInfo)) {
+                return false;
+            }
+            RemoteUserInfo other = (RemoteUserInfo) obj;
+            return mObject.equals(other.mObject);
         }
     }
 }
