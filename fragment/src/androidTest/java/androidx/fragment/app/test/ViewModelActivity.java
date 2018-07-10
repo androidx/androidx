@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.test.R;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStore;
 
 public class ViewModelActivity extends FragmentActivity {
     public static final String KEY_FRAGMENT_MODEL = "fragment-model";
@@ -30,12 +31,16 @@ public class ViewModelActivity extends FragmentActivity {
     public static final String FRAGMENT_TAG_1 = "f1";
     public static final String FRAGMENT_TAG_2 = "f2";
 
+    public ViewModelStore preOnCreateViewModelStore;
+    public ViewModelStore postOnCreateViewModelStore;
     public TestViewModel activityModel;
     public TestViewModel defaultActivityModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        preOnCreateViewModelStore = getViewModelStore();
         super.onCreate(savedInstanceState);
+        postOnCreateViewModelStore = getViewModelStore();
         setContentView(R.layout.activity_view_model);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

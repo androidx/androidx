@@ -290,6 +290,8 @@ public class FragmentActivity extends ComponentActivity implements
      * Returns the {@link ViewModelStore} associated with this activity
      *
      * @return a {@code ViewModelStore}
+     * @throws IllegalStateException if called before the Activity is attached to the Application
+     * instance i.e., before onCreate()
      */
     @NonNull
     @Override
@@ -299,7 +301,15 @@ public class FragmentActivity extends ComponentActivity implements
                     + "Application instance. You can't request ViewModel before onCreate call.");
         }
         if (mViewModelStore == null) {
-            mViewModelStore = new ViewModelStore();
+            NonConfigurationInstances nc =
+                    (NonConfigurationInstances) getLastNonConfigurationInstance();
+            if (nc != null) {
+                // Restore the ViewModelStore from NonConfigurationInstances
+                mViewModelStore = nc.viewModelStore;
+            }
+            if (mViewModelStore == null) {
+                mViewModelStore = new ViewModelStore();
+            }
         }
         return mViewModelStore;
     }
@@ -326,7 +336,7 @@ public class FragmentActivity extends ComponentActivity implements
 
         NonConfigurationInstances nc =
                 (NonConfigurationInstances) getLastNonConfigurationInstance();
-        if (nc != null) {
+        if (nc != null && nc.viewModelStore != null && mViewModelStore == null) {
             mViewModelStore = nc.viewModelStore;
         }
         if (savedInstanceState != null) {
