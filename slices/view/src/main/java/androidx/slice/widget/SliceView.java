@@ -56,34 +56,40 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A view for displaying a {@link Slice} which is a piece of app content and actions. SliceView is
- * able to present slice content in a templated format outside of the associated app. The way this
- * content is displayed depends on the structure of the slice, the hints associated with the
- * content, and the mode that SliceView is configured for. The modes that SliceView supports are:
+ * A view for displaying {@link Slice}s.
+ * <p>
+ * A slice is a piece of app content and actions that can be surfaced outside of the app it
+ * originates from. SliceView is able to interpret the structure and contents of a slice and display
+ * it. This structure is defined by the app providing the slice when the slice is constructed with a
+ * {@link androidx.slice.builders.TemplateSliceBuilder}.
+ * </p>
+ * <p>
+ * SliceView is able to display slices in a couple of different modes via {@see #setMode}.
  * <ul>
- * <li><b>Shortcut</b>: A shortcut is presented as an icon and a text label representing the main
- * content or action associated with the slice.</li>
- * <li><b>Small</b>: The small format has a restricted height and can present a single
- * {@link SliceItem} or a limited collection of items.</li>
- * <li><b>Large</b>: The large format displays multiple small templates in a list, if scrolling is
- * not enabled (see {@link #setScrollable(boolean)}) the view will show as many items as it can
- * comfortably fit.</li>
+ * <li><b>Small</b>: The small format has a restricted height and display top-level information
+ * and actions from the slice.</li>
+ * <li><b>Large</b>: The large format displays as much of the slice as it can based on the space
+ * provided for SliceView, if the slice overflows the space SliceView will scroll the content if
+ * scrolling has been enabled on SliceView, {@see #setScrollable}.</li>
+ * <li><b>Shortcut</b>: A shortcut shows minimal information and is presented as a tappable icon
+ * representing the main content or action associated with the slice.</li>
  * </ul>
+ * </p>
  * <p>
- * When constructing a slice, the contents of it can be annotated with hints, these provide the OS
- * with some information on how the content should be displayed. For example, text annotated with
- * {@link android.app.slice.Slice#HINT_TITLE} would be placed in the title position of a template.
- * A slice annotated with {@link android.app.slice.Slice#HINT_LIST} would present the child items
- * of that slice in a list.
- * <p>
- * Example usage:
- *
+ * Slices can contain dynamic content that may update due to user interaction or a change in the
+ * data being displayed in the slice. SliceView can be configured to listen for these updates easily
+ * using {@link SliceLiveData}. Example usage:
  * <pre class="prettyprint">
  * SliceView v = new SliceView(getContext());
  * v.setMode(desiredMode);
  * LiveData<Slice> liveData = SliceLiveData.fromUri(sliceUri);
  * liveData.observe(lifecycleOwner, v);
  * </pre>
+ * </p>
+ * <p>
+ * SliceView supports various style options, see {@link R.styleable#SliceView SliceView Attributes}.
+ *
+ * @see Slice
  * @see SliceLiveData
  */
 @RequiresApi(19)
@@ -116,17 +122,17 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     public @interface SliceMode {}
 
     /**
-     * Mode indicating this slice should be presented in small template format.
+     * Mode indicating this slice should be presented in small format, only top-level information
+     * and actions from the slice are shown.
      */
     public static final int MODE_SMALL       = 1;
     /**
-     * Mode indicating this slice should be presented in large template format.
+     * Mode indicating this slice should be presented in large format, as much or all of the slice
+     * contents are shown.
      */
     public static final int MODE_LARGE       = 2;
     /**
-     * Mode indicating this slice should be presented as an icon. A shortcut requires an intent,
-     * icon, and label. This can be indicated by using {@link android.app.slice.Slice#HINT_TITLE}
-     * on an action in a slice.
+     * Mode indicating this slice should be presented as a tappable icon.
      */
     public static final int MODE_SHORTCUT    = 3;
 
@@ -573,14 +579,14 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
-     * Whether this view should allow scrollable content when presenting in {@link #MODE_LARGE}.
+     * Whether this view allow scrollable content when presenting in {@link #MODE_LARGE}.
      */
     public boolean isScrollable() {
         return mIsScrollable;
     }
 
     /**
-     * Sets the listener to notify when an interaction events occur on the view.
+     * Sets the listener to notify when an interaction event occurs on the view.
      * @see EventInfo
      */
     public void setOnSliceActionListener(@Nullable OnSliceActionListener observer) {

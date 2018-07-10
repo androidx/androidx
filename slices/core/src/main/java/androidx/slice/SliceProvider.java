@@ -66,19 +66,44 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A SliceProvider allows an app to provide content to be displayed in system spaces. This content
- * is templated and can contain actions, and the behavior of how it is surfaced is specific to the
- * system surface.
+ * A SliceProvider allows an app to provide {@link Slice}s to the Android OS. A slice is a piece of
+ * app content and actions that can be displayed outside of the app in Android system surfaces
+ * or within another app. Slices are identified by a Uri and a SliceProvider allows your app to
+ * provide a slice based on a uri.
+ * <p>
+ * The primary method to implement in SliceProvider is {@link #onBindSlice(Uri)} which is called
+ * whenever something wants to display a slice from your app. An app can have multiple slices all
+ * served from the same slice provider, the Uri passed to onBindSlice will identify the specific
+ * slice being requested.
+ * </p>
+ * <pre class="prettyprint">
+ * public MySliceProvider extends SliceProvider {
+ *
+ *      public Slice onBindSlice(Uri sliceUri) {
+ *          String path = sliceUri.getPath();
+ *          switch (path) {
+ *              case "/weather":
+ *                  return createWeatherSlice(sliceUri);
+ *              case "/traffic":
+ *                  return createTrafficSlice(sliceUri);
+ *          }
+ *          return null;
+ *      }
+ * }
+ * </pre>
+ * <p>
+ * Slices are constructed with {@link androidx.slice.builders.TemplateSliceBuilder}s.
+ * </p>
  * <p>
  * Slices are not currently live content. They are bound once and shown to the user. If the content
- * changes due to a callback from user interaction, then
- * {@link ContentResolver#notifyChange(Uri, ContentObserver)} should be used to notify the system.
+ * in the slice changes due to user interaction or an update in the data being displayed, then
+ * {@link ContentResolver#notifyChange(Uri, ContentObserver)} should be used to notify the system
+ * to request the latest slice from the app.
  * </p>
  * <p>
  * The provider needs to be declared in the manifest to provide the authority for the app. The
  * authority for most slices is expected to match the package of the application.
  * </p>
- *
  * <pre class="prettyprint">
  * {@literal
  * <provider
@@ -86,11 +111,11 @@ import java.util.Set;
  *     android:authorities="com.android.mypkg" />}
  * </pre>
  * <p>
- * Slices can be identified by a Uri or by an Intent. To link an Intent with a slice, the provider
+ * Slices can also be identified by an intent. To link an intent with a slice, the slice provider
  * must have an {@link IntentFilter} matching the slice intent. When a slice is being requested via
- * an intent, {@link #onMapIntentToUri(Intent)} can be called and is expected to return an
+ * an intent, {@link #onMapIntentToUri(Intent)} will be called and is expected to return an
  * appropriate Uri representing the slice.
- *
+ * </p>
  * <pre class="prettyprint">
  * {@literal
  * <provider
@@ -98,11 +123,12 @@ import java.util.Set;
  *     android:authorities="com.android.mypkg">
  *     <intent-filter>
  *         <action android:name="android.intent.action.MY_SLICE_INTENT" />
+ *         <category android:name="android.app.slice.category.SLICE" />
  *     </intent-filter>
  * </provider>}
  * </pre>
  *
- * @see android.app.slice.Slice
+ * @see Slice
  */
 public abstract class SliceProvider extends ContentProvider implements
         CoreComponentFactory.CompatWrapped {
@@ -123,8 +149,8 @@ public abstract class SliceProvider extends ContentProvider implements
      * A version of constructing a SliceProvider that allows autogranting slice permissions
      * to apps that hold specific platform permissions.
      * <p>
-     * When an app tries to bind a slice from this provider that it does not have access to,
-     * This provider will check if the caller holds permissions to any of the autoGrantPermissions
+     * When an app tries to bind a slice from a provider that it does not have access to,
+     * the provider will check if the caller holds permissions to any of the autoGrantPermissions
      * specified, if they do they will be granted persisted uri access to all slices of this
      * provider.
      *

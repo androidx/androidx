@@ -65,7 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Utility class to parse a Slice and provide access to some information around its contents.
+ * Utility class to parse a {@link Slice} and provide access to information around its contents.
  */
 @RequiresApi(19)
 public class SliceMetadata {

@@ -74,9 +74,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A slice is a piece of app content and actions that can be surfaced outside of the app.
+ * A slice is a piece of app content and actions that can be surfaced outside of the app. A slice
+ * is identified by a Uri and served via a {@link SliceProvider}.
  *
- * <p>They are constructed using {@link androidx.slice.builders.TemplateSliceBuilder}s
+ * <p>Slices are constructed using {@link androidx.slice.builders.TemplateSliceBuilder}s
  * in a tree structure that provides the OS some information about how the content should be
  * displayed.
  */
