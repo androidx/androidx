@@ -17,15 +17,30 @@
 package androidx.navigation.safe.args.generator.models
 
 import androidx.navigation.safe.args.generator.NavType
+import androidx.navigation.safe.args.generator.NullValue
 import androidx.navigation.safe.args.generator.WriteableValue
 import androidx.navigation.safe.args.generator.ext.joinToCamelCaseAsVar
 
-data class Argument(val name: String, val type: NavType, val defaultValue: WriteableValue? = null) {
+data class Argument(
+    val name: String,
+    val type: NavType,
+    val defaultValue: WriteableValue? = null,
+    val isNullable: Boolean = false
+) {
+    init {
+        if (isNullable && !type.allowsNullable()) {
+            throw IllegalArgumentException("Argument is nullable but type ${type.typeName()} " +
+                    "cannot be nullable.")
+        }
+        if (!isNullable && defaultValue == NullValue) {
+            throw IllegalArgumentException("Argument has null value but is not nullable.")
+        }
+    }
 
     val sanitizedName = name.split("[^a-zA-Z0-9]".toRegex())
             .map { it.trim() }.joinToCamelCaseAsVar()
 
     fun isOptional() = defaultValue != null
 
-    operator fun component4() = sanitizedName
+    operator fun component5() = sanitizedName
 }

@@ -17,11 +17,13 @@
 package androidx.navigation.safe.args.generator
 
 import androidx.navigation.safe.args.generator.NavParserErrors.UNNAMED_DESTINATION
+import androidx.navigation.safe.args.generator.NavParserErrors.defaultNullButNotNullable
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultValue
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultValueReference
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidId
 import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameActions
 import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameArguments
+import androidx.navigation.safe.args.generator.NavParserErrors.typeIsNotNullable
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.ResReference
@@ -41,18 +43,20 @@ class InvalidXmlTest(private val testCase: ErrorMessage) {
             ErrorMessage("invalid_default_value_reference.xml", 23, 9,
                 invalidDefaultValueReference("foo/")),
             ErrorMessage("invalid_default_value_int.xml", 24, 9,
-                invalidDefaultValue("101034f", NavType.INT)),
+                invalidDefaultValue("101034f", IntType)),
             ErrorMessage("invalid_id_action.xml", 22, 44, invalidId("@+fppid/finish")),
             ErrorMessage("invalid_id_destination.xml", 17, 1, invalidId("@1234234+id/foo")),
             ErrorMessage("action_no_id.xml", 22, 5, mandatoryAttrMissingError("action", "id")),
             ErrorMessage("same_name_args.xml", 23, 9, sameSanitizedNameArguments("myArg", listOf(
-                    Argument("my_arg", NavType.STRING), Argument("my.arg", NavType.STRING)))),
+                    Argument("my_arg", StringType), Argument("my.arg", StringType)))),
             ErrorMessage("same_name_actions.xml", 22, 5,
                     sameSanitizedNameActions("NextAction", listOf(
                             Action(ResReference("a.b", "id", "next_action"),
                                     ResReference("a.b", "id", "first_screen")),
                             Action(ResReference("a.b", "id", "nextAction"),
-                                    ResReference("a.b", "id", "first_screen")))))
+                                    ResReference("a.b", "id", "first_screen"))))),
+            ErrorMessage("null_but_not_nullable.xml", 24, 13, defaultNullButNotNullable("myArg")),
+            ErrorMessage("type_is_not_nullable.xml", 24, 13, typeIsNotNullable("integer"))
         )
     }
 

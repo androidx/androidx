@@ -1,34 +1,37 @@
 package a.b;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import java.lang.String;
 
 public class SanitizedMainFragmentDirections {
-    public static PreviousAction previousAction(String arg1, String arg2) {
+    public static PreviousAction previousAction(@NonNull String arg1, @NonNull String arg2) {
         return new PreviousAction(arg1, arg2);
     }
 
-    public static NextAction nextAction(String mainArg) {
+    public static NextAction nextAction(@NonNull String mainArg) {
         return new NextAction(mainArg);
     }
 
     public static class PreviousAction implements NavDirections {
+        @NonNull
         private String arg1;
 
+        @NonNull
         private String arg2;
 
-        public PreviousAction(String arg1, String arg2) {
+        public PreviousAction(@NonNull String arg1, @NonNull String arg2) {
             this.arg1 = arg1;
             this.arg2 = arg2;
         }
 
-        public PreviousAction setArg1(String arg1) {
+        public PreviousAction setArg1(@NonNull String arg1) {
             this.arg1 = arg1;
             return this;
         }
 
-        public PreviousAction setArg2(String arg2) {
+        public PreviousAction setArg2(@NonNull String arg2) {
             this.arg2 = arg2;
             return this;
         }
@@ -46,20 +49,22 @@ public class SanitizedMainFragmentDirections {
     }
 
     public static class NextAction implements NavDirections {
+        @NonNull
         private String mainArg;
 
+        @NonNull
         private String optionalArg = "bla";
 
-        public NextAction(String mainArg) {
+        public NextAction(@NonNull String mainArg) {
             this.mainArg = mainArg;
         }
 
-        public NextAction setMainArg(String mainArg) {
+        public NextAction setMainArg(@NonNull String mainArg) {
             this.mainArg = mainArg;
             return this;
         }
 
-        public NextAction setOptionalArg(String optionalArg) {
+        public NextAction setOptionalArg(@NonNull String optionalArg) {
             this.optionalArg = optionalArg;
             return this;
         }

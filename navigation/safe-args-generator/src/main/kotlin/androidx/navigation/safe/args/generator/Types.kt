@@ -23,69 +23,86 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 
-enum class NavType {
-
-    INT {
-        override fun typeName(): TypeName = TypeName.INT
-        override fun bundlePutMethod() = "putInt"
-        override fun bundleGetMethod() = "getInt"
-        override fun toString() = "integer"
-    },
-
-    LONG {
-        override fun typeName(): TypeName = TypeName.LONG
-        override fun bundlePutMethod() = "putLong"
-        override fun bundleGetMethod() = "getLong"
-        override fun toString() = "long"
-    },
-
-    FLOAT {
-        override fun typeName(): TypeName = TypeName.FLOAT
-        override fun bundlePutMethod() = "putFloat"
-        override fun bundleGetMethod() = "getFloat"
-        override fun toString() = "float"
-    },
-
-    STRING {
-        override fun typeName(): TypeName = ClassName.get(String::class.java)
-        override fun bundlePutMethod() = "putString"
-        override fun bundleGetMethod() = "getString"
-        override fun toString() = "string"
-    },
-
-    BOOLEAN {
-        override fun typeName(): TypeName = TypeName.BOOLEAN
-        override fun bundlePutMethod() = "putBoolean"
-        override fun bundleGetMethod() = "getBoolean"
-        override fun toString() = "boolean"
-    },
-
-    REFERENCE {
-        // it is internally the same as INT, but we don't want to allow to
-        // assignment between int and reference args
-        override fun typeName(): TypeName = TypeName.INT
-
-        override fun bundlePutMethod() = "putInt"
-        override fun bundleGetMethod() = "getInt"
-        override fun toString() = "reference"
-    };
-
+sealed class NavType {
     abstract fun typeName(): TypeName
     abstract fun bundlePutMethod(): String
     abstract fun bundleGetMethod(): String
+    abstract fun allowsNullable(): Boolean
 
     companion object {
         fun from(name: String?) = when (name) {
-            "integer" -> NavType.INT
-            "long" -> NavType.LONG
-            "float" -> NavType.FLOAT
-            "boolean" -> NavType.BOOLEAN
-            "reference" -> NavType.REFERENCE
-            "string" -> NavType.STRING
-            null -> NavType.STRING
-            else -> null
+            "integer" -> IntType
+            "long" -> LongType
+            "float" -> FloatType
+            "boolean" -> BoolType
+            "reference" -> ReferenceType
+            "string" -> StringType
+            null -> StringType
+            else -> ParcelableType(ClassName.get(
+                    name.substringBeforeLast('.', ""),
+                    name.substringAfterLast('.')
+            ))
         }
     }
+}
+
+object IntType : NavType() {
+    override fun typeName(): TypeName = TypeName.INT
+    override fun bundlePutMethod() = "putInt"
+    override fun bundleGetMethod() = "getInt"
+    override fun toString() = "integer"
+    override fun allowsNullable() = false
+}
+
+object LongType : NavType() {
+    override fun typeName(): TypeName = TypeName.LONG
+    override fun bundlePutMethod() = "putLong"
+    override fun bundleGetMethod() = "getLong"
+    override fun toString() = "long"
+    override fun allowsNullable() = false
+}
+
+object FloatType : NavType() {
+    override fun typeName(): TypeName = TypeName.FLOAT
+    override fun bundlePutMethod() = "putFloat"
+    override fun bundleGetMethod() = "getFloat"
+    override fun toString() = "float"
+    override fun allowsNullable() = false
+}
+
+object StringType : NavType() {
+    override fun typeName(): TypeName = ClassName.get(String::class.java)
+    override fun bundlePutMethod() = "putString"
+    override fun bundleGetMethod() = "getString"
+    override fun toString() = "string"
+    override fun allowsNullable() = true
+}
+
+object BoolType : NavType() {
+    override fun typeName(): TypeName = TypeName.BOOLEAN
+    override fun bundlePutMethod() = "putBoolean"
+    override fun bundleGetMethod() = "getBoolean"
+    override fun toString() = "boolean"
+    override fun allowsNullable() = false
+}
+
+object ReferenceType : NavType() {
+    // it is internally the same as INT, but we don't want to allow to
+    // assignment between int and reference args
+    override fun typeName(): TypeName = TypeName.INT
+
+    override fun bundlePutMethod() = "putInt"
+    override fun bundleGetMethod() = "getInt"
+    override fun toString() = "reference"
+    override fun allowsNullable() = false
+}
+
+data class ParcelableType(private val typeName: TypeName) : NavType() {
+    override fun typeName(): TypeName = typeName
+    override fun bundlePutMethod() = "putParcelable"
+    override fun bundleGetMethod() = "getParcelable"
+    override fun toString() = "parcelable"
+    override fun allowsNullable() = true
 }
 
 sealed class WriteableValue {
@@ -117,4 +134,8 @@ data class FloatValue(private val value: String) : WriteableValue() {
 
 data class BooleanValue(private val value: String) : WriteableValue() {
     override fun write(): CodeBlock = CodeBlock.of(value)
+}
+
+object NullValue : WriteableValue() {
+    override fun write(): CodeBlock = CodeBlock.of("null")
 }

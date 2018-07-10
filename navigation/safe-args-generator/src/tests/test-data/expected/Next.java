@@ -16,25 +16,37 @@
 
 package a.b;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import androidx.navigation.NavDirections;
 import java.lang.String;
 
 public static class Next implements NavDirections {
+    @NonNull
     private String main;
 
     private int mainInt;
 
+    @NonNull
     private String optional = "bla";
 
     private int optionalInt = 239;
 
-    public Next(String main, int mainInt) {
+    @Nullable
+    private ActivityInfo optionalParcelable = null;
+
+    @NonNull
+    private ActivityInfo parcelable;
+
+    public Next(@NonNull String main, int mainInt, @NonNull ActivityInfo parcelable) {
         this.main = main;
         this.mainInt = mainInt;
+        this.parcelable = parcelable;
     }
 
-    public Next setMain(String main) {
+    public Next setMain(@NonNull String main) {
         this.main = main;
         return this;
     }
@@ -44,7 +56,7 @@ public static class Next implements NavDirections {
         return this;
     }
 
-    public Next setOptional(String optional) {
+    public Next setOptional(@NonNull String optional) {
         this.optional = optional;
         return this;
     }
@@ -54,12 +66,24 @@ public static class Next implements NavDirections {
         return this;
     }
 
+    public Next setOptionalParcelable(@Nullable ActivityInfo optionalParcelable) {
+        this.optionalParcelable = optionalParcelable;
+        return this;
+    }
+
+    public Next setParcelable(@NonNull ActivityInfo parcelable) {
+        this.parcelable = parcelable;
+        return this;
+    }
+
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
         __outBundle.putString("main", this.main);
         __outBundle.putInt("mainInt", this.mainInt);
         __outBundle.putString("optional", this.optional);
         __outBundle.putInt("optionalInt", this.optionalInt);
+        __outBundle.putParcelable("optionalParcelable", this.optionalParcelable);
+        __outBundle.putParcelable("parcelable", this.parcelable);
         return __outBundle;
     }
 

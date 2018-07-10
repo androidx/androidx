@@ -17,6 +17,7 @@ public class SanitizedMainFragmentArgs {
 
     public static SanitizedMainFragmentArgs fromBundle(Bundle bundle) {
         SanitizedMainFragmentArgs result = new SanitizedMainFragmentArgs();
+        bundle.setClassLoader(SanitizedMainFragmentArgs.class.getClassLoader());
         if (bundle.containsKey("name.with.dot")) {
             result.nameWithDot = bundle.getInt("name.with.dot");
         } else {
