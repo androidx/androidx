@@ -47,4 +47,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2018"
     description = "Kotlin extensions for 'fragment' artifact"
+    useMetalava = true
 }

@@ -1,0 +1,19 @@
+package androidx.navigation.testing {
+
+  public final class TestNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.testing.TestNavigator.Destination> {
+    ctor public TestNavigatorDestinationBuilder(androidx.navigation.testing.TestNavigator navigator, @IdRes int id);
+  }
+
+  public final class TestNavigatorDestinationBuilderKt {
+    ctor public TestNavigatorDestinationBuilderKt();
+    method public static void test(androidx.navigation.NavGraphBuilder, @IdRes int id);
+    method public static void test(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.testing.TestNavigatorDestinationBuilder,kotlin.Unit> block);
+  }
+
+  public final class TestNavigatorKt {
+    ctor public TestNavigatorKt();
+    method public static java.util.List<kotlin.Pair<androidx.navigation.testing.TestNavigator.Destination,android.os.Bundle>> getBackStack(androidx.navigation.testing.TestNavigator);
+  }
+
+}
+

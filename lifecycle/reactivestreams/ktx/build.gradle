@@ -42,4 +42,5 @@ supportLibrary {
   inceptionYear = "2018"
   description = "Kotlin extensions for Lifecycle ReactiveStreams"
   url = SupportLibraryExtension.ARCHITECTURE_URL
+  useMetalava = true
 }

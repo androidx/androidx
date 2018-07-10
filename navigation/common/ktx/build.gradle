@@ -51,4 +51,5 @@ supportLibrary {
     inceptionYear = "2018"
     description = "Android Navigation-Common-Ktx"
     url = SupportLibraryExtension.ARCHITECTURE_URL
+    useMetalava = true
 }

@@ -53,4 +53,5 @@ supportLibrary {
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
     url = SupportLibraryExtension.ARCHITECTURE_URL
+    useMetalava = true
 }
