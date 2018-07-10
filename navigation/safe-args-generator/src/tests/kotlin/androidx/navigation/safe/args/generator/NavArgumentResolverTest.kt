@@ -16,8 +16,6 @@
 
 package androidx.navigation.safe.args.generator
 
-import androidx.navigation.safe.args.generator.NavType.INT
-import androidx.navigation.safe.args.generator.NavType.STRING
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
@@ -39,8 +37,8 @@ class NavArgumentResolverTest {
             Destination(
                     id(name), ClassName.get("foo", "Fragment${name.capitalize()}"), "test",
                     listOf(
-                            Argument("arg1", STRING),
-                            Argument("arg2", STRING, StringValue("foo"))
+                            Argument("arg1", StringType),
+                            Argument("arg2", StringType, StringValue("foo"))
                     ), emptyList())
 
     @Test
@@ -48,12 +46,12 @@ class NavArgumentResolverTest {
         val dest1Template = createTemplateDestination("first")
         val dest2Template = createTemplateDestination("second")
         val outerScopeAction = Action(id("toOuterScope"), id("outerScope"),
-                listOf(Argument("boo", STRING)))
+                listOf(Argument("boo", StringType)))
         val dest1 = dest1Template.copy(actions = listOf(Action(id("action1"), dest2Template.id),
                 outerScopeAction))
         val dest2 = dest2Template.copy(actions = listOf(Action(id("action2"), dest1Template.id,
-                listOf(Argument("arg1", STRING, StringValue("actionValue")),
-                        Argument("actionArg", STRING)))))
+                listOf(Argument("arg1", StringType, StringValue("actionValue")),
+                        Argument("actionArg", StringType)))))
 
         val topLevel = Destination(null, null, "test",
                 emptyList(), emptyList(), listOf(dest1, dest2))
@@ -66,9 +64,9 @@ class NavArgumentResolverTest {
                 outerScopeAction)))
 
         val resolvedAction2 = Action(id("action2"), dest1Template.id, listOf(
-                Argument("arg1", STRING, StringValue("actionValue")),
-                Argument("actionArg", STRING),
-                Argument("arg2", STRING, StringValue("foo"))
+                Argument("arg1", StringType, StringValue("actionValue")),
+                Argument("actionArg", StringType),
+                Argument("arg2", StringType, StringValue("foo"))
         ))
         assertThat(resolveArguments.nested[1].actions, `is`(listOf(resolvedAction2)))
     }
@@ -77,8 +75,8 @@ class NavArgumentResolverTest {
     fun testIncompatibleTypes() {
         val dest1 = createTemplateDestination("first")
         val invalidAction = Action(id("action"), dest1.id, listOf(
-                Argument("arg2", INT, IntValue("11")),
-                Argument("arg1", STRING)
+                Argument("arg2", IntType, IntValue("11")),
+                Argument("arg1", StringType)
         ))
 
         val topLevel = Destination(null, null, "test", emptyList(), listOf(invalidAction),

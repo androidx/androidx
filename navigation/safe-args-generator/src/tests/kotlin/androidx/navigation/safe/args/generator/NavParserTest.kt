@@ -16,12 +16,6 @@
 
 package androidx.navigation.safe.args.generator
 
-import androidx.navigation.safe.args.generator.NavType.BOOLEAN
-import androidx.navigation.safe.args.generator.NavType.FLOAT
-import androidx.navigation.safe.args.generator.NavType.INT
-import androidx.navigation.safe.args.generator.NavType.LONG
-import androidx.navigation.safe.args.generator.NavType.REFERENCE
-import androidx.navigation.safe.args.generator.NavType.STRING
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
@@ -47,15 +41,25 @@ class NavParserTest {
         val nameFirst = ClassName.get("androidx.navigation.testapp", "MainFragment")
         val nameNext = ClassName.get("foo.app", "NextFragment")
         val expectedFirst = Destination(id("first_screen"), nameFirst, "fragment",
-                listOf(Argument("myarg1", STRING, StringValue("one"))),
+                listOf(Argument("myarg1", StringType, StringValue("one"))),
                 listOf(Action(id("next"), id("next_fragment"), listOf(
-                        Argument("myarg2", STRING),
-                        Argument("randomArgument", STRING),
-                        Argument("intArgument", INT, IntValue("261"))
+                        Argument("myarg2", StringType),
+                        Argument("randomArgument", StringType),
+                        Argument("intArgument", IntType, IntValue("261")),
+                        Argument(
+                                "activityInfo",
+                                ParcelableType(ClassName.get("android.content.pm", "ActivityInfo"))
+                        ),
+                        Argument(
+                                "activityInfoNull",
+                                ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
+                                NullValue,
+                                true
+                        )
                 ))))
 
         val expectedNext = Destination(id("next_fragment"), nameNext, "fragment",
-                listOf(Argument("myarg2", STRING)),
+                listOf(Argument("myarg2", StringType)),
                 listOf(Action(id("next"), id("first_screen")),
                         Action(id("finish"), null)))
 
@@ -102,13 +106,13 @@ class NavParserTest {
     @Test
     fun testArgInference() {
         val infer = { value: String -> inferArgument("foo", value, "a.b") }
-        val intArg = { value: String -> Argument("foo", INT, IntValue(value)) }
-        val longArg = { value: String -> Argument("foo", LONG, LongValue(value)) }
-        val floatArg = { value: String -> Argument("foo", FLOAT, FloatValue(value)) }
-        val stringArg = { value: String -> Argument("foo", STRING, StringValue(value)) }
-        val boolArg = { value: String -> Argument("foo", BOOLEAN, BooleanValue(value)) }
+        val intArg = { value: String -> Argument("foo", IntType, IntValue(value)) }
+        val longArg = { value: String -> Argument("foo", LongType, LongValue(value)) }
+        val floatArg = { value: String -> Argument("foo", FloatType, FloatValue(value)) }
+        val stringArg = { value: String -> Argument("foo", StringType, StringValue(value)) }
+        val boolArg = { value: String -> Argument("foo", BoolType, BooleanValue(value)) }
         val referenceArg = { pName: String, type: String, value: String ->
-            Argument("foo", REFERENCE, ReferenceValue(ResReference(pName, type, value)))
+            Argument("foo", ReferenceType, ReferenceValue(ResReference(pName, type, value)))
         }
 
         assertThat(infer("spb"), `is`(stringArg("spb")))
@@ -132,26 +136,26 @@ class NavParserTest {
     @Test
     fun testArgSanitizedName() {
         assertEquals("camelCaseName",
-                Argument("camelCaseName", INT).sanitizedName)
+                Argument("camelCaseName", IntType).sanitizedName)
         assertEquals("ALLCAPSNAME",
-                Argument("ALLCAPSNAME", INT).sanitizedName)
+                Argument("ALLCAPSNAME", IntType).sanitizedName)
         assertEquals("alllowercasename",
-                Argument("alllowercasename", INT).sanitizedName)
+                Argument("alllowercasename", IntType).sanitizedName)
         assertEquals("nameWithUnderscore",
-                Argument("name_with_underscore", INT).sanitizedName)
+                Argument("name_with_underscore", IntType).sanitizedName)
         assertEquals("NameWithUnderscore",
-                Argument("Name_With_Underscore", INT).sanitizedName)
+                Argument("Name_With_Underscore", IntType).sanitizedName)
         assertEquals("NAMEWITHUNDERSCORE",
-                Argument("NAME_WITH_UNDERSCORE", INT).sanitizedName)
+                Argument("NAME_WITH_UNDERSCORE", IntType).sanitizedName)
         assertEquals("nameWithSpaces",
-                Argument("name with spaces", INT).sanitizedName)
+                Argument("name with spaces", IntType).sanitizedName)
         assertEquals("nameWithDot",
-                Argument("name.with.dot", INT).sanitizedName)
+                Argument("name.with.dot", IntType).sanitizedName)
         assertEquals("nameWithDollars",
-                Argument("name\$with\$dollars", INT).sanitizedName)
+                Argument("name\$with\$dollars", IntType).sanitizedName)
         assertEquals("nameWithBangs",
-                Argument("name!with!bangs", INT).sanitizedName)
+                Argument("name!with!bangs", IntType).sanitizedName)
         assertEquals("nameWithHyphens",
-                Argument("name-with-hyphens", INT).sanitizedName)
+                Argument("name-with-hyphens", IntType).sanitizedName)
     }
 }

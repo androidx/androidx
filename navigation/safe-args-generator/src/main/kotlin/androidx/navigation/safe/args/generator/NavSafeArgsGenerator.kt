@@ -24,7 +24,8 @@ fun generateSafeArgs(
     rFilePackage: String,
     applicationId: String,
     navigationXml: File,
-    outputDir: File
+    outputDir: File,
+    useAndroidX: Boolean = false
 ): GeneratorOutput {
     val context = Context()
     val rawDestination = NavParser.parseNavigationFile(navigationXml, rFilePackage, applicationId,
@@ -33,10 +34,10 @@ fun generateSafeArgs(
     val javaFiles = mutableSetOf<JavaFile>()
     fun writeJavaFiles(destination: Destination) {
         if (destination.actions.isNotEmpty()) {
-            javaFiles.add(generateDirectionsJavaFile(destination))
+            javaFiles.add(generateDirectionsJavaFile(destination, useAndroidX))
         }
         if (destination.args.isNotEmpty()) {
-            javaFiles.add(generateArgsJavaFile(destination))
+            javaFiles.add(generateArgsJavaFile(destination, useAndroidX))
         }
         destination.nested.forEach(::writeJavaFiles)
     }

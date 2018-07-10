@@ -32,7 +32,14 @@ object NavParserErrors {
     fun invalidId(value: String) = "Failed to parse $value as id. 'id' must be in the format:" +
         " @[+][package:]id/resource_name "
 
-    fun unknownType(type: String?) = "Unknown type '$type'"
+    fun defaultValueParcelable(type: String?) = "Parcelable ('$type') " +
+            "doesn't allow default values other than @null"
+
+    fun defaultNullButNotNullable(name: String?) = "android:defaultValue is @null, but '$name' " +
+            "is not nullable. Add app:allowsNullable=\"true\" to the argument to make it nullable."
+
+    fun typeIsNotNullable(typeName: String?) = "'$typeName' is a simple type " +
+            "and cannot be nullable. Remove app:allowsNullable=\"true\" from the argument."
 
     fun sameSanitizedNameArguments(sanitizedName: String, args: List<Argument>) =
             "Multiple same name arguments. The named arguments: " +
