@@ -149,7 +149,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         if (mGridContent != null && mGridContent.isAllImages()) {
             // Might need to add padding if in first or last position
             if (mRowIndex == 0) {
-                return mGridTopPadding;
+                return mSliceStyle != null ? mSliceStyle.getGridTopPadding() : 0;
             }
         }
         return 0;
@@ -158,7 +158,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private int getExtraBottomPadding() {
         if (mGridContent != null && mGridContent.isAllImages()) {
             if (mRowIndex == mRowCount - 1 || getMode() == MODE_SMALL) {
-                return mGridBottomPadding;
+                return mSliceStyle != null ? mSliceStyle.getGridBottomPadding() : 0;
             }
         }
         return 0;
@@ -309,8 +309,10 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
             // Update text appearance
             TextView moreText = seeMoreView.findViewById(R.id.text_see_more);
-            moreText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mGridTitleSize);
-            moreText.setTextColor(mTitleColor);
+            if (mSliceStyle != null) {
+                moreText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getGridTitleSize());
+                moreText.setTextColor(mSliceStyle.getTitleColor());
+            }
         }
         mViewContainer.addView(seeMoreView, new LinearLayout.LayoutParams(0, MATCH_PARENT, 1));
         extraText.setText(getResources().getString(R.string.abc_slice_more_content, numExtra));
@@ -423,11 +425,15 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         final String format = item.getFormat();
         View addedView = null;
         if (FORMAT_TEXT.equals(format) || FORMAT_LONG.equals(format)) {
-            boolean title = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
-            TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(title
+            boolean isTitle = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
+            TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(isTitle
                     ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, title ? mGridTitleSize : mGridSubtitleSize);
-            tv.setTextColor(title ? mTitleColor : mSubtitleColor);
+            if (mSliceStyle != null) {
+                tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, isTitle
+                        ? mSliceStyle.getGridTitleSize() : mSliceStyle.getGridSubtitleSize());
+                tv.setTextColor(isTitle
+                        ? mSliceStyle.getTitleColor() : mSliceStyle.getSubtitleColor());
+            }
             CharSequence text = FORMAT_LONG.equals(format)
                     ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
                     : item.getText();
@@ -469,7 +475,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
             return mTextPadding;
         } else if (FORMAT_TEXT.equals(prevItem.getFormat())
                 || FORMAT_LONG.equals(prevItem.getFormat())) {
-            return mVerticalGridTextPadding;
+            return mSliceStyle != null ? mSliceStyle.getVerticalGridTextPadding() : 0;
         }
         return 0;
     }

@@ -17,7 +17,6 @@
 package androidx.slice.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
@@ -27,7 +26,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceAction;
-import androidx.slice.view.R;
 
 import java.util.List;
 import java.util.Set;
@@ -43,19 +41,6 @@ public abstract class SliceChildView extends FrameLayout {
     protected SliceView.OnSliceActionListener mObserver;
     protected int mMode;
     protected int mTintColor = -1;
-    protected int mTitleColor;
-    protected int mSubtitleColor;
-    protected int mHeaderTitleSize;
-    protected int mHeaderSubtitleSize;
-    protected int mVerticalHeaderTextPadding;
-    protected int mTitleSize;
-    protected int mSubtitleSize;
-    protected int mVerticalTextPadding;
-    protected int mGridTitleSize;
-    protected int mGridSubtitleSize;
-    protected int mVerticalGridTextPadding;
-    protected int mGridTopPadding;
-    protected int mGridBottomPadding;
     protected boolean mShowLastUpdated;
     protected long mLastUpdated = -1;
     protected int mInsetStart;
@@ -63,6 +48,7 @@ public abstract class SliceChildView extends FrameLayout {
     protected int mInsetEnd;
     protected int mInsetBottom;
     protected SliceActionView.SliceActionLoadingListener mLoadingListener;
+    protected SliceStyle mSliceStyle;
 
     public SliceChildView(@NonNull Context context) {
         super(context);
@@ -198,42 +184,8 @@ public abstract class SliceChildView extends FrameLayout {
         return null;
     }
 
-    /**
-     * Populates style information for this view.
-     */
-    public void setStyle(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
-                defStyleAttr, defStyleRes);
-        try {
-            int themeColor = a.getColor(R.styleable.SliceView_tintColor, -1);
-            mTintColor = themeColor != -1 ? themeColor : mTintColor;
-            mTitleColor = a.getColor(R.styleable.SliceView_titleColor, 0);
-            mSubtitleColor = a.getColor(R.styleable.SliceView_subtitleColor, 0);
-
-            mHeaderTitleSize = (int) a.getDimension(
-                    R.styleable.SliceView_headerTitleSize, 0);
-            mHeaderSubtitleSize = (int) a.getDimension(
-                    R.styleable.SliceView_headerSubtitleSize, 0);
-            mVerticalHeaderTextPadding = (int) a.getDimension(
-                    R.styleable.SliceView_headerTextVerticalPadding, 0);
-
-            mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
-            mSubtitleSize = (int) a.getDimension(
-                    R.styleable.SliceView_subtitleSize, 0);
-            mVerticalTextPadding = (int) a.getDimension(
-                    R.styleable.SliceView_textVerticalPadding, 0);
-
-            mGridTitleSize = (int) a.getDimension(R.styleable.SliceView_gridTitleSize, 0);
-            mGridSubtitleSize = (int) a.getDimension(
-                    R.styleable.SliceView_gridSubtitleSize, 0);
-            int defaultVerticalGridPadding = getContext().getResources().getDimensionPixelSize(
-                    R.dimen.abc_slice_grid_text_inner_padding);
-            mVerticalGridTextPadding = (int) a.getDimension(
-                    R.styleable.SliceView_gridTextVerticalPadding, defaultVerticalGridPadding);
-            mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
-            mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridBottomPadding, 0);
-        } finally {
-            a.recycle();
-        }
+    public void setStyle(SliceStyle styles) {
+        mSliceStyle = styles;
     }
+
 }

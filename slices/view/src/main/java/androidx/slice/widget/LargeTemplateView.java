@@ -20,7 +20,6 @@ import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 import android.content.Context;
 import android.os.Build;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -195,9 +194,9 @@ public class LargeTemplateView extends SliceChildView {
     }
 
     @Override
-    public void setStyle(AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
-        super.setStyle(attrs, defStyleAttrs, defStyleRes);
-        mAdapter.setStyle(attrs, defStyleAttrs, defStyleRes);
+    public void setStyle(SliceStyle style) {
+        super.setStyle(style);
+        mAdapter.setStyle(style);
     }
 
     @Override
