@@ -35,6 +35,7 @@ import androidx.media2.test.R;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -442,6 +443,7 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
         assertEquals(0, mPlaylistAgent.getCurShuffledIndex());
     }
 
+    @Ignore
     @Test
     public void testCurrentMediaItemChangedAfterSetPlayList() throws Exception {
         prepareLooper();
