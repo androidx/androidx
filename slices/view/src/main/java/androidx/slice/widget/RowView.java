@@ -350,10 +350,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (titleItem != null) {
             mPrimaryText.setText(titleItem.getText());
         }
-        mPrimaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
-                ? mHeaderTitleSize
-                : mTitleSize);
-        mPrimaryText.setTextColor(mTitleColor);
+        if (mSliceStyle != null) {
+            mPrimaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
+                    ? mSliceStyle.getHeaderTitleSize()
+                    : mSliceStyle.getTitleSize());
+            mPrimaryText.setTextColor(mSliceStyle.getTitleColor());
+        }
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
 
         addSubtitle();
@@ -483,12 +485,16 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                         || (subtitleItem != null && subtitleItem.hasHint(HINT_PARTIAL));
         if (subtitleExists) {
             mSecondaryText.setText(subtitle);
-            mSecondaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
-                    ? mHeaderSubtitleSize
-                    : mSubtitleSize);
-            mSecondaryText.setTextColor(mSubtitleColor);
-            int verticalPadding = mIsHeader ? mVerticalHeaderTextPadding : mVerticalTextPadding;
-            mSecondaryText.setPadding(0, verticalPadding, 0, 0);
+            if (mSliceStyle != null) {
+                mSecondaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
+                        ? mSliceStyle.getHeaderSubtitleSize()
+                        : mSliceStyle.getSubtitleSize());
+                mSecondaryText.setTextColor(mSliceStyle.getSubtitleColor());
+                int verticalPadding = mIsHeader
+                        ? mSliceStyle.getVerticalHeaderTextPadding()
+                        : mSliceStyle.getVerticalTextPadding();
+                mSecondaryText.setPadding(0, verticalPadding, 0, 0);
+            }
         }
         if (subtitleTimeString != null) {
             if (!TextUtils.isEmpty(subtitle)) {
@@ -497,9 +503,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             SpannableString sp = new SpannableString(subtitleTimeString);
             sp.setSpan(new StyleSpan(Typeface.ITALIC), 0, subtitleTimeString.length(), 0);
             mLastUpdatedText.setText(sp);
-            mLastUpdatedText.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                    mIsHeader ? mHeaderSubtitleSize : mSubtitleSize);
-            mLastUpdatedText.setTextColor(mSubtitleColor);
+            if (mSliceStyle != null) {
+                mLastUpdatedText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
+                        ? mSliceStyle.getHeaderSubtitleSize() : mSliceStyle.getSubtitleSize());
+                mLastUpdatedText.setTextColor(mSliceStyle.getSubtitleColor());
+            }
         }
         mLastUpdatedText.setVisibility(TextUtils.isEmpty(subtitleTimeString) ? GONE : VISIBLE);
         mSecondaryText.setVisibility(subtitleExists ? VISIBLE : GONE);
@@ -699,8 +707,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         } else if (timeStamp != null) {
             TextView tv = new TextView(getContext());
             tv.setText(SliceViewUtil.getTimestampString(getContext(), sliceItem.getLong()));
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSubtitleSize);
-            tv.setTextColor(mSubtitleColor);
+            if (mSliceStyle != null) {
+                tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getSubtitleSize());
+                tv.setTextColor(mSliceStyle.getSubtitleColor());
+            }
             container.addView(tv);
             addedView = tv;
         }

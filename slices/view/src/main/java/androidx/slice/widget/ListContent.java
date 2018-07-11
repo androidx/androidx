@@ -76,15 +76,6 @@ public class ListContent {
     private int mLargeHeight;
     private int mMaxSmallHeight;
 
-    private int mHeaderTitleSize;
-    private int mHeaderSubtitleSize;
-    private int mVerticalHeaderTextPadding;
-    private int mTitleSize;
-    private int mSubtitleSize;
-    private int mVerticalTextPadding;
-    private int mGridTitleSize;
-    private int mGridSubtitleSize;
-    private int mVerticalGridTextPadding;
     private int mGridTopPadding;
     private int mGridBottomPadding;
 
@@ -92,48 +83,21 @@ public class ListContent {
         this(context, slice, null, 0, 0);
     }
 
+    public ListContent(Context context, Slice slice, SliceStyle styles) {
+        init(context, slice, styles);
+        populate(slice);
+    }
+
     public ListContent(Context context, Slice slice, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
-        mSlice = slice;
-        if (mSlice == null) {
-            return;
-        }
-        mContext = context;
+        init(context, slice, null);
 
-        // TODO: duplicated code from SliceChildView; could do something better
-        // Some of this information will impact the size calculations for slice content.
         if (context != null) {
-            mMinScrollHeight = context.getResources()
-                    .getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
-            mLargeHeight = context.getResources()
-                    .getDimensionPixelSize(R.dimen.abc_slice_large_height);
-
             Resources.Theme theme = context.getTheme();
             if (theme != null) {
                 TypedArray a = theme.obtainStyledAttributes(attrs, R.styleable.SliceView,
                         defStyleAttr, defStyleRes);
                 try {
-                    mHeaderTitleSize = (int) a.getDimension(
-                            R.styleable.SliceView_headerTitleSize, 0);
-                    mHeaderSubtitleSize = (int) a.getDimension(
-                            R.styleable.SliceView_headerSubtitleSize, 0);
-                    mVerticalHeaderTextPadding = (int) a.getDimension(
-                            R.styleable.SliceView_headerTextVerticalPadding, 0);
-
-                    mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
-                    mSubtitleSize = (int) a.getDimension(
-                            R.styleable.SliceView_subtitleSize, 0);
-                    mVerticalTextPadding = (int) a.getDimension(
-                            R.styleable.SliceView_textVerticalPadding, 0);
-
-                    mGridTitleSize = (int) a.getDimension(R.styleable.SliceView_gridTitleSize, 0);
-                    mGridSubtitleSize = (int) a.getDimension(
-                            R.styleable.SliceView_gridSubtitleSize, 0);
-                    int defaultVerticalGridPadding = context.getResources().getDimensionPixelSize(
-                            R.dimen.abc_slice_grid_text_inner_padding);
-                    mVerticalGridTextPadding = (int) a.getDimension(
-                            R.styleable.SliceView_gridTextVerticalPadding,
-                            defaultVerticalGridPadding);
                     mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
                     mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding,
                             0);
@@ -144,6 +108,22 @@ public class ListContent {
         }
 
         populate(slice);
+    }
+
+    private void init(Context context, Slice slice, SliceStyle styles) {
+        mSlice = slice;
+        if (mSlice == null) {
+            return;
+        }
+        mContext = context;
+        mGridTopPadding = styles != null ? styles.getGridTopPadding() : 0;
+        mGridBottomPadding = styles != null ? styles.getGridBottomPadding() : 0;
+        if (context != null) {
+            mMinScrollHeight = context.getResources()
+                    .getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
+            mLargeHeight = context.getResources()
+                    .getDimensionPixelSize(R.dimen.abc_slice_large_height);
+        }
     }
 
     public void setMaxSmallHeight(int maxSmallHeight) {

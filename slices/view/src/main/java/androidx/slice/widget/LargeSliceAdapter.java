@@ -26,7 +26,6 @@ import static androidx.slice.widget.SliceView.MODE_LARGE;
 
 import android.app.slice.Slice;
 import android.content.Context;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -72,11 +71,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mColor;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    AttributeSet mAttrs;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mDefStyleAttr;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mDefStyleRes;
+    SliceStyle mSliceStyle;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<SliceAction> mSliceActions;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -161,10 +156,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     /**
      * Sets the attribute set to use for views in the list.
      */
-    public void setStyle(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        mAttrs = attrs;
-        mDefStyleAttr = defStyleAttr;
-        mDefStyleRes = defStyleRes;
+    public void setStyle(SliceStyle style) {
+        mSliceStyle = style;
         notifyDataSetChanged();
     }
 
@@ -340,7 +333,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             mSliceChildView.setMode(mode);
             mSliceChildView.setMaxSmallHeight(mMaxSmallHeight);
             mSliceChildView.setTint(mColor);
-            mSliceChildView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
+            mSliceChildView.setStyle(mSliceStyle);
             mSliceChildView.setShowLastUpdated(isFirstPosition && mShowLastUpdated);
             mSliceChildView.setLastUpdated(isFirstPosition ? mLastUpdated : -1);
             // Only apply top / bottom insets to first / last rows
