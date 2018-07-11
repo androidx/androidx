@@ -25,7 +25,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -49,7 +48,6 @@ import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -85,9 +83,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayMap<RemoteUserInfo, ControllerInfo> mControllers = new ArrayMap<>();
-    @GuardedBy("mLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Set<IBinder> mConnectingControllers = new HashSet<>();
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
@@ -541,6 +536,10 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         final ControllerInfo controller;
         synchronized (mLock) {
             if (remoteUserInfo == null) {
+                // TODO: Fix here to allow MediaControllerCompat to send commands on API 21~27.
+                // In API 21~27, getCurrentControllerInfo() always returns null.
+                // Due to this, on those API versions no MediaControllerCompat can send command
+                // to the session.
                 controller = null;
             } else if (mControllers.containsKey(remoteUserInfo)) {
                 controller = mControllers.get(remoteUserInfo);
@@ -600,90 +599,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         });
     }
 
-//    private void onCommand2(@NonNull IBinder caller, final int commandCode,
-//            @NonNull final SessionRunnable runnable) {
-//        onCommand2Internal(caller, null, commandCode, runnable);
-//    }
-//
-//    private void onCommand2(@NonNull IBinder caller,
-//            @NonNull final SessionCommand2 sessionCommand,
-//            @NonNull final SessionRunnable runnable) {
-//        onCommand2Internal(caller, sessionCommand, COMMGAND_CODE_CUSTOM, runnable);
-//    }
-
-//    private void onCommand2Internal(@NonNull IBinder caller,
-//            @Nullable final SessionCommand2 sessionCommand, final int commandCode,
-//            @NonNull final SessionRunnable runnable) {
-//        final ControllerInfo controller;
-//        synchronized (mLock) {
-//            controller = mControllers.get(caller);
-//        }
-//        if (mSession == null || controller == null) {
-//            return;
-//        }
-//        mSession.getCallbackExecutor().execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                SessionCommand2 command;
-//                if (sessionCommand != null) {
-//                    if (!isAllowedCommand(controller, sessionCommand)) {
-//                        return;
-//                    }
-//                    command = sCommandsForOnCommandRequest.get(sessionCommand.getCommandCode());
-//                } else {
-//                    if (!isAllowedCommand(controller, commandCode)) {
-//                        return;
-//                    }
-//                    command = sCommandsForOnCommandRequest.get(commandCode);
-//                }
-//                if (command != null) {
-//                    boolean accepted = mSession.getCallback().onCommandRequest(
-//                            mSession.getInstance(), controller, command);
-//                    if (!accepted) {
-//                        // Don't run rejected command.
-//                        if (DEBUG) {
-//                            Log.d(TAG, "Command (" + command + ") from "
-//                                    + controller + " was rejected by " + mSession);
-//                        }
-//                        return;
-//                    }
-//                }
-//                try {
-//                    runnable.run(controller);
-//                } catch (RemoteException e) {
-//                    // Currently it's TransactionTooLargeException or DeadSystemException.
-//                    // We'd better to leave log for those cases because
-//                    //   - TransactionTooLargeException means that we may need to fix our code.
-//                    //     (e.g. add pagination or special way to deliver Bitmap)
-//                    //   - DeadSystemException means that errors around it can be ignored.
-//                    Log.w(TAG, "Exception in " + controller.toString(), e);
-//                }
-//            }
-//        });
-//    }
-
-//    void removeControllerInfo(ControllerInfo controller) {
-//        synchronized (mLock) {
-//            controller = mControllers.remove(controller.getId());
-//            if (DEBUG) {
-//                Log.d(TAG, "releasing " + controller);
-//            }
-//        }
-//    }
-//
-//    private ControllerInfo createControllerInfo(Context context, Bundle extras) {
-//        IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
-//                BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK));
-//        String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
-//        int uid = extras.getInt(ARGUMENT_UID);
-//        int pid = extras.getInt(ARGUMENT_PID);
-//        MediaSessionManager sessionManager = MediaSessionManager.getSessionManager(context);
-//        RemoteUserInfo remoteUserInfo = new RemoteUserInfo(packageName, pid, uid);
-//        return new ControllerInfo(remoteUserInfo,
-//                sessionManager.isTrustedForMediaControl(remoteUserInfo),
-//                new ControllerLegacyCb(callback));
-//    }
-//
     private void connect(final ControllerInfo controller) {
         mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
@@ -708,19 +623,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             }
         });
     }
-
-//    private void disconnect(Context context, Bundle extras) {
-//        final ControllerInfo controllerInfo = createControllerInfo(context, extras);
-//        mSession.getCallbackExecutor().execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (mSession.isClosed()) {
-//                    return;
-//                }
-//                mSession.getCallback().onDisconnected(mSession.getInstance(), controllerInfo);
-//            }
-//        });
-//    }
 
     @FunctionalInterface
     private interface SessionRunnable {

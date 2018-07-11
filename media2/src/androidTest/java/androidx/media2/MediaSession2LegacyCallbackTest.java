@@ -57,10 +57,10 @@ import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -199,35 +199,6 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         }
         assertTrue(mPlayer.mSeekToCalled);
         assertEquals(seekPosition, mPlayer.mSeekPosition);
-    }
-
-    @Test
-    @Ignore ("b/111287910")
-    public void testGettersAfterConnected() throws InterruptedException {
-        prepareLooper();
-        final int state = BaseMediaPlayer.PLAYER_STATE_PLAYING;
-        final int bufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE;
-        final long position = 150000;
-        final long bufferedPosition = 900000;
-        final float speed = 0.5f;
-        final long timeDiff = 102;
-        final MediaItem2 currentMediaItem = TestUtils.createMediaItemWithMetadata();
-
-        mPlayer.mLastPlayerState = state;
-        mPlayer.mLastBufferingState = bufferingState;
-        mPlayer.mCurrentPosition = position;
-        mPlayer.mBufferedPosition = bufferedPosition;
-        mPlayer.mPlaybackSpeed = speed;
-        mMockAgent.mCurrentMediaItem = currentMediaItem;
-
-        // TODO: Make this test work with MediaControllerCompat.
-        MediaController2 controller = createController(mSession.getToken());
-        controller.setTimeDiff(timeDiff);
-        assertEquals(state, controller.getPlayerState());
-        assertEquals(bufferedPosition, controller.getBufferedPosition());
-        assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
-        assertEquals(position + (long) (speed * timeDiff), controller.getCurrentPosition());
-        assertEquals(currentMediaItem, controller.getCurrentMediaItem());
     }
 
     @Test
@@ -859,6 +830,54 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
             controller.getTransportControls().setRating(rating);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
+    }
+
+    @Test
+    public void testOnCommandCallback() throws InterruptedException {
+        prepareLooper();
+        final ArrayList<SessionCommand2> commands = new ArrayList<>();
+        final CountDownLatch latchForPause = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public boolean onCommandRequest(MediaSession2 session, ControllerInfo controllerInfo,
+                    SessionCommand2 command) {
+                assertEquals(mContext.getPackageName(), controllerInfo.getPackageName());
+                assertEquals(Process.myUid(), controllerInfo.getUid());
+                assertFalse(controllerInfo.isTrusted());
+                commands.add(command);
+                if (command.getCommandCode() == SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE) {
+                    latchForPause.countDown();
+                    return false;
+                }
+                return true;
+            }
+        };
+
+        sHandler.postAndSync(new Runnable() {
+            @Override
+            public void run() {
+                mSession.close();
+                mPlayer = new MockPlayer(1);
+                mSession = new MediaSession2.Builder(mContext).setPlayer(mPlayer)
+                        .setSessionCallback(sHandlerExecutor, callback).build();
+            }
+        });
+        MediaControllerCompat controller = mSession.getSessionCompat().getController();
+        controller.getTransportControls().pause();
+        assertTrue(latchForPause.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mPlayer.mPauseCalled);
+        assertEquals(1, commands.size());
+        assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE,
+                (long) commands.get(0).getCommandCode());
+
+        controller.getTransportControls().play();
+        assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(mPlayer.mPlayCalled);
+        assertFalse(mPlayer.mPauseCalled);
+        assertEquals(2, commands.size());
+        assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY,
+                (long) commands.get(1).getCommandCode());
     }
 
     /**
