@@ -39,4 +39,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
     description = "Kotlin extensions for 'paging-common' artifact"
+    useMetalava = true
 }
