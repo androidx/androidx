@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -44,6 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
 public class FirebaseJobServiceTest {
 
     @Rule
@@ -105,7 +107,7 @@ public class FirebaseJobServiceTest {
 
         JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mFirebaseJobService.onStartJob(mockParams), is(true));
-        WorkManagerImpl.getInstance().cancelWorkById(work.getId());
+        WorkManagerImpl.getInstance().cancelWorkByIdSync(work.getId());
         assertThat(mFirebaseJobService.onStopJob(mockParams), is(false));
     }
 

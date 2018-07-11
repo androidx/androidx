@@ -49,6 +49,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     private WorkManagerImpl mWorkManagerImpl;
     private WorkConstraintsTracker mWorkConstraintsTracker;
     private List<WorkSpec> mConstrainedWorkSpecs = new ArrayList<>();
+    private boolean mRegisteredExecutionListener;
 
     public GreedyScheduler(Context context, WorkManagerImpl workManagerImpl) {
         mWorkManagerImpl = workManagerImpl;
@@ -59,12 +60,13 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     public GreedyScheduler(WorkManagerImpl workManagerImpl,
             WorkConstraintsTracker workConstraintsTracker) {
         mWorkManagerImpl = workManagerImpl;
-        mWorkManagerImpl.getProcessor().addExecutionListener(this);
         mWorkConstraintsTracker = workConstraintsTracker;
     }
 
     @Override
     public synchronized void schedule(WorkSpec... workSpecs) {
+        registerExecutionListenerIfNeeded();
+
         int originalSize = mConstrainedWorkSpecs.size();
 
         for (WorkSpec workSpec : workSpecs) {
@@ -92,6 +94,8 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
 
     @Override
     public synchronized void cancel(@NonNull String workSpecId) {
+        registerExecutionListenerIfNeeded();
+
         Logger.debug(TAG, String.format("Cancelling work ID %s", workSpecId));
         mWorkManagerImpl.stopWork(workSpecId);
         removeConstraintTrackingFor(workSpecId);
@@ -129,6 +133,15 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
                 mWorkConstraintsTracker.replace(mConstrainedWorkSpecs);
                 break;
             }
+        }
+    }
+
+    private void registerExecutionListenerIfNeeded() {
+        // This method needs to be called *after* Processor is created, since Processor needs
+        // Schedulers and is created after this class.
+        if (!mRegisteredExecutionListener) {
+            mWorkManagerImpl.getProcessor().addExecutionListener(this);
+            mRegisteredExecutionListener = true;
         }
     }
 }
