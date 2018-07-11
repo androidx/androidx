@@ -21,7 +21,6 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -157,9 +156,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private int mLargeHeight;
     private int mActionRowHeight;
 
-    private AttributeSet mAttrs;
-    private int mDefStyleAttr;
-    private int mDefStyleRes;
+    private SliceStyle mSliceStyle;
     private int mThemeTintColor = -1;
 
     private OnSliceActionListener mSliceObserver;
@@ -191,17 +188,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        mAttrs = attrs;
-        mDefStyleAttr = defStyleAttr;
-        mDefStyleRes = defStyleRes;
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
-                defStyleAttr, defStyleRes);
-
-        try {
-            mThemeTintColor = a.getColor(R.styleable.SliceView_tintColor, -1);
-        } finally {
-            a.recycle();
-        }
+        mSliceStyle = new SliceStyle(context, attrs, defStyleAttr, defStyleRes);
+        mThemeTintColor = mSliceStyle.getTintColor();
         mShortcutSize = getContext().getResources()
                 .getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
         mMinTemplateHeight = getContext().getResources()
@@ -460,7 +448,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         }
         mCurrentSlice = slice;
         mListContent =
-                new ListContent(getContext(), mCurrentSlice, mAttrs, mDefStyleAttr, mDefStyleRes);
+                new ListContent(getContext(), mCurrentSlice, mSliceStyle);
         if (!mListContent.isValid()) {
             mActions = null;
             mCurrentView.resetView();
@@ -616,6 +604,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     public void setAccentColor(@ColorInt int accentColor) {
         mThemeTintColor = accentColor;
+        mSliceStyle.setTintColor(mThemeTintColor);
         mCurrentView.setTint(getTintColor());
     }
 
@@ -710,7 +699,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         if (mCurrentView instanceof LargeTemplateView) {
             ((LargeTemplateView) mCurrentView).setScrollable(mIsScrollable);
         }
-        mCurrentView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
+        mCurrentView.setStyle(mSliceStyle);
         mCurrentView.setTint(getTintColor());
 
         if (mListContent != null && mListContent.getLayoutDirItem() != null) {
