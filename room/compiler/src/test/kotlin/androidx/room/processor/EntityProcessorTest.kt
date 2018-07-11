@@ -28,6 +28,7 @@ import androidx.room.vo.Pojo
 import com.google.testing.compile.JavaFileObjects
 import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -642,6 +643,31 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     `is`(Index(name = "index_MyEntity_name_lastName",
                             unique = false,
                             fields = fieldsByName(entity, "name", "lastName"))))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun ignoredFields() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import androidx.room.*;
+                public class Base {
+                    String name;
+                    String tmp1;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String tmp2;
+                """,
+                baseClass = "foo.bar.Base",
+                attributes = hashMapOf("ignoredColumns" to "{\"tmp1\", \"tmp2\"}"),
+                jfos = listOf(parent)) { entity, _ ->
+            assertThat(entity.fields.size, `is`(2))
+            assertThat(entity.fields.map(Field::name), hasItems("name", "id"))
         }.compilesWithoutError().withWarningCount(0)
     }
 

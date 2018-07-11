@@ -1012,6 +1012,71 @@ class PojoProcessorTest {
         }.compilesWithoutError().withWarningCount(0)
     }
 
+    @Test
+    fun ignoredColumns() {
+        simpleRun(
+                """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    public String foo;
+                    public String bar;
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            val pojo = PojoProcessor.createFor(context = invocation.context,
+                    element = invocation.typeElement(MY_POJO.toString()),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    ignoredColumns = setOf("bar"),
+                    parent = null).process()
+            assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
+            assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun ignoredColumns_columnInfo() {
+        simpleRun(
+                """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    public String foo;
+                    @ColumnInfo(name = "my_bar")
+                    public String bar;
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            val pojo = PojoProcessor.createFor(context = invocation.context,
+                    element = invocation.typeElement(MY_POJO.toString()),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    ignoredColumns = setOf("my_bar"),
+                    parent = null).process()
+            assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
+            assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun ignoredColumns_missing() {
+        simpleRun(
+                """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    public String foo;
+                    public String bar;
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            val pojo = PojoProcessor.createFor(context = invocation.context,
+                    element = invocation.typeElement(MY_POJO.toString()),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    ignoredColumns = setOf("no_such_column"),
+                    parent = null).process()
+            assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
+            assertThat(pojo.fields.find { it.name == "bar" }, notNullValue())
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.missingIgnoredColumns(listOf("no_such_column")))
+    }
+
     private fun singleRun(
         code: String,
         vararg jfos: JavaFileObject,
