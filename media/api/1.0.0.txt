@@ -523,7 +523,7 @@ package android.support.v4.media.session {
 
 package androidx.media {
 
-  public class AudioAttributesCompat {
+  public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
     method public int getContentType();
     method public int getFlags();
     method public int getLegacyStreamType();
