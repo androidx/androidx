@@ -69,7 +69,7 @@ public class CompatPinnedList {
             prefs.edit()
                     .clear()
                     .putLong(LAST_BOOT, currentBootTime)
-                    .commit();
+                    .apply();
         }
         return prefs;
     }
@@ -119,7 +119,7 @@ public class CompatPinnedList {
     private void setPins(Uri uri, Set<String> pins) {
         getPrefs().edit()
                 .putStringSet(PIN_PREFIX + uri.toString(), pins)
-                .commit();
+                .apply();
     }
 
     private void setSpecs(Uri uri, ArraySet<SliceSpec> specs) {
@@ -132,7 +132,7 @@ public class CompatPinnedList {
         getPrefs().edit()
                 .putString(SPEC_NAME_PREFIX + uri.toString(), TextUtils.join(",", specNames))
                 .putString(SPEC_REV_PREFIX + uri.toString(), TextUtils.join(",", specRevs))
-                .commit();
+                .apply();
     }
 
     @VisibleForTesting
