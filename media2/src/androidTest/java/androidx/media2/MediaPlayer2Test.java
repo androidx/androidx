@@ -2227,6 +2227,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         assertEquals(2, onDsdChangedCalled.waitForCountedSignals(2));
 
         basePlayer.reset();
+        assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
 
         basePlayer.unregisterPlayerEventCallback(callback);
         executor.shutdown();
