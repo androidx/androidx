@@ -139,10 +139,12 @@ public final class MediaSessionManager {
          */
         public RemoteUserInfo(@NonNull String packageName, int pid, int uid) {
             if (Build.VERSION.SDK_INT >= 28) {
-                mImpl = new MediaSessionManagerImplApi28.RemoteUserInfo(packageName, pid, uid);
+                mImpl = new MediaSessionManagerImplApi28.RemoteUserInfoImplApi28(
+                        packageName, pid, uid);
             } else {
                 // Note: We need to include IBinder to distinguish controllers in a process.
-                mImpl = new MediaSessionManagerImplBase.RemoteUserInfo(packageName, pid, uid);
+                mImpl = new MediaSessionManagerImplBase.RemoteUserInfoImplBase(
+                        packageName, pid, uid);
             }
         }
 
@@ -159,7 +161,7 @@ public final class MediaSessionManager {
         @RequiresApi(28)
         public RemoteUserInfo(
                 android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {
-            mImpl = new MediaSessionManagerImplApi28.RemoteUserInfo(remoteUserInfo);
+            mImpl = new MediaSessionManagerImplApi28.RemoteUserInfoImplApi28(remoteUserInfo);
         }
 
         /**
@@ -187,12 +189,13 @@ public final class MediaSessionManager {
         /**
          * Returns equality of two RemoteUserInfo.
          * <p>
-         * Prior to P (SDK<28), two RemoteUserInfos are the same only if then
+         * Prior to P (API < 28), two RemoteUserInfo objects are equal only if
+         * they are from same package and from same process.
          * <p>
-         * On P and beyond (SDK>=28), two RemoteUserInfos are the same only if they're sent to the
-         * same controller (either {@link MediaControllerCompat} or {@link MediaBrowserCompat}. If
-         * it's not nor one of them is triggered by the key presses, they would be considered as
-         * different one.
+         * On P and beyond (API >= 28), two RemoteUserInfo objects are equal only if they're sent
+         * from the same controller (either {@link MediaControllerCompat} or
+         * {@link MediaBrowserCompat}. If it's not nor one of them is triggered by the key presses,
+         * they would be considered as different one.
          * <p>
          * If you only want to compare the caller's package, compare them with the
          * {@link #getPackageName()}, {@link #getPid()}, and/or {@link #getUid()} directly.
@@ -202,7 +205,13 @@ public final class MediaSessionManager {
          */
         @Override
         public boolean equals(@Nullable Object obj) {
-            return mImpl.equals(obj);
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof RemoteUserInfo)) {
+                return false;
+            }
+            return mImpl.equals(((RemoteUserInfo) obj).mImpl);
         }
 
         @Override
