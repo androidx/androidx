@@ -213,8 +213,8 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGettersAfterConnected() throws InterruptedException {
         prepareLooper();
-        final int state = BaseMediaPlayer.PLAYER_STATE_PLAYING;
-        final int bufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int state = MediaPlayerConnector.PLAYER_STATE_PLAYING;
+        final int bufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_COMPLETE;
         final long position = 150000;
         final long bufferedPosition = 900000;
         final float speed = 0.5f;
@@ -240,7 +240,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testUpdatePlayer() throws InterruptedException {
         prepareLooper();
-        final int testState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int testState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
@@ -277,7 +277,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         MockPlaylistAgent agent = new MockPlaylistAgent();
         agent.mPlaylist = testPlaylist;
 
-        mSession.updatePlayer(player, agent);
+        mSession.updatePlayerConnector(player, agent);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -483,7 +483,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         };
         final MediaController2 controller = createController(mSession.getToken(), true, callback);
         mPlayer.mCurrentPosition = testPosition;
-        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
+        mPlayer.mLastPlayerState = MediaPlayerConnector.PLAYER_STATE_PAUSED;
         mPlayer.notifySeekCompleted(testSeekPosition);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -493,7 +493,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         prepareLooper();
         final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
         final MediaItem2 testItem = testPlaylist.get(0);
-        final int testBufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final int testBufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -518,7 +518,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_onPlayerStateChanged() throws InterruptedException {
         prepareLooper();
-        final int testPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int testPlayerState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         final long testPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -630,7 +630,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        mSession.updatePlayer(mPlayer, agent);
+        mSession.updatePlayerConnector(mPlayer, agent);
         MediaController2 controller = createController(mSession.getToken(), true, callback);
         agent.notifyShuffleModeChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -669,7 +669,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        mSession.updatePlayer(mPlayer, agent);
+        mSession.updatePlayerConnector(mPlayer, agent);
         MediaController2 controller = createController(mSession.getToken(), true, callback);
         agent.notifyRepeatModeChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -696,7 +696,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         MockRemotePlayer remotePlayer =
                 new MockRemotePlayer(volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(remotePlayer, null);
+        mSession.updatePlayerConnector(remotePlayer, null);
         final MediaController2 controller = createController(mSession.getToken(), true, null);
 
         final int targetVolume = 50;
@@ -715,7 +715,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         MockRemotePlayer remotePlayer =
                 new MockRemotePlayer(volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(remotePlayer, null);
+        mSession.updatePlayerConnector(remotePlayer, null);
         final MediaController2 controller = createController(mSession.getToken(), true, null);
 
         final int direction = AudioManager.ADJUST_RAISE;
@@ -747,7 +747,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .setLegacyStreamType(stream)
                 .build();
         mPlayer.setAudioAttributes(attrs);
-        mSession.updatePlayer(mPlayer, null);
+        mSession.updatePlayerConnector(mPlayer, null);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
@@ -787,7 +787,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .setLegacyStreamType(stream)
                 .build();
         mPlayer.setAudioAttributes(attrs);
-        mSession.updatePlayer(mPlayer, null);
+        mSession.updatePlayerConnector(mPlayer, null);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int direction = originalVolume == minVolume
@@ -1185,7 +1185,7 @@ public class MediaController2Test extends MediaSession2TestBase {
             testHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    final int state = BaseMediaPlayer.PLAYER_STATE_ERROR;
+                    final int state = MediaPlayerConnector.PLAYER_STATE_ERROR;
                     for (int i = 0; i < 100; i++) {
                         // triggers call from session to controller.
                         player.notifyPlaybackState(state);
@@ -1263,7 +1263,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                         mSession.close();
                     }
                     mSession = session;
-                    mPlayer = (MockPlayer) session.getPlayer();
+                    mPlayer = (MockPlayer) session.getPlayerConnector();
                     assertEquals(mContext.getPackageName(), controller.getPackageName());
                     assertFalse(controller.isTrusted());
                     latch.countDown();

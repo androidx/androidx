@@ -33,8 +33,8 @@ import static androidx.media.AudioAttributesCompat.USAGE_ASSISTANCE_NAVIGATION_G
 import static androidx.media.AudioAttributesCompat.USAGE_GAME;
 import static androidx.media.AudioAttributesCompat.USAGE_MEDIA;
 import static androidx.media.AudioAttributesCompat.USAGE_UNKNOWN;
-import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_PAUSED;
-import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_PLAYING;
+import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_PAUSED;
+import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_PLAYING;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -106,7 +106,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
 
     private void testPausedAfterAction(final AudioAttributesCompat attr,
             final SessionRunnable action) throws InterruptedException {
-        BaseMediaPlayer player = new MockPlayer(true);
+        MediaPlayerConnector player = new MockPlayer(true);
         player.setAudioAttributes(attr);
 
         final CountDownLatch latchForPlaying = new CountDownLatch(1);
@@ -125,7 +125,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
 
                     @Override
                     public void onPlayerStateChanged(MediaSession2 session,
-                            BaseMediaPlayer player, int state) {
+                            MediaPlayerConnector player, int state) {
                         switch (state) {
                             case PLAYER_STATE_PLAYING:
                                 latchForPlaying.countDown();
@@ -155,7 +155,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
     private void testDuckedAfterAction(final AudioAttributesCompat attr,
             final SessionRunnable action) throws InterruptedException {
         final CountDownLatch latchForDucked = new CountDownLatch(1);
-        BaseMediaPlayer player = new MockPlayer(true) {
+        MediaPlayerConnector player = new MockPlayer(true) {
             @Override
             public void setPlayerVolume(float volume) {
                 super.setPlayerVolume(volume);
@@ -181,7 +181,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
 
                     @Override
                     public void onPlayerStateChanged(MediaSession2 session,
-                            BaseMediaPlayer player, int state) {
+                            MediaPlayerConnector player, int state) {
                         if (state == PLAYER_STATE_PLAYING) {
                             latchForPlaying.countDown();
                         }
@@ -260,7 +260,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
     }
 
     private MediaSession2 createSession(AudioAttributesCompat attr) {
-        BaseMediaPlayer player = new MockPlayer(true);
+        MediaPlayerConnector player = new MockPlayer(true);
         player.setAudioAttributes(attr);
         return new MediaSession2.Builder(mContext)
                 .setPlayer(player)
@@ -309,7 +309,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
         AudioAttributesCompat attrs = createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA);
         try (MediaSession2 session = createSession(attrs)) {
             // Play should request audio focus with AUDIOFOCUS_GAIN for USAGE_MEDIA
-            session.getPlayer().play();
+            session.getPlayerConnector().play();
 
             // Previously focused one should loss audio focus
             waitForAudioFocus(AUDIOFOCUS_LOSS);
@@ -378,7 +378,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
         try (MediaSession2 session = createSession(null)) {
             session.play();
             assertNoAudioFocusChanges(AUDIOFOCUS_GAIN);
-            assertEquals(0, session.getPlayer().getPlayerVolume(), 0.1f);
+            assertEquals(0, session.getPlayerConnector().getPlayerVolume(), 0.1f);
         }
     }
 

@@ -61,7 +61,7 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
             R.raw.video_480x360_mp4_h264_500kbps_25fps_aac_stereo_128kbps_44100hz;
 
     private MediaPlayer2 mMediaPlayer;
-    private BaseMediaPlayer mBasePlayer;
+    private MediaPlayerConnector mBasePlayer;
     private MediaSession2 mSession;
     private SessionPlaylistAgentImplBase mPlaylistAgent;
     private OnDataSourceMissingHelper mDataSourceHelper;
@@ -78,7 +78,7 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
             @Override
             public void run() {
                 mMediaPlayer = MediaPlayer2.create(mContext);
-                mBasePlayer = mMediaPlayer.getBaseMediaPlayer();
+                mBasePlayer = mMediaPlayer.getMediaPlayerConnector();
             }
         });
 
@@ -464,13 +464,13 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                     @Override
                     public void onCurrentMediaItemChanged(MediaSession2 session,
-                            BaseMediaPlayer player, MediaItem2 item) {
+                            MediaPlayerConnector player, MediaItem2 item) {
                         assertEquals(list2.get(0), item);
                         mediaItemChangedLatch.countDown();
                     }
-                    public void onPlayerStateChanged(MediaSession2 session, BaseMediaPlayer player,
-                            int state) {
-                        if (state == BaseMediaPlayer.PLAYER_STATE_PAUSED) {
+                    public void onPlayerStateChanged(MediaSession2 session,
+                            MediaPlayerConnector player, int state) {
+                        if (state == MediaPlayerConnector.PLAYER_STATE_PAUSED) {
                             assertEquals(list.get(0), session.getCurrentMediaItem());
                             playerStateLatch.countDown();
                         }

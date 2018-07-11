@@ -109,7 +109,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         controllerCallback.reset(1);
         controller.registerCallback(controllerCallback, sHandler);
 
-        mSession.updatePlayer(mPlayer, agent);
+        mSession.updatePlayerConnector(mPlayer, agent);
         agent.notifyRepeatModeChanged();
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnRepeatModeChangedCalled);
@@ -132,7 +132,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         controllerCallback.reset(1);
         controller.registerCallback(controllerCallback, sHandler);
 
-        mSession.updatePlayer(mPlayer, agent);
+        mSession.updatePlayerConnector(mPlayer, agent);
         agent.notifyShuffleModeChanged();
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnShuffleModeChangedCalled);
@@ -155,7 +155,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testUpdatePlayer() throws InterruptedException {
         prepareLooper();
-        final int testState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int testState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         final int testBufferingPosition = 1500;
         final float testSpeed = 1.5f;
         final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
@@ -185,7 +185,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         agent.mPlaylist = testPlaylist;
         agent.mCurrentMediaItem = testPlaylist.get(0);
         agent.mMetadata = testPlaylistMetadata;
-        mSession.updatePlayer(player, agent);
+        mSession.updatePlayerConnector(player, agent);
 
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);
@@ -231,7 +231,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         controller.registerCallback(controllerCallback, sHandler);
 
         MockRemotePlayer remotePlayer = new MockRemotePlayer(controlType, maxVolume, currentVolume);
-        mSession.updatePlayer(remotePlayer, null);
+        mSession.updatePlayerConnector(remotePlayer, null);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         MediaControllerCompat.PlaybackInfo info = controller.getPlaybackInfo();
@@ -245,7 +245,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testUpdatePlayer_playbackTypeChangedToLocal() throws InterruptedException {
         prepareLooper();
-        mSession.updatePlayer(
+        mSession.updatePlayerConnector(
                 new MockRemotePlayer(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 10, 1), null);
 
         final int legacyStream = AudioManager.STREAM_RING;
@@ -269,7 +269,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
 
         MockPlayer player = new MockPlayer(0);
         player.setAudioAttributes(attrs);
-        mSession.updatePlayer(player, null);
+        mSession.updatePlayerConnector(player, null);
 
         // In API 21 and 22, onAudioInfoChanged is not called when playback is changed to local.
         if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
@@ -306,7 +306,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
 
         MockPlayer player = new MockPlayer(0);
         player.setAudioAttributes(attrs);
-        mSession.updatePlayer(player, null);
+        mSession.updatePlayerConnector(player, null);
 
         // In API 21+, onAudioInfoChanged() is not called when playbackType is not changed.
         if (Build.VERSION.SDK_INT >= 21) {
@@ -323,7 +323,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
 
     @Test
     public void testUpdatePlayer_playbackTypeNotChanged_remote() throws InterruptedException {
-        mSession.updatePlayer(
+        mSession.updatePlayerConnector(
                 new MockRemotePlayer(VolumeProviderCompat.VOLUME_CONTROL_FIXED, 10, 1), null);
 
         final int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -348,7 +348,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         controller.registerCallback(controllerCallback, sHandler);
 
         MockRemotePlayer remotePlayer = new MockRemotePlayer(controlType, maxVolume, currentVolume);
-        mSession.updatePlayer(remotePlayer, null);
+        mSession.updatePlayerConnector(remotePlayer, null);
 
         // In API 21+, onAudioInfoChanged() is not called when playbackType is not changed.
         if (Build.VERSION.SDK_INT >= 21) {
@@ -368,7 +368,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testPlayerStateChange() throws Exception {
         prepareLooper();
-        final int targetState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int targetState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
 
         final MediaControllerCompat controller = mSession.getSessionCompat().getController();
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
@@ -405,7 +405,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         prepareLooper();
         final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
         final MediaItem2 testItem = testPlaylist.get(0);
-        final int testBufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final int testBufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
         mSession.setPlaylist(testPlaylist, null);
 
@@ -433,7 +433,7 @@ public class MediaSession2LegacyTest extends MediaSession2TestBase {
         controller.registerCallback(controllerCallback, sHandler);
 
         mPlayer.mCurrentPosition = testSeekPosition;
-        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
+        mPlayer.mLastPlayerState = MediaPlayerConnector.PLAYER_STATE_PAUSED;
         mPlayer.notifySeekCompleted(testSeekPosition);
         assertTrue(controllerCallback.await(TIMEOUT_MS));
         assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);

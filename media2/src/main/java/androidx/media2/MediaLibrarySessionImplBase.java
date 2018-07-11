@@ -48,8 +48,8 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
     private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();
 
     MediaLibrarySessionImplBase(MediaSession2 instance, Context context, String id,
-            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
-            Executor callbackExecutor, SessionCallback callback) {
+            MediaPlayerConnector player, MediaPlaylistAgent playlistAgent,
+            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
         super(instance, context, id, player, playlistAgent, sessionActivity, callbackExecutor,
                 callback);
     }

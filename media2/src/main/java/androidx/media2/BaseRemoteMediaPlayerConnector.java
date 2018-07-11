@@ -39,7 +39,7 @@ import java.lang.annotation.RetentionPolicy;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public abstract class BaseRemoteMediaPlayer extends BaseMediaPlayer {
+public abstract class BaseRemoteMediaPlayerConnector extends MediaPlayerConnector {
     /**
      * @hide
      */
@@ -104,6 +104,6 @@ public abstract class BaseRemoteMediaPlayer extends BaseMediaPlayer {
          * @param volume the new volume
          * @see #setPlayerVolume(float)
          */
-        public void onPlayerVolumeChanged(@NonNull BaseMediaPlayer mpb, float volume) { }
+        public void onPlayerVolumeChanged(@NonNull MediaPlayerConnector mpb, float volume) { }
     }
 }

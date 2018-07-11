@@ -23,9 +23,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 /**
- * Mock implementation of {@link BaseRemoteMediaPlayer}.
+ * Mock implementation of {@link BaseRemoteMediaPlayerConnector}.
  */
-public class MockRemotePlayer extends BaseRemoteMediaPlayer {
+public class MockRemotePlayer extends BaseRemoteMediaPlayerConnector {
     public final CountDownLatch mLatch = new CountDownLatch(1);
     public boolean mSetVolumeToCalled;
     public boolean mAdjustVolumeCalled;

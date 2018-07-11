@@ -22,8 +22,8 @@ import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.media2.BaseMediaPlayer.BuffState;
 import androidx.media2.MediaController2.PlaybackInfo;
+import androidx.media2.MediaPlayerConnector.BuffState;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;

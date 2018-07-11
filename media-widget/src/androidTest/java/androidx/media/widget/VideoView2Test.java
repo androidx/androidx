@@ -39,10 +39,10 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.media.widget.test.R;
-import androidx.media2.BaseMediaPlayer;
 import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.SessionCommandGroup2;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
@@ -142,11 +142,11 @@ public class VideoView2Test {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController2.class), any(SessionCommandGroup2.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PAUSED));
 
         mController.play();
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PLAYING));
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PLAYING));
     }
 
     @Test
@@ -175,11 +175,11 @@ public class VideoView2Test {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController2.class), any(SessionCommandGroup2.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PAUSED));
 
         mController.play();
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PLAYING));
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PLAYING));
     }
 
     @Test
@@ -209,9 +209,9 @@ public class VideoView2Test {
 
         mController.play();
         verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
-                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PLAYING));
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PLAYING));
         verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
-                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PAUSED));
     }
 
     @Test
@@ -237,7 +237,7 @@ public class VideoView2Test {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController2.class), any(SessionCommandGroup2.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PAUSED));
         assertEquals(targetSpeed1, mController.getPlaybackSpeed(), 0.05f);
 
         final float targetSpeed2 = 0.5f;

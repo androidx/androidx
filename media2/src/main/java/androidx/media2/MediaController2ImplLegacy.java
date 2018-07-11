@@ -20,9 +20,6 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
-import static androidx.media2.BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
-import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_IDLE;
-import static androidx.media2.BaseMediaPlayer.UNKNOWN_TIME;
 import static androidx.media2.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media2.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
 import static androidx.media2.MediaConstants2.ARGUMENT_PACKAGE_NAME;
@@ -30,6 +27,9 @@ import static androidx.media2.MediaConstants2.ARGUMENT_PID;
 import static androidx.media2.MediaConstants2.ARGUMENT_ROUTE_BUNDLE;
 import static androidx.media2.MediaConstants2.ARGUMENT_UID;
 import static androidx.media2.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
+import static androidx.media2.MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
+import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_IDLE;
+import static androidx.media2.MediaPlayerConnector.UNKNOWN_TIME;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
@@ -60,11 +60,11 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.BundleCompat;
-import androidx.media2.BaseMediaPlayer.BuffState;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaController2.VolumeDirection;
 import androidx.media2.MediaController2.VolumeFlags;
+import androidx.media2.MediaPlayerConnector.BuffState;
 import androidx.media2.MediaPlaylistAgent.RepeatMode;
 import androidx.media2.MediaPlaylistAgent.ShuffleMode;
 
@@ -436,7 +436,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return BaseMediaPlayer.PLAYER_STATE_ERROR;
+                return MediaPlayerConnector.PLAYER_STATE_ERROR;
             }
             return mPlayerState;
         }
@@ -494,7 +494,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return BUFFERING_STATE_UNKNOWN;
             }
-            return mPlaybackStateCompat == null ? BaseMediaPlayer.BUFFERING_STATE_UNKNOWN
+            return mPlaybackStateCompat == null ? MediaPlayerConnector.BUFFERING_STATE_UNKNOWN
                     : MediaUtils2.toBufferingState(mPlaybackStateCompat.getState());
         }
     }
@@ -1086,7 +1086,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
             // Update buffering state if needed
             final int bufferingState = MediaUtils2.toBufferingState(state.getState());
             final int prevBufferingState = prevState == null
-                    ? BaseMediaPlayer.BUFFERING_STATE_UNKNOWN
+                    ? MediaPlayerConnector.BUFFERING_STATE_UNKNOWN
                     : MediaUtils2.toBufferingState(prevState.getState());
             if (bufferingState != prevBufferingState) {
                 mCallbackExecutor.execute(new Runnable() {

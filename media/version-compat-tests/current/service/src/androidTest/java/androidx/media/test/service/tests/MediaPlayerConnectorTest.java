@@ -27,7 +27,7 @@ import android.os.Build;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.RemoteMediaController2;
-import androidx.media2.BaseMediaPlayer;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaSession2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.test.filters.SdkSuppress;
@@ -42,13 +42,13 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests whether the methods of {@link BaseMediaPlayer} are triggered by the
+ * Tests whether the methods of {@link MediaPlayerConnector} are triggered by the
  * session/controller.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class BaseMediaPlayerTest extends MediaSession2TestBase {
+public class MediaPlayerConnectorTest extends MediaSession2TestBase {
 
     MediaSession2 mSession;
     MockPlayer mPlayer;

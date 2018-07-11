@@ -128,7 +128,7 @@ public class MediaSessionService2LegacyTest extends MediaSession2TestBase {
                 mBrowserCompat.getSessionToken());
         controller.getTransportControls().play();
         MockPlayer player = (MockPlayer) TestServiceRegistry.getInstance()
-                .getServiceInstance().getSession().getPlayer();
+                .getServiceInstance().getSession().getPlayerConnector();
         assertTrue(player.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(player.mPlayCalled);
     }

@@ -191,7 +191,7 @@ public class RemoteMediaSession2Service extends Service {
                     newAgent.mPlaylist = MediaTestUtils.playlistFromParcelableList(
                             args.getParcelableArrayList(KEY_PLAYLIST), false /* createDsd */);
 
-                    session2.updatePlayer(newPlayer, newAgent);
+                    session2.updatePlayerConnector(newPlayer, newAgent);
                     break;
                 }
                 case UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE: {
@@ -202,7 +202,7 @@ public class RemoteMediaSession2Service extends Service {
                             .build();
                     MockPlayer newPlayer = new MockPlayer(0);
                     newPlayer.setAudioAttributes(attrs);
-                    session2.updatePlayer(newPlayer, null);
+                    session2.updatePlayerConnector(newPlayer, null);
                     break;
                 }
                 case UPDATE_PLAYER_WITH_VOLUME_PROVIDER: {
@@ -212,12 +212,12 @@ public class RemoteMediaSession2Service extends Service {
                             args.getInt(KEY_CURRENT_VOLUME));
                     remotePlayer.setAudioAttributes(AudioAttributesCompat.fromBundle(
                             (Bundle) args.getParcelable(KEY_AUDIO_ATTRIBUTES)));
-                    session2.updatePlayer(remotePlayer, null);
+                    session2.updatePlayerConnector(remotePlayer, null);
                     break;
                 }
                 case CUSTOM_METHOD_SET_MULTIPLE_VALUES: {
                     MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
-                    MockPlayer player = (MockPlayer) session2.getPlayer();
+                    MockPlayer player = (MockPlayer) session2.getPlayerConnector();
 
                     player.mLastPlayerState = args.getInt(KEY_PLAYER_STATE);
                     player.mLastBufferingState = args.getInt(KEY_BUFFERING_STATE);
@@ -299,42 +299,42 @@ public class RemoteMediaSession2Service extends Service {
         @Override
         public void setPlayerState(String sessionId, int state) {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.mLastPlayerState = state;
         }
 
         @Override
         public void setCurrentPosition(String sessionId, long pos) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.mCurrentPosition = pos;
         }
 
         @Override
         public void setBufferedPosition(String sessionId, long pos) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.mBufferedPosition = pos;
         }
 
         @Override
         public void setDuration(String sessionId, long duration) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.mDuration = duration;
         }
 
         @Override
         public void setPlaybackSpeed(String sessionId, float speed) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.mPlaybackSpeed = speed;
         }
 
         @Override
         public void notifySeekCompleted(String sessionId, long pos) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.notifySeekCompleted(pos);
         }
 
@@ -343,7 +343,7 @@ public class RemoteMediaSession2Service extends Service {
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.notifyBufferingStateChanged(
                     agent.getPlaylist().get(itemIndex).getDataSourceDesc(), buffState);
         }
@@ -351,7 +351,7 @@ public class RemoteMediaSession2Service extends Service {
         @Override
         public void notifyPlayerStateChanged(String sessionId, int state) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.notifyPlayerStateChanged(state);
         }
 
@@ -359,7 +359,7 @@ public class RemoteMediaSession2Service extends Service {
         public void notifyPlaybackSpeedChanged(String sessionId, float speed)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             player.notifyPlaybackSpeedChanged(speed);
         }
 
@@ -367,7 +367,7 @@ public class RemoteMediaSession2Service extends Service {
         public void notifyCurrentDataSourceChanged(String sessionId, int index)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
             switch (index) {
                 case INDEX_FOR_UNKONWN_DSD:
@@ -388,7 +388,7 @@ public class RemoteMediaSession2Service extends Service {
         @Override
         public void notifyMediaPrepared(String sessionId, int index) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlayer player = (MockPlayer) session2.getPlayerConnector();
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
             player.notifyMediaPrepared(agent.getPlaylist().get(index).getDataSourceDesc());
         }

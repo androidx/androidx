@@ -162,7 +162,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         // Therefore, the latch's initial count is 2.
         MockPlayer player = new MockPlayer(2);
         player.mCurrentPosition = 1530;
-        mSession.updatePlayer(player, null);
+        mSession.updatePlayerConnector(player, null);
 
         mController.getTransportControls().stop();
         try {
@@ -380,7 +380,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         MockRemotePlayer remotePlayer =
                 new MockRemotePlayer(volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(remotePlayer, null);
+        mSession.updatePlayerConnector(remotePlayer, null);
 
         final int targetVolume = 50;
         mController.setVolumeTo(targetVolume, 0 /* flags */);
@@ -398,7 +398,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         MockRemotePlayer remotePlayer =
                 new MockRemotePlayer(volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(remotePlayer, null);
+        mSession.updatePlayerConnector(remotePlayer, null);
 
         final int direction = AudioManager.ADJUST_RAISE;
         mController.adjustVolume(direction, 0 /* flags */);
@@ -429,7 +429,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
                 .setLegacyStreamType(stream)
                 .build();
         mPlayer.setAudioAttributes(attrs);
-        mSession.updatePlayer(mPlayer, null);
+        mSession.updatePlayerConnector(mPlayer, null);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
@@ -469,7 +469,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
                 .setLegacyStreamType(stream)
                 .build();
         mPlayer.setAudioAttributes(attrs);
-        mSession.updatePlayer(mPlayer, null);
+        mSession.updatePlayerConnector(mPlayer, null);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int direction = originalVolume == minVolume
@@ -917,7 +917,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
             testHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    final int state = BaseMediaPlayer.PLAYER_STATE_ERROR;
+                    final int state = MediaPlayerConnector.PLAYER_STATE_ERROR;
                     for (int i = 0; i < 100; i++) {
                         // triggers call from session to controller.
                         player.notifyPlaybackState(state);
