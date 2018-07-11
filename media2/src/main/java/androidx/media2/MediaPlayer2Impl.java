@@ -819,11 +819,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @Override
     public void reset() {
         mPlayer.reset();
-        synchronized (mLock) {
-            mMp2EventCallbackRecord = null;
-            mPlayerEventCallbackMap.clear();
-            mDrmEventCallbackRecord = null;
-        }
     }
 
     /**
