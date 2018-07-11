@@ -40,6 +40,7 @@ class PlaybackSeekDataProviderSample extends PlaybackSeekAsyncDataProvider {
         mPaint.setColor(Color.BLUE);
     }
 
+    @Override
     protected Bitmap doInBackground(Object task, int index, long position) {
         try {
             Thread.sleep(100);

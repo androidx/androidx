@@ -36,7 +36,7 @@ public class NotificationsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notifications);
 
-        ActionBarCompat.setDisplayHomeAsUpEnabled(this, true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

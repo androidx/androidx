@@ -47,6 +47,7 @@ public class CardActivity extends Activity {
         this.<ViewPager2>findViewById(R.id.view_pager).setAdapter(
                 new RecyclerView.Adapter<CardViewHolder>() {
                     @NonNull
+                    @Override
                     public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         return new CardViewHolder(new CardView(getLayoutInflater(), parent));

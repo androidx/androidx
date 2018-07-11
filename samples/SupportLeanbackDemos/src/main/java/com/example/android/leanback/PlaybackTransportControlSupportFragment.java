@@ -55,6 +55,7 @@ public class PlaybackTransportControlSupportFragment
 
     private PlaybackTransportControlGlueSample mGlue;
 
+    @Override
     public SparseArrayObjectAdapter getAdapter() {
         return (SparseArrayObjectAdapter) super.getAdapter();
     }

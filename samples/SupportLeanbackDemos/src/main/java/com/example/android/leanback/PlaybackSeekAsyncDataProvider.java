@@ -63,7 +63,7 @@ public abstract class PlaybackSeekAsyncDataProvider extends PlaybackSeekDataProv
         }
 
         @Override
-        protected Bitmap doInBackground(Object[] params) {
+        protected Bitmap doInBackground(Object... params) {
             return PlaybackSeekAsyncDataProvider.this
                     .doInBackground(this, mIndex, mSeekPositions[mIndex]);
         }

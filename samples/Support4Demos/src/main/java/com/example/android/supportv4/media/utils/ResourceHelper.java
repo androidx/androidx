@@ -50,4 +50,7 @@ public class ResourceHelper {
         }
         return themeColor;
     }
+
+    private ResourceHelper() {
+    }
 }

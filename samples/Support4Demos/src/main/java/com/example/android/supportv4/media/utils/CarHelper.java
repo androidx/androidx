@@ -53,4 +53,7 @@ public class CarHelper {
             extras.remove(SLOT_RESERVATION_SKIP_TO_NEXT);
         }
     }
+
+    private CarHelper() {
+    }
 }

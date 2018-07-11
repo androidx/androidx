@@ -215,7 +215,7 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
         }
     }
 
-    private class Holder extends RecyclerView.ViewHolder {
+    private static class Holder extends RecyclerView.ViewHolder {
 
         public final TextView view;
 

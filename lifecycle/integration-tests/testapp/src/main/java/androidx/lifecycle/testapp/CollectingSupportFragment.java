@@ -52,7 +52,7 @@ public class CollectingSupportFragment extends Fragment implements CollectingLif
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        //noinspection ConstantConditions
+        if (container == null) throw new IllegalStateException();
         FrameLayout layout = new FrameLayout(container.getContext());
         layout.setId(R.id.child_fragment_container);
         return layout;

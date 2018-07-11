@@ -47,4 +47,8 @@ public class ActionBarPreferences extends AppCompatPreferenceActivity {
         return true;
     }
 
+    @Override
+    protected boolean isValidFragment(String fragmentName) {
+        return false;
+    }
 }

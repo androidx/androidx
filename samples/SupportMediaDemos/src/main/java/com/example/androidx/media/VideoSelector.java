@@ -35,9 +35,10 @@ import android.widget.ListView;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.TreeMap;
 
 /**
@@ -90,6 +91,7 @@ public class VideoSelector extends Activity {
         }
 
         playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 Intent launch = createLaunchIntent(
                         VideoSelector.this,
@@ -160,7 +162,8 @@ public class VideoSelector extends Activity {
             VideoItem retVal = null;
 
             try {
-                BufferedReader rd = new BufferedReader(new FileReader(f));
+                BufferedReader rd = new BufferedReader(
+                        new InputStreamReader(new FileInputStream(f), "UTF-8"));
                 String name = rd.readLine();
                 String url  = rd.readLine();
                 if ((null != name) && (null != url)) {
@@ -192,6 +195,7 @@ public class VideoSelector extends Activity {
     }
 
     private OnItemClickListener mSelectHandler = new OnItemClickListener() {
+        @Override
         public void onItemClick(AdapterView parent,
                                 View v,
                                 int position,

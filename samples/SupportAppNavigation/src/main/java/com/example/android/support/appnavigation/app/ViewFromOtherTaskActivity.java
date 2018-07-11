@@ -32,7 +32,7 @@ public class ViewFromOtherTaskActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_from_other_task);
 
-        ActionBarCompat.setDisplayHomeAsUpEnabled(this, true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

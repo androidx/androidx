@@ -147,4 +147,7 @@ public class QueueHelper {
     public static boolean isIndexPlayable(int index, List<MediaSessionCompat.QueueItem> queue) {
         return (queue != null && index >= 0 && index < queue.size());
     }
+
+    private QueueHelper() {
+    }
 }

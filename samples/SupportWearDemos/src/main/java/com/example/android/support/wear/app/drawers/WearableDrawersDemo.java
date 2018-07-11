@@ -28,6 +28,8 @@ import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
 import com.example.android.support.wear.R;
 
+import java.lang.reflect.InvocationTargetException;
+
 /** Main {@link Activity} for demoing the Wearable Drawers. */
 public class WearableDrawersDemo extends Activity {
     private static final String TAG = "WearableDrawersDemo";
@@ -72,8 +74,9 @@ public class WearableDrawersDemo extends Activity {
     private void onNavItemSelected(int pos) {
         Fragment fragment;
         try {
-            fragment = mNavItems[pos].getFragment().newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            fragment = mNavItems[pos].getFragment().getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+                IllegalAccessException e) {
             Log.e(TAG, "Failed to instantiate fragment", e);
             return;
         }

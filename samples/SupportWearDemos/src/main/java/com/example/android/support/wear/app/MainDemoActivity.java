@@ -73,7 +73,7 @@ public class MainDemoActivity extends Activity {
         return contentMap;
     }
 
-    private class ViewHolder extends RecyclerView.ViewHolder {
+    private static class ViewHolder extends RecyclerView.ViewHolder {
         Button mView;
 
         ViewHolder(Button itemView) {

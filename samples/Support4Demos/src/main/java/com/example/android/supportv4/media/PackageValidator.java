@@ -125,7 +125,7 @@ public class PackageValidator {
         }
 
         // Check if the package name is valid for the certificate:
-        StringBuffer expectedPackages = new StringBuffer();
+        StringBuilder expectedPackages = new StringBuilder();
         for (CallerInfo info: validCallers) {
             if (callingPackage.equals(info.packageName)) {
                 Log.v(TAG, "Valid caller: " + info.name + "  package=" + info.packageName

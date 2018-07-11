@@ -248,6 +248,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
             mContext = context;
         }
 
+        @Override
         public boolean onDragInitiated(MotionEvent e) {
             toast(mContext, "onDragInitiated received.");
             return true;

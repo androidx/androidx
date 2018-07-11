@@ -232,7 +232,7 @@ public class SessionManager implements Player.Callback {
     }
 
     MediaSessionStatus getSessionStatus(String sid) {
-        int sessionState = (sid != null && sid.equals(mSessionId)) ?
+        int sessionState = (sid != null && sid.equals(Integer.toString(mSessionId))) ?
                 MediaSessionStatus.SESSION_STATE_ACTIVE :
                     MediaSessionStatus.SESSION_STATE_INVALIDATED;
 

@@ -66,6 +66,9 @@ public class SliceSelectionDialog {
 
     private static final String TAG = "SliceSelectionDialog";
 
+    private SliceSelectionDialog() {
+    }
+
     /**
      * Show the selection dialog
      */
@@ -145,7 +148,7 @@ public class SliceSelectionDialog {
         ProgressDialog dialog = ProgressDialog.show(context, null, "Loading...");
 
         new Thread(() -> {
-            String authority = provider.authority.split(";")[0];
+            String authority = provider.authority.split(";", -1)[0];
             HashMap<String, String> labels = new HashMap<>();
             SliceViewManager sliceViewManager = SliceViewManager.getInstance(context);
             List<Uri> slices = new ArrayList<>(sliceViewManager.getSliceDescendants(
@@ -294,7 +297,7 @@ public class SliceSelectionDialog {
             if (provider == null || provider.authority == null) {
                 return "";
             }
-            String authority = provider.authority.split(";")[0];
+            String authority = provider.authority.split(";", -1)[0];
             if (mSharedPreferences.contains(authority)) {
                 return mSharedPreferences.getString(authority, null);
             }

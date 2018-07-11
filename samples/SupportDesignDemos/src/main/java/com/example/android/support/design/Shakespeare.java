@@ -17,6 +17,9 @@
 package com.example.android.support.design;
 
 public final class Shakespeare {
+    private Shakespeare() {
+    }
+
     /**
      * Our data, part 1.
      */

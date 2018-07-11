@@ -79,8 +79,3 @@ dependencies {
 tasks['check'].dependsOn(tasks['connectedCheck'])
 
 uploadArchives.enabled = false
-
-supportTestApp {
-    // to assert that room generates somewhat OK code.
-    enableErrorProne = true
-}

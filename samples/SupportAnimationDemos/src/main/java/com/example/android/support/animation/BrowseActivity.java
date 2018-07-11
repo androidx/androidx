@@ -74,7 +74,7 @@ public class BrowseActivity extends ListActivity {
         if (prefix.equals("")) {
             prefixPath = null;
         } else {
-            prefixPath = prefix.split("/");
+            prefixPath = prefix.split("/", -1);
             prefixWithSlash = prefix + "/";
         }
 
@@ -89,7 +89,7 @@ public class BrowseActivity extends ListActivity {
 
             if (prefixWithSlash.length() == 0 || label.startsWith(prefixWithSlash)) {
 
-                String[] labelPath = label.split("/");
+                String[] labelPath = label.split("/", -1);
 
                 String nextLabel = prefixPath == null ? labelPath[0] : labelPath[prefixPath.length];
 
@@ -115,6 +115,7 @@ public class BrowseActivity extends ListActivity {
             new Comparator<Map<String, Object>>() {
                 public final Collator collator = Collator.getInstance();
 
+                @Override
                 public int compare(Map<String, Object> map1, Map<String, Object> map2) {
                     return collator.compare(map1.get("title"), map2.get("title"));
                 }

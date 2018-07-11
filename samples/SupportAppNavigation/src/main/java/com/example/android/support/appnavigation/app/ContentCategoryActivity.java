@@ -32,7 +32,7 @@ public class ContentCategoryActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_category);
 
-        ActionBarCompat.setDisplayHomeAsUpEnabled(this, true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

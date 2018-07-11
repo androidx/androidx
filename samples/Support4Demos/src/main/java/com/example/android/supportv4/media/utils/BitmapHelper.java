@@ -82,4 +82,7 @@ public class BitmapHelper {
             }
         }
     }
+
+    private BitmapHelper() {
+    }
 }

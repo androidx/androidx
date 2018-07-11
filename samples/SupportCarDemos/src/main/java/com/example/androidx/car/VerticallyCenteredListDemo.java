@@ -84,12 +84,14 @@ public class VerticallyCenteredListDemo extends Activity {
             mNumOfItems++;
         }
 
+        @Override
         public ListItem get(int position) {
             TextListItem item = new TextListItem(mContext);
             item.setTitle("Item " + position);
             return item;
         }
 
+        @Override
         public int size() {
             return mNumOfItems;
         }

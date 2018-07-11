@@ -30,7 +30,7 @@ public class SimpleUpActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.simple_up);
 
-        ActionBarCompat.setDisplayHomeAsUpEnabled(this, true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

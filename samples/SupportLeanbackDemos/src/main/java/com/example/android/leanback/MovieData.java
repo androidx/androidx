@@ -26,5 +26,8 @@ class MovieData {
     static void clear() {
         sStatus = STATUS_INIT;
     }
+
+    private MovieData() {
+    }
 }
 

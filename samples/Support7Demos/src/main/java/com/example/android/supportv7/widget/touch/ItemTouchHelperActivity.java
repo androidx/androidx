@@ -229,7 +229,7 @@ abstract public class ItemTouchHelperActivity extends Activity {
 
     }
 
-    public class ItemTouchViewHolder extends RecyclerView.ViewHolder {
+    public static class ItemTouchViewHolder extends RecyclerView.ViewHolder {
 
         public final TextView textView;
 

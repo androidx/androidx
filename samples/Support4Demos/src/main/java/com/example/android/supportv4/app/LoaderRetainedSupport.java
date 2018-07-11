@@ -143,6 +143,7 @@ public class LoaderRetainedSupport extends FragmentActivity {
         };
 
         @NonNull
+        @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             // This is called when a new Loader needs to be created.  This
             // sample only has one Loader, so we don't care about the ID.
@@ -164,6 +165,7 @@ public class LoaderRetainedSupport extends FragmentActivity {
                     People.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
         }
 
+        @Override
         public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
             // Swap the new cursor in.  (The framework will take care of closing the
             // old cursor once we return.)
@@ -177,6 +179,7 @@ public class LoaderRetainedSupport extends FragmentActivity {
             }
         }
 
+        @Override
         public void onLoaderReset(@NonNull Loader<Cursor> loader) {
             // This is called when the last Cursor provided to onLoadFinished()
             // above is about to be closed.  We need to make sure we are no
