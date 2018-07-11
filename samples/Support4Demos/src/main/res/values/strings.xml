@@ -231,6 +231,7 @@
     <string name="swipe_list">Widget/SwipeRefreshLayout ListView</string>
     <string name="swipe_text">Widget/SwipeRefreshLayout TextView</string>
     <string name="swipe_nested_sv">Widget/SwipeRefreshLayout NestedScrollView</string>
+    <string name="swipe_parent_child">Widget/SwipeRefreshLayout with Parent and Child</string>
 
     <string name="nested_scroll">Widget/Nested Scrolling</string>
 
