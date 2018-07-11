@@ -33,21 +33,22 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
 
     @Override
     public boolean isTrustedForMediaControl(MediaSessionManager.RemoteUserInfoImpl userInfo) {
-        if (userInfo instanceof RemoteUserInfo) {
-            return mObject.isTrustedForMediaControl(((RemoteUserInfo) userInfo).mObject);
+        if (userInfo instanceof RemoteUserInfoImplApi28) {
+            return mObject.isTrustedForMediaControl(((RemoteUserInfoImplApi28) userInfo).mObject);
         }
         return false;
     }
 
-    static final class RemoteUserInfo implements MediaSessionManager.RemoteUserInfoImpl {
+    static final class RemoteUserInfoImplApi28 implements MediaSessionManager.RemoteUserInfoImpl {
         android.media.session.MediaSessionManager.RemoteUserInfo mObject;
 
-        RemoteUserInfo(String packageName, int pid, int uid) {
+        RemoteUserInfoImplApi28(String packageName, int pid, int uid) {
             mObject = new android.media.session.MediaSessionManager.RemoteUserInfo(
                     packageName, pid, uid);
         }
 
-        RemoteUserInfo(android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {
+        RemoteUserInfoImplApi28(
+                android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {
             mObject = remoteUserInfo;
         }
 
@@ -76,10 +77,10 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof RemoteUserInfo)) {
+            if (!(obj instanceof RemoteUserInfoImplApi28)) {
                 return false;
             }
-            RemoteUserInfo other = (RemoteUserInfo) obj;
+            RemoteUserInfoImplApi28 other = (RemoteUserInfoImplApi28) obj;
             return mObject.equals(other.mObject);
         }
     }

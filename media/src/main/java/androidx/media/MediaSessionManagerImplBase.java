@@ -117,12 +117,12 @@ class MediaSessionManagerImplBase implements MediaSessionManager.MediaSessionMan
         return false;
     }
 
-    static class RemoteUserInfo implements MediaSessionManager.RemoteUserInfoImpl {
+    static class RemoteUserInfoImplBase implements MediaSessionManager.RemoteUserInfoImpl {
         private String mPackageName;
         private int mPid;
         private int mUid;
 
-        RemoteUserInfo(String packageName, int pid, int uid) {
+        RemoteUserInfoImplBase(String packageName, int pid, int uid) {
             mPackageName = packageName;
             mPid = pid;
             mUid = uid;
@@ -145,10 +145,13 @@ class MediaSessionManagerImplBase implements MediaSessionManager.MediaSessionMan
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof RemoteUserInfo)) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof RemoteUserInfoImplBase)) {
                 return false;
             }
-            RemoteUserInfo otherUserInfo = (RemoteUserInfo) obj;
+            RemoteUserInfoImplBase otherUserInfo = (RemoteUserInfoImplBase) obj;
             return TextUtils.equals(mPackageName, otherUserInfo.mPackageName)
                     && mPid == otherUserInfo.mPid
                     && mUid == otherUserInfo.mUid;
