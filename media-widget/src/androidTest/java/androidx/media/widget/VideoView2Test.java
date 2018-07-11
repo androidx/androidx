@@ -52,6 +52,7 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -211,6 +212,46 @@ public class VideoView2Test {
                 any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PLAYING));
         verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
                 any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
+    }
+
+    @Test
+    public void testSetSpeed() throws Throwable {
+        // Don't run the test if the codec isn't supported.
+        if (!hasCodec()) {
+            Log.i(TAG, "SKIPPING testSetSpeed(): codec is not supported");
+            return;
+        }
+
+        final float targetSpeed1 = 1.5f;
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mVideoView.setSpeed(targetSpeed1);
+                } catch (IllegalStateException e) {
+                    Assert.fail("This should not happen. :" + e);
+                }
+                mVideoView.setMediaItem2(mMediaItem);
+            }
+        });
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
+                any(MediaController2.class), any(SessionCommandGroup2.class));
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
+                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
+        assertEquals(targetSpeed1, mController.getPlaybackSpeed(), 0.05f);
+
+        final float targetSpeed2 = 0.5f;
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setSpeed(targetSpeed2);
+            }
+        });
+        mController.play();
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlaybackSpeedChanged(
+                any(MediaController2.class), eq(targetSpeed2));
+        assertEquals(targetSpeed2, mVideoView.getSpeed(), 0.05f);
+        assertEquals(targetSpeed2, mController.getPlaybackSpeed(), 0.05f);
     }
 
     private void setKeepScreenOn() throws Throwable {
