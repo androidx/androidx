@@ -25,6 +25,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -39,7 +42,8 @@ import java.lang.annotation.RetentionPolicy;
  */
 // New version of Rating with following change
 //   - Don't implement Parcelable for updatable support.
-public final class Rating2 {
+@VersionedParcelize
+public final class Rating2 implements VersionedParcelable {
     /**
      * @hide
      */
@@ -101,8 +105,18 @@ public final class Rating2 {
     private static final String KEY_STYLE = "android.media.rating2.style";
     private static final String KEY_VALUE = "android.media.rating2.value";
 
-    private final int mRatingStyle;
-    private final float mRatingValue;
+    @ParcelField(1)
+    int mRatingStyle;
+
+
+    @ParcelField(2)
+    float mRatingValue;
+
+    /**
+     * Used for VersionedParcelable
+     */
+    Rating2() {
+    }
 
     private Rating2(@Style int ratingStyle, float rating) {
         mRatingStyle = ratingStyle;
@@ -134,7 +148,10 @@ public final class Rating2 {
      *
      * @param bundle bundle
      * @return new Rating2 instance or {@code null} for error
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static Rating2 fromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return null;
@@ -145,7 +162,10 @@ public final class Rating2 {
     /**
      * Return bundle for this object to share across the process.
      * @return bundle of this object
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_STYLE, mRatingStyle);

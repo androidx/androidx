@@ -26,6 +26,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelUuid;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
@@ -46,11 +47,14 @@ import androidx.media2.MediaLibraryService2.MediaLibrarySession.SupportLibraryIm
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Handles incoming commands from {@link MediaController2} and {@link MediaBrowser2}
@@ -70,10 +74,11 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             new SparseArray<>();
 
     static {
-        SessionCommandGroup2 group = new SessionCommandGroup2();
-        group.addAllPlaybackCommands();
-        group.addAllPlaylistCommands();
-        group.addAllVolumeCommands();
+        SessionCommandGroup2 group = new SessionCommandGroup2.Builder()
+                .addAllPlaybackCommands()
+                .addAllPlaylistCommands()
+                .addAllVolumeCommands()
+                .build();
         Set<SessionCommand2> commands = group.getCommands();
         for (SessionCommand2 command : commands) {
             sCommandsForOnCommandRequest.append(command.getCommandCode(), command);
@@ -298,13 +303,14 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     //       because IMediaController2 is oneway (i.e. async call) and Stub will
                     //       use thread poll for incoming calls.
                     final int playerState = mSession.getPlayerState();
-                    final Bundle currentItem = mSession.getCurrentMediaItem() == null ? null
-                            : mSession.getCurrentMediaItem().toBundle();
+                    final ParcelImpl currentItem =
+                            (ParcelImpl) ParcelUtils.toParcelable(mSession.getCurrentMediaItem());
                     final long positionEventTimeMs = SystemClock.elapsedRealtime();
                     final long positionMs = mSession.getCurrentPosition();
                     final float playbackSpeed = mSession.getPlaybackSpeed();
                     final long bufferedPositionMs = mSession.getBufferedPosition();
-                    final Bundle playbackInfoBundle = mSession.getPlaybackInfo().toBundle();
+                    final ParcelImpl playbackInfo =
+                            (ParcelImpl) ParcelUtils.toParcelable(mSession.getPlaybackInfo());
                     final int repeatMode = mSession.getRepeatMode();
                     final int shuffleMode = mSession.getShuffleMode();
                     final PendingIntent sessionActivity = mSession.getSessionActivity();
@@ -312,8 +318,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             allowedCommands.hasCommand(
                                     SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
                                             ? mSession.getPlaylist() : null;
-                    final List<Bundle> playlistBundle =
-                            MediaUtils2.convertMediaItem2ListToBundleList(playlist);
+                    final List<ParcelImpl> playlistParcel =
+                            MediaUtils2.convertMediaItem2ListToParcelImplList(playlist);
 
                     // Double check if session is still there, because close() can be called in
                     // another thread.
@@ -321,10 +327,11 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         return;
                     }
                     try {
-                        caller.onConnected(MediaSession2Stub.this, allowedCommands.toBundle(),
+                        caller.onConnected(MediaSession2Stub.this,
+                                (ParcelImpl) ParcelUtils.toParcelable(allowedCommands),
                                 playerState, currentItem, positionEventTimeMs, positionMs,
-                                playbackSpeed, bufferedPositionMs, playbackInfoBundle, repeatMode,
-                                shuffleMode, playlistBundle, sessionActivity);
+                                playbackSpeed, bufferedPositionMs, playbackInfo, repeatMode,
+                                shuffleMode, playlistParcel, sessionActivity);
                     } catch (RemoteException e) {
                         // Controller may be died prematurely.
                     }
@@ -460,14 +467,14 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void sendCustomCommand(final IMediaController2 caller, final Bundle commandBundle,
+    public void sendCustomCommand(final IMediaController2 caller, final ParcelImpl command,
             final Bundle args, final ResultReceiver receiver) {
-        final SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
-        onSessionCommand(caller, SessionCommand2.fromBundle(commandBundle), new SessionRunnable() {
+        final SessionCommand2 sessionCommand = ParcelUtils.fromParcelable(command);
+        onSessionCommand(caller, sessionCommand, new SessionRunnable() {
             @Override
             public void run(final ControllerInfo controller) throws RemoteException {
-                mSession.getCallback().onCustomCommand(mSession.getInstance(), controller, command,
-                        args, receiver);
+                mSession.getCallback().onCustomCommand(mSession.getInstance(), controller,
+                        sessionCommand, args, receiver);
             }
         });
     }
@@ -579,7 +586,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void setRating(final IMediaController2 caller, final String mediaId,
-            final Bundle ratingBundle) {
+            final ParcelImpl rating) {
+        final Rating2 rating2 = ParcelUtils.fromParcelable(rating);
         onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_SET_RATING,
                 new SessionRunnable() {
                     @Override
@@ -588,22 +596,14 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "setRating(): Ignoring null mediaId from " + controller);
                             return;
                         }
-                        if (ratingBundle == null) {
+                        if (rating2 == null) {
                             Log.w(TAG,
                                     "setRating(): Ignoring null ratingBundle from " + controller);
                             return;
                         }
-                        Rating2 rating = Rating2.fromBundle(ratingBundle);
-                        if (rating == null) {
-                            if (ratingBundle == null) {
-                                Log.w(TAG, "setRating(): Ignoring null rating from " + controller);
-                                return;
-                            }
-                            return;
-                        }
                         mSession.getCallback().onSetRating(mSession.getInstance(), controller,
                                 mediaId,
-                                rating);
+                                rating2);
                     }
                 });
     }
@@ -620,7 +620,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void setPlaylist(final IMediaController2 caller, final List<Bundle> playlist,
+    public void setPlaylist(final IMediaController2 caller, final List<ParcelImpl> playlist,
             final Bundle metadata) {
         onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST,
                 new SessionRunnable() {
@@ -631,7 +631,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             return;
                         }
                         mSession.getInstance().setPlaylist(
-                                MediaUtils2.convertBundleListToMediaItem2List(playlist),
+                                MediaUtils2.convertParcelImplListToMediaItem2List(playlist),
                                 MediaMetadata2.fromBundle(metadata));
                     }
                 });
@@ -650,26 +650,28 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void addPlaylistItem(IMediaController2 caller, final int index, final Bundle mediaItem) {
+    public void addPlaylistItem(IMediaController2 caller, final int index,
+            final ParcelImpl mediaItem) {
         onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
+                        MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
                         // Resets the UUID from the incoming media id, so controller may reuse a
                         // media item multiple times for addPlaylistItem.
-                        mSession.getInstance().addPlaylistItem(
-                                index, MediaItem2.fromBundle(mediaItem, null));
+                        item.mParcelUuid = new ParcelUuid(UUID.randomUUID());
+                        mSession.getInstance().addPlaylistItem(index, item);
                     }
                 });
     }
 
     @Override
-    public void removePlaylistItem(IMediaController2 caller, final Bundle mediaItem) {
+    public void removePlaylistItem(IMediaController2 caller, final ParcelImpl mediaItem) {
         onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        MediaItem2 item = MediaItem2.fromBundle(mediaItem);
+                        MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
                         // Note: MediaItem2 has hidden UUID to identify it across the processes.
                         mSession.getInstance().removePlaylistItem(item);
                     }
@@ -678,21 +680,22 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void replacePlaylistItem(IMediaController2 caller, final int index,
-            final Bundle mediaItem) {
+            final ParcelImpl mediaItem) {
         onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
+                        MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
                         // Resets the UUID from the incoming media id, so controller may reuse a
                         // media item multiple times for replacePlaylistItem.
-                        mSession.getInstance().replacePlaylistItem(
-                                index, MediaItem2.fromBundle(mediaItem, null));
+                        item.mParcelUuid = new ParcelUuid(UUID.randomUUID());
+                        mSession.getInstance().replacePlaylistItem(index, item);
                     }
                 });
     }
 
     @Override
-    public void skipToPlaylistItem(IMediaController2 caller, final Bundle mediaItem) {
+    public void skipToPlaylistItem(IMediaController2 caller, final ParcelImpl mediaItem) {
         onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
@@ -702,7 +705,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     + controller);
                         }
                         // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        mSession.getInstance().skipToPlaylistItem(MediaItem2.fromBundle(mediaItem));
+                        mSession.getInstance().skipToPlaylistItem(
+                                (MediaItem2) ParcelUtils.fromParcelable(mediaItem));
                     }
                 });
     }
@@ -946,23 +950,25 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
             mIControllerCallback.onCustomLayoutChanged(
-                    MediaUtils2.convertCommandButtonListToBundleList(layout));
+                    MediaUtils2.convertCommandButtonListToParcelImplList(layout));
         }
 
         @Override
         void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
-            mIControllerCallback.onPlaybackInfoChanged(info.toBundle());
+            mIControllerCallback.onPlaybackInfoChanged((ParcelImpl) ParcelUtils.toParcelable(info));
         }
 
         @Override
         void onAllowedCommandsChanged(SessionCommandGroup2 commands) throws RemoteException {
-            mIControllerCallback.onAllowedCommandsChanged(commands.toBundle());
+            mIControllerCallback.onAllowedCommandsChanged(
+                    (ParcelImpl) ParcelUtils.toParcelable(commands));
         }
 
         @Override
         void onCustomCommand(SessionCommand2 command, Bundle args, ResultReceiver receiver)
                 throws RemoteException {
-            mIControllerCallback.onCustomCommand(command.toBundle(), args, receiver);
+            mIControllerCallback.onCustomCommand((ParcelImpl) ParcelUtils.toParcelable(command),
+                    args, receiver);
         }
 
         @Override
@@ -981,7 +987,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         void onBufferingStateChanged(MediaItem2 item, int bufferingState, long bufferedPositionMs)
                 throws RemoteException {
             mIControllerCallback.onBufferingStateChanged(
-                    item == null ? null : item.toBundle(), bufferingState, bufferedPositionMs);
+                    (ParcelImpl) ParcelUtils.toParcelable(item),
+                    bufferingState, bufferedPositionMs);
         }
 
         @Override
@@ -997,14 +1004,15 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
         @Override
         void onCurrentMediaItemChanged(MediaItem2 item) throws RemoteException {
-            mIControllerCallback.onCurrentMediaItemChanged(item == null ? null : item.toBundle());
+            mIControllerCallback.onCurrentMediaItemChanged(
+                    (ParcelImpl) ParcelUtils.toParcelable(item));
         }
 
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
             mIControllerCallback.onPlaylistChanged(
-                    MediaUtils2.convertMediaItem2ListToBundleList(playlist),
+                    MediaUtils2.convertMediaItem2ListToParcelImplList(playlist),
                     metadata == null ? null : metadata.toBundle());
         }
 
@@ -1043,13 +1051,14 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onGetChildrenDone(String parentId, int page, int pageSize, List<MediaItem2> result,
                 Bundle extras) throws RemoteException {
-            List<Bundle> bundleList = MediaUtils2.convertMediaItem2ListToBundleList(result);
-            mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, bundleList, extras);
+            List<ParcelImpl> parcelList = MediaUtils2.convertMediaItem2ListToParcelImplList(result);
+            mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, parcelList, extras);
         }
 
         @Override
         void onGetItemDone(String mediaId, MediaItem2 result) throws RemoteException {
-            mIControllerCallback.onGetItemDone(mediaId, result == null ? null : result.toBundle());
+            mIControllerCallback.onGetItemDone(mediaId,
+                    (ParcelImpl) ParcelUtils.toParcelable(result));
         }
 
         @Override
@@ -1061,8 +1070,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onGetSearchResultDone(String query, int page, int pageSize, List<MediaItem2> result,
                 Bundle extras) throws RemoteException {
-            List<Bundle> bundleList = MediaUtils2.convertMediaItem2ListToBundleList(result);
-            mIControllerCallback.onGetSearchResultDone(query, page, pageSize, bundleList, extras);
+            List<ParcelImpl> parcelList = MediaUtils2.convertMediaItem2ListToParcelImplList(result);
+            mIControllerCallback.onGetSearchResultDone(query, page, pageSize, parcelList, extras);
         }
 
         @Override

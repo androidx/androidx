@@ -10,10 +10,12 @@ plugins {
 
 dependencies {
     api(project(":media"))
+    api(project(':versionedparcelable'))
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
     androidTestImplementation project(':internal-testutils')
+    annotationProcessor(project(":versionedparcelable-annotation"))
 }
 
 supportLibrary {

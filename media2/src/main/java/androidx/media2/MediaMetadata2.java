@@ -28,6 +28,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.collection.ArrayMap;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.ParcelUtils;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,7 +44,8 @@ import java.util.Set;
 //   - Don't implement Parcelable for updatable support.
 //   - Also support MediaDescription features. MediaDescription is deprecated instead because
 //     it was insufficient for controller to display media contents.
-public final class MediaMetadata2 {
+@VersionedParcelize
+public final class MediaMetadata2 implements VersionedParcelable {
     private static final String TAG = "MediaMetadata2";
 
     /**
@@ -617,7 +622,14 @@ public final class MediaMetadata2 {
             METADATA_KEY_ALBUM_ART_URI
     };
 
-    final Bundle mBundle;
+    @ParcelField(1)
+    Bundle mBundle;
+
+    /**
+     * Used for VersionedParcelable
+     */
+    MediaMetadata2() {
+    }
 
     MediaMetadata2(Bundle bundle) {
         mBundle = new Bundle(bundle);
@@ -713,7 +725,7 @@ public final class MediaMetadata2 {
         }
         Rating2 rating = null;
         try {
-            rating = Rating2.fromBundle(mBundle.getBundle(key));
+            rating = ParcelUtils.fromParcelable(mBundle.getParcelable(key));
         } catch (Exception e) {
             // ignore, value was not a rating
             Log.w(TAG, "Failed to retrieve a key as Rating.", e);
@@ -1005,7 +1017,7 @@ public final class MediaMetadata2 {
                             + " key cannot be used to put a Rating");
                 }
             }
-            mBundle.putBundle(key, (value == null) ? null : value.toBundle());
+            mBundle.putParcelable(key, ParcelUtils.toParcelable(value));
             return this;
         }
 

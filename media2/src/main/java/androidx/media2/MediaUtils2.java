@@ -42,6 +42,8 @@ import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media2.MediaSession2.CommandButton;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -236,6 +238,21 @@ class MediaUtils2 {
         return result;
     }
 
+    static List<MediaItem2> convertParcelImplListToMediaItem2List(
+            List<ParcelImpl> itemParcelImplList) {
+        if (itemParcelImplList == null) {
+            return null;
+        }
+        List<MediaItem2> playlist = new ArrayList<>();
+        for (int i = 0; i < itemParcelImplList.size(); i++) {
+            final ParcelImpl itemParcelImpl = itemParcelImplList.get(i);
+            if (itemParcelImpl != null) {
+                playlist.add((MediaItem2) ParcelUtils.fromParcelable(itemParcelImpl));
+            }
+        }
+        return playlist;
+    }
+
     /**
      * Creates a {@link MediaMetadata2} from the {@link MediaDescriptionCompat}.
      *
@@ -403,44 +420,32 @@ class MediaUtils2 {
         }
     }
 
-    static List<Bundle> convertToBundleList(Parcelable[] array) {
-        if (array == null) {
+    static List<ParcelImpl> convertCommandButtonListToParcelImplList(
+            List<CommandButton> commandButtonList) {
+        if (commandButtonList == null) {
             return null;
         }
-        List<Bundle> bundleList = new ArrayList<>();
-        for (Parcelable p : array) {
-            bundleList.add((Bundle) p);
+        List<ParcelImpl> parcelImplList = new ArrayList<>();
+        for (int i = 0; i < commandButtonList.size(); i++) {
+            final CommandButton commandButton = commandButtonList.get(i);
+            parcelImplList.add((ParcelImpl) ParcelUtils.toParcelable(commandButton));
         }
-        return bundleList;
+        return parcelImplList;
     }
 
-    static List<Bundle> convertMediaItem2ListToBundleList(List<MediaItem2> playlist) {
+    static List<ParcelImpl> convertMediaItem2ListToParcelImplList(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
         }
-        List<Bundle> itemBundleList = new ArrayList<>();
+        List<ParcelImpl> itemParcelableList = new ArrayList<>();
         for (int i = 0; i < playlist.size(); i++) {
             final MediaItem2 item = playlist.get(i);
             if (item != null) {
-                final Bundle itemBundle = item.toBundle();
-                if (itemBundle != null) {
-                    itemBundleList.add(itemBundle);
-                }
+                final ParcelImpl itemParcelImpl = (ParcelImpl) ParcelUtils.toParcelable(item);
+                itemParcelableList.add(itemParcelImpl);
             }
         }
-        return itemBundleList;
-    }
-
-    static List<Bundle> convertCommandButtonListToBundleList(
-            List<CommandButton> commandButtonList) {
-        List<Bundle> commandButtonBundleList = new ArrayList<>();
-        for (int i = 0; i < commandButtonList.size(); i++) {
-            Bundle bundle = commandButtonList.get(i).toBundle();
-            if (bundle != null) {
-                commandButtonBundleList.add(bundle);
-            }
-        }
-        return commandButtonBundleList;
+        return itemParcelableList;
     }
 
     static Parcelable[] convertMediaItem2ListToParcelableArray(List<MediaItem2> playlist) {

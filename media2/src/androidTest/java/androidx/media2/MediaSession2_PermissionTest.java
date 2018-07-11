@@ -119,15 +119,17 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     }
 
     private SessionCommandGroup2 createCommandGroupWith(int commandCode) {
-        SessionCommandGroup2 commands = new SessionCommandGroup2();
-        commands.addCommand(new SessionCommand2(commandCode));
+        SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
+                .addCommand(new SessionCommand2(commandCode))
+                .build();
         return commands;
     }
 
     private SessionCommandGroup2 createCommandGroupWithout(int commandCode) {
-        SessionCommandGroup2 commands = new SessionCommandGroup2();
-        commands.addAllPredefinedCommands();
-        commands.removeCommand(new SessionCommand2(commandCode));
+        SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
+                .addAllPredefinedCommands()
+                .removeCommand(new SessionCommand2(commandCode))
+                .build();
         return commands;
     }
 

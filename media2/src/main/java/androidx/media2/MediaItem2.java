@@ -19,12 +19,17 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
+import android.os.ParcelUuid;
 import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -38,7 +43,8 @@ import java.util.UUID;
  * <p>
  * This object isn't a thread safe.
  */
-public class MediaItem2 {
+@VersionedParcelize
+public class MediaItem2 implements VersionedParcelable {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
@@ -63,11 +69,23 @@ public class MediaItem2 {
     private static final String KEY_METADATA = "android.media.mediaitem2.metadata";
     private static final String KEY_UUID = "android.media.mediaitem2.uuid";
 
-    private final String mId;
-    private final int mFlags;
-    private final UUID mUUID;
-    private MediaMetadata2 mMetadata;
+    @ParcelField(1)
+    String mId;
+    @ParcelField(2)
+    int mFlags;
+    @ParcelField(3)
+    ParcelUuid mParcelUuid;
+    @ParcelField(4)
+    MediaMetadata2 mMetadata;
+
+    @NonParcelField
     private DataSourceDesc2 mDataSourceDesc;
+
+    /**
+     * Used for VersionedParcelable
+     */
+    MediaItem2() {
+    }
 
     MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc2 dsd,
             @Nullable MediaMetadata2 metadata, @Flags int flags) {
@@ -76,7 +94,7 @@ public class MediaItem2 {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc2 dsd,
-            @Nullable MediaMetadata2 metadata, @Flags int flags, @Nullable UUID uuid) {
+            @Nullable MediaMetadata2 metadata, @Flags int flags, @Nullable ParcelUuid parcelUuid) {
         if (metadata != null && !TextUtils.equals(mediaId, metadata.getMediaId())) {
             throw new IllegalArgumentException("metadata's id should be matched with the mediaid");
         }
@@ -85,13 +103,14 @@ public class MediaItem2 {
         mDataSourceDesc = dsd;
         mMetadata = metadata;
         mFlags = flags;
-        mUUID = (uuid == null) ? UUID.randomUUID() : uuid;
+        mParcelUuid = parcelUuid == null ? new ParcelUuid(UUID.randomUUID()) : parcelUuid;
     }
 
     /**
      * Return this object as a bundle to share between processes.
      *
      * @return a new bundle instance
+     * @hide
      */
     public @NonNull Bundle toBundle() {
         Bundle bundle = new Bundle();
@@ -100,7 +119,7 @@ public class MediaItem2 {
         if (mMetadata != null) {
             bundle.putBundle(KEY_METADATA, mMetadata.toBundle());
         }
-        bundle.putString(KEY_UUID, mUUID.toString());
+        bundle.putParcelable(KEY_UUID, mParcelUuid);
         return bundle;
     }
 
@@ -109,25 +128,26 @@ public class MediaItem2 {
      *
      * @param bundle The bundle which was published by {@link MediaItem2#toBundle()}.
      * @return The newly created MediaItem2. Can be {@code null} for {@code null} bundle.
+     * @hide
      */
     public static @Nullable MediaItem2 fromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return null;
         }
-        final String uuidString = bundle.getString(KEY_UUID);
-        return fromBundle(bundle, UUID.fromString(uuidString));
+        final ParcelUuid parcelUuid = bundle.getParcelable(KEY_UUID);
+        return fromBundle(bundle, parcelUuid);
     }
 
     /**
-     * Create a MediaItem2 from the {@link Bundle} with the specified {@link UUID}.
+     * Create a MediaItem2 from the {@link Bundle} with the specified {@link UUID} string.
      * <p>
-     * {@link UUID} can be null if it want to generate new one.
+     * {@link UUID} string can be null if it want to generate new one.
      *
      * @param bundle The bundle which was published by {@link MediaItem2#toBundle()}.
-     * @param uuid A {@link UUID} to override. Can be {@link null} for override.
+     * @param parcelUuid A {@link ParcelUuid} string to override. Can be {@link null} for override.
      * @return The newly created MediaItem2
      */
-    static MediaItem2 fromBundle(@NonNull Bundle bundle, @Nullable UUID uuid) {
+    static MediaItem2 fromBundle(@NonNull Bundle bundle, @Nullable ParcelUuid parcelUuid) {
         if (bundle == null) {
             return null;
         }
@@ -136,7 +156,7 @@ public class MediaItem2 {
         final MediaMetadata2 metadata = metadataBundle != null
                 ? MediaMetadata2.fromBundle(metadataBundle) : null;
         final int flags = bundle.getInt(KEY_FLAGS);
-        return new MediaItem2(id, null, metadata, flags, uuid);
+        return new MediaItem2(id, null, metadata, flags, parcelUuid);
     }
 
     @Override
@@ -217,7 +237,7 @@ public class MediaItem2 {
 
     @Override
     public int hashCode() {
-        return mUUID.hashCode();
+        return mParcelUuid.hashCode();
     }
 
     @Override
@@ -226,11 +246,11 @@ public class MediaItem2 {
             return false;
         }
         MediaItem2 other = (MediaItem2) obj;
-        return mUUID.equals(other.mUUID);
+        return mParcelUuid.equals(other.mParcelUuid);
     }
 
     UUID getUuid() {
-        return mUUID;
+        return mParcelUuid.getUuid();
     }
 
     /**
@@ -312,7 +332,8 @@ public class MediaItem2 {
             if (id == null) {
                 id = mMediaId;
             }
-            return new MediaItem2(id, mDataSourceDesc, mMetadata, mFlags, mUuid);
+            return new MediaItem2(id, mDataSourceDesc, mMetadata, mFlags,
+                    mUuid == null ? null : new ParcelUuid(mUuid));
         }
     }
 }

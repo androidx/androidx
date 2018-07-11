@@ -72,6 +72,8 @@ import androidx.media2.MediaController2.VolumeDirection;
 import androidx.media2.MediaController2.VolumeFlags;
 import androidx.media2.MediaPlaylistAgent.RepeatMode;
 import androidx.media2.MediaPlaylistAgent.ShuffleMode;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -520,7 +522,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
         }
         if (iSession2 != null) {
             try {
-                iSession2.setRating(mControllerStub, mediaId, rating.toBundle());
+                iSession2.setRating(mControllerStub, mediaId,
+                        (ParcelImpl) ParcelUtils.toParcelable(rating));
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
@@ -533,7 +536,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
         final IMediaSession2 iSession2 = getSessionInterfaceIfAble(command);
         if (iSession2 != null) {
             try {
-                iSession2.sendCustomCommand(mControllerStub, command.toBundle(), args, cb);
+                iSession2.sendCustomCommand(mControllerStub,
+                        (ParcelImpl) ParcelUtils.toParcelable(command), args, cb);
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
@@ -553,7 +557,7 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
         if (iSession2 != null) {
             try {
                 iSession2.setPlaylist(mControllerStub,
-                        MediaUtils2.convertMediaItem2ListToBundleList(list),
+                        MediaUtils2.convertMediaItem2ListToParcelImplList(list),
                         (metadata == null) ? null : metadata.toBundle());
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
@@ -587,7 +591,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
         final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_ADD_ITEM);
         if (iSession2 != null) {
             try {
-                iSession2.addPlaylistItem(mControllerStub, index, item.toBundle());
+                iSession2.addPlaylistItem(mControllerStub, index,
+                        (ParcelImpl) ParcelUtils.toParcelable(item));
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
@@ -600,7 +605,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                 getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_REMOVE_ITEM);
         if (iSession2 != null) {
             try {
-                iSession2.removePlaylistItem(mControllerStub, item.toBundle());
+                iSession2.removePlaylistItem(mControllerStub,
+                        (ParcelImpl) ParcelUtils.toParcelable(item));
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
@@ -613,7 +619,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                 getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_REPLACE_ITEM);
         if (iSession2 != null) {
             try {
-                iSession2.replacePlaylistItem(mControllerStub, index, item.toBundle());
+                iSession2.replacePlaylistItem(mControllerStub, index,
+                        (ParcelImpl) ParcelUtils.toParcelable(item));
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
@@ -659,7 +666,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                 getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM);
         if (iSession2 != null) {
             try {
-                iSession2.skipToPlaylistItem(mControllerStub, item.toBundle());
+                iSession2.skipToPlaylistItem(mControllerStub,
+                        (ParcelImpl) ParcelUtils.toParcelable(item));
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }

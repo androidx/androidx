@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import androidx.media2.IMediaSession2;
+import androidx.versionedparcelable.ParcelImpl;
 
 /**
  * Interface from MediaSession2 to MediaController2.
@@ -30,39 +31,40 @@ import androidx.media2.IMediaSession2;
  * @hide
  */
 oneway interface IMediaController2 {
-    void onCurrentMediaItemChanged(in Bundle item);
-    void onPlayerStateChanged(long eventTimeMs, long positionMs, int state);
-    void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed);
-    void onBufferingStateChanged(in Bundle item, int state, long bufferedPositionMs);
-    void onPlaylistChanged(in List<Bundle> playlist, in Bundle metadata);
-    void onPlaylistMetadataChanged(in Bundle metadata);
-    void onPlaybackInfoChanged(in Bundle playbackInfo);
-    void onRepeatModeChanged(int repeatMode);
-    void onShuffleModeChanged(int shuffleMode);
-    void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs);
-    void onError(int errorCode, in Bundle extras);
-    void onRoutesInfoChanged(in List<Bundle> routes);
+    void onCurrentMediaItemChanged(in ParcelImpl item) = 0;
+    void onPlayerStateChanged(long eventTimeMs, long positionMs, int state) = 1;
+    void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed) = 2;
+    void onBufferingStateChanged(in ParcelImpl item, int state, long bufferedPositionMs) = 3;
+    void onPlaylistChanged(in List<ParcelImpl> playlist, in Bundle metadata) = 4;
+    void onPlaylistMetadataChanged(in Bundle metadata) = 5;
+    void onPlaybackInfoChanged(in ParcelImpl playbackInfo) = 6;
+    void onRepeatModeChanged(int repeatMode) = 7;
+    void onShuffleModeChanged(int shuffleMode) = 8;
+    void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs) = 9;
+    void onError(int errorCode, in Bundle extras) = 10;
+    void onRoutesInfoChanged(in List<Bundle> routes) = 11;
 
-    void onConnected(IMediaSession2 sessionBinder, in Bundle commandGroup, int playerState,
-        in Bundle currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
-        long bufferedPositionMs, in Bundle playbackInfo, int repeatMode, int shuffleMode,
-        in List<Bundle> playlist, in PendingIntent sessionActivity);
-    void onDisconnected();
+    void onConnected(IMediaSession2 sessionBinder, in ParcelImpl commandGroup, int playerState,
+        in ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
+        long bufferedPositionMs, in ParcelImpl playbackInfo, int repeatMode, int shuffleMode,
+        in List<ParcelImpl> playlist, in PendingIntent sessionActivity) = 12;
+    void onDisconnected() = 13;
 
-    void onCustomLayoutChanged(in List<Bundle> commandButtonlist);
-    void onAllowedCommandsChanged(in Bundle commands);
+    void onCustomLayoutChanged(in List<ParcelImpl> commandButtonlist) = 14;
+    void onAllowedCommandsChanged(in ParcelImpl commandGroup) = 15;
 
-    void onCustomCommand(in Bundle command, in Bundle args, in ResultReceiver receiver);
+    void onCustomCommand(in ParcelImpl command, in Bundle args, in ResultReceiver receiver) = 16;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Browser sepcific
     //////////////////////////////////////////////////////////////////////////////////////////////
-    void onGetLibraryRootDone(in Bundle rootHints, String rootMediaId, in Bundle rootExtra);
-    void onGetItemDone(String mediaId, in Bundle result);
-    void onChildrenChanged(String parentId, int itemCount, in Bundle extras);
-    void onGetChildrenDone(String parentId, int page, int pageSize, in List<Bundle> result,
-        in Bundle extras);
-    void onSearchResultChanged(String query, int itemCount, in Bundle extras);
-    void onGetSearchResultDone(String query, int page, int pageSize, in List<Bundle> result,
-        in Bundle extras);
+    void onGetLibraryRootDone(in Bundle rootHints, String rootMediaId, in Bundle rootExtra) = 17;
+    void onGetItemDone(String mediaId, in ParcelImpl item) = 18;
+    void onChildrenChanged(String parentId, int itemCount, in Bundle extras) = 19;
+    void onGetChildrenDone(String parentId, int page, int pageSize, in List<ParcelImpl> itemList,
+        in Bundle extras) = 20;
+    void onSearchResultChanged(String query, int itemCount, in Bundle extras) = 21;
+    void onGetSearchResultDone(String query, int page, int pageSize, in List<ParcelImpl> itemList,
+        in Bundle extras) = 22;
+    // Next Id : 23
 }
