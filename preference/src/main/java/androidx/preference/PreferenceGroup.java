@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.content.res.TypedArrayUtils;
@@ -69,6 +70,8 @@ public abstract class PreferenceGroup extends Preference {
     private boolean mAttachedToHierarchy = false;
 
     private int mInitialExpandedChildrenCount = Integer.MAX_VALUE;
+
+    private OnExpandButtonClickListener mOnExpandButtonClickListener = null;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
@@ -394,6 +397,33 @@ public abstract class PreferenceGroup extends Preference {
         return mAttachedToHierarchy;
     }
 
+    /**
+     * Sets the callback to be invoked when the expand button is clicked.
+     *
+     * @param onExpandButtonClickListener The callback to be invoked
+     * @see PreferenceGroup#setInitialExpandedChildrenCount(int)
+     * @hide
+     * @pending
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setOnExpandButtonClickListener(
+            @Nullable OnExpandButtonClickListener onExpandButtonClickListener) {
+        mOnExpandButtonClickListener = onExpandButtonClickListener;
+    }
+
+    /**
+     * Returns the callback to be invoked when the expand button is clicked.
+     *
+     * @return The callback to be invoked when the expand button is clicked.
+     * @hide
+     * @pending
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public OnExpandButtonClickListener getOnExpandButtonClickListener() {
+        return mOnExpandButtonClickListener;
+    }
+
     @Override
     public void onAttached() {
         super.onAttached();
@@ -506,6 +536,20 @@ public abstract class PreferenceGroup extends Preference {
          *         {@link RecyclerView#NO_POSITION} if not found
          */
         int getPreferenceAdapterPosition(Preference preference);
+    }
+
+    /**
+     * Definition for a callback to be invoked when the expand button is clicked.
+     * @see PreferenceGroup#setInitialExpandedChildrenCount(int)
+     * @hide
+     * @pending
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public interface OnExpandButtonClickListener {
+        /**
+         * Called when the expand button is clicked.
+         */
+        void onExpandButtonClick();
     }
 
     /**
