@@ -1010,12 +1010,21 @@ public class MediaSessionCompat {
          * Override to handle media button events.
          * <p>
          * The double tap of {@link KeyEvent#KEYCODE_MEDIA_PLAY_PAUSE} or {@link
-         * KeyEvent#KEYCODE_HEADSETHOOK} will call the {@link #onSkipToNext} by default.
+         * KeyEvent#KEYCODE_HEADSETHOOK} will call the {@link #onSkipToNext} by default. If the
+         * current SDK level is 27 or higher, the default double tap handling is done by framework
+         * so this method would do nothing for it.
          *
          * @param mediaButtonEvent The media button event intent.
          * @return True if the event was handled, false otherwise.
          */
         public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+            if (android.os.Build.VERSION.SDK_INT >= 27) {
+                // Double tap of play/pause as skipping to next is already handled by framework,
+                // so we don't need to repeat again here.
+                // Note: Double tap would be handled twice for OC-DR1 whose SDK version 26 and
+                //       framework handles the double tap.
+                return false;
+            }
             MediaSessionImpl impl = mSessionImpl.get();
             if (impl == null || mCallbackHandler == null) {
                 return false;
