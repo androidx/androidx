@@ -17,6 +17,8 @@ package android.support.mediacompat.service;
 
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADD_QUEUE_ITEM;
 import static android.support.mediacompat.testlib.MediaControllerConstants
+        .ADD_QUEUE_ITEM_WITH_CUSTOM_PARCELABLE;
+import static android.support.mediacompat.testlib.MediaControllerConstants
         .ADD_QUEUE_ITEM_WITH_INDEX;
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADJUST_VOLUME;
 import static android.support.mediacompat.testlib.MediaControllerConstants.DISPATCH_MEDIA_BUTTON;
@@ -102,6 +104,7 @@ import android.view.KeyEvent;
 
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
+import androidx.media.test.lib.CustomParcelable;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -964,6 +967,25 @@ public class MediaSessionCompatCallbackTest {
 
         PlaybackStateCompat stateOut = extrasOut.getParcelable("state");
         assertEquals(state.getBufferedPosition(), stateOut.getBufferedPosition());
+    }
+
+    @Test
+    @SmallTest
+    public void testMediaDescriptionContainsUserParcelable() {
+        mCallback.reset(1);
+        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
+
+        final int testValue = 3;
+        // The client app will call addQueueItem() with MediaDescriptionCompat which includes
+        // CustomParcelable created with given testValue.
+        callMediaControllerMethod(ADD_QUEUE_ITEM_WITH_CUSTOM_PARCELABLE,
+                testValue, getContext(), mSession.getSessionToken());
+
+        mCallback.await(TIME_OUT_MS);
+        assertTrue(mCallback.mOnAddQueueItemCalled);
+        CustomParcelable customParcelableOut =
+                mCallback.mQueueDescription.getExtras().getParcelable("customParcelable");
+        assertEquals(testValue, customParcelableOut.mValue);
     }
 
     private void setPlaybackState(int state) {
