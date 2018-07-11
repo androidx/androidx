@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
@@ -36,7 +37,10 @@ import androidx.mediarouter.media.MediaRouteSelector;
  */
 public class MediaRouteChooserDialogFragment extends DialogFragment {
     private static final String ARGUMENT_SELECTOR = "selector";
-    private static final boolean USE_SUPPORT_DYNAMIC_GROUP = false;
+    // Intermediate constant for development purpose
+    // TODO: Remove this before official release
+    private static final boolean USE_SUPPORT_DYNAMIC_GROUP =
+            Log.isLoggable("UseSupportDynamicGroup", Log.DEBUG);
 
     private Dialog mDialog;
     private MediaRouteSelector mSelector;
