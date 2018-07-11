@@ -40,6 +40,9 @@ import androidx.media2.MediaPlaylistAgent.ShuffleMode;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.ErrorCode;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1027,18 +1030,24 @@ public class MediaController2 implements AutoCloseable {
      * Holds information about the the way volume is handled for this session.
      */
     // The same as MediaController.PlaybackInfo
-    public static final class PlaybackInfo {
+    @VersionedParcelize
+    public static final class PlaybackInfo implements VersionedParcelable {
         private static final String KEY_PLAYBACK_TYPE = "android.media.audio_info.playback_type";
         private static final String KEY_CONTROL_TYPE = "android.media.audio_info.control_type";
         private static final String KEY_MAX_VOLUME = "android.media.audio_info.max_volume";
         private static final String KEY_CURRENT_VOLUME = "android.media.audio_info.current_volume";
         private static final String KEY_AUDIO_ATTRIBUTES = "android.media.audio_info.audio_attrs";
 
-        private final int mPlaybackType;
-        private final int mControlType;
-        private final int mMaxVolume;
-        private final int mCurrentVolume;
-        private final AudioAttributesCompat mAudioAttrsCompat;
+        @ParcelField(1)
+        int mPlaybackType;
+        @ParcelField(2)
+        int mControlType;
+        @ParcelField(3)
+        int mMaxVolume;
+        @ParcelField(4)
+        int mCurrentVolume;
+        @ParcelField(5)
+        AudioAttributesCompat mAudioAttrsCompat;
 
         /**
          * The session uses local playback.
@@ -1048,6 +1057,12 @@ public class MediaController2 implements AutoCloseable {
          * The session uses remote playback.
          */
         public static final int PLAYBACK_TYPE_REMOTE = 2;
+
+        /**
+         * Used for VersionedParcelable
+         */
+        PlaybackInfo() {
+        }
 
         PlaybackInfo(int playbackType, AudioAttributesCompat attrs, int controlType, int max,
                 int current) {

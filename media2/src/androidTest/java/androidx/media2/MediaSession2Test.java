@@ -1013,10 +1013,11 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testSetAllowedCommands() throws InterruptedException {
         prepareLooper();
-        final SessionCommandGroup2 commands = new SessionCommandGroup2();
-        commands.addCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY));
-        commands.addCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE));
-        commands.addCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET));
+        final SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
+                .addCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY))
+                .addCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE))
+                .addCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET))
+                .build();
 
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {

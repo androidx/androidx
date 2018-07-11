@@ -128,9 +128,10 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             @Override
             public SessionCommandGroup2 onConnect(@NonNull MediaSession2 session,
                     @NonNull ControllerInfo controller) {
-                SessionCommandGroup2 commands = new SessionCommandGroup2();
-                commands.addAllPredefinedCommands();
-                commands.addCommand(testCommand);
+                SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
+                        .addAllPredefinedCommands()
+                        .addCommand(testCommand)
+                        .build();
                 return commands;
             }
 

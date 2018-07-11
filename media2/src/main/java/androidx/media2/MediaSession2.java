@@ -46,6 +46,9 @@ import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaPlaylistAgent.PlaylistEventCallback;
 import androidx.media2.MediaPlaylistAgent.RepeatMode;
 import androidx.media2.MediaPlaylistAgent.ShuffleMode;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -879,8 +882,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          */
         public @Nullable SessionCommandGroup2 onConnect(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller) {
-            SessionCommandGroup2 commands = new SessionCommandGroup2();
-            commands.addAllPredefinedCommands();
+            SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
+                    .addAllPredefinedCommands().build();
             return commands;
         }
 
@@ -1403,7 +1406,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      * <p>
      * It's up to the controller's decision to respect or ignore this customization request.
      */
-    public static final class CommandButton {
+    @VersionedParcelize
+    public static final class CommandButton implements VersionedParcelable {
         private static final String KEY_COMMAND =
                 "android.media.media_session2.command_button.command";
         private static final String KEY_ICON_RES_ID =
@@ -1415,11 +1419,22 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         private static final String KEY_ENABLED =
                 "android.media.media_session2.command_button.enabled";
 
-        private SessionCommand2 mCommand;
-        private int mIconResId;
-        private String mDisplayName;
-        private Bundle mExtras;
-        private boolean mEnabled;
+        @ParcelField(1)
+        SessionCommand2 mCommand;
+        @ParcelField(2)
+        int mIconResId;
+        @ParcelField(3)
+        String mDisplayName;
+        @ParcelField(4)
+        Bundle mExtras;
+        @ParcelField(5)
+        boolean mEnabled;
+
+        /**
+         * Used for VersionedParcelable
+         */
+        CommandButton() {
+        }
 
         CommandButton(@Nullable SessionCommand2 command, int iconResId,
                 @Nullable String displayName, Bundle extras, boolean enabled) {

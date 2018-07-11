@@ -1127,28 +1127,28 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         public SessionCommandGroup2 onConnect(
                 @NonNull MediaSession2 session,
                 @NonNull MediaSession2.ControllerInfo controller) {
-            SessionCommandGroup2 commands = new SessionCommandGroup2();
-            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI);
-            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE);
-            commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_SHOW_SUBTITLE, null));
-            commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_HIDE_SUBTITLE, null));
-            commands.addCommand(new SessionCommand2(
-                    MediaControlView2.COMMAND_SELECT_AUDIO_TRACK, null));
-            commands.addCommand(new SessionCommand2(
-                    MediaControlView2.COMMAND_SET_PLAYBACK_SPEED, null));
-            commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_MUTE, null));
-            commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_UNMUTE, null));
-            return commands;
+            SessionCommandGroup2.Builder commandsBuilder = new SessionCommandGroup2.Builder()
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE)
+                    .addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD)
+                    .addCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO)
+                    .addCommand(SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME)
+                    .addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME)
+                    .addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI)
+                    .addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI)
+                    .addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE)
+                    .addCommand(new SessionCommand2(MediaControlView2.COMMAND_SHOW_SUBTITLE, null))
+                    .addCommand(new SessionCommand2(MediaControlView2.COMMAND_HIDE_SUBTITLE, null))
+                    .addCommand(new SessionCommand2(
+                            MediaControlView2.COMMAND_SELECT_AUDIO_TRACK, null))
+                    .addCommand(new SessionCommand2(
+                            MediaControlView2.COMMAND_SET_PLAYBACK_SPEED, null))
+                    .addCommand(new SessionCommand2(MediaControlView2.COMMAND_MUTE, null))
+                    .addCommand(new SessionCommand2(MediaControlView2.COMMAND_UNMUTE, null));
+            return commandsBuilder.build();
         }
 
         @Override

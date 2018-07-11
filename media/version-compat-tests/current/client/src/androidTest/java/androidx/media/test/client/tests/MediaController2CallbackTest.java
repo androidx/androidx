@@ -22,14 +22,11 @@ import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
-import static androidx.media.test.lib.CommonConstants.KEY_ARGUMENTS;
 import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
 import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_VOLUME;
-import static androidx.media.test.lib.CommonConstants.KEY_CUSTOM_COMMAND;
 import static androidx.media.test.lib.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
-import static androidx.media.test.lib.CommonConstants.KEY_RESULT_RECEIVER;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
 import static androidx.media.test.lib.MediaSession2Constants.CustomCommands.UPDATE_PLAYER;
@@ -665,14 +662,10 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         };
         MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
 
-        Bundle args = new Bundle();
-        args.putBundle(KEY_CUSTOM_COMMAND, testCommand.toBundle());
-        args.putBundle(KEY_ARGUMENTS, testArgs);
         // TODO(jaewan): Test with multiple controllers
         mRemoteSession2.sendCustomCommand(testCommand, testArgs);
 
         // TODO(jaewan): Test receivers as well.
-        args.putParcelable(KEY_RESULT_RECEIVER, null);
         mRemoteSession2.sendCustomCommand(TEST_CONTROLLER_INFO, testCommand, testArgs, null);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }

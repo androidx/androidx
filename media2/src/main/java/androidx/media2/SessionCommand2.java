@@ -27,6 +27,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.SessionCallback;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.List;
 
@@ -37,7 +40,8 @@ import java.util.List;
  * If {@link #getCommandCode()} is {@link #COMMAND_CODE_CUSTOM}), it's custom command and
  * {@link #getCustomCommand()} shouldn't be {@code null}.
  */
-public final class SessionCommand2 {
+@VersionedParcelize
+public final class SessionCommand2 implements VersionedParcelable {
     /**
      * Command code for the custom command which can be defined by string action in the
      * {@link SessionCommand2}.
@@ -333,10 +337,19 @@ public final class SessionCommand2 {
     private static final String KEY_COMMAND_EXTRAS =
             "android.media.media_session2.command.extras";
 
-    private final int mCommandCode;
+    @ParcelField(1)
+    int mCommandCode;
     // Nonnull if it's custom command
-    private final String mCustomCommand;
-    private final Bundle mExtras;
+    @ParcelField(2)
+    String mCustomCommand;
+    @ParcelField(3)
+    Bundle mExtras;
+
+    /**
+     * Used for VersionedParcelable.
+     */
+    SessionCommand2() {
+    }
 
     /**
      * Constructor for creating a predefined command.

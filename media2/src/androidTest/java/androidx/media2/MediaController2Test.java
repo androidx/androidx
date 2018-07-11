@@ -434,9 +434,10 @@ public class MediaController2Test extends MediaSession2TestBase {
             public SessionCommandGroup2 onConnect(MediaSession2 session,
                     ControllerInfo controller) {
                 if (Process.myUid() == controller.getUid()) {
-                    SessionCommandGroup2 commands = new SessionCommandGroup2();
-                    commands.addCommand(new SessionCommand2(
-                              SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA));
+                    SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
+                            .addCommand(new SessionCommand2(
+                                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA))
+                            .build();
                     return commands;
                 }
                 return super.onConnect(session, controller);
@@ -825,8 +826,10 @@ public class MediaController2Test extends MediaSession2TestBase {
             @Override
             public SessionCommandGroup2 onConnect(@NonNull MediaSession2 session,
                     @NonNull ControllerInfo controller) {
-                SessionCommandGroup2 commands = super.onConnect(session, controller);
-                commands.addCommand(testCommand);
+                SessionCommandGroup2 commands =
+                        new SessionCommandGroup2.Builder(super.onConnect(session, controller))
+                        .addCommand(testCommand)
+                        .build();
                 return commands;
             }
 

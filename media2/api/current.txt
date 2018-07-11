@@ -177,7 +177,7 @@ package androidx.media2 {
     method public void onShuffleModeChanged(androidx.media2.MediaController2, int);
   }
 
-  public static final class MediaController2.PlaybackInfo {
+  public static final class MediaController2.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.media.AudioAttributesCompat getAudioAttributes();
     method public int getControlType();
     method public int getCurrentVolume();
@@ -193,8 +193,7 @@ package androidx.media2 {
     method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
   }
 
-  public class MediaItem2 {
-    method public static androidx.media2.MediaItem2 fromBundle(android.os.Bundle);
+  public class MediaItem2 implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.media2.DataSourceDesc2 getDataSourceDesc();
     method public int getFlags();
     method public java.lang.String getMediaId();
@@ -202,7 +201,6 @@ package androidx.media2 {
     method public boolean isBrowsable();
     method public boolean isPlayable();
     method public void setMetadata(androidx.media2.MediaMetadata2);
-    method public android.os.Bundle toBundle();
     field public static final int FLAG_BROWSABLE = 1; // 0x1
     field public static final int FLAG_PLAYABLE = 2; // 0x2
   }
@@ -256,7 +254,7 @@ package androidx.media2 {
     method public void onUnsubscribe(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, java.lang.String);
   }
 
-  public final class MediaMetadata2 {
+  public final class MediaMetadata2 implements androidx.versionedparcelable.VersionedParcelable {
     method public boolean containsKey(java.lang.String);
     method public static androidx.media2.MediaMetadata2 fromBundle(android.os.Bundle);
     method public android.graphics.Bitmap getBitmap(java.lang.String);
@@ -624,7 +622,7 @@ package androidx.media2 {
     method public androidx.media2.MediaSession2.Builder setSessionCallback(java.util.concurrent.Executor, androidx.media2.MediaSession2.SessionCallback);
   }
 
-  public static final class MediaSession2.CommandButton {
+  public static final class MediaSession2.CommandButton implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.media2.SessionCommand2 getCommand();
     method public java.lang.String getDisplayName();
     method public android.os.Bundle getExtras();
@@ -721,8 +719,7 @@ package androidx.media2 {
     method public androidx.media2.PlaybackParams2.Builder setSpeed(float);
   }
 
-  public final class Rating2 {
-    method public static androidx.media2.Rating2 fromBundle(android.os.Bundle);
+  public final class Rating2 implements androidx.versionedparcelable.VersionedParcelable {
     method public float getPercentRating();
     method public int getRatingStyle();
     method public float getStarRating();
@@ -734,7 +731,6 @@ package androidx.media2 {
     method public static androidx.media2.Rating2 newStarRating(int, float);
     method public static androidx.media2.Rating2 newThumbRating(boolean);
     method public static androidx.media2.Rating2 newUnratedRating(int);
-    method public android.os.Bundle toBundle();
     field public static final int RATING_3_STARS = 3; // 0x3
     field public static final int RATING_4_STARS = 4; // 0x4
     field public static final int RATING_5_STARS = 5; // 0x5
@@ -744,7 +740,7 @@ package androidx.media2 {
     field public static final int RATING_THUMB_UP_DOWN = 2; // 0x2
   }
 
-  public final class SessionCommand2 {
+  public final class SessionCommand2 implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommand2(int);
     ctor public SessionCommand2(java.lang.String, android.os.Bundle);
     method public int getCommandCode();
@@ -793,17 +789,23 @@ package androidx.media2 {
     field public static final int COMMAND_CODE_VOLUME_SET_VOLUME = 10; // 0xa
   }
 
-  public final class SessionCommandGroup2 {
+  public final class SessionCommandGroup2 implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommandGroup2();
-    ctor public SessionCommandGroup2(androidx.media2.SessionCommandGroup2);
-    method public void addAllPredefinedCommands();
-    method public void addCommand(androidx.media2.SessionCommand2);
-    method public void addCommand(int);
+    ctor public SessionCommandGroup2(java.util.Collection<androidx.media2.SessionCommand2>);
     method public java.util.Set<androidx.media2.SessionCommand2> getCommands();
     method public boolean hasCommand(androidx.media2.SessionCommand2);
     method public boolean hasCommand(int);
-    method public void removeCommand(androidx.media2.SessionCommand2);
-    method public void removeCommand(int);
+  }
+
+  public static final class SessionCommandGroup2.Builder {
+    ctor public SessionCommandGroup2.Builder();
+    ctor public SessionCommandGroup2.Builder(androidx.media2.SessionCommandGroup2);
+    method public androidx.media2.SessionCommandGroup2.Builder addAllPredefinedCommands();
+    method public androidx.media2.SessionCommandGroup2.Builder addCommand(androidx.media2.SessionCommand2);
+    method public androidx.media2.SessionCommandGroup2.Builder addCommand(int);
+    method public androidx.media2.SessionCommandGroup2 build();
+    method public androidx.media2.SessionCommandGroup2.Builder removeCommand(androidx.media2.SessionCommand2);
+    method public androidx.media2.SessionCommandGroup2.Builder removeCommand(int);
   }
 
   public final class SessionToken2 {
