@@ -22,6 +22,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Clock;
@@ -78,6 +79,7 @@ public abstract class TemplateSliceBuilder {
     /**
      * Construct the slice.
      */
+    @NonNull
     public Slice build() {
         return mImpl.build();
     }
