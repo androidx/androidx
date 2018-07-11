@@ -22,16 +22,19 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseIntArray;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Arrays;
 
 /**
  * A class to encapsulate a collection of attributes describing information about an audio stream.
@@ -63,7 +66,8 @@ import java.util.Arrays;
  * AudioAttributesCompat.Builder}. Also see {@link android.media.AudioAttributes} for the framework
  * implementation of this class.
  */
-public class AudioAttributesCompat {
+@VersionedParcelize
+public class AudioAttributesCompat implements VersionedParcelable {
     private static final String TAG = "AudioAttributesCompat";
 
     /**
@@ -202,21 +206,21 @@ public class AudioAttributesCompat {
     public static final int FLAG_AUDIBILITY_ENFORCED = 0x1 << 0;
 
     // flags for @hide API so we can create a proper flags mask
-    private static final int FLAG_SECURE = 0x1 << 1;
-    private static final int FLAG_SCO = 0x1 << 2;
-    private static final int FLAG_BEACON = 0x1 << 3;
+    static final int FLAG_SECURE = 0x1 << 1;
+    static final int FLAG_SCO = 0x1 << 2;
+    static final int FLAG_BEACON = 0x1 << 3;
 
     /** Flag requesting the use of an output stream supporting hardware A/V synchronization. */
     public static final int FLAG_HW_AV_SYNC = 0x1 << 4;
 
     // more @hide flags
-    private static final int FLAG_HW_HOTWORD = 0x1 << 5;
-    private static final int FLAG_BYPASS_INTERRUPTION_POLICY = 0x1 << 6;
-    private static final int FLAG_BYPASS_MUTE = 0x1 << 7;
-    private static final int FLAG_LOW_LATENCY = 0x1 << 8;
-    private static final int FLAG_DEEP_BUFFER = 0x1 << 9;
+    static final int FLAG_HW_HOTWORD = 0x1 << 5;
+    static final int FLAG_BYPASS_INTERRUPTION_POLICY = 0x1 << 6;
+    static final int FLAG_BYPASS_MUTE = 0x1 << 7;
+    static final int FLAG_LOW_LATENCY = 0x1 << 8;
+    static final int FLAG_DEEP_BUFFER = 0x1 << 9;
 
-    private static final int FLAG_ALL =
+    static final int FLAG_ALL =
             (FLAG_AUDIBILITY_ENFORCED
                     | FLAG_SECURE
                     | FLAG_SCO
@@ -227,26 +231,29 @@ public class AudioAttributesCompat {
                     | FLAG_BYPASS_MUTE
                     | FLAG_LOW_LATENCY
                     | FLAG_DEEP_BUFFER);
-    private static final int FLAG_ALL_PUBLIC =
+    static final int FLAG_ALL_PUBLIC =
             (FLAG_AUDIBILITY_ENFORCED | FLAG_HW_AV_SYNC | FLAG_LOW_LATENCY);
 
+    static final int INVALID_STREAM_TYPE = -1;  // AudioSystem.STREAM_DEFAULT
+
     /** Keys to convert to (or create from) Bundle. */
-    private static final String AUDIO_ATTRIBUTES_FRAMEWORKS =
+    static final String AUDIO_ATTRIBUTES_FRAMEWORKS =
             "androidx.media.audio_attrs.FRAMEWORKS";
-    private static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
-    private static final String AUDIO_ATTRIBUTES_CONTENT_TYPE =
+    static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
+    static final String AUDIO_ATTRIBUTES_CONTENT_TYPE =
             "androidx.media.audio_attrs.CONTENT_TYPE";
-    private static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
-    private static final String AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE =
+    static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
+    static final String AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE =
             "androidx.media.audio_attrs.LEGACY_STREAM_TYPE";
 
-    int mUsage = USAGE_UNKNOWN;
-    int mContentType = CONTENT_TYPE_UNKNOWN;
-    int mFlags = 0x0;
-    Integer mLegacyStream;
-    AudioAttributesCompatApi21.Wrapper mAudioAttributesWrapper;
+    @ParcelField(1)
+    AudioAttributesImpl mImpl;
 
     AudioAttributesCompat() {
+    }
+
+    AudioAttributesCompat(AudioAttributesImpl impl) {
+        mImpl = impl;
     }
 
     /**
@@ -263,15 +270,7 @@ public class AudioAttributesCompat {
      * AudioManager#setStreamVolume(int, int, int)}.
      */
     public int getVolumeControlStream() {
-        if (this == null) {
-            throw new IllegalArgumentException("Invalid null audio attributes");
-        }
-        if (Build.VERSION.SDK_INT >= 26
-                && !sForceLegacyBehavior
-                && unwrap() != null) {
-            return ((AudioAttributes) unwrap()).getVolumeControlStream();
-        }
-        return toVolumeStreamType(true, this);
+        return mImpl.getVolumeControlStream();
     }
 
     // public API unique to AudioAttributesCompat
@@ -284,51 +283,32 @@ public class AudioAttributesCompat {
      */
     @Nullable
     public Object unwrap() {
-        if (mAudioAttributesWrapper != null) {
-            return mAudioAttributesWrapper.unwrap();
-        }
-        return null;
+        return mImpl.getAudioAttributes();
     }
 
     /**
-     * Return a stream type passed to {@link Builder#setLegacyStreamType(int)}, or -1 if no legacy
-     * stream is available
+     * Returns a stream type passed to {@link Builder#setLegacyStreamType(int)}, or best guessing
+     * from flags and usage, or -1 if there is no converting logic in framework side (API 21+).
      *
      * @return the stream type {@see AudioManager}
      */
     public int getLegacyStreamType() {
-        // case 1: developer explicitly set a legacy stream,
-        // so just hand that back
-        if (mLegacyStream != null) {
-            return mLegacyStream;
-        }
-
-        // case 2: API 21+ and we have a real AudioAttributes
-        // the same caveats in AudioAttributes#toLegacyStreamTyoe apply:
-        // only use this for volume control
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (!sForceLegacyBehavior) {
-                return AudioAttributesCompatApi21.toLegacyStreamType(mAudioAttributesWrapper);
-            }
-        }
-
-        // case 3: developer set up AudioAttrs using new flags/usage APIs
-        // but we are running pre-API21, so use the heuristic below
-        return toVolumeStreamType(false, mFlags, mUsage);
+        return mImpl.getLegacyStreamType();
     }
 
     /**
-     * Create an {@link AudioAttributesCompat} given an API 21 {@link AudioAttributes} object.
+     * Creates an {@link AudioAttributesCompat} given an API 21 {@link AudioAttributes} object.
      *
-     * @param aa an instance of {@link AudioAttributes}
+     * @param aa an instance of {@link AudioAttributes}.
      * @return the new <code>AudioAttributesCompat</code>, or <code>null</code> on API &lt; 21
      */
     @Nullable
     public static AudioAttributesCompat wrap(@NonNull final Object aa) {
         if (Build.VERSION.SDK_INT >= 21 && !sForceLegacyBehavior) {
+            AudioAttributesImpl impl =
+                    new AudioAttributesImplApi21((AudioAttributes) aa);
             final AudioAttributesCompat aac = new AudioAttributesCompat();
-            aac.mAudioAttributesWrapper =
-                    AudioAttributesCompatApi21.Wrapper.wrap((AudioAttributes) aa);
+            aac.mImpl = impl;
             return aac;
         }
         return null;
@@ -337,55 +317,30 @@ public class AudioAttributesCompat {
     // The rest of this file implements an approximation to AudioAttributes using old stream types
 
     /**
-     * Return the content type.
+     * Returns the content type.
      *
      * @return one of the values that can be set in {@link Builder#setContentType(int)}
      */
     public int getContentType() {
-        if (Build.VERSION.SDK_INT >= 21
-                && !sForceLegacyBehavior
-                && mAudioAttributesWrapper != null) {
-            return mAudioAttributesWrapper.unwrap().getContentType();
-        } else {
-            return mContentType;
-        }
+        return mImpl.getContentType();
     }
 
     /**
-     * Return the usage.
+     * Returns the usage.
      *
      * @return one of the values that can be set in {@link Builder#setUsage(int)}
      */
     public @AttributeUsage int getUsage() {
-        if (Build.VERSION.SDK_INT >= 21
-                && !sForceLegacyBehavior
-                && mAudioAttributesWrapper != null) {
-            return mAudioAttributesWrapper.unwrap().getUsage();
-        } else {
-            return mUsage;
-        }
+        return mImpl.getUsage();
     }
 
     /**
-     * Return the flags.
+     * Returns the flags.
      *
      * @return a combined mask of all flags
      */
     public int getFlags() {
-        if (Build.VERSION.SDK_INT >= 21
-                && !sForceLegacyBehavior
-                && mAudioAttributesWrapper != null) {
-            return mAudioAttributesWrapper.unwrap().getFlags();
-        } else {
-            int flags = mFlags;
-            int legacyStream = getLegacyStreamType();
-            if (legacyStream == AudioManagerHidden.STREAM_BLUETOOTH_SCO) {
-                flags |= FLAG_SCO;
-            } else if (legacyStream == AudioManagerHidden.STREAM_SYSTEM_ENFORCED) {
-                flags |= FLAG_AUDIBILITY_ENFORCED;
-            }
-            return flags & FLAG_ALL_PUBLIC;
-        }
+        return mImpl.getFlags();
     }
 
     /**
@@ -393,18 +348,7 @@ public class AudioAttributesCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     public @NonNull Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        if (Build.VERSION.SDK_INT >= 21) {
-            bundle.putParcelable(AUDIO_ATTRIBUTES_FRAMEWORKS, mAudioAttributesWrapper.unwrap());
-        } else {
-            bundle.putInt(AUDIO_ATTRIBUTES_USAGE, mUsage);
-            bundle.putInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, mContentType);
-            bundle.putInt(AUDIO_ATTRIBUTES_FLAGS, mFlags);
-            if (mLegacyStream != null) {
-                bundle.putInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE, mLegacyStream);
-            }
-        }
-        return bundle;
+        return mImpl.toBundle();
     }
 
     /**
@@ -412,30 +356,13 @@ public class AudioAttributesCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     public static AudioAttributesCompat fromBundle(Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-
+        AudioAttributesImpl impl;
         if (Build.VERSION.SDK_INT >= 21) {
-            AudioAttributes frameworkAttrs = (AudioAttributes)
-                    bundle.getParcelable(AUDIO_ATTRIBUTES_FRAMEWORKS);
-            return frameworkAttrs == null ? null : AudioAttributesCompat.wrap(frameworkAttrs);
+            impl = AudioAttributesImplApi21.fromBundle(bundle);
         } else {
-            int usage = bundle.getInt(AUDIO_ATTRIBUTES_USAGE, USAGE_UNKNOWN);
-            int contentType = bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, CONTENT_TYPE_UNKNOWN);
-            int flags = bundle.getInt(AUDIO_ATTRIBUTES_FLAGS, 0);
-
-            // Here, we do not use builder in order to 'copy' the exact state of the original one.
-            // Builder class guesses the usage based on other value (contentType/legacyStream), and
-            // overwrites it. So using builder cannot ensure the equality.
-            AudioAttributesCompat attr = new AudioAttributesCompat();
-            attr.mUsage = usage;
-            attr.mContentType = contentType;
-            attr.mFlags = flags;
-            attr.mLegacyStream = bundle.containsKey(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE)
-                    ? bundle.getInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE) : null;
-            return attr;
+            impl = AudioAttributesImplBase.fromBundle(bundle);
         }
+        return impl == null ? null : new AudioAttributesCompat(impl);
     }
 
     /**
@@ -460,8 +387,7 @@ public class AudioAttributesCompat {
         private int mUsage = USAGE_UNKNOWN;
         private int mContentType = CONTENT_TYPE_UNKNOWN;
         private int mFlags = 0x0;
-        private Integer mLegacyStream;
-        private Object mAAObject;
+        private int mLegacyStream = INVALID_STREAM_TYPE;
 
         /**
          * Constructs a new Builder with the defaults. By default, usage and content type are
@@ -480,11 +406,10 @@ public class AudioAttributesCompat {
          * @param aa the AudioAttributesCompat object whose data will be reused in the new Builder.
          */
         public Builder(AudioAttributesCompat aa) {
-            mUsage = aa.mUsage;
-            mContentType = aa.mContentType;
-            mFlags = aa.mFlags;
-            mLegacyStream = aa.mLegacyStream;
-            mAAObject = aa.unwrap();
+            mUsage = aa.getUsage();
+            mContentType = aa.getContentType();
+            mFlags = aa.getFlags();
+            mLegacyStream = aa.getRawLegacyStreamType();
         }
 
         /**
@@ -494,34 +419,23 @@ public class AudioAttributesCompat {
          * @return a new {@link AudioAttributesCompat} object
          */
         public AudioAttributesCompat build() {
+            final AudioAttributesImpl impl;
             if (!sForceLegacyBehavior && Build.VERSION.SDK_INT >= 21) {
-                // API21
-                if (mAAObject != null) {
-                    // best case: underlying real AudioAttributes
-                    return wrap(mAAObject);
-                } else {
-                    // set up an API21 builder with whatever we have
-                    AudioAttributes.Builder api21Builder =
-                             new AudioAttributes.Builder()
+                AudioAttributes.Builder api21Builder =
+                        new AudioAttributes.Builder()
                                 .setContentType(mContentType)
                                 .setFlags(mFlags)
                                 .setUsage(mUsage);
-                    if (mLegacyStream != null) {
-                        // if a legacy stream was specified, throw that in
-                        api21Builder.setLegacyStreamType(mLegacyStream);
-                    }
-                    return wrap(api21Builder.build());
+                if (mLegacyStream != INVALID_STREAM_TYPE) {
+                    // if a legacy stream was specified, throw that in
+                    api21Builder.setLegacyStreamType(mLegacyStream);
                 }
+                impl = new AudioAttributesImplApi21(api21Builder.build(), mLegacyStream);
             } else {
-                // pre-API21
-                final AudioAttributesCompat aac = new AudioAttributesCompat();
-                aac.mContentType = mContentType;
-                aac.mFlags = mFlags;
-                aac.mUsage = mUsage;
-                aac.mLegacyStream = mLegacyStream;
-                aac.mAudioAttributesWrapper = null;
-                return aac;
+                impl = new AudioAttributesImplBase(
+                        mContentType, mFlags, mUsage, mLegacyStream);
             }
+            return new AudioAttributesCompat(impl);
         }
 
         /**
@@ -635,6 +549,53 @@ public class AudioAttributesCompat {
                                 + "type that was used for audio playback");
             }
             mLegacyStream = streamType;
+            if (Build.VERSION.SDK_INT >= 21) {
+                return setInternalLegacyStreamType(streamType);
+            } else {
+                // Do nothing here. It will be handled in build() phase.
+                return this;
+            }
+        }
+
+        Builder setInternalLegacyStreamType(int streamType) {
+            switch (streamType) {
+                case AudioManager.STREAM_VOICE_CALL:
+                    mContentType = CONTENT_TYPE_SPEECH;
+                    break;
+                case AudioManagerHidden.STREAM_SYSTEM_ENFORCED:
+                    mFlags |= FLAG_AUDIBILITY_ENFORCED;
+                    // intended fall through, attributes in common with STREAM_SYSTEM
+                case AudioManager.STREAM_SYSTEM:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManager.STREAM_RING:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManager.STREAM_MUSIC:
+                    mContentType = CONTENT_TYPE_MUSIC;
+                    break;
+                case AudioManager.STREAM_ALARM:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManager.STREAM_NOTIFICATION:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManagerHidden.STREAM_BLUETOOTH_SCO:
+                    mContentType = CONTENT_TYPE_SPEECH;
+                    mFlags |= FLAG_SCO;
+                    break;
+                case AudioManager.STREAM_DTMF:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManagerHidden.STREAM_TTS:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManagerHidden.STREAM_ACCESSIBILITY:
+                    mContentType = CONTENT_TYPE_SPEECH;
+                    break;
+                default:
+                    Log.e(TAG, "Invalid stream type " + streamType + " for AudioAttributesCompat");
+            }
             mUsage = usageForStreamType(streamType);
             return this;
         }
@@ -642,79 +603,54 @@ public class AudioAttributesCompat {
 
     @Override
     public int hashCode() {
-        if (Build.VERSION.SDK_INT >= 21
-                && !sForceLegacyBehavior
-                && mAudioAttributesWrapper != null) {
-            return mAudioAttributesWrapper.unwrap().hashCode();
-        }
-
-        return Arrays.hashCode(new Object[] {mContentType, mFlags, mUsage, mLegacyStream});
+        return mImpl.hashCode();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AudioAttributesCompat:");
-        if (unwrap() != null) {
-            sb.append(" audioattributes=").append(unwrap());
-        } else {
-            if (mLegacyStream != null) {
-                sb.append(" stream=").append(mLegacyStream);
-                sb.append(" derived");
-            }
-            sb.append(" usage=")
-                    .append(usageToString())
-                    .append(" content=")
-                    .append(mContentType)
-                    .append(" flags=0x")
-                    .append(Integer.toHexString(mFlags).toUpperCase());
-        }
-        return sb.toString();
-    }
-
-    String usageToString() {
-        return usageToString(mUsage);
+        return mImpl.toString();
     }
 
     static String usageToString(int usage) {
         switch (usage) {
             case USAGE_UNKNOWN:
-                return new String("USAGE_UNKNOWN");
+                return "USAGE_UNKNOWN";
             case USAGE_MEDIA:
-                return new String("USAGE_MEDIA");
+                return "USAGE_MEDIA";
             case USAGE_VOICE_COMMUNICATION:
-                return new String("USAGE_VOICE_COMMUNICATION");
+                return "USAGE_VOICE_COMMUNICATION";
             case USAGE_VOICE_COMMUNICATION_SIGNALLING:
-                return new String("USAGE_VOICE_COMMUNICATION_SIGNALLING");
+                return "USAGE_VOICE_COMMUNICATION_SIGNALLING";
             case USAGE_ALARM:
-                return new String("USAGE_ALARM");
+                return "USAGE_ALARM";
             case USAGE_NOTIFICATION:
-                return new String("USAGE_NOTIFICATION");
+                return "USAGE_NOTIFICATION";
             case USAGE_NOTIFICATION_RINGTONE:
-                return new String("USAGE_NOTIFICATION_RINGTONE");
+                return "USAGE_NOTIFICATION_RINGTONE";
             case USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
-                return new String("USAGE_NOTIFICATION_COMMUNICATION_REQUEST");
+                return "USAGE_NOTIFICATION_COMMUNICATION_REQUEST";
             case USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
-                return new String("USAGE_NOTIFICATION_COMMUNICATION_INSTANT");
+                return "USAGE_NOTIFICATION_COMMUNICATION_INSTANT";
             case USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
-                return new String("USAGE_NOTIFICATION_COMMUNICATION_DELAYED");
+                return "USAGE_NOTIFICATION_COMMUNICATION_DELAYED";
             case USAGE_NOTIFICATION_EVENT:
-                return new String("USAGE_NOTIFICATION_EVENT");
+                return "USAGE_NOTIFICATION_EVENT";
             case USAGE_ASSISTANCE_ACCESSIBILITY:
-                return new String("USAGE_ASSISTANCE_ACCESSIBILITY");
+                return "USAGE_ASSISTANCE_ACCESSIBILITY";
             case USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
-                return new String("USAGE_ASSISTANCE_NAVIGATION_GUIDANCE");
+                return "USAGE_ASSISTANCE_NAVIGATION_GUIDANCE";
             case USAGE_ASSISTANCE_SONIFICATION:
-                return new String("USAGE_ASSISTANCE_SONIFICATION");
+                return "USAGE_ASSISTANCE_SONIFICATION";
             case USAGE_GAME:
-                return new String("USAGE_GAME");
+                return "USAGE_GAME";
             case USAGE_ASSISTANT:
-                return new String("USAGE_ASSISTANT");
+                return "USAGE_ASSISTANT";
             default:
-                return new String("unknown usage " + usage);
+                return "unknown usage " + usage;
         }
     }
 
-    private abstract static class AudioManagerHidden {
+    abstract static class AudioManagerHidden {
         public static final int STREAM_BLUETOOTH_SCO = 6;
         public static final int STREAM_SYSTEM_ENFORCED = 7;
         public static final int STREAM_TTS = 9;
@@ -761,6 +697,10 @@ public class AudioAttributesCompat {
 
     static int toVolumeStreamType(boolean fromGetVolumeControlStream, AudioAttributesCompat aa) {
         return toVolumeStreamType(fromGetVolumeControlStream, aa.getFlags(), aa.getUsage());
+    }
+
+    int getRawLegacyStreamType() {
+        return mImpl.getRawLegacyStreamType();
     }
 
     static int toVolumeStreamType(
@@ -820,22 +760,14 @@ public class AudioAttributesCompat {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        final AudioAttributesCompat that = (AudioAttributesCompat) o;
-
-        if (Build.VERSION.SDK_INT >= 21
-                && !sForceLegacyBehavior
-                && mAudioAttributesWrapper != null) {
-            return mAudioAttributesWrapper.unwrap().equals(that.unwrap());
+        if (!(o instanceof AudioAttributesCompat)) {
+            return false;
         }
-
-        return ((mContentType == that.getContentType())
-                && (mFlags == that.getFlags())
-                && (mUsage == that.getUsage())
-                && (mLegacyStream != null ? mLegacyStream.equals(that.mLegacyStream)
-                        : that.mLegacyStream == null)); // query the slot directly, don't guess
+        final AudioAttributesCompat that = (AudioAttributesCompat) o;
+        if (this.mImpl == null) {
+            return that.mImpl == null;
+        }
+        return this.mImpl.equals(that.mImpl);
     }
 
     /** @hide */
