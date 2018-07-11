@@ -111,4 +111,8 @@ class TableInfoValidationWriter(val entity: Entity) {
             endControlFlow()
         }
     }
+
+    // The estimated amount of statements this writer will produce can be defined as the total
+    // number of entity properties that needs to be validated.
+    fun statementCount() = entity.fields.size + entity.foreignKeys.size + entity.indices.size
 }
