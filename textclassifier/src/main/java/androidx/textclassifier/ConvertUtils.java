@@ -16,6 +16,10 @@
 
 package androidx.textclassifier;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.LocaleList;
 
 import androidx.annotation.NonNull;
@@ -23,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 
@@ -36,13 +41,13 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(28)
 final class ConvertUtils {
 
     private ConvertUtils() {
     }
 
     @Nullable
+    @RequiresApi(26)
     static LocaleList unwrapLocalListCompat(@Nullable LocaleListCompat localeListCompat) {
         if (localeListCompat == null) {
             return null;
@@ -51,6 +56,7 @@ final class ConvertUtils {
     }
 
     @Nullable
+    @RequiresApi(28)
     static android.view.textclassifier.TextClassifier.EntityConfig toPlatformEntityConfig(
             @Nullable TextClassifier.EntityConfig entityConfig) {
         if (entityConfig == null) {
@@ -60,6 +66,7 @@ final class ConvertUtils {
     }
 
     @Nullable
+    @RequiresApi(26)
     static ZonedDateTime createZonedDateTimeFromCalendar(
             @Nullable Calendar calendar) {
         if (calendar == null) {
@@ -69,6 +76,7 @@ final class ConvertUtils {
     }
 
     @NonNull
+    @RequiresApi(28)
     static Map<String, Float> createFloatMapFromTextLinks(
             @NonNull android.view.textclassifier.TextLinks.TextLink textLink) {
         Preconditions.checkNotNull(textLink);
@@ -80,5 +88,19 @@ final class ConvertUtils {
             floatMap.put(entity, textLink.getConfidenceScore(entity));
         }
         return floatMap;
+    }
+
+    @NonNull
+    @RequiresApi(26)
+    public static IconCompat createIconFromDrawable(@NonNull Drawable d) {
+        if (d instanceof BitmapDrawable) {
+            return IconCompat.createWithBitmap(((BitmapDrawable) d).getBitmap());
+        }
+        Bitmap b = Bitmap.createBitmap(d.getIntrinsicWidth(), d.getIntrinsicHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(b);
+        d.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        d.draw(canvas);
+        return IconCompat.createWithBitmap(b);
     }
 }

@@ -74,7 +74,7 @@ public class TextClassifierResolver {
                     return entry;
                 }
             } else if (entry.isAosp()) {
-                if (isAtLeastP() && isAospTextClassifier()) {
+                if (isAtLeastO() && isAospTextClassifier()) {
                     return entry;
                 }
             } else {
@@ -140,7 +140,7 @@ public class TextClassifierResolver {
         return messageDigest.digest();
     }
 
-    @RequiresApi(28)
+    @RequiresApi(26)
     private boolean isAospTextClassifier() {
         TextClassificationManager textClassificationManager =
                 (TextClassificationManager)
@@ -152,5 +152,9 @@ public class TextClassifierResolver {
 
     private static boolean isAtLeastP() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
+    }
+
+    private static boolean isAtLeastO() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 }

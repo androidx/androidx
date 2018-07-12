@@ -17,8 +17,14 @@
 package androidx.textclassifier;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.app.RemoteAction;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
@@ -28,6 +34,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.app.RemoteActionCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextClassifier.EntityType;
@@ -67,6 +74,8 @@ public final class TextClassification {
     private static final String EXTRA_ACTIONS = "actions";
     private static final String EXTRA_ENTITY_CONFIDENCE = "entity_conf";
     private static final String EXTRA_ID = "id";
+    private static final IconCompat NO_ICON =
+            IconCompat.createWithData(new byte[0], 0, 0);
 
     /**
      * @hide
@@ -191,15 +200,20 @@ public final class TextClassification {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(28)
+    @RequiresApi(26)
+    @SuppressWarnings("deprecation") // To support O
     @NonNull
     static TextClassification fromPlatform(
+            @NonNull Context context,
             @NonNull android.view.textclassifier.TextClassification textClassification) {
         Preconditions.checkNotNull(textClassification);
 
         Builder builder = new TextClassification.Builder()
-                .setText(textClassification.getText())
-                .setId(textClassification.getId());
+                .setText(textClassification.getText());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            builder.setId(textClassification.getId());
+        }
 
         final int entityCount = textClassification.getEntityCount();
         for (int i = 0; i < entityCount; i++) {
@@ -207,12 +221,49 @@ public final class TextClassification {
             builder.setEntityType(entity, textClassification.getConfidenceScore(entity));
         }
 
-        List<RemoteAction> actions = textClassification.getActions();
-        for (RemoteAction action : actions) {
-            builder.addAction(RemoteActionCompat.createFromRemoteAction(action));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            List<RemoteAction> actions = textClassification.getActions();
+            for (RemoteAction action : actions) {
+                builder.addAction(RemoteActionCompat.createFromRemoteAction(action));
+            }
+        } else {
+            if (textClassification.getIntent() != null
+                    && !TextUtils.isEmpty(textClassification.getLabel())) {
+                builder.addAction(createRemoteActionCompat(context, textClassification));
+            }
         }
-
         return builder.build();
+    }
+
+    /**
+     * Converts a given {@link TextClassification} object to a {@link RemoteActionCompat} object.
+     * It is assumed that the intent and the label in the textclassification object are not null.
+     */
+    @TargetApi(26)
+    @SuppressWarnings("deprecation") //To support O
+    @NonNull
+    private static RemoteActionCompat createRemoteActionCompat(
+            @NonNull Context context,
+            @NonNull android.view.textclassifier.TextClassification textClassification) {
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(
+                        context,
+                        textClassification.getText().hashCode(),
+                        textClassification.getIntent(),
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Drawable drawable = textClassification.getIcon();
+        CharSequence label = textClassification.getLabel();
+        IconCompat icon;
+        if (drawable == null) {
+            // Placeholder, should never be shown.
+            icon = NO_ICON;
+        } else {
+            icon = ConvertUtils.createIconFromDrawable(textClassification.getIcon());
+        }
+        RemoteActionCompat remoteAction = new RemoteActionCompat(icon, label, label, pendingIntent);
+        remoteAction.setShouldShowIcon(drawable != null);
+        return remoteAction;
     }
 
     /**

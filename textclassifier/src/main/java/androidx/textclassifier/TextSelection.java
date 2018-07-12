@@ -17,6 +17,7 @@
 package androidx.textclassifier;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.FloatRange;
@@ -153,15 +154,18 @@ public final class TextSelection {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(28)
+    @RequiresApi(26)
     @NonNull
     static TextSelection fromPlatform(
             @NonNull android.view.textclassifier.TextSelection textSelection) {
         Preconditions.checkNotNull(textSelection);
 
         Builder builder = new Builder(
-                textSelection.getSelectionStartIndex(), textSelection.getSelectionEndIndex())
-                .setId(textSelection.getId());
+                textSelection.getSelectionStartIndex(), textSelection.getSelectionEndIndex());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            builder.setId(textSelection.getId());
+        }
 
         final int entityCount = textSelection.getEntityCount();
         for (int i = 0; i < entityCount; i++) {

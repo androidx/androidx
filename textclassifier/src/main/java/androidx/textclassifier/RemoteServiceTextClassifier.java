@@ -17,6 +17,7 @@
 package androidx.textclassifier;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -48,7 +49,7 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
     private final Context mContext;
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final TextClassifier mFallBack = TextClassifier.NO_OP;
+    final TextClassifier mFallBack;
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ServiceManager mServiceManager;
@@ -60,6 +61,7 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
         super(textClassificationContext);
         mContext = Preconditions.checkNotNull(context);
         mServiceManager = new ServiceManager(mContext, textClassifierPackage);
+        mFallBack = createFallback(context, textClassificationContext);
     }
 
     /** @inheritDoc */
@@ -91,6 +93,16 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
     @Override
     public void onSelectionEvent(@NonNull final SelectionEvent event) {
         new SelectionEventProcessor(event).process();
+    }
+
+    @NonNull
+    private static TextClassifier createFallback(
+            @NonNull Context context,
+            @NonNull TextClassificationContext textClassificationContext) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return PlatformTextClassifierWrapper.create(context, textClassificationContext);
+        }
+        return LegacyTextClassifier.INSTANCE;
     }
 
     private final class TextSelectionRequestProcessor
