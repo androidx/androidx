@@ -1,0 +1,15 @@
+package androidx.paging {
+
+  public final class RxPagedListBuilder<Key, Value> {
+    ctor public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key, Value>, androidx.paging.PagedList.Config);
+    ctor public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key, Value>, int);
+    method public io.reactivex.Flowable<androidx.paging.PagedList<Value>> buildFlowable(io.reactivex.BackpressureStrategy);
+    method public io.reactivex.Observable<androidx.paging.PagedList<Value>> buildObservable();
+    method public androidx.paging.RxPagedListBuilder<Key, Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>);
+    method public androidx.paging.RxPagedListBuilder<Key, Value> setFetchScheduler(io.reactivex.Scheduler);
+    method public androidx.paging.RxPagedListBuilder<Key, Value> setInitialLoadKey(Key);
+    method public androidx.paging.RxPagedListBuilder<Key, Value> setNotifyScheduler(io.reactivex.Scheduler);
+  }
+
+}
+

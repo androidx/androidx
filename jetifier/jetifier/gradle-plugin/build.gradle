@@ -36,7 +36,7 @@ supportLibrary {
     publish = false
     mavenVersion = LibraryVersions.JETIFIER
     mavenGroup = LibraryGroups.JETIFIER
-    generateDocs = false
+    toolingProject = true
     inceptionYear = "2017"
     description = "Android Jetifier Gradle Plugin"
 }

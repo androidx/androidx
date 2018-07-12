@@ -85,7 +85,7 @@ tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
 supportLibrary {
     name = "Android Room Compiler"
     publish = true
-    generateDocs = false
+    toolingProject = true
     mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
