@@ -35,7 +35,6 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -443,7 +442,6 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
         assertEquals(0, mPlaylistAgent.getCurShuffledIndex());
     }
 
-    @Ignore
     @Test
     public void testCurrentMediaItemChangedAfterSetPlayList() throws Exception {
         prepareLooper();
@@ -470,7 +468,8 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
                     }
                     public void onPlayerStateChanged(MediaSession2 session,
                             MediaPlayerConnector player, int state) {
-                        if (state == MediaPlayerConnector.PLAYER_STATE_PAUSED) {
+                        if (playerStateLatch.getCount() == 1
+                                && state == MediaPlayerConnector.PLAYER_STATE_PAUSED) {
                             assertEquals(list.get(0), session.getCurrentMediaItem());
                             playerStateLatch.countDown();
                         }
@@ -490,6 +489,7 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
             // MP2 doesn't call onCurrentMediaItemChanged when setDataSource while it is in idle
             // state. To catch the event, we should monitor player state instead.
             session.setPlaylist(list, null);
+            session.prepare();
             assertTrue(playerStateLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
             session.setPlaylist(list2, null);
