@@ -104,6 +104,7 @@ public class ToolbarFragmentPagerMenu extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                 @Nullable Bundle savedInstanceState) {
+            if (container == null) throw new IllegalStateException();
             TextView textView = new TextView(container.getContext());
 
             textView.setText(getClass().getSimpleName());
@@ -146,6 +147,7 @@ public class ToolbarFragmentPagerMenu extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                 @Nullable Bundle savedInstanceState) {
+            if (container == null) throw new IllegalStateException();
             TextView textView = new TextView(container.getContext());
 
             textView.setText(getClass().getSimpleName());

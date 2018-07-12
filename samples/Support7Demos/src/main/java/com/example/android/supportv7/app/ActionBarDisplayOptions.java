@@ -111,7 +111,7 @@ public class ActionBarDisplayOptions extends AppCompatActivity
                         newGravity = Gravity.LEFT;
                         break;
                 }
-                lp.gravity = lp.gravity & ~Gravity.HORIZONTAL_GRAVITY_MASK | newGravity;
+                lp.gravity = (lp.gravity & ~Gravity.HORIZONTAL_GRAVITY_MASK) | newGravity;
                 bar.setCustomView(mCustomView, lp);
                 return;
             }

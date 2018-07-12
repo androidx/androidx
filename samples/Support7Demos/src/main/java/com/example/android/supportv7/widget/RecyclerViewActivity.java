@@ -91,7 +91,7 @@ public class RecyclerViewActivity extends Activity {
     /**
      * A basic ListView-style LayoutManager.
      */
-    class MyLayoutManager extends RecyclerView.LayoutManager {
+    static class MyLayoutManager extends RecyclerView.LayoutManager {
 
         private static final String TAG = "MyLayoutManager";
 

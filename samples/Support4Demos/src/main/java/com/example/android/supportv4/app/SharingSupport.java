@@ -29,8 +29,10 @@ import com.example.android.supportv4.R;
 import com.example.android.supportv4.content.SharingSupportProvider;
 
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 /**
  * This example illustrates the use of the ShareCompat feature of the support library.
@@ -72,7 +74,8 @@ public class SharingSupport extends Activity {
         try {
             // This file will be accessed by the target of the share through
             // the ContentProvider SharingSupportProvider.
-            FileWriter fw = new FileWriter(getFilesDir() + "/foo.txt");
+            Writer fw = new OutputStreamWriter(new FileOutputStream(getFilesDir() + "/foo.txt"),
+                    "UTF-8");
             fw.write("This is a file share");
             fw.close();
 
@@ -91,11 +94,12 @@ public class SharingSupport extends Activity {
         try {
             // These files will be accessed by the target of the share through
             // the ContentProvider SharingSupportProvider.
-            FileWriter fw = new FileWriter(getFilesDir() + "/foo.txt");
+            Writer fw = new OutputStreamWriter(new FileOutputStream(getFilesDir() + "/foo.txt"),
+                    "UTF-8");
             fw.write("This is a file share");
             fw.close();
 
-            fw = new FileWriter(getFilesDir() + "/bar.txt");
+            fw = new OutputStreamWriter(new FileOutputStream(getFilesDir() + "/bar.txt"), "UTF-8");
             fw.write("This is another file share");
             fw.close();
 

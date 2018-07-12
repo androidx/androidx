@@ -247,7 +247,7 @@ public class MusicPlayerFragment extends PlaybackFragment implements
         try {
             byte[] bytes = new byte[inputStream.available()];
             inputStream.read(bytes, 0, bytes.length);
-            String json = new String(bytes);
+            String json = new String(bytes, "UTF-8");
             return json;
         } catch (IOException e) {
             return null;

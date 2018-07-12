@@ -168,7 +168,7 @@ public class SlidingPaneLayoutActivity extends Activity {
     /**
      * Stub action bar helper; this does nothing.
      */
-    private class ActionBarHelper {
+    private static class ActionBarHelper {
         public void init() {}
         public void onPanelClosed() {}
         public void onPanelOpened() {}

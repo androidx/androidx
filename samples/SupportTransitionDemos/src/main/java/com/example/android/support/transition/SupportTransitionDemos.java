@@ -70,7 +70,7 @@ public class SupportTransitionDemos extends ListActivity {
         if (prefix.equals("")) {
             prefixPath = null;
         } else {
-            prefixPath = prefix.split("/");
+            prefixPath = prefix.split("/", -1);
             prefixWithSlash = prefix + "/";
         }
 
@@ -84,7 +84,7 @@ public class SupportTransitionDemos extends ListActivity {
 
             if (prefixWithSlash.length() == 0 || label.startsWith(prefixWithSlash)) {
 
-                String[] labelPath = label.split("/");
+                String[] labelPath = label.split("/", -1);
 
                 String nextLabel = prefixPath == null ? labelPath[0] : labelPath[prefixPath.length];
 

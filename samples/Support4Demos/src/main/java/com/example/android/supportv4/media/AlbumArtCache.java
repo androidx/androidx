@@ -94,7 +94,7 @@ public final class AlbumArtCache {
 
         new AsyncTask<Void, Void, Bitmap[]>() {
             @Override
-            protected Bitmap[] doInBackground(Void[] objects) {
+            protected Bitmap[] doInBackground(Void... objects) {
                 Bitmap[] bitmaps;
                 try {
                     Bitmap bitmap = BitmapHelper.fetchAndRescaleBitmap(artUrl,

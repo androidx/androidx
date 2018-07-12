@@ -112,4 +112,7 @@ public class MediaIDHelper {
         String[] parentHierarchy = Arrays.copyOf(hierarchy, hierarchy.length-1);
         return createMediaID(null, parentHierarchy);
     }
+
+    private MediaIDHelper() {
+    }
 }

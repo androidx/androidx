@@ -17,6 +17,8 @@
 package com.example.android.supportv13;
 
 public class Cheeses {
+    private Cheeses() {
+    }
 
     public static final String[] sCheeseStrings = {
             "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",

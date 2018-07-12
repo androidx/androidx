@@ -45,6 +45,15 @@ class Item {
                 && this.text.equals(item.text);
     }
 
+    @Override
+    public int hashCode() {
+        int result = 0;
+        result = result * 17 + id;
+        result = result * 17 + text.hashCode();
+        result = result * 17 + bgColor;
+        return result;
+    }
+
     static final DiffUtil.ItemCallback<Item> DIFF_CALLBACK = new DiffUtil.ItemCallback<Item>() {
         @Override
         public boolean areContentsTheSame(@NonNull Item oldItem, @NonNull Item newItem) {

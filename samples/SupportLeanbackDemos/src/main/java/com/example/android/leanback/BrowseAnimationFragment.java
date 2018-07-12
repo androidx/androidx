@@ -303,7 +303,7 @@ public class BrowseAnimationFragment extends
         return new ListRow(header, listRowAdapter);
     }
 
-    private final class ItemViewClickedListener implements OnItemViewClickedListener {
+    private static final class ItemViewClickedListener implements OnItemViewClickedListener {
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {

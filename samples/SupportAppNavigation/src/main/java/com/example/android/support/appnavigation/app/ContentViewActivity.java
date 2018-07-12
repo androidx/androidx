@@ -35,7 +35,7 @@ public class ContentViewActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_view);
 
-        ActionBarCompat.setDisplayHomeAsUpEnabled(this, true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {

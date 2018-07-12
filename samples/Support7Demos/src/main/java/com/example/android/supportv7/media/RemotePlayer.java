@@ -458,7 +458,7 @@ public class RemotePlayer extends Player {
             if (sessionId != null && sessionStatus != null) {
                 result += "sessionId=" + sessionId + ", sessionStatus=" + sessionStatus;
             }
-            if (itemId != null & itemStatus != null) {
+            if (itemId != null && itemStatus != null) {
                 result += (result.isEmpty() ? "" : ", ")
                         + "itemId=" + itemId + ", itemStatus=" + itemStatus;
             }

@@ -53,7 +53,7 @@ class EmojiRepo {
     private static void read(Context context) throws IOException {
         final InputStream inputStream = context.getAssets().open("emojis.txt");
         try {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             final StringBuilder stringBuilder = new StringBuilder();
             final StringBuilder codepointBuilder = new StringBuilder();
             List<Integer> codepointsList;
@@ -69,7 +69,7 @@ class EmojiRepo {
                 codepointsList = new ArrayList<>();
 
                 // emoji codepoints are space separated: i.e. 0x1f1e6 0x1f1e8
-                final String[] split = s.split(" ");
+                final String[] split = s.split(" ", -1);
 
                 for (int index = 0; index < split.length; index++) {
                     final String part = split[index].trim();

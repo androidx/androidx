@@ -469,7 +469,7 @@ public class MediaSessionService extends Service {
                 new MediaPlayer.OnBufferingUpdateListener() {
                     @Override
                     public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                        mBufferedProgress = getDuration() * percent / 100;
+                        mBufferedProgress = (long) getDuration() * percent / 100;
                         PlaybackStateCompat.Builder builder = createPlaybackStateBuilder(
                                 PlaybackStateCompat.STATE_BUFFERING);
                         builder.setBufferedPosition(mBufferedProgress);
@@ -862,7 +862,7 @@ public class MediaSessionService extends Service {
             // record end time stamp for previous rewind operation.
             mRewindEndTime = SystemClock.elapsedRealtime();
             long position = mRewindStartPosition
-                    + (long) mRewindSpeedFactors[mRewindSpeedFactorIndex - 1] * (
+                    + ((long) mRewindSpeedFactors[mRewindSpeedFactorIndex - 1]) * (
                     mRewindEndTime - mRewindStartTime);
             if (DEBUG) {
                 Log.e(TAG, "Last Rewind Operation Position" + position);
@@ -914,7 +914,7 @@ public class MediaSessionService extends Service {
             mRewindEndTime = SystemClock.elapsedRealtime();
 
             long position = mRewindStartPosition
-                    + (long) mRewindSpeedFactors[mRewindSpeedFactorIndex ] * (
+                    + ((long) mRewindSpeedFactors[mRewindSpeedFactorIndex]) * (
                     mRewindEndTime - mRewindStartTime);
 
             // Seek to the computed position for seamless playing.

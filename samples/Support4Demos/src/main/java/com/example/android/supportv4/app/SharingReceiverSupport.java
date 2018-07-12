@@ -71,7 +71,7 @@ public class SharingReceiverSupport extends Activity {
             txt.append("Share included stream " + i + ": " + uri + "\n");
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(
-                        getContentResolver().openInputStream(uri)));
+                        getContentResolver().openInputStream(uri), "UTF-8"));
                 try {
                     txt.append(reader.readLine() + "\n");
                 } catch (IOException e) {

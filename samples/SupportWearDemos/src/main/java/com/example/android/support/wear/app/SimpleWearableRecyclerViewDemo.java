@@ -45,7 +45,7 @@ public class SimpleWearableRecyclerViewDemo extends Activity {
         wrv.setEdgeItemsCenteringEnabled(true);
     }
 
-    private class ViewHolder extends RecyclerView.ViewHolder {
+    private static class ViewHolder extends RecyclerView.ViewHolder {
         TextView mView;
         ViewHolder(TextView itemView) {
             super(itemView);
@@ -53,7 +53,7 @@ public class SimpleWearableRecyclerViewDemo extends Activity {
         }
     }
 
-    private class DemoAdapter extends WearableRecyclerView.Adapter<ViewHolder> {
+    private static class DemoAdapter extends WearableRecyclerView.Adapter<ViewHolder> {
         private static final int ITEM_COUNT = 100;
 
         @Override
