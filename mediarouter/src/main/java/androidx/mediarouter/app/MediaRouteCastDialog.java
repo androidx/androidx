@@ -43,6 +43,7 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.util.ObjectsCompat;
@@ -81,6 +82,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
     final MediaRouter.RouteInfo mRoute;
+    private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
 
     Context mContext;
     private boolean mCreated;
@@ -165,6 +167,37 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         return mMediaController == null ? null : mMediaController.getSessionToken();
     }
 
+    /**
+     * Gets the media route selector for filtering the routes that the user can select.
+     *
+     * @return The selector, never null.
+     */
+    @NonNull
+    public MediaRouteSelector getRouteSelector() {
+        return mSelector;
+    }
+
+    /**
+     * Sets the media route selector for filtering the routes that the user can select.
+     *
+     * @param selector The selector, must not be null.
+     */
+    public void setRouteSelector(@NonNull MediaRouteSelector selector) {
+        if (selector == null) {
+            throw new IllegalArgumentException("selector must not be null");
+        }
+
+        if (!mSelector.equals(selector)) {
+            mSelector = selector;
+
+            if (mAttachedToWindow) {
+                mRouter.removeCallback(mCallback);
+                mRouter.addCallback(selector, mCallback,
+                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -222,8 +255,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         super.onAttachedToWindow();
         mAttachedToWindow = true;
 
-        mRouter.addCallback(MediaRouteSelector.EMPTY, mCallback,
-                MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS);
+        mRouter.addCallback(mSelector, mCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
         setMediaSession(mRouter.getMediaSessionToken());
     }
 

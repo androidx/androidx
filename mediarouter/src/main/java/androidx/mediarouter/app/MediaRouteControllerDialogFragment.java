@@ -26,6 +26,7 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
+import androidx.mediarouter.media.MediaRouteSelector;
 
 /**
  * Media route controller dialog fragment.
@@ -35,12 +36,15 @@ import androidx.fragment.app.DialogFragment;
  * </p>
  */
 public class MediaRouteControllerDialogFragment extends DialogFragment {
+    private static final String ARGUMENT_SELECTOR = "selector";
     // Intermediate constant for development purpose
     // TODO: Remove this before official release
     private static final boolean USE_SUPPORT_DYNAMIC_GROUP =
             Log.isLoggable("UseSupportDynamicGroup", Log.DEBUG);
 
     private Dialog mDialog;
+    private MediaRouteSelector mSelector;
+
     /**
      * Creates a media route controller dialog fragment.
      * <p>
@@ -49,6 +53,62 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      */
     public MediaRouteControllerDialogFragment() {
         setCancelable(true);
+    }
+
+    /**
+     * Gets the media route selector for filtering the routes that the user can select.
+     *
+     * @return The selector, never null.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public MediaRouteSelector getRouteSelector() {
+        ensureRouteSelector();
+        return mSelector;
+    }
+
+    private void ensureRouteSelector() {
+        if (mSelector == null) {
+            Bundle args = getArguments();
+            if (args != null) {
+                mSelector = MediaRouteSelector.fromBundle(args.getBundle(ARGUMENT_SELECTOR));
+            }
+            if (mSelector == null) {
+                mSelector = MediaRouteSelector.EMPTY;
+            }
+        }
+    }
+
+    /**
+     * Sets the media route selector for filtering the routes that the user can select.
+     * This method must be called before the fragment is added.
+     *
+     * @param selector The selector to set.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setRouteSelector(MediaRouteSelector selector) {
+        if (selector == null) {
+            throw new IllegalArgumentException("selector must not be null");
+        }
+
+        ensureRouteSelector();
+        if (!mSelector.equals(selector)) {
+            mSelector = selector;
+
+            Bundle args = getArguments();
+            if (args == null) {
+                args = new Bundle();
+            }
+            args.putBundle(ARGUMENT_SELECTOR, selector.asBundle());
+            setArguments(args);
+
+            if (mDialog != null) {
+                if (USE_SUPPORT_DYNAMIC_GROUP) {
+                    ((MediaRouteCastDialog) mDialog).setRouteSelector(selector);
+                }
+            }
+        }
     }
 
     /**
@@ -75,6 +135,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (USE_SUPPORT_DYNAMIC_GROUP) {
             mDialog = onCreateCastDialog(getContext());
+            ((MediaRouteCastDialog) mDialog).setRouteSelector(mSelector);
         } else {
             mDialog = onCreateControllerDialog(getContext(), savedInstanceState);
         }
