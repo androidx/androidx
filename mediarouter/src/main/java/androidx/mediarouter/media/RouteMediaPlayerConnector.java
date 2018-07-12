@@ -24,18 +24,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.collection.SimpleArrayMap;
-import androidx.media2.BaseMediaPlayer;
-import androidx.media2.BaseMediaPlayer.PlayerEventCallback;
-import androidx.media2.BaseRemoteMediaPlayer;
+import androidx.media2.BaseRemoteMediaPlayerConnector;
 import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaPlayerConnector;
+import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
 import androidx.media2.MediaSession2;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import java.util.concurrent.Executor;
 
 /**
- * RouteMediaPlayer is the abstract class representing playback happens on the outside of the
- * device through {@link MediaRouter}
+ * RouteMediaPlayerConnector is the abstract class representing playback happens on the outside of
+ * the device through {@link MediaRouter}
  * <p>
  * If you use this to the {@link MediaSession2} followings would happen.
  * <ul>
@@ -44,7 +44,7 @@ import java.util.concurrent.Executor;
  *         volume</li>
  * </ul>
  */
-public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
+public abstract class RouteMediaPlayerConnector extends BaseRemoteMediaPlayerConnector {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Object mLock = new Object();
 
@@ -185,7 +185,8 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
      * Notifies the current data source. Call this API when the current data soruce is changed.
      * <p>
      * Registered {@link PlayerEventCallback} would receive this event through the
-     * {@link PlayerEventCallback#onCurrentDataSourceChanged(BaseMediaPlayer, DataSourceDesc2)}.
+     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
+     * .
      */
     public final void notifyCurrentDataSourceChanged() {
         notifyCurrentDataSourceChanged(getCurrentDataSource());
@@ -196,7 +197,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
      * played next (i.e. playback reached the end of the list of sources to play).
      * <p>
      * Registered {@link PlayerEventCallback} would receive this event through the
-     * {@link PlayerEventCallback#onCurrentDataSourceChanged(BaseMediaPlayer, DataSourceDesc2)}
+     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
      * with {@code null} {@link DataSourceDesc2}.
      */
     public final void notifyPlaybackCompleted() {
@@ -211,7 +212,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onCurrentDataSourceChanged(RouteMediaPlayer.this, dsd);
+                    callback.onCurrentDataSourceChanged(RouteMediaPlayerConnector.this, dsd);
                 }
             });
         }
@@ -221,7 +222,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
      * Notifies that a data source is prepared.
      * <p>
      * Registered {@link PlayerEventCallback} would receive this event through the
-     * {@link PlayerEventCallback#onCurrentDataSourceChanged(BaseMediaPlayer, DataSourceDesc2)}
+     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
      * with {@code null} {@link DataSourceDesc2}.
      *
      * @param dsd prepared dsd
@@ -234,7 +235,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onMediaPrepared(RouteMediaPlayer.this, dsd);
+                    callback.onMediaPrepared(RouteMediaPlayerConnector.this, dsd);
                 }
             });
         }
@@ -244,7 +245,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
      * Notifies the current player state. Call this API when the current player state is changed.
      * <p>
      * Registered {@link PlayerEventCallback} would receive this event through the
-     * {@link PlayerEventCallback#onPlayerStateChanged(BaseMediaPlayer, int)}.
+     * {@link PlayerEventCallback#onPlayerStateChanged(MediaPlayerConnector, int)}.
      */
     public final void notifyPlayerStateChanged() {
         SimpleArrayMap<PlayerEventCallback, Executor> callbacks = getCallbacks();
@@ -255,7 +256,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onPlayerStateChanged(RouteMediaPlayer.this, state);
+                    callback.onPlayerStateChanged(RouteMediaPlayerConnector.this, state);
                 }
             });
         }
@@ -265,7 +266,8 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
      * Notifies that buffering state of a data source is changed.
      * <p>
      * Registered {@link PlayerEventCallback} would receive this event through the
-     * {@link PlayerEventCallback#onBufferingStateChanged(BaseMediaPlayer, DataSourceDesc2, int)}.
+     * {@link PlayerEventCallback#onBufferingStateChanged(MediaPlayerConnector, DataSourceDesc2,
+     * int)}.
      *
      * @param dsd dsd to notify
      * @param state new buffering state
@@ -279,7 +281,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onBufferingStateChanged(RouteMediaPlayer.this, dsd, state);
+                    callback.onBufferingStateChanged(RouteMediaPlayerConnector.this, dsd, state);
                 }
             });
         }
@@ -290,7 +292,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
      * changed.
      * <p>
      * Registered {@link PlayerEventCallback} would receive this event through the
-     * {@link PlayerEventCallback#onPlaybackSpeedChanged(BaseMediaPlayer, float)}.
+     * {@link PlayerEventCallback#onPlaybackSpeedChanged(MediaPlayerConnector, float)}.
      */
     public final void notifyPlaybackSpeedChanged() {
         SimpleArrayMap<PlayerEventCallback, Executor> callbacks = getCallbacks();
@@ -301,7 +303,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onPlaybackSpeedChanged(RouteMediaPlayer.this, speed);
+                    callback.onPlaybackSpeedChanged(RouteMediaPlayerConnector.this, speed);
                 }
             });
         }
@@ -311,7 +313,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
      * Notifies that buffering state of a data source is changed.
      * <p>
      * Registered {@link PlayerEventCallback} would receive this event through the
-     * {@link PlayerEventCallback#onSeekCompleted(BaseMediaPlayer, long)}
+     * {@link PlayerEventCallback#onSeekCompleted(MediaPlayerConnector, long)}
      *
      * @param position seek position. May be differ with the position specified by
      *                 {@link #seekTo(long)}.
@@ -324,7 +326,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onSeekCompleted(RouteMediaPlayer.this, position);
+                    callback.onSeekCompleted(RouteMediaPlayerConnector.this, position);
                 }
             });
         }
@@ -348,7 +350,7 @@ public abstract class RouteMediaPlayer extends BaseRemoteMediaPlayer {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        callback.onPlayerVolumeChanged(RouteMediaPlayer.this, volume);
+                        callback.onPlayerVolumeChanged(RouteMediaPlayerConnector.this, volume);
                     }
                 });
             }

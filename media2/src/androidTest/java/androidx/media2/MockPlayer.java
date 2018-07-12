@@ -25,9 +25,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 /**
- * A mock implementation of {@link BaseMediaPlayer} for testing.
+ * A mock implementation of {@link MediaPlayerConnector} for testing.
  */
-public class MockPlayer extends BaseMediaPlayer {
+public class MockPlayer extends MediaPlayerConnector {
     public final CountDownLatch mCountDownLatch;
     public final boolean mChangePlayerStateWithTransportControl;
 
@@ -62,7 +62,7 @@ public class MockPlayer extends BaseMediaPlayer {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
         mVolume = getMaxPlayerVolume();
         mChangePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
-        // This prevents MS2#play() from triggering BaseMediaPlayer#prepare().
+        // This prevents MS2#play() from triggering MediaPlayerConnector#prepare().
         mLastPlayerState = PLAYER_STATE_PAUSED;
 
         // Sets default audio attributes to prevent setVolume() from being called with the play().

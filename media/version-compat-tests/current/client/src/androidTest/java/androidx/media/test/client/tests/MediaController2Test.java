@@ -53,7 +53,7 @@ import android.support.mediacompat.testlib.util.PollingCheck;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
-import androidx.media2.BaseMediaPlayer;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaItem2;
@@ -240,8 +240,8 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGettersAfterConnected() throws InterruptedException {
         prepareLooper();
-        final int state = BaseMediaPlayer.PLAYER_STATE_PLAYING;
-        final int bufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int state = MediaPlayerConnector.PLAYER_STATE_PLAYING;
+        final int bufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_COMPLETE;
         final long position = 150000;
         final long bufferedPosition = 900000;
         final float speed = 0.5f;

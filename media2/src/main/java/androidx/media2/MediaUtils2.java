@@ -510,17 +510,17 @@ class MediaUtils2 {
 
     static int convertToPlaybackStateCompatState(int playerState, int bufferingState) {
         switch (playerState) {
-            case BaseMediaPlayer.PLAYER_STATE_PLAYING:
+            case MediaPlayerConnector.PLAYER_STATE_PLAYING:
                 switch (bufferingState) {
-                    case BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED:
+                    case MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_STARVED:
                         return PlaybackStateCompat.STATE_BUFFERING;
                 }
                 return PlaybackStateCompat.STATE_PLAYING;
-            case BaseMediaPlayer.PLAYER_STATE_PAUSED:
+            case MediaPlayerConnector.PLAYER_STATE_PAUSED:
                 return PlaybackStateCompat.STATE_PAUSED;
-            case BaseMediaPlayer.PLAYER_STATE_IDLE:
+            case MediaPlayerConnector.PLAYER_STATE_IDLE:
                 return PlaybackStateCompat.STATE_NONE;
-            case BaseMediaPlayer.PLAYER_STATE_ERROR:
+            case MediaPlayerConnector.PLAYER_STATE_ERROR:
                 return PlaybackStateCompat.STATE_ERROR;
         }
         // For unknown value
@@ -530,13 +530,13 @@ class MediaUtils2 {
     static int convertToPlayerState(int playbackStateCompatState) {
         switch (playbackStateCompatState) {
             case PlaybackStateCompat.STATE_ERROR:
-                return BaseMediaPlayer.PLAYER_STATE_ERROR;
+                return MediaPlayerConnector.PLAYER_STATE_ERROR;
             case PlaybackStateCompat.STATE_NONE:
-                return BaseMediaPlayer.PLAYER_STATE_IDLE;
+                return MediaPlayerConnector.PLAYER_STATE_IDLE;
             case PlaybackStateCompat.STATE_PAUSED:
             case PlaybackStateCompat.STATE_STOPPED:
             case PlaybackStateCompat.STATE_BUFFERING: // means paused for buffering.
-                return BaseMediaPlayer.PLAYER_STATE_PAUSED;
+                return MediaPlayerConnector.PLAYER_STATE_PAUSED;
             case PlaybackStateCompat.STATE_FAST_FORWARDING:
             case PlaybackStateCompat.STATE_PLAYING:
             case PlaybackStateCompat.STATE_REWINDING:
@@ -544,20 +544,20 @@ class MediaUtils2 {
             case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
             case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
             case PlaybackStateCompat.STATE_CONNECTING: // Note: there's no perfect match for this.
-                return BaseMediaPlayer.PLAYER_STATE_PLAYING;
+                return MediaPlayerConnector.PLAYER_STATE_PLAYING;
         }
-        return BaseMediaPlayer.PLAYER_STATE_ERROR;
+        return MediaPlayerConnector.PLAYER_STATE_ERROR;
     }
 
     // Note: there's no perfect match for this.
     static int toBufferingState(int playbackStateCompatState) {
         switch (playbackStateCompatState) {
             case PlaybackStateCompat.STATE_BUFFERING:
-                return BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED;
+                return MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_STARVED;
             case PlaybackStateCompat.STATE_PLAYING:
-                return BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE;
+                return MediaPlayerConnector.BUFFERING_STATE_BUFFERING_COMPLETE;
             default:
-                return BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
+                return MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
         }
     }
 

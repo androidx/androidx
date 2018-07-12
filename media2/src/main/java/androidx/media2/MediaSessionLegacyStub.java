@@ -237,7 +237,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onStop() {
-        // Here, we don't call BaseMediaPlayer#reset() since it may result removing
+        // Here, we don't call MediaPlayerConnector#reset() since it may result removing
         // all callbacks from the player. Instead, we pause and seek to zero.
         // Here, we check both permissions: Pause / SeekTo.
         if (mSession.isClosed()) {
@@ -772,7 +772,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
             // no-op. Calling MediaSessionCompat#setPlaybackToLocal/Remote
-            // is already done in updatePlayer().
+            // is already done in updatePlayerConnector().
         }
 
         @Override

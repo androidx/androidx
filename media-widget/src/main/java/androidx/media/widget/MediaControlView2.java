@@ -66,8 +66,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.media2.BaseMediaPlayer;
 import androidx.media2.MediaController2;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.SessionCommand2;
@@ -2364,7 +2364,7 @@ public class MediaControlView2 extends BaseLayout {
         }
         @Override
         public boolean isPlaying() {
-            return mPlaybackState == BaseMediaPlayer.PLAYER_STATE_PLAYING;
+            return mPlaybackState == MediaPlayerConnector.PLAYER_STATE_PLAYING;
         }
         @Override
         public long getCurrentPosition() {
@@ -2480,7 +2480,7 @@ public class MediaControlView2 extends BaseLayout {
         class MediaControllerCallback extends MediaController2.ControllerCallback {
             @Override
             public void onPlayerStateChanged(@NonNull MediaController2 controller,
-                    @BaseMediaPlayer.PlayerState int state) {
+                    @MediaPlayerConnector.PlayerState int state) {
                 if (DEBUG) {
                     Log.d(TAG, "onPlayerStateChanged(state: " + state + ")");
                 }
@@ -2492,7 +2492,7 @@ public class MediaControlView2 extends BaseLayout {
                 //   2) Need to handle case where the media file reaches end of duration.
                 if (mPlaybackState != mPrevState) {
                     switch (mPlaybackState) {
-                        case BaseMediaPlayer.PLAYER_STATE_PLAYING:
+                        case MediaPlayerConnector.PLAYER_STATE_PLAYING:
                             mPlayPauseButton.setImageDrawable(
                                     mResources.getDrawable(
                                             R.drawable.ic_pause_circle_filled, null));
@@ -2503,7 +2503,7 @@ public class MediaControlView2 extends BaseLayout {
                             resetHideCallbacks();
                             mIsStopped = false;
                             break;
-                        case BaseMediaPlayer.PLAYER_STATE_PAUSED:
+                        case MediaPlayerConnector.PLAYER_STATE_PAUSED:
                             mPlayPauseButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
                             mPlayPauseButton.setContentDescription(

@@ -17,10 +17,10 @@
 package androidx.media2;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_ERROR;
-import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_IDLE;
-import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_PAUSED;
-import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_PLAYING;
+import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_ERROR;
+import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_IDLE;
+import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_PAUSED;
+import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_PLAYING;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -149,8 +149,8 @@ public class AudioFocusHandler {
         }
 
         private AudioAttributesCompat getAudioAttributesNotLocked() {
-            BaseMediaPlayer player = mSession.getPlayer();
-            return (player == null || player instanceof BaseRemoteMediaPlayer)
+            MediaPlayerConnector player = mSession.getPlayerConnector();
+            return (player == null || player instanceof BaseRemoteMediaPlayerConnector)
                     ? null : player.getAudioAttributes();
         }
 
@@ -171,7 +171,7 @@ public class AudioFocusHandler {
                 }
             }
             if (attrs == null) {
-                final BaseMediaPlayer player = mSession.getPlayer();
+                final MediaPlayerConnector player = mSession.getPlayerConnector();
                 if (player != null) {
                     player.setPlayerVolume(0);
                 }
@@ -189,9 +189,9 @@ public class AudioFocusHandler {
         /**
          * Check we need to abandon/request audio focus when playback state becomes playing. It's
          * needed to handle following cases.
-         *   1. Audio attribute has changed between {@link BaseMediaPlayer#play} and actual start
-         *      of playback. Note that {@link MediaPlayer2} only allows changing audio attributes
-         *      in IDLE state, so such issue wouldn't happen.
+         *   1. Audio attribute has changed between {@link MediaPlayerConnector#play} and actual
+         *      start of playback. Note that {@link MediaPlayer2} only allows changing audio
+         *      attributes in IDLE state, so such issue wouldn't happen.
          *   2. Or, playback is started without MediaSession2#play().
          * <p>
          * If there's no huge issue, then register noisy intent receiver here.
@@ -236,7 +236,7 @@ public class AudioFocusHandler {
             }
             if (attrs == null) {
                 // If attributes becomes null (i.e. no sound)
-                final BaseMediaPlayer player = mSession.getPlayer();
+                final MediaPlayerConnector player = mSession.getPlayerConnector();
                 if (player != null) {
                     player.setPlayerVolume(0);
                 }
@@ -466,7 +466,7 @@ public class AudioFocusHandler {
                         case AudioAttributesCompat.USAGE_GAME:
                             // Noisy intent guide says 'For gaming apps, you may choose to
                             // significantly lower the volume instead'.
-                            BaseMediaPlayer player = mSession.getPlayer();
+                            MediaPlayerConnector player = mSession.getPlayerConnector();
                             if (player != null) {
                                 player.setPlayerVolume(player.getPlayerVolume()
                                         * VOLUME_DUCK_FACTOR);
@@ -503,7 +503,7 @@ public class AudioFocusHandler {
                             }
                             mSession.play();
                         } else {
-                            BaseMediaPlayer player = mSession.getPlayer();
+                            MediaPlayerConnector player = mSession.getPlayerConnector();
                             if (player != null) {
                                 // Resets the volume if the user didn't change it.
                                 final float currentVolume = player.getPlayerVolume();
@@ -541,7 +541,7 @@ public class AudioFocusHandler {
                         if (pause) {
                             mSession.pause();
                         } else {
-                            BaseMediaPlayer player = mSession.getPlayer();
+                            MediaPlayerConnector player = mSession.getPlayerConnector();
                             if (player != null) {
                                 // Lower the volume by the factor
                                 final float currentVolume = player.getPlayerVolume();

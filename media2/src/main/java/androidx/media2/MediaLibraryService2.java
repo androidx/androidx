@@ -234,7 +234,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             }
 
             @Override
-            public @NonNull Builder setPlayer(@NonNull BaseMediaPlayer player) {
+            public @NonNull Builder setPlayer(@NonNull MediaPlayerConnector player) {
                 return super.setPlayer(player);
             }
 
@@ -266,14 +266,14 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             }
         }
 
-        MediaLibrarySession(Context context, String id, BaseMediaPlayer player,
+        MediaLibrarySession(Context context, String id, MediaPlayerConnector player,
                 MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
                 Executor callbackExecutor, MediaSession2.SessionCallback callback) {
             super(context, id, player, playlistAgent, sessionActivity, callbackExecutor, callback);
         }
 
         @Override
-        SupportLibraryImpl createImpl(Context context, String id, BaseMediaPlayer player,
+        SupportLibraryImpl createImpl(Context context, String id, MediaPlayerConnector player,
                 MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
                 Executor callbackExecutor, MediaSession2.SessionCallback callback) {
             return new MediaLibrarySessionImplBase(this, context, id, player, playlistAgent,

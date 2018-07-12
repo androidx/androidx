@@ -28,7 +28,7 @@ import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.MockRemotePlayer;
 import androidx.media.test.service.RemoteMediaController2;
-import androidx.media2.BaseRemoteMediaPlayer;
+import androidx.media2.BaseRemoteMediaPlayerConnector;
 import androidx.media2.MediaSession2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.test.filters.SdkSuppress;
@@ -43,7 +43,8 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests whether the methods of {@link BaseRemoteMediaPlayer} are triggered by the controller.
+ * Tests whether the methods of {@link BaseRemoteMediaPlayerConnector} are triggered by the
+ * controller.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
@@ -89,11 +90,11 @@ public class BaseRemoteMediaPlayerTest extends MediaSession2TestBase {
         prepareLooper();
         final float maxVolume = 100;
         final float currentVolume = 23;
-        final int volumeControlType = BaseRemoteMediaPlayer.VOLUME_CONTROL_ABSOLUTE;
+        final int volumeControlType = BaseRemoteMediaPlayerConnector.VOLUME_CONTROL_ABSOLUTE;
         MockRemotePlayer remotePlayer = new MockRemotePlayer(
                 volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(remotePlayer, null);
+        mSession.updatePlayerConnector(remotePlayer, null);
 
         final int targetVolume = 50;
         mController2.setVolumeTo(targetVolume, 0 /* flags */);
@@ -108,12 +109,12 @@ public class BaseRemoteMediaPlayerTest extends MediaSession2TestBase {
         prepareLooper();
         final float maxVolume = 100.0f;
         final float currentVolume = 23.0f;
-        final int volumeControlType = BaseRemoteMediaPlayer.VOLUME_CONTROL_ABSOLUTE;
+        final int volumeControlType = BaseRemoteMediaPlayerConnector.VOLUME_CONTROL_ABSOLUTE;
 
         MockRemotePlayer remotePlayer = new MockRemotePlayer(
                 volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayer(remotePlayer, null);
+        mSession.updatePlayerConnector(remotePlayer, null);
 
         final int direction = AudioManager.ADJUST_RAISE;
         mController2.adjustVolume(direction, 0 /* flags */);
