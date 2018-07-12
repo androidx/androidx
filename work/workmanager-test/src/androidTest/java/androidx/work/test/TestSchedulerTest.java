@@ -20,10 +20,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
+
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
-
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -86,7 +86,7 @@ public class TestSchedulerTest {
     }
 
     @Test
-    public void testTestWorkerWithConstraintsShouldSucceedAfterSetConstraints() {
+    public void testTestWorkerWithConstraints_succeedAfterSetConstraints() {
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
@@ -94,6 +94,16 @@ public class TestSchedulerTest {
         assertThat(requestStatus.getState().isFinished(), is(false));
         mTestDriver.setAllConstraintsMet(request.getId());
         requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+        assertThat(requestStatus.getState().isFinished(), is(true));
+    }
+
+    @Test
+    public void testTestWorkerWithConstraints_succeedAfterSetConstraints_beforeEnqueue() {
+        OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
+        mTestDriver.setAllConstraintsMet(request.getId());
+        WorkManager workManager = WorkManager.getInstance();
+        workManager.enqueue(request);
+        WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
         assertThat(requestStatus.getState().isFinished(), is(true));
     }
 
