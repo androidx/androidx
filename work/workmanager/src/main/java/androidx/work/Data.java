@@ -19,6 +19,7 @@ package androidx.work;
 import android.arch.persistence.room.TypeConverter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 import java.io.ByteArrayInputStream;
@@ -291,7 +292,9 @@ public final class Data {
      * @return The byte array representation of the input
      * @throws IllegalStateException if the serialized payload is bigger than
      *         {@link #MAX_DATA_BYTES}
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
     public static @NonNull byte[] toByteArray(@NonNull Data data) throws IllegalStateException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -333,7 +336,9 @@ public final class Data {
      * @param bytes The byte array representation to convert
      * @return An {@link Data} object built from the input
      * @throws IllegalStateException if bytes is bigger than {@link #MAX_DATA_BYTES}
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
     public static @NonNull Data fromByteArray(@NonNull byte[] bytes) throws IllegalStateException {
         if (bytes.length > MAX_DATA_BYTES) {
