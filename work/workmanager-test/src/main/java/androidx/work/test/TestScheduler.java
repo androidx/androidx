@@ -47,10 +47,12 @@ class TestScheduler implements Scheduler, ExecutionListener {
     private static final String TAG = "TestScheduler";
 
     private final Map<String, WorkSpec> mWorkSpecs;
+    private final Map<String, Boolean> mConstraintsMet;
 
     private static final Object sLock = new Object();
 
     TestScheduler() {
+        mConstraintsMet = new HashMap<>();
         mWorkSpecs = new HashMap<>();
     }
 
@@ -64,8 +66,8 @@ class TestScheduler implements Scheduler, ExecutionListener {
             for (WorkSpec workSpec : workSpecs) {
                 mWorkSpecs.put(workSpec.id, workSpec);
             }
+            scheduleInternal(Arrays.asList(workSpecs));
         }
-        scheduleInternal(Arrays.asList(workSpecs), true);
     }
 
     @Override
@@ -83,9 +85,10 @@ class TestScheduler implements Scheduler, ExecutionListener {
      */
     void setAllConstraintsMet(@NonNull UUID workSpecId) {
         synchronized (sLock) {
+            mConstraintsMet.put(workSpecId.toString(), true);
             WorkSpec workSpec = mWorkSpecs.get(workSpecId.toString());
             if (workSpec != null) {
-                scheduleInternal(Collections.singletonList(workSpec), false);
+                scheduleInternal(Collections.singletonList(workSpec));
             }
         }
     }
@@ -97,16 +100,16 @@ class TestScheduler implements Scheduler, ExecutionListener {
             boolean needsReschedule) {
 
         synchronized (sLock) {
+            mConstraintsMet.remove(workSpecId);
             mWorkSpecs.remove(workSpecId);
         }
     }
 
-    private static void scheduleInternal(
-            Collection<WorkSpec> workSpecs,
-            boolean enforcingConstraints) {
-
+    private void scheduleInternal(Collection<WorkSpec> workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
-            if (!enforcingConstraints || !workSpec.hasConstraints()) {
+            Boolean constraintsMet = mConstraintsMet.get(workSpec.id);
+            constraintsMet = constraintsMet == null ? false : constraintsMet;
+            if (constraintsMet || !workSpec.hasConstraints()) {
                 if (workSpec.isPeriodic()) {
                     Log.w(TAG, String.format(
                             "Worker (%s) is Periodic. %s will only run once when testing.",
