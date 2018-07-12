@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.ViewGroup;
 
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatDialog;
@@ -45,7 +46,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     }
 
     public MediaRouteCastDialog(Context context, int theme) {
-        super(context, theme);
+        super(context = MediaRouterThemeHelper.createThemedDialogContext(context, theme, false),
+                MediaRouterThemeHelper.createThemedDialogStyle(context));
     }
 
     @Override
@@ -53,5 +55,17 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_cast_dialog);
+
+        updateLayout();
+    }
+
+    /**
+     * Sets the width of the dialog. Also called when configuration changes.
+     */
+    // TODO: Support different size for tablets(use MediaRouteDialogHelper)
+    void updateLayout() {
+        // Set layout width and height to MATCH_PARENT to make full screen dialog
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
     }
 }
