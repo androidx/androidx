@@ -120,6 +120,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     int mTargetState = STATE_IDLE;
     int mCurrentState = STATE_IDLE;
     long mSeekWhenPrepared;  // recording the seek position while preparing
+    float mSpeed;
 
     int mVideoWidth;
     int mVideoHeight;
@@ -169,6 +170,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                             .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                             .build();
                 }
+                if (mSpeed != mMediaSession.getPlaybackSpeed()) {
+                    mMediaSession.setPlaybackSpeed(mSpeed);
+                }
                 if (localPlaybackState == STATE_PLAYING) {
                     mMediaSession.play();
                 }
@@ -207,6 +211,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mVideoWidth = 0;
         mVideoHeight = 0;
         mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
+        mSpeed = 1.0f;
 
         mAudioAttributes = new AudioAttributesCompat.Builder()
                 .setUsage(AudioAttributesCompat.USAGE_MEDIA)
@@ -335,13 +340,15 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     /**
      * Returns {@link SessionToken2} so that developers create their own
      * {@link androidx.media2.MediaController2} instance. This method should be called when
-     * VideoView2 is attached to window, or it throws IllegalStateException.
+     * VideoView2 is attached to window or after {@link #setMediaItem2} is called.
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
     @Override
     public SessionToken2 getMediaSessionToken2() {
-        checkMediaSession();
+        if (mMediaSession == null) {
+            throw new IllegalStateException("MediaSession2 instance is not available.");
+        }
         return mMediaSession.getToken();
     }
 
@@ -384,8 +391,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             Log.e(TAG, "Unsupported speed (" + speed + ") is ignored.");
             return;
         }
-        checkMediaSession();
-        mMediaSession.setPlaybackSpeed(speed);
+        mSpeed = speed;
+        if (isMediaPrepared()) {
+            mMediaSession.setPlaybackSpeed(speed);
+        }
     }
 
     /**
@@ -396,8 +405,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     @Override
     public float getSpeed() {
-        checkMediaSession();
-        return mMediaSession.getPlaybackSpeed();
+        return mSpeed;
     }
 
     /**
@@ -679,12 +687,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     ///////////////////////////////////////////////////
     // Protected or private methods
     ///////////////////////////////////////////////////
-    private void checkMediaSession() {
-        if (mMediaSession == null) {
-            throw new IllegalStateException("MediaSession instance is not available.");
-        }
-    }
-
     private void attachMediaControlView() {
         // Get MediaController from MediaSession and set it inside MediaControlView
         mMediaControlView.setMediaSessionToken2(mMediaSession.getToken());
@@ -694,7 +696,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mInstance.addView(mMediaControlView, params);
     }
 
-    private boolean isInPlaybackState() {
+    private boolean isMediaPrepared() {
         return mMediaSession != null
                 && mMediaSession.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_ERROR
                 && mMediaSession.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_IDLE;
@@ -750,6 +752,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
                         mMediaSession.getPlaylistAgent());
             }
+            mMediaSession.setPlaylist(mPlayList, null);
 
             final Context context = mInstance.getContext();
             mSubtitleController = new SubtitleController(context);
@@ -757,7 +760,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
             mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleAnchorView);
 
-            mMediaSession.setPlaylist(mPlayList, null);
 
             // we don't set the target state here either, but preserve the
             // target state that was there before.
@@ -794,7 +796,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     private void selectOrDeselectSubtitle(boolean select) {
-        if (!isInPlaybackState()) {
+        if (!isMediaPrepared()) {
             return;
         }
         if (select) {
@@ -1082,6 +1084,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         extractTracks();
                         extractMetadata();
                         sendMetadata();
+                        if (mSpeed != mMediaSession.getPlaybackSpeed()) {
+                            mMediaSession.setPlaybackSpeed(mSpeed);
+                        }
                     }
 
                     if (mMediaControlView != null) {
@@ -1235,7 +1240,18 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         @Override
         public void onMediaPrepared(@NonNull MediaSession2 session,
                 @NonNull BaseMediaPlayer player, @NonNull MediaItem2 item) {
-            Log.d(TAG, "onMediaPrepared() is called.");
+            if (DEBUG) {
+                Log.d(TAG, "onMediaPrepared() is called.");
+            }
+        }
+
+        @Override
+        public void onPlaybackSpeedChanged(@NonNull MediaSession2 session,
+                 @NonNull BaseMediaPlayer player, float speed) {
+            if (DEBUG) {
+                Log.d(TAG, "onPlaybackSpeedChanged is called. Speed: " + speed);
+            }
+            mSpeed = speed;
         }
     }
 }
