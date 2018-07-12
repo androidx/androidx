@@ -60,8 +60,8 @@ function runTest() {
 
   # Run the tests
   local test_command="adb shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
-  local client_test_runner="android.support.mediacompat.client.test/android.support.test.runner.AndroidJUnitRunner"
-  local service_test_runner="android.support.mediacompat.service.test/android.support.test.runner.AndroidJUnitRunner"
+  local client_test_runner="android.support.mediacompat.client.test/androidx.test.runner.AndroidJUnitRunner"
+  local service_test_runner="android.support.mediacompat.service.test/androidx.test.runner.AndroidJUnitRunner"
 
   echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Started: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION <<<<<<<<<<<<<<<<<<<<<<<<"
 
