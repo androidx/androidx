@@ -98,7 +98,7 @@ public class FirebaseJobServiceTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
