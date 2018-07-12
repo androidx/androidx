@@ -107,7 +107,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     Executor mCallbackExecutor;
 
     private WindowManager mManager;
-    View mMusicView;
+    View mCurrentMusicView;
+    View mMusicFullLandscapeView;
+    View mMusicFullPortraitView;
+    View mMusicEmbeddedView;
     private Drawable mMusicAlbumDrawable;
     private String mMusicTitleText;
     private String mMusicArtistText;
@@ -240,6 +243,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mSubtitleAnchorView.setLayoutParams(params);
         mSubtitleAnchorView.setBackgroundColor(0);
         mInstance.addView(mSubtitleAnchorView);
+
+        LayoutInflater inflater = (LayoutInflater) mInstance.getContext()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mMusicFullLandscapeView = inflater.inflate(R.layout.full_landscape_music, null);
+        mMusicFullPortraitView = inflater.inflate(R.layout.full_portrait_music, null);
+        mMusicEmbeddedView = inflater.inflate(R.layout.embedded_music, null);
 
         boolean enableControlView = (attrs == null) || attrs.getAttributeBooleanValue(
                 "http://schemas.android.com/apk/res-auto",
@@ -585,18 +594,16 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         if (mIsMusicMediaType) {
             int currWidth = mInstance.getMeasuredWidth();
             int currHeight = mInstance.getMeasuredHeight();
-            if (mPrevWidth != currWidth || mPrevHeight != currHeight) {
+            if (mPrevWidth != currWidth) {
                 Point screenSize = new Point();
                 mManager.getDefaultDisplay().getSize(screenSize);
                 int screenWidth = screenSize.x;
-                int screenHeight = screenSize.y;
-
-                if (currWidth == screenWidth && currHeight == screenHeight) {
+                if (currWidth == screenWidth) {
                     int orientation = retrieveOrientation();
                     if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                        inflateMusicView(R.layout.full_landscape_music);
+                        updateCurrentMusicView(mMusicFullLandscapeView);
                     } else {
-                        inflateMusicView(R.layout.full_portrait_music);
+                        updateCurrentMusicView(mMusicFullPortraitView);
                     }
 
                     if (mSizeType != SIZE_TYPE_FULL) {
@@ -605,7 +612,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 } else {
                     if (mSizeType != SIZE_TYPE_EMBEDDED) {
                         mSizeType = SIZE_TYPE_EMBEDDED;
-                        inflateMusicView(R.layout.embedded_music);
+                        updateCurrentMusicView(mMusicEmbeddedView);
                     }
                 }
                 mPrevWidth = currWidth;
@@ -891,8 +898,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 @Override
                 public void onGenerated(Palette palette) {
                     mDominantColor = palette.getDominantColor(0);
-                    if (mMusicView != null) {
-                        mMusicView.setBackgroundColor(mDominantColor);
+                    if (mCurrentMusicView != null) {
+                        mCurrentMusicView.setBackgroundColor(mDominantColor);
                     }
                 }
             });
@@ -919,7 +926,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         // Display Embedded mode as default
         mInstance.removeView(mSurfaceView);
         mInstance.removeView(mTextureView);
-        inflateMusicView(R.layout.embedded_music);
+        updateCurrentMusicView(mMusicEmbeddedView);
     }
 
     void sendMetadata() {
@@ -950,31 +957,27 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
     }
 
-    private void inflateMusicView(int layoutId) {
-        mInstance.removeView(mMusicView);
+    private void updateCurrentMusicView(View newMusicView) {
+        newMusicView.setBackgroundColor(mDominantColor);
 
-        LayoutInflater inflater = (LayoutInflater) mInstance.getContext()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(layoutId, null);
-        v.setBackgroundColor(mDominantColor);
-
-        ImageView albumView = v.findViewById(R.id.album);
+        ImageView albumView = newMusicView.findViewById(R.id.album);
         if (albumView != null) {
             albumView.setImageDrawable(mMusicAlbumDrawable);
         }
 
-        TextView titleView = v.findViewById(R.id.title);
+        TextView titleView = newMusicView.findViewById(R.id.title);
         if (titleView != null) {
             titleView.setText(mMusicTitleText);
         }
 
-        TextView artistView = v.findViewById(R.id.artist);
+        TextView artistView = newMusicView.findViewById(R.id.artist);
         if (artistView != null) {
             artistView.setText(mMusicArtistText);
         }
 
-        mMusicView = v;
-        mInstance.addView(mMusicView, 0);
+        mInstance.removeView(mCurrentMusicView);
+        mInstance.addView(newMusicView, 0);
+        mCurrentMusicView = newMusicView;
     }
 
     MediaPlayer2.EventCallback mMediaPlayer2Callback =
