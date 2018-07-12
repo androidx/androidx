@@ -22,6 +22,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 
 /**
  * The constraints that can be applied to one {@link WorkRequest}.
@@ -49,6 +50,10 @@ public final class Constraints {
     @ColumnInfo(name = "content_uri_triggers")
     private @Nullable ContentUriTriggers mContentUriTriggers;
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Constraints() { // stub required for room
     }
 

@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Stores a set of {@link Trigger}s
+ * Stores a set of {@link Trigger}s.
  */
 public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> {
 
@@ -72,7 +72,6 @@ public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Tri
     /**
      * Defines a content {@link Uri} trigger for a {@link WorkRequest}
      */
-
     public static final class Trigger {
         private final @NonNull Uri mUri;
         private final boolean mTriggerForDescendants;
@@ -82,12 +81,15 @@ public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Tri
             mTriggerForDescendants = triggerForDescendants;
         }
 
+        /**
+         * @return The {@link Uri} associated with this trigger
+         */
         public @NonNull Uri getUri() {
             return mUri;
         }
 
         /**
-         * @return {@code true} if trigger applies to descendants of {@link Uri} also
+         * @return {@code true} if trigger also applies to descendants of the Uri
          */
         public boolean shouldTriggerForDescendants() {
             return mTriggerForDescendants;
