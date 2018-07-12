@@ -185,6 +185,18 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
                 (pagedList.snapshot() as SnapshotPagedList<Item>).dataSource)
     }
 
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun loadAroundNegative() {
+        val pagedList = createCountedPagedList(0)
+        pagedList.loadAround(-1)
+    }
+
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun loadAroundTooLarge() {
+        val pagedList = createCountedPagedList(0)
+        pagedList.loadAround(pagedList.size)
+    }
+
     private fun verifyCallback(
         callback: PagedList.Callback,
         countedPosition: Int,
@@ -269,23 +281,6 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
 
         verifyRange(10, 80, pagedList)
         verifyCallback(callback, 10, 0)
-        verifyNoMoreInteractions(callback)
-    }
-
-    @Test
-    fun multiAppend() {
-        val pagedList = createCountedPagedList(0)
-        val callback = mock(PagedList.Callback::class.java)
-        pagedList.addWeakCallback(null, callback)
-        verifyRange(0, 40, pagedList)
-        verifyZeroInteractions(callback)
-
-        pagedList.loadAround(55)
-        drain()
-
-        verifyRange(0, 80, pagedList)
-        verifyCallback(callback, 40)
-        verifyCallback(callback, 60)
         verifyNoMoreInteractions(callback)
     }
 

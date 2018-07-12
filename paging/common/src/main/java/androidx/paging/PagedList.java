@@ -414,6 +414,10 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * @param index Index at which to load.
      */
     public void loadAround(int index) {
+        if (index < 0 || index >= size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size());
+        }
+
         mLastLoad = index + getPositionOffset();
         loadAroundInternal(index);
 
