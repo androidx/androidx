@@ -38,7 +38,6 @@ import android.util.SparseArray;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController2.PlaybackInfo;
@@ -50,7 +49,6 @@ import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -85,6 +83,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ConnectedControllersManager<IBinder> mConnectedControllersManager;
+
     final Object mLock = new Object();
 
     final MediaSession2.SupportLibraryImpl mSession;
@@ -93,53 +94,17 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ArrayMap<IBinder, ControllerInfo> mControllers = new ArrayMap<>();
-    @GuardedBy("mLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Set<IBinder> mConnectingControllers = new HashSet<>();
-    @GuardedBy("mLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
-            new ArrayMap<>();
 
     MediaSession2Stub(MediaSession2.SupportLibraryImpl session) {
         mSession = session;
         mContext = mSession.getContext();
         mSessionManager = MediaSessionManager.getSessionManager(mContext);
+        mConnectedControllersManager = new ConnectedControllersManager<>(session);
     }
 
-    List<ControllerInfo> getConnectedControllers() {
-        ArrayList<ControllerInfo> controllers = new ArrayList<>();
-        synchronized (mLock) {
-            for (int i = 0; i < mControllers.size(); i++) {
-                controllers.add(mControllers.valueAt(i));
-            }
-        }
-        return controllers;
-    }
-
-    void setAllowedCommands(ControllerInfo controller, final SessionCommandGroup2 commands) {
-        synchronized (mLock) {
-            mAllowedCommandGroupMap.put(controller, commands);
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean isAllowedCommand(ControllerInfo controller, SessionCommand2 command) {
-        SessionCommandGroup2 allowedCommands;
-        synchronized (mLock) {
-            allowedCommands = mAllowedCommandGroupMap.get(controller);
-        }
-        return allowedCommands != null && allowedCommands.hasCommand(command);
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean isAllowedCommand(ControllerInfo controller, int commandCode) {
-        SessionCommandGroup2 allowedCommands;
-        synchronized (mLock) {
-            allowedCommands = mAllowedCommandGroupMap.get(controller);
-        }
-        return allowedCommands != null && allowedCommands.hasCommand(commandCode);
+    ConnectedControllersManager<IBinder> getConnectedControllersManager() {
+        return mConnectedControllersManager;
     }
 
     private void onSessionCommand(@NonNull IMediaController2 caller, final int commandCode,
@@ -156,29 +121,26 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     private void onSessionCommandInternal(@NonNull IMediaController2 caller,
             @Nullable final SessionCommand2 sessionCommand, final int commandCode,
             @NonNull final SessionRunnable runnable) {
-        final ControllerInfo controller;
-        synchronized (mLock) {
-            controller = caller == null ? null : mControllers.get(caller.asBinder());
-        }
+        final ControllerInfo controller = mConnectedControllersManager.getController(
+                caller == null ? null : caller.asBinder());
         if (mSession.isClosed() || controller == null) {
             return;
         }
         mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                synchronized (mLock) {
-                    if (!mControllers.containsValue(controller)) {
-                        return;
-                    }
+                if (!mConnectedControllersManager.isConnected(controller)) {
+                    return;
                 }
                 SessionCommand2 command;
                 if (sessionCommand != null) {
-                    if (!isAllowedCommand(controller, sessionCommand)) {
+                    if (!mConnectedControllersManager.isAllowedCommand(
+                            controller, sessionCommand)) {
                         return;
                     }
                     command = sCommandsForOnCommandRequest.get(sessionCommand.getCommandCode());
                 } else {
-                    if (!isAllowedCommand(controller, commandCode)) {
+                    if (!mConnectedControllersManager.isAllowedCommand(controller, commandCode)) {
                         return;
                     }
                     command = sCommandsForOnCommandRequest.get(commandCode);
@@ -218,35 +180,6 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         onSessionCommandInternal(caller, null, commandCode, runnable);
     }
 
-    void removeControllerInfo(ControllerInfo controller) {
-        synchronized (mLock) {
-            controller = mControllers.remove(
-                    ((Controller2Cb) controller.getControllerCb()).getCallbackBinder());
-            if (DEBUG) {
-                Log.d(TAG, "releasing " + controller);
-            }
-        }
-    }
-
-    private void releaseController(IMediaController2 iController) {
-        final ControllerInfo controller;
-        synchronized (mLock) {
-            controller = mControllers.remove(iController.asBinder());
-            if (DEBUG) {
-                Log.d(TAG, "releasing " + controller);
-            }
-        }
-        if (mSession.isClosed() || controller == null) {
-            return;
-        }
-        mSession.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                mSession.getCallback().onDisconnected(mSession.getInstance(), controller);
-            }
-        });
-    }
-
     //////////////////////////////////////////////////////////////////////////////////////////////
     // AIDL methods for session overrides
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,12 +198,13 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 if (mSession.isClosed()) {
                     return;
                 }
+                final IBinder callbackBinder = ((Controller2Cb) controllerInfo.getControllerCb())
+                        .getCallbackBinder();
                 synchronized (mLock) {
                     // Keep connecting controllers.
                     // This helps sessions to call APIs in the onConnect()
                     // (e.g. setCustomLayout()) instead of pending them.
-                    mConnectingControllers.add(
-                            ((Controller2Cb) controllerInfo.getControllerCb()).getCallbackBinder());
+                    mConnectingControllers.add(callbackBinder);
                 }
                 SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
                         mSession.getInstance(), controllerInfo);
@@ -289,11 +223,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         allowedCommands = new SessionCommandGroup2();
                     }
                     synchronized (mLock) {
-                        IBinder callbackBinder = ((Controller2Cb) controllerInfo.getControllerCb())
-                                .getCallbackBinder();
                         mConnectingControllers.remove(callbackBinder);
-                        mControllers.put(callbackBinder, controllerInfo);
-                        mAllowedCommandGroupMap.put(controllerInfo, allowedCommands);
+                        mConnectedControllersManager.addController(
+                                callbackBinder, controllerInfo, allowedCommands);
                     }
                     // If connection is accepted, notify the current state to the controller.
                     // It's needed because we cannot call synchronous calls between
@@ -337,8 +269,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     }
                 } else {
                     synchronized (mLock) {
-                        mConnectingControllers.remove(((Controller2Cb)
-                                controllerInfo.getControllerCb()).getCallbackBinder());
+                        mConnectingControllers.remove(callbackBinder);
                     }
                     if (DEBUG) {
                         Log.d(TAG, "Rejecting connection, controllerInfo=" + controllerInfo);
@@ -356,7 +287,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void release(final IMediaController2 caller) throws RemoteException {
-        releaseController(caller);
+        mConnectedControllersManager.removeController(caller == null ? null : caller.asBinder());
     }
 
     @Override
