@@ -655,6 +655,9 @@ public class AudioAttributesCompat implements VersionedParcelable {
         public static final int STREAM_SYSTEM_ENFORCED = 7;
         public static final int STREAM_TTS = 9;
         public static final int STREAM_ACCESSIBILITY = 10;
+
+        private AudioManagerHidden() {
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */

@@ -58,6 +58,7 @@ class AudioAttributesImplBase implements AudioAttributesImpl {
 
     //////////////////////////////////////////////////////////////////////
     // Implements AudioAttributesImpl interface
+    @Override
     public Object getAudioAttributes() {
         return null;
     }
