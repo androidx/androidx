@@ -17,6 +17,8 @@
 package com.example.android.supportv4.media;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +27,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.RemoteException;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -47,6 +50,7 @@ import com.example.android.supportv4.media.utils.ResourceHelper;
 public class MediaNotificationManager extends BroadcastReceiver {
     private static final String TAG = "MediaNotiManager";
 
+    private static final String NOTIFICATION_CHANNEL_ID = "Support4Demos";
     private static final int NOTIFICATION_ID = 412;
     private static final int REQUEST_CODE = 100;
 
@@ -105,6 +109,17 @@ public class MediaNotificationManager extends BroadcastReceiver {
      */
     public void startNotification() {
         if (!mStarted) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationManager notificationManager =
+                        (NotificationManager) mService.getSystemService(
+                                Context.NOTIFICATION_SERVICE);
+                // Note: There's no compat library for notification channel, so use framework
+                //       library directly.
+                notificationManager.createNotificationChannel(
+                        new NotificationChannel(NOTIFICATION_CHANNEL_ID, TAG,
+                        NotificationManager.IMPORTANCE_DEFAULT));
+            }
+
             mMetadata = mController.getMetadata();
             mPlaybackState = mController.getPlaybackState();
 
@@ -140,6 +155,12 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 // ignore if the receiver is not registered.
             }
             mService.stopForeground(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationManager notificationManager =
+                        (NotificationManager) mService.getSystemService(
+                                Context.NOTIFICATION_SERVICE);
+                notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID);
+            }
         }
     }
 
@@ -236,7 +257,8 @@ public class MediaNotificationManager extends BroadcastReceiver {
             return null;
         }
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(mService);
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(mService, NOTIFICATION_CHANNEL_ID);
 
         // If skip to previous action is enabled
         if ((mPlaybackState.getActions() & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
