@@ -39,7 +39,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.mediarouter.R;
-import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -322,13 +321,10 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
             ArrayList<MediaRouter.RouteInfo> routeGroups = new ArrayList<>();
 
             // Find route consists of multiple devices and add them to routeGroups
-            for (int i = mRoutes.size(); i-- > 0; ) {
+            for (int i = mRoutes.size() - 1; i >= 0; i--) {
                 MediaRouter.RouteInfo route = mRoutes.get(i);
-                MediaRouteDescriptor descriptor = MediaRouteDescriptor.fromBundle(
-                        route.getUniqueRouteDescriptorBundle());
-                boolean isGroup = descriptor.getGroupMemberIds() != null;
 
-                if (isGroup) {
+                if (route instanceof MediaRouter.RouteGroup) {
                     routeGroups.add(route);
                     mRoutes.remove(i);
                 }

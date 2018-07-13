@@ -95,7 +95,9 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (mDialog != null) {
-            if (!USE_SUPPORT_DYNAMIC_GROUP) {
+            if (USE_SUPPORT_DYNAMIC_GROUP) {
+                ((MediaRouteCastDialog) mDialog).updateLayout();
+            } else {
                 ((MediaRouteControllerDialog) mDialog).updateLayout();
             }
         }
