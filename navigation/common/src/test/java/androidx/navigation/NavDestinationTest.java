@@ -20,8 +20,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import android.content.Context;
 import android.support.annotation.IdRes;
 
 import androidx.test.filters.SmallTest;
@@ -29,6 +32,8 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
@@ -40,6 +45,94 @@ public class NavDestinationTest {
     private static final int ACTION_ID = 1;
     @IdRes
     private static final int DESTINATION_ID = 1;
+
+    @Test
+    public void parseClassFromNameAbsolute() {
+        Context context = mock(Context.class);
+        Class clazz = NavDestination.parseClassFromName(context,
+                "java.lang.String", Object.class);
+        assertThat(clazz, not(is(nullValue())));
+        assertThat(clazz.getName(), is(String.class.getName()));
+    }
+
+    @Test
+    public void parseClassFromNameAbsoluteInvalid() {
+        Context context = mock(Context.class);
+        try {
+            NavDestination.parseClassFromName(context,
+                    "definitely.not.found", Object.class);
+            fail("Invalid type should cause an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void parseClassFromNameAbsoluteWithType() {
+        Context context = mock(Context.class);
+        Class clazz = NavDestination.parseClassFromName(context,
+                "java.lang.String", String.class);
+        assertThat(clazz, not(is(nullValue())));
+        assertThat(clazz.getName(), is(String.class.getName()));
+    }
+
+    @Test
+    public void parseClassFromNameAbsoluteWithIncorrectType() {
+        Context context = mock(Context.class);
+        try {
+            NavDestination.parseClassFromName(context,
+                    "java.lang.String", List.class);
+            fail("Incorrect type should cause an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void parseClassFromNameRelative() {
+        Context context = mock(Context.class);
+        when(context.getPackageName()).thenReturn("java.lang");
+        Class clazz = NavDestination.parseClassFromName(context,
+                ".String", Object.class);
+        assertThat(clazz, not(is(nullValue())));
+        assertThat(clazz.getName(), is(String.class.getName()));
+    }
+
+    @Test
+    public void parseClassFromNameRelativeInvalid() {
+        Context context = mock(Context.class);
+        when(context.getPackageName()).thenReturn("java.lang");
+        try {
+            NavDestination.parseClassFromName(context,
+                    ".definitely.not.found", Object.class);
+            fail("Invalid type should cause an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void parseClassFromNameRelativeWithType() {
+        Context context = mock(Context.class);
+        when(context.getPackageName()).thenReturn("java.lang");
+        Class clazz = NavDestination.parseClassFromName(context,
+                ".String", String.class);
+        assertThat(clazz, not(is(nullValue())));
+        assertThat(clazz.getName(), is(String.class.getName()));
+    }
+
+    @Test
+    public void parseClassFromNameRelativeWithIncorrectType() {
+        Context context = mock(Context.class);
+        when(context.getPackageName()).thenReturn("java.lang");
+        try {
+            NavDestination.parseClassFromName(context,
+                    ".String", List.class);
+            fail("Incorrect type should cause an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
 
     @Test
     public void buildDeepLinkIds() {
