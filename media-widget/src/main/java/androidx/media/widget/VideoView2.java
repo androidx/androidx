@@ -96,6 +96,9 @@ import java.util.Map;
  * does not restore the current play state, play position, selected tracks. Applications should save
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
+ * @attr ref androidx.media.widget.R.styleable#VideoView2_enableControlView
+ * @attr ref androidx.media.widget.R.styleable#VideoView2_enableSubtitle
+ * @attr ref androidx.media.widget.R.styleable#VideoView2_viewType
  */
 @TargetApi(Build.VERSION_CODES.P)
 @RequiresApi(21)  // It can be lowered, using MP1 and MS1, without guarantee subtitle feature.
@@ -231,9 +234,9 @@ public class VideoView2 extends BaseLayout {
     }
 
     /**
-     * Shows or hides closed caption or subtitles if there is any.
-     * The first subtitle track will be chosen if there multiple subtitle tracks exist.
-     * Default behavior of VideoView2 is not showing subtitle.
+     * Shows or hides closed caption or subtitles if there is any chosen subtitle.
+     * Choosing subtitle track should be done by {@link MediaControlView2}.
+     * Default behavior of VideoView2 is showing subtitle.
      * @param enable shows closed caption or subtitles if this value is true, or hides.
      */
     public void setSubtitleEnabled(boolean enable) {
