@@ -33,9 +33,10 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
 class RawQueryMethodProcessor(
-        baseContext: Context,
-        val containing: DeclaredType,
-        val executableElement: ExecutableElement) {
+    baseContext: Context,
+    val containing: DeclaredType,
+    val executableElement: ExecutableElement
+) {
     val context = baseContext.fork(executableElement)
     fun process(): RawQueryMethod {
         val types = context.processingEnv.typeUtils
@@ -91,8 +92,8 @@ class RawQueryMethodProcessor(
                         ).process()
                         arrayListOf(entity.tableName)
                     } else {
-                        val pojo = PojoProcessor(
-                                baseContext = context,
+                        val pojo = PojoProcessor.createFor(
+                                context = context,
                                 element = it,
                                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                                 parent = null

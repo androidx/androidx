@@ -276,17 +276,6 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun customNamePrefixedWithSqlite() {
-        singleEntity("""
-                @PrimaryKey
-                int x;
-                """, hashMapOf(Pair("tableName", "\"sqlite_mytable\""))) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE
-        )
-    }
-
-    @Test
     fun emptyCustomName() {
         singleEntity("""
                 @PrimaryKey
