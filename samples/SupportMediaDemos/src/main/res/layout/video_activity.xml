@@ -31,7 +31,6 @@
         android:layout_height="300dp"
         android:layout_centerInParent="true"
         widget:enableControlView="false"
-        widget:enableSubtitle="true"
         widget:viewType="textureView"
     />
 
