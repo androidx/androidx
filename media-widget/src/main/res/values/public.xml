@@ -18,6 +18,5 @@
 <!-- Definitions of attributes to be exposed as public -->
 <resources>
     <public type="attr" name="enableControlView" />
-    <public type="attr" name="enableSubtitle" />
     <public type="attr" name="viewType" />
 </resources>

@@ -57,7 +57,6 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
     int mSelectedSubtitleTrackIndex;
 
     private SubtitleAnchorView mSubtitleAnchorView;
-    private boolean mSubtitleEnabled;
 
     @Override
     public void initialize(
@@ -72,34 +71,6 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
         mSubtitleAnchorView.setLayoutParams(params);
         mSubtitleAnchorView.setBackgroundColor(0);
         mInstance.addView(mSubtitleAnchorView);
-
-        mSubtitleEnabled = (attrs == null) || attrs.getAttributeBooleanValue(
-                "http://schemas.android.com/apk/res/android",
-                "enableSubtitle", false);
-    }
-
-    /**
-     * Shows or hides closed caption or subtitles if there is any.
-     * The first subtitle track will be chosen if there multiple subtitle tracks exist.
-     * Default behavior of VideoView2 is not showing subtitle.
-     * @param enable shows closed caption or subtitles if this value is true, or hides.
-     */
-    @Override
-    public void setSubtitleEnabled(boolean enable) {
-        if (enable != mSubtitleEnabled) {
-            selectOrDeselectSubtitle(enable);
-        }
-        mSubtitleEnabled = enable;
-    }
-
-    /**
-     * Returns true if showing subtitle feature is enabled or returns false.
-     * Although there is no subtitle track or closed caption, it can return true, if the feature
-     * has been enabled by {@link #setSubtitleEnabled}.
-     */
-    @Override
-    public boolean isSubtitleEnabled() {
-        return mSubtitleEnabled;
     }
 
     ///////////////////////////////////////////////////
@@ -120,26 +91,6 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
         mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleAnchorView);
 
         mMediaPlayer.setOnSubtitleDataListener(mSubtitleListener);
-    }
-
-    private void selectOrDeselectSubtitle(boolean select) {
-        if (!isInPlaybackState()) {
-            return;
-        }
-        if (select) {
-            if (mSubtitleTrackIndices.size() > 0) {
-                mSelectedSubtitleTrackIndex = mSubtitleTrackIndices.get(0).first;
-                mSubtitleController.selectTrack(mSubtitleTrackIndices.get(0).second);
-                mMediaPlayer.selectTrack(mSelectedSubtitleTrackIndex);
-                mSubtitleAnchorView.setVisibility(View.VISIBLE);
-            }
-        } else {
-            if (mSelectedSubtitleTrackIndex != INVALID_TRACK_INDEX) {
-                mMediaPlayer.deselectTrack(mSelectedSubtitleTrackIndex);
-                mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
-                mSubtitleAnchorView.setVisibility(View.GONE);
-            }
-        }
     }
 
     @Override
@@ -174,9 +125,6 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
         data.putInt(MediaControlView2.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
         data.putInt(MediaControlView2.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
         data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTrackIndices.size());
-        if (mSubtitleTrackIndices.size() > 0) {
-            selectOrDeselectSubtitle(mSubtitleEnabled);
-        }
         mMediaSession.sendSessionEvent(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, data);
     }
 
@@ -210,20 +158,44 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
 
     @Override
     protected void doShowSubtitleCommand(Bundle args) {
-        int subtitleIndex = args.getInt(
+        int subtitleIndex = args != null ? args.getInt(
                 MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
-                INVALID_TRACK_INDEX);
+                INVALID_TRACK_INDEX) : INVALID_TRACK_INDEX;
         if (subtitleIndex != INVALID_TRACK_INDEX) {
             int subtitleTrackIndex = mSubtitleTrackIndices.get(subtitleIndex).first;
             if (subtitleTrackIndex != mSelectedSubtitleTrackIndex) {
-                mSelectedSubtitleTrackIndex = subtitleTrackIndex;
-                mInstance.setSubtitleEnabled(true);
+                selectSubtitleTrack(subtitleTrackIndex);
             }
         }
     }
 
     @Override
     protected void doHideSubtitleCommand() {
-        mInstance.setSubtitleEnabled(false);
+        deselectSubtitleTrack();
+    }
+
+    private void selectSubtitleTrack(int trackIndex) {
+        if (!isInPlaybackState()) {
+            return;
+        }
+        for (Pair<Integer, SubtitleTrack> p : mSubtitleTrackIndices) {
+            if (p.first == trackIndex) {
+                mMediaPlayer.selectTrack(trackIndex);
+                SubtitleTrack track = p.second;
+                mSubtitleController.selectTrack(track);
+                mSelectedSubtitleTrackIndex = trackIndex;
+                mSubtitleAnchorView.setVisibility(View.VISIBLE);
+                break;
+            }
+        }
+    }
+
+    private void deselectSubtitleTrack() {
+        if (!isInPlaybackState() || mSelectedSubtitleTrackIndex == INVALID_TRACK_INDEX) {
+            return;
+        }
+        mMediaPlayer.deselectTrack(mSelectedSubtitleTrackIndex);
+        mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
+        mSubtitleAnchorView.setVisibility(View.GONE);
     }
 }

@@ -97,7 +97,6 @@ import java.util.Map;
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
  * @attr ref androidx.media.widget.R.styleable#VideoView2_enableControlView
- * @attr ref androidx.media.widget.R.styleable#VideoView2_enableSubtitle
  * @attr ref androidx.media.widget.R.styleable#VideoView2_viewType
  */
 @TargetApi(Build.VERSION_CODES.P)
@@ -231,25 +230,6 @@ public class VideoView2 extends BaseLayout {
      */
     public SessionToken2 getMediaSessionToken2() {
         return mImpl.getMediaSessionToken2();
-    }
-
-    /**
-     * Shows or hides closed caption or subtitles if there is any chosen subtitle.
-     * Choosing subtitle track should be done by {@link MediaControlView2}.
-     * Default behavior of VideoView2 is showing subtitle.
-     * @param enable shows closed caption or subtitles if this value is true, or hides.
-     */
-    public void setSubtitleEnabled(boolean enable) {
-        mImpl.setSubtitleEnabled(enable);
-    }
-
-    /**
-     * Returns true if showing subtitle feature is enabled or returns false.
-     * Although there is no subtitle track or closed caption, it can return true, if the feature
-     * has been enabled by {@link #setSubtitleEnabled}.
-     */
-    public boolean isSubtitleEnabled() {
-        return mImpl.isSubtitleEnabled();
     }
 
     /**

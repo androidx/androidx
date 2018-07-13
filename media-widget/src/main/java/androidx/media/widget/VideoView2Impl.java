@@ -91,21 +91,6 @@ interface VideoView2Impl {
     SessionToken2 getMediaSessionToken2();
 
     /**
-     * Shows or hides closed caption or subtitles if there is any.
-     * The first subtitle track will be chosen if there multiple subtitle tracks exist.
-     * Default behavior of VideoView2 is not showing subtitle.
-     * @param enable shows closed caption or subtitles if this value is true, or hides.
-     */
-    void setSubtitleEnabled(boolean enable);
-
-    /**
-     * Returns true if showing subtitle feature is enabled or returns false.
-     * Although there is no subtitle track or closed caption, it can return true, if the feature
-     * has been enabled by {@link #setSubtitleEnabled}.
-     */
-    boolean isSubtitleEnabled();
-
-    /**
      * Sets playback speed.
      *
      * It is expressed as a multiplicative factor, where normal speed is 1.0f. If it is less than
