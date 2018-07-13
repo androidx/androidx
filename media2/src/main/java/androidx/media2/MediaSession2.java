@@ -31,6 +31,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.KeyEvent;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -52,7 +53,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -79,6 +79,7 @@ import java.util.concurrent.RejectedExecutionException;
  * <li><a href="#SessionLifecycle">Session Lifecycle</a>
  * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
  * <li><a href="#Thread">Thread</a>
+ * <li><a href="#KeyEvents">Media key events mapping</a>
  * </ol>
  * <a name="SessionLifecycle"></a>
  * <h3>Session Lifecycle</h3>
@@ -149,7 +150,36 @@ import java.util.concurrent.RejectedExecutionException;
  * <h3>Thread</h3>
  * <p>
  * {@link MediaSession2} objects are thread safe, but should be used on the thread on the looper.
- *
+ * <a name="KeyEvents"></a>
+ * <h3>Media key events mapping</h3>
+ * <p>
+ * Here's the table of per key event.
+ * <table>
+ * <tr><th>Key code</th><th>{@link MediaSession2} API</th></tr>
+ * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_PLAY}</td>
+ *     <td>{@link MediaSession2#play()}</td></tr>
+ * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_PAUSE}</td>
+ *     <td>{@link MediaSession2#pause()}</td></tr>
+ * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_NEXT}</td>
+ *     <td>{@link MediaSession2#skipToNextItem()}</td></tr>
+ * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_PREVIOUS}</td>
+ *     <td>{@link MediaSession2#skipToPreviousItem()}</td></tr>
+ * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_STOP}</td>
+ *     <td>{@link MediaSession2#pause()} and then
+ *         {@link MediaSession2#seekTo(long)} with 0</td></tr>
+ * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_FAST_FORWARD}</td>
+ *     <td>{@link SessionCallback#onFastForward}</td></tr>
+ * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_REWIND}</td>
+ *     <td>{@link SessionCallback#onRewind}</td></tr>
+ * <tr><td><ul><li>{@link KeyEvent#KEYCODE_MEDIA_PLAY_PAUSE}</li>
+ *             <li>{@link KeyEvent#KEYCODE_HEADSETHOOK}</li></ul></td>
+ *     <td><ul><li>For a single tap
+ *             <ul><li>{@link MediaSession2#pause()} if
+ *             {@link MediaPlayerConnector#PLAYER_STATE_PLAYING}</li>
+ *             <li>{@link MediaSession2#play()} otherwise</li></ul>
+ *             <li>For a double tap, {@link MediaSession2#skipToNextItem()}</li></ul></td>
+ *     </td>
+ * </table>
  * @see MediaSessionService2
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)

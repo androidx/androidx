@@ -228,9 +228,16 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             }
         }
 
-        if (oldPlayer != null) {
-            // If it's not the first updatePlayerConnector(), tell changes in the player, agent, and
-            // playback info.
+        if (oldPlayer == null) {
+            // updatePlayerConnector() is called inside of the constructor.
+            // There's no connected controllers at this moment, so just initialize session compat's
+            // playback state. Otherwise, framework doesn't know whether this is ready to receive
+            // media key event.
+            mSessionCompat.setPlaybackState(createPlaybackStateCompat());
+        } else {
+            // updatePlayerConnector() is called by {@link MediaSession2#updatePlayer} to replace
+            // player connector. Tell connected controllers about the changes in the player
+            // connector, agent, and playback info.
             if (playlistAgent != oldPlaylistAgent) {
                 // Update agent first. Otherwise current position may be changed off the current
                 // media item's duration, and controller may consider it as a bug.
