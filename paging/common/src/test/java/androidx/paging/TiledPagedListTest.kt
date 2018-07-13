@@ -55,10 +55,13 @@ class TiledPagedListTest {
         }
     }
 
-    private fun createTiledPagedList(loadPosition: Int, initPageCount: Int,
-            prefetchDistance: Int = PAGE_SIZE,
-            listData: List<Item> = ITEMS,
-            boundaryCallback: PagedList.BoundaryCallback<Item>? = null): TiledPagedList<Item> {
+    private fun createTiledPagedList(
+        loadPosition: Int,
+        initPageCount: Int,
+        prefetchDistance: Int = PAGE_SIZE,
+        listData: List<Item> = ITEMS,
+        boundaryCallback: PagedList.BoundaryCallback<Item>? = null
+    ): TiledPagedList<Item> {
         return TiledPagedList(
                 ListDataSource(listData), mMainThread, mBackgroundThread, boundaryCallback,
                 PagedList.Config.Builder()
@@ -77,6 +80,18 @@ class TiledPagedListTest {
         // snapshot keeps same DataSource
         assertSame(pagedList.dataSource,
                 (pagedList.snapshot() as SnapshotPagedList<Item>).dataSource)
+    }
+
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun loadAroundNegative() {
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1)
+        pagedList.loadAround(-1)
+    }
+
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun loadAroundTooLarge() {
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1)
+        pagedList.loadAround(pagedList.size)
     }
 
     @Test
