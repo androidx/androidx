@@ -25,6 +25,7 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
+import org.mockito.Mockito.verifyZeroInteractions
 
 @RunWith(JUnit4::class)
 class PageKeyedDataSourceTest {
@@ -41,8 +42,9 @@ class PageKeyedDataSourceTest {
         private fun getPage(key: String): Page = data[key]!!
 
         override fun loadInitial(
-                params: LoadInitialParams<String>,
-                callback: LoadInitialCallback<String, Item>) {
+            params: LoadInitialParams<String>,
+            callback: LoadInitialCallback<String, Item>
+        ) {
             val page = getPage(INIT_KEY)
             callback.onResult(page.data, page.prev, page.next)
         }
@@ -80,13 +82,16 @@ class PageKeyedDataSourceTest {
         assertEquals(ITEM_LIST, pagedList)
     }
 
-    private fun performLoadInitial(invalidateDataSource: Boolean = false,
-            callbackInvoker:
-                    (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit) {
+    private fun performLoadInitial(
+        invalidateDataSource: Boolean = false,
+        callbackInvoker:
+                (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit
+    ) {
         val dataSource = object : PageKeyedDataSource<String, String>() {
             override fun loadInitial(
-                    params: LoadInitialParams<String>,
-                    callback: LoadInitialCallback<String, String>) {
+                params: LoadInitialParams<String>,
+                callback: LoadInitialCallback<String, String>
+            ) {
                 if (invalidateDataSource) {
                     // invalidate data source so it's invalid when onResult() called
                     invalidate()
@@ -95,14 +100,16 @@ class PageKeyedDataSourceTest {
             }
 
             override fun loadBefore(
-                    params: LoadParams<String>,
-                    callback: LoadCallback<String, String>) {
+                params: LoadParams<String>,
+                callback: LoadCallback<String, String>
+            ) {
                 fail("loadBefore not expected")
             }
 
             override fun loadAfter(
-                    params: LoadParams<String>,
-                    callback: LoadCallback<String, String>) {
+                params: LoadParams<String>,
+                callback: LoadCallback<String, String>
+            ) {
                 fail("loadAfter not expected")
             }
         }
@@ -159,6 +166,111 @@ class PageKeyedDataSourceTest {
         it.onResult(emptyList(), 0, 1, null, null)
     }
 
+    @Test
+    fun testBoundaryCallback() {
+        val dataSource = object : PageKeyedDataSource<String, String>() {
+            override fun loadInitial(
+                params: LoadInitialParams<String>,
+                callback: LoadInitialCallback<String, String>
+            ) {
+                callback.onResult(listOf("B"), "a", "c")
+            }
+
+            override fun loadBefore(
+                params: LoadParams<String>,
+                callback: LoadCallback<String, String>
+            ) {
+                assertEquals("a", params.key)
+                callback.onResult(listOf("A"), null)
+            }
+
+            override fun loadAfter(
+                params: LoadParams<String>,
+                callback: LoadCallback<String, String>
+            ) {
+                assertEquals("c", params.key)
+                callback.onResult(listOf("C"), null)
+            }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
+        val executor = TestExecutor()
+        val pagedList = ContiguousPagedList<String, String>(
+                dataSource,
+                executor,
+                executor,
+                boundaryCallback,
+                PagedList.Config.Builder()
+                        .setPageSize(10)
+                        .build(),
+                "",
+                ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
+        pagedList.loadAround(0)
+
+        verifyZeroInteractions(boundaryCallback)
+
+        executor.executeAll()
+
+        // verify boundary callbacks are triggered
+        verify(boundaryCallback).onItemAtFrontLoaded("A")
+        verify(boundaryCallback).onItemAtEndLoaded("C")
+        verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
+    fun testBoundaryCallbackJustInitial() {
+        val dataSource = object : PageKeyedDataSource<String, String>() {
+            override fun loadInitial(
+                params: LoadInitialParams<String>,
+                callback: LoadInitialCallback<String, String>
+            ) {
+                // just the one load, but boundary callbacks should still be triggered
+                callback.onResult(listOf("B"), null, null)
+            }
+
+            override fun loadBefore(
+                params: LoadParams<String>,
+                callback: LoadCallback<String, String>
+            ) {
+                fail("loadBefore not expected")
+            }
+
+            override fun loadAfter(
+                params: LoadParams<String>,
+                callback: LoadCallback<String, String>
+            ) {
+                fail("loadBefore not expected")
+            }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
+        val executor = TestExecutor()
+        val pagedList = ContiguousPagedList<String, String>(
+                dataSource,
+                executor,
+                executor,
+                boundaryCallback,
+                PagedList.Config.Builder()
+                        .setPageSize(10)
+                        .build(),
+                "",
+                ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
+        pagedList.loadAround(0)
+
+        verifyZeroInteractions(boundaryCallback)
+
+        executor.executeAll()
+
+        // verify boundary callbacks are triggered
+        verify(boundaryCallback).onItemAtFrontLoaded("B")
+        verify(boundaryCallback).onItemAtEndLoaded("B")
+        verifyNoMoreInteractions(boundaryCallback)
+    }
+
     private abstract class WrapperDataSource<K, A, B>(private val source: PageKeyedDataSource<K, A>)
             : PageKeyedDataSource<K, B>() {
         override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
@@ -177,11 +289,18 @@ class PageKeyedDataSourceTest {
             return source.isInvalid
         }
 
-        override fun loadInitial(params: LoadInitialParams<K>,
-                callback: LoadInitialCallback<K, B>) {
+        override fun loadInitial(
+            params: LoadInitialParams<K>,
+            callback: LoadInitialCallback<K, B>
+        ) {
             source.loadInitial(params, object : LoadInitialCallback<K, A>() {
-                override fun onResult(data: List<A>, position: Int, totalCount: Int,
-                        previousPageKey: K?, nextPageKey: K?) {
+                override fun onResult(
+                    data: List<A>,
+                    position: Int,
+                    totalCount: Int,
+                    previousPageKey: K?,
+                    nextPageKey: K?
+                ) {
                     callback.onResult(convert(data), position, totalCount,
                             previousPageKey, nextPageKey)
                 }
@@ -218,8 +337,9 @@ class PageKeyedDataSourceTest {
         }
     }
 
-    private fun verifyWrappedDataSource(createWrapper:
-            (PageKeyedDataSource<String, Item>) -> PageKeyedDataSource<String, String>) {
+    private fun verifyWrappedDataSource(
+        createWrapper: (PageKeyedDataSource<String, Item>) -> PageKeyedDataSource<String, String>
+    ) {
         // verify that it's possible to wrap a PageKeyedDataSource, and add info to its data
         val orig = ItemDataSource(data = PAGE_MAP)
         val wrapper = createWrapper(orig)
