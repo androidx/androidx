@@ -238,6 +238,8 @@ public class VideoView2Test {
                 any(MediaController2.class), any(SessionCommandGroup2.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
                 any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PAUSED));
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlaybackSpeedChanged(
+                any(MediaController2.class), eq(targetSpeed1));
         assertEquals(targetSpeed1, mController.getPlaybackSpeed(), 0.05f);
 
         final float targetSpeed2 = 0.5f;
