@@ -18,6 +18,12 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 19
+    }
+}
+
 supportLibrary {
     name = "Android TextClassifier Support Library"
     publish = false
@@ -25,6 +31,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.TEXTCLASSIFIER
     inceptionYear = "2018"
     description = "The TextClassifier Support Library can be added to an Android application in order to use the TextClassifier API introduced in Android O on all devices with API level 14 or later."
-    minSdkVersion = 19
     failOnUncheckedWarnings = false
 }

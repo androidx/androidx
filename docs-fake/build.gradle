@@ -34,15 +34,14 @@ project.tasks.whenTaskAdded { task ->
 }
 
 android {
+    defaultConfig {
+        minSdkVersion SupportConfig.CURRENT_SDK_VERSION
+    }
+
     sourceSets {
         main {
             manifest.srcFile "AndroidManifest.xml"
         }
     }
     flavorDimensions("library-group")
-}
-
-
-supportTestApp {
-    minSdkVersion = SupportConfig.CURRENT_SDK_VERSION
 }

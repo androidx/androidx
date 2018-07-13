@@ -23,6 +23,8 @@ dependencies {
     implementation project(path: ':appcompat')
 }
 
-supportTestApp {
-    minSdkVersion = 24
+android {
+    defaultConfig {
+        minSdkVersion 24
+    }
 }

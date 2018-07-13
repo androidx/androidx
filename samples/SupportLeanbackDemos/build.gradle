@@ -8,6 +8,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.6.2'
 }
 
-supportTestApp {
-    minSdkVersion = 17
+android {
+    defaultConfig {
+        minSdkVersion 17
+    }
 }

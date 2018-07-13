@@ -15,6 +15,12 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE)
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
 supportLibrary {
     name = "Android Support TV Provider"
     publish = true
@@ -22,7 +28,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.TVPROVIDER
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
-    minSdkVersion = 21
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

@@ -45,7 +45,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.VERSIONEDPARCELABLE
     inceptionYear = "2018"
     description = "Provides a stable but relatively compact binary serialization format that can be passed across processes or persisted safely."
-    minSdkVersion = 14
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

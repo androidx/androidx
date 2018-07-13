@@ -36,6 +36,12 @@ dependencies {
     androidTestImplementation project(':internal-testutils')
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 19
+    }
+}
+
 supportLibrary {
     name = "Android Support Media Widget"
     publish = true
@@ -43,7 +49,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.MEDIA
     inceptionYear = "2011"
     description = "Android Support Media Widget"
-    minSdkVersion = 19
     failOnDeprecationWarnings = false
     failOnDeprecationWarnings = false
 }

@@ -24,6 +24,10 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 19
+    }
+
     buildTypes {
         debug {
             testCoverageEnabled = false // Breaks Kotlin compiler.
@@ -49,7 +53,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2018"
     description = "A set of Kotlin extension methods built on top of slice-builders APIs."
-    minSdkVersion = 19
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
     useMetalava = true

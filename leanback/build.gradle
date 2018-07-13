@@ -21,6 +21,10 @@ dependencies {
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 17
+    }
+
     sourceSets {
         main.java.srcDirs += [
                 'common',
@@ -37,7 +41,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2014"
     description = "Android Support Leanback v17"
-    minSdkVersion = 17
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

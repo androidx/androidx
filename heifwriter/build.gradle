@@ -6,6 +6,12 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 28
+    }
+}
+
 dependencies {
     api(project(":annotation"))
 
@@ -20,6 +26,5 @@ supportLibrary {
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.HEIFWRITER
     inceptionYear = "2018"
-    minSdkVersion = 28
     description = "Android Support HeifWriter for writing HEIF still images"
 }

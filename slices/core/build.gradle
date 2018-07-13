@@ -41,7 +41,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "The slices core library provides utilities for the slices view and provider libraries"
-    minSdkVersion = 14
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

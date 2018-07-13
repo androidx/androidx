@@ -38,11 +38,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion = 19
+        minSdkVersion 19
         applicationId "com.example.androidx.slice.demos"
     }
-}
-
-supportTestApp {
-    minSdkVersion = 19
 }

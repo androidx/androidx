@@ -9,6 +9,12 @@ dependencies {
     api(project(":annotation"))
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
 supportLibrary {
     name = "Android Support Recommendation"
     publish = true
@@ -16,6 +22,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.RECOMMENDATION
     inceptionYear = "2015"
     description = "Android Support Recommendation"
-    minSdkVersion = 21
     failOnDeprecationWarnings = false
 }

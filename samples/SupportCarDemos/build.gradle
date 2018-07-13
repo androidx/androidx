@@ -8,6 +8,8 @@ dependencies {
     compileOnly fileTree(dir: '../../car/car-stubs', include: ['android.car.jar'])
 }
 
-supportTestApp {
-    minSdkVersion = 24
+android {
+    defaultConfig {
+        minSdkVersion 24
+    }
 }
