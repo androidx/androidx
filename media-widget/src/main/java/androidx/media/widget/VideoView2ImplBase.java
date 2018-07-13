@@ -248,10 +248,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mMediaControlView = new MediaControlView2(context);
         }
 
-        mSubtitleEnabled = (attrs == null) || attrs.getAttributeBooleanValue(
-                "http://schemas.android.com/apk/res-auto",
-                "enableSubtitle", false);
-
         // Choose surface view by default
         int viewType = (attrs == null) ? VideoView2.VIEW_TYPE_SURFACEVIEW
                 : attrs.getAttributeIntValue(
@@ -355,35 +351,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             throw new IllegalStateException("MediaSession2 instance is not available.");
         }
         return mMediaSession.getToken();
-    }
-
-    /**
-     * Shows or hides closed caption or subtitles if there is any chosen subtitle.
-     * Choosing subtitle track should be done by {@link MediaControlView2}.
-     * Default behavior of VideoView2 is showing subtitle.
-     * @param enable shows closed caption or subtitles if this value is true, or hides.
-     */
-    @Override
-    public void setSubtitleEnabled(boolean enable) {
-        if (enable == mSubtitleEnabled) {
-            return;
-        }
-        if (enable) {
-            mSubtitleAnchorView.setVisibility(View.VISIBLE);
-        } else {
-            mSubtitleAnchorView.setVisibility(View.GONE);
-        }
-        mSubtitleEnabled = enable;
-    }
-
-    /**
-     * Returns true if showing subtitle feature is enabled or returns false.
-     * Although there is no subtitle track or closed caption, it can return true, if the feature
-     * has been enabled by {@link #setSubtitleEnabled}.
-     */
-    @Override
-    public boolean isSubtitleEnabled() {
-        return mSubtitleEnabled;
     }
 
     /**
@@ -859,9 +826,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         Bundle data = new Bundle();
         data.putInt(MediaControlView2.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
         data.putInt(MediaControlView2.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
-        if (mSubtitleEnabled) {
-            data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTracks.size());
-        }
+        data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTracks.size());
         mMediaSession.sendCustomCommand(
                 new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, null), data);
     }
@@ -1161,14 +1126,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     .addCommand(new SessionCommand2(
                             MediaControlView2.COMMAND_SET_PLAYBACK_SPEED, null))
                     .addCommand(new SessionCommand2(MediaControlView2.COMMAND_MUTE, null))
-                    .addCommand(new SessionCommand2(MediaControlView2.COMMAND_UNMUTE, null));
-            if (mSubtitleEnabled) {
-                commandsBuilder = commandsBuilder
-                        .addCommand(new SessionCommand2(
-                                MediaControlView2.COMMAND_SHOW_SUBTITLE, null))
-                        .addCommand(new SessionCommand2(
-                                MediaControlView2.COMMAND_HIDE_SUBTITLE, null));
-            }
+                    .addCommand(new SessionCommand2(MediaControlView2.COMMAND_UNMUTE, null))
+                    .addCommand(new SessionCommand2(
+                            MediaControlView2.COMMAND_SHOW_SUBTITLE, null))
+                    .addCommand(new SessionCommand2(
+                            MediaControlView2.COMMAND_HIDE_SUBTITLE, null));
             return commandsBuilder.build();
         }
 

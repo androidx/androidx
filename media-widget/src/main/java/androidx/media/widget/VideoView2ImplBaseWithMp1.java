@@ -375,7 +375,6 @@ class VideoView2ImplBaseWithMp1
      * Default behavior of VideoView2 is not showing subtitle.
      * @param enable shows closed caption or subtitles if this value is true, or hides.
      */
-    @Override
     public void setSubtitleEnabled(boolean enable) {
         // No-op on API < 28
     }
@@ -385,7 +384,6 @@ class VideoView2ImplBaseWithMp1
      * Although there is no subtitle track or closed caption, it can return true, if the feature
      * has been enabled by {@link #setSubtitleEnabled}.
      */
-    @Override
     public boolean isSubtitleEnabled() {
         // Not supported on API < 28
         return false;

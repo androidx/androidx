@@ -20,8 +20,6 @@
     <declare-styleable name="VideoView2">
         <!-- Default : true -->
         <attr name="enableControlView" format="boolean" />
-        <!-- Default : true -->
-        <attr name="enableSubtitle" format="boolean" />
         <!-- To choose underlying view type to render a video. Default : surfaceView -->
         <attr name="viewType" format="enum">
             <enum name="surfaceView" value="0" />
