@@ -74,6 +74,9 @@ public class WorkerWrapper implements Runnable {
     private DependencyDao mDependencyDao;
     private WorkTagDao mWorkTagDao;
 
+    private List<String> mTags;
+    private String mWorkDescription;
+
     private volatile boolean mInterrupted;
 
     WorkerWrapper(Builder builder) {
@@ -94,6 +97,9 @@ public class WorkerWrapper implements Runnable {
     @WorkerThread
     @Override
     public void run() {
+        mTags = mWorkTagDao.getTagsForWorkSpecId(mWorkSpecId);
+        mWorkDescription = createWorkDescription(mTags);
+
         runWorker();
 
         // Try to schedule any newly-unblocked workers, and workers requiring rescheduling (such as
@@ -155,7 +161,7 @@ public class WorkerWrapper implements Runnable {
 
         Extras extras = new Extras(
                 input,
-                mWorkTagDao.getTagsForWorkSpecId(mWorkSpecId),
+                mTags,
                 mRuntimeExtras,
                 mWorkSpec.runAttemptCount);
 
@@ -185,8 +191,8 @@ public class WorkerWrapper implements Runnable {
             } catch (Exception | Error e) {
                 result = Worker.Result.FAILURE;
                 Logger.error(TAG,
-                        String.format("Worker %s failed because it threw an exception/error",
-                                mWorkSpecId),
+                        String.format("%s failed because it threw an exception/error",
+                                mWorkDescription),
                         e);
             }
 
@@ -242,7 +248,7 @@ public class WorkerWrapper implements Runnable {
 
     private boolean tryCheckForInterruptionAndNotify() {
         if (mInterrupted) {
-            Logger.debug(TAG, String.format("Work interrupted for %s", mWorkSpecId));
+            Logger.info(TAG, String.format("Work interrupted for %s", mWorkDescription));
             State currentState = mWorkSpecDao.getState(mWorkSpecId);
             if (currentState == null) {
                 // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
@@ -271,7 +277,7 @@ public class WorkerWrapper implements Runnable {
     private void handleResult(Worker.Result result) {
         switch (result) {
             case SUCCESS: {
-                Logger.debug(TAG, String.format("Worker result SUCCESS for %s", mWorkSpecId));
+                Logger.info(TAG, String.format("Worker result SUCCESS for %s", mWorkDescription));
                 if (mWorkSpec.isPeriodic()) {
                     resetPeriodicAndNotify(true);
                 } else {
@@ -281,14 +287,14 @@ public class WorkerWrapper implements Runnable {
             }
 
             case RETRY: {
-                Logger.debug(TAG, String.format("Worker result RETRY for %s", mWorkSpecId));
+                Logger.info(TAG, String.format("Worker result RETRY for %s", mWorkDescription));
                 rescheduleAndNotify();
                 break;
             }
 
             case FAILURE:
             default: {
-                Logger.debug(TAG, String.format("Worker result FAILURE for %s", mWorkSpecId));
+                Logger.info(TAG, String.format("Worker result FAILURE for %s", mWorkDescription));
                 if (mWorkSpec.isPeriodic()) {
                     resetPeriodicAndNotify(false);
                 } else {
@@ -400,7 +406,7 @@ public class WorkerWrapper implements Runnable {
             List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
             for (String dependentWorkId : dependentWorkIds) {
                 if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
-                    Logger.debug(TAG,
+                    Logger.info(TAG,
                             String.format("Setting status to enqueued for %s", dependentWorkId));
                     mWorkSpecDao.setState(ENQUEUED, dependentWorkId);
                     mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);
@@ -412,6 +418,25 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.endTransaction();
             notifyListener(true, false);
         }
+    }
+
+    private String createWorkDescription(List<String> tags) {
+        StringBuilder sb = new StringBuilder("Work [ id=")
+                .append(mWorkSpecId)
+                .append(", tags={ ");
+
+        boolean first = true;
+        for (String tag : tags) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(", ");
+            }
+            sb.append(tag);
+        }
+        sb.append(" } ]");
+
+        return sb.toString();
     }
 
     static Worker workerFromWorkSpec(@NonNull Context context,
