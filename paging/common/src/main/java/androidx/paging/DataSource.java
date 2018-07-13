@@ -89,7 +89,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * return {@code null} items in lists that it loads. This is so that users of the PagedList
  * can differentiate unloaded placeholder items from content that has been paged in.
  *
- * @param <Key> Input used to trigger initial load from the DataSource. Often an Integer position.
+ * @param <Key> Unique identifier for item loaded from DataSource. Often an integer to represent
+ *             position in data set. Note - this is distinct from e.g. Room's {@code @PrimaryKey}.
  * @param <Value> Value type loaded by the DataSource.
  */
 @SuppressWarnings("unused") // suppress warning to remove Key/Value, needed for subclass type safety
