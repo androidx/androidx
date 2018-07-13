@@ -204,6 +204,7 @@ public class AppCompatTextViewTest
 
     @Test
     @UiThreadTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void testTextSize_canBeZero() {
         final TextView textView = mContainer.findViewById(R.id.textview_zero_text_size);
         // text size should be 0 as set in xml, rather than the text view default (15.0)
