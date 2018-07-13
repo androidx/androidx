@@ -45,12 +45,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.BaseMediaPlayer;
-import androidx.media2.BaseRemoteMediaPlayer;
+import androidx.media2.BaseRemoteMediaPlayerConnector;
 import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayer2;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaSession2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
@@ -161,7 +161,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 mRoutePlayer.setDataSource(mMediaItem.getDataSourceDesc());
                 mRoutePlayer.setCurrentPosition(localPlaybackPosition);
                 if (mMediaSession != null) {
-                    mMediaSession.updatePlayer(mRoutePlayer, mMediaSession.getPlaylistAgent());
+                    mMediaSession.updatePlayerConnector(
+                            mRoutePlayer, mMediaSession.getPlaylistAgent());
                 } else {
                     final Context context = mInstance.getContext();
                     mMediaSession = new MediaSession2.Builder(context)
@@ -195,7 +196,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
                 openVideo();
                 mMediaSession.seekTo(currentPosition);
-                if (currentState == BaseMediaPlayer.PLAYER_STATE_PLAYING) {
+                if (currentState == MediaPlayerConnector.PLAYER_STATE_PLAYING) {
                     mMediaSession.play();
                 }
             }
@@ -553,7 +554,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer);
 
             if (mMediaSession != null) {
-                mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
+                mMediaSession.updatePlayerConnector(mMediaPlayer.getMediaPlayerConnector(),
                         mMediaSession.getPlaylistAgent());
             }
         } else {
@@ -565,7 +566,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         if (mMediaSession == null) {
             final Context context = mInstance.getContext();
             mMediaSession = new MediaSession2.Builder(context)
-                    .setPlayer(mMediaPlayer.getBaseMediaPlayer())
+                    .setPlayer(mMediaPlayer.getMediaPlayerConnector())
                     .setId("VideoView2_" + mInstance.toString())
                     .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                     .build();
@@ -698,8 +699,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private boolean isMediaPrepared() {
         return mMediaSession != null
-                && mMediaSession.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_ERROR
-                && mMediaSession.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_IDLE;
+                && mMediaSession.getPlayerState() != MediaPlayerConnector.PLAYER_STATE_ERROR
+                && mMediaSession.getPlayerState() != MediaPlayerConnector.PLAYER_STATE_IDLE;
     }
 
     boolean needToStart() {
@@ -744,12 +745,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (mMediaSession == null) {
                 final Context context = mInstance.getContext();
                 mMediaSession = new MediaSession2.Builder(context)
-                        .setPlayer(mMediaPlayer.getBaseMediaPlayer())
+                        .setPlayer(mMediaPlayer.getMediaPlayerConnector())
                         .setId("VideoView2_" + mInstance.toString())
                         .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                         .build();
             } else {
-                mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
+                mMediaSession.updatePlayerConnector(mMediaPlayer.getMediaPlayerConnector(),
                         mMediaSession.getPlaylistAgent());
             }
             mMediaSession.setPlaylist(mPlayList, null);
@@ -792,7 +793,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     boolean isRemotePlayback() {
         return mRoutePlayer != null
                 && mMediaSession != null
-                && (mMediaSession.getPlayer() instanceof BaseRemoteMediaPlayer);
+                && (mMediaSession.getPlayerConnector() instanceof BaseRemoteMediaPlayerConnector);
     }
 
     private void selectOrDeselectSubtitle(boolean select) {
@@ -1220,18 +1221,18 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         @Override
         public void onPlayerStateChanged(@NonNull MediaSession2 session,
-                @NonNull BaseMediaPlayer player, @BaseMediaPlayer.PlayerState int state) {
+                @NonNull MediaPlayerConnector player, @MediaPlayerConnector.PlayerState int state) {
             switch(state) {
-                case BaseMediaPlayer.PLAYER_STATE_IDLE:
+                case MediaPlayerConnector.PLAYER_STATE_IDLE:
                     mCurrentState = STATE_IDLE;
                     break;
-                case BaseMediaPlayer.PLAYER_STATE_PLAYING:
+                case MediaPlayerConnector.PLAYER_STATE_PLAYING:
                     mCurrentState = STATE_PLAYING;
                     break;
-                case BaseMediaPlayer.PLAYER_STATE_PAUSED:
+                case MediaPlayerConnector.PLAYER_STATE_PAUSED:
                     mCurrentState = STATE_PAUSED;
                     break;
-                case BaseMediaPlayer.PLAYER_STATE_ERROR:
+                case MediaPlayerConnector.PLAYER_STATE_ERROR:
                     mCurrentState = STATE_ERROR;
                     break;
             }
@@ -1239,7 +1240,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         @Override
         public void onMediaPrepared(@NonNull MediaSession2 session,
-                @NonNull BaseMediaPlayer player, @NonNull MediaItem2 item) {
+                @NonNull MediaPlayerConnector player, @NonNull MediaItem2 item) {
             if (DEBUG) {
                 Log.d(TAG, "onMediaPrepared() is called.");
             }
@@ -1247,7 +1248,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         @Override
         public void onPlaybackSpeedChanged(@NonNull MediaSession2 session,
-                 @NonNull BaseMediaPlayer player, float speed) {
+                 @NonNull MediaPlayerConnector player, float speed) {
             if (DEBUG) {
                 Log.d(TAG, "onPlaybackSpeedChanged is called. Speed: " + speed);
             }

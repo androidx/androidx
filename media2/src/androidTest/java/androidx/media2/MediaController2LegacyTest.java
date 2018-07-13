@@ -207,8 +207,8 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         createControllerAndWaitConnection();
         mController.setTimeDiff(timeDiff);
 
-        assertEquals(BaseMediaPlayer.PLAYER_STATE_PLAYING, mController.getPlayerState());
-        assertEquals(BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE,
+        assertEquals(MediaPlayerConnector.PLAYER_STATE_PLAYING, mController.getPlayerState());
+        assertEquals(MediaPlayerConnector.BUFFERING_STATE_BUFFERING_COMPLETE,
                 mController.getBufferingState());
         assertEquals(bufferedPosition, mController.getBufferedPosition());
         assertEquals(speed, mController.getPlaybackSpeed(), 0.0f);
@@ -316,7 +316,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
                 testQueue.get(0).getDescription());
 
-        final int testBufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int testBufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_COMPLETE;
         final long testBufferingPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -355,7 +355,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
                 testQueue.get(0).getDescription());
 
-        final int testBufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED;
+        final int testBufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_STARVED;
         final long testBufferingPosition = 0;
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -389,7 +389,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     //@Test see: b/110738672
     public void testControllerCallback_onPlayerStateChanged() throws Exception {
         prepareLooper();
-        final int testPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int testPlayerState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         final long testPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -968,7 +968,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
 //                        mSession.close();
 //                    }
 //                    mSession = session;
-//                    mPlayer = (MockPlayer) session.getPlayer();
+//                    mPlayer = (MockPlayer) session.getPlayerConnector();
 //                    assertEquals(mContext.getPackageName(), controller.getPackageName());
 //                    assertFalse(controller.isTrusted());
 //                    latch.countDown();

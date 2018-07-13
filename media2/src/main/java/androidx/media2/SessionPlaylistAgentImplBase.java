@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
-import androidx.media2.BaseMediaPlayer.PlayerEventCallback;
+import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
 import androidx.media2.MediaSession2.OnDataSourceMissingHelper;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     private final MyPlayerEventCallback mPlayerCallback;
 
     @GuardedBy("mLock")
-    BaseMediaPlayer mPlayer;
+    MediaPlayerConnector mPlayer;
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
     // TODO: Check if having the same item is okay (b/74090741)
@@ -74,7 +74,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         }
 
         @Override
-        public void onCurrentDataSourceChanged(@NonNull BaseMediaPlayer mpb,
+        public void onCurrentDataSourceChanged(@NonNull MediaPlayerConnector mpb,
                 @Nullable DataSourceDesc2 dsd) {
             synchronized (mLock) {
                 if (mPlayer != mpb) {
@@ -139,7 +139,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     SessionPlaylistAgentImplBase(@NonNull MediaSession2ImplBase session,
-            @NonNull BaseMediaPlayer player) {
+            @NonNull MediaPlayerConnector player) {
         super();
         if (session == null) {
             throw new IllegalArgumentException("sessionImpl shouldn't be null");
@@ -153,7 +153,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         mPlayer.registerPlayerEventCallback(mSession.getCallbackExecutor(), mPlayerCallback);
     }
 
-    void setPlayer(BaseMediaPlayer player) {
+    void setPlayer(MediaPlayerConnector player) {
         if (player == mPlayer) {
             return;
         }
@@ -505,7 +505,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         if (mCurrent == null || mCurrent == mEopPlayItem) {
             return;
         }
-        if (mPlayer.getPlayerState() == BaseMediaPlayer.PLAYER_STATE_IDLE) {
+        if (mPlayer.getPlayerState() == MediaPlayerConnector.PLAYER_STATE_IDLE) {
             mPlayer.setDataSource(mCurrent.dsd);
             mPlayer.prepare();
         } else {

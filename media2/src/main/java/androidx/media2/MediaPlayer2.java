@@ -318,11 +318,11 @@ import java.util.concurrent.Executor;
  * Then check the <code>status</code> parameter. The value {@link #CALL_STATUS_NO_ERROR} indicates a
  * successful transition. Any other value will be an error. Call {@link #getState()} to
  * determine the current state.
- * (You can also register a {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged}
+ * (You can also register a {@link MediaPlayerConnector.PlayerEventCallback#onPlayerStateChanged}
  * callback but this method does not distinguish between the <strong>Idle</strong> and
  * <strong>Prepared</strong> states.)</p>
  *
- * <p>You can also register a {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged}
+ * <p>You can also register a {@link MediaPlayerConnector.PlayerEventCallback#onPlayerStateChanged}
  * callback. Call {@link #getState()} from your code to determine the state.</p>
  *
  * <p>In order for callbacks to work, your app must create
@@ -348,10 +348,10 @@ public abstract class MediaPlayer2 {
     public MediaPlayer2() { }
 
     /**
-     * Returns a {@link BaseMediaPlayer} implementation which runs based on
+     * Returns a {@link MediaPlayerConnector} implementation which runs based on
      * this MediaPlayer2 instance.
      */
-    public abstract BaseMediaPlayer getBaseMediaPlayer();
+    public abstract MediaPlayerConnector getMediaPlayerConnector();
 
     /**
      * Releases the resources held by this {@code MediaPlayer2} object.

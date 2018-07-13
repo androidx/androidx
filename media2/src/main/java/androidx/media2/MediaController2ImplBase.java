@@ -16,9 +16,9 @@
 
 package androidx.media2;
 
-import static androidx.media2.BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
-import static androidx.media2.BaseMediaPlayer.UNKNOWN_TIME;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DURATION;
+import static androidx.media2.MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
+import static androidx.media2.MediaPlayerConnector.UNKNOWN_TIME;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
@@ -444,7 +444,7 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                 return metadata.getLong(METADATA_KEY_DURATION);
             }
         }
-        return BaseMediaPlayer.UNKNOWN_TIME;
+        return MediaPlayerConnector.UNKNOWN_TIME;
     }
 
     @Override
@@ -486,7 +486,7 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     }
 
     @Override
-    public @BaseMediaPlayer.BuffState int getBufferingState() {
+    public @MediaPlayerConnector.BuffState int getBufferingState() {
         synchronized (mLock) {
             if (mISession2 == null) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());

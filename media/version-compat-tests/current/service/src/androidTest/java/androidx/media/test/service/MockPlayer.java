@@ -19,17 +19,17 @@ package androidx.media.test.service;
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.BaseMediaPlayer;
 import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaPlayerConnector;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 /**
- * A mock implementation of {@link BaseMediaPlayer} for testing.
+ * A mock implementation of {@link MediaPlayerConnector} for testing.
  */
-public class MockPlayer extends BaseMediaPlayer {
+public class MockPlayer extends MediaPlayerConnector {
     public final CountDownLatch mCountDownLatch;
 
     public boolean mPlayCalled;
@@ -52,7 +52,7 @@ public class MockPlayer extends BaseMediaPlayer {
 
     public MockPlayer(int count) {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
-        // This prevents MS2#play() from triggering BaseMediaPlayer#prepare().
+        // This prevents MS2#play() from triggering MediaPlayerConnector#prepare().
         mLastPlayerState = PLAYER_STATE_PAUSED;
     }
 

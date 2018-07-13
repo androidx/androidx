@@ -36,7 +36,7 @@ import java.util.concurrent.Executor;
  * Base interface for all media players that want media session.
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
-public abstract class BaseMediaPlayer implements AutoCloseable {
+public abstract class MediaPlayerConnector implements AutoCloseable {
     /**
      * @hide
      */
@@ -112,7 +112,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
 
     /**
      * Prepares the player for playback.
-     * See {@link PlayerEventCallback#onMediaPrepared(BaseMediaPlayer, DataSourceDesc2)} for
+     * See {@link PlayerEventCallback#onMediaPrepared(MediaPlayerConnector, DataSourceDesc2)} for
      * being notified when the preparation phase completed. During this time, the player may
      * allocate resources required to play, such as audio and video decoders.
      */
@@ -124,7 +124,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
     public abstract void pause();
 
     /**
-     * Resets the BaseMediaPlayer to its uninitialized state.
+     * Resets the MediaPlayerConnector to its uninitialized state.
      */
     public abstract void reset();
 
@@ -167,7 +167,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
 
     /**
      * Returns the current player state.
-     * See also {@link PlayerEventCallback#onPlayerStateChanged(BaseMediaPlayer, int)} for
+     * See also {@link PlayerEventCallback#onPlayerStateChanged(MediaPlayerConnector, int)} for
      * notification of changes.
      * @return the current player state
      */
@@ -297,7 +297,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
 
     /**
      * A callback class to receive notifications for events on the media player.
-     * See {@link BaseMediaPlayer#registerPlayerEventCallback(Executor, PlayerEventCallback)}
+     * See {@link MediaPlayerConnector#registerPlayerEventCallback(Executor, PlayerEventCallback)}
      * to register this callback.
      */
     public abstract static class PlayerEventCallback {
@@ -311,7 +311,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
          * @param mpb the player whose data source changed.
          * @param dsd the new current data source. {@code null}, if no more data sources available.
          */
-        public void onCurrentDataSourceChanged(@NonNull BaseMediaPlayer mpb,
+        public void onCurrentDataSourceChanged(@NonNull MediaPlayerConnector mpb,
                 @Nullable DataSourceDesc2 dsd) { }
 
         /**
@@ -320,16 +320,16 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
          * @param mpb the player that is prepared.
          * @param dsd the data source that the player is prepared to play.
          */
-        public void onMediaPrepared(@NonNull BaseMediaPlayer mpb,
+        public void onMediaPrepared(@NonNull MediaPlayerConnector mpb,
                 @NonNull DataSourceDesc2 dsd) { }
 
         /**
          * Called to indicate that the state of the player has changed.
-         * See {@link BaseMediaPlayer#getPlayerState()} for polling the player state.
+         * See {@link MediaPlayerConnector#getPlayerState()} for polling the player state.
          * @param mpb the player whose state has changed.
          * @param state the new state of the player.
          */
-        public void onPlayerStateChanged(@NonNull BaseMediaPlayer mpb,
+        public void onPlayerStateChanged(@NonNull MediaPlayerConnector mpb,
                 @PlayerState int state) { }
 
         /**
@@ -338,7 +338,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
          * @param dsd the data source for which buffering is happening.
          * @param state the new buffering state.
          */
-        public void onBufferingStateChanged(@NonNull BaseMediaPlayer mpb,
+        public void onBufferingStateChanged(@NonNull MediaPlayerConnector mpb,
                 @NonNull DataSourceDesc2 dsd, @BuffState int state) { }
 
         /**
@@ -346,7 +346,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
          * @param mpb the player that has changed the playback speed.
          * @param speed the new playback speed.
          */
-        public void onPlaybackSpeedChanged(@NonNull BaseMediaPlayer mpb, float speed) { }
+        public void onPlaybackSpeedChanged(@NonNull MediaPlayerConnector mpb, float speed) { }
 
         /**
          * Called to indicate that {@link #seekTo(long)} is completed.
@@ -355,6 +355,6 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
          * @param position the previous seeking request.
          * @see #seekTo(long)
          */
-        public void onSeekCompleted(@NonNull BaseMediaPlayer mpb, long position) { }
+        public void onSeekCompleted(@NonNull MediaPlayerConnector mpb, long position) { }
     }
 }

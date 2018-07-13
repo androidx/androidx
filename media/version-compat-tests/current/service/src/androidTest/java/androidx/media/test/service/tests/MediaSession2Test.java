@@ -32,7 +32,7 @@ import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.RemoteMediaController2;
-import androidx.media2.BaseMediaPlayer;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlaylistAgent;
@@ -117,7 +117,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     public void testGetDuration() throws Exception {
         prepareLooper();
         final long testDuration = 9999;
-        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
+        mPlayer.mLastPlayerState = MediaPlayerConnector.PLAYER_STATE_PAUSED;
         mPlayer.mDuration = testDuration;
         assertEquals(testDuration, mSession.getDuration());
     }
@@ -126,7 +126,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     public void testGetPlaybackSpeed() throws Exception {
         prepareLooper();
         final float speed = 1.5f;
-        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
+        mPlayer.mLastPlayerState = MediaPlayerConnector.PLAYER_STATE_PAUSED;
         mPlayer.setPlaybackSpeed(speed);
         assertEquals(speed, mSession.getPlaybackSpeed(), 0.0f);
     }
@@ -134,7 +134,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testGetPlayerState() {
         prepareLooper();
-        final int state = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int state = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         mPlayer.mLastPlayerState = state;
         assertEquals(state, mSession.getPlayerState());
     }
@@ -142,7 +142,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testGetBufferingState() {
         prepareLooper();
-        final int bufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final int bufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         mPlayer.mLastBufferingState = bufferingState;
         assertEquals(bufferingState, mSession.getBufferingState());
     }
@@ -152,7 +152,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         prepareLooper();
         final long position = 150000;
         mPlayer.mCurrentPosition = position;
-        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
+        mPlayer.mLastPlayerState = MediaPlayerConnector.PLAYER_STATE_PAUSED;
         assertEquals(position, mSession.getCurrentPosition());
     }
 
@@ -161,7 +161,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         prepareLooper();
         final long bufferedPosition = 900000;
         mPlayer.mBufferedPosition = bufferedPosition;
-        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
+        mPlayer.mLastPlayerState = MediaPlayerConnector.PLAYER_STATE_PAUSED;
         assertEquals(bufferedPosition, mSession.getBufferedPosition());
     }
 
@@ -208,7 +208,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testUpdatePlayer() throws Exception {
         prepareLooper();
-        final int targetState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int targetState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         final CountDownLatch latch = new CountDownLatch(1);
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -218,7 +218,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                         .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                             @Override
                             public void onPlayerStateChanged(MediaSession2 session,
-                                    BaseMediaPlayer player, int state) {
+                                    MediaPlayerConnector player, int state) {
                                 assertEquals(targetState, state);
                                 latch.countDown();
                             }
@@ -229,17 +229,17 @@ public class MediaSession2Test extends MediaSession2TestBase {
         MockPlayer player = new MockPlayer(0);
 
         // Test if setPlayer doesn't crash with various situations.
-        mSession.updatePlayer(mPlayer, null);
-        assertEquals(mPlayer, mSession.getPlayer());
+        mSession.updatePlayerConnector(mPlayer, null);
+        assertEquals(mPlayer, mSession.getPlayerConnector());
         MediaPlaylistAgent agent = mSession.getPlaylistAgent();
         assertNotNull(agent);
 
-        mSession.updatePlayer(player, null);
-        assertEquals(player, mSession.getPlayer());
+        mSession.updatePlayerConnector(player, null);
+        assertEquals(player, mSession.getPlayerConnector());
         assertNotNull(mSession.getPlaylistAgent());
         assertNotEquals(agent, mSession.getPlaylistAgent());
 
-        player.notifyPlayerStateChanged(BaseMediaPlayer.PLAYER_STATE_PLAYING);
+        player.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PLAYING);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -280,7 +280,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
             testHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    final int state = BaseMediaPlayer.PLAYER_STATE_ERROR;
+                    final int state = MediaPlayerConnector.PLAYER_STATE_ERROR;
                     for (int i = 0; i < 100; i++) {
                         // triggers call from session to controller.
                         player.notifyPlayerStateChanged(state);

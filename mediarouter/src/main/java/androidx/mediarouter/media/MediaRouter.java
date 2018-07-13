@@ -46,7 +46,7 @@ import androidx.core.hardware.display.DisplayManagerCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.VolumeProviderCompat;
-import androidx.media2.BaseMediaPlayer;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.mediarouter.app.MediaRouteDiscoveryFragment;
@@ -789,15 +789,15 @@ public final class MediaRouter {
     }
 
     /**
-     * Sets a {@link MediaSession2}, {@link RouteMediaPlayer}, and {@link MediaPlaylistAgent}
-     * to be used when a router is selected and playback becomes remote.
+     * Sets a {@link MediaSession2}, {@link RouteMediaPlayerConnector}, and
+     * {@link MediaPlaylistAgent} to be used when a router is selected and playback becomes remote.
      *
      * @param session2 a media session2
      * @param routePlayer route player.
      * @param agent a playlist agent
      */
     public void setMediaSession2(@NonNull MediaSession2 session2,
-            @NonNull RouteMediaPlayer routePlayer, @NonNull MediaPlaylistAgent agent) {
+            @NonNull RouteMediaPlayerConnector routePlayer, @NonNull MediaPlaylistAgent agent) {
         sGlobal.setMediaSession2(session2, routePlayer, agent);
     }
 
@@ -2739,7 +2739,7 @@ public final class MediaRouter {
             }
         }
 
-        public void setMediaSession2(MediaSession2 session2, RouteMediaPlayer remotePlayer,
+        public void setMediaSession2(MediaSession2 session2, RouteMediaPlayerConnector remotePlayer,
                 MediaPlaylistAgent agent) {
             setMediaSessionRecord(session2 != null
                     ? new MediaSessionRecord(session2, remotePlayer, agent) : null);
@@ -2826,8 +2826,8 @@ public final class MediaRouter {
             private final MediaSessionCompat mMsCompat;
 
             private final MediaSession2 mMediaSession2;
-            private final RouteMediaPlayer mRoutePlayer;
-            private final BaseMediaPlayer mLocalPlayer;
+            private final RouteMediaPlayerConnector mRoutePlayer;
+            private final MediaPlayerConnector mLocalPlayer;
             private final MediaPlaylistAgent mPlaylistAgent;
 
             private @VolumeProviderCompat.ControlType int mControlType;
@@ -2846,12 +2846,12 @@ public final class MediaRouter {
                 mPlaylistAgent = null;
             }
 
-            MediaSessionRecord(MediaSession2 session2, RouteMediaPlayer remotePlayer,
+            MediaSessionRecord(MediaSession2 session2, RouteMediaPlayerConnector remotePlayer,
                     MediaPlaylistAgent agent) {
                 mMsCompat = null;
                 mMediaSession2 = session2;
                 mRoutePlayer = remotePlayer;
-                mLocalPlayer = session2.getPlayer();
+                mLocalPlayer = session2.getPlayerConnector();
                 mPlaylistAgent = agent;
             }
 
@@ -2892,9 +2892,9 @@ public final class MediaRouter {
                         mMsCompat.setPlaybackToRemote(mVpCompat);
                     }
                 } else if (mMediaSession2 != null) {
-                    // RouteMediaPlayer will handle volume changes that mVpCompat is doing.
+                    // RouteMediaPlayerConnector will handle volume changes that mVpCompat is doing.
                     mRoutePlayer.updateRouteInfo(mSelectedRoute);
-                    mMediaSession2.updatePlayer(mRoutePlayer, mPlaylistAgent);
+                    mMediaSession2.updatePlayerConnector(mRoutePlayer, mPlaylistAgent);
                 }
             }
 
@@ -2906,7 +2906,7 @@ public final class MediaRouter {
                     if (mRoutePlayer != null) {
                         mRoutePlayer.updateRouteInfo(null);
                     }
-                    mMediaSession2.updatePlayer(mLocalPlayer, mPlaylistAgent);
+                    mMediaSession2.updatePlayerConnector(mLocalPlayer, mPlaylistAgent);
                 }
             }
 

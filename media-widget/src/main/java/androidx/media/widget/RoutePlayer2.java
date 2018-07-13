@@ -28,8 +28,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.BaseMediaPlayer;
 import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaPlayerConnector;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaSessionStatus;
@@ -46,7 +46,7 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class RoutePlayer2 extends BaseMediaPlayer {
+public class RoutePlayer2 extends MediaPlayerConnector {
     private static final String TAG = "RoutePlayer2";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
@@ -219,7 +219,7 @@ public class RoutePlayer2 extends BaseMediaPlayer {
 
     @Override
     public int getBufferingState() {
-        return BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
+        return MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
     }
 
     @Override
@@ -281,12 +281,13 @@ public class RoutePlayer2 extends BaseMediaPlayer {
     }
 
     @Override
-    public void registerPlayerEventCallback(Executor e, BaseMediaPlayer.PlayerEventCallback cb) {
+    public void registerPlayerEventCallback(
+            Executor e, MediaPlayerConnector.PlayerEventCallback cb) {
         mPlayerEventCallbackMap.put(cb, e);
     }
 
     @Override
-    public void unregisterPlayerEventCallback(BaseMediaPlayer.PlayerEventCallback cb) {
+    public void unregisterPlayerEventCallback(MediaPlayerConnector.PlayerEventCallback cb) {
         mPlayerEventCallbackMap.remove(cb);
     }
 

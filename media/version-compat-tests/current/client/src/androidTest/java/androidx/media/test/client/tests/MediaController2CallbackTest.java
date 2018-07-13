@@ -53,11 +53,11 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
 import androidx.media.test.lib.TestUtils;
-import androidx.media2.BaseMediaPlayer;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
@@ -186,7 +186,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_sessionUpdatePlayer() throws InterruptedException {
         prepareLooper();
-        final int testState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int testState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
@@ -380,7 +380,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         agent.setCurrentMediaItem(testItemIndex);
 
         RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
-        player.setPlayerState(BaseMediaPlayer.PLAYER_STATE_PAUSED);
+        player.setPlayerState(MediaPlayerConnector.PLAYER_STATE_PAUSED);
         player.setDuration(testDuration);
 
         MediaController2 controller = createController(
@@ -518,7 +518,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        mRemoteSession2.getMockPlayer().setPlayerState(BaseMediaPlayer.PLAYER_STATE_PAUSED);
+        mRemoteSession2.getMockPlayer().setPlayerState(MediaPlayerConnector.PLAYER_STATE_PAUSED);
         mRemoteSession2.getMockPlayer().setCurrentPosition(testPosition);
 
         MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
@@ -533,7 +533,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
 
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
         final int targetItemIndex = 0;
-        final int testBufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final int testBufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
 
         final MediaController2.ControllerCallback callback =
@@ -565,7 +565,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPlayerStateChanged() throws InterruptedException {
         prepareLooper();
-        final int testPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int testPlayerState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         final long testPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController2.ControllerCallback callback =

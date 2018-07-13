@@ -187,7 +187,7 @@ public class MediaController2 implements AutoCloseable {
      * Request that the player prepare its playback. In other words, other sessions can continue
      * to play during the preparation of this session. This method can be used to speed up the
      * start of the playback. Once the preparation is done, the session will change its playback
-     * state to {@link BaseMediaPlayer#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be
+     * state to {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be
      * called to start playback.
      */
     public void prepare() {
@@ -282,7 +282,7 @@ public class MediaController2 implements AutoCloseable {
      * Request that the player prepare playback for a specific media id. In other words, other
      * sessions can continue to play during the preparation of this session. This method can be
      * used to speed up the start of the playback. Once the preparation is done, the session
-     * will change its playback state to {@link BaseMediaPlayer#PLAYER_STATE_PAUSED}.
+     * will change its playback state to {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}.
      * Afterwards, {@link #play} can be called to start playback. If the preparation is not needed,
      * {@link #playFromMediaId} can be directly called without this method.
      *
@@ -302,7 +302,7 @@ public class MediaController2 implements AutoCloseable {
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
      * Once the preparation is done, the session will change its playback state to
-     * {@link BaseMediaPlayer#PLAYER_STATE_PAUSED}. Afterwards,
+     * {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}. Afterwards,
      * {@link #play} can be called to start playback. If the preparation is not needed,
      * {@link #playFromSearch} can be directly called without this method.
      *
@@ -320,7 +320,7 @@ public class MediaController2 implements AutoCloseable {
      * Request that the player prepare playback for a specific {@link Uri}. In other words,
      * other sessions can continue to play during the preparation of this session. This method
      * can be used to speed up the start of the playback. Once the preparation is done, the
-     * session will change its playback state to {@link BaseMediaPlayer#PLAYER_STATE_PAUSED}.
+     * session will change its playback state to {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}.
      * Afterwards, {@link #play} can be called to start playback. If the preparation is not needed,
      * {@link #playFromUri} can be directly called without this method.
      *
@@ -398,9 +398,9 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Gets the duration of the current media item, or {@link BaseMediaPlayer#UNKNOWN_TIME} if
+     * Gets the duration of the current media item, or {@link MediaPlayerConnector#UNKNOWN_TIME} if
      * unknown.
-     * @return the duration in ms, or {@link BaseMediaPlayer#UNKNOWN_TIME}.
+     * @return the duration in ms, or {@link MediaPlayerConnector#UNKNOWN_TIME}.
      */
     public long getDuration() {
         return mImpl.getDuration();
@@ -441,7 +441,7 @@ public class MediaController2 implements AutoCloseable {
      * buffered.
      * @return the buffering state.
      */
-    public @BaseMediaPlayer.BuffState int getBufferingState() {
+    public @MediaPlayerConnector.BuffState int getBufferingState() {
         return mImpl.getBufferingState();
     }
 
@@ -450,7 +450,7 @@ public class MediaController2 implements AutoCloseable {
      * {@link ControllerCallback#onBufferingStateChanged(MediaController2, MediaItem2, int)} is
      * called.
      *
-     * @return buffering position in millis, or {@link BaseMediaPlayer#UNKNOWN_TIME} if
+     * @return buffering position in millis, or {@link MediaPlayerConnector#UNKNOWN_TIME} if
      * unknown.
      */
     public long getBufferedPosition() {
@@ -790,7 +790,7 @@ public class MediaController2 implements AutoCloseable {
         long getCurrentPosition();
         float getPlaybackSpeed();
         void setPlaybackSpeed(float speed);
-        @BaseMediaPlayer.BuffState int getBufferingState();
+        @MediaPlayerConnector.BuffState int getBufferingState();
         long getBufferedPosition();
         @Nullable PlaybackInfo getPlaybackInfo();
         void setRating(@NonNull String mediaId, @NonNull Rating2 rating);
@@ -914,7 +914,7 @@ public class MediaController2 implements AutoCloseable {
          * @param state the new player state
          */
         public void onPlayerStateChanged(@NonNull MediaController2 controller,
-                @BaseMediaPlayer.PlayerState int state) { }
+                @MediaPlayerConnector.PlayerState int state) { }
 
         /**
          * Called when playback speed is changed.
@@ -935,7 +935,7 @@ public class MediaController2 implements AutoCloseable {
          * @param state the new buffering state.
          */
         public void onBufferingStateChanged(@NonNull MediaController2 controller,
-                @NonNull MediaItem2 item, @BaseMediaPlayer.BuffState int state) { }
+                @NonNull MediaItem2 item, @MediaPlayerConnector.BuffState int state) { }
 
         /**
          * Called to indicate that seeking is completed.
