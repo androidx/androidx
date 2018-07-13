@@ -36,6 +36,7 @@ import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
+import androidx.room.processor.autovalue.AutoValuePojoProcessorDelegate
 import androidx.room.processor.cache.Cache
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
@@ -50,6 +51,7 @@ import androidx.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import com.google.auto.value.AutoValue
 import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
 import me.eugeniomarletti.kotlin.metadata.isDataClass
 import me.eugeniomarletti.kotlin.metadata.isPrimary
@@ -74,14 +76,14 @@ import javax.lang.model.util.ElementFilter
 /**
  * Processes any class as if it is a Pojo.
  */
-class PojoProcessor(
+class PojoProcessor private constructor(
     baseContext: Context,
     val element: TypeElement,
     val bindingScope: FieldProcessor.BindingScope,
     val parent: EmbeddedField?,
-    val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
-)
-    : KotlinMetadataProcessor {
+    val referenceStack: LinkedHashSet<Name> = LinkedHashSet(),
+    private val delegate: Delegate
+) : KotlinMetadataProcessor {
     val context = baseContext.fork(element)
 
     // for KotlinMetadataUtils
@@ -100,20 +102,49 @@ class PojoProcessor(
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Embedded::class,
                 Relation::class)
+
+        fun createFor(
+            context: Context,
+            element: TypeElement,
+            bindingScope: FieldProcessor.BindingScope,
+            parent: EmbeddedField?,
+            referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+        ): PojoProcessor {
+            val (pojoElement, delegate) = if (element.hasAnnotation(AutoValue::class)) {
+                val elementUtils = context.processingEnv.elementUtils
+                val autoValueGeneratedElement = element.let {
+                    val typeName = AutoValuePojoProcessorDelegate.getGeneratedClassName(it)
+                    elementUtils.getTypeElement(typeName) ?: throw MissingTypeException(typeName)
+                }
+                autoValueGeneratedElement to AutoValuePojoProcessorDelegate(context, element)
+            } else {
+                element to DefaultDelegate()
+            }
+
+            return PojoProcessor(
+                    baseContext = context,
+                    element = pojoElement,
+                    bindingScope = bindingScope,
+                    parent = parent,
+                    referenceStack = referenceStack,
+                    delegate = delegate)
+        }
     }
 
     fun process(): Pojo {
-        return context.cache.pojos.get(Cache.PojoKey(element, bindingScope, parent), {
+        return context.cache.pojos.get(Cache.PojoKey(element, bindingScope, parent)) {
             referenceStack.add(element.qualifiedName)
             try {
                 doProcess()
             } finally {
                 referenceStack.remove(element.qualifiedName)
             }
-        })
+        }
     }
 
     private fun doProcess(): Pojo {
+        delegate.onPreProcess()
+
         val declaredType = MoreTypes.asDeclared(element.asType())
         // TODO handle conflicts with super: b/35568142
         val allFields = element.getAllFieldsIncludingPrivateSupers(context.processingEnv)
@@ -180,6 +211,7 @@ class PojoProcessor(
                 }
 
         val methods = MoreElements.getLocalAndInheritedMethods(element,
+                context.processingEnv.typeUtils,
                 context.processingEnv.elementUtils)
                 .filter {
                     !it.hasAnyOf(PRIVATE, ABSTRACT, STATIC) &&
@@ -223,12 +255,8 @@ class PojoProcessor(
             assignSetter(it.field, setterCandidates, constructor)
         }
 
-        return Pojo(element = element,
-                type = declaredType,
-                fields = fields,
-                embeddedFields = embeddedFields,
-                relations = relations,
-                constructor = constructor)
+        return delegate.createPojo(element, declaredType, fields, embeddedFields, relations,
+                constructor)
     }
 
     /**
@@ -253,8 +281,7 @@ class PojoProcessor(
         embedded: List<EmbeddedField>,
         relations: List<androidx.room.vo.Relation>
     ): Constructor? {
-        val constructors = ElementFilter.constructorsIn(element.enclosedElements)
-                .filterNot { it.hasAnnotation(Ignore::class) || it.hasAnyOf(PRIVATE) }
+        val constructors = delegate.findConstructors(element)
         val fieldMap = myFields.associateBy { it.name }
         val embeddedMap = embedded.associateBy { it.field.name }
         val typeUtils = context.processingEnv.typeUtils
@@ -364,7 +391,7 @@ class PojoProcessor(
                     } else {
                         null
                     }
-                } ?: null
+                }
                 if (primaryConstructor != null) {
                     return primaryConstructor
                 }
@@ -412,8 +439,8 @@ class PojoProcessor(
                 field = embeddedField,
                 prefix = inheritedPrefix + fieldPrefix,
                 parent = parent)
-        subParent.pojo = PojoProcessor(
-                baseContext = context.fork(variableElement),
+        subParent.pojo = PojoProcessor.createFor(
+                context = context.fork(variableElement),
                 element = asTypeElement,
                 bindingScope = bindingScope,
                 parent = subParent,
@@ -565,8 +592,8 @@ class PojoProcessor(
                 listOf(entityField.name)
             } else {
                 // last resort, it needs to be a pojo
-                val pojo = PojoProcessor(
-                        baseContext = context,
+                val pojo = PojoProcessor.createFor(
+                        context = context,
                         element = typeArgElement,
                         bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                         parent = parent,
@@ -649,7 +676,11 @@ class PojoProcessor(
         constructor: Constructor?
     ) {
         if (constructor != null && constructor.hasField(field)) {
-            field.setter = FieldSetter(field.name, field.type, CallType.CONSTRUCTOR)
+            field.setter = FieldSetter(
+                    name = field.name,
+                    type = field.type,
+                    callType = CallType.CONSTRUCTOR
+            )
             return
         }
         val success = chooseAssignment(field = field,
@@ -738,6 +769,48 @@ class PojoProcessor(
             reportAmbiguity(candidates.map { it.name })
         }
         return candidates.first()
+    }
+
+    interface Delegate {
+
+        fun onPreProcess()
+
+        fun findConstructors(element: TypeElement): List<ExecutableElement>
+
+        fun createPojo(
+            element: TypeElement,
+            declaredType: DeclaredType,
+            fields: List<Field>,
+            embeddedFields: List<EmbeddedField>,
+            relations: List<androidx.room.vo.Relation>,
+            constructor: Constructor?
+        ): Pojo
+    }
+
+    private class DefaultDelegate : Delegate {
+        override fun onPreProcess() {}
+
+        override fun findConstructors(element: TypeElement) = ElementFilter.constructorsIn(
+                element.enclosedElements).filterNot {
+            it.hasAnnotation(Ignore::class) || it.hasAnyOf(PRIVATE)
+        }
+
+        override fun createPojo(
+            element: TypeElement,
+            declaredType: DeclaredType,
+            fields: List<Field>,
+            embeddedFields: List<EmbeddedField>,
+            relations: List<androidx.room.vo.Relation>,
+            constructor: Constructor?
+        ): Pojo {
+            return Pojo(
+                    element = element,
+                    type = declaredType,
+                    fields = fields,
+                    embeddedFields = embeddedFields,
+                    relations = relations,
+                    constructor = constructor)
+        }
     }
 
     private data class FailedConstructor(

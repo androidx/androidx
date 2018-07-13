@@ -63,8 +63,8 @@ class EntityProcessor(
     private fun doProcess(): Entity {
         context.checker.hasAnnotation(element, androidx.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
-        val pojo = PojoProcessor(
-                baseContext = context,
+        val pojo = PojoProcessor.createFor(
+                context = context,
                 element = element,
                 bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                 parent = null,

@@ -336,8 +336,8 @@ class TypeAdapterStore private constructor(
                     resultInfo.error == null) {
                 // if result info is not null, first try a pojo row adapter
                 context.collectLogs { subContext ->
-                    val pojo = PojoProcessor(
-                            baseContext = subContext,
+                    val pojo = PojoProcessor.createFor(
+                            context = subContext,
                             element = MoreTypes.asTypeElement(typeMirror),
                             bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                             parent = null
@@ -381,8 +381,8 @@ class TypeAdapterStore private constructor(
             if (query.runtimeQueryPlaceholder) {
                 // just go w/ pojo and hope for the best. this happens for @RawQuery where we
                 // try to guess user's intention and hope that their query fits the result.
-                val pojo = PojoProcessor(
-                        baseContext = context,
+                val pojo = PojoProcessor.createFor(
+                        context = context,
                         element = MoreTypes.asTypeElement(typeMirror),
                         bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                         parent = null
