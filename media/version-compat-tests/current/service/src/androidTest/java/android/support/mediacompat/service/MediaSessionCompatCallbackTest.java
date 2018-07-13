@@ -1427,7 +1427,7 @@ public class MediaSessionCompatCallbackTest {
         }
 
         private boolean isCallerTestClient() {
-            if (Build.VERSION.SDK_INT >= 21 && Build.VERSION.SDK_INT < 28) {
+            if (Build.VERSION.SDK_INT < 28) {
                 // RemoteUserInfo isn't available.
                 return true;
             }
