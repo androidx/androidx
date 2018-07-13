@@ -18,6 +18,8 @@ package android.support.mediacompat.client;
 
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADD_QUEUE_ITEM;
 import static android.support.mediacompat.testlib.MediaControllerConstants
+        .ADD_QUEUE_ITEM_WITH_CUSTOM_PARCELABLE;
+import static android.support.mediacompat.testlib.MediaControllerConstants
         .ADD_QUEUE_ITEM_WITH_INDEX;
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADJUST_VOLUME;
 import static android.support.mediacompat.testlib.MediaControllerConstants.DISPATCH_MEDIA_BUTTON;
@@ -70,6 +72,8 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
+import androidx.media.test.lib.CustomParcelable;
+
 public class ClientBroadcastReceiver extends BroadcastReceiver {
 
     @Override
@@ -119,6 +123,17 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
                     controller.dispatchMediaButtonEvent(
                             (KeyEvent) extras.getParcelable(KEY_ARGUMENT));
                     break;
+                case ADD_QUEUE_ITEM_WITH_CUSTOM_PARCELABLE: {
+                    int testValue = extras.getInt(KEY_ARGUMENT);
+                    Bundle descExtras = new Bundle();
+                    descExtras.putParcelable("customParcelable", new CustomParcelable(testValue));
+                    MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
+                            .setMediaId("testMediaId")
+                            .setExtras(descExtras)
+                            .build();
+                    controller.addQueueItem(desc);
+                    break;
+                }
             }
         } else if (ACTION_CALL_TRANSPORT_CONTROLS_METHOD.equals(intent.getAction())
                 && extras != null) {
