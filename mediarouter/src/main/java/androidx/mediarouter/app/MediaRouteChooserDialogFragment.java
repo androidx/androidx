@@ -99,9 +99,12 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
             args.putBundle(ARGUMENT_SELECTOR, selector.asBundle());
             setArguments(args);
 
-            MediaRouteChooserDialog dialog = (MediaRouteChooserDialog)getDialog();
-            if (dialog != null) {
-                dialog.setRouteSelector(selector);
+            if (mDialog != null) {
+                if (USE_SUPPORT_DYNAMIC_GROUP) {
+                    ((MediaRouteDevicePickerDialog) mDialog).setRouteSelector(selector);
+                } else {
+                    ((MediaRouteChooserDialog) mDialog).setRouteSelector(selector);
+                }
             }
         }
     }
