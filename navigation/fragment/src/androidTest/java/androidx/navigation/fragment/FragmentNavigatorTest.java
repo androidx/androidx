@@ -47,6 +47,7 @@ import org.junit.Test;
 public class FragmentNavigatorTest {
 
     private static final int INITIAL_FRAGMENT = 1;
+    private static final int SECOND_FRAGMENT = 2;
 
     @Rule
     public ActivityTestRule<EmptyActivity> mActivityRule =
@@ -75,6 +76,8 @@ public class FragmentNavigatorTest {
         assertThat("Fragment should be added", fragment, is(notNullValue()));
         assertThat("Fragment should be the correct type", fragment,
                 is(CoreMatchers.<Fragment>instanceOf(EmptyFragment.class)));
+        assertThat("Fragment should be the primary navigation Fragment",
+                mFragmentManager.getPrimaryNavigationFragment(), is(fragment));
     }
 
     @UiThreadTest
@@ -98,6 +101,8 @@ public class FragmentNavigatorTest {
                 is(notNullValue()));
         assertThat("Replacement Fragment should be the correct type", replacementFragment,
                 is(CoreMatchers.<Fragment>instanceOf(EmptyFragment.class)));
+        assertThat("Replacement Fragment should be the primary navigation Fragment",
+                mFragmentManager.getPrimaryNavigationFragment(), is(replacementFragment));
         assertThat("Replacement should be a new instance", replacementFragment,
                 is(not(equalTo(fragment))));
         assertThat("Old instance should be destroyed", fragment.getLifecycle().getCurrentState(),
@@ -129,6 +134,8 @@ public class FragmentNavigatorTest {
                 is(notNullValue()));
         assertThat("Replacement Fragment should be the correct type", replacementFragment,
                 is(CoreMatchers.<Fragment>instanceOf(EmptyFragment.class)));
+        assertThat("Replacement Fragment should be the primary navigation Fragment",
+                mFragmentManager.getPrimaryNavigationFragment(), is(replacementFragment));
         assertThat("Replacement should be a new instance", replacementFragment,
                 is(not(equalTo(fragment))));
         assertThat("Old instance should be destroyed", fragment.getLifecycle().getCurrentState(),
@@ -162,6 +169,107 @@ public class FragmentNavigatorTest {
                 fragmentNavigator,
                 0,
                 Navigator.BACK_STACK_DESTINATION_POPPED);
+        verifyNoMoreInteractions(listener);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testPop() {
+        FragmentNavigator fragmentNavigator = new FragmentNavigator(mEmptyActivity,
+                mFragmentManager, R.id.container);
+        Navigator.OnNavigatorNavigatedListener listener =
+                mock(Navigator.OnNavigatorNavigatedListener.class);
+        fragmentNavigator.addOnNavigatorNavigatedListener(listener);
+        FragmentNavigator.Destination destination = fragmentNavigator.createDestination();
+        destination.setId(INITIAL_FRAGMENT);
+        destination.setFragmentClass(EmptyFragment.class);
+
+        // First push an initial Fragment
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+        Fragment fragment = mFragmentManager.findFragmentById(R.id.container);
+        assertThat("Fragment should be added", fragment, is(notNullValue()));
+
+        // Now push the Fragment that we want to pop
+        destination.setId(SECOND_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                SECOND_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+        Fragment replacementFragment = mFragmentManager.findFragmentById(R.id.container);
+        assertThat("Replacement Fragment should be added", replacementFragment,
+                is(notNullValue()));
+        assertThat("Replacement Fragment should be the correct type", replacementFragment,
+                is(CoreMatchers.<Fragment>instanceOf(EmptyFragment.class)));
+        assertThat("Replacement Fragment should be the primary navigation Fragment",
+                mFragmentManager.getPrimaryNavigationFragment(), is(replacementFragment));
+
+        // Now pop the Fragment
+        boolean popped = fragmentNavigator.popBackStack();
+        mFragmentManager.executePendingTransactions();
+        assertThat("FragmentNavigator should return true when popping a Fragment",
+                popped, is(true));
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
+        assertThat("Fragment should be the primary navigation Fragment after pop",
+                mFragmentManager.getPrimaryNavigationFragment(), is(fragment));
+        verifyNoMoreInteractions(listener);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testPopWithFragmentManager() {
+        FragmentNavigator fragmentNavigator = new FragmentNavigator(mEmptyActivity,
+                mFragmentManager, R.id.container);
+        Navigator.OnNavigatorNavigatedListener listener =
+                mock(Navigator.OnNavigatorNavigatedListener.class);
+        fragmentNavigator.addOnNavigatorNavigatedListener(listener);
+        FragmentNavigator.Destination destination = fragmentNavigator.createDestination();
+        destination.setId(INITIAL_FRAGMENT);
+        destination.setFragmentClass(EmptyFragment.class);
+
+        // First push an initial Fragment
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+        Fragment fragment = mFragmentManager.findFragmentById(R.id.container);
+        assertThat("Fragment should be added", fragment, is(notNullValue()));
+
+        // Now push the Fragment that we want to pop
+        destination.setId(SECOND_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                SECOND_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+        Fragment replacementFragment = mFragmentManager.findFragmentById(R.id.container);
+        assertThat("Replacement Fragment should be added", replacementFragment,
+                is(notNullValue()));
+        assertThat("Replacement Fragment should be the correct type", replacementFragment,
+                is(CoreMatchers.<Fragment>instanceOf(EmptyFragment.class)));
+        assertThat("Replacement Fragment should be the primary navigation Fragment",
+                mFragmentManager.getPrimaryNavigationFragment(), is(replacementFragment));
+
+        // Now pop the Fragment
+        mFragmentManager.popBackStackImmediate();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
+        assertThat("Fragment should be the primary navigation Fragment after pop",
+                mFragmentManager.getPrimaryNavigationFragment(), is(fragment));
         verifyNoMoreInteractions(listener);
     }
 }

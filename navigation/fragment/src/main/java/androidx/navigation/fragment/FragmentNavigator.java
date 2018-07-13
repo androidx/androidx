@@ -161,6 +161,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
 
         ft.replace(mContainerId, frag);
+        ft.setPrimaryNavigationFragment(frag);
 
         final @IdRes int destId = destination.getId();
         final boolean initialNavigation = mBackStack.isEmpty();
