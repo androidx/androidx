@@ -41,6 +41,7 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.core.SliceHints.HINT_ACTIVITY;
 
@@ -48,6 +49,7 @@ import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.app.slice.SliceManager;
 import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -359,7 +361,9 @@ public final class Slice implements VersionedParcelable {
         public Builder addIcon(IconCompat icon, @Nullable String subType,
                 @SliceHint String... hints) {
             Preconditions.checkNotNull(icon);
-            mItems.add(new SliceItem(icon, FORMAT_IMAGE, subType, hints));
+            if (isValidIcon(icon)) {
+                mItems.add(new SliceItem(icon, FORMAT_IMAGE, subType, hints));
+            }
             return this;
         }
 
@@ -371,7 +375,10 @@ public final class Slice implements VersionedParcelable {
         public Builder addIcon(IconCompat icon, @Nullable String subType,
                 @SliceHint List<String> hints) {
             Preconditions.checkNotNull(icon);
-            return addIcon(icon, subType, hints.toArray(new String[hints.size()]));
+            if (isValidIcon(icon)) {
+                return addIcon(icon, subType, hints.toArray(new String[hints.size()]));
+            }
+            return this;
         }
 
         /**
@@ -560,5 +567,20 @@ public final class Slice implements VersionedParcelable {
             Set<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(context.getSystemService(SliceManager.class)
                 .bindSlice(uri, unwrap(supportedSpecs)), context);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    static boolean isValidIcon(IconCompat icon) {
+        if (icon == null) {
+            return false;
+        }
+        if (icon.mType == Icon.TYPE_RESOURCE && icon.getResId() == 0) {
+            throw new IllegalArgumentException("Failed to add icon, invalid resource id: "
+                    + icon.getResId());
+        }
+        return true;
     }
 }
