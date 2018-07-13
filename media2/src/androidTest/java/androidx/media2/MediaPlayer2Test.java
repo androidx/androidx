@@ -2127,15 +2127,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     public void testPlayerEventCallback() throws Throwable {
         final int mp4Duration = 8484;
-
-        if (!checkLoadResource(R.raw.testvideo)) {
-            return; // skip;
-        }
         final DataSourceDesc2 dsd2 = createDataSourceDesc(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
-        mPlayer.setNextDataSource(dsd2);
-
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         final Monitor onDsdChangedCalled = new Monitor();
         final Monitor onPrepareCalled = new Monitor();
@@ -2151,10 +2144,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             @Override
             public void onCurrentDataSourceChanged(MediaPlayerConnector mpb, DataSourceDesc2 dsd) {
                 switch (onDsdChangedCalled.getNumSignal()) {
-                    case 0:
+                    case 1:
                         assertEquals(dsd2, dsd);
                         break;
-                    case 1:
+                    case 2:
                         assertNull(dsd);
                         break;
                 }
@@ -2190,9 +2183,18 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 onSeekCompleteCalled.signal();
             }
         };
+
         MediaPlayerConnector basePlayer = mPlayer.getMediaPlayerConnector();
         ExecutorService executor = Executors.newFixedThreadPool(1);
         basePlayer.registerPlayerEventCallback(executor, callback);
+
+        if (!checkLoadResource(R.raw.testvideo)) {
+            return; // skip;
+        }
+        assertEquals(1, onDsdChangedCalled.waitForCountedSignals(1));
+        mPlayer.setNextDataSource(dsd2);
+
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         onPrepareCalled.reset();
         onPlayerStateChangedCalled.reset();
@@ -2224,7 +2226,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         basePlayer.skipToNext();
         basePlayer.play();
-        assertEquals(2, onDsdChangedCalled.waitForCountedSignals(2));
+        assertEquals(3, onDsdChangedCalled.waitForCountedSignals(3));
 
         basePlayer.reset();
         assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, basePlayer.getPlayerState());

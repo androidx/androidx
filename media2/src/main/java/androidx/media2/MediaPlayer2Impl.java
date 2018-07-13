@@ -2064,6 +2064,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 mPlaybackParams = mPlaybackParamsToSetAfterSetDataSource;
                 mPlaybackParamsToSetAfterSetDataSource = null;
             }
+            notifyPlayerEvent(new PlayerEventNotifier() {
+                @Override
+                public void notify(PlayerEventCallback cb) {
+                    cb.onCurrentDataSourceChanged(mMediaPlayerConnectorImpl, mQueue.get(0).mDSD);
+                }
+            });
         }
 
         synchronized DataSourceError setNext(DataSourceDesc2 dsd) {
