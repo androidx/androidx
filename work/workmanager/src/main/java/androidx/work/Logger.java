@@ -28,20 +28,20 @@ import android.util.Log;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Logger {
 
-    private static boolean sVerboseLoggingEnabled = false;
+    private static int sLoggingLevel = Log.INFO;
 
     /**
-     * @param verboseLoggingEnabled {@code true} if verbose logging is enabled.
+     * @param loggingLevel The minimum logging level
      */
-    public static void setVerboseLoggingEnabled(boolean verboseLoggingEnabled) {
-        sVerboseLoggingEnabled = verboseLoggingEnabled;
+    public static void setMinimumLoggingLevel(int loggingLevel) {
+        sLoggingLevel = loggingLevel;
     }
 
     /**
      * Equivalent to Log.v.
      */
     public static void verbose(String tag, String message, Throwable... throwables)  {
-        if (sVerboseLoggingEnabled) {
+        if (sLoggingLevel <= Log.VERBOSE) {
             if (throwables != null && throwables.length >= 1) {
                 Log.v(tag, message, throwables[0]);
             } else {
@@ -54,7 +54,7 @@ public class Logger {
      * Equivalent to Log.d.
      */
     public static void debug(String tag, String message, Throwable... throwables)  {
-        if (sVerboseLoggingEnabled) {
+        if (sLoggingLevel <= Log.DEBUG) {
             if (throwables != null && throwables.length >= 1) {
                 Log.d(tag, message, throwables[0]);
             } else {
@@ -67,7 +67,7 @@ public class Logger {
      * Equivalent to Log.i.
      */
     public static void info(String tag, String message, Throwable... throwables)  {
-        if (sVerboseLoggingEnabled) {
+        if (sLoggingLevel <= Log.INFO) {
             if (throwables != null && throwables.length >= 1) {
                 Log.i(tag, message, throwables[0]);
             } else {
@@ -80,10 +80,12 @@ public class Logger {
      * Equivalent to Log.w.
      */
     public static void warning(String tag, String message, Throwable... throwables)  {
-        if (throwables != null && throwables.length >= 1) {
-            Log.w(tag, message, throwables[0]);
-        } else {
-            Log.w(tag, message);
+        if (sLoggingLevel <= Log.WARN) {
+            if (throwables != null && throwables.length >= 1) {
+                Log.w(tag, message, throwables[0]);
+            } else {
+                Log.w(tag, message);
+            }
         }
     }
 
@@ -91,10 +93,12 @@ public class Logger {
      * Equivalent to Log.e.
      */
     public static void error(String tag, String message, Throwable... throwables)  {
-        if (throwables != null && throwables.length >= 1) {
-            Log.e(tag, message, throwables[0]);
-        } else {
-            Log.e(tag, message);
+        if (sLoggingLevel <= Log.ERROR) {
+            if (throwables != null && throwables.length >= 1) {
+                Log.e(tag, message, throwables[0]);
+            } else {
+                Log.e(tag, message);
+            }
         }
     }
 

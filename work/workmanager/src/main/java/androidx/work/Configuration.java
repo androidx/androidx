@@ -21,6 +21,7 @@ import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.util.Log;
 
 import androidx.work.impl.utils.IdGenerator;
 
@@ -39,7 +40,7 @@ public final class Configuration {
     public static final int MIN_SCHEDULER_LIMIT = 20;
 
     private final @NonNull Executor mExecutor;
-    private final boolean mVerboseLoggingEnabled;
+    private final int mLoggingLevel;
     private final int mMinJobSchedulerId;
     private final int mMaxJobSchedulerId;
     private final int mMaxSchedulerLimit;
@@ -50,7 +51,7 @@ public final class Configuration {
         } else {
             mExecutor = builder.mExecutor;
         }
-        mVerboseLoggingEnabled = builder.mVerboseLoggingEnabled;
+        mLoggingLevel = builder.mLoggingLevel;
         mMinJobSchedulerId = builder.mMinJobSchedulerId;
         mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
         mMaxSchedulerLimit = builder.mMaxSchedulerLimit;
@@ -64,12 +65,12 @@ public final class Configuration {
     }
 
     /**
-     * @return {@code true} if verbose logging is enabled.
+     * @return The minimum logging level.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public boolean isVerboseLoggingEnabled() {
-        return mVerboseLoggingEnabled;
+    public int getMinimumLoggingLevel() {
+        return mLoggingLevel;
     }
 
     /**
@@ -128,7 +129,7 @@ public final class Configuration {
         int mMinJobSchedulerId = IdGenerator.INITIAL_ID;
         int mMaxJobSchedulerId = Integer.MAX_VALUE;
         int mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
-        boolean mVerboseLoggingEnabled;
+        int mLoggingLevel = Log.INFO;
         Executor mExecutor;
 
         /**
@@ -205,13 +206,17 @@ public final class Configuration {
         }
 
         /**
-         * Specifies whether to enable verbose WorkManager logging in logcat.
+         * Specifies the minimum logging level.
          *
-         * @param verboseLoggingEnabled {@code true} to enable verbose logging
+         * @param loggingLevel The minimum logging level, corresponding to the constants found in
+         *                     {@link android.util.Log}.  For example, specifying
+         *                     {@link android.util.Log#VERBOSE} will log everything, whereas
+         *                     specifying {@link android.util.Log#ERROR} will only log errors and
+         *                     assertions.  The default value is {@link android.util.Log#INFO}.
          * @return This {@link Builder} instance
          */
-        public @NonNull Builder setVerboseLoggingEnabled(boolean verboseLoggingEnabled) {
-            mVerboseLoggingEnabled = verboseLoggingEnabled;
+        public @NonNull Builder setMinimumLoggingLevel(int loggingLevel) {
+            mLoggingLevel = loggingLevel;
             return this;
         }
 
