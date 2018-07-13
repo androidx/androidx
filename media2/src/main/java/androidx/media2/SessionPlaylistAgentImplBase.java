@@ -507,7 +507,6 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         }
         if (mPlayer.getPlayerState() == MediaPlayerConnector.PLAYER_STATE_IDLE) {
             mPlayer.setDataSource(mCurrent.dsd);
-            mPlayer.prepare();
         } else {
             mPlayer.setNextDataSource(mCurrent.dsd);
             mPlayer.skipToNext();
