@@ -180,15 +180,4 @@ public class TextClassificationManager {
         }
         return LegacyTextClassifier.INSTANCE;
     }
-
-    /**
-     * Factory that creates {@link TextClassifier}.
-     */
-    public interface TextClassifierFactory {
-        /**
-         * Creates and returns a text classifier.
-         */
-        @NonNull
-        TextClassifier create(@NonNull TextClassificationContext textClassificationContext);
-    }
 }
