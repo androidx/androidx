@@ -54,7 +54,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
+import androidx.slice.SliceMetadata;
 import androidx.slice.SliceUtils;
+import androidx.slice.core.SliceAction;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
 import androidx.slice.widget.SliceView;
@@ -176,6 +178,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         heightMenu.add("WRAP_CONTENT");
         heightMenu.add("Tiny");
         heightMenu.add("Big");
+        menu.add("Limit actions");
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -239,6 +242,9 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 mSelectedHeight = 550;
                 updateHeight();
                 return true;
+            case "Limit actions":
+                limitActions();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -248,6 +254,20 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, mSelectedHeight,
                 getApplicationContext().getResources().getDisplayMetrics());
         mSliceView.setLayoutParams(lp);
+    }
+
+    private void limitActions() {
+        if (mSliceView.getSlice() == null) {
+            return;
+        }
+        List<SliceAction> actions = SliceMetadata.from(this, mSliceView.getSlice())
+                .getSliceActions();
+        if (actions != null) {
+            for (int i = 0; i < actions.size(); i++) {
+                Log.w(TAG, "hiding action: " + i + " " + actions.get(i).getTitle());
+            }
+        }
+        mSliceView.setSliceActions(null);
     }
 
     @Override

@@ -145,6 +145,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private SliceMetrics mCurrentSliceMetrics;
     private List<SliceAction> mActions;
     private ActionRow mActionRow;
+    private SliceMetadata mSliceMetadata;
 
     private boolean mShowActions = false;
     private boolean mIsScrollable = true;
@@ -455,16 +456,16 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             updateActions();
             return;
         }
-        mActions = mListContent.getSliceActions();
         // New slice means we shouldn't have any actions loading
         mCurrentView.setLoadingActions(null);
 
         // Check if the slice content is expired and show when it was last updated
-        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
-        long lastUpdated = sliceMetadata.getLastUpdatedTime();
+        mSliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
+        mActions = mSliceMetadata.getSliceActions();
+        long lastUpdated = mSliceMetadata.getLastUpdatedTime();
         mCurrentView.setLastUpdated(lastUpdated);
         mCurrentView.setShowLastUpdated(mShowLastUpdated && isExpired());
-        mCurrentView.setAllowTwoLines(sliceMetadata.isPermissionSlice());
+        mCurrentView.setAllowTwoLines(mSliceMetadata.isPermissionSlice());
 
         // Tint color can come with the slice, so may need to update it
         mCurrentView.setTint(getTintColor());
@@ -487,23 +488,29 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     private boolean isNeverExpired() {
-        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
-        long expiry = sliceMetadata.getExpiry();
+        if (mSliceMetadata == null) {
+            return true;
+        }
+        long expiry = mSliceMetadata.getExpiry();
         return expiry == SliceHints.INFINITY;
     }
 
     boolean isExpired() {
-        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
-        long expiry = sliceMetadata.getExpiry();
+        if (mSliceMetadata == null) {
+            return false;
+        }
+        long expiry = mSliceMetadata.getExpiry();
         long now = System.currentTimeMillis();
         return expiry != 0 && expiry != SliceHints.INFINITY && now > expiry;
     }
 
     private long getTimeToExpiry() {
-        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
-        long expiry = sliceMetadata.getExpiry();
+        if (mSliceMetadata == null) {
+            return 0;
+        }
+        long expiry = mSliceMetadata.getExpiry();
         long now = System.currentTimeMillis();
-        return (expiry == 0 || expiry == SliceHints.INFINITY ||  now > expiry) ? 0 : expiry - now;
+        return (expiry == 0 || expiry == SliceHints.INFINITY || now > expiry) ? 0 : expiry - now;
     }
 
     /**
@@ -522,6 +529,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     @Nullable
     public List<SliceAction> getSliceActions() {
+        if (mActions != null && mActions.isEmpty()) {
+            // They're empty because presenter set null slice actions, return null to be consistent.
+            return null;
+        }
         return mActions;
     }
 
@@ -537,10 +548,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     public void setSliceActions(@Nullable List<SliceAction> newActions) {
         // Check that these actions are part of available set
-        if (mCurrentSlice == null) {
+        if (mCurrentSlice == null || mSliceMetadata == null) {
             throw new IllegalStateException("Trying to set actions on a view without a slice");
         }
-        List<SliceAction> availableActions = mListContent.getSliceActions();
+        List<SliceAction> availableActions = mSliceMetadata.getSliceActions();
         if (availableActions != null && newActions != null) {
             for (int i = 0; i < newActions.size(); i++) {
                 if (!availableActions.contains(newActions.get(i))) {
@@ -549,7 +560,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
                 }
             }
         }
-        mActions = newActions;
+        mActions = newActions == null ? new ArrayList<SliceAction>() : newActions;
         updateActions();
     }
 
@@ -711,7 +722,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     private void updateActions() {
-        if (mActions == null || mActions.isEmpty()) {
+        if (mActions == null) {
             // No actions, hide the row, clear out the view
             mActionRow.setVisibility(View.GONE);
             mCurrentView.setSliceActions(null);
