@@ -181,7 +181,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         mPreferences = new Preferences(mContext);
         mForceStopRunnableCompleted = false;
 
-        Logger.setVerboseLoggingEnabled(mConfiguration.isVerboseLoggingEnabled());
+        Logger.setMinimumLoggingLevel(mConfiguration.getMinimumLoggingLevel());
 
         // Checks for app force stops.
         mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
