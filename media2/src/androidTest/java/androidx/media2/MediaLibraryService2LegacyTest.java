@@ -597,6 +597,19 @@ public class MediaLibraryService2LegacyTest extends MediaSessionService2LegacyTe
 
         final MediaLibrarySessionCallback callback = new MediaLibrarySessionCallback() {
             @Override
+            public SessionCommandGroup2 onConnect(MediaSession2 session,
+                    ControllerInfo controller) {
+                if (Process.myUid() == controller.getUid()) {
+                    SessionCommandGroup2 allowedCommands = new SessionCommandGroup2.Builder()
+                            .addAllPredefinedCommands()
+                            .addCommand(new SessionCommand2(testAction, null))
+                            .build();
+                    return allowedCommands;
+                }
+                return null;
+            }
+
+            @Override
             public void onCustomCommand(MediaSession2 session, ControllerInfo controller,
                     SessionCommand2 customCommand, Bundle args, ResultReceiver cb) {
                 assertEquals(SessionCommand2.COMMAND_CODE_CUSTOM, customCommand.getCommandCode());
@@ -619,6 +632,32 @@ public class MediaLibraryService2LegacyTest extends MediaSessionService2LegacyTe
             }
         });
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testCustomAction_rejected() throws InterruptedException {
+        prepareLooper();
+        final String testAction = "testCustomAction";
+
+        final MediaLibrarySessionCallback callback = new MediaLibrarySessionCallback() {
+            @Override
+            public void onCustomCommand(MediaSession2 session, ControllerInfo controller,
+                    SessionCommand2 customCommand, Bundle args, ResultReceiver cb) {
+                fail("LibrarySession shouldn't receive custom command");
+            }
+        };
+        TestServiceRegistry.getInstance().setSessionCallback(callback);
+
+        connectAndWait();
+        final CountDownLatch latch = new CountDownLatch(1);
+        mBrowserCompat.sendCustomAction(testAction, null, new CustomActionCallback() {
+            @Override
+            public void onResult(String action, Bundle extras, Bundle resultData) {
+                latch.countDown();
+            }
+        });
+        assertFalse("BrowserCompat shouldn't receive custom command",
+                latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     private static void assertMediaItemListEquals(List<MediaItem2> a, List<MediaItem> b) {

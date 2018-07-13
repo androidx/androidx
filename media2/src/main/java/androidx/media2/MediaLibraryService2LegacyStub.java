@@ -46,7 +46,6 @@ import java.util.List;
  * Implementation of {@link MediaBrowserServiceCompat} for interoperability between
  * {@link MediaLibraryService2} and {@link MediaBrowserCompat}.
  */
-// TODO: permission check
 class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     private static final String TAG = "MLS2LegacyStub";
     private static final boolean DEBUG = false;
@@ -70,39 +69,53 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
 
     @Override
     public BrowserRoot onGetRoot(String clientPackageName, int clientUid, final Bundle extras) {
-        final ControllerInfo controller = getController();
-        // Call callbacks directly instead of execute on the executor. Here's the reason.
-        // We need to return browser root here. So if we run the callback on the executor, we
-        // should wait for the completion.
-        // However, we cannot wait if the callback executor is the main executor, which posts
-        // the runnable to the main thread's. In that case, since this onGetRoot() always runs
-        // on the main thread, the posted runnable for calling onGetLibraryRoot() wouldn't run
-        // in here. Even worse, we cannot know whether it would be run on the main thread or
-        // not.
-        // Because of the reason, just call onGetLibraryRoot() directly here. onGetLibraryRoot()
-        // has documentation that it may be called on the main thread.
         BrowserRoot browserRoot = super.onGetRoot(clientPackageName, clientUid, extras);
         if (browserRoot == null) {
             return null;
         }
-        LibraryRoot libraryRoot = mLibrarySessionImpl.getCallback().onGetLibraryRoot(
-                mLibrarySessionImpl.getInstance(), controller, extras);
-        if (libraryRoot == null) {
-            // No library root, but keep browser compat connected to allow getting session.
-            return MediaUtils2.sDefaultBrowserRoot;
+        final ControllerInfo controller = getCurrentController();
+        if (getConnectedControllersManager().isAllowedCommand(controller,
+                SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT)) {
+            // Call callbacks directly instead of execute on the executor. Here's the reason.
+            // We need to return browser root here. So if we run the callback on the executor, we
+            // should wait for the completion.
+            // However, we cannot wait if the callback executor is the main executor, which posts
+            // the runnable to the main thread's. In that case, since this onGetRoot() always runs
+            // on the main thread, the posted runnable for calling onGetLibraryRoot() wouldn't run
+            // in here. Even worse, we cannot know whether it would be run on the main thread or
+            // not.
+            // Because of the reason, just call onGetLibraryRoot() directly here. onGetLibraryRoot()
+            // has documentation that it may be called on the main thread.
+            LibraryRoot libraryRoot = mLibrarySessionImpl.getCallback().onGetLibraryRoot(
+                    mLibrarySessionImpl.getInstance(), controller, extras);
+            if (libraryRoot != null) {
+                return new BrowserRoot(libraryRoot.getRootId(), libraryRoot.getExtras());
+            }
+        } else if (DEBUG) {
+            Log.d(TAG, "Command MBC.connect from " + controller + " was rejected by "
+                    + mLibrarySessionImpl);
         }
-        return new BrowserRoot(libraryRoot.getRootId(), libraryRoot.getExtras());
+        // No library root, but keep browser compat connected to allow getting session.
+        return MediaUtils2.sDefaultBrowserRoot;
     }
 
     @Override
     public void onSubscribe(final String id, final Bundle option) {
-        final ControllerInfo controller = getController();
+        final ControllerInfo controller = getCurrentController();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 // Note: If a developer calls notifyChildrenChanged inside, onLoadChildren will be
                 // called twice for a single subscription event.
                 // TODO(post 1.0): Fix the issue above.
+                if (!getConnectedControllersManager().isAllowedCommand(controller,
+                        SessionCommand2.COMMAND_CODE_LIBRARY_SUBSCRIBE)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Command MBC.subscribe() from " + controller + " was rejected"
+                                + " by " + mLibrarySessionImpl);
+                    }
+                    return;
+                }
                 mLibrarySessionImpl.getCallback().onSubscribe(mLibrarySessionImpl.getInstance(),
                         controller, id, option);
             }
@@ -111,12 +124,20 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
 
     @Override
     public void onUnsubscribe(final String id) {
-        final ControllerInfo controller = getController();
+        final ControllerInfo controller = getCurrentController();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
+                if (!getConnectedControllersManager().isAllowedCommand(controller,
+                        SessionCommand2.COMMAND_CODE_LIBRARY_UNSUBSCRIBE)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Command MBC.unsubscribe() from " + controller + " was rejected"
+                                + " by " + mLibrarySessionImpl);
+                    }
+                    return;
+                }
                 mLibrarySessionImpl.getCallback().onUnsubscribe(mLibrarySessionImpl.getInstance(),
-                        controller, id);
+                                controller, id);
             }
         });
     }
@@ -130,10 +151,19 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     public void onLoadChildren(final String parentId, final Result<List<MediaItem>> result,
             final Bundle options) {
         result.detach();
-        final ControllerInfo controller = getController();
+        final ControllerInfo controller = getCurrentController();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
+                if (!getConnectedControllersManager().isAllowedCommand(controller,
+                        SessionCommand2.COMMAND_CODE_LIBRARY_GET_CHILDREN)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Command MBC.subscribe() from " + controller + " was rejected"
+                                + " by " + mLibrarySessionImpl);
+                    }
+                    result.sendError(null);
+                    return;
+                }
                 if (options != null) {
                     options.setClassLoader(mLibrarySessionImpl.getContext().getClassLoader());
                     try {
@@ -167,10 +197,19 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     @Override
     public void onLoadItem(final String itemId, final Result<MediaItem> result) {
         result.detach();
-        final ControllerInfo controller = getController();
+        final ControllerInfo controller = getCurrentController();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
+                if (!getConnectedControllersManager().isAllowedCommand(controller,
+                        SessionCommand2.COMMAND_CODE_LIBRARY_GET_ITEM)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Command MBC.getItem() from " + controller + " was rejected by "
+                                + mLibrarySessionImpl);
+                    }
+                    result.sendError(null);
+                    return;
+                }
                 MediaItem2 item = mLibrarySessionImpl.getCallback().onGetItem(
                         mLibrarySessionImpl.getInstance(), controller, itemId);
                 if (item == null) {
@@ -185,17 +224,26 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     @Override
     public void onSearch(final String query, final Bundle extras,
             final Result<List<MediaItem>> result) {
-        result.detach();
-        final ControllerInfo controller = getController();
+        final ControllerInfo controller = getCurrentController();
         if (!(controller.getControllerCb() instanceof BrowserLegacyCb)) {
             if (DEBUG) {
                 throw new IllegalStateException("Callback hasn't registered. Must be a bug.");
             }
             return;
         }
+        result.detach();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
+                if (!getConnectedControllersManager().isAllowedCommand(controller,
+                        SessionCommand2.COMMAND_CODE_LIBRARY_SEARCH)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Command MBC.search() from " + controller + " was rejected by "
+                                + mLibrarySessionImpl);
+                    }
+                    result.sendError(null);
+                    return;
+                }
                 BrowserLegacyCb cb = (BrowserLegacyCb) controller.getControllerCb();
                 cb.registerSearchRequest(controller, query, extras, result);
                 mLibrarySessionImpl.getCallback().onSearch(mLibrarySessionImpl.getInstance(),
@@ -211,11 +259,21 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
         if (result != null) {
             result.detach();
         }
-        final ControllerInfo controller = getController();
+        final ControllerInfo controller = getCurrentController();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 SessionCommand2 command = new SessionCommand2(action, null);
+                if (!getConnectedControllersManager().isAllowedCommand(controller, command)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Command MBC.sendCustomAction(" + command + ") from "
+                                + controller + " was rejected by " + mLibrarySessionImpl);
+                    }
+                    if (result != null) {
+                        result.sendError(null);
+                    }
+                    return;
+                }
                 CustomActionResultReceiver receiver =
                         result == null ? null : new CustomActionResultReceiver(result);
                 mLibrarySessionImpl.getCallback().onCustomCommand(mLibrarySessionImpl.getInstance(),
@@ -233,6 +291,10 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
 
     ControllerInfo getControllersForAll() {
         return mControllersForAll;
+    }
+
+    private ControllerInfo getCurrentController() {
+        return getConnectedControllersManager().getController(getCurrentBrowserInfo());
     }
 
     private static class CustomActionResultReceiver extends ResultReceiver {

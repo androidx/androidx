@@ -40,7 +40,7 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
     }
 
     static final class RemoteUserInfoImplApi28 implements MediaSessionManager.RemoteUserInfoImpl {
-        android.media.session.MediaSessionManager.RemoteUserInfo mObject;
+        final android.media.session.MediaSessionManager.RemoteUserInfo mObject;
 
         RemoteUserInfoImplApi28(String packageName, int pid, int uid) {
             mObject = new android.media.session.MediaSessionManager.RemoteUserInfo(
