@@ -43,6 +43,7 @@ task jarTestLibrarySource(type: Jar, dependsOn: compileTestLibrarySource) {
 
 supportLibrary {
     name = "Android Lifecycles Compiler"
+    toolingProject = true
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLES_EXT
     mavenGroup = LibraryGroups.LIFECYCLE
