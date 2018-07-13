@@ -16,8 +16,6 @@
 
 package androidx.webkit;
 
-import static org.junit.Assume.assumeTrue;
-
 import android.webkit.WebSettings;
 
 import androidx.test.filters.SmallTest;
@@ -35,7 +33,7 @@ public class ServiceWorkerWebSettingsCompatTest {
 
     @Before
     public void setUp() throws Exception {
-        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_BASIC_USAGE));
+        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
         mSettings = ServiceWorkerControllerCompat.getInstance().getServiceWorkerWebSettings();
     }
 
@@ -46,7 +44,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      */
     @Test
     public void testCacheMode() {
-        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_CACHE_MODE));
+        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_CACHE_MODE);
 
         int i = WebSettings.LOAD_DEFAULT;
         Assert.assertEquals(i, mSettings.getCacheMode());
@@ -63,7 +61,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      */
     @Test
     public void testAllowContentAccess() {
-        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS));
+        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS);
 
         Assert.assertEquals(mSettings.getAllowContentAccess(), true);
         for (boolean b : new boolean[]{false, true}) {
@@ -79,7 +77,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      */
     @Test
     public void testAllowFileAccess() {
-        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_FILE_ACCESS));
+        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_FILE_ACCESS);
 
         Assert.assertEquals(mSettings.getAllowFileAccess(), true);
         for (boolean b : new boolean[]{false, true}) {
@@ -95,8 +93,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      */
     @Test
     public void testBlockNetworkLoads() {
-        assumeTrue(WebViewFeature.isFeatureSupported(
-                WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS));
+        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS);
 
         // Note: we cannot test this setter unless we provide the INTERNET permission, otherwise we
         // get a SecurityException when we pass 'false'.

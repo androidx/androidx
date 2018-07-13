@@ -87,6 +87,12 @@ public class WebViewApkTest {
             }
             return 0;
         }
+
+        @Override
+        public String toString() {
+            return this.mComponents[0] + "." + this.mComponents[1] + "."
+                    + this.mComponents[2] + "." + this.mComponents[3];
+        }
     }
 
     private WebViewVersion getInstalledWebViewVersionFromPackage() {
@@ -112,7 +118,12 @@ public class WebViewApkTest {
         // For simplicity, we require this test to run on at least the first WebView canary
         // supporting the bulk of WebView features (there's nothing interesting to test before the
         // first M67).
-        Assume.assumeTrue(apkVersion.compareTo(new WebViewVersion("67.0.3396.0")) >= 0);
+        final String minimumSupportedVersion = "67.0.3396.0";
+        final String msg = "Installed APK (" + apkVersion
+                + ") is below the minimum version for which we test features ("
+                + minimumSupportedVersion + ")";
+        Assume.assumeTrue(msg,
+                apkVersion.compareTo(new WebViewVersion(minimumSupportedVersion)) >= 0);
 
         // Add/remove Features for each WebView version. Use http://go/find-releases (or the commits
         // tab in go/chromiumdash) to figure out the first canary which declares support for the
@@ -179,7 +190,10 @@ public class WebViewApkTest {
         // WebView version: e.g. 46.0.2490.14, or 67.0.3396.17.
         String expectedWebViewVersion =
                 InstrumentationRegistry.getArguments().getString("webview-version");
-        Assume.assumeNotNull(expectedWebViewVersion);
+        // Use assumeTrue instead of using assumeNotNull so that we can provide a more descriptive
+        // message.
+        Assume.assumeTrue("Did not receive a WebView version as an instrumentation argument",
+                expectedWebViewVersion != null);
         String actualWebViewVersion =
                 WebViewCompat.getCurrentWebViewPackage(
                         InstrumentationRegistry.getTargetContext()).versionName;

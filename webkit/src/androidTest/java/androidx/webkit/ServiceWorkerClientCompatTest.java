@@ -17,7 +17,6 @@
 package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
@@ -149,9 +148,8 @@ public class ServiceWorkerClientCompatTest {
     // Test correct invocation of shouldInterceptRequest for Service Workers.
     @Test
     public void testServiceWorkerClientInterceptCallback() throws Exception {
-        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_BASIC_USAGE));
-        assumeTrue(WebViewFeature.isFeatureSupported(
-                WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST));
+        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
+        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST);
 
         final InterceptServiceWorkerClient mInterceptServiceWorkerClient =
                 new InterceptServiceWorkerClient();

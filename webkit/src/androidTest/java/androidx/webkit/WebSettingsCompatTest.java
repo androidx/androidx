@@ -19,7 +19,6 @@ package androidx.webkit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
 
 import android.webkit.WebSettings;
 
@@ -47,7 +46,7 @@ public class WebSettingsCompatTest {
      */
     @Test
     public void testOffscreenPreRaster() {
-        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.OFF_SCREEN_PRERASTER));
+        AssumptionUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
 
         assertFalse(WebSettingsCompat.getOffscreenPreRaster(mWebViewOnUiThread.getSettings()));
 
@@ -62,7 +61,7 @@ public class WebSettingsCompatTest {
      */
     @Test
     public void testEnableSafeBrowsing() throws Throwable {
-        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE));
+        AssumptionUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
 
         WebSettingsCompat.setSafeBrowsingEnabled(mWebViewOnUiThread.getSettings(), false);
         assertFalse(WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings()));
@@ -75,8 +74,7 @@ public class WebSettingsCompatTest {
      */
     @Test
     public void testDisabledActionModeMenuItems() throws Throwable {
-        assumeTrue(
-                WebViewFeature.isFeatureSupported(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS));
+        AssumptionUtils.checkFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
 
         assertEquals(WebSettings.MENU_ITEM_NONE,
                 WebSettingsCompat.getDisabledActionModeMenuItems(mWebViewOnUiThread.getSettings()));

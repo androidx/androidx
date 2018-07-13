@@ -111,10 +111,8 @@ public class WebViewClientCompatTest {
      */
     @Test
     public void testShouldOverrideUrlLoading() throws InterruptedException {
-        Assume.assumeTrue(
-                WebViewFeature.isFeatureSupported(WebViewFeature.SHOULD_OVERRIDE_WITH_REDIRECTS));
-        Assume.assumeTrue(
-                WebViewFeature.isFeatureSupported(WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT));
+        AssumptionUtils.checkFeature(WebViewFeature.SHOULD_OVERRIDE_WITH_REDIRECTS);
+        AssumptionUtils.checkFeature(WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT);
 
         String data = "<html><body>"
                 + "<a href=\"" + TEST_URL + "\" id=\"link\">new page</a>"
@@ -164,10 +162,8 @@ public class WebViewClientCompatTest {
      */
     @Test
     public void testOnReceivedError() throws Exception {
-        Assume.assumeTrue(
-                WebViewFeature.isFeatureSupported(WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR));
-        Assume.assumeTrue(
-                WebViewFeature.isFeatureSupported(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE));
+        AssumptionUtils.checkFeature(WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR);
+        AssumptionUtils.checkFeature(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE);
 
         final MockWebViewClient webViewClient = new MockWebViewClient();
         mWebViewOnUiThread.setWebViewClient(webViewClient);
@@ -187,8 +183,7 @@ public class WebViewClientCompatTest {
      */
     @Test
     public void testOnReceivedErrorForSubresource() throws Exception {
-        Assume.assumeTrue(
-                WebViewFeature.isFeatureSupported(WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR));
+        AssumptionUtils.checkFeature(WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR);
 
         final MockWebViewClient webViewClient = new MockWebViewClient();
         mWebViewOnUiThread.setWebViewClient(webViewClient);
@@ -213,12 +208,10 @@ public class WebViewClientCompatTest {
      */
     @Test
     public void testOnSafeBrowsingHitBackToSafety() throws Throwable {
-        Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
-        Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE));
-        Assume.assumeTrue(WebViewFeature.isFeatureSupported(
-                WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY));
-        Assume.assumeTrue(
-                WebViewFeature.isFeatureSupported(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE));
+        AssumptionUtils.checkFeature(WebViewFeature.SAFE_BROWSING_HIT);
+        AssumptionUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
+        AssumptionUtils.checkFeature(WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY);
+        AssumptionUtils.checkFeature(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE);
 
         final SafeBrowsingBackToSafetyClient backToSafetyWebViewClient =
                 new SafeBrowsingBackToSafetyClient();
@@ -248,10 +241,9 @@ public class WebViewClientCompatTest {
      */
     @Test
     public void testOnSafeBrowsingHitProceed() throws Throwable {
-        Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
-        Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE));
-        Assume.assumeTrue(WebViewFeature.isFeatureSupported(
-                WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED));
+        AssumptionUtils.checkFeature(WebViewFeature.SAFE_BROWSING_HIT);
+        AssumptionUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
+        AssumptionUtils.checkFeature(WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED);
 
         final SafeBrowsingProceedClient proceedWebViewClient = new SafeBrowsingProceedClient();
         mWebViewOnUiThread.setWebViewClient(proceedWebViewClient);
@@ -273,7 +265,8 @@ public class WebViewClientCompatTest {
         // enabled.
         boolean deviceSupportsSafeBrowsing =
                 WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings());
-        Assume.assumeTrue(deviceSupportsSafeBrowsing);
+        final String msg = "The device should support Safe Browsing";
+        Assume.assumeTrue(msg, deviceSupportsSafeBrowsing);
 
         Assert.assertNull(client.getOnReceivedResourceError());
         mWebViewOnUiThread.loadUrlAndWaitForCompletion(TEST_SAFE_BROWSING_URL);
@@ -290,7 +283,7 @@ public class WebViewClientCompatTest {
      */
     @Test
     public void testOnPageCommitVisibleCalled() throws Exception {
-        Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.VISUAL_STATE_CALLBACK));
+        AssumptionUtils.checkFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
 
         final CountDownLatch callbackLatch = new CountDownLatch(1);
 
