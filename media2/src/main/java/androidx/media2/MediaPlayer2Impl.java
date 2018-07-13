@@ -243,8 +243,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * playback will continue from where it was paused. If playback had
      * been stopped, or never started before, playback will start at the
      * beginning.
-     *
-     * @throws IllegalStateException if it is called in an invalid state
      */
     @Override
     public void play() {
@@ -263,8 +261,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * call prepare(). For streams, you should call prepare(),
      * which returns immediately, rather than blocking until enough data has been
      * buffered.
-     *
-     * @throws IllegalStateException if it is called in an invalid state
      */
     @Override
     public void prepare() {
@@ -278,8 +274,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     /**
      * Pauses playback. Call play() to resume.
-     *
-     * @throws IllegalStateException if the internal player engine has not been initialized.
      */
     @Override
     public void pause() {
@@ -293,8 +287,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     /**
      * Tries to play next data source if applicable.
-     *
-     * @throws IllegalStateException if it is called in an invalid state
      */
     @Override
     public void skipToNext() {
@@ -400,7 +392,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_SET_DATA_SOURCE, false) {
             @Override
             void process() {
-                Preconditions.checkNotNull(dsd, "the DataSourceDesc2 cannot be null");
+                Preconditions.checkArgument(dsd != null, "the DataSourceDesc2 cannot be null");
                 // TODO: setDataSource could update exist data source
                 try {
                     mPlayer.setFirst(dsd);
@@ -424,7 +416,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCE, false) {
             @Override
             void process() {
-                Preconditions.checkNotNull(dsd, "the DataSourceDesc2 cannot be null");
+                Preconditions.checkArgument(dsd != null, "the DataSourceDesc2 cannot be null");
                 handleDataSourceError(mPlayer.setNext(dsd));
             }
         });
@@ -631,7 +623,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     static void handleDataSource(MediaPlayerSource src)
             throws IOException {
         final DataSourceDesc2 dsd = src.getDSD();
-        Preconditions.checkNotNull(dsd, "the DataSourceDesc2 cannot be null");
+        Preconditions.checkArgument(dsd != null, "the DataSourceDesc2 cannot be null");
 
         MediaPlayer player = src.getPlayer();
         switch (dsd.getType()) {
@@ -1938,7 +1930,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
             if (!skip) {
                 try {
-                    process();
+                    if (mMediaCallType != CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED
+                            && getState() == PLAYER_STATE_ERROR) {
+                        status = CALL_STATUS_INVALID_OPERATION;
+                    } else {
+                        process();
+                    }
                 } catch (IllegalStateException e) {
                     status = CALL_STATUS_INVALID_OPERATION;
                 } catch (IllegalArgumentException e) {
