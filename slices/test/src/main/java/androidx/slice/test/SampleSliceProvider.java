@@ -106,6 +106,7 @@ public class SampleSliceProvider extends SliceProvider {
             "slices",
             "cat",
             "permission",
+            "longtext",
     };
 
     /**
@@ -143,6 +144,8 @@ public class SampleSliceProvider extends SliceProvider {
         }
         switch (path) {
             // TODO: add list / grid slices with 'see more' options
+            case "/longtext":
+                return createLongText(sliceUri);
             case "/message":
                 return createMessagingSlice(sliceUri);
             case "/wifi":
@@ -491,6 +494,22 @@ public class SampleSliceProvider extends SliceProvider {
                 .addEndItem(sendNote, false)
                 .setPrimaryAction(sendEmail))
                 .build();
+    }
+
+    private Slice createLongText(Uri sliceUri) {
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        SliceAction action = SliceAction.create(getBroadcastIntent(ACTION_TOAST, "Open story"),
+                IconCompat.createWithResource(getContext(), R.drawable.pizza1), SMALL_IMAGE,
+                "Best Pizza");
+        lb.setHeader(new HeaderBuilder()
+                .setTitle("Best new pizza places in San Francisco")
+                .setSubtitle("June 3rd, 2019 - Pizza Review")
+                .setPrimaryAction(action));
+        lb.addRow(new RowBuilder()
+                .setSubtitle("San Francisco doesn't have a lot of variety in terms of pizza, "
+                        + "you're either getting something fancy and tasty or something awful, "
+                        + "there are very few mid-tier pizza options."));
+        return lb.build();
     }
 
     private Slice createMessagingSlice(Uri sliceUri) {

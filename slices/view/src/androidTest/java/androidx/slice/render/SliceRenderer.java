@@ -140,7 +140,7 @@ public class SliceRenderer {
         if (!output.exists()) {
             output.mkdir();
         }
-        mDoneLatch = new CountDownLatch(SampleSliceProvider.URI_PATHS.length * 3 + 1);
+        mDoneLatch = new CountDownLatch(SampleSliceProvider.URI_PATHS.length * 4 + 1);
 
         ExecutorService executor = Executors.newFixedThreadPool(5);
         for (final String slice : SampleSliceProvider.URI_PATHS) {

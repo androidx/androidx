@@ -94,6 +94,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     int mMaxSmallHeight;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     Set<SliceItem> mLoadingActions = new HashSet<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mAllowTwoLines;
 
     public LargeSliceAdapter(Context context) {
         mContext = context;
@@ -208,6 +210,14 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         } else {
             notifyDataSetChanged();
         }
+    }
+
+    /**
+     * Sets whether this slice can have 2 lines of subtitle text in the first row.
+     */
+    public void setAllowTwoLines(boolean allowTwoLines) {
+        mAllowTwoLines = allowTwoLines;
+        notifyHeaderChanged();
     }
 
     @Override
@@ -343,6 +353,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             if (mSliceChildView instanceof RowView) {
                 ((RowView) mSliceChildView).setSingleItem(getItemCount() == 1);
             }
+            mSliceChildView.setAllowTwoLines(mAllowTwoLines);
             mSliceChildView.setSliceActions(isFirstPosition ? mSliceActions : null);
             mSliceChildView.setSliceItem(item, isHeader, position, getItemCount(), mSliceObserver);
             int[] info = new int[2];
