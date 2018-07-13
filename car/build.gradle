@@ -34,6 +34,11 @@ dependencies {
 }
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
     sourceSets {
         main.res.srcDirs 'res', 'res-public'
     }
@@ -46,7 +51,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.CAR
     inceptionYear = "2017"
     description = "Android Car Support UI"
-    java8Library = true
     minSdkVersion = 24
     failOnUncheckedWarnings = false
 }
