@@ -16,32 +16,15 @@
 
 package androidx.media2;
 
-import android.content.Context;
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.util.Preconditions;
-
-import java.io.FileDescriptor;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.HttpCookie;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Structure for data source descriptor. Used by {@link MediaItem2}.
- * <p>
- * Users should use {@link Builder} to change {@link DataSourceDesc2}.
  *
  * @see MediaItem2
  */
-public final class DataSourceDesc2 {
-    /* No data source has been set yet */
-    public static final int TYPE_NONE     = 0;
+public abstract class DataSourceDesc2 {
     /* data source is type of MediaDataSource */
     public static final int TYPE_CALLBACK = 1;
     /* data source is type of FileDescriptor */
@@ -51,7 +34,7 @@ public final class DataSourceDesc2 {
 
     // intentionally less than long.MAX_VALUE.
     // Declare this first to avoid 'illegal forward reference'.
-    private static final long LONG_MAX = 0x7ffffffffffffffL;
+    static final long LONG_MAX = 0x7ffffffffffffffL;
 
     /**
      * Used when a position is unknown.
@@ -60,35 +43,6 @@ public final class DataSourceDesc2 {
      */
     public static final long POSITION_UNKNOWN = LONG_MAX;
 
-    /**
-     * Used when the length of file descriptor is unknown.
-     *
-     * @see #getFileDescriptorLength()
-     */
-    public static final long FD_LENGTH_UNKNOWN = LONG_MAX;
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mType = TYPE_NONE;
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    MediaDataSource2 mMediaDataSource2;
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    FileDescriptor mFD;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    long mFDOffset = 0;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    long mFDLength = FD_LENGTH_UNKNOWN;
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Uri mUri;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Map<String, String> mUriHeader;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    List<HttpCookie> mUriCookies;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Context mUriContext;
-
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     String mMediaId;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -96,7 +50,15 @@ public final class DataSourceDesc2 {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mEndPositionMs = POSITION_UNKNOWN;
 
-    DataSourceDesc2() {
+    DataSourceDesc2(Builder builder) {
+        if (builder.mStartPositionMs > builder.mEndPositionMs) {
+            throw new IllegalStateException("Illegal start/end position: "
+                    + builder.mStartPositionMs + " : " + builder.mEndPositionMs);
+        }
+
+        mMediaId = builder.mMediaId;
+        mStartPositionMs = builder.mStartPositionMs;
+        mEndPositionMs = builder.mEndPositionMs;
     }
 
     /**
@@ -128,115 +90,25 @@ public final class DataSourceDesc2 {
      * Return the type of data source.
      * @return the type of data source
      */
-    public int getType() {
-        return mType;
-    }
-
-    /**
-     * Return the MediaDataSource2 of this data source.
-     * It's meaningful only when {@code getType} returns {@link #TYPE_CALLBACK}.
-     * @return the MediaDataSource2 of this data source
-     */
-    public @Nullable MediaDataSource2 getMediaDataSource2() {
-        return mMediaDataSource2;
-    }
-
-    /**
-     * Return the FileDescriptor of this data source.
-     * It's meaningful only when {@code getType} returns {@link #TYPE_FD}.
-     * @return the FileDescriptor of this data source
-     */
-    public @Nullable FileDescriptor getFileDescriptor() {
-        return mFD;
-    }
-
-    /**
-     * Return the offset associated with the FileDescriptor of this data source.
-     * It's meaningful only when {@code getType} returns {@link #TYPE_FD} and it has
-     * been set by the {@link Builder}.
-     * @return the offset associated with the FileDescriptor of this data source
-     */
-    public long getFileDescriptorOffset() {
-        return mFDOffset;
-    }
-
-    /**
-     * Return the content length associated with the FileDescriptor of this data source.
-     * It's meaningful only when {@code getType} returns {@link #TYPE_FD}.
-     * {@link #FD_LENGTH_UNKNOWN} means same as the length of source content.
-     * @return the content length associated with the FileDescriptor of this data source
-     */
-    public long getFileDescriptorLength() {
-        return mFDLength;
-    }
-
-    /**
-     * Return the Uri of this data source.
-     * It's meaningful only when {@code getType} returns {@link #TYPE_URI}.
-     * @return the Uri of this data source
-     */
-    public @Nullable Uri getUri() {
-        return mUri;
-    }
-
-    /**
-     * Return the Uri headers of this data source.
-     * It's meaningful only when {@code getType} returns {@link #TYPE_URI}.
-     * @return the Uri headers of this data source
-     */
-    public @Nullable Map<String, String> getUriHeaders() {
-        if (mUriHeader == null) {
-            return null;
-        }
-        return new HashMap<String, String>(mUriHeader);
-    }
-
-    /**
-     * Return the Uri cookies of this data source.
-     * It's meaningful only when {@code getType} returns {@link #TYPE_URI}.
-     * @return the Uri cookies of this data source
-     */
-    public @Nullable List<HttpCookie> getUriCookies() {
-        if (mUriCookies == null) {
-            return null;
-        }
-        return new ArrayList<HttpCookie>(mUriCookies);
-    }
-
-    /**
-     * Return the Context used for resolving the Uri of this data source.
-     * It's meaningful only when {@code getType} returns {@link #TYPE_URI}.
-     * @return the Context used for resolving the Uri of this data source
-     */
-    public @Nullable Context getUriContext() {
-        return mUriContext;
-    }
+    public abstract int getType();
 
     /**
      * Builder class for {@link DataSourceDesc2} objects.
+     *
+     * @param <T> The Builder of the derived classe.
      */
-    public static class Builder {
-        private int mType = TYPE_NONE;
-
-        private MediaDataSource2 mMediaDataSource2;
-
-        private FileDescriptor mFD;
-        private long mFDOffset = 0;
-        private long mFDLength = FD_LENGTH_UNKNOWN;
-
-        private Uri mUri;
-        private Map<String, String> mUriHeader;
-        private List<HttpCookie> mUriCookies;
-        private Context mUriContext;
-
-        private String mMediaId;
-        private long mStartPositionMs = 0;
-        private long mEndPositionMs = POSITION_UNKNOWN;
+    public abstract static class Builder<T extends Builder> {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        String mMediaId;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        long mStartPositionMs = 0;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        long mEndPositionMs = POSITION_UNKNOWN;
 
         /**
          * Constructs a new Builder with the defaults.
          */
-        public Builder() {
+        Builder() {
         }
 
         /**
@@ -244,56 +116,10 @@ public final class DataSourceDesc2 {
          * @param dsd the {@link DataSourceDesc2} object whose data will be reused
          * in the new Builder.
          */
-        public Builder(@NonNull DataSourceDesc2 dsd) {
-            mType = dsd.mType;
-            mMediaDataSource2 = dsd.mMediaDataSource2;
-            mFD = dsd.mFD;
-            mFDOffset = dsd.mFDOffset;
-            mFDLength = dsd.mFDLength;
-            mUri = dsd.mUri;
-            mUriHeader = dsd.mUriHeader;
-            mUriCookies = dsd.mUriCookies;
-            mUriContext = dsd.mUriContext;
-
+        Builder(@NonNull DataSourceDesc2 dsd) {
             mMediaId = dsd.mMediaId;
             mStartPositionMs = dsd.mStartPositionMs;
             mEndPositionMs = dsd.mEndPositionMs;
-        }
-
-        /**
-         * Combines all of the fields that have been set and return a new
-         * {@link DataSourceDesc2} object. <code>IllegalStateException</code> will be
-         * thrown if there is conflict between fields.
-         *
-         * @return a new {@link DataSourceDesc2} object
-         */
-        public @NonNull DataSourceDesc2 build() {
-            if (mType != TYPE_CALLBACK
-                    && mType != TYPE_FD
-                    && mType != TYPE_URI) {
-                throw new IllegalStateException("Illegal type: " + mType);
-            }
-            if (mStartPositionMs > mEndPositionMs) {
-                throw new IllegalStateException("Illegal start/end position: "
-                        + mStartPositionMs + " : " + mEndPositionMs);
-            }
-
-            DataSourceDesc2 dsd = new DataSourceDesc2();
-            dsd.mType = mType;
-            dsd.mMediaDataSource2 = mMediaDataSource2;
-            dsd.mFD = mFD;
-            dsd.mFDOffset = mFDOffset;
-            dsd.mFDLength = mFDLength;
-            dsd.mUri = mUri;
-            dsd.mUriHeader = mUriHeader;
-            dsd.mUriCookies = mUriCookies;
-            dsd.mUriContext = mUriContext;
-
-            dsd.mMediaId = mMediaId;
-            dsd.mStartPositionMs = mStartPositionMs;
-            dsd.mEndPositionMs = mEndPositionMs;
-
-            return dsd;
         }
 
         /**
@@ -302,9 +128,9 @@ public final class DataSourceDesc2 {
          * @param mediaId the media Id of this data source
          * @return the same Builder instance.
          */
-        public @NonNull Builder setMediaId(String mediaId) {
+        public @NonNull T setMediaId(String mediaId) {
             mMediaId = mediaId;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -315,12 +141,12 @@ public final class DataSourceDesc2 {
          * @return the same Builder instance.
          *
          */
-        public @NonNull Builder setStartPosition(long position) {
+        public @NonNull T setStartPosition(long position) {
             if (position < 0) {
                 position = 0;
             }
             mStartPositionMs = position;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -330,152 +156,12 @@ public final class DataSourceDesc2 {
          * @param position the end position in milliseconds at which the playback will end
          * @return the same Builder instance.
          */
-        public @NonNull Builder setEndPosition(long position) {
+        public @NonNull T setEndPosition(long position) {
             if (position < 0) {
                 position = POSITION_UNKNOWN;
             }
             mEndPositionMs = position;
-            return this;
-        }
-
-        /**
-         * Sets the data source (MediaDataSource2) to use.
-         *
-         * @param m2ds the MediaDataSource2 for the media you want to play
-         * @return the same Builder instance.
-         * @throws NullPointerException if m2ds is null.
-         */
-        public @NonNull Builder setDataSource(@NonNull MediaDataSource2 m2ds) {
-            Preconditions.checkNotNull(m2ds);
-            resetDataSource();
-            mType = TYPE_CALLBACK;
-            mMediaDataSource2 = m2ds;
-            return this;
-        }
-
-        /**
-         * Sets the data source (FileDescriptor) to use. The FileDescriptor must be
-         * seekable (N.B. a LocalSocket is not seekable). It is the caller's responsibility
-         * to close the file descriptor after the source has been used.
-         *
-         * @param fd the FileDescriptor for the file you want to play
-         * @return the same Builder instance.
-         * @throws NullPointerException if fd is null.
-         */
-        public @NonNull Builder setDataSource(@NonNull FileDescriptor fd) {
-            Preconditions.checkNotNull(fd);
-            resetDataSource();
-            mType = TYPE_FD;
-            mFD = fd;
-            return this;
-        }
-
-        /**
-         * Sets the data source (FileDescriptor) to use. The FileDescriptor must be
-         * seekable (N.B. a LocalSocket is not seekable). It is the caller's responsibility
-         * to close the file descriptor after the source has been used.
-         *
-         * Any negative number for offset is treated as 0.
-         * Any negative number for length is treated as maximum length of the data source.
-         *
-         * @param fd the FileDescriptor for the file you want to play
-         * @param offset the offset into the file where the data to be played starts, in bytes
-         * @param length the length in bytes of the data to be played
-         * @return the same Builder instance.
-         * @throws NullPointerException if fd is null.
-         */
-        public @NonNull Builder setDataSource(@NonNull FileDescriptor fd, long offset,
-                long length) {
-            Preconditions.checkNotNull(fd);
-            if (offset < 0) {
-                offset = 0;
-            }
-            if (length < 0) {
-                length = FD_LENGTH_UNKNOWN;
-            }
-            resetDataSource();
-            mType = TYPE_FD;
-            mFD = fd;
-            mFDOffset = offset;
-            mFDLength = length;
-            return this;
-        }
-
-        /**
-         * Sets the data source as a content Uri.
-         *
-         * @param context the Context to use when resolving the Uri
-         * @param uri the Content URI of the data you want to play
-         * @return the same Builder instance.
-         * @throws NullPointerException if context or uri is null.
-         */
-        public @NonNull Builder setDataSource(@NonNull Context context, @NonNull Uri uri) {
-            Preconditions.checkNotNull(context, "context cannot be null");
-            Preconditions.checkNotNull(uri, "uri cannot be null");
-            resetDataSource();
-            mType = TYPE_URI;
-            mUri = uri;
-            mUriContext = context;
-            return this;
-        }
-
-        /**
-         * Sets the data source as a content Uri.
-         *
-         * To provide cookies for the subsequent HTTP requests, you can install your own default
-         * cookie handler and use other variants of setDataSource APIs instead.
-         *
-         *  <p><strong>Note</strong> that the cross domain redirection is allowed by default,
-         * but that can be changed with key/value pairs through the headers parameter with
-         * "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value to
-         * disallow or allow cross domain redirection.
-         *
-         * @param context the Context to use when resolving the Uri
-         * @param uri the Content URI of the data you want to play
-         * @param headers the headers to be sent together with the request for the data
-         *                The headers must not include cookies. Instead, use the cookies param.
-         * @param cookies the cookies to be sent together with the request
-         * @return the same Builder instance.
-         * @throws NullPointerException if context or uri is null.
-         * @throws IllegalArgumentException if the cookie handler is not of CookieManager type
-         *                                  when cookies are provided.
-         */
-        public @NonNull Builder setDataSource(@NonNull Context context, @NonNull Uri uri,
-                @Nullable Map<String, String> headers, @Nullable List<HttpCookie> cookies) {
-            Preconditions.checkNotNull(context, "context cannot be null");
-            Preconditions.checkNotNull(uri);
-            if (cookies != null) {
-                CookieHandler cookieHandler = CookieHandler.getDefault();
-                if (cookieHandler != null && !(cookieHandler instanceof CookieManager)) {
-                    throw new IllegalArgumentException(
-                            "The cookie handler has to be of CookieManager type "
-                                    + "when cookies are provided.");
-                }
-            }
-
-            resetDataSource();
-            mType = TYPE_URI;
-            mUri = uri;
-            if (headers != null) {
-                mUriHeader = new HashMap<String, String>(headers);
-            }
-            if (cookies != null) {
-                mUriCookies = new ArrayList<HttpCookie>(cookies);
-            }
-            mUriContext = context;
-            return this;
-        }
-
-        private void resetDataSource() {
-            mType = TYPE_NONE;
-            mMediaDataSource2 = null;
-            mFD = null;
-            mFDOffset = 0;
-            mFDLength = FD_LENGTH_UNKNOWN;
-            mUri = null;
-            mUriHeader = null;
-            mUriCookies = null;
-            mUriContext = null;
+            return (T) this;
         }
     }
 }

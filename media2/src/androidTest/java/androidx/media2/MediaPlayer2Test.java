@@ -221,9 +221,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             mp.setEventCallback(mExecutor, ecb);
-            mp.setDataSource(new DataSourceDesc2.Builder()
-                    .setDataSource(mContext, uri)
-                    .build());
+            mp.setDataSource(new UriDataSourceDesc2.Builder(mContext, uri).build());
             onPrepareCalled.reset();
             mp.prepare();
             onPrepareCalled.waitForSignal();
@@ -320,8 +318,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             afd = mResources.openRawResourceFd(resid);
-            mp.setDataSource(new DataSourceDesc2.Builder()
-                    .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
+            mp.setDataSource(new FileDataSourceDesc2.Builder(
+                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                     .build());
 
             mp.setEventCallback(mExecutor, ecb);
@@ -535,9 +533,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             afd = mResources.openRawResourceFd(resid);
-            mp.setDataSource(new DataSourceDesc2.Builder()
-                    .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
-                    .build());
+            mp.setDataSource(new FileDataSourceDesc2.Builder(
+                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
 
             mp.setEventCallback(mExecutor, ecb);
             onPrepareCalled.reset();
@@ -2254,9 +2251,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             Uri uri = Uri.parse(outputFileLocation);
             MediaPlayer2 mp = MediaPlayer2.create(mActivity);
             try {
-                mp.setDataSource(new DataSourceDesc2.Builder()
-                        .setDataSource(mContext, uri)
-                        .build());
+                mp.setDataSource(new UriDataSourceDesc2.Builder(mContext, uri).build());
                 mp.prepare();
                 Thread.sleep(SLEEP_TIME);
                 playAndStop(mp);
@@ -2314,7 +2309,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 PackageManager.FEATURE_MICROPHONE);
     }
 
-    // Smoke test playback from a MediaDataSource2.
+    // Smoke test playback from a CallbackDataSource2.
     @Test
     @LargeTest
     public void testPlaybackFromAMedia2DataSource() throws Exception {
@@ -2327,13 +2322,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
         */
 
-        TestMediaDataSource2 dataSource =
-                TestMediaDataSource2.fromAssetFd(mResources.openRawResourceFd(resid));
+        TestCallbackDataSource2 dataSource =
+                TestCallbackDataSource2.fromAssetFd(mResources.openRawResourceFd(resid));
         // Test returning -1 from getSize() to indicate unknown size.
         dataSource.returnFromGetSize(-1);
-        mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                .setDataSource(dataSource)
-                .build());
+        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
         playLoadedVideo(null, null, -1);
         assertTrue(mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
 
@@ -2367,9 +2360,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         // Test reset.
         mPlayer.reset();
-        mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                .setDataSource(dataSource)
-                .build());
+        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
 
         mPlayer.setEventCallback(mExecutor, ecb);
 
@@ -2426,10 +2417,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         };
         mPlayer.setEventCallback(mExecutor, ecb);
 
-        TestMediaDataSource2 dataSource = new TestMediaDataSource2(new byte[0]);
-        mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                .setDataSource(dataSource)
-                .build());
+        TestCallbackDataSource2 dataSource = new TestCallbackDataSource2(new byte[0]);
+        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
         mOnPlayCalled.waitForSignal();
         mPlayer.reset();
         assertTrue(dataSource.isClosed());
@@ -2446,11 +2435,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         */
 
         setOnErrorListener();
-        TestMediaDataSource2 dataSource =
-                TestMediaDataSource2.fromAssetFd(mResources.openRawResourceFd(resid));
-        mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                .setDataSource(dataSource)
-                .build());
+        TestCallbackDataSource2 dataSource =
+                TestCallbackDataSource2.fromAssetFd(mResources.openRawResourceFd(resid));
+        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
@@ -2483,11 +2470,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
         */
 
-        TestMediaDataSource2 dataSource =
-                TestMediaDataSource2.fromAssetFd(mResources.openRawResourceFd(resid));
-        mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                .setDataSource(dataSource)
-                .build());
+        TestCallbackDataSource2 dataSource =
+                TestCallbackDataSource2.fromAssetFd(mResources.openRawResourceFd(resid));
+        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
 
         setOnErrorListener();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
@@ -2516,7 +2501,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     public void testClearPendingCommands() throws Exception {
         final Monitor readRequested = new Monitor();
         final Monitor readAllowed = new Monitor();
-        MediaDataSource2 dataSource = new MediaDataSource2() {
+        CallbackDataSource2 dataSource = new CallbackDataSource2() {
             @Override
             public int readAt(long position, byte[] buffer, int offset, int size)
                     throws IOException {
@@ -2565,9 +2550,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPrepareCalled.reset();
         mOnErrorCalled.reset();
 
-        mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                .setDataSource(dataSource)
-                .build());
+        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
 
         // prepare() will be pending until readAllowed is signaled.
         mPlayer.prepare();
@@ -2601,8 +2584,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start1 = 6000;
         final long end1 = 8000;
         AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1);
-        DataSourceDesc2 dsd1 = new DataSourceDesc2.Builder()
-                .setDataSource(afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
+        DataSourceDesc2 dsd1 = new FileDataSourceDesc2.Builder(
+                afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
                 .setStartPosition(start1)
                 .setEndPosition(end1)
                 .build();
@@ -2611,8 +2594,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start2 = 3000;
         final long end2 = 5000;
         AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2);
-        DataSourceDesc2 dsd2 = new DataSourceDesc2.Builder()
-                .setDataSource(afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
+        DataSourceDesc2 dsd2 = new FileDataSourceDesc2.Builder(
+                afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
                 .setStartPosition(start2)
                 .setEndPosition(end2)
                 .build();
@@ -2673,8 +2656,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start = 6000;
         final long end = 8000;
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
-        DataSourceDesc2 dsd = new DataSourceDesc2.Builder()
-                .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
+        DataSourceDesc2 dsd = new FileDataSourceDesc2.Builder(
+                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                 .setStartPosition(start)
                 .setEndPosition(end)
                 .build();
@@ -2743,8 +2726,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start1 = 6000;
         final long end1 = 7000;
         AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1);
-        DataSourceDesc2 dsd1 = new DataSourceDesc2.Builder()
-                .setDataSource(afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
+        DataSourceDesc2 dsd1 = new FileDataSourceDesc2.Builder(
+                afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
                 .setStartPosition(start1)
                 .setEndPosition(end1)
                 .build();
@@ -2753,8 +2736,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start2 = 3000;
         final long end2 = 4000;
         AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2);
-        DataSourceDesc2 dsd2 = new DataSourceDesc2.Builder()
-                .setDataSource(afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
+        DataSourceDesc2 dsd2 = new FileDataSourceDesc2.Builder(
+                afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
                 .setStartPosition(start2)
                 .setEndPosition(end2)
                 .build();
@@ -2840,10 +2823,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @SmallTest
     public void testSkipUnnecessarySeek() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
-        final TestMediaDataSource2 source =
-                TestMediaDataSource2.fromAssetFd(mResources.openRawResourceFd(resid));
+        final TestCallbackDataSource2 source =
+                TestCallbackDataSource2.fromAssetFd(mResources.openRawResourceFd(resid));
         final Monitor readAllowed = new Monitor();
-        MediaDataSource2 dataSource = new MediaDataSource2() {
+        CallbackDataSource2 dataSource = new CallbackDataSource2() {
             @Override
             public int readAt(long position, byte[] buffer, int offset, int size)
                     throws IOException {
@@ -2901,9 +2884,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPrepareCalled.reset();
         mOnErrorCalled.reset();
 
-        mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                .setDataSource(dataSource)
-                .build());
+        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
 
         // prepare() will be pending until readAllowed is signaled.
         mPlayer.prepare();

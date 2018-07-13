@@ -21,17 +21,17 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * For supplying media data to the framework. Implement this if your app has
- * special requirements for the way media data is obtained.
+ * For supplying media data, implement this if your app has special requirements for the way media
+ * data is obtained.
  *
  * <p class="note">Methods of this interface may be called on multiple different
  * threads. There will be a thread synchronization point between each call to ensure that
- * modifications to the state of your MediaDataSource2 are visible to future calls. This means
+ * modifications to the state of your CallbackDataSource2 are visible to future calls. This means
  * you don't need to do your own synchronization unless you're modifying the
- * MediaDataSource2 from another thread while it's being used by the framework.</p>
+ * CallbackDataSource2 from another thread while it's being used by the media library.</p>
  *
  */
-public abstract class MediaDataSource2 implements Closeable {
+public abstract class CallbackDataSource2 implements Closeable {
     /**
      * Called to request data from the given position.
      *

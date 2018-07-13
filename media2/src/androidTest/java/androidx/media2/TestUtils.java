@@ -145,7 +145,7 @@ public final class TestUtils {
     }
 
     public static DataSourceDesc2 createDSD() {
-        return new DataSourceDesc2.Builder().setDataSource(new FileDescriptor()).build();
+        return new FileDataSourceDesc2.Builder(new FileDescriptor()).build();
     }
 
     /**
