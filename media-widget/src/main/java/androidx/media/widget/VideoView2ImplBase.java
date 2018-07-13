@@ -32,7 +32,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Pair;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -127,7 +127,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private ArrayList<Integer> mVideoTrackIndices;
     ArrayList<Integer> mAudioTrackIndices;
-    ArrayList<Pair<Integer, SubtitleTrack>> mSubtitleTrackIndices;
+    SparseArray<SubtitleTrack> mSubtitleTracks;
     private SubtitleController mSubtitleController;
 
     // selected audio/subtitle track index as MediaPlayer returns
@@ -135,7 +135,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     int mSelectedSubtitleTrackIndex;
 
     private SubtitleAnchorView mSubtitleAnchorView;
-    private boolean mSubtitleEnabled;
+    boolean mSubtitleEnabled;
 
     VideoView2 mInstance;
 
@@ -242,28 +242,32 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mInstance.addView(mSubtitleAnchorView);
 
         boolean enableControlView = (attrs == null) || attrs.getAttributeBooleanValue(
-                "http://schemas.android.com/apk/res/android",
+                "http://schemas.android.com/apk/res-auto",
                 "enableControlView", true);
         if (enableControlView) {
             mMediaControlView = new MediaControlView2(context);
         }
 
         mSubtitleEnabled = (attrs == null) || attrs.getAttributeBooleanValue(
-                "http://schemas.android.com/apk/res/android",
+                "http://schemas.android.com/apk/res-auto",
                 "enableSubtitle", false);
 
         // Choose surface view by default
         int viewType = (attrs == null) ? VideoView2.VIEW_TYPE_SURFACEVIEW
                 : attrs.getAttributeIntValue(
-                "http://schemas.android.com/apk/res/android",
+                "http://schemas.android.com/apk/res-auto",
                 "viewType", VideoView2.VIEW_TYPE_SURFACEVIEW);
         if (viewType == VideoView2.VIEW_TYPE_SURFACEVIEW) {
-            Log.d(TAG, "viewType attribute is surfaceView.");
+            if (DEBUG) {
+                Log.d(TAG, "viewType attribute is surfaceView.");
+            }
             mTextureView.setVisibility(View.GONE);
             mSurfaceView.setVisibility(View.VISIBLE);
             mCurrentView = mSurfaceView;
         } else if (viewType == VideoView2.VIEW_TYPE_TEXTUREVIEW) {
-            Log.d(TAG, "viewType attribute is textureView.");
+            if (DEBUG) {
+                Log.d(TAG, "viewType attribute is textureView.");
+            }
             mTextureView.setVisibility(View.VISIBLE);
             mSurfaceView.setVisibility(View.GONE);
             mCurrentView = mTextureView;
@@ -354,15 +358,20 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     /**
-     * Shows or hides closed caption or subtitles if there is any.
-     * The first subtitle track will be chosen if there multiple subtitle tracks exist.
-     * Default behavior of VideoView2 is not showing subtitle.
+     * Shows or hides closed caption or subtitles if there is any chosen subtitle.
+     * Choosing subtitle track should be done by {@link MediaControlView2}.
+     * Default behavior of VideoView2 is showing subtitle.
      * @param enable shows closed caption or subtitles if this value is true, or hides.
      */
     @Override
     public void setSubtitleEnabled(boolean enable) {
-        if (enable != mSubtitleEnabled) {
-            selectOrDeselectSubtitle(enable);
+        if (enable == mSubtitleEnabled) {
+            return;
+        }
+        if (enable) {
+            mSubtitleAnchorView.setVisibility(View.VISIBLE);
+        } else {
+            mSubtitleAnchorView.setVisibility(View.GONE);
         }
         mSubtitleEnabled = enable;
     }
@@ -785,6 +794,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mSurfaceView.setMediaPlayer(null);
             mCurrentState = STATE_IDLE;
             mTargetState = STATE_IDLE;
+            mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
+            mSelectedAudioTrackIndex = INVALID_TRACK_INDEX;
         }
         mVideoWidth = 0;
         mVideoHeight = 0;
@@ -796,31 +807,33 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 && (mMediaSession.getPlayerConnector() instanceof BaseRemoteMediaPlayerConnector);
     }
 
-    private void selectOrDeselectSubtitle(boolean select) {
+    void selectSubtitleTrack(int trackIndex) {
         if (!isMediaPrepared()) {
             return;
         }
-        if (select) {
-            if (mSubtitleTrackIndices.size() > 0) {
-                mSelectedSubtitleTrackIndex = mSubtitleTrackIndices.get(0).first;
-                mSubtitleController.selectTrack(mSubtitleTrackIndices.get(0).second);
-                mMediaPlayer.selectTrack(mSelectedSubtitleTrackIndex);
-                mSubtitleAnchorView.setVisibility(View.VISIBLE);
-            }
-        } else {
-            if (mSelectedSubtitleTrackIndex != INVALID_TRACK_INDEX) {
-                mMediaPlayer.deselectTrack(mSelectedSubtitleTrackIndex);
-                mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
-                mSubtitleAnchorView.setVisibility(View.GONE);
-            }
+        SubtitleTrack track = mSubtitleTracks.get(trackIndex);
+        if (track != null) {
+            mMediaPlayer.selectTrack(trackIndex);
+            mSubtitleController.selectTrack(track);
+            mSelectedSubtitleTrackIndex = trackIndex;
+            mSubtitleAnchorView.setVisibility(View.VISIBLE);
         }
+    }
+
+    void deselectSubtitleTrack() {
+        if (!isMediaPrepared() || mSelectedSubtitleTrackIndex == INVALID_TRACK_INDEX) {
+            return;
+        }
+        mMediaPlayer.deselectTrack(mSelectedSubtitleTrackIndex);
+        mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
+        mSubtitleAnchorView.setVisibility(View.GONE);
     }
 
     void extractTracks() {
         List<MediaPlayer2.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
         mVideoTrackIndices = new ArrayList<>();
         mAudioTrackIndices = new ArrayList<>();
-        mSubtitleTrackIndices = new ArrayList<>();
+        mSubtitleTracks = new SparseArray<>();
         mSubtitleController.reset();
         for (int i = 0; i < trackInfos.size(); ++i) {
             int trackType = trackInfos.get(i).getTrackType();
@@ -831,7 +844,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             } else if (trackType == MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 SubtitleTrack track = mSubtitleController.addTrack(trackInfos.get(i).getFormat());
                 if (track != null) {
-                    mSubtitleTrackIndices.add(new Pair<>(i, track));
+                    mSubtitleTracks.put(i, track);
                 }
             }
         }
@@ -846,9 +859,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         Bundle data = new Bundle();
         data.putInt(MediaControlView2.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
         data.putInt(MediaControlView2.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
-        data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTrackIndices.size());
-        if (mSubtitleTrackIndices.size() > 0) {
-            selectOrDeselectSubtitle(mSubtitleEnabled);
+        if (mSubtitleEnabled) {
+            data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTracks.size());
         }
         mMediaSession.sendCustomCommand(
                 new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, null), data);
@@ -1065,11 +1077,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                                 + ", selected track index: " + mSelectedSubtitleTrackIndex);
                         return;
                     }
-                    for (Pair<Integer, SubtitleTrack> p : mSubtitleTrackIndices) {
-                        if (p.first == index) {
-                            SubtitleTrack track = p.second;
-                            track.onData(data);
-                        }
+                    SubtitleTrack track = mSubtitleTracks.get(index);
+                    if (track != null) {
+                        track.onData(data);
                     }
                 }
 
@@ -1146,14 +1156,19 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE)
-                    .addCommand(new SessionCommand2(MediaControlView2.COMMAND_SHOW_SUBTITLE, null))
-                    .addCommand(new SessionCommand2(MediaControlView2.COMMAND_HIDE_SUBTITLE, null))
                     .addCommand(new SessionCommand2(
                             MediaControlView2.COMMAND_SELECT_AUDIO_TRACK, null))
                     .addCommand(new SessionCommand2(
                             MediaControlView2.COMMAND_SET_PLAYBACK_SPEED, null))
                     .addCommand(new SessionCommand2(MediaControlView2.COMMAND_MUTE, null))
                     .addCommand(new SessionCommand2(MediaControlView2.COMMAND_UNMUTE, null));
+            if (mSubtitleEnabled) {
+                commandsBuilder = commandsBuilder
+                        .addCommand(new SessionCommand2(
+                                MediaControlView2.COMMAND_SHOW_SUBTITLE, null))
+                        .addCommand(new SessionCommand2(
+                                MediaControlView2.COMMAND_HIDE_SUBTITLE, null));
+            }
             return commandsBuilder.build();
         }
 
@@ -1172,15 +1187,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                             MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
                             INVALID_TRACK_INDEX) : INVALID_TRACK_INDEX;
                     if (subtitleIndex != INVALID_TRACK_INDEX) {
-                        int subtitleTrackIndex = mSubtitleTrackIndices.get(subtitleIndex).first;
+                        int subtitleTrackIndex = mSubtitleTracks.keyAt(subtitleIndex);
                         if (subtitleTrackIndex != mSelectedSubtitleTrackIndex) {
-                            mSelectedSubtitleTrackIndex = subtitleTrackIndex;
-                            mInstance.setSubtitleEnabled(true);
+                            selectSubtitleTrack(subtitleTrackIndex);
                         }
                     }
                     break;
                 case MediaControlView2.COMMAND_HIDE_SUBTITLE:
-                    mInstance.setSubtitleEnabled(false);
+                    deselectSubtitleTrack();
                     break;
                 case MediaControlView2.COMMAND_SELECT_AUDIO_TRACK:
                     int audioIndex = (args != null)

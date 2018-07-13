@@ -16,7 +16,7 @@
 
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:widget="http://schemas.android.com/apk/com.android.media.update"
+    xmlns:widget="http://schemas.android.com/apk/res-auto"
     android:id="@+id/video_player_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -30,7 +30,10 @@
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_centerInParent="true"
-        widget:enableControlView="false" />
+        widget:enableControlView="false"
+        widget:enableSubtitle="true"
+        widget:viewType="textureView"
+    />
 
     <!-- Video Status -->
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
