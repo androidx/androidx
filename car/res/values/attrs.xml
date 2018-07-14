@@ -157,13 +157,6 @@ limitations under the License.
         <attr name="carMenuBarThickness" format="dimension"/>
     </declare-styleable>
 
-    <!-- Attributes for the ClickThroughToolbar. -->
-    <declare-styleable name="ClickThroughToolbar">
-        <!-- Whether or not clicks on this toolbar will pass through to an underlying view. This
-             value is false by default. -->
-        <attr name="clickThrough" format="boolean"/>
-    </declare-styleable>
-
     <!-- Attributes for the ActionBar. -->
     <declare-styleable name="ActionBar">
         <!-- The number of horizontal slots. The minimum number is 3. -->
