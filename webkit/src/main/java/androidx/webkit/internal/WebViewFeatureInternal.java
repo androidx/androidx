@@ -255,7 +255,7 @@ public enum WebViewFeatureInternal {
             Build.VERSION_CODES.M),
 
     /**
-     * This internal-only feature covers {@link WebViewCompat#getWebViewClient(WebView)}.
+     * This feature covers {@link WebViewCompat#getWebViewClient(WebView)}.
      */
     GET_WEB_VIEW_CLIENT(Features.GET_WEB_VIEW_CLIENT, Build.VERSION_CODES.O),
 

@@ -79,6 +79,7 @@ public class WebViewFeature {
             CREATE_WEB_MESSAGE_CHANNEL,
             POST_WEB_MESSAGE,
             WEB_MESSAGE_CALLBACK_ON_MESSAGE,
+            GET_WEB_VIEW_CLIENT,
             GET_WEB_CHROME_CLIENT
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -320,6 +321,12 @@ public class WebViewFeature {
      */
     public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE =
             Features.WEB_MESSAGE_CALLBACK_ON_MESSAGE;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#getWebViewClient(WebView)}
+     */
+    public static final String GET_WEB_VIEW_CLIENT = Features.GET_WEB_VIEW_CLIENT;
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
