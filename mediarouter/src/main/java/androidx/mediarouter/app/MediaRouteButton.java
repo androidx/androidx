@@ -260,6 +260,7 @@ public class MediaRouteButton extends View {
             }
             MediaRouteControllerDialogFragment f =
                     mDialogFactory.onCreateControllerDialogFragment();
+            f.setRouteSelector(mSelector);
             f.show(fm, CONTROLLER_FRAGMENT_TAG);
         }
         return true;
