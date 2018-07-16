@@ -444,21 +444,20 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             });
         } else {
             mBinders.add(vh -> {
-                // Title has a top margin
                 Resources resources = mContext.getResources();
-                int padding1 = resources.getDimensionPixelSize(R.dimen.car_padding_1);
-                int padding3 = resources.getDimensionPixelSize(R.dimen.car_padding_3);
+                int padding2 = resources.getDimensionPixelSize(R.dimen.car_padding_2);
 
+                // Title has a top margin
                 MarginLayoutParams titleLayoutParams =
                         (MarginLayoutParams) vh.getTitle().getLayoutParams();
-                titleLayoutParams.topMargin = padding3;
+                titleLayoutParams.topMargin = padding2;
                 vh.getTitle().requestLayout();
 
-                // Body is below title with a margin, and has bottom margin.
+                // Body is below title with no margin and has bottom margin.
                 MarginLayoutParams bodyLayoutParams =
                         (MarginLayoutParams) vh.getBody().getLayoutParams();
-                bodyLayoutParams.topMargin = padding1;
-                bodyLayoutParams.bottomMargin = padding3;
+                bodyLayoutParams.topMargin = 0;
+                bodyLayoutParams.bottomMargin = padding2;
                 vh.getBody().requestLayout();
             });
         }
