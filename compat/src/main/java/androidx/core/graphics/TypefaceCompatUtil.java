@@ -45,10 +45,10 @@ import java.nio.channels.FileChannel;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class TypefaceCompatLegacyUtil {
+public class TypefaceCompatUtil {
     private static final String TAG = "TypefaceCompatUtil";
 
-    private TypefaceCompatLegacyUtil() {}  // Do not instantiate.
+    private TypefaceCompatUtil() {}  // Do not instantiate.
 
     private static final String CACHE_FILE_PREFIX = ".font";
 
@@ -163,9 +163,6 @@ public class TypefaceCompatLegacyUtil {
         }
     }
 
-    /**
-     * Close with ignoring exceptions.
-     */
     public static void closeQuietly(Closeable c) {
         if (c != null) {
             try {

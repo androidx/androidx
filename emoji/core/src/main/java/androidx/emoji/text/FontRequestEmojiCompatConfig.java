@@ -31,7 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.graphics.TypefaceCompatLegacyUtil;
+import androidx.core.graphics.TypefaceCompatUtil;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
@@ -312,8 +312,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
 
                 // TODO: Good to add new API to create Typeface from FD not to open FD twice.
                 final Typeface typeface = mFontProviderHelper.buildTypeface(mContext, font);
-                final ByteBuffer buffer = TypefaceCompatLegacyUtil.mmap(mContext, null,
-                        font.getUri());
+                final ByteBuffer buffer = TypefaceCompatUtil.mmap(mContext, null, font.getUri());
                 if (buffer == null) {
                     throw new RuntimeException("Unable to open file.");
                 }
