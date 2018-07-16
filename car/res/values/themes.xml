@@ -128,7 +128,7 @@ limitations under the License.
 
     <!-- A Theme for activities that have a drawer affordance. This theme will automatically switch
          to darker colors during night mode. -->
-    <style name="Theme.Car.Light.NoActionBar.Drawer" parent="Theme.Car.NoActionBar.Drawer">
+    <style name="Theme.Car.Light.NoActionBar.Drawer">
         <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
         <item name="drawerBackButtonTint">@color/car_tint</item>
         <item name="drawerBackgroundColor">@color/car_card</item>
@@ -140,7 +140,7 @@ limitations under the License.
     </style>
 
     <!-- A theme that is a pass-through for the base theme. -->
-    <style name="Theme.Car.Dark.NoActionBar.Drawer" />
+    <style name="Theme.Car.Dark.NoActionBar.Drawer" parent="Theme.Car.NoActionBar.Drawer" />
 
     <!-- ============= -->
     <!-- Dialog Themes -->
