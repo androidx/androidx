@@ -67,9 +67,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media2.MediaController2;
-import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
@@ -208,6 +208,7 @@ public class MediaControlView2 extends BaseLayout {
     static final String KEY_VIDEO_TRACK_COUNT = "VideoTrackCount";
     static final String KEY_AUDIO_TRACK_COUNT = "AudioTrackCount";
     static final String KEY_SUBTITLE_TRACK_COUNT = "SubtitleTrackCount";
+    static final String KEY_SUBTITLE_TRACK_LANGUAGE_LIST = "SubtitleTrackLanguageList";
     static final String KEY_PLAYBACK_SPEED = "PlaybackSpeed";
     static final String KEY_SELECTED_AUDIO_INDEX = "SelectedAudioIndex";
     static final String KEY_SELECTED_SUBTITLE_INDEX = "SelectedSubtitleIndex";
@@ -2617,6 +2618,8 @@ public class MediaControlView2 extends BaseLayout {
                         }
                         mSubtitleTrackCount = (args != null)
                                 ? args.getInt(KEY_SUBTITLE_TRACK_COUNT) : 0;
+                        List<String> subtitleTracksLanguageList = (args != null)
+                                ? args.getStringArrayList(KEY_SUBTITLE_TRACK_LANGUAGE_LIST) : null;
                         mSubtitleDescriptionsList = new ArrayList<String>();
                         if (mSubtitleTrackCount > 0) {
                             mSubtitleButton.setVisibility(View.VISIBLE);
@@ -2624,9 +2627,18 @@ public class MediaControlView2 extends BaseLayout {
                             mSubtitleDescriptionsList.add(mResources.getString(
                                     R.string.MediaControlView2_subtitle_off_text));
                             for (int i = 0; i < mSubtitleTrackCount; i++) {
-                                String track = mResources.getString(
-                                        R.string.MediaControlView2_subtitle_track_number_text,
-                                        i + 1);
+                                String lang = subtitleTracksLanguageList.get(i);
+                                String track;
+                                if (lang.equals("")) {
+                                    track = mResources.getString(
+                                            R.string.MediaControlView2_subtitle_track_number_text,
+                                            i + 1);
+                                } else {
+                                    track = mResources.getString(
+                                            R.string
+                                            .MediaControlView2_subtitle_track_number_and_lang_text,
+                                            i + 1, lang);
+                                }
                                 mSubtitleDescriptionsList.add(track);
                             }
                         } else {
