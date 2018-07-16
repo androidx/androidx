@@ -1,0 +1,31 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    api(project(":annotation"))
+    api(project(":core"))
+    api(project(":fragment"))
+}
+
+android {
+    sourceSets {
+        main.res.srcDirs 'res'
+    }
+
+    aaptOptions {
+        noCompress 'ttf'
+    }
+}
+
+supportLibrary {
+    name = "Biometric"
+    publish = true
+    mavenVersion = LibraryVersions.BIOMETRIC
+    mavenGroup = LibraryGroups.BIOMETRIC
+    inceptionYear = "2018"
+    description = "The Biometric library is a static library that you can add to your Android application. It invokes BiometricPrompt on devices running P and greater, and on older devices will show a compat dialog. Compatible on devices running API 14 or later."
+}

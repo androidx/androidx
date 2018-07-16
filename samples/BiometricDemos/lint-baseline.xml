@@ -1,0 +1,3145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="OnClick"
+        message="Corresponding method handler &apos;`public void onAddTab(android.view.View)`&apos; not found"
+        errorLine1="                android:onClick=&quot;onAddTab&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"
+            line="32"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="OnClick"
+        message="Corresponding method handler &apos;`public void onRemoveTab(android.view.View)`&apos; not found"
+        errorLine1="                android:onClick=&quot;onRemoveTab&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"
+            line="37"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="OnClick"
+        message="Corresponding method handler &apos;`public void onToggleTabs(android.view.View)`&apos; not found"
+        errorLine1="                android:onClick=&quot;onToggleTabs&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"
+            line="42"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="OnClick"
+        message="Corresponding method handler &apos;`public void onRemoveAllTabs(android.view.View)`&apos; not found"
+        errorLine1="                android:onClick=&quot;onRemoveAllTabs&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"
+            line="47"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ScrollViewSize"
+        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="                  android:layout_height=&quot;match_parent&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_display_options.xml"
+            line="20"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ScrollViewSize"
+        message="This TextView should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="                android:layout_height=&quot;match_parent&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/drawer_layout.xml"
+            line="52"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ScrollViewSize"
+        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="                android:layout_height=&quot;match_parent&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/toolbar_display_options.xml"
+            line="36"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;vector_image&quot; in layout &quot;appcompat_animated_vector&quot; is missing from the following layout configurations: layout (present in layout-v11)"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/vector_image&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v11/appcompat_animated_vector.xml"
+            line="23"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.media.MediaRouter.RouteInfo#PLAYBACK_TYPE_REMOTE`"
+        errorLine1="                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="172"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.media.MediaRouter.RouteInfo#PLAYBACK_VOLUME_FIXED`"
+        errorLine1="                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED)"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="173"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.media.MediaRouter.RouteInfo#PLAYBACK_TYPE_REMOTE`"
+        errorLine1="                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="185"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.media.MediaRouter.RouteInfo#PLAYBACK_VOLUME_VARIABLE`"
+        errorLine1="                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="186"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.media.MediaRouter.RouteInfo#PLAYBACK_TYPE_REMOTE`"
+        errorLine1="                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="198"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.media.MediaRouter.RouteInfo#PLAYBACK_VOLUME_VARIABLE`"
+        errorLine1="                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="199"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.media.MediaRouter.RouteInfo#PLAYBACK_TYPE_REMOTE`"
+        errorLine1="                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="213"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.media.MediaRouter.RouteInfo#PLAYBACK_VOLUME_VARIABLE`"
+        errorLine1="                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="214"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="MissingPrefix"
+        message="Unexpected namespace prefix &quot;app&quot; found for tag `Button`"
+        errorLine1="            app:backgroundTint=&quot;#00FF00&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="142"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingPrefix"
+        message="Unexpected namespace prefix &quot;app&quot; found for tag `Button`"
+        errorLine1="            app:backgroundTint=&quot;#00FF00&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="150"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SimpleDateFormat"
+        message="To get local formatting use `getDateInstance()`, `getDateTimeInstance()`, or `getTimeInstance()`, or use `new SimpleDateFormat(String template, Locale locale)` with for example `Locale.US` for ASCII dates."
+        errorLine1="        mDateFormat = new SimpleDateFormat(&quot;HH:mm:ss.SSS&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
+            line="57"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="SimpleDateFormat"
+        message="To get local formatting use `getDateInstance()`, `getDateTimeInstance()`, or `getTimeInstance()`, or use `new SimpleDateFormat(String template, Locale locale)` with for example `Locale.US` for ASCII dates."
+        errorLine1="        mDateFormat = new SimpleDateFormat(&quot;HH:mm:ss.SSS&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/PopupMenuActivity.java"
+            line="48"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ValidFragment"
+        message="Avoid non-default constructors in fragments: use a default constructor plus `Fragment#setArguments(Bundle)` instead"
+        errorLine1="        public ControllerDialogFragment(Player player, CheckBox customControlViewCheckBox) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="778"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="        app:showAsAction=&quot;ifRoom&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/action_bar_settings_action_provider.xml"
+            line="20"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:actionProviderClass` when not using the appcompat library"
+        errorLine1="        app:actionProviderClass=&quot;com.example.android.supportv7.app.ActionBarSettingsActionProviderActivity$SettingsActionProvider&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/action_bar_settings_action_provider.xml"
+            line="21"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="        app:showAsAction=&quot;never&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/action_bar_settings_action_provider.xml"
+            line="25"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:actionProviderClass` when not using the appcompat library"
+        errorLine1="        app:actionProviderClass=&quot;com.example.android.supportv7.app.ActionBarSettingsActionProviderActivity$SettingsActionProvider&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/action_bar_settings_action_provider.xml"
+            line="26"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="        app:showAsAction=&quot;ifRoom&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/action_bar_share_action_provider.xml"
+            line="21"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:actionProviderClass` when not using the appcompat library"
+        errorLine1="        app:actionProviderClass=&quot;androidx.appcompat.widget.ShareActionProvider&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/action_bar_share_action_provider.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="          app:showAsAction=&quot;ifRoom|collapseActionView&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/actions.xml"
+            line="23"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:actionViewClass` when not using the appcompat library"
+        errorLine1="          app:actionViewClass=&quot;androidx.appcompat.widget.SearchView&quot; />"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/actions.xml"
+            line="24"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="          app:showAsAction=&quot;always&quot; />"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/actions.xml"
+            line="35"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="          app:showAsAction=&quot;ifRoom&quot; />"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/actions.xml"
+            line="41"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="          app:showAsAction=&quot;ifRoom&quot;>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/actions.xml"
+            line="45"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="          app:showAsAction=&quot;ifRoom&quot; />"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/display_options_actions.xml"
+            line="20"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="        app:showAsAction=&quot;always&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/menu_with_tinted_icons.xml"
+            line="26"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="        app:showAsAction=&quot;always&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/menu_with_tinted_icons.xml"
+            line="34"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="        app:showAsAction=&quot;always&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/menu_with_tinted_icons.xml"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="        app:showAsAction=&quot;always&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_media_router_menu.xml"
+            line="21"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:actionProviderClass` when not using the appcompat library"
+        errorLine1="        app:actionProviderClass=&quot;androidx.mediarouter.app.MediaRouteActionProvider&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_media_router_menu.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="        app:showAsAction=&quot;always&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_palette_actions.xml"
+            line="23"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="            View view = layoutInflater.inflate(R.layout.action_bar_settings_action_provider, null);"
+        errorLine2="                                                                                             ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ActionBarSettingsActionProviderActivity.java"
+            line="74"
+            column="94"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="                    null));"
+        errorLine2="                    ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/AnimatedRecyclerView.java"
+            line="692"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="                    R.layout.overlay_display_window, null);"
+        errorLine2="                                                     ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/OverlayDisplayWindow.java"
+            line="292"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="                v = getLayoutInflater().inflate(R.layout.media_item, null);"
+        errorLine2="                                                                     ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="694"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="                v = getLayoutInflater().inflate(R.layout.media_item, null);"
+        errorLine2="                                                                     ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="729"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Controller created&quot;);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="250"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Controller released&quot;);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="255"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Selected&quot;);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="261"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Unselected&quot;);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="267"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Set volume to &quot; + volume);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="273"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Update volume by &quot; + delta);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="281"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Received control request &quot; + intent);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="289"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                Log.d(TAG, mSessionManager.toString());"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="316"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                Log.d(TAG, mRouteId + &quot;: New volume is &quot; + mVolume);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="337"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                Log.d(TAG, &quot;handlePlay fails because of bad sid=&quot;+sid);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="348"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                Log.d(TAG, &quot;handleEnqueue fails because of bad sid=&quot;+sid);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="360"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                Log.d(TAG, &quot;handleEnqueue fails because of bad uri=&quot;+uri);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="366"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Received &quot; + (enqueue?&quot;enqueue&quot;:&quot;play&quot;) + &quot; request&quot;"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="378"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Received seek request, pos=&quot; + pos);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="432"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, mRouteId + &quot;: Received getStatus request, sid=&quot; + sid + &quot;, iid=&quot; + iid);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="451"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="            Log.d(TAG, &quot;StartSession returns sessionId &quot;+sid);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="514"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                        Log.d(TAG, mRouteId + &quot;: Sending status update from provider&quot;);"
+        errorLine2="                              ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="583"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                        Log.d(TAG, mRouteId + &quot;: Failed to send status update!&quot;);"
+        errorLine2="                              ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="585"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                    Log.d(TAG, mRouteId + &quot;: Sending session status update from provider&quot;);"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="599"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (SampleMediaRouteProvider)"
+        errorLine1="                    Log.d(TAG, mRouteId + &quot;: Failed to send session status update!&quot;);"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="601"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteAdded: route=&quot; + route);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="119"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteChanged: route=&quot; + route);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="124"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteRemoved: route=&quot; + route);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="129"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteSelected: route=&quot; + route);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="134"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteUnselected: route=&quot; + route);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="148"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteVolumeChanged: route=&quot; + route);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="165"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRoutePresentationDisplayChanged: route=&quot; + route);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="171"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteProviderAdded: provider=&quot; + provider);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="179"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteProviderRemoved: provider=&quot; + provider);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="184"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="            Log.d(TAG, &quot;onRouteProviderChanged: provider=&quot; + provider);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="189"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="                Log.d(TAG, &quot;onAudioFocusChange: LOSS_TRANSIENT&quot;);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="206"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="                Log.d(TAG, &quot;onAudioFocusChange: AUDIOFOCUS_GAIN&quot;);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="208"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="                Log.d(TAG, &quot;onAudioFocusChange: AUDIOFOCUS_LOSS&quot;);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="210"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="                    Log.d(TAG, &quot;Received Play/Pause event from RemoteControlClient&quot;);"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="449"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="                    Log.d(TAG, &quot;Received Play event from RemoteControlClient&quot;);"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="459"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="                    Log.d(TAG, &quot;Received Pause event from RemoteControlClient&quot;);"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="467"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 25 (SampleMediaRouterActivity)"
+        errorLine1="                    Log.d(TAG, &quot;Received Stop event from RemoteControlClient&quot;);"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="475"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="        android:textSize=&quot;32dip&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="29"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="        android:textSize=&quot;32dip&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="29"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="        android:textSize=&quot;16dip&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="35"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="        android:textSize=&quot;16dip&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="35"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;Ok&quot; is usually capitalized as &quot;OK&quot;"
+        errorLine1="    &lt;string name=&quot;grid_layout_1_ok&quot;>Ok&lt;/string>"
+        errorLine2="                                    ^">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="53"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ExportedPreferenceActivity"
+        message="`PreferenceActivity` subclass `com.example.android.supportv7.app.ActionBarPreferences` should not be exported"
+        errorLine1="        &lt;activity android:name=&quot;.app.ActionBarPreferences&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="201"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: PendingIntent.FLAG_ONE_SHOT, PendingIntent.FLAG_NO_CREATE, PendingIntent.FLAG_CANCEL_CURRENT, PendingIntent.FLAG_UPDATE_CURRENT, PendingIntent.FLAG_IMMUTABLE, Intent.FILL_IN_ACTION, Intent.FILL_IN_DATA, Intent.FILL_IN_CATEGORIES, Intent.FILL_IN_COMPONENT, Intent.FILL_IN_PACKAGE, Intent.FILL_IN_SOURCE_BOUNDS, Intent.FILL_IN_SELECTOR, Intent.FILL_IN_CLIP_DATA"
+        errorLine1="                Intent.FLAG_ACTIVITY_NEW_TASK).getIntentSender();"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="164"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ExportedContentProvider"
+        message="Exported content providers can provide access to potentially sensitive data"
+        errorLine1="        &lt;provider android:name=&quot;.app.RecentSuggestionsProvider&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="376"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ExportedService"
+        message="Exported service does not require permission"
+        errorLine1="        &lt;service android:name=&quot;.media.SampleMediaRouteProviderService&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="101"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="44"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="44"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 14"
+        errorLine1="                if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.HONEYCOMB_MR1"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/AnimatedRecyclerView.java"
+            line="210"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 14"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/touch/SwipeToDismissActivity.java"
+            line="76"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `layout`.">
+        <location
+            file="src/main/res/layout-v11"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (anonymous android.os.AsyncTask)"
+        errorLine1="                new AsyncTask&lt;List&lt;String>, Void, Pair&lt;List&lt;String>, DiffUtil.DiffResult>>() {"
+        errorLine2="                ^">
+        <location
+            file="src/main/java/com/example/android/supportv7/util/DiffUtilActivity.java"
+            line="73"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (anonymous android.os.AsyncTask)"
+        errorLine1="        new AsyncTask&lt;Void, Void, Bitmap>() {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/android/supportv7/graphics/ImageLoader.java"
+            line="59"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `SampleMediaRouterActivity` which has field `mInfoTextView` pointing to `TextView`); this is a memory leak (and also breaks Instant Run)"
+        errorLine1="    private static SampleMediaRouterActivity mActivity;"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaButtonReceiver.java"
+            line="33"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
+        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/dialog_content.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/action_bar_action_mode.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout-v11/appcompat_animated_vector.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/appcompat_animated_vector.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="          android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/palette_activity_detail.xml"
+            line="35"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="                            android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/sample_media_router.xml"
+            line="50"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="                            android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/sample_media_router.xml"
+            line="60"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="                            android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/sample_media_router.xml"
+            line="70"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NestedWeights"
+        message="Nested weights are bad for performance"
+        errorLine1="            android:layout_weight=&quot;1&quot;>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/sample_media_router.xml"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/actionBarItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme_AppCompat_Light_DarkActionBar`)"
+        errorLine1="    android:background=&quot;?attr/actionBarItemBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_settings_action_provider.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `#ffffffff` with a theme that also paints a background (inferred theme is `@style/Theme_AppCompat_Light_NoActionBar`)"
+        errorLine1="              android:background=&quot;#ffffffff&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@drawable/blue` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="    android:background=&quot;@drawable/blue&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_1.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `#000000` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="      android:background=&quot;#000000&quot;>"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/overlay_display_window.xml"
+            line="21"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `#ff000000` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="    android:background=&quot;#ff000000&quot;>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/sample_media_router_presentation.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.action_bar_tab_content` appears to be unused"
+        errorLine1="&lt;TextView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/action_bar_tab_content.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.action_bar_tabs` appears to be unused"
+        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.sample_media_controller` appears to be unused"
+        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/sample_media_controller.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.sample_media_router_text` appears to be unused"
+        errorLine1="    &lt;string name=&quot;sample_media_router_text&quot;>This activity demonstrates how to"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="25"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.variable_volume_route_group_name` appears to be unused"
+        errorLine1="    &lt;string name=&quot;variable_volume_route_group_name&quot;>Variable Volume Route Group&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="42"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.mixed_volume_route_group_name` appears to be unused"
+        errorLine1="    &lt;string name=&quot;mixed_volume_route_group_name&quot;>Mixed Volume Route Group&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.action_bar_tabs` appears to be unused"
+        errorLine1="    &lt;string name=&quot;action_bar_tabs&quot;>AppCompat/Action Bar/Action Bar Tabs&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="60"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.action_bar_with_navigation_drawer` appears to be unused"
+        errorLine1="    &lt;string name=&quot;action_bar_with_navigation_drawer&quot;>AppCompat/Action Bar/Navigation Drawer Toggle&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="64"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.toggle_navigation` appears to be unused"
+        errorLine1="    &lt;string name=&quot;toggle_navigation&quot;>Navigation&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="92"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_add_tab` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_add_tab&quot;>Add new tab&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="99"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_remove_tab` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_remove_tab&quot;>Remove last tab&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="100"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_toggle_tabs` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_toggle_tabs&quot;>Toggle tab mode&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="101"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_remove_all_tabs` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_remove_all_tabs&quot;>Remove all tabs&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="102"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.sliding_pane_layout_support` appears to be unused"
+        errorLine1="    &lt;string name=&quot;sliding_pane_layout_support&quot;>Widget/Sliding pane layout&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="113"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.sliding_pane_layout_summary` appears to be unused"
+        errorLine1="    &lt;string name=&quot;sliding_pane_layout_summary&quot;>This activity illustrates the use of sliding panes."
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="115"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/animated_recycler_view.xml"
+            line="9"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/animated_recycler_view.xml"
+            line="37"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_night_mode.xml"
+            line="22"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="23"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/toolbar_action_mode.xml"
+            line="28"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;media_route_menu_title&quot;>Play on...&lt;/string>"
+        errorLine2="                                          ^">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="27"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;action_bar_fragment_menu_msg&quot;>Build menus from three fragments, the last one"
+        errorLine2="                                                ^">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="105"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;search_hint&quot;>Search...&lt;/string>"
+        errorLine2="                               ^">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="180"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xhdpi`: apidemo_androidlogo.png, app_sample_code.png, ic_android.png, ic_launcher_settings.png, ic_media_pause.png... (4 more)">
+        <location
+            file="src/main/res/drawable-xhdpi"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: drawer_shadow_end.9.png, drawer_shadow.9.png">
+        <location
+            file="src/main/res/drawable-ldrtl-hdpi/drawer_shadow.9.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/drawer_shadow_end.9.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: drawer_shadow_end.9.png, drawer_shadow.9.png">
+        <location
+            file="src/main/res/drawable-mdpi/drawer_shadow.9.png"/>
+        <location
+            file="src/main/res/drawable-ldrtl-mdpi/drawer_shadow_end.9.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: drawer_shadow_end.9.png, drawer_shadow.9.png">
+        <location
+            file="src/main/res/drawable-xhdpi/drawer_shadow.9.png"/>
+        <location
+            file="src/main/res/drawable-ldrtl-xhdpi/drawer_shadow_end.9.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: drawer_shadow.9.png, drawer_shadow_end.9.png">
+        <location
+            file="src/main/res/drawable-ldrtl-hdpi/drawer_shadow_end.9.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/drawer_shadow.9.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: drawer_shadow.9.png, drawer_shadow_end.9.png">
+        <location
+            file="src/main/res/drawable-mdpi/drawer_shadow_end.9.png"/>
+        <location
+            file="src/main/res/drawable-ldrtl-mdpi/drawer_shadow.9.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: drawer_shadow.9.png, drawer_shadow_end.9.png">
+        <location
+            file="src/main/res/drawable-xhdpi/drawer_shadow_end.9.png"/>
+        <location
+            file="src/main/res/drawable-ldrtl-xhdpi/drawer_shadow.9.png"/>
+    </issue>
+
+    <issue
+        id="IconMissingDensityFolder"
+        message="Missing density variation folders in `src/main/res`: drawable-xxhdpi">
+        <location
+            file="src/main/res"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/animated_recycler_view.xml"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/animated_recycler_view.xml"
+            line="50"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/animated_recycler_view.xml"
+            line="57"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/animated_recycler_view.xml"
+            line="64"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/animated_recycler_view.xml"
+            line="71"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="44"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="    &lt;EditText"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/grid_layout_1.xml"
+            line="34"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="    &lt;EditText"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="43"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="    &lt;EditText"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="43"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="    &lt;EditText"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="51"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="    &lt;EditText"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="51"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AlwaysShowAction"
+        message="Prefer &quot;`ifRoom`&quot; instead of &quot;`always`&quot;"
+        errorLine1="        app:showAsAction=&quot;always&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/menu_with_tinted_icons.xml"
+            line="26"
+            column="9"/>
+        <location
+            file="src/main/res/menu/menu_with_tinted_icons.xml"
+            line="34"
+            column="9"/>
+        <location
+            file="src/main/res/menu/menu_with_tinted_icons.xml"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonCase"
+        message="@android:string/no actually returns &quot;Cancel&quot;, not &quot;No&quot;; use @android:string/cancel instead or create a local string resource for No"
+        errorLine1="                android:text=&quot;@android:string/no&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/dialog_content_buttons.xml"
+            line="42"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ButtonCase"
+        message="The standard Android way to capitalize Ok is &quot;OK&quot; (tip: use `@android:string/ok` instead)"
+        errorLine1="    &lt;string name=&quot;grid_layout_1_ok&quot;>Ok&lt;/string>"
+        errorLine2="                                    ^">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="53"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view ``Button`` has `setOnTouchListener` called on it but does not override `performClick`"
+        errorLine1="        vh.actionButton.setOnTouchListener(new View.OnTouchListener() {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/touch/DragAndDropActivity.java"
+            line="109"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="            public boolean onTouch(View v, MotionEvent event) {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/touch/DragAndDropActivity.java"
+            line="111"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="            public boolean onTouch(View view, MotionEvent event) {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/OverlayDisplayWindow.java"
+            line="448"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view ``Button`` has `setOnTouchListener` called on it but does not override `performClick`"
+        errorLine1="        vh.actionButton.setOnTouchListener(new View.OnTouchListener() {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/touch/SwipeToDismissActivity.java"
+            line="152"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="            public boolean onTouch(View v, MotionEvent event) {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/touch/SwipeToDismissActivity.java"
+            line="154"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/button&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/action_bar_settings_action_provider.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/vector_image&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout-v11/appcompat_animated_vector.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/dialog_content.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/dialog_content_buttons.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/item_action&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/media_item.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/palette_list_item.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/sample_media_controller.xml"
+            line="27"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageButton android:id=&quot;@+id/pause_resume_button&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/sample_media_controller.xml"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageButton android:id=&quot;@+id/stop_button&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/sample_media_controller.xml"
+            line="49"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageButton android:id=&quot;@+id/pause_resume_button&quot;"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/sample_media_router.xml"
+            line="99"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageButton android:id=&quot;@+id/stop_button&quot;"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/sample_media_router.xml"
+            line="109"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                android:clickable=&quot;true&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="215"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                myViewHolder.textView.setText(&quot;More text for the expanded version&quot;);"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/AnimatedRecyclerView.java"
+            line="712"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                holder.textView.setText(&quot;loading...&quot;);"
+        errorLine2="                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/AsyncListUtilActivity.java"
+            line="97"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                ((TextView) convertView).setText(&quot; &quot; + position + &quot; &quot;);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/BaseLayoutManagerActivity.java"
+            line="152"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        mInfoText.setText(&quot;radius: &quot; + mCornerRadiusSeekBar.getProgress()"
+        errorLine2="                          ^">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/CardViewActivity.java"
+            line="87"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        mInfoText.setText(&quot;radius: &quot; + mCornerRadiusSeekBar.getProgress()"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/CardViewActivity.java"
+            line="87"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;, alpha: &quot; + mAlphaSeekBar.getProgress()"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/CardViewActivity.java"
+            line="88"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;\nelevation: &quot; + mCardView.getCardElevation() + &quot; of &quot;"
+        errorLine2="                                                                   ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/CardViewActivity.java"
+            line="90"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        shuffle.setText(&quot;Shuffle&quot;);"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/util/DiffUtilActivity.java"
+            line="54"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            c.setText(&quot;Email setup&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/GridLayout3.java"
+            line="78"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            c.setText(&quot;You can configure email in a few simple steps:&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/GridLayout3.java"
+            line="84"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            c.setText(&quot;Email address:&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/GridLayout3.java"
+            line="89"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            c.setText(&quot;Password:&quot;);"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/GridLayout3.java"
+            line="100"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            c.setText(&quot;Manual setup&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/GridLayout3.java"
+            line="111"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            c.setText(&quot;Next&quot;);"
+        errorLine2="                      ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/view/GridLayout3.java"
+            line="116"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        mLog.setText(toPrepend + mLog.getText());"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
+            line="155"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                title.setText(&quot;Title for #&quot; + i);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/ListViewActivity.java"
+            line="65"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                title.setText(&quot;Title for #&quot; + i);"
+        errorLine2="                              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/ListViewActivity.java"
+            line="65"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                subtitle.setText(&quot;Subtitle for #&quot; + i);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/ListViewActivity.java"
+            line="66"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                subtitle.setText(&quot;Subtitle for #&quot; + i);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/ListViewActivity.java"
+            line="66"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        mLog.setText(toPrepend + mLog.getText());"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/PopupMenuActivity.java"
+            line="104"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        mInfoTextView.setText(&quot;Currently selected route:&quot;"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="613"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        mInfoTextView.setText(&quot;Currently selected route:&quot;"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="613"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        holder.mTextView.setText(position + &quot;:&quot; + mValues.get(position));"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/adapter/SimpleStringAdapter.java"
+            line="92"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                mHolderNumberView.setText(&quot;View Nr: &quot; + sHolderNumber++);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/StableIdActivity.java"
+            line="93"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                mHolderNumberView.setText(&quot;View Nr: &quot; + sHolderNumber++);"
+        errorLine2="                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/StableIdActivity.java"
+            line="93"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;smooth scroll&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;smooth scroll&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_base_layout_manager.xml"
+            line="28"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;offset&quot;, should use `@string` resource"
+        errorLine1="                android:hint=&quot;offset&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_base_layout_manager.xml"
+            line="36"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;scroll&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;scroll&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_base_layout_manager.xml"
+            line="43"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Show selected dialog&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Show selected dialog&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/alert_dialog_usage.xml"
+            line="35"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;SwitchCompat&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;SwitchCompat&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="32"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;SwitchCompat disabled&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;SwitchCompat disabled&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="38"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Switch&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;Switch&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="43"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Switch disabled&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;Switch disabled&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="49"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;CheckBox&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;CheckBox&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="54"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;RadioButton&quot;, should use `@string` resource"
+        errorLine1="                    android:text=&quot;RadioButton&quot;/>"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="65"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;RadioButton&quot;, should use `@string` resource"
+        errorLine1="                    android:text=&quot;RadioButton&quot;/>"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="71"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="78"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button disabled&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button disabled&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="84"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (small)&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (small)&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="89"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (small) disabled&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (small) disabled&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="96"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (borderless)&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (borderless)&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="102"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (borderless) disabled&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (borderless) disabled&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="109"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (borderless + colored)&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (borderless + colored)&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="115"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (borderless + colored) disabled&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (borderless + colored) disabled&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="122"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (colored)&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (colored)&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="128"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (colored) disabled&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (colored) disabled&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="135"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (colored + tinted)&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (colored + tinted)&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="141"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Button (colored + tinted) disabled&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Button (colored + tinted) disabled&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_buttons.xml"
+            line="149"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;EditText&quot;, should use `@string` resource"
+        errorLine1="            android:hint=&quot;EditText&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_text_input.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;AutoCompleteTextView&quot;, should use `@string` resource"
+        errorLine1="            android:hint=&quot;AutoCompleteTextView&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_text_input.xml"
+            line="34"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;MultiAutoCompleteTextView&quot;, should use `@string` resource"
+        errorLine1="            android:hint=&quot;MultiAutoCompleteTextView&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_text_input.xml"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;CheckedTextView&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;CheckedTextView&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_widgets_text_input.xml"
+            line="45"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Show selected dialog&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Show selected dialog&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/dialog_usage.xml"
+            line="35"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Email setup&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Email setup&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="28"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Email setup&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Email setup&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="28"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;You can configure email in a few simple steps:&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;You can configure email in a few simple steps:&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="34"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;You can configure email in a few simple steps:&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;You can configure email in a few simple steps:&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="34"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Email address:&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Email address:&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Email address:&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Email address:&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Password:&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Password:&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="47"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Password:&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Password:&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="47"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Manual setup&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Manual setup&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="55"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Manual setup&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Manual setup&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="55"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Next&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Next&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/grid_layout_2.xml"
+            line="60"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Next&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Next&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_2.xml"
+            line="60"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;LV&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;LV&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/palette_list_item.xml"
+            line="38"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;V&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;V&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/palette_list_item.xml"
+            line="46"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;DV&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;DV&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/palette_list_item.xml"
+            line="54"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;LM&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;LM&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/palette_list_item.xml"
+            line="63"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;M&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;M&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/palette_list_item.xml"
+            line="71"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;DM&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;DM&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/palette_list_item.xml"
+            line="79"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Num Colors&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Num Colors&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_palette_actions.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;8&quot;, should use `@string` resource"
+        errorLine1="                    android:title=&quot;8&quot; />"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_palette_actions.xml"
+            line="31"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;12&quot;, should use `@string` resource"
+        errorLine1="                      android:title=&quot;12&quot; />"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_palette_actions.xml"
+            line="35"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;16&quot;, should use `@string` resource"
+        errorLine1="                    android:title=&quot;16&quot;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_palette_actions.xml"
+            line="39"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;24&quot;, should use `@string` resource"
+        errorLine1="                    android:title=&quot;24&quot; />"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_palette_actions.xml"
+            line="44"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;32&quot;, should use `@string` resource"
+        errorLine1="                    android:title=&quot;32&quot; />"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/sample_palette_actions.xml"
+            line="48"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Your content&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Your content&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/toolbar_usage.xml"
+            line="36"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                    case Gravity.LEFT:"
+        errorLine2="                                 ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ActionBarDisplayOptions.java"
+            line="103"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                        newGravity = Gravity.RIGHT;"
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ActionBarDisplayOptions.java"
+            line="107"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                    case Gravity.RIGHT:"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ActionBarDisplayOptions.java"
+            line="109"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                        newGravity = Gravity.LEFT;"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ActionBarDisplayOptions.java"
+            line="110"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                params.gravity = Gravity.LEFT | Gravity.BOTTOM;"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/OverlayDisplayWindow.java"
+            line="144"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="            mWindowParams.gravity = Gravity.TOP | Gravity.LEFT;"
+        errorLine2="                                                          ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/OverlayDisplayWindow.java"
+            line="325"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="            mWindowX = (mGravity &amp; Gravity.LEFT) == Gravity.LEFT ?"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/OverlayDisplayWindow.java"
+            line="333"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="            mWindowX = (mGravity &amp; Gravity.LEFT) == Gravity.LEFT ?"
+        errorLine2="                                                            ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/OverlayDisplayWindow.java"
+            line="333"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                    case Gravity.LEFT:"
+        errorLine2="                                 ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ToolbarDisplayOptions.java"
+            line="99"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                        newGravity = Gravity.RIGHT;"
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ToolbarDisplayOptions.java"
+            line="103"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                    case Gravity.RIGHT:"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ToolbarDisplayOptions.java"
+            line="105"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                        newGravity = Gravity.LEFT;"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/ToolbarDisplayOptions.java"
+            line="106"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/radius_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_toRightOf=&quot;@id/radius_label&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="40"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignEnd=&quot;@id/radius_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_alignRight=&quot;@id/radius_label&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="50"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/width_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_toRightOf=&quot;@id/width_label&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="56"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignEnd=&quot;@id/width_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_alignRight=&quot;@id/width_label&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="66"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/height_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_toRightOf=&quot;@id/height_label&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="72"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignEnd=&quot;@id/height_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_alignRight=&quot;@id/height_label&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="83"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/elevation_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_toRightOf=&quot;@id/elevation_label&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="89"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignEnd=&quot;@id/elevation_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_alignRight=&quot;@id/elevation_label&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="100"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/max_elevation_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_toRightOf=&quot;@id/max_elevation_label&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="106"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignEnd=&quot;@id/max_elevation_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_alignRight=&quot;@id/max_elevation_label&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="117"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/alpha_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_toRightOf=&quot;@id/alpha_label&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="124"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignEnd=&quot;@id/alpha_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_alignRight=&quot;@id/alpha_label&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="134"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/color_label&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_toRightOf=&quot;@id/color_label&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="140"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="141"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/card_view&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_toRightOf=&quot;@id/card_view&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_card_view.xml"
+            line="227"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="            android:gravity=&quot;right&quot;"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/main/res/layout/dialog_content_buttons.xml"
+            line="36"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_marginStart=&quot;10dip&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginLeft=&quot;10dip&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_layout_1.xml"
+            line="45"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/media_item.xml"
+            line="31"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toStartOf=&quot;@id/item_action&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_toLeftOf=&quot;@id/item_action&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/media_item.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:layout_gravity=&quot;left&quot;"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/res/layout/media_item.xml"
+            line="41"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:gravity=&quot;left&quot;/>"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/res/layout/media_item.xml"
+            line="42"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                android:layout_gravity=&quot;right&quot;"
+        errorLine2="                                        ~~~~~">
+        <location
+            file="src/main/res/layout/sample_media_router.xml"
+            line="103"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                android:layout_gravity=&quot;right&quot;"
+        errorLine2="                                        ~~~~~">
+        <location
+            file="src/main/res/layout/sample_media_router.xml"
+            line="113"
+            column="41"/>
+    </issue>
+
+</issues>
