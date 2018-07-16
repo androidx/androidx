@@ -138,7 +138,7 @@ public class MediaBrowser2 extends MediaController2 {
     }
 
     @Override
-    SupportLibraryImpl createImpl(@NonNull Context context, @NonNull SessionToken2 token,
+    MediaBrowser2Impl createImpl(@NonNull Context context, @NonNull SessionToken2 token,
             @NonNull Executor executor, @NonNull MediaController2.ControllerCallback callback) {
         if (token.isLegacySession()) {
             return new MediaBrowser2ImplLegacy(
@@ -150,8 +150,8 @@ public class MediaBrowser2 extends MediaController2 {
     }
 
     @Override
-    SupportLibraryImpl getImpl() {
-        return (SupportLibraryImpl) super.getImpl();
+    MediaBrowser2Impl getImpl() {
+        return (MediaBrowser2Impl) super.getImpl();
     }
 
     @Override
@@ -248,7 +248,7 @@ public class MediaBrowser2 extends MediaController2 {
         getImpl().getSearchResult(query, page, pageSize, extras);
     }
 
-    interface SupportLibraryImpl extends MediaController2.SupportLibraryImpl {
+    interface MediaBrowser2Impl extends MediaController2Impl {
         void getLibraryRoot(@Nullable Bundle extras);
         void subscribe(@NonNull String parentId, @Nullable Bundle extras);
         void unsubscribe(@NonNull String parentId);

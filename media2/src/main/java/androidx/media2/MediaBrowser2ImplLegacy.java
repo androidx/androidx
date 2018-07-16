@@ -27,6 +27,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.MediaBrowser2.BrowserCallback;
+import androidx.media2.MediaBrowser2.MediaBrowser2Impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,8 +37,7 @@ import java.util.concurrent.Executor;
 /**
  * Implementation of MediaBrowser2 with the {@link MediaBrowserCompat} for legacy support.
  */
-class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
-        implements MediaBrowser2.SupportLibraryImpl {
+class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements MediaBrowser2Impl {
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final HashMap<Bundle, MediaBrowserCompat> mBrowserCompats = new HashMap<>();

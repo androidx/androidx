@@ -32,6 +32,7 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.MediaLibraryService2.LibraryRoot;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.SessionCallback;
@@ -42,8 +43,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class MediaLibrarySessionImplBase extends MediaSession2ImplBase
-        implements MediaLibrarySession.SupportLibraryImpl {
+class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements MediaLibrarySessionImpl {
     @GuardedBy("mLock")
     private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();
 

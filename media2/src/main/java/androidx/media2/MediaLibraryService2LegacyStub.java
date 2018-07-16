@@ -35,7 +35,7 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaLibraryService2.LibraryRoot;
-import androidx.media2.MediaLibraryService2.MediaLibrarySession;
+import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
 
@@ -53,12 +53,12 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     private final ControllerInfo mControllersForAll;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final MediaLibrarySession.SupportLibraryImpl mLibrarySessionImpl;
+    final MediaLibrarySessionImpl mLibrarySessionImpl;
 
     // Note: We'd better not obtain token from the session because it's called inside of the
     // session's constructor and session's token may not be initialized here.
-    MediaLibraryService2LegacyStub(Context context,
-            MediaLibrarySession.SupportLibraryImpl session, MediaSessionCompat.Token token) {
+    MediaLibraryService2LegacyStub(Context context, MediaLibrarySessionImpl session,
+            MediaSessionCompat.Token token) {
         super(context, session, token);
         mLibrarySessionImpl = session;
         mControllersForAll = new ControllerInfo(new RemoteUserInfo(

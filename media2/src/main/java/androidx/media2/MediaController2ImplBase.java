@@ -67,6 +67,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.MediaController2.ControllerCallback;
+import androidx.media2.MediaController2.MediaController2Impl;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaController2.VolumeDirection;
 import androidx.media2.MediaController2.VolumeFlags;
@@ -78,7 +79,7 @@ import androidx.versionedparcelable.ParcelUtils;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
+class MediaController2ImplBase implements MediaController2Impl {
     static final String TAG = "MC2ImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 

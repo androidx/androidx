@@ -60,6 +60,7 @@ import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
 import androidx.media2.MediaPlaylistAgent.PlaylistEventCallback;
 import androidx.media2.MediaSession2.ErrorCode;
+import androidx.media2.MediaSession2.MediaSession2Impl;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
+class MediaSession2ImplBase implements MediaSession2Impl {
     private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "android.media.session2.id";
     private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
 
