@@ -187,7 +187,7 @@ import java.util.concurrent.Executor;
  * <tr><td>setDataSource</td> <td>{Prepared, Paused, Playing}</td></tr>
  * <tr><td>prepare</td> <td>{Prepared, Paused, Playing}</td></tr>
  * <tr><td>play</td> <td>{Idle}</td></tr>
- * <tr><td>pause</td> <td>{Idle, Prepared}</td></tr>
+ * <tr><td>pause</td> <td>{Idle}</td></tr>
  * <tr><td>seekTo</td> <td>{Idle}</td></tr>
  * <tr><td>getCurrentPosition</td> <td>{Idle}</td></tr>
  * <tr><td>getDuration</td> <td>{Idle}</td></tr>
