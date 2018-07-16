@@ -34,8 +34,7 @@
                   android:layout_weight="1"
                   android:layout_marginLeft="16dp"
                   android:layout_marginRight="16dp"
-                  android:singleLine="true"
-                  android:ellipsize="marquee"/>
+                  android:singleLine="true" />
         <CheckBox android:id="@+id/mr_cast_checkbox"
                   android:layout_width="24dp"
                   android:layout_height="24dp" />
@@ -48,11 +47,13 @@
         <ImageView android:layout_width="24dp"
                    android:layout_height="24dp"
                    android:src="?attr/mediaRouteAudioTrackDrawable"
-                   android:layout_marginRight="16dp"/>
+                   android:gravity="center"
+                   android:scaleType="center"
+                   android:layout_marginRight="16dp" />
         <androidx.mediarouter.app.MediaRouteVolumeSlider
             android:id="@+id/mr_cast_volume_slider"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="match_parent"
             android:contentDescription="@string/mr_controller_volume_slider" />
     </LinearLayout>
 </LinearLayout>
