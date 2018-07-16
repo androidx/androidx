@@ -15,17 +15,12 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:minHeight="48dp"
-              android:paddingStart="16dp"
-              android:paddingEnd="16dp"
-              android:paddingTop="16dp"
-              android:orientation="vertical">
-    <TextView android:id="@+id/mr_picker_header_name"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:textSize="11sp"
-              android:textColor="#80868B" />
-</LinearLayout>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/mr_dialog_section_header_name"
+          android:layout_width="match_parent"
+          android:layout_height="48dp"
+          android:paddingStart="16dp"
+          android:paddingEnd="16dp"
+          android:paddingTop="16dp"
+          android:textSize="11sp"
+          android:textColor="#80868B" />
