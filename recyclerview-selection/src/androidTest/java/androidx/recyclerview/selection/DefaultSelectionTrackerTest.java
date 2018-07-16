@@ -51,6 +51,8 @@ public class DefaultSelectionTrackerTest {
     private List<String> mItems;
     private Set<String> mIgnored;
     private TestAdapter mAdapter;
+    private SelectionPredicate mSelectionPredicate;
+    private ItemKeyProvider<String> mKeyProvider;
     private DefaultSelectionTracker<String> mTracker;
     private TestSelectionObserver<String> mListener;
     private SelectionProbe mSelection;
@@ -63,7 +65,7 @@ public class DefaultSelectionTrackerTest {
         mAdapter = new TestAdapter();
         mAdapter.updateTestModelIds(mItems);
 
-        SelectionPredicate selectionPredicate = new SelectionPredicate<String>() {
+        mSelectionPredicate = new SelectionPredicate<String>() {
 
             @Override
             public boolean canSetStateForKey(String id, boolean nextState) {
@@ -81,16 +83,15 @@ public class DefaultSelectionTrackerTest {
             }
         };
 
-        ItemKeyProvider<String> keyProvider =
-                new TestItemKeyProvider<String>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
+        mKeyProvider = new TestItemKeyProvider<String>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
 
         mTracker = new DefaultSelectionTracker<>(
                 SELECTION_ID,
-                keyProvider,
-                selectionPredicate,
+                mKeyProvider,
+                mSelectionPredicate,
                 StorageStrategy.createStringStorage());
 
-        EventBridge.install(mAdapter, mTracker, keyProvider);
+        EventBridge.install(mAdapter, mTracker, mKeyProvider);
 
         mTracker.addObserver(mListener);
 
@@ -419,6 +420,39 @@ public class DefaultSelectionTrackerTest {
         }
 
         return ids;
+    }
+
+    @Test
+    public void testOnDataSetChanged_UnselectableRemovedFromSelection() {
+
+        mListener = TestSelectionObserver.createLenientObserver();
+        mTracker = new DefaultSelectionTracker<>(
+                SELECTION_ID,
+                mKeyProvider,
+                mSelectionPredicate,
+                StorageStrategy.createStringStorage());
+
+        EventBridge.install(mAdapter, mTracker, mKeyProvider);
+
+        mTracker.addObserver(mListener);
+
+        mSelection = new SelectionProbe(mTracker, mListener);
+
+        for (int i = 2; i < 7; i++) {
+            mTracker.select(mItems.get(i));
+        }
+
+        mIgnored.add(mItems.get(3));
+        mIgnored.add(mItems.get(5));
+
+        mAdapter.notifyDataSetChanged();
+
+        mSelection.assertNotSelected(3);
+        mSelection.assertNotSelected(5);
+
+        mSelection.assertSelected(2);
+        mSelection.assertSelected(4);
+        mSelection.assertSelected(6);
     }
 
     @Test

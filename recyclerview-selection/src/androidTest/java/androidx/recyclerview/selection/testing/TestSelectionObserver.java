@@ -31,6 +31,17 @@ public class TestSelectionObserver<K> extends SelectionObserver<K> {
     private boolean mSelectionChanged = false;
     private boolean mSelectionReset = false;
     private boolean mSelectionRestored = false;
+    private boolean mStrict = true;
+
+    /**
+     * Returns a TestSelectionObserver that doesn't make asserts about
+     * item selection status in response to onItemStateChanged events.
+     */
+    public static <K> TestSelectionObserver<K> createLenientObserver() {
+        TestSelectionObserver<K> observer = new TestSelectionObserver<>();
+        observer.mStrict = false;
+        return observer;
+    }
 
     public void reset() {
         mSelected.clear();
@@ -41,10 +52,14 @@ public class TestSelectionObserver<K> extends SelectionObserver<K> {
     @Override
     public void onItemStateChanged(K key, boolean selected) {
         if (selected) {
-            assertNotSelected(key);
+            if (mStrict) {
+                assertNotSelected(key);
+            }
             mSelected.add(key);
         } else {
-            assertSelected(key);
+            if (mStrict) {
+                assertSelected(key);
+            }
             mSelected.remove(key);
         }
     }

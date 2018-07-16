@@ -358,18 +358,29 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
 
         notifySelectionRefresh();
 
+        List<K> toRemove = null;
         for (K key : mSelection) {
             // If the underlying data set has changed, before restoring
             // selection we must re-verify that it can be selected.
             // Why? Because if the dataset has changed, then maybe the
             // selectability of an item has changed.
             if (!canSetState(key, true)) {
-                deselect(key);
+                if (toRemove == null) {
+                    toRemove = new ArrayList<>();
+                }
+                toRemove.add(key);
             } else {
                 int lastListener = mObservers.size() - 1;
                 for (int i = lastListener; i >= 0; i--) {
                     mObservers.get(i).onItemStateChanged(key, true);
                 }
+            }
+
+        }
+
+        if (toRemove != null) {
+            for (K key : toRemove) {
+                deselect(key);
             }
         }
 
