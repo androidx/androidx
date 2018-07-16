@@ -475,18 +475,28 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                             remoteUserInfo,
                             mSessionManager.isTrustedForMediaControl(remoteUserInfo),
                             new ControllerLegacyCb(remoteUserInfo));
-                    connect(controller);
                 }
             }
         }
         mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                synchronized (mLock) {
-                    if (controller != null
-                            && !mConnectedControllersManager.isConnected(controller)) {
+                if (controller == null || mSession.isClosed()) {
+                    return;
+                }
+                if (!mConnectedControllersManager.isConnected(controller)) {
+                    SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
+                            mSession.getInstance(), controller);
+                    if (allowedCommands == null) {
+                        try {
+                            controller.getControllerCb().onDisconnected();
+                        } catch (RemoteException ex) {
+                            // Controller may have died prematurely.
+                        }
                         return;
                     }
+                    mConnectedControllersManager.addController(
+                            controller.getRemoteUserInfo(), controller, allowedCommands);
                 }
                 handleCommandOnExecutor(controller, sessionCommand, commandCode, runnable);
             }
@@ -531,29 +541,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             //   - DeadSystemException means that errors around it can be ignored.
             Log.w(TAG, "Exception in " + controller.toString(), e);
         }
-    }
-
-    private void connect(final ControllerInfo controller) {
-        mSession.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (mSession.isClosed()) {
-                    return;
-                }
-                SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
-                        mSession.getInstance(), controller);
-                if (allowedCommands == null) {
-                    try {
-                        controller.getControllerCb().onDisconnected();
-                    } catch (RemoteException ex) {
-                        // Controller may have died prematurely.
-                    }
-                    return;
-                }
-                mConnectedControllersManager.addController(
-                        controller.getRemoteUserInfo(), controller, allowedCommands);
-            }
-        });
     }
 
     @FunctionalInterface
