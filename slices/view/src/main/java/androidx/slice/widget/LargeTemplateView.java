@@ -211,6 +211,11 @@ public class LargeTemplateView extends SliceChildView {
         mAdapter.setLastUpdated(lastUpdated);
     }
 
+    @Override
+    public void setAllowTwoLines(boolean allowTwoLines) {
+        mAdapter.setAllowTwoLines(allowTwoLines);
+    }
+
     /**
      * Whether or not the content in this template should be scrollable.
      */

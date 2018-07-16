@@ -126,6 +126,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private boolean mIsHeader;
     private List<SliceAction> mHeaderActions;
     private boolean mIsSingleItem;
+    // Indicates whether header rows can have 2 lines of subtitle text
+    private boolean mAllowTwoLines;
 
     // Indicates if there's a slider in this row that is currently being interacted with.
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -255,6 +257,14 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     }
 
     @Override
+    public void setAllowTwoLines(boolean allowTwoLines) {
+        mAllowTwoLines = allowTwoLines;
+        if (mRowContent != null) {
+            populateViews(true);
+        }
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int totalHeight = getMode() == MODE_SMALL ? getSmallHeight() : getActualHeight();
         int rowHeight = getRowContentHeight();
@@ -358,7 +368,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
 
-        addSubtitle();
+        addSubtitle(titleItem != null /* hasTitle */);
 
         SliceItem primaryAction = mRowContent.getPrimaryAction();
         if (primaryAction != null && primaryAction != mStartItem) {
@@ -461,11 +471,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     public void setLastUpdated(long lastUpdated) {
         super.setLastUpdated(lastUpdated);
         if (mRowContent != null) {
-            addSubtitle();
+            addSubtitle(mRowContent.getTitleItem() != null
+                    && TextUtils.isEmpty(mRowContent.getTitleItem().getText()));
         }
     }
 
-    private void addSubtitle() {
+    private void addSubtitle(boolean hasTitle) {
         if (mRowContent == null) {
             return;
         }
@@ -511,6 +522,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
         mLastUpdatedText.setVisibility(TextUtils.isEmpty(subtitleTimeString) ? GONE : VISIBLE);
         mSecondaryText.setVisibility(subtitleExists ? VISIBLE : GONE);
+
+        // If this is non-header or something that can have 2 lines in the header (e.g. permission
+        // slice) then allow 2 lines if there's only a subtitle and now timestring.
+        boolean canHaveMultiLines = mRowIndex > 0 || mAllowTwoLines;
+        int maxLines = canHaveMultiLines && !hasTitle && subtitleExists
+                && TextUtils.isEmpty(subtitleTimeString)
+                ? 2 : 1;
+        mSecondaryText.setSingleLine(maxLines == 1);
+        mSecondaryText.setMaxLines(maxLines);
 
         // TODO: Consider refactoring layout structure to avoid this
         // Need to request a layout to update the weights for these views when RV recycles them

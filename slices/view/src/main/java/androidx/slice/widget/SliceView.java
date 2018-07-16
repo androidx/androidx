@@ -464,6 +464,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         long lastUpdated = sliceMetadata.getLastUpdatedTime();
         mCurrentView.setLastUpdated(lastUpdated);
         mCurrentView.setShowLastUpdated(mShowLastUpdated && isExpired());
+        mCurrentView.setAllowTwoLines(sliceMetadata.isPermissionSlice());
 
         // Tint color can come with the slice, so may need to update it
         mCurrentView.setTint(getTintColor());
