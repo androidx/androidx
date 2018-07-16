@@ -37,7 +37,7 @@ public final class CursorWindowCompat {
      * Prior to Android P, this method will return a CursorWindow of size defined by the platform.
      */
     @NonNull
-    public CursorWindow create(@Nullable String name, long windowSizeBytes) {
+    public static CursorWindow create(@Nullable String name, long windowSizeBytes) {
         if (Build.VERSION.SDK_INT >= 28) {
             return new CursorWindow(name, windowSizeBytes);
         } else if (Build.VERSION.SDK_INT >= 15) {
