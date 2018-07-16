@@ -178,6 +178,12 @@ public abstract class SliceChildView extends FrameLayout {
     }
 
     /**
+     * Sets whether this slice can have 2 lines of subtitle text in the first row.
+     */
+    public void setAllowTwoLines(boolean allowTwoLines) {
+    }
+
+    /**
      * The set of currently loading actions.
      */
     public Set<SliceItem> getLoadingActions() {
