@@ -349,6 +349,8 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
         if (key != null) {
             loadAfter(new LoadParams<>(key, pageSize),
                     new LoadCallbackImpl<>(this, PageResult.APPEND, mainThreadExecutor, receiver));
+        } else {
+            receiver.onPageResult(PageResult.APPEND, PageResult.<Value>getEmptyResult());
         }
     }
 
@@ -360,6 +362,8 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
         if (key != null) {
             loadBefore(new LoadParams<>(key, pageSize),
                     new LoadCallbackImpl<>(this, PageResult.PREPEND, mainThreadExecutor, receiver));
+        } else {
+            receiver.onPageResult(PageResult.PREPEND, PageResult.<Value>getEmptyResult());
         }
     }
 
