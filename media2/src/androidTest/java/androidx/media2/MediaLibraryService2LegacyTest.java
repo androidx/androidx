@@ -601,7 +601,8 @@ public class MediaLibraryService2LegacyTest extends MediaSessionService2LegacyTe
                     ControllerInfo controller) {
                 if (Process.myUid() == controller.getUid()) {
                     SessionCommandGroup2 allowedCommands = new SessionCommandGroup2.Builder()
-                            .addAllPredefinedCommands()
+                            .addAllPredefinedCommands(
+                                    SessionCommand2.COMMAND_VERSION_1)
                             .addCommand(new SessionCommand2(testAction, null))
                             .build();
                     return allowedCommands;

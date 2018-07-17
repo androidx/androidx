@@ -18,19 +18,20 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
+import static androidx.media2.SessionCommand2.COMMAND_VERSION_1;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
+import androidx.media2.SessionCommand2.Range;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -224,14 +225,27 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
         }
 
         /**
-         * Adds all predefined commands to this command group.
+         * Adds all predefined session commands except for the commands added after the specified
+         * version without default implementation. This provides convenient way to add commands
+         * with implementation.
+         * <p>
+         * When you update support library version, it's recommended to take a look
+         * {@link SessionCommand2} to double check whether this only adds commands that you want.
+         * You may increase the version here.
+         *
+         * @param version command version
+         * @see SessionCommand2#COMMAND_VERSION_1
+         * @see MediaSession2.SessionCallback#onConnect
          */
-        public @NonNull Builder addAllPredefinedCommands() {
-            addAllPlaybackCommands();
-            addAllPlaylistCommands();
-            addAllVolumeCommands();
-            addAllSessionCommands();
-            addAllLibraryCommands();
+        public @NonNull Builder addAllPredefinedCommands(int version) {
+            if (version != COMMAND_VERSION_1) {
+                throw new IllegalArgumentException("Unknown command version " + version);
+            }
+            addAllPlaybackCommands(version);
+            addAllPlaylistCommands(version);
+            addAllVolumeCommands(version);
+            addAllSessionCommands(version);
+            addAllLibraryCommands(version);
             return this;
         }
 
@@ -262,78 +276,36 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
             return this;
         }
 
-        @NonNull Builder addAllPlaybackCommands() {
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED);
+        @NonNull Builder addAllPlaybackCommands(int version) {
+            addCommands(version, SessionCommand2.VERSION_PLAYBACK_COMMANDS_MAP);
             return this;
         }
 
-        @NonNull Builder addAllPlaylistCommands() {
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM);
-            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM);
+        @NonNull Builder addAllPlaylistCommands(int version) {
+            addCommands(version, SessionCommand2.VERSION_PLAYLIST_COMMANDS_MAP);
             return this;
         }
 
-        @NonNull Builder addAllVolumeCommands() {
-            addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME);
-            addCommand(SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME);
+        @NonNull Builder addAllVolumeCommands(int version) {
+            addCommands(version, SessionCommand2.VERSION_VOLUME_COMMANDS_MAP);
             return this;
         }
 
-        @NonNull Builder addAllSessionCommands() {
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_SET_RATING);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
-            addCommand(SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
+        @NonNull Builder addAllSessionCommands(int version) {
+            addCommands(version, SessionCommand2.VERSION_SESSION_COMMANDS_MAP);
             return this;
         }
 
-        @NonNull Builder addAllLibraryCommands() {
-            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_GET_CHILDREN);
-            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_GET_ITEM);
-            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT);
-            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT);
-            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_SEARCH);
-            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_SUBSCRIBE);
-            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_UNSUBSCRIBE);
+        @NonNull Builder addAllLibraryCommands(int version) {
+            addCommands(version, SessionCommand2.VERSION_LIBRARY_COMMANDS_MAP);
             return this;
         }
 
-        private void addCommandsWithPrefix(String prefix) {
-            final Field[] fields = SessionCommand2.class.getFields();
-            if (fields != null) {
-                for (int i = 0; i < fields.length; i++) {
-                    if (fields[i].getName().startsWith(prefix)
-                            && !fields[i].getName().equals("COMMAND_CODE_CUSTOM")) {
-                        try {
-                            mCommands.add(new SessionCommand2(fields[i].getInt(null)));
-                        } catch (IllegalAccessException e) {
-                            Log.w(TAG, "Unexpected " + fields[i] + " in MediaSession2");
-                        }
-                    }
+        private void addCommands(int version, ArrayMap<Integer, Range> map) {
+            for (int i = COMMAND_VERSION_1; i <= version; i++) {
+                Range range = map.get(i);
+                for (int code = range.lower; code <= range.upper; code++) {
+                    addCommand(code);
                 }
             }
         }
