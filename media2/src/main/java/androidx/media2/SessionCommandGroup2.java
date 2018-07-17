@@ -44,7 +44,7 @@ import java.util.Set;
 public final class SessionCommandGroup2 implements VersionedParcelable {
 
     private static final String TAG = "SessionCommandGroup2";
-    private static final String KEY_COMMANDS = "android.media.mediasession2.commandgroup.commands";
+    private static final String KEY_COMMANDS = "android.media.session2.commandgroup.commands";
     // Prefix for all command codes
     private static final String PREFIX_COMMAND_CODE = "COMMAND_CODE_";
     // Prefix for command codes that will be sent directly to the MediaPlayerConnector

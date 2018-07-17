@@ -368,7 +368,7 @@ public final class SessionToken2 {
             return "";
         } else {
             return resolveInfo.serviceInfo.metaData.getString(
-                    MediaSessionService2.SERVICE_META_DATA, "");
+                    MediaSessionService2.SERVICE_META_DATA_SESSION_ID, "");
         }
     }
 

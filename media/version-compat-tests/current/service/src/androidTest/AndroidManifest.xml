@@ -60,7 +60,7 @@
             <intent-filter>
                 <action android:name="android.media.MediaLibraryService2" />
             </intent-filter>
-            <meta-data android:name="android.media.session" android:value="TestLibrary" />
+            <meta-data android:name="android.media.session2.SESSION_ID" android:value="TestLibrary" />
         </service>
 
     </application>

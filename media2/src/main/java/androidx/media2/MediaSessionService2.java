@@ -59,7 +59,7 @@ import androidx.media2.MediaSession2.ControllerInfo;
  *   &lt;intent-filter&gt;
  *     &lt;action android:name="android.media.MediaSessionService2" /&gt;
  *   &lt;/intent-filter&gt;
- *   &lt;meta-data android:name="android.media.session"
+ *   &lt;meta-data android:name="android.media.session2.SESSION_ID"
  *       android:value="session_id"/&gt;
  * &lt;/service&gt;</pre>
  * <p>
@@ -105,8 +105,7 @@ import androidx.media2.MediaSession2.ControllerInfo;
  */
 public abstract class MediaSessionService2 extends Service {
     /**
-     * This is the interface name that a service implementing a session service should say that it
-     * support -- that is, this is the action it uses for its intent filter.
+     * The {@link Intent} that must be declared as handled by the service.
      */
     public static final String SERVICE_INTERFACE = "android.media.MediaSessionService2";
 
@@ -114,7 +113,7 @@ public abstract class MediaSessionService2 extends Service {
      * Name under which a MediaSessionService2 component publishes information about itself.
      * This meta-data must provide a string value for the ID.
      */
-    public static final String SERVICE_META_DATA = "android.media.session";
+    public static final String SERVICE_META_DATA_SESSION_ID = "android.media.session2.SESSION_ID";
 
     private final MediaSessionService2Impl mImpl;
 

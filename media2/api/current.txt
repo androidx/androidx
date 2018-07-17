@@ -692,7 +692,7 @@ package androidx.media2 {
     method public abstract androidx.media2.MediaSession2 onCreateSession(java.lang.String);
     method public androidx.media2.MediaSessionService2.MediaNotification onUpdateNotification();
     field public static final java.lang.String SERVICE_INTERFACE = "android.media.MediaSessionService2";
-    field public static final java.lang.String SERVICE_META_DATA = "android.media.session";
+    field public static final java.lang.String SERVICE_META_DATA_SESSION_ID = "android.media.session2.SESSION_ID";
   }
 
   public static class MediaSessionService2.MediaNotification {
