@@ -208,7 +208,11 @@ public class IconCompat extends CustomVersionedParcelable {
         final IconCompat rep = new IconCompat(TYPE_RESOURCE);
         rep.mInt1 = resId;
         if (r != null) {
-            rep.mObj1 = r.getResourceName(resId);
+            try {
+                rep.mObj1 = r.getResourceName(resId);
+            } catch (Resources.NotFoundException e) {
+                throw new IllegalArgumentException("Icon resource cannot be found");
+            }
         } else {
             rep.mObj1 = pkg;
         }
@@ -834,8 +838,12 @@ public class IconCompat extends CustomVersionedParcelable {
         switch (getType(icon)) {
             case TYPE_RESOURCE:
                 String resPackage = getResPackage(icon);
-                return createWithResource(getResources(context, resPackage), resPackage,
-                        getResId(icon));
+                try {
+                    return createWithResource(getResources(context, resPackage), resPackage,
+                            getResId(icon));
+                } catch (Resources.NotFoundException e) {
+                    throw new IllegalArgumentException("Icon resource cannot be found");
+                }
             case TYPE_URI:
                 return createWithContentUri(getUri(icon));
         }
