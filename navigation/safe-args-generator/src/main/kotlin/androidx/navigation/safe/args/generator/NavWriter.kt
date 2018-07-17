@@ -142,7 +142,10 @@ private class ClassWithArgsSpecs(
         }.build()
     }
 
-    fun equalsMethod(className: ClassName) = MethodSpec.methodBuilder("equals").apply {
+    fun equalsMethod(
+        className: ClassName,
+        additionalCode: CodeBlock? = null
+    ) = MethodSpec.methodBuilder("equals").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)
         addParameter(TypeName.OBJECT, "object")
@@ -175,11 +178,16 @@ private class ClassWithArgsSpecs(
             }
             endControlFlow()
         }
+        if (additionalCode != null) {
+            addCode(additionalCode)
+        }
         addStatement("return true")
         returns(TypeName.BOOLEAN)
     }.build()
 
-    fun hashCodeMethod() = MethodSpec.methodBuilder("hashCode").apply {
+    fun hashCodeMethod(
+        additionalCode: CodeBlock? = null
+    ) = MethodSpec.methodBuilder("hashCode").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)
         addStatement("int result = super.hashCode()")
@@ -193,6 +201,9 @@ private class ClassWithArgsSpecs(
                 LongType -> "(int)($sanitizedName ^ ($sanitizedName >>> 32))"
             }
             addStatement("result = 31 * result + $N", hashCodeExpression)
+        }
+        if (additionalCode != null) {
+            addCode(additionalCode)
         }
         addStatement("return result")
         returns(TypeName.INT)
@@ -252,6 +263,17 @@ fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
             .addStatement("return $N", action.id.accessor())
             .build()
 
+    val additionalEqualsBlock = CodeBlock.builder().apply {
+        beginControlFlow("if ($N() != that.$N())", getDestIdMethod, getDestIdMethod).apply {
+            addStatement("return false")
+        }
+        endControlFlow()
+    }.build()
+
+    val additionalHashCodeBlock = CodeBlock.builder().apply {
+        addStatement("result = 31 * result + $N()", getDestIdMethod)
+    }.build()
+
     val className = ClassName.get("", action.id.name.toCamelCase())
     return TypeSpec.classBuilder(className)
             .addSuperinterface(NAV_DIRECTION_CLASSNAME)
@@ -261,6 +283,8 @@ fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
             .addMethods(specs.setters(className))
             .addMethod(specs.toBundleMethod("getArguments"))
             .addMethod(getDestIdMethod)
+            .addMethod(specs.equalsMethod(className, additionalEqualsBlock))
+            .addMethod(specs.hashCodeMethod(additionalHashCodeBlock))
             .build()
 }
 

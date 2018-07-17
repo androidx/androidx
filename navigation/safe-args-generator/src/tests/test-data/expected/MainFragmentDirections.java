@@ -19,6 +19,8 @@ package a.b;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
+import java.lang.Object;
+import java.lang.Override;
 import java.lang.String;
 
 public class MainFragmentDirections {
@@ -67,6 +69,39 @@ public class MainFragmentDirections {
         public int getActionId() {
             return a.b.R.id.previous;
         }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+            if (!super.equals(object)) {
+                return false;
+            }
+            Previous that = (Previous) object;
+            if (arg1 != null ? !arg1.equals(that.arg1) : that.arg1 != null) {
+                return false;
+            }
+            if (arg2 != null ? !arg2.equals(that.arg2) : that.arg2 != null) {
+                return false;
+            }
+            if (getActionId() != that.getActionId()) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + (arg1 != null ? arg1.hashCode() : 0);
+            result = 31 * result + (arg2 != null ? arg2.hashCode() : 0);
+            result = 31 * result + getActionId();
+            return result;
+        }
     }
 
     public static class Next implements NavDirections {
@@ -102,6 +137,39 @@ public class MainFragmentDirections {
 
         public int getActionId() {
             return a.b.R.id.next;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+            if (!super.equals(object)) {
+                return false;
+            }
+            Next that = (Next) object;
+            if (main != null ? !main.equals(that.main) : that.main != null) {
+                return false;
+            }
+            if (optional != null ? !optional.equals(that.optional) : that.optional != null) {
+                return false;
+            }
+            if (getActionId() != that.getActionId()) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + (main != null ? main.hashCode() : 0);
+            result = 31 * result + (optional != null ? optional.hashCode() : 0);
+            result = 31 * result + getActionId();
+            return result;
         }
     }
 }

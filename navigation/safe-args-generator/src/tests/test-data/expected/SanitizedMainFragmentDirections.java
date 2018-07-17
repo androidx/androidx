@@ -3,6 +3,8 @@ package a.b;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
+import java.lang.Object;
+import java.lang.Override;
 import java.lang.String;
 
 public class SanitizedMainFragmentDirections {
@@ -51,6 +53,39 @@ public class SanitizedMainFragmentDirections {
         public int getActionId() {
             return a.b.R.id.previous_action;
         }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+            if (!super.equals(object)) {
+                return false;
+            }
+            PreviousAction that = (PreviousAction) object;
+            if (arg1 != null ? !arg1.equals(that.arg1) : that.arg1 != null) {
+                return false;
+            }
+            if (arg2 != null ? !arg2.equals(that.arg2) : that.arg2 != null) {
+                return false;
+            }
+            if (getActionId() != that.getActionId()) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + (arg1 != null ? arg1.hashCode() : 0);
+            result = 31 * result + (arg2 != null ? arg2.hashCode() : 0);
+            result = 31 * result + getActionId();
+            return result;
+        }
     }
 
     public static class NextAction implements NavDirections {
@@ -86,6 +121,39 @@ public class SanitizedMainFragmentDirections {
 
         public int getActionId() {
             return a.b.R.id.next_action;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+            if (!super.equals(object)) {
+                return false;
+            }
+            NextAction that = (NextAction) object;
+            if (mainArg != null ? !mainArg.equals(that.mainArg) : that.mainArg != null) {
+                return false;
+            }
+            if (optionalArg != null ? !optionalArg.equals(that.optionalArg) : that.optionalArg != null) {
+                return false;
+            }
+            if (getActionId() != that.getActionId()) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + (mainArg != null ? mainArg.hashCode() : 0);
+            result = 31 * result + (optionalArg != null ? optionalArg.hashCode() : 0);
+            result = 31 * result + getActionId();
+            return result;
         }
     }
 }
