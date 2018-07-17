@@ -208,6 +208,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
+        MediaUtils2.keepUnparcelableBundlesOnly(routes);
         controller.notifyRoutesInfoChanged(routes);
     }
 
