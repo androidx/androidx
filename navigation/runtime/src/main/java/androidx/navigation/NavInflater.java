@@ -186,7 +186,7 @@ public class NavInflater {
             value = new TypedValue();
             sTmpValue.set(value);
         }
-        String argType = a.getString(R.styleable.NavArgument_type);
+        String argType = a.getString(R.styleable.NavArgument_argType);
         if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
             if ("string".equals(argType)) {
                 dest.getDefaultArguments()

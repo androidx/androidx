@@ -20,6 +20,6 @@
             android:id="@+id/foo"
             app:startDestination="@+id/first_screen">
     <fragment android:name="a.FakeFragment">
-        <argument android:name="myarg1" android:defaultValue="foo/"  app:type="reference" />
+        <argument android:name="myarg1" android:defaultValue="foo/"  app:argType="reference" />
     </fragment>
 </navigation>

@@ -25,7 +25,7 @@
         <attr name="android:name" />
         <attr name="android:defaultValue" />
         <attr name="nullable" format="boolean"/>
-        <attr name="type" format="string"/>
+        <attr name="argType" format="string"/>
     </declare-styleable>
 
     <declare-styleable name="NavDeepLink">
