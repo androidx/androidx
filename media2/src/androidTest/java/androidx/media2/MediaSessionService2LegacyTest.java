@@ -65,11 +65,11 @@ public class MediaSessionService2LegacyTest extends MediaSession2TestBase {
     @After
     public void cleanUp() throws Exception {
         super.cleanUp();
-
         if (mBrowserCompat != null) {
             mBrowserCompat.disconnect();
             mBrowserCompat = null;
         }
+        TestServiceRegistry.getInstance().cleanUp();
     }
 
     ComponentName getServiceComponent() {
