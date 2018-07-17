@@ -27,6 +27,7 @@ public class MainFragmentArgs {
     private MainFragmentArgs() {
     }
 
+    @NonNull
     public static MainFragmentArgs fromBundle(Bundle bundle) {
         MainFragmentArgs result = new MainFragmentArgs();
         bundle.setClassLoader(MainFragmentArgs.class.getClassLoader());
@@ -79,6 +80,7 @@ public class MainFragmentArgs {
         return optionalParcelable;
     }
 
+    @NonNull
     public Bundle toBundle() {
         Bundle __outBundle = new Bundle();
         __outBundle.putString("main", this.main);
@@ -163,6 +165,7 @@ public class MainFragmentArgs {
             this.main = main;
         }
 
+        @NonNull
         public MainFragmentArgs build() {
             MainFragmentArgs result = new MainFragmentArgs();
             result.main = this.main;
@@ -174,31 +177,37 @@ public class MainFragmentArgs {
             return result;
         }
 
+        @NonNull
         public Builder setMain(@NonNull String main) {
             this.main = main;
             return this;
         }
 
+        @NonNull
         public Builder setOptional(int optional) {
             this.optional = optional;
             return this;
         }
 
+        @NonNull
         public Builder setReference(int reference) {
             this.reference = reference;
             return this;
         }
 
+        @NonNull
         public Builder setFloatArg(float floatArg) {
             this.floatArg = floatArg;
             return this;
         }
 
+        @NonNull
         public Builder setBoolArg(boolean boolArg) {
             this.boolArg = boolArg;
             return this;
         }
 
+        @NonNull
         public Builder setOptionalParcelable(@Nullable ActivityInfo optionalParcelable) {
             this.optionalParcelable = optionalParcelable;
             return this;

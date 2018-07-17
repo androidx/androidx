@@ -3,13 +3,17 @@ package a.b;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
+import java.lang.Object;
+import java.lang.Override;
 import java.lang.String;
 
 public class SanitizedMainFragmentDirections {
+    @NonNull
     public static PreviousAction previousAction(@NonNull String arg1, @NonNull String arg2) {
         return new PreviousAction(arg1, arg2);
     }
 
+    @NonNull
     public static NextAction nextAction(@NonNull String mainArg) {
         return new NextAction(mainArg);
     }
@@ -26,16 +30,19 @@ public class SanitizedMainFragmentDirections {
             this.arg2 = arg2;
         }
 
+        @NonNull
         public PreviousAction setArg1(@NonNull String arg1) {
             this.arg1 = arg1;
             return this;
         }
 
+        @NonNull
         public PreviousAction setArg2(@NonNull String arg2) {
             this.arg2 = arg2;
             return this;
         }
 
+        @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             __outBundle.putString("arg_1", this.arg1);
@@ -45,6 +52,39 @@ public class SanitizedMainFragmentDirections {
 
         public int getActionId() {
             return a.b.R.id.previous_action;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+            if (!super.equals(object)) {
+                return false;
+            }
+            PreviousAction that = (PreviousAction) object;
+            if (arg1 != null ? !arg1.equals(that.arg1) : that.arg1 != null) {
+                return false;
+            }
+            if (arg2 != null ? !arg2.equals(that.arg2) : that.arg2 != null) {
+                return false;
+            }
+            if (getActionId() != that.getActionId()) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + (arg1 != null ? arg1.hashCode() : 0);
+            result = 31 * result + (arg2 != null ? arg2.hashCode() : 0);
+            result = 31 * result + getActionId();
+            return result;
         }
     }
 
@@ -59,16 +99,19 @@ public class SanitizedMainFragmentDirections {
             this.mainArg = mainArg;
         }
 
+        @NonNull
         public NextAction setMainArg(@NonNull String mainArg) {
             this.mainArg = mainArg;
             return this;
         }
 
+        @NonNull
         public NextAction setOptionalArg(@NonNull String optionalArg) {
             this.optionalArg = optionalArg;
             return this;
         }
 
+        @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             __outBundle.putString("main_arg", this.mainArg);
@@ -78,6 +121,39 @@ public class SanitizedMainFragmentDirections {
 
         public int getActionId() {
             return a.b.R.id.next_action;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+            if (!super.equals(object)) {
+                return false;
+            }
+            NextAction that = (NextAction) object;
+            if (mainArg != null ? !mainArg.equals(that.mainArg) : that.mainArg != null) {
+                return false;
+            }
+            if (optionalArg != null ? !optionalArg.equals(that.optionalArg) : that.optionalArg != null) {
+                return false;
+            }
+            if (getActionId() != that.getActionId()) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + (mainArg != null ? mainArg.hashCode() : 0);
+            result = 31 * result + (optionalArg != null ? optionalArg.hashCode() : 0);
+            result = 31 * result + getActionId();
+            return result;
         }
     }
 }
