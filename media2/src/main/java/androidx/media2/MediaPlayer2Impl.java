@@ -2132,9 +2132,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized void pause() {
-            MediaPlayer mp = getCurrentPlayer();
-            mp.pause();
-            setMp2State(mp, PLAYER_STATE_PAUSED);
+            MediaPlayerSource current = getFirst();
+            if (current.mMp2State == PLAYER_STATE_PREPARED) {
+                // MediaPlayer1 does not allow pause() in the prepared state. To workaround, call
+                // start() here right before calling pause().
+                current.mPlayer.start();
+            }
+            current.mPlayer.pause();
+            setMp2State(current.mPlayer, PLAYER_STATE_PAUSED);
         }
 
         synchronized long getCurrentPosition() {
