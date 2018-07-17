@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -88,6 +89,13 @@ public class CoordinatorLayoutTest {
     @Test
     @SdkSuppress(minSdkVersion = 21)
     public void testSetFitSystemWindows() throws Throwable {
+        // Skip this test on Android TV
+        PackageManager manager = mActivityTestRule.getActivity().getPackageManager();
+        if (manager.hasSystemFeature(PackageManager.FEATURE_TELEVISION)
+                || manager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
+            return;
+        }
+
         final Instrumentation instrumentation = getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
         final View view = new View(col.getContext());
