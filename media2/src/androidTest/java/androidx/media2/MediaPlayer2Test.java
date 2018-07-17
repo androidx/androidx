@@ -543,7 +543,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             onPrepareCalled.reset();
             mp.prepare();
             onPrepareCalled.waitForSignal();
-            afd.close();
 
             mp.play();
 
@@ -1155,12 +1154,18 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             return; // skip
         }
 
+        final Monitor labelReached = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
+            }
+
+            @Override
+            public void onCommandLabelReached(MediaPlayer2 mp, @NonNull Object label) {
+                labelReached.signal();
             }
         };
         synchronized (mEventCbLock) {
@@ -1180,6 +1185,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             mPlayer.setPlaybackParams(new PlaybackParams2.Builder().setSpeed(playbackRate).build());
             mPlayer.play();
             Thread.sleep(playTime);
+
+            labelReached.reset();
+            mPlayer.notifyWhenCommandLabelReached(new Object());
+            labelReached.waitForSignal();
+
             PlaybackParams2 pbp = mPlayer.getPlaybackParams();
             assertEquals(playbackRate, pbp.getSpeed(), FLOAT_TOLERANCE);
             assertTrue("MediaPlayer2 should still be playing",
@@ -1192,9 +1202,13 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                         + ", play time is " + playTime + " vs expected " + playedMediaDurationMs);
             }
             mPlayer.pause();
+
+            labelReached.reset();
+            mPlayer.notifyWhenCommandLabelReached(new Object());
+            labelReached.waitForSignal();
+
             pbp = mPlayer.getPlaybackParams();
-            // TODO: pause() should NOT change PlaybackParams2.
-            // assertEquals(0.f, pbp.getSpeed(), FLOAT_TOLERANCE);
+            assertEquals(0.f, pbp.getSpeed(), FLOAT_TOLERANCE);
         }
         mPlayer.reset();
     }
@@ -1930,13 +1944,13 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     public void testPositionAtEnd() throws Throwable {
-        int testsRun = testPositionAtEnd(R.raw.test1m1shighstereo)
-                + testPositionAtEnd(R.raw.loudsoftmp3)
-                + testPositionAtEnd(R.raw.loudsoftwav)
-                + testPositionAtEnd(R.raw.loudsoftogg)
-                + testPositionAtEnd(R.raw.loudsoftitunes)
-                + testPositionAtEnd(R.raw.loudsoftfaac)
-                + testPositionAtEnd(R.raw.loudsoftaac);
+        testPositionAtEnd(R.raw.test1m1shighstereo);
+        testPositionAtEnd(R.raw.loudsoftmp3);
+        testPositionAtEnd(R.raw.loudsoftwav);
+        testPositionAtEnd(R.raw.loudsoftogg);
+        testPositionAtEnd(R.raw.loudsoftitunes);
+        testPositionAtEnd(R.raw.loudsoftfaac);
+        testPositionAtEnd(R.raw.loudsoftaac);
     }
 
     private int testPositionAtEnd(int res) throws Throwable {
@@ -1983,10 +1997,12 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPlayCalled.waitForSignal();
         while (mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING) {
             Log.i("@@@@", "position: " + mPlayer.getCurrentPosition());
-            Thread.sleep(500);
+            Thread.sleep(100);
         }
         Log.i("@@@@", "final position: " + mPlayer.getCurrentPosition());
-        assertTrue(mPlayer.getCurrentPosition() > duration - 1000);
+        long pos = mPlayer.getCurrentPosition();
+        assertTrue("current pos (" + pos + "us) does not match the duration (" + duration + "us).",
+                Math.abs(pos - duration) < 1000);
         mPlayer.reset();
         return 1;
     }
@@ -2731,7 +2747,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.loopCurrent(false);
         mOnCompletionCalled.waitForSignal();
         assertEquals(MediaPlayer2.PLAYER_STATE_PAUSED, mPlayer.getState());
-        assertTrue(Math.abs(mPlayer.getCurrentPosition() - end) < PLAYBACK_COMPLETE_TOLERANCE_MS);
+        long pos = mPlayer.getCurrentPosition();
+        assertTrue("current pos (" + pos + "us) does not match requested pos (" + end + "us).",
+                Math.abs(pos - end) < PLAYBACK_COMPLETE_TOLERANCE_MS);
 
         afd.close();
     }
