@@ -92,6 +92,7 @@ private class ClassWithArgsSpecs(
             addAnnotation(annotations.NONNULL_CLASSNAME)
             addModifiers(Modifier.PUBLIC)
             addParameter(generateParameterSpec(arg))
+            addNullCheck(arg, arg.sanitizedName)
             addStatement("this.$N = $N", arg.sanitizedName, arg.sanitizedName)
             addStatement("return this")
             returns(thisClassName)
@@ -103,6 +104,7 @@ private class ClassWithArgsSpecs(
         args.filterNot(Argument::isOptional).forEach { arg ->
             addParameter(generateParameterSpec(arg))
             addStatement("this.$N = $N", arg.sanitizedName, arg.sanitizedName)
+            addNullCheck(arg, "this.${arg.sanitizedName}")
         }
     }.build()
 
@@ -309,6 +311,7 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
             beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
                 addStatement("$N.$N = $N.$N($S)", result, arg.sanitizedName, bundle,
                         arg.type.bundleGetMethod(), arg.name)
+                addNullCheck(arg, "$result.${arg.sanitizedName}")
             }
             if (!arg.isOptional()) {
                 nextControlFlow("else")
@@ -362,6 +365,20 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
             .build()
 
     return JavaFile.builder(className.packageName(), typeSpec).build()
+}
+
+private fun MethodSpec.Builder.addNullCheck(
+    arg: Argument,
+    variableName: String
+) {
+    if (arg.type.allowsNullable() && !arg.isNullable) {
+        beginControlFlow("if ($N == null)", variableName).apply {
+            addStatement("throw new $T($S)", IllegalArgumentException::class.java,
+                    "Argument \"${arg.name}\" is marked as non-null " +
+                            "but was passed a null value.")
+        }
+        endControlFlow()
+    }
 }
 
 fun generateDirectionsJavaFile(destination: Destination, useAndroidX: Boolean): JavaFile {

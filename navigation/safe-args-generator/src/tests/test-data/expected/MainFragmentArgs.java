@@ -33,6 +33,9 @@ public class MainFragmentArgs {
         bundle.setClassLoader(MainFragmentArgs.class.getClassLoader());
         if (bundle.containsKey("main")) {
             result.main = bundle.getString("main");
+            if (result.main == null) {
+                throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
+            }
         } else {
             throw new IllegalArgumentException("Required argument \"main\" is missing and does not have an android:defaultValue");
         }
@@ -163,6 +166,9 @@ public class MainFragmentArgs {
 
         public Builder(@NonNull String main) {
             this.main = main;
+            if (this.main == null) {
+                throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
+            }
         }
 
         @NonNull
@@ -179,6 +185,9 @@ public class MainFragmentArgs {
 
         @NonNull
         public Builder setMain(@NonNull String main) {
+            if (main == null) {
+                throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
+            }
             this.main = main;
             return this;
         }

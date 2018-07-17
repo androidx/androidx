@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import androidx.navigation.NavDirections;
+import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -44,12 +45,21 @@ public static class Next implements NavDirections {
 
     public Next(@NonNull String main, int mainInt, @NonNull ActivityInfo parcelable) {
         this.main = main;
+        if (this.main == null) {
+            throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
+        }
         this.mainInt = mainInt;
         this.parcelable = parcelable;
+        if (this.parcelable == null) {
+            throw new IllegalArgumentException("Argument \"parcelable\" is marked as non-null but was passed a null value.");
+        }
     }
 
     @NonNull
     public Next setMain(@NonNull String main) {
+        if (main == null) {
+            throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
+        }
         this.main = main;
         return this;
     }
@@ -62,6 +72,9 @@ public static class Next implements NavDirections {
 
     @NonNull
     public Next setOptional(@NonNull String optional) {
+        if (optional == null) {
+            throw new IllegalArgumentException("Argument \"optional\" is marked as non-null but was passed a null value.");
+        }
         this.optional = optional;
         return this;
     }
@@ -80,6 +93,9 @@ public static class Next implements NavDirections {
 
     @NonNull
     public Next setParcelable(@NonNull ActivityInfo parcelable) {
+        if (parcelable == null) {
+            throw new IllegalArgumentException("Argument \"parcelable\" is marked as non-null but was passed a null value.");
+        }
         this.parcelable = parcelable;
         return this;
     }
