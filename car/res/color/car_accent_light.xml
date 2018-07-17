@@ -17,6 +17,6 @@
 <!-- Default text colors for car buttons when enabled/disabled. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Disabled state uses a tint of the color so widgets are not transparent, e.g. SeekBar.-->
-    <item android:state_enabled="false" android:color="@color/car_teal_200_disabled"/>
-    <item android:color="@color/car_teal_200"/>
+    <item android:state_enabled="false" android:drawable="@color/car_teal_200_disabled"/>
+    <item android:drawable="@color/car_teal_200"/>
 </selector>
