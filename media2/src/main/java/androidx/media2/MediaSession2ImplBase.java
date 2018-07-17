@@ -181,8 +181,10 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             throw new IllegalArgumentException("player shouldn't be null");
         }
 
-        if (player == mPlayer && playlistAgent == mPlaylistAgent) {
-            return;
+        synchronized (mLock) {
+            if (player == mPlayer && playlistAgent == mPlaylistAgent) {
+                return;
+            }
         }
 
         final boolean isPlaybackInfoChanged;

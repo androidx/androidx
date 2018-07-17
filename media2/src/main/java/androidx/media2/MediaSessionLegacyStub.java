@@ -541,7 +541,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             //   - TransactionTooLargeException means that we may need to fix our code.
             //     (e.g. add pagination or special way to deliver Bitmap)
             //   - DeadSystemException means that errors around it can be ignored.
-            Log.w(TAG, "Exception in " + controller.toString(), e);
+            Log.w(TAG, "Exception in " + controller, e);
         }
     }
 
