@@ -4065,6 +4065,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         private final View mChild;
         private boolean mEnded;
         private boolean mTransitionEnded;
+        private boolean mAnimating = true;
 
         EndViewTransitionAnimator(@NonNull Animation animation,
                 @NonNull ViewGroup parent, @NonNull View child) {
@@ -4072,10 +4073,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             mParent = parent;
             mChild = child;
             addAnimation(animation);
+            // We must call endViewTransition() even if the animation was never run or it
+            // is interrupted in a way that can't be detected easily (app put in background)
+            mParent.post(this);
         }
 
         @Override
         public boolean getTransformation(long currentTime, Transformation t) {
+            mAnimating = true;
             if (mEnded) {
                 return !mTransitionEnded;
             }
@@ -4090,6 +4095,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         @Override
         public boolean getTransformation(long currentTime, Transformation outTransformation,
                 float scale) {
+            mAnimating = true;
             if (mEnded) {
                 return !mTransitionEnded;
             }
@@ -4103,8 +4109,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
         @Override
         public void run() {
-            mParent.endViewTransition(mChild);
-            mTransitionEnded = true;
+            if (!mEnded && mAnimating) {
+                mAnimating = false;
+                // Called while animating, so we'll check again on next cycle
+                mParent.post(this);
+            } else {
+                mParent.endViewTransition(mChild);
+                mTransitionEnded = true;
+            }
         }
     }
 }
