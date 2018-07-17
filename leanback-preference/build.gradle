@@ -10,7 +10,6 @@ dependencies {
     api(project(":appcompat"))
     api(project(":recyclerview"))
     api(project(":preference"))
-    api(project(":legacy-preference-v14"))
     api(project(":leanback"))
 }
 
