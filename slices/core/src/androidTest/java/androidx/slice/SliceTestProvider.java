@@ -54,6 +54,11 @@ public class SliceTestProvider extends androidx.slice.SliceProvider {
                 return new Slice.Builder(sliceUri).addIcon(
                         IconCompat.createWithResource(getContext(), R.drawable.size_48x48),
                         "icon").build();
+            case "/icon_null":
+                return new Slice.Builder(sliceUri).addIcon(null, "icon").build();
+            case "/icon_invalid":
+                return new Slice.Builder(sliceUri).addIcon(
+                        IconCompat.createWithResource(getContext(), 0), "icon").build();
             case "/action":
                 Builder builder = new Builder(sliceUri);
                 Slice subSlice = new Slice.Builder(builder).build();

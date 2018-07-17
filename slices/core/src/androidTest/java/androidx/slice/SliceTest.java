@@ -31,6 +31,7 @@ import static android.app.slice.SliceProvider.SLICE_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent.CanceledException;
@@ -124,6 +125,20 @@ public class SliceTest {
         assertEquals(FORMAT_IMAGE, item.getFormat());
         assertEquivalent(IconCompat.createWithResource(mContext, R.drawable.size_48x48),
                 item.getIcon());
+    }
+
+    @Test
+    public void testNullIcon() {
+        Uri uri = BASE_URI.buildUpon().appendPath("icon_null").build();
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
+        assertNull(s);
+    }
+
+    @Test
+    public void testInvalidResIdIcon() {
+        Uri uri = BASE_URI.buildUpon().appendPath("icon_invalid").build();
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
+        assertNull(s);
     }
 
     private void assertEquivalent(IconCompat first, IconCompat second) {
