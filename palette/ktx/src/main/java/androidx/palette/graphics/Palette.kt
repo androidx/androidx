@@ -18,20 +18,6 @@
 
 package androidx.palette.graphics
 
-import android.graphics.Bitmap
-
-/**
- * Create a [Palette.Builder] from this bitmap.
- *
- * @see Palette.from
- */
-@Deprecated(
-    "Invoke the builder directly",
-    ReplaceWith("Palette.Builder(this)"),
-    DeprecationLevel.ERROR
-)
-inline fun Bitmap.buildPalette() = Palette.Builder(this)
-
 /**
  * Returns the selected swatch for the given target from the palette, or `null` if one
  * could not be found.

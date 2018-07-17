@@ -34,14 +34,6 @@ import androidx.annotation.StyleRes
 inline fun <reified T> Context.getSystemService(): T? =
         ContextCompat.getSystemService(this, T::class.java)
 
-@Deprecated(
-    "Use getSystemService",
-    ReplaceWith("this.getSystemService<T>()"),
-    DeprecationLevel.ERROR
-)
-inline fun <reified T> Context.systemService(): T? =
-        ContextCompat.getSystemService(this, T::class.java)
-
 /**
  * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the attribute
  * values in [set] that are listed in [attrs]. In addition, if the given [AttributeSet]
