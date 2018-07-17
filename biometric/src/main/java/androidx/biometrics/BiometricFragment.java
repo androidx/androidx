@@ -18,7 +18,6 @@ package androidx.biometrics;
 
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
-import android.hardware.biometrics.BiometricPrompt;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 
@@ -43,19 +42,20 @@ public class BiometricFragment extends Fragment {
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
     Executor mClientExecutor;
     DialogInterface.OnClickListener mClientNegativeButtonListener;
-    BiometricPromptCompat.AuthenticationCallback mClientAuthenticationCallback;
+    BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
 
     // Set once and retained.
-    private BiometricPromptCompat.CryptoObject mCryptoObject;
+    private BiometricPrompt.CryptoObject mCryptoObject;
     private CharSequence mNegativeButtonText;
 
     // Created once and retained.
-    private BiometricPrompt mBiometricPrompt;
+    private android.hardware.biometrics.BiometricPrompt mBiometricPrompt;
     private CancellationSignal mCancellationSignal;
 
     // Also created once and retained.
-    private final BiometricPrompt.AuthenticationCallback mAuthenticationCallback =
-            new BiometricPrompt.AuthenticationCallback() {
+    private final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
+            mAuthenticationCallback =
+            new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
                 @Override
                 public void onAuthenticationError(final int errorCode,
                         final CharSequence errString) {
@@ -77,12 +77,13 @@ public class BiometricFragment extends Fragment {
 
                 @Override
                 public void onAuthenticationSucceeded(
-                        final BiometricPrompt.AuthenticationResult result) {
+                        final android.hardware.biometrics.BiometricPrompt.AuthenticationResult
+                                result) {
                     mClientExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
                             mClientAuthenticationCallback.onAuthenticationSucceeded(
-                                    new BiometricPromptCompat.AuthenticationResult(
+                                    new BiometricPrompt.AuthenticationResult(
                                             unwrapCryptoObject(result.getCryptoObject())));
                         }
                     });
@@ -128,7 +129,7 @@ public class BiometricFragment extends Fragment {
      * @param authenticationCallback
      */
     protected void setCallbacks(Executor executor, DialogInterface.OnClickListener onClickListener,
-            BiometricPromptCompat.AuthenticationCallback authenticationCallback) {
+            BiometricPrompt.AuthenticationCallback authenticationCallback) {
         mClientExecutor = executor;
         mClientNegativeButtonListener = onClickListener;
         mClientAuthenticationCallback = authenticationCallback;
@@ -139,7 +140,7 @@ public class BiometricFragment extends Fragment {
      * adding the fragment to guarantee that it's ready in onCreate().
      * @param crypto
      */
-    protected void setCryptoObject(BiometricPromptCompat.CryptoObject crypto) {
+    protected void setCryptoObject(BiometricPrompt.CryptoObject crypto) {
         mCryptoObject = crypto;
     }
 
@@ -173,13 +174,13 @@ public class BiometricFragment extends Fragment {
 
         Bundle bundle = getArguments();
 
-        mNegativeButtonText = bundle.getCharSequence(BiometricPromptCompat.KEY_NEGATIVE_TEXT);
+        mNegativeButtonText = bundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
 
-        mBiometricPrompt = new BiometricPrompt.Builder(getContext())
-                .setTitle(bundle.getCharSequence(BiometricPromptCompat.KEY_TITLE))
-                .setSubtitle(bundle.getCharSequence(BiometricPromptCompat.KEY_SUBTITLE))
-                .setDescription(bundle.getCharSequence(BiometricPromptCompat.KEY_DESCRIPTION))
-                .setNegativeButton(bundle.getCharSequence(BiometricPromptCompat.KEY_NEGATIVE_TEXT),
+        mBiometricPrompt = new android.hardware.biometrics.BiometricPrompt.Builder(getContext())
+                .setTitle(bundle.getCharSequence(BiometricPrompt.KEY_TITLE))
+                .setSubtitle(bundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE))
+                .setDescription(bundle.getCharSequence(BiometricPrompt.KEY_DESCRIPTION))
+                .setNegativeButton(bundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT),
                         mClientExecutor, mNegativeButtonListener)
                 .build();
 
@@ -193,23 +194,8 @@ public class BiometricFragment extends Fragment {
         }
     }
 
-    static BiometricPromptCompat.CryptoObject unwrapCryptoObject(
-            BiometricPrompt.CryptoObject cryptoObject) {
-        if (cryptoObject == null) {
-            return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new BiometricPromptCompat.CryptoObject(cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new BiometricPromptCompat.CryptoObject(cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new BiometricPromptCompat.CryptoObject(cryptoObject.getMac());
-        } else {
-            return null;
-        }
-    }
-
-    static BiometricPrompt.CryptoObject wrapCryptoObject(
-            BiometricPromptCompat.CryptoObject cryptoObject) {
+    static BiometricPrompt.CryptoObject unwrapCryptoObject(
+            android.hardware.biometrics.BiometricPrompt.CryptoObject cryptoObject) {
         if (cryptoObject == null) {
             return null;
         } else if (cryptoObject.getCipher() != null) {
@@ -218,6 +204,24 @@ public class BiometricFragment extends Fragment {
             return new BiometricPrompt.CryptoObject(cryptoObject.getSignature());
         } else if (cryptoObject.getMac() != null) {
             return new BiometricPrompt.CryptoObject(cryptoObject.getMac());
+        } else {
+            return null;
+        }
+    }
+
+    static android.hardware.biometrics.BiometricPrompt.CryptoObject wrapCryptoObject(
+            BiometricPrompt.CryptoObject cryptoObject) {
+        if (cryptoObject == null) {
+            return null;
+        } else if (cryptoObject.getCipher() != null) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
+                    cryptoObject.getCipher());
+        } else if (cryptoObject.getSignature() != null) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
+                    cryptoObject.getSignature());
+        } else if (cryptoObject.getMac() != null) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
+                    cryptoObject.getMac());
         } else {
             return null;
         }

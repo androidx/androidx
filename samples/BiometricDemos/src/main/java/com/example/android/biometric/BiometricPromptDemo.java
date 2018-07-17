@@ -29,7 +29,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
-import androidx.biometrics.BiometricPromptCompat;
+import androidx.biometrics.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
 
 import java.io.IOException;
@@ -75,7 +75,7 @@ public class BiometricPromptDemo extends FragmentActivity {
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private KeyStore mKeyStore;
-    private BiometricPromptCompat mBiometricPromptCompat;
+    private BiometricPrompt mBiometricPrompt;
 
     private int mNumberFailedAttempts;
 
@@ -83,8 +83,8 @@ public class BiometricPromptDemo extends FragmentActivity {
         mHandler.post(runnable);
     };
 
-    private final BiometricPromptCompat.AuthenticationCallback mAuthenticationCallback =
-            new BiometricPromptCompat.AuthenticationCallback() {
+    private final BiometricPrompt.AuthenticationCallback mAuthenticationCallback =
+            new BiometricPrompt.AuthenticationCallback() {
         @Override
         public void onAuthenticationError(int err, CharSequence message) {
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -92,7 +92,7 @@ public class BiometricPromptDemo extends FragmentActivity {
         }
 
         @Override
-        public void onAuthenticationSucceeded(BiometricPromptCompat.AuthenticationResult result) {
+        public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
             Toast.makeText(getApplicationContext(), "Yay", Toast.LENGTH_SHORT).show();
             mNumberFailedAttempts = 0;
         }
@@ -104,7 +104,7 @@ public class BiometricPromptDemo extends FragmentActivity {
 
             // Cancel authentication after 3 failed attempts to test the cancel() method.
             if (mMode == MODE_CANCEL_AFTER_THREE_FAILURES && mNumberFailedAttempts == 3) {
-                mBiometricPromptCompat.cancelAuthentication();
+                mBiometricPrompt.cancelAuthentication();
             }
         }
     };
@@ -126,7 +126,7 @@ public class BiometricPromptDemo extends FragmentActivity {
         final Button buttonAuthenticate;
         buttonAuthenticate = findViewById(R.id.button_authenticate);
 
-        mBiometricPromptCompat = new BiometricPromptCompat(this /* fragmentActivity */, mExecutor,
+        mBiometricPrompt = new BiometricPrompt(this /* fragmentActivity */, mExecutor,
                 mAuthenticationCallback);
 
         try {
@@ -148,7 +148,7 @@ public class BiometricPromptDemo extends FragmentActivity {
     @Override
     protected void onPause() {
         if (mMode == MODE_CANCEL_ON_CONFIGURATION_CHANGE) {
-            mBiometricPromptCompat.cancelAuthentication();
+            mBiometricPrompt.cancelAuthentication();
         }
         super.onPause();
     }
@@ -221,8 +221,8 @@ public class BiometricPromptDemo extends FragmentActivity {
         }
 
         // Build the biometric prompt info
-        BiometricPromptCompat.PromptInfo info =
-                new BiometricPromptCompat.PromptInfo.Builder()
+        BiometricPrompt.PromptInfo info =
+                new BiometricPrompt.PromptInfo.Builder()
                         .setTitle("Title")
                         .setSubtitle("Subtitle")
                         .setDescription(
@@ -239,12 +239,12 @@ public class BiometricPromptDemo extends FragmentActivity {
                         + KeyProperties.ENCRYPTION_PADDING_PKCS7);
 
                 if (initCipher(defaultCipher, DEFAULT_KEY_NAME)) {
-                    BiometricPromptCompat.CryptoObject crypto =
-                            new BiometricPromptCompat.CryptoObject(
+                    BiometricPrompt.CryptoObject crypto =
+                            new BiometricPrompt.CryptoObject(
                                     defaultCipher);
 
                     // Show the biometric prompt.
-                    mBiometricPromptCompat.authenticate(info, crypto);
+                    mBiometricPrompt.authenticate(info, crypto);
                 }
             } catch (RuntimeException e) {
                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -254,7 +254,7 @@ public class BiometricPromptDemo extends FragmentActivity {
             }
         } else {
             // Show the biometric prompt.
-            mBiometricPromptCompat.authenticate(info);
+            mBiometricPrompt.authenticate(info);
         }
     }
 

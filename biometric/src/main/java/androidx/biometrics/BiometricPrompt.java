@@ -43,7 +43,7 @@ import javax.crypto.Mac;
  * canceled by the client. For security reasons, the prompt will automatically dismiss when the
  * activity is no longer in the foreground.
  */
-public class BiometricPromptCompat implements BiometricConstants {
+public class BiometricPrompt implements BiometricConstants {
 
     private static final String TAG = "BiometricPromptCompat";
     private static final boolean DEBUG = false;
@@ -135,8 +135,8 @@ public class BiometricPromptCompat implements BiometricConstants {
     }
 
     /**
-     * Callback structure provided to {@link BiometricPromptCompat}. Users of {@link
-     * BiometricPromptCompat} must provide an implementation of this for listening to
+     * Callback structure provided to {@link BiometricPrompt}. Users of {@link
+     * BiometricPrompt} must provide an implementation of this for listening to
      * fingerprint events.
      */
     public abstract static class AuthenticationCallback {
@@ -211,8 +211,8 @@ public class BiometricPromptCompat implements BiometricConstants {
             }
 
             /**
-             * Creates a {@link BiometricPromptCompat}.
-             * @return a {@link BiometricPromptCompat}
+             * Creates a {@link BiometricPrompt}.
+             * @return a {@link BiometricPrompt}
              * @throws IllegalArgumentException if any of the required fields are not set.
              */
             public PromptInfo build() {
@@ -341,12 +341,12 @@ public class BiometricPromptCompat implements BiometricConstants {
     };
 
     /**
-     * Constructs a {@link BiometricPromptCompat} which can be used to prompt the user for
+     * Constructs a {@link BiometricPrompt} which can be used to prompt the user for
      * authentication. The authenticaton prompt created by
-     * {@link BiometricPromptCompat#authenticate(PromptInfo, CryptoObject)} and
-     * {@link BiometricPromptCompat#authenticate(PromptInfo)} will persist across device
+     * {@link BiometricPrompt#authenticate(PromptInfo, CryptoObject)} and
+     * {@link BiometricPrompt#authenticate(PromptInfo)} will persist across device
      * configuration changes by default. If authentication is in progress, re-creating
-     * the {@link BiometricPromptCompat} can be used to update the {@link Executor} and
+     * the {@link BiometricPrompt} can be used to update the {@link Executor} and
      * {@link AuthenticationCallback}. This should be used to update the
      * {@link AuthenticationCallback} after configuration changes.
      * such as {@link FragmentActivity#onCreate(Bundle)}.
@@ -355,7 +355,7 @@ public class BiometricPromptCompat implements BiometricConstants {
      * @param executor An executor to handle callback events.
      * @param callback An object to receive authentication events.
      */
-    public BiometricPromptCompat(@NonNull FragmentActivity fragmentActivity,
+    public BiometricPrompt(@NonNull FragmentActivity fragmentActivity,
             @NonNull Executor executor, @NonNull AuthenticationCallback callback) {
         if (fragmentActivity == null) {
             throw new IllegalArgumentException("FragmentActivity must not be null");
@@ -377,7 +377,7 @@ public class BiometricPromptCompat implements BiometricConstants {
      * Shows the biometric prompt. The prompt survives lifecycle changes by default. To cancel the
      * authentication, use {@link #cancelAuthentication()}.
      * @param info The information that will be displayed on the prompt. Create this object using
-     *             {@link BiometricPromptCompat.PromptInfo.Builder}.
+     *             {@link BiometricPrompt.PromptInfo.Builder}.
      * @param crypto The crypto object associated with the authentication.
      */
     public void authenticate(@NonNull PromptInfo info, @NonNull CryptoObject crypto) {
@@ -393,7 +393,7 @@ public class BiometricPromptCompat implements BiometricConstants {
      * Shows the biometric prompt. The prompt survives lifecycle changes by default. To cancel the
      * authentication, use {@link #cancelAuthentication()}.
      * @param info The information that will be displayed on the prompt. Create this object using
-     *             {@link BiometricPromptCompat.PromptInfo.Builder}.
+     *             {@link BiometricPrompt.PromptInfo.Builder}.
      */
     public void authenticate(@NonNull PromptInfo info) {
         if (info == null) {

@@ -125,7 +125,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         mBundle = getArguments();
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(mBundle.getCharSequence(BiometricPromptCompat.KEY_TITLE));
+        builder.setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE));
 
         final View layout = LayoutInflater.from(getContext())
                 .inflate(R.layout.fingerprint_dialog_layout, null);
@@ -134,7 +134,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         final TextView descriptionView = layout.findViewById(R.id.fingerprint_description);
 
         final CharSequence subtitle = mBundle.getCharSequence(
-                BiometricPromptCompat.KEY_SUBTITLE);
+                BiometricPrompt.KEY_SUBTITLE);
         if (TextUtils.isEmpty(subtitle)) {
             subtitleView.setVisibility(View.GONE);
         } else {
@@ -143,7 +143,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
 
         final CharSequence description = mBundle.getCharSequence(
-                BiometricPromptCompat.KEY_DESCRIPTION);
+                BiometricPrompt.KEY_DESCRIPTION);
         if (TextUtils.isEmpty(description)) {
             descriptionView.setVisibility(View.GONE);
         } else {
@@ -155,7 +155,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         mErrorText = layout.findViewById(R.id.fingerprint_error);
 
         final CharSequence negativeButtonText =
-                mBundle.getCharSequence(BiometricPromptCompat.KEY_NEGATIVE_TEXT);
+                mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
         builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -211,7 +211,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         super.onCancel(dialog);
         FingerprintHelperFragment fingerprintHelperFragment = (FingerprintHelperFragment)
                 getFragmentManager()
-                        .findFragmentByTag(BiometricPromptCompat.FINGERPRINT_HELPER_FRAGMENT_TAG);
+                        .findFragmentByTag(BiometricPrompt.FINGERPRINT_HELPER_FRAGMENT_TAG);
         if (fingerprintHelperFragment != null) {
             fingerprintHelperFragment.cancel(FingerprintHelperFragment.USER_CANCELED_FROM_USER);
         }
@@ -234,7 +234,7 @@ public class FingerprintDialogFragment extends DialogFragment {
      * BIOMETRIC_ERROR_NEGATIVE_BUTTON.
      */
     protected CharSequence getNegativeButtonText() {
-        return mBundle.getCharSequence(BiometricPromptCompat.KEY_NEGATIVE_TEXT);
+        return mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
     }
 
     /**
