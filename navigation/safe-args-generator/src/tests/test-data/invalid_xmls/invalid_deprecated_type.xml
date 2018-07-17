@@ -20,8 +20,7 @@
             android:id="@+id/foo"
             app:startDestination="@+id/first_screen">
     <fragment android:name="a.FakeFragment">
-        <action android:id="@+id/finish" app:popUpTo="@id/first_screen">
-            <argument android:name="myArg" app:argType="integer" app:nullable="true" />
-        </action>
+
+        <argument android:name="myarg1" android:defaultValue="101034f"  app:type="integer" />
     </fragment>
 </navigation>

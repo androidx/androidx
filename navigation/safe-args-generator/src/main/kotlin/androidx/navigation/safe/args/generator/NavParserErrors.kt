@@ -50,4 +50,8 @@ object NavParserErrors {
             "Multiple same name actions. The action ids: " +
                     "[${actions.joinToString(", ") { it.id.name }}] result in the " +
                     "generator using the same name: '$sanitizedName'."
+
+    fun deprecatedTypeAttrUsed(name: String) =
+            "The 'type' attribute used by argument '$name' is deprecated. " +
+                    "Please change all instances of 'type' in navigation resources to 'argType'."
 }
