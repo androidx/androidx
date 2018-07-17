@@ -154,10 +154,10 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     void setPlayer(MediaPlayerConnector player) {
-        if (player == mPlayer) {
-            return;
-        }
         synchronized (mLock) {
+            if (player == mPlayer) {
+                return;
+            }
             player.unregisterPlayerEventCallback(mPlayerCallback);
             mPlayer = player;
             mPlayer.registerPlayerEventCallback(mSession.getCallbackExecutor(), mPlayerCallback);
