@@ -31,6 +31,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController2.PlaybackInfo;
@@ -505,7 +506,8 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
             synchronized (mLock) {
                 for (int i = mSearchRequests.size() - 1; i >= 0; i--) {
                     SearchRequest iter = mSearchRequests.get(i);
-                    if (iter.mRemoteUserInfo == mRemoteUserInfo && iter.mQuery.equals(query)) {
+                    if (ObjectsCompat.equals(mRemoteUserInfo, iter.mRemoteUserInfo)
+                            && iter.mQuery.equals(query)) {
                         searchRequests.add(iter);
                         mSearchRequests.remove(i);
                     }
