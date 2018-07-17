@@ -146,4 +146,20 @@ public class MockPlaylistAgent extends MediaPlaylistAgent {
         mShuffleMode = shuffleMode;
         mCountDownLatch.countDown();
     }
+
+    public void callNotifyPlaylistChanged() {
+        notifyPlaylistChanged();
+    }
+
+    public void callNotifyPlaylistMetadataChanged() {
+        notifyPlaylistMetadataChanged();
+    }
+
+    public void callNotifyShuffleModeChanged() {
+        notifyShuffleModeChanged();
+    }
+
+    public void callNotifyRepeatModeChanged() {
+        notifyRepeatModeChanged();
+    }
 }

@@ -485,7 +485,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setId("testOnShuffleModeChanged")
                 .setSessionCallback(sHandlerExecutor, sessionCallback)
                 .build()) {
-            mMockAgent.notifyShuffleModeChanged();
+            mMockAgent.callNotifyShuffleModeChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -512,7 +512,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setId("testOnRepeatModeChanged")
                 .setSessionCallback(sHandlerExecutor, sessionCallback)
                 .build()) {
-            mMockAgent.notifyRepeatModeChanged();
+            mMockAgent.callNotifyRepeatModeChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -764,7 +764,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setId("testOnPlaylistChanged")
                 .setSessionCallback(sHandlerExecutor, sessionCallback)
                 .build()) {
-            mMockAgent.notifyPlaylistChanged();
+            mMockAgent.callNotifyPlaylistChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
