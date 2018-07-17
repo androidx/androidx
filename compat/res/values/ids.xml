@@ -23,4 +23,6 @@
     <item name="tag_transition_group" type="id"/>
     <item name="tag_unhandled_key_listeners" type="id"/>
     <item name="tag_unhandled_key_event_manager" type="id"/>
+    <item name="tag_screen_reader_focusable" type="id"/>
+    <item name="tag_accessibility_heading" type="id"/>
 </resources>

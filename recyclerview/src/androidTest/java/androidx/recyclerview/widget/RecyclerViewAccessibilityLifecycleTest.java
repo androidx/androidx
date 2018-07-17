@@ -225,7 +225,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     assertTrue("custom delegate sets isChecked", info.isChecked());
                     assertFalse(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
                             RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-                    assertTrue(ViewCompat.hasAccessibilityDelegate(view));
+                    assertTrue(delegateCompat.equals(ViewCompat.getAccessibilityDelegate(view)));
                     children.add(view);
                 }
             }
@@ -250,7 +250,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     assertTrue("custom delegate sets isChecked", info.isChecked());
                     assertFalse(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
                             RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-                    assertTrue(ViewCompat.hasAccessibilityDelegate(view));
+                    assertTrue(delegateCompat.equals(ViewCompat.getAccessibilityDelegate(view)));
                 }
             }
         });
@@ -300,7 +300,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     assertEquals(i, recyclerView.getChildAdapterPosition(view));
                     assertTrue(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
                             RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-                    assertTrue(ViewCompat.hasAccessibilityDelegate(view));
+                    assertTrue(accessibiltyDelegateIsItemDelegate(recyclerView, view));
                     AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
                     if (Build.VERSION.SDK_INT >= 19) {
                         assertNotNull(info.getCollectionItemInfo());
@@ -328,10 +328,14 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                             recyclerView.getChildAdapterPosition(view));
                     assertFalse(vh.hasAnyOfTheFlags(
                             RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-                    assertFalse(ViewCompat.hasAccessibilityDelegate(view));
+                    assertFalse(accessibiltyDelegateIsItemDelegate(recyclerView, view));
                 }
             }
         });
+    }
 
+    private boolean accessibiltyDelegateIsItemDelegate(RecyclerView rc, View item) {
+        return rc.getCompatAccessibilityDelegate().getItemDelegate()
+                .equals(ViewCompat.getAccessibilityDelegate(item));
     }
 }

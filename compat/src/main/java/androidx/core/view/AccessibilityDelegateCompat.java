@@ -46,8 +46,8 @@ import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
  */
 public class AccessibilityDelegateCompat {
 
-    private static final class AccessibilityDelegateAdapter extends AccessibilityDelegate {
-        private final AccessibilityDelegateCompat mCompat;
+    static final class AccessibilityDelegateAdapter extends AccessibilityDelegate {
+        final AccessibilityDelegateCompat mCompat;
 
         AccessibilityDelegateAdapter(AccessibilityDelegateCompat compat) {
             mCompat = compat;
@@ -67,8 +67,10 @@ public class AccessibilityDelegateCompat {
         @Override
         public void onInitializeAccessibilityNodeInfo(
                 View host, AccessibilityNodeInfo info) {
-            mCompat.onInitializeAccessibilityNodeInfo(host,
-                    AccessibilityNodeInfoCompat.wrap(info));
+            AccessibilityNodeInfoCompat nodeInfoCompat = AccessibilityNodeInfoCompat.wrap(info);
+            nodeInfoCompat.setScreenReaderFocusable(ViewCompat.isScreenReaderFocusable(host));
+            nodeInfoCompat.setHeading(ViewCompat.isAccessibilityHeading(host));
+            mCompat.onInitializeAccessibilityNodeInfo(host, nodeInfoCompat);
         }
 
         @Override

@@ -17,6 +17,7 @@
 package androidx.core.view;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -34,17 +35,19 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
+import androidx.core.os.BuildCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class AccessibilityDelegateCompatTest extends
         BaseInstrumentationTestCase<ViewCompatActivity> {
 
@@ -73,33 +76,161 @@ public class AccessibilityDelegateCompatTest extends
     @Test
     public void testViewWithDelegateCompat_callsDelegateMethods() {
         final AccessibilityDelegateCompat mockCompat = mock(AccessibilityDelegateCompat.class);
+        ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockCompat));
+        assertMockBridgedAccessibilityDelegateCompatWorkingOnView(mockCompat);
+    }
+
+    @Test
+    public void testScreenReaderFocusable_propagatesToAccessibilityNodeInfo() {
+        assertThat(ViewCompat.isScreenReaderFocusable(mView), is(false));
+        assertThat(getCompatForView(mView).isScreenReaderFocusable(), is(false));
+
+        ViewCompat.setScreenReaderFocusable(mView, true);
+
+        assertThat(ViewCompat.isScreenReaderFocusable(mView), is(true));
+        assertThat(getCompatForView(mView).isScreenReaderFocusable(), is(true));
+
+        // The value should still propagate even if we attach and detach another delegate compat
+        ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
+        assertThat(getCompatForView(mView).isScreenReaderFocusable(), is(true));
+        ViewCompat.setAccessibilityDelegate(mView, null);
+        assertThat(getCompatForView(mView).isScreenReaderFocusable(), is(true));
+    }
+
+    @Test
+    public void testScreenReaderFocusable_generatesAccessibilityEvent() {
+        // The core framework is responsible for this behavior from P
+        if (!BuildCompat.isAtLeastP()) {
+            //This test isn't to test the propgation up, just that the event is sent correctly.
+            ViewCompat.setAccessibilityLiveRegion(mView,
+                    ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
+            final AccessibilityDelegateCompat mockDelegate = mock(
+                    AccessibilityDelegateCompat.class);
+            ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockDelegate));
+            ViewCompat.setScreenReaderFocusable(mView, true);
+
+            ArgumentCaptor<AccessibilityEvent> argumentCaptor =
+                    ArgumentCaptor.forClass(AccessibilityEvent.class);
+            verify(mockDelegate).sendAccessibilityEventUnchecked(
+                    eq(mView), argumentCaptor.capture());
+            AccessibilityEvent event = argumentCaptor.<AccessibilityEvent>getValue();
+            assertThat(event.getEventType(), is(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED));
+        }
+    }
+
+    @Test
+    public void testAccessibilityHeading_propagatesToAccessibilityNodeInfo() {
+        assertThat(ViewCompat.isAccessibilityHeading(mView), is(false));
+        assertThat(getCompatForView(mView).isHeading(), is(false));
+
+        ViewCompat.setAccessibilityHeading(mView, true);
+
+        assertThat(ViewCompat.isAccessibilityHeading(mView), is(true));
+        assertThat(getCompatForView(mView).isHeading(), is(true));
+
+        // The value should still propagate even if we attach and detach another delegate compat
+        ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
+        assertThat(getCompatForView(mView).isHeading(), is(true));
+        ViewCompat.setAccessibilityDelegate(mView, null);
+        assertThat(getCompatForView(mView).isHeading(), is(true));
+    }
+
+    @Test
+    public void testSetAccessibilityHeading_generatesAccessibilityEvent() {
+        // The core framework is responsible for this behavior from P
+        if (!BuildCompat.isAtLeastP()) {
+            //This test isn't to test the propgation up, just that the event is sent correctly.
+            ViewCompat.setAccessibilityLiveRegion(mView,
+                    ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
+            final AccessibilityDelegateCompat mockDelegate = mock(
+                    AccessibilityDelegateCompat.class);
+            ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockDelegate));
+            ViewCompat.setAccessibilityHeading(mView, true);
+
+            ArgumentCaptor<AccessibilityEvent> argumentCaptor =
+                    ArgumentCaptor.forClass(AccessibilityEvent.class);
+            verify(mockDelegate).sendAccessibilityEventUnchecked(
+                    eq(mView), argumentCaptor.capture());
+            AccessibilityEvent event = argumentCaptor.<AccessibilityEvent>getValue();
+            assertThat(event.getEventType(), is(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED));
+        }
+    }
+
+    @Test
+    public void testAccessiblityDelegateStillWorksAfterCompatImplicitlyAdded() {
+        View.AccessibilityDelegate mockDelegate = mock(View.AccessibilityDelegate.class);
+        mView.setAccessibilityDelegate(mockDelegate);
+
+        ViewCompat.setScreenReaderFocusable(mView, true);
+        assertMockAccessibilityDelegateWorkingOnView(mockDelegate);
+    }
+
+    private void assertMockAccessibilityDelegateWorkingOnView(
+            View.AccessibilityDelegate mockDelegate) {
         final AccessibilityEvent event = AccessibilityEvent.obtain();
 
-        ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockCompat));
-
         mView.sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
-        verify(mockCompat).sendAccessibilityEvent(mView, AccessibilityEvent.TYPE_ANNOUNCEMENT);
+        verify(mockDelegate).sendAccessibilityEvent(mView, AccessibilityEvent.TYPE_ANNOUNCEMENT);
 
         mView.sendAccessibilityEventUnchecked(event);
-        verify(mockCompat).sendAccessibilityEventUnchecked(mView, event);
+        verify(mockDelegate).sendAccessibilityEventUnchecked(mView, event);
 
         mView.dispatchPopulateAccessibilityEvent(event);
-        verify(mockCompat).dispatchPopulateAccessibilityEvent(mView, event);
+        verify(mockDelegate).dispatchPopulateAccessibilityEvent(mView, event);
 
         mView.onPopulateAccessibilityEvent(event);
-        verify(mockCompat).onPopulateAccessibilityEvent(mView, event);
+        verify(mockDelegate).onPopulateAccessibilityEvent(mView, event);
 
         mView.onInitializeAccessibilityEvent(event);
-        verify(mockCompat).onInitializeAccessibilityEvent(mView, event);
+        verify(mockDelegate).onInitializeAccessibilityEvent(mView, event);
 
         final AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain();
         mView.onInitializeAccessibilityNodeInfo(info);
-        verify(mockCompat).onInitializeAccessibilityNodeInfo(eq(mView),
+        verify(mockDelegate).onInitializeAccessibilityNodeInfo(mView, info);
+
+        final View childView = mView.getChildAt(0);
+        mView.requestSendAccessibilityEvent(childView, event);
+        verify(mockDelegate).onRequestSendAccessibilityEvent(mView, childView, event);
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            mView.getAccessibilityNodeProvider();
+            verify(mockDelegate).getAccessibilityNodeProvider(mView);
+
+            final Bundle bundle = new Bundle();
+            mView.performAccessibilityAction(
+                    AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
+            verify(mockDelegate).performAccessibilityAction(
+                    mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
+        }
+    }
+
+    private void assertMockBridgedAccessibilityDelegateCompatWorkingOnView(
+            AccessibilityDelegateCompat bridgedCompat) {
+        final AccessibilityEvent event = AccessibilityEvent.obtain();
+
+        mView.sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+        verify(bridgedCompat).sendAccessibilityEvent(mView, AccessibilityEvent.TYPE_ANNOUNCEMENT);
+
+        mView.sendAccessibilityEventUnchecked(event);
+        verify(bridgedCompat).sendAccessibilityEventUnchecked(mView, event);
+
+        mView.dispatchPopulateAccessibilityEvent(event);
+        verify(bridgedCompat).dispatchPopulateAccessibilityEvent(mView, event);
+
+        mView.onPopulateAccessibilityEvent(event);
+        verify(bridgedCompat).onPopulateAccessibilityEvent(mView, event);
+
+        mView.onInitializeAccessibilityEvent(event);
+        verify(bridgedCompat).onInitializeAccessibilityEvent(mView, event);
+
+        final AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain();
+        mView.onInitializeAccessibilityNodeInfo(info);
+        verify(bridgedCompat).onInitializeAccessibilityNodeInfo(eq(mView),
                 any(AccessibilityNodeInfoCompat.class));
 
         final View childView = mView.getChildAt(0);
         mView.requestSendAccessibilityEvent(childView, event);
-        verify(mockCompat).onRequestSendAccessibilityEvent(mView, childView, event);
+        verify(bridgedCompat).onRequestSendAccessibilityEvent(mView, childView, event);
 
         if (Build.VERSION.SDK_INT >= 16) {
             final AccessibilityNodeProviderCompat providerCompat =
@@ -110,16 +241,23 @@ public class AccessibilityDelegateCompatTest extends
                             return AccessibilityNodeInfoCompat.wrap(info);
                         }
                     };
-            when(mockCompat.getAccessibilityNodeProvider(mView)).thenReturn(providerCompat);
+            when(bridgedCompat.getAccessibilityNodeProvider(mView)).thenReturn(providerCompat);
             AccessibilityNodeProvider provider = mView.getAccessibilityNodeProvider();
             assertThat(provider.createAccessibilityNodeInfo(0), equalTo(info));
 
             final Bundle bundle = new Bundle();
             mView.performAccessibilityAction(
                     AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
-            verify(mockCompat).performAccessibilityAction(
+            verify(bridgedCompat).performAccessibilityAction(
                     mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
         }
+    }
+
+    private AccessibilityNodeInfoCompat getCompatForView(View view) {
+        final AccessibilityNodeInfo nodeInfo = AccessibilityNodeInfo.obtain();
+        final AccessibilityNodeInfoCompat nodeCompat = AccessibilityNodeInfoCompat.wrap(nodeInfo);
+        view.onInitializeAccessibilityNodeInfo(nodeInfo);
+        return nodeCompat;
     }
 
     // Bridge to Mockito, since a mock won't get properly installed as a delegate on the view,
