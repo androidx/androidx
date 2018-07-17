@@ -47,14 +47,14 @@ public class FingerprintHelperFragment extends Fragment {
 
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
     Executor mExecutor;
-    BiometricPromptCompat.AuthenticationCallback mClientAuthenticationCallback;
+    BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
 
     // Re-set by BiometricPromptCompat upon orientation changes. This handler is used to send
     // messages from the AuthenticationCallbacks to the UI.
     Handler mHandler;
 
     // Set once and retained.
-    private BiometricPromptCompat.CryptoObject mCryptoObject;
+    private BiometricPrompt.CryptoObject mCryptoObject;
 
     // Created once and retained.
     Context mContext;
@@ -67,7 +67,7 @@ public class FingerprintHelperFragment extends Fragment {
                 @Override
                 public void onAuthenticationError(final int errMsgId,
                         final CharSequence errString) {
-                    if (errMsgId == BiometricPromptCompat.BIOMETRIC_ERROR_CANCELED) {
+                    if (errMsgId == BiometricPrompt.BIOMETRIC_ERROR_CANCELED) {
                         if (mCanceledFrom == USER_CANCELED_FROM_NONE) {
                             mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG)
                                     .sendToTarget();
@@ -117,7 +117,7 @@ public class FingerprintHelperFragment extends Fragment {
                         @Override
                         public void run() {
                             mClientAuthenticationCallback.onAuthenticationSucceeded(
-                                    new BiometricPromptCompat.AuthenticationResult(
+                                    new BiometricPrompt.AuthenticationResult(
                                             unwrapCryptoObject(result.getCryptoObject())));
                         }
                     });
@@ -149,7 +149,7 @@ public class FingerprintHelperFragment extends Fragment {
      * Sets the crypto object to be associated with the authentication. Should be called before
      * adding the fragment to guarantee that it's ready in onCreate().
      */
-    public void setCryptoObject(BiometricPromptCompat.CryptoObject crypto) {
+    public void setCryptoObject(BiometricPrompt.CryptoObject crypto) {
         mCryptoObject = crypto;
     }
 
@@ -181,7 +181,7 @@ public class FingerprintHelperFragment extends Fragment {
      * changes).
      */
     protected void setCallback(Executor executor,
-            BiometricPromptCompat.AuthenticationCallback callback) {
+            BiometricPrompt.AuthenticationCallback callback) {
         mExecutor = executor;
         mClientAuthenticationCallback = callback;
     }
@@ -200,7 +200,7 @@ public class FingerprintHelperFragment extends Fragment {
     protected void cancel(int canceledFrom) {
         mCanceledFrom = canceledFrom;
         if (canceledFrom == USER_CANCELED_FROM_USER) {
-            sendErrorToClient(BiometricPromptCompat.BIOMETRIC_ERROR_USER_CANCELED);
+            sendErrorToClient(BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED);
         }
 
         if (mCancellationSignal != null) {
@@ -224,13 +224,13 @@ public class FingerprintHelperFragment extends Fragment {
      */
     private boolean handlePreAuthenticationErrors(FingerprintManagerCompat fingerprintManager) {
         if (!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
-            sendErrorToClient(BiometricPromptCompat.BIOMETRIC_ERROR_HW_NOT_PRESENT);
+            sendErrorToClient(BiometricPrompt.BIOMETRIC_ERROR_HW_NOT_PRESENT);
             return true;
         } else if (!fingerprintManager.isHardwareDetected()) {
-            sendErrorToClient(BiometricPromptCompat.BIOMETRIC_ERROR_HW_UNAVAILABLE);
+            sendErrorToClient(BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE);
             return true;
         } else if (!fingerprintManager.hasEnrolledFingerprints()) {
-            sendErrorToClient(BiometricPromptCompat.BIOMETRIC_ERROR_NO_BIOMETRICS);
+            sendErrorToClient(BiometricPrompt.BIOMETRIC_ERROR_NO_BIOMETRICS);
             return true;
         }
         return false;
@@ -251,35 +251,35 @@ public class FingerprintHelperFragment extends Fragment {
      */
     private String getErrorString(Context context, int errorCode) {
         switch (errorCode) {
-            case BiometricPromptCompat.BIOMETRIC_ERROR_HW_NOT_PRESENT:
+            case BiometricPrompt.BIOMETRIC_ERROR_HW_NOT_PRESENT:
                 return context.getString(R.string.fingerprint_error_hw_not_present);
-            case BiometricPromptCompat.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+            case BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE:
                 return context.getString(R.string.fingerprint_error_hw_not_available);
-            case BiometricPromptCompat.BIOMETRIC_ERROR_NO_BIOMETRICS:
+            case BiometricPrompt.BIOMETRIC_ERROR_NO_BIOMETRICS:
                 return context.getString(R.string.fingerprint_error_no_fingerprints);
-            case BiometricPromptCompat.BIOMETRIC_ERROR_USER_CANCELED:
+            case BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED:
                 return context.getString(R.string.fingerprint_error_user_canceled);
         }
         return null;
     }
 
-    static BiometricPromptCompat.CryptoObject unwrapCryptoObject(
+    static BiometricPrompt.CryptoObject unwrapCryptoObject(
             FingerprintManagerCompat.CryptoObject cryptoObject) {
         if (cryptoObject == null) {
             return null;
         } else if (cryptoObject.getCipher() != null) {
-            return new BiometricPromptCompat.CryptoObject(cryptoObject.getCipher());
+            return new BiometricPrompt.CryptoObject(cryptoObject.getCipher());
         } else if (cryptoObject.getSignature() != null) {
-            return new BiometricPromptCompat.CryptoObject(cryptoObject.getSignature());
+            return new BiometricPrompt.CryptoObject(cryptoObject.getSignature());
         } else if (cryptoObject.getMac() != null) {
-            return new BiometricPromptCompat.CryptoObject(cryptoObject.getMac());
+            return new BiometricPrompt.CryptoObject(cryptoObject.getMac());
         } else {
             return null;
         }
     }
 
     static FingerprintManagerCompat.CryptoObject wrapCryptoObject(
-            BiometricPromptCompat.CryptoObject cryptoObject) {
+            BiometricPrompt.CryptoObject cryptoObject) {
         if (cryptoObject == null) {
             return null;
         } else if (cryptoObject.getCipher() != null) {
