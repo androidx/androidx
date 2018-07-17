@@ -84,8 +84,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sErrorEventMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static ArrayMap<Integer, Integer> sPrepareDrmStatusMap;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sStateMap;
 
     static {
@@ -116,19 +114,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_MALFORMED, MEDIA_ERROR_MALFORMED);
         sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_UNSUPPORTED, MEDIA_ERROR_UNSUPPORTED);
         sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_TIMED_OUT, MEDIA_ERROR_TIMED_OUT);
-
-        sPrepareDrmStatusMap = new ArrayMap<>();
-        sPrepareDrmStatusMap.put(
-                MediaPlayer.PREPARE_DRM_STATUS_SUCCESS, PREPARE_DRM_STATUS_SUCCESS);
-        sPrepareDrmStatusMap.put(
-                MediaPlayer.PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
-                PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR);
-        sPrepareDrmStatusMap.put(
-                MediaPlayer.PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
-                PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR);
-        sPrepareDrmStatusMap.put(
-                MediaPlayer.PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
-                PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR);
 
         sStateMap = new ArrayMap<>();
         sStateMap.put(PLAYER_STATE_IDLE, MediaPlayerConnector.PLAYER_STATE_IDLE);
@@ -1174,49 +1159,53 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     /**
      * Prepares the DRM for the current source
      * <p>
-     * If {@code OnDrmConfigHelper} is registered, it will be called during
+     * If {@link OnDrmConfigHelper} is registered, it will be called during
      * preparation to allow configuration of the DRM properties before opening the
      * DRM session. Note that the callback is called synchronously in the thread that called
-     * {@code prepareDrm}. It should be used only for a series of {@code getDrmPropertyString}
+     * {@link #prepareDrm}. It should be used only for a series of {@code getDrmPropertyString}
      * and {@code setDrmPropertyString} calls and refrain from any lengthy operation.
      * <p>
      * If the device has not been provisioned before, this call also provisions the device
      * which involves accessing the provisioning server and can take a variable time to
      * complete depending on the network connectivity.
-     * If {@code OnDrmPreparedListener} is registered, prepareDrm() runs in non-blocking
-     * mode by launching the provisioning in the background and returning. The listener
-     * will be called when provisioning and preparation has finished. If a
-     * {@code OnDrmPreparedListener} is not registered, prepareDrm() waits till provisioning
-     * and preparation has finished, i.e., runs in blocking mode.
-     * <p>
-     * If {@code OnDrmPreparedListener} is registered, it is called to indicate the DRM
-     * session being ready. The application should not make any assumption about its call
-     * sequence (e.g., before or after prepareDrm returns), or the thread context that will
-     * execute the listener (unless the listener is registered with a handler thread).
+     * prepareDrm() runs in non-blocking mode by launching the provisioning in the background and
+     * returning. {@link DrmEventCallback#onDrmPrepared} will be called when provisioning and
+     * preparation has finished. The application should check the status code returned with
+     * {@link DrmEventCallback#onDrmPrepared} to proceed.
      * <p>
      *
      * @param uuid The UUID of the crypto scheme. If not known beforehand, it can be retrieved
-     * from the source through {@code getDrmInfo} or registering a {@code onDrmInfoListener}.
-     * @throws IllegalStateException             if called before prepare(), or the DRM was
-     *                                           prepared already
-     * @throws UnsupportedSchemeException        if the crypto scheme is not supported
-     * @throws ResourceBusyException             if required DRM resources are in use
-     * @throws ProvisioningNetworkErrorException if provisioning is required but failed due to a
-     *                                           network error
-     * @throws ProvisioningServerErrorException  if provisioning is required but failed due to
-     *                                           the request denied by the provisioning server
+     * from the source through {@#link getDrmInfo} or registering
+     * {@link DrmEventCallback#onDrmInfo}.
      */
     @Override
-    public void prepareDrm(@NonNull UUID uuid)
-            throws UnsupportedSchemeException, ResourceBusyException,
-            ProvisioningNetworkErrorException, ProvisioningServerErrorException {
-        try {
-            mPlayer.prepareDrm(uuid);
-        } catch (MediaPlayer.ProvisioningNetworkErrorException e) {
-            throw new ProvisioningNetworkErrorException(e.getMessage());
-        } catch (MediaPlayer.ProvisioningServerErrorException e) {
-            throw new ProvisioningServerErrorException(e.getMessage());
-        }
+    public void prepareDrm(@NonNull final UUID uuid) {
+        addTask(new Task(CALL_COMPLETED_PREPARE_DRM, false) {
+            @Override
+            void process() {
+                int status = PREPARE_DRM_STATUS_SUCCESS;
+                try {
+                    mPlayer.prepareDrm(uuid);
+                } catch (ResourceBusyException e) {
+                    status = PREPARE_DRM_STATUS_RESOURCE_BUSY;
+                } catch (MediaPlayer.ProvisioningServerErrorException e) {
+                    status = PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR;
+                } catch (MediaPlayer.ProvisioningNetworkErrorException e) {
+                    status = PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR;
+                } catch (UnsupportedSchemeException e) {
+                    status = PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME;
+                } catch (Exception e) {
+                    status = PREPARE_DRM_STATUS_PREPARATION_ERROR;
+                }
+                final int prepareDrmStatus = status;
+                notifyDrmEvent(new DrmEventNotifier() {
+                    @Override
+                    public void notify(DrmEventCallback cb) {
+                        cb.onDrmPrepared(MediaPlayer2Impl.this, mDSD, prepareDrmStatus);
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -1721,19 +1710,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 });
             }
         });
-        p.setOnDrmPreparedListener(new MediaPlayer.OnDrmPreparedListener() {
-            @Override
-            public void onDrmPrepared(MediaPlayer mp, final int status) {
-                notifyDrmEvent(new DrmEventNotifier() {
-                    @Override
-                    public void notify(DrmEventCallback cb) {
-                        int s = sPrepareDrmStatusMap.getOrDefault(
-                                status, PREPARE_DRM_STATUS_PREPARATION_ERROR);
-                        cb.onDrmPrepared(MediaPlayer2Impl.this, src.getDSD(), s);
-                    }
-                });
-            }
-        });
     }
 
     /**
@@ -1877,40 +1853,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     };  // DrmInfoImpl
 
-    /**
-     * Thrown when a DRM method is called before preparing a DRM scheme through prepareDrm().
-     * Extends MediaDrm.MediaDrmException
-     */
-    public static final class NoDrmSchemeExceptionImpl extends NoDrmSchemeException {
-        public NoDrmSchemeExceptionImpl(String detailMessage) {
-            super(detailMessage);
-        }
-    }
-
-    /**
-     * Thrown when the device requires DRM provisioning but the provisioning attempt has
-     * failed due to a network error (Internet reachability, timeout, etc.).
-     * Extends MediaDrm.MediaDrmException
-     */
-    public static final class ProvisioningNetworkErrorExceptionImpl
-            extends ProvisioningNetworkErrorException {
-        public ProvisioningNetworkErrorExceptionImpl(String detailMessage) {
-            super(detailMessage);
-        }
-    }
-
-    /**
-     * Thrown when the device requires DRM provisioning but the provisioning attempt has
-     * failed due to the provisioning server denying the request.
-     * Extends MediaDrm.MediaDrmException
-     */
-    public static final class ProvisioningServerErrorExceptionImpl
-            extends ProvisioningServerErrorException {
-        public ProvisioningServerErrorExceptionImpl(String detailMessage) {
-            super(detailMessage);
-        }
-    }
-
     private abstract class Task implements Runnable {
         final int mMediaCallType;
         final boolean mNeedToWaitForEventToComplete;
@@ -1968,9 +1910,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         void sendCompleteNotification(final int status) {
-            // In {@link #notifyWhenCommandLabelReached} case, a separate callback
-            // {#link #onCommandLabelReached} is already called in {@code process()}.
-            if (mMediaCallType == CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED) {
+            if (mMediaCallType >= SEPARATE_CALL_COMPLETE_CALLBACK_START) {
+                // These methods have a separate call complete callback and it should be already
+                // called within {@link #processs()}.
                 return;
             }
             notifyMediaPlayer2Event(new Mp2EventNotifier() {

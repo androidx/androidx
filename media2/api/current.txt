@@ -315,7 +315,7 @@ package androidx.media2 {
     method public abstract void pause();
     method public abstract void play();
     method public abstract void prepare();
-    method public abstract void prepareDrm(java.util.UUID) throws androidx.media2.MediaPlayer2.ProvisioningNetworkErrorException, androidx.media2.MediaPlayer2.ProvisioningServerErrorException, android.media.ResourceBusyException, android.media.UnsupportedSchemeException;
+    method public abstract void prepareDrm(java.util.UUID);
     method public abstract byte[] provideDrmKeyResponse(byte[], byte[]) throws android.media.DeniedByServerException, androidx.media2.MediaPlayer2.NoDrmSchemeException;
     method public abstract void releaseDrm() throws androidx.media2.MediaPlayer2.NoDrmSchemeException;
     method public abstract void reset();
@@ -395,7 +395,9 @@ package androidx.media2 {
     field public static final int PREPARE_DRM_STATUS_PREPARATION_ERROR = 3; // 0x3
     field public static final int PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR = 1; // 0x1
     field public static final int PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR = 2; // 0x2
+    field public static final int PREPARE_DRM_STATUS_RESOURCE_BUSY = 5; // 0x5
     field public static final int PREPARE_DRM_STATUS_SUCCESS = 0; // 0x0
+    field public static final int PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME = 4; // 0x4
     field public static final int SEEK_CLOSEST = 3; // 0x3
     field public static final int SEEK_CLOSEST_SYNC = 2; // 0x2
     field public static final int SEEK_NEXT_SYNC = 1; // 0x1
@@ -448,14 +450,6 @@ package androidx.media2 {
 
   public static abstract interface MediaPlayer2.OnDrmConfigHelper {
     method public abstract void onDrmConfig(androidx.media2.MediaPlayer2, androidx.media2.DataSourceDesc2);
-  }
-
-  public static class MediaPlayer2.ProvisioningNetworkErrorException extends android.media.MediaDrmException {
-    ctor public MediaPlayer2.ProvisioningNetworkErrorException(java.lang.String);
-  }
-
-  public static class MediaPlayer2.ProvisioningServerErrorException extends android.media.MediaDrmException {
-    ctor public MediaPlayer2.ProvisioningServerErrorException(java.lang.String);
   }
 
   public static abstract class MediaPlayer2.TrackInfo {
