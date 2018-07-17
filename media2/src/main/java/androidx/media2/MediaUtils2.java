@@ -568,7 +568,28 @@ class MediaUtils2 {
                 info.getVolumeControl(), info.getMaxVolume(), info.getCurrentVolume());
     }
 
-    static boolean isDefaultLibraryRootHint(Bundle bundle) {
-        return bundle != null && bundle.getBoolean(MediaConstants2.ROOT_EXTRA_DEFAULT, false);
+    static boolean isUnparcelableBundle(Bundle bundle) {
+        if (bundle == null) {
+            return false;
+        }
+        bundle.setClassLoader(MediaUtils2.class.getClassLoader());
+        try {
+            bundle.size();
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
+    }
+
+    static void keepUnparcelableBundlesOnly(final List<Bundle> bundles) {
+        if (bundles == null) {
+            return;
+        }
+        for (int i = bundles.size() - 1; i >= 0; --i) {
+            Bundle bundle = bundles.get(i);
+            if (isUnparcelableBundle(bundle)) {
+                bundles.remove(i);
+            }
+        }
     }
 }

@@ -713,6 +713,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void selectRoute(IMediaController2 caller, final Bundle route) {
+        if (MediaUtils2.isUnparcelableBundle(route)) {
+            throw new RuntimeException("Unexpected route bundle: " + route);
+        }
         onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
                 new SessionRunnable() {
                     @Override
