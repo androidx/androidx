@@ -34,7 +34,8 @@ private const val ATTRIBUTE_ID = "id"
 private const val ATTRIBUTE_DESTINATION = "destination"
 private const val ATTRIBUTE_DEFAULT_VALUE = "defaultValue"
 private const val ATTRIBUTE_NAME = "name"
-private const val ATTRIBUTE_TYPE = "type"
+private const val ATTRIBUTE_TYPE = "argType"
+private const val ATTRIBUTE_TYPE_DEPRECATED = "type"
 private const val ATTRIBUTE_NULLABLE = "nullable"
 
 const val VALUE_NULL = "@null"
@@ -115,15 +116,18 @@ internal class NavParser(
 
         if (name == null) return context.createStubArg()
 
+        if (parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_TYPE_DEPRECATED) != null) {
+            context.logger.error(NavParserErrors.deprecatedTypeAttrUsed(name), xmlPosition)
+            return context.createStubArg()
+        }
+
         if (typeString == null && defaultValue != null) {
             return inferArgument(name, defaultValue, rFilePackage)
         }
 
         val type = NavType.from(typeString)
         if (nullable && !type.allowsNullable()) {
-            NavParserErrors.typeIsNotNullable(typeString).also { errorMsg ->
-                context.logger.error(errorMsg, xmlPosition)
-            }
+            context.logger.error(NavParserErrors.typeIsNotNullable(typeString), xmlPosition)
             return context.createStubArg()
         }
 
@@ -150,9 +154,10 @@ internal class NavParser(
                 if (defaultValue == VALUE_NULL) {
                     NullValue
                 } else {
-                    NavParserErrors.defaultValueParcelable(typeString).also { errorMsg ->
-                        context.logger.error(errorMsg, xmlPosition)
-                    }
+                    context.logger.error(
+                            NavParserErrors.defaultValueParcelable(typeString),
+                            xmlPosition
+                    )
                     return context.createStubArg()
                 }
             }
@@ -168,9 +173,7 @@ internal class NavParser(
         }
 
         if (!nullable && defaultTypedValue == NullValue) {
-            NavParserErrors.defaultNullButNotNullable(name).also { errorMsg ->
-                context.logger.error(errorMsg, xmlPosition)
-            }
+            context.logger.error(NavParserErrors.defaultNullButNotNullable(name), xmlPosition)
             return context.createStubArg()
         }
 
