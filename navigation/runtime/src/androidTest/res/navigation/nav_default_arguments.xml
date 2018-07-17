@@ -22,7 +22,7 @@
         <argument android:name="test_int" android:defaultValue="12" />
         <argument android:name="test_dimen" android:defaultValue="@dimen/test_dimen_arg" />
         <argument android:name="test_float" android:defaultValue="3.14" />
-        <argument android:name="test_reference" android:defaultValue="@color/test_reference_arg" />
+        <argument android:name="test_reference" android:defaultValue="@style/AppTheme" />
         <argument android:name="test_boolean" android:defaultValue="true" />
         <argument android:name="test_boolean2" android:defaultValue="false" />
         <argument app:type="boolean" android:name="test_boolean3" android:defaultValue="true" />
