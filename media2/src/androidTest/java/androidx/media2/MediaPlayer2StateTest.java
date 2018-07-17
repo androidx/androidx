@@ -759,7 +759,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
 
                 { sPauseOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
                 { sPauseOperation, PLAYER_STATE_IDLE, false },
-                { sPauseOperation, PLAYER_STATE_PREPARED, false },
+                { sPauseOperation, PLAYER_STATE_PREPARED, true },
                 { sPauseOperation, PLAYER_STATE_PAUSED, true },
                 { sPauseOperation, PLAYER_STATE_PLAYING, true },
                 { sPauseOperation, PLAYER_STATE_ERROR, false },
