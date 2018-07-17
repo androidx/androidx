@@ -291,7 +291,14 @@ public final class MediaRouter {
         if (uniqueRouteDescriptorBundle == null) {
             return null;
         }
-        return sGlobal.getRoute(uniqueRouteDescriptorBundle.getString(MediaRouteDescriptor.KEY_ID));
+        uniqueRouteDescriptorBundle.setClassLoader(mContext.getClassLoader());
+        String uniqueId = null;
+        try {
+            uniqueId = uniqueRouteDescriptorBundle.getString(MediaRouteDescriptor.KEY_ID);
+        } catch (Exception e) {
+            return null;
+        }
+        return sGlobal.getRoute(uniqueId);
     }
 
     /**
