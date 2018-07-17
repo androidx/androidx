@@ -29,23 +29,6 @@ import android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE
  */
 inline fun CharSequence.toSpannable(): Spannable = SpannableString.valueOf(this)
 
-/** Adds [span] to the entire text. */
-@Deprecated(
-    "Creates ambiguity when the Spannable is a SpannableStringBuilder",
-    ReplaceWith("this.setSpan(span, 0, this.length, SPAN_INCLUSIVE_EXCLUSIVE)"),
-    DeprecationLevel.ERROR
-)
-inline operator fun Spannable.plusAssign(span: Any) =
-    setSpan(span, 0, length, SPAN_INCLUSIVE_EXCLUSIVE)
-
-/** Removes [span] from this text. */
-@Deprecated(
-    "Creates ambiguity when the Spannable is a SpannableStringBuilder",
-    ReplaceWith("this.removeSpan(span)"),
-    DeprecationLevel.ERROR
-)
-inline operator fun Spannable.minusAssign(span: Any) = removeSpan(span)
-
 /** Clear all spans from this text. */
 @SuppressLint("SyntheticAccessor") // TODO remove https://issuetracker.google.com/issues/110243369
 inline fun Spannable.clearSpans() = getSpans<Any>().forEach { removeSpan(it) }
