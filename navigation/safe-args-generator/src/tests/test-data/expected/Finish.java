@@ -17,13 +17,16 @@
 package a.b;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
+import java.lang.Object;
+import java.lang.Override;
 
 public static class Finish implements NavDirections {
-
     public Finish() {
     }
 
+    @NonNull
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
         return __outBundle;
@@ -31,5 +34,30 @@ public static class Finish implements NavDirections {
 
     public int getActionId() {
         return a.b.R.id.finish;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        Finish that = (Finish) object;
+        if (getActionId() != that.getActionId()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + getActionId();
+        return result;
     }
 }
