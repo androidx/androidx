@@ -27,15 +27,28 @@ import java.util.Collections;
 import java.util.List;
 
 class PageResult<T> {
+    /**
+     * Single empty instance to avoid allocations.
+     * <p>
+     * Note, distinct from {@link #INVALID_RESULT} because {@link #isInvalid()} checks instance.
+     */
+    @SuppressWarnings("unchecked")
+    private static final PageResult EMPTY_RESULT =
+            new PageResult(Collections.emptyList(), 0);
+
     @SuppressWarnings("unchecked")
     private static final PageResult INVALID_RESULT =
             new PageResult(Collections.emptyList(), 0);
 
     @SuppressWarnings("unchecked")
+    static <T> PageResult<T> getEmptyResult() {
+        return EMPTY_RESULT;
+    }
+
+    @SuppressWarnings("unchecked")
     static <T> PageResult<T> getInvalidResult() {
         return INVALID_RESULT;
     }
-
 
     @Retention(SOURCE)
     @IntDef({INIT, APPEND, PREPEND, TILE})
