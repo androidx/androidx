@@ -61,6 +61,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.BundleCompat;
 import androidx.media2.MediaController2.ControllerCallback;
+import androidx.media2.MediaController2.MediaController2Impl;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaController2.VolumeDirection;
 import androidx.media2.MediaController2.VolumeFlags;
@@ -73,7 +74,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl {
+class MediaController2ImplLegacy implements MediaController2Impl {
 
     private static final String TAG = "MC2ImplLegacy";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);

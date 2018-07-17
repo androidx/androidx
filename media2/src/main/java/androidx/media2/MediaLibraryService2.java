@@ -273,7 +273,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         }
 
         @Override
-        SupportLibraryImpl createImpl(Context context, String id, MediaPlayerConnector player,
+        MediaLibrarySessionImpl createImpl(Context context, String id, MediaPlayerConnector player,
                 MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
                 Executor callbackExecutor, MediaSession2.SessionCallback callback) {
             return new MediaLibrarySessionImplBase(this, context, id, player, playlistAgent,
@@ -281,8 +281,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         }
 
         @Override
-        MediaLibrarySession.SupportLibraryImpl getImpl() {
-            return (SupportLibraryImpl) super.getImpl();
+        MediaLibrarySessionImpl getImpl() {
+            return (MediaLibrarySessionImpl) super.getImpl();
         }
 
         /**
@@ -336,7 +336,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             return (MediaLibrarySessionCallback) super.getCallback();
         }
 
-        interface SupportLibraryImpl extends MediaSession2.SupportLibraryImpl {
+        interface MediaLibrarySessionImpl extends MediaSession2Impl {
             // LibrarySession methods
             void notifyChildrenChanged(
                     @NonNull String parentId, int itemCount, @Nullable Bundle extras);
@@ -371,7 +371,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
     }
 
     @Override
-    SupportLibraryImpl createImpl() {
+    MediaSessionService2Impl createImpl() {
         return new MediaLibraryService2ImplBase();
     }
 

@@ -264,7 +264,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
 
     static final String TAG = "MediaSession2";
 
-    private final SupportLibraryImpl mImpl;
+    private final MediaSession2Impl mImpl;
 
     MediaSession2(Context context, String id, MediaPlayerConnector player,
             MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
@@ -273,7 +273,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
                 callback);
     }
 
-    SupportLibraryImpl createImpl(Context context, String id, MediaPlayerConnector player,
+    MediaSession2Impl createImpl(Context context, String id, MediaPlayerConnector player,
             MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
             Executor callbackExecutor, MediaSession2.SessionCallback callback) {
         return new MediaSession2ImplBase(this, context, id, player, playlistAgent, sessionActivity,
@@ -283,7 +283,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     /**
      * Should be only used by subclass.
      */
-    SupportLibraryImpl getImpl() {
+    MediaSession2Impl getImpl() {
         return mImpl;
     }
 
@@ -1688,7 +1688,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
                 @Nullable List<MediaItem2> result, @Nullable Bundle extras) throws RemoteException;
     }
 
-    interface SupportLibraryImpl extends MediaInterface2.SessionPlayer, AutoCloseable {
+    interface MediaSession2Impl extends MediaInterface2.SessionPlayer, AutoCloseable {
         void updatePlayer(@NonNull MediaPlayerConnector player,
                 @Nullable MediaPlaylistAgent playlistAgent);
         @NonNull

@@ -42,10 +42,11 @@ import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
-import androidx.media2.MediaLibraryService2.MediaLibrarySession.SupportLibraryImpl;
+import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaSession2.MediaSession2Impl;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
@@ -88,7 +89,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     final Object mLock = new Object();
 
-    final MediaSession2.SupportLibraryImpl mSession;
+    final MediaSession2Impl mSessionImpl;
     final Context mContext;
     final MediaSessionManager mSessionManager;
 
@@ -96,11 +97,11 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Set<IBinder> mConnectingControllers = new HashSet<>();
 
-    MediaSession2Stub(MediaSession2.SupportLibraryImpl session) {
-        mSession = session;
-        mContext = mSession.getContext();
+    MediaSession2Stub(MediaSession2Impl sessionImpl) {
+        mSessionImpl = sessionImpl;
+        mContext = mSessionImpl.getContext();
         mSessionManager = MediaSessionManager.getSessionManager(mContext);
-        mConnectedControllersManager = new ConnectedControllersManager<>(session);
+        mConnectedControllersManager = new ConnectedControllersManager<>(sessionImpl);
     }
 
     ConnectedControllersManager<IBinder> getConnectedControllersManager() {
@@ -123,10 +124,10 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             @NonNull final SessionRunnable runnable) {
         final ControllerInfo controller = mConnectedControllersManager.getController(
                 caller == null ? null : caller.asBinder());
-        if (mSession.isClosed() || controller == null) {
+        if (mSessionImpl.isClosed() || controller == null) {
             return;
         }
-        mSession.getCallbackExecutor().execute(new Runnable() {
+        mSessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 if (!mConnectedControllersManager.isConnected(controller)) {
@@ -146,13 +147,13 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     command = sCommandsForOnCommandRequest.get(commandCode);
                 }
                 if (command != null) {
-                    boolean accepted = mSession.getCallback().onCommandRequest(
-                            mSession.getInstance(), controller, command);
+                    boolean accepted = mSessionImpl.getCallback().onCommandRequest(
+                            mSessionImpl.getInstance(), controller, command);
                     if (!accepted) {
                         // Don't run rejected command.
                         if (DEBUG) {
                             Log.d(TAG, "Command (" + command + ") from "
-                                    + controller + " was rejected by " + mSession);
+                                    + controller + " was rejected by " + mSessionImpl);
                         }
                         return;
                     }
@@ -173,7 +174,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     private void onBrowserCommand(@NonNull IMediaController2 caller, final int commandCode,
             final @NonNull SessionRunnable runnable) {
-        if (!(mSession instanceof MediaLibrarySession.SupportLibraryImpl)) {
+        if (!(mSessionImpl instanceof MediaLibrarySessionImpl)) {
             throw new RuntimeException("MediaSession2 cannot handle MediaLibrarySession command");
         }
 
@@ -192,10 +193,10 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
                 mSessionManager.isTrustedForMediaControl(remoteUserInfo),
                 new Controller2Cb(caller));
-        mSession.getCallbackExecutor().execute(new Runnable() {
+        mSessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                if (mSession.isClosed()) {
+                if (mSessionImpl.isClosed()) {
                     return;
                 }
                 final IBinder callbackBinder = ((Controller2Cb) controllerInfo.getControllerCb())
@@ -206,8 +207,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     // (e.g. setCustomLayout()) instead of pending them.
                     mConnectingControllers.add(callbackBinder);
                 }
-                SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
-                        mSession.getInstance(), controllerInfo);
+                SessionCommandGroup2 allowedCommands = mSessionImpl.getCallback().onConnect(
+                        mSessionImpl.getInstance(), controllerInfo);
                 // Don't reject connection for the request from trusted app.
                 // Otherwise server will fail to retrieve session's information to dispatch
                 // media keys to.
@@ -234,28 +235,28 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     //       guarantee that events here are notified after the onConnected()
                     //       because IMediaController2 is oneway (i.e. async call) and Stub will
                     //       use thread poll for incoming calls.
-                    final int playerState = mSession.getPlayerState();
-                    final ParcelImpl currentItem =
-                            (ParcelImpl) ParcelUtils.toParcelable(mSession.getCurrentMediaItem());
+                    final int playerState = mSessionImpl.getPlayerState();
+                    final ParcelImpl currentItem = (ParcelImpl) ParcelUtils.toParcelable(
+                            mSessionImpl.getCurrentMediaItem());
                     final long positionEventTimeMs = SystemClock.elapsedRealtime();
-                    final long positionMs = mSession.getCurrentPosition();
-                    final float playbackSpeed = mSession.getPlaybackSpeed();
-                    final long bufferedPositionMs = mSession.getBufferedPosition();
+                    final long positionMs = mSessionImpl.getCurrentPosition();
+                    final float playbackSpeed = mSessionImpl.getPlaybackSpeed();
+                    final long bufferedPositionMs = mSessionImpl.getBufferedPosition();
                     final ParcelImpl playbackInfo =
-                            (ParcelImpl) ParcelUtils.toParcelable(mSession.getPlaybackInfo());
-                    final int repeatMode = mSession.getRepeatMode();
-                    final int shuffleMode = mSession.getShuffleMode();
-                    final PendingIntent sessionActivity = mSession.getSessionActivity();
+                            (ParcelImpl) ParcelUtils.toParcelable(mSessionImpl.getPlaybackInfo());
+                    final int repeatMode = mSessionImpl.getRepeatMode();
+                    final int shuffleMode = mSessionImpl.getShuffleMode();
+                    final PendingIntent sessionActivity = mSessionImpl.getSessionActivity();
                     final List<MediaItem2> playlist =
                             allowedCommands.hasCommand(
                                     SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
-                                            ? mSession.getPlaylist() : null;
+                                            ? mSessionImpl.getPlaylist() : null;
                     final List<ParcelImpl> playlistParcel =
                             MediaUtils2.convertMediaItem2ListToParcelImplList(playlist);
 
                     // Double check if session is still there, because close() can be called in
                     // another thread.
-                    if (mSession.isClosed()) {
+                    if (mSessionImpl.isClosed()) {
                         return;
                     }
                     try {
@@ -297,7 +298,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        MediaSessionCompat sessionCompat = mSession.getSessionCompat();
+                        MediaSessionCompat sessionCompat = mSessionImpl.getSessionCompat();
                         if (sessionCompat != null) {
                             sessionCompat.getController().setVolumeTo(value, flags);
                         }
@@ -312,7 +313,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        MediaSessionCompat sessionCompat = mSession.getSessionCompat();
+                        MediaSessionCompat sessionCompat = mSessionImpl.getSessionCompat();
                         if (sessionCompat != null) {
                             sessionCompat.getController().adjustVolume(direction, flags);
                         }
@@ -326,7 +327,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.play();
+                        mSessionImpl.play();
                     }
                 });
     }
@@ -337,7 +338,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.pause();
+                        mSessionImpl.pause();
                     }
                 });
     }
@@ -348,7 +349,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.reset();
+                        mSessionImpl.reset();
                     }
                 });
     }
@@ -359,7 +360,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.prepare();
+                        mSessionImpl.prepare();
                     }
                 });
     }
@@ -370,7 +371,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onFastForward(mSession.getInstance(), controller);
+                        mSessionImpl.getCallback().onFastForward(
+                                mSessionImpl.getInstance(), controller);
                     }
                 });
     }
@@ -381,7 +383,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onRewind(mSession.getInstance(), controller);
+                        mSessionImpl.getCallback().onRewind(mSessionImpl.getInstance(), controller);
                     }
                 });
     }
@@ -392,7 +394,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.seekTo(pos);
+                        mSessionImpl.seekTo(pos);
                     }
                 });
     }
@@ -404,7 +406,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         onSessionCommand(caller, sessionCommand, new SessionRunnable() {
             @Override
             public void run(final ControllerInfo controller) throws RemoteException {
-                mSession.getCallback().onCustomCommand(mSession.getInstance(), controller,
+                mSessionImpl.getCallback().onCustomCommand(mSessionImpl.getInstance(), controller,
                         sessionCommand, args, receiver);
             }
         });
@@ -421,8 +423,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "prepareFromUri(): Ignoring null uri from " + controller);
                             return;
                         }
-                        mSession.getCallback().onPrepareFromUri(mSession.getInstance(), controller,
-                                uri, extras);
+                        mSessionImpl.getCallback().onPrepareFromUri(
+                                mSessionImpl.getInstance(), controller, uri, extras);
                     }
                 });
     }
@@ -439,7 +441,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     + controller);
                             return;
                         }
-                        mSession.getCallback().onPrepareFromSearch(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPrepareFromSearch(mSessionImpl.getInstance(),
                                 controller, query, extras);
                     }
                 });
@@ -457,7 +459,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     + controller);
                             return;
                         }
-                        mSession.getCallback().onPrepareFromMediaId(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPrepareFromMediaId(mSessionImpl.getInstance(),
                                 controller, mediaId, extras);
                     }
                 });
@@ -474,8 +476,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "playFromUri(): Ignoring null uri from " + controller);
                             return;
                         }
-                        mSession.getCallback().onPlayFromUri(mSession.getInstance(), controller,
-                                uri, extras);
+                        mSessionImpl.getCallback().onPlayFromUri(
+                                mSessionImpl.getInstance(), controller, uri, extras);
                     }
                 });
     }
@@ -491,7 +493,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "playFromSearch(): Ignoring empty query from " + controller);
                             return;
                         }
-                        mSession.getCallback().onPlayFromSearch(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPlayFromSearch(mSessionImpl.getInstance(),
                                 controller, query, extras);
                     }
                 });
@@ -509,8 +511,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     "playFromMediaId(): Ignoring null mediaId from " + controller);
                             return;
                         }
-                        mSession.getCallback().onPlayFromMediaId(mSession.getInstance(), controller,
-                                mediaId, extras);
+                        mSessionImpl.getCallback().onPlayFromMediaId(
+                                mSessionImpl.getInstance(), controller, mediaId, extras);
                     }
                 });
     }
@@ -532,9 +534,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     "setRating(): Ignoring null ratingBundle from " + controller);
                             return;
                         }
-                        mSession.getCallback().onSetRating(mSession.getInstance(), controller,
-                                mediaId,
-                                rating2);
+                        mSessionImpl.getCallback().onSetRating(
+                                mSessionImpl.getInstance(), controller, mediaId, rating2);
                     }
                 });
     }
@@ -545,7 +546,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().setPlaybackSpeed(speed);
+                        mSessionImpl.getInstance().setPlaybackSpeed(speed);
                     }
                 });
     }
@@ -561,7 +562,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "setPlaylist(): Ignoring null playlist from " + controller);
                             return;
                         }
-                        mSession.getInstance().setPlaylist(
+                        mSessionImpl.getInstance().setPlaylist(
                                 MediaUtils2.convertParcelImplListToMediaItem2List(playlist),
                                 MediaMetadata2.fromBundle(metadata));
                     }
@@ -574,7 +575,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().updatePlaylistMetadata(
+                        mSessionImpl.getInstance().updatePlaylistMetadata(
                                 MediaMetadata2.fromBundle(metadata));
                     }
                 });
@@ -591,7 +592,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         // Resets the UUID from the incoming media id, so controller may reuse a
                         // media item multiple times for addPlaylistItem.
                         item.mParcelUuid = new ParcelUuid(UUID.randomUUID());
-                        mSession.getInstance().addPlaylistItem(index, item);
+                        mSessionImpl.getInstance().addPlaylistItem(index, item);
                     }
                 });
     }
@@ -604,7 +605,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     public void run(ControllerInfo controller) throws RemoteException {
                         MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
                         // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        mSession.getInstance().removePlaylistItem(item);
+                        mSessionImpl.getInstance().removePlaylistItem(item);
                     }
                 });
     }
@@ -620,7 +621,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         // Resets the UUID from the incoming media id, so controller may reuse a
                         // media item multiple times for replacePlaylistItem.
                         item.mParcelUuid = new ParcelUuid(UUID.randomUUID());
-                        mSession.getInstance().replacePlaylistItem(index, item);
+                        mSessionImpl.getInstance().replacePlaylistItem(index, item);
                     }
                 });
     }
@@ -636,7 +637,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     + controller);
                         }
                         // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        mSession.getInstance().skipToPlaylistItem(
+                        mSessionImpl.getInstance().skipToPlaylistItem(
                                 (MediaItem2) ParcelUtils.fromParcelable(mediaItem));
                     }
                 });
@@ -648,7 +649,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().skipToPreviousItem();
+                        mSessionImpl.getInstance().skipToPreviousItem();
                     }
                 });
     }
@@ -659,7 +660,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().skipToNextItem();
+                        mSessionImpl.getInstance().skipToNextItem();
                     }
                 });
     }
@@ -670,7 +671,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().setRepeatMode(repeatMode);
+                        mSessionImpl.getInstance().setRepeatMode(repeatMode);
                     }
                 });
     }
@@ -681,7 +682,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().setShuffleMode(shuffleMode);
+                        mSessionImpl.getInstance().setShuffleMode(shuffleMode);
                     }
                 });
     }
@@ -692,8 +693,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onSubscribeRoutesInfo(mSession.getInstance(),
-                                controller);
+                        mSessionImpl.getCallback().onSubscribeRoutesInfo(
+                                mSessionImpl.getInstance(), controller);
                     }
                 });
     }
@@ -704,8 +705,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onUnsubscribeRoutesInfo(mSession.getInstance(),
-                                controller);
+                        mSessionImpl.getCallback().onUnsubscribeRoutesInfo(
+                                mSessionImpl.getInstance(), controller);
                     }
                 });
     }
@@ -716,7 +717,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onSelectRoute(mSession.getInstance(),
+                        mSessionImpl.getCallback().onSelectRoute(mSessionImpl.getInstance(),
                                 controller, route);
                     }
                 });
@@ -727,11 +728,11 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    MediaLibrarySession.SupportLibraryImpl getLibrarySession() {
-        if (!(mSession instanceof MediaLibrarySession.SupportLibraryImpl)) {
+    MediaLibrarySessionImpl getLibrarySession() {
+        if (!(mSessionImpl instanceof MediaLibrarySessionImpl)) {
             throw new RuntimeException("Session cannot be casted to library session");
         }
-        return (SupportLibraryImpl) mSession;
+        return (MediaLibrarySessionImpl) mSessionImpl;
     }
 
     @Override

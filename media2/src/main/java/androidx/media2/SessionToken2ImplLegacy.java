@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
+import androidx.media2.SessionToken2.SessionToken2Impl;
 
 /**
  * Represents an ongoing {@link MediaSession2} or a {@link MediaSessionService2}.
@@ -49,7 +50,7 @@ import androidx.media.MediaSessionManager;
 //   - Stop implementing Parcelable for updatable support
 //   - Represent session and library service (formerly browser service) in one class.
 //     Previously MediaSession.Token was for session and ComponentName was for service.
-final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl {
+final class SessionToken2ImplLegacy implements SessionToken2Impl {
 
     private final MediaSessionCompat.Token mLegacyToken;
     private final int mUid;
