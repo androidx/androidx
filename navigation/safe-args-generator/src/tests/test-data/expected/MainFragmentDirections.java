@@ -19,6 +19,7 @@ package a.b;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
+import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -43,17 +44,29 @@ public class MainFragmentDirections {
 
         public Previous(@NonNull String arg1, @NonNull String arg2) {
             this.arg1 = arg1;
+            if (this.arg1 == null) {
+                throw new IllegalArgumentException("Argument \"arg1\" is marked as non-null but was passed a null value.");
+            }
             this.arg2 = arg2;
+            if (this.arg2 == null) {
+                throw new IllegalArgumentException("Argument \"arg2\" is marked as non-null but was passed a null value.");
+            }
         }
 
         @NonNull
         public Previous setArg1(@NonNull String arg1) {
+            if (arg1 == null) {
+                throw new IllegalArgumentException("Argument \"arg1\" is marked as non-null but was passed a null value.");
+            }
             this.arg1 = arg1;
             return this;
         }
 
         @NonNull
         public Previous setArg2(@NonNull String arg2) {
+            if (arg2 == null) {
+                throw new IllegalArgumentException("Argument \"arg2\" is marked as non-null but was passed a null value.");
+            }
             this.arg2 = arg2;
             return this;
         }
@@ -113,16 +126,25 @@ public class MainFragmentDirections {
 
         public Next(@NonNull String main) {
             this.main = main;
+            if (this.main == null) {
+                throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
+            }
         }
 
         @NonNull
         public Next setMain(@NonNull String main) {
+            if (main == null) {
+                throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
+            }
             this.main = main;
             return this;
         }
 
         @NonNull
         public Next setOptional(@NonNull String optional) {
+            if (optional == null) {
+                throw new IllegalArgumentException("Argument \"optional\" is marked as non-null but was passed a null value.");
+            }
             this.optional = optional;
             return this;
         }

@@ -3,6 +3,7 @@ package a.b;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
+import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -27,17 +28,29 @@ public class SanitizedMainFragmentDirections {
 
         public PreviousAction(@NonNull String arg1, @NonNull String arg2) {
             this.arg1 = arg1;
+            if (this.arg1 == null) {
+                throw new IllegalArgumentException("Argument \"arg_1\" is marked as non-null but was passed a null value.");
+            }
             this.arg2 = arg2;
+            if (this.arg2 == null) {
+                throw new IllegalArgumentException("Argument \"arg.2\" is marked as non-null but was passed a null value.");
+            }
         }
 
         @NonNull
         public PreviousAction setArg1(@NonNull String arg1) {
+            if (arg1 == null) {
+                throw new IllegalArgumentException("Argument \"arg_1\" is marked as non-null but was passed a null value.");
+            }
             this.arg1 = arg1;
             return this;
         }
 
         @NonNull
         public PreviousAction setArg2(@NonNull String arg2) {
+            if (arg2 == null) {
+                throw new IllegalArgumentException("Argument \"arg.2\" is marked as non-null but was passed a null value.");
+            }
             this.arg2 = arg2;
             return this;
         }
@@ -97,16 +110,25 @@ public class SanitizedMainFragmentDirections {
 
         public NextAction(@NonNull String mainArg) {
             this.mainArg = mainArg;
+            if (this.mainArg == null) {
+                throw new IllegalArgumentException("Argument \"main_arg\" is marked as non-null but was passed a null value.");
+            }
         }
 
         @NonNull
         public NextAction setMainArg(@NonNull String mainArg) {
+            if (mainArg == null) {
+                throw new IllegalArgumentException("Argument \"main_arg\" is marked as non-null but was passed a null value.");
+            }
             this.mainArg = mainArg;
             return this;
         }
 
         @NonNull
         public NextAction setOptionalArg(@NonNull String optionalArg) {
+            if (optionalArg == null) {
+                throw new IllegalArgumentException("Argument \"optional.arg\" is marked as non-null but was passed a null value.");
+            }
             this.optionalArg = optionalArg;
             return this;
         }
