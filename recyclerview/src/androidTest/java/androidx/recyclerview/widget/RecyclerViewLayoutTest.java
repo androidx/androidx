@@ -82,8 +82,10 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -2927,6 +2929,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final CountDownLatch calledOnStart = new CountDownLatch(1);
         final CountDownLatch calledOnStop = new CountDownLatch(1);
         final int visibleChildCount = 10;
+        final Set<Integer> targetPositions = new HashSet<>();
         TestLayoutManager lm = new TestLayoutManager() {
             int start = 0;
 
@@ -2977,6 +2980,12 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                 super.onStop();
                                 calledOnStop.countDown();
                             }
+
+                            @Override
+                            protected void onChildAttachedToWindow(View child) {
+                                super.onChildAttachedToWindow(child);
+                                targetPositions.add(getTargetPosition());
+                            }
                         };
                 linearSmoothScroller.setTargetPosition(position);
                 lss[0] = linearSmoothScroller;
@@ -3005,31 +3014,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         if (removeItem) {
             final int newTarget = targetPosition - 10;
             testAdapter.deleteAndNotify(newTarget + 1, testAdapter.getItemCount() - newTarget - 1);
-            final CountDownLatch targetCheck = new CountDownLatch(1);
-            mActivityRule.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ViewCompat.postOnAnimationDelayed(rv, new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                assertEquals("scroll position should be updated to next available",
-                                        newTarget, lss[0].getTargetPosition());
-                            } catch (Throwable t) {
-                                postExceptionToInstrumentation(t);
-                            }
-                            targetCheck.countDown();
-                        }
-                    }, 50);
-                }
-            });
-            assertTrue("target position should be checked on time ",
-                    targetCheck.await(10, TimeUnit.SECONDS));
             checkForMainThreadException();
             assertTrue("on stop should be called", calledOnStop.await(30, TimeUnit.SECONDS));
             checkForMainThreadException();
             assertNotNull("should scroll to new target " + newTarget
                     , rv.findViewHolderForLayoutPosition(newTarget));
+            assertTrue("scroll target should have been updated to new last item",
+                    targetPositions.contains(newTarget));
             if (DEBUG) {
                 Log.d(TAG, "on stop has been called on time");
             }
