@@ -449,12 +449,7 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
         list.add(TestUtils.createMediaItem("testItem1", createDataSourceDesc(VIDEO_RES_1)));
         list.add(TestUtils.createMediaItem("testItem2", createDataSourceDesc(VIDEO_RES_2)));
 
-        final List<MediaItem2> list2 = new ArrayList<>();
-        list2.add(TestUtils.createMediaItem("testItem3", createDataSourceDesc(VIDEO_RES_2)));
-        list2.add(TestUtils.createMediaItem("testItem4", createDataSourceDesc(VIDEO_RES_1)));
-
         final CountDownLatch mediaItemChangedLatch = new CountDownLatch(2);
-        final CountDownLatch playerStateLatch = new CountDownLatch(1);
 
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mBasePlayer)
@@ -463,16 +458,8 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
                     @Override
                     public void onCurrentMediaItemChanged(MediaSession2 session,
                             MediaPlayerConnector player, MediaItem2 item) {
-                        assertEquals(list2.get(0), item);
+                        assertEquals(list.get(0), item);
                         mediaItemChangedLatch.countDown();
-                    }
-                    public void onPlayerStateChanged(MediaSession2 session,
-                            MediaPlayerConnector player, int state) {
-                        if (playerStateLatch.getCount() == 1
-                                && state == MediaPlayerConnector.PLAYER_STATE_PAUSED) {
-                            assertEquals(list.get(0), session.getCurrentMediaItem());
-                            playerStateLatch.countDown();
-                        }
                     }
                 }).build()) {
 
@@ -481,18 +468,12 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
                         @Override
                         public void onCurrentMediaItemChanged(MediaController2 controller,
                                 MediaItem2 item) {
-                            assertEquals(list2.get(0), item);
+                            assertEquals(list.get(0), item);
                             mediaItemChangedLatch.countDown();
                         }
                     });
 
-            // MP2 doesn't call onCurrentMediaItemChanged when setDataSource while it is in idle
-            // state. To catch the event, we should monitor player state instead.
             session.setPlaylist(list, null);
-            session.prepare();
-            assertTrue(playerStateLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-
-            session.setPlaylist(list2, null);
             assertTrue(mediaItemChangedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         }
     }
