@@ -121,9 +121,13 @@
     <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
     <string name="MediaControlView2_time_placeholder">00:00:00</string>
 
-    <!-- Text for displaying subtitle track number. -->
+    <!-- Text for displaying subtitle track number without language info. -->
     <string name="MediaControlView2_subtitle_track_number_text">
         Track <xliff:g id="track_number" example="1">%1$d</xliff:g>
+    </string>
+    <!-- Text for displaying subtitle track number with language info. -->
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text">
+        Track <xliff:g id="track_number" example="1">%1$d</xliff:g> - <xliff:g id="lang" example="eng">%2$s</xliff:g>
     </string>
     <!-- Text for displaying audio track number. -->
     <string name="MediaControlView2_audio_track_number_text">

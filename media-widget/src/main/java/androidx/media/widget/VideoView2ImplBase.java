@@ -90,6 +90,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
 
+    private static final String SUBTITLE_TRACK_LANG_UNDEFINED = "und";
+
     private AudioAttributesCompat mAudioAttributes;
 
     private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
@@ -808,6 +810,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mVideoTrackIndices = new ArrayList<>();
         mAudioTrackIndices = new ArrayList<>();
         mSubtitleTracks = new SparseArray<>();
+        ArrayList<String> subtitleTracksLanguageList = new ArrayList<>();
         mSubtitleController.reset();
         for (int i = 0; i < trackInfos.size(); ++i) {
             int trackType = trackInfos.get(i).getTrackType();
@@ -819,6 +822,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 SubtitleTrack track = mSubtitleController.addTrack(trackInfos.get(i).getFormat());
                 if (track != null) {
                     mSubtitleTracks.put(i, track);
+                    String language =
+                            (trackInfos.get(i).getLanguage().equals(SUBTITLE_TRACK_LANG_UNDEFINED))
+                            ? "" : trackInfos.get(i).getLanguage();
+                    subtitleTracksLanguageList.add(language);
                 }
             }
         }
@@ -834,6 +841,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         data.putInt(MediaControlView2.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
         data.putInt(MediaControlView2.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
         data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTracks.size());
+        data.putStringArrayList(MediaControlView2.KEY_SUBTITLE_TRACK_LANGUAGE_LIST,
+                subtitleTracksLanguageList);
         mMediaSession.sendCustomCommand(
                 new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, null), data);
     }
