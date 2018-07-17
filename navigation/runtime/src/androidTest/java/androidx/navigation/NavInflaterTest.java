@@ -24,7 +24,6 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 
 import androidx.navigation.test.R;
@@ -126,10 +125,8 @@ public class NavInflaterTest {
     @Test
     public void testDefaultArgumentsReference() {
         Bundle defaultArguments = inflateDefaultArgumentsFromGraph();
-        Context context = InstrumentationRegistry.getTargetContext();
-        int expectedValue = ContextCompat.getColor(context, R.color.test_reference_arg);
 
-        assertThat(defaultArguments.getInt("test_reference"), is(expectedValue));
+        assertThat(defaultArguments.getInt("test_reference"), is(R.style.AppTheme));
     }
 
     private Bundle inflateDefaultArgumentsFromGraph() {

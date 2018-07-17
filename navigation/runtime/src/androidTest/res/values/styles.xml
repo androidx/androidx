@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <color name="test_reference_arg">#F00</color>
+    <style name="AppTheme"/>
 </resources>
