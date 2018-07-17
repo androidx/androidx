@@ -41,7 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry;
-import androidx.core.graphics.TypefaceCompatLegacy;
+import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason;
 import androidx.core.util.Preconditions;
@@ -367,7 +367,7 @@ public final class ResourcesCompat {
             }
             return null;
         }
-        Typeface typeface = TypefaceCompatLegacy.findFromCache(wrapper, id, style);
+        Typeface typeface = TypefaceCompat.findFromCache(wrapper, id, style);
 
         if (typeface != null) {
             if (fontCallback != null) {
@@ -389,10 +389,10 @@ public final class ResourcesCompat {
                     }
                     return null;
                 }
-                return TypefaceCompatLegacy.createFromResourcesFamilyXml(context, familyEntry,
-                        wrapper, id, style, fontCallback, handler, isRequestFromLayoutInflator);
+                return TypefaceCompat.createFromResourcesFamilyXml(context, familyEntry, wrapper,
+                        id, style, fontCallback, handler, isRequestFromLayoutInflator);
             }
-            typeface = TypefaceCompatLegacy.createFromResourcesFontFile(
+            typeface = TypefaceCompat.createFromResourcesFontFile(
                     context, wrapper, id, file, style);
             if (fontCallback != null) {
                 if (typeface != null) {

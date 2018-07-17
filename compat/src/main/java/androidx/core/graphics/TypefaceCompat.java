@@ -38,12 +38,10 @@ import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontInfo;
 /**
  * Helper for accessing features in {@link Typeface}.
- *
- * This legacy Typeface implementation is only used by internal implementation.
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class TypefaceCompatLegacy {
+public class TypefaceCompat {
     private static final String TAG = "TypefaceCompat";
 
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
@@ -67,7 +65,7 @@ public class TypefaceCompatLegacy {
      */
     private static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
 
-    private TypefaceCompatLegacy() {}
+    private TypefaceCompat() {}
 
     /**
      * Find from internal cache.
