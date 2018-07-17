@@ -40,7 +40,7 @@ public final class SQLiteCursorCompat {
      * <p>
      * Prior to Android P, this method will do nothing.
      */
-    public void setFillWindowForwardOnly(
+    public static void setFillWindowForwardOnly(
             @NonNull SQLiteCursor cursor, boolean fillWindowForwardOnly) {
         if (Build.VERSION.SDK_INT >= 28) {
             cursor.setFillWindowForwardOnly(fillWindowForwardOnly);

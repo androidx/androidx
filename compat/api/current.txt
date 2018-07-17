@@ -908,7 +908,7 @@ package androidx.core.content.res {
 package androidx.core.database {
 
   public final class CursorWindowCompat {
-    method public android.database.CursorWindow create(java.lang.String, long);
+    method public static android.database.CursorWindow create(java.lang.String, long);
   }
 
   public final deprecated class DatabaseUtilsCompat {
@@ -921,7 +921,7 @@ package androidx.core.database {
 package androidx.core.database.sqlite {
 
   public final class SQLiteCursorCompat {
-    method public void setFillWindowForwardOnly(android.database.sqlite.SQLiteCursor, boolean);
+    method public static void setFillWindowForwardOnly(android.database.sqlite.SQLiteCursor, boolean);
   }
 
 }
