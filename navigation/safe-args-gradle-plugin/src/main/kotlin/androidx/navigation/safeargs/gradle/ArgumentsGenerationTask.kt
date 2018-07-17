@@ -111,6 +111,8 @@ open class ArgumentsGenerationTask : IncrementalTask() {
     override fun isIncremental() = true
 }
 
-private fun ErrorMessage.toClickableText() = "$path:$line:$column: error: $message"
+private fun ErrorMessage.toClickableText() = "$path:$line:$column " +
+        "(${File(path).name}:$line): \n" +
+        "error: $message"
 
 private data class Mapping(val navFile: String, val javaFiles: List<String>)
