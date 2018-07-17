@@ -92,7 +92,7 @@ public class MediaController2 implements AutoCloseable {
     @Retention(RetentionPolicy.SOURCE)
     public @interface VolumeFlags {}
 
-    private final SupportLibraryImpl mImpl;
+    private final MediaController2Impl mImpl;
     // For testing.
     Long mTimeDiff;
 
@@ -122,7 +122,7 @@ public class MediaController2 implements AutoCloseable {
         mImpl = createImpl(context, token, executor, callback);
     }
 
-    SupportLibraryImpl createImpl(@NonNull Context context, @NonNull SessionToken2 token,
+    MediaController2Impl createImpl(@NonNull Context context, @NonNull SessionToken2 token,
             @NonNull Executor executor, @NonNull ControllerCallback callback) {
         if (token.isLegacySession()) {
             return new MediaController2ImplLegacy(context, this, token, executor, callback);
@@ -131,7 +131,7 @@ public class MediaController2 implements AutoCloseable {
         }
     }
 
-    SupportLibraryImpl getImpl() {
+    MediaController2Impl getImpl() {
         return mImpl;
     }
 
@@ -764,7 +764,7 @@ public class MediaController2 implements AutoCloseable {
         return mImpl.getBrowserCompat();
     }
 
-    interface SupportLibraryImpl extends AutoCloseable {
+    interface MediaController2Impl extends AutoCloseable {
         SessionToken2 getSessionToken();
         boolean isConnected();
         void play();

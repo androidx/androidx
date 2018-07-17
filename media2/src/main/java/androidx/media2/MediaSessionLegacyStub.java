@@ -44,6 +44,7 @@ import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaSession2.MediaSession2Impl;
 
 import java.util.List;
 import java.util.Set;
@@ -75,14 +76,14 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     final Object mLock = new Object();
 
-    final MediaSession2.SupportLibraryImpl mSession;
+    final MediaSession2Impl mSessionImpl;
     final MediaSessionManager mSessionManager;
     final Context mContext;
     final ControllerInfo mControllerInfoForAll;
 
-    MediaSessionLegacyStub(MediaSession2.SupportLibraryImpl session) {
-        mSession = session;
-        mContext = mSession.getContext();
+    MediaSessionLegacyStub(MediaSession2Impl session) {
+        mSessionImpl = session;
+        mContext = mSessionImpl.getContext();
         mSessionManager = MediaSessionManager.getSessionManager(mContext);
         mControllerInfoForAll = new ControllerInfo(
                 new RemoteUserInfo(
@@ -101,8 +102,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(command, new SessionRunnable() {
             @Override
             public void run(final ControllerInfo controller) throws RemoteException {
-                mSession.getCallback().onCustomCommand(
-                        mSession.getInstance(), controller, command, args, cb);
+                mSessionImpl.getCallback().onCustomCommand(
+                        mSessionImpl.getInstance(), controller, command, args, cb);
             }
         });
     }
@@ -112,7 +113,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSession.getInstance().prepare();
+                mSessionImpl.getInstance().prepare();
             }
         });
     }
@@ -126,7 +127,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onPrepareFromMediaId(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPrepareFromMediaId(mSessionImpl.getInstance(),
                                 controller, mediaId, extras);
                     }
                 });
@@ -141,7 +142,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onPrepareFromSearch(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPrepareFromSearch(mSessionImpl.getInstance(),
                                 controller, query, extras);
                     }
                 });
@@ -156,7 +157,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onPrepareFromUri(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPrepareFromUri(mSessionImpl.getInstance(),
                                 controller, uri, extras);
                     }
                 });
@@ -167,7 +168,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSession.getInstance().play();
+                mSessionImpl.getInstance().play();
             }
         });
     }
@@ -181,7 +182,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onPlayFromMediaId(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPlayFromMediaId(mSessionImpl.getInstance(),
                                 controller, mediaId, extras);
                     }
                 });
@@ -196,7 +197,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onPlayFromSearch(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPlayFromSearch(mSessionImpl.getInstance(),
                                 controller, query, extras);
                     }
                 });
@@ -211,7 +212,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onPlayFromUri(mSession.getInstance(),
+                        mSessionImpl.getCallback().onPlayFromUri(mSessionImpl.getInstance(),
                                 controller, uri, extras);
                     }
                 });
@@ -222,7 +223,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSession.getInstance().pause();
+                mSessionImpl.getInstance().pause();
             }
         });
     }
@@ -239,8 +240,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO, new SessionRunnable() {
                             @Override
                             public void run(ControllerInfo controller) throws RemoteException {
-                                mSession.getInstance().pause();
-                                mSession.getInstance().seekTo(0);
+                                mSessionImpl.getInstance().pause();
+                                mSessionImpl.getInstance().seekTo(0);
                             }
                         });
             }
@@ -252,7 +253,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSession.getInstance().seekTo(pos);
+                mSessionImpl.getInstance().seekTo(pos);
             }
         });
     }
@@ -263,7 +264,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().skipToNextItem();
+                        mSessionImpl.getInstance().skipToNextItem();
                     }
                 });
     }
@@ -274,7 +275,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().skipToPreviousItem();
+                        mSessionImpl.getInstance().skipToPreviousItem();
                     }
                 });
     }
@@ -285,14 +286,14 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        List<MediaItem2> playlist = mSession.getPlaylistAgent().getPlaylist();
+                        List<MediaItem2> playlist = mSessionImpl.getPlaylistAgent().getPlaylist();
                         if (playlist == null) {
                             return;
                         }
                         for (int i = 0; i < playlist.size(); i++) {
                             MediaItem2 item = playlist.get(i);
                             if (item != null && item.getUuid().getMostSignificantBits() == id) {
-                                mSession.getInstance().skipToPlaylistItem(item);
+                                mSessionImpl.getInstance().skipToPlaylistItem(item);
                                 break;
                             }
                         }
@@ -306,8 +307,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onFastForward(
-                                mSession.getInstance(), controller);
+                        mSessionImpl.getCallback().onFastForward(
+                                mSessionImpl.getInstance(), controller);
                     }
                 });
     }
@@ -318,7 +319,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onRewind(mSession.getInstance(), controller);
+                        mSessionImpl.getCallback().onRewind(mSessionImpl.getInstance(), controller);
                     }
                 });
     }
@@ -338,12 +339,13 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        MediaItem2 currentItem = mSession.getCurrentMediaItem();
+                        MediaItem2 currentItem = mSessionImpl.getCurrentMediaItem();
                         if (currentItem == null) {
                             return;
                         }
-                        mSession.getCallback().onSetRating(mSession.getInstance(), controller,
-                                currentItem.getMediaId(), MediaUtils2.convertToRating2(rating));
+                        mSessionImpl.getCallback().onSetRating(mSessionImpl.getInstance(),
+                                controller, currentItem.getMediaId(),
+                                MediaUtils2.convertToRating2(rating));
                     }
                 });
     }
@@ -364,7 +366,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().setRepeatMode(repeatMode);
+                        mSessionImpl.getInstance().setRepeatMode(repeatMode);
                     }
                 });
     }
@@ -375,7 +377,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().setShuffleMode(shuffleMode);
+                        mSessionImpl.getInstance().setShuffleMode(shuffleMode);
                     }
                 });
     }
@@ -390,7 +392,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         // Add the item at the end of the playlist.
-                        mSession.getInstance().addPlaylistItem(Integer.MAX_VALUE,
+                        mSessionImpl.getInstance().addPlaylistItem(Integer.MAX_VALUE,
                                 MediaUtils2.convertToMediaItem2(description));
                     }
                 });
@@ -405,7 +407,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getInstance().addPlaylistItem(index,
+                        mSessionImpl.getInstance().addPlaylistItem(index,
                                 MediaUtils2.convertToMediaItem2(description));
                     }
                 });
@@ -423,11 +425,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         // Note: Here we cannot simply call
                         // removePlaylistItem(MediaUtils2.convertToMediaItem2(description)),
                         // because the result of the method will have different UUID.
-                        List<MediaItem2> playlist = mSession.getInstance().getPlaylist();
+                        List<MediaItem2> playlist = mSessionImpl.getInstance().getPlaylist();
                         for (int i = 0; i < playlist.size(); i++) {
                             MediaItem2 item = playlist.get(i);
                             if (TextUtils.equals(item.getMediaId(), description.getMediaId())) {
-                                mSession.getInstance().removePlaylistItem(item);
+                                mSessionImpl.getInstance().removePlaylistItem(item);
                                 return;
                             }
                         }
@@ -454,10 +456,10 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     private void onSessionCommandInternal(@Nullable final SessionCommand2 sessionCommand,
             final int commandCode, @NonNull final SessionRunnable runnable) {
-        if (mSession.isClosed()) {
+        if (mSessionImpl.isClosed()) {
             return;
         }
-        RemoteUserInfo remoteUserInfo = mSession.getSessionCompat().getCurrentControllerInfo();
+        RemoteUserInfo remoteUserInfo = mSessionImpl.getSessionCompat().getCurrentControllerInfo();
         final ControllerInfo controller;
         synchronized (mLock) {
             if (remoteUserInfo == null) {
@@ -478,15 +480,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 }
             }
         }
-        mSession.getCallbackExecutor().execute(new Runnable() {
+        mSessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                if (controller == null || mSession.isClosed()) {
+                if (controller == null || mSessionImpl.isClosed()) {
                     return;
                 }
                 if (!mConnectedControllersManager.isConnected(controller)) {
-                    SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
-                            mSession.getInstance(), controller);
+                    SessionCommandGroup2 allowedCommands = mSessionImpl.getCallback().onConnect(
+                            mSessionImpl.getInstance(), controller);
                     if (allowedCommands == null) {
                         try {
                             controller.getControllerCb().onDisconnected();
@@ -520,13 +522,13 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             command = sCommandsForOnCommandRequest.get(commandCode);
         }
         if (command != null) {
-            boolean accepted = mSession.getCallback().onCommandRequest(
-                    mSession.getInstance(), controller, command);
+            boolean accepted = mSessionImpl.getCallback().onCommandRequest(
+                    mSessionImpl.getInstance(), controller, command);
             if (!accepted) {
                 // Don't run rejected command.
                 if (DEBUG) {
                     Log.d(TAG, "Command (" + command + ") from "
-                            + controller + " was rejected by " + mSession);
+                            + controller + " was rejected by " + mSessionImpl);
                 }
                 return;
             }
@@ -708,33 +710,37 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
-            mSession.getSessionCompat().setPlaybackState(mSession.createPlaybackStateCompat());
+            mSessionImpl.getSessionCompat().setPlaybackState(
+                    mSessionImpl.createPlaybackStateCompat());
         }
 
         @Override
         void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
-            mSession.getSessionCompat().setPlaybackState(mSession.createPlaybackStateCompat());
+            mSessionImpl.getSessionCompat().setPlaybackState(
+                    mSessionImpl.createPlaybackStateCompat());
         }
 
         @Override
         void onBufferingStateChanged(MediaItem2 item, int bufferingState, long bufferedPositionMs)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
-            mSession.getSessionCompat().setPlaybackState(mSession.createPlaybackStateCompat());
+            mSessionImpl.getSessionCompat().setPlaybackState(
+                    mSessionImpl.createPlaybackStateCompat());
         }
 
         @Override
         void onSeekCompleted(long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
-            mSession.getSessionCompat().setPlaybackState(mSession.createPlaybackStateCompat());
+            mSessionImpl.getSessionCompat().setPlaybackState(
+                    mSessionImpl.createPlaybackStateCompat());
         }
 
         @Override
         void onError(int errorCode, Bundle extras) throws RemoteException {
-            PlaybackStateCompat stateWithoutError = mSession.createPlaybackStateCompat();
+            PlaybackStateCompat stateWithoutError = mSessionImpl.createPlaybackStateCompat();
             // We don't set the state here as PlaybackStateCompat#STATE_ERROR, since
             // MediaSession2#notifyError() does not affect the player state.
             // This prevents MediaControllerCompat from remaining long time in error state.
@@ -742,26 +748,26 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                     .setErrorMessage(errorCode, "")
                     .setExtras(extras)
                     .build();
-            mSession.getSessionCompat().setPlaybackState(stateWithError);
+            mSessionImpl.getSessionCompat().setPlaybackState(stateWithError);
         }
 
         @Override
         void onCurrentMediaItemChanged(MediaItem2 item) throws RemoteException {
-            mSession.getSessionCompat().setMetadata(item == null ? null
+            mSessionImpl.getSessionCompat().setMetadata(item == null ? null
                     : MediaUtils2.convertToMediaMetadataCompat(item.getMetadata()));
         }
 
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
-            mSession.getSessionCompat().setQueue(MediaUtils2.convertToQueueItemList(playlist));
+            mSessionImpl.getSessionCompat().setQueue(MediaUtils2.convertToQueueItemList(playlist));
             onPlaylistMetadataChanged(metadata);
         }
 
         @Override
         void onPlaylistMetadataChanged(MediaMetadata2 metadata) throws RemoteException {
             // Since there is no 'queue metadata', only set title of the queue.
-            CharSequence oldTitle = mSession.getSessionCompat().getController().getQueueTitle();
+            CharSequence oldTitle = mSessionImpl.getSessionCompat().getController().getQueueTitle();
             CharSequence newTitle = null;
 
             if (metadata != null) {
@@ -772,18 +778,18 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             }
 
             if (!TextUtils.equals(oldTitle, newTitle)) {
-                mSession.getSessionCompat().setQueueTitle(newTitle);
+                mSessionImpl.getSessionCompat().setQueueTitle(newTitle);
             }
         }
 
         @Override
         void onShuffleModeChanged(int shuffleMode) throws RemoteException {
-            mSession.getSessionCompat().setShuffleMode(shuffleMode);
+            mSessionImpl.getSessionCompat().setShuffleMode(shuffleMode);
         }
 
         @Override
         void onRepeatModeChanged(int repeatMode) throws RemoteException {
-            mSession.getSessionCompat().setRepeatMode(repeatMode);
+            mSessionImpl.getSessionCompat().setRepeatMode(repeatMode);
         }
 
         @Override

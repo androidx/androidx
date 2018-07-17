@@ -110,7 +110,7 @@ public final class SessionToken2 {
     static final String KEY_SESSION_BINDER = "android.media.token.session_binder";
     static final String KEY_TOKEN_LEGACY = "android.media.token.LEGACY";
 
-    private final SupportLibraryImpl mImpl;
+    private final SessionToken2Impl mImpl;
 
     /**
      * Constructor for the token. You can create token of {@link MediaSessionService2},
@@ -161,7 +161,7 @@ public final class SessionToken2 {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    SessionToken2(SupportLibraryImpl impl) {
+    SessionToken2(SessionToken2Impl impl) {
         mImpl = impl;
     }
 
@@ -435,7 +435,7 @@ public final class SessionToken2 {
         void onSessionToken2Created(MediaSessionCompat.Token token, SessionToken2 token2);
     }
 
-    interface SupportLibraryImpl {
+    interface SessionToken2Impl {
         boolean isLegacySession();
         int getUid();
         @NonNull String getPackageName();

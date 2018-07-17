@@ -22,6 +22,7 @@ import androidx.annotation.GuardedBy;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaSession2.MediaSession2Impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +44,9 @@ class ConnectedControllersManager<T> {
     private final ArrayMap<ControllerInfo, T> mKeys = new ArrayMap<>();
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final MediaSession2.SupportLibraryImpl mSessionImpl;
+    final MediaSession2Impl mSessionImpl;
 
-    ConnectedControllersManager(MediaSession2.SupportLibraryImpl session) {
+    ConnectedControllersManager(MediaSession2Impl session) {
         mSessionImpl = session;
     }
 

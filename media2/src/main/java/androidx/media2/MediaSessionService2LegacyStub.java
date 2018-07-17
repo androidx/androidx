@@ -25,6 +25,7 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaSession2.MediaSession2Impl;
 
 import java.util.List;
 
@@ -33,20 +34,20 @@ import java.util.List;
  * {@link MediaLibraryService2} and {@link android.support.v4.media.MediaBrowserCompat}.
  */
 class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
-    private final MediaSession2.SupportLibraryImpl mSessionImpl;
+    private final MediaSession2Impl mSessionImpl;
     private final ConnectedControllersManager<RemoteUserInfo> mConnectedControllersManager;
 
     final MediaSessionManager mManager;
 
-    MediaSessionService2LegacyStub(Context context,
-            MediaSession2.SupportLibraryImpl session, MediaSessionCompat.Token token) {
+    MediaSessionService2LegacyStub(Context context, MediaSession2Impl sessionImpl,
+            MediaSessionCompat.Token token) {
         super();
         attachToBaseContext(context);
         onCreate();
         setSessionToken(token);
         mManager = MediaSessionManager.getSessionManager(context);
-        mSessionImpl = session;
-        mConnectedControllersManager = new ConnectedControllersManager<>(session);
+        mSessionImpl = sessionImpl;
+        mConnectedControllersManager = new ConnectedControllersManager<>(sessionImpl);
     }
 
     @Override

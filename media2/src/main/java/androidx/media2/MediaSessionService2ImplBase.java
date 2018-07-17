@@ -24,11 +24,12 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.MediaSessionService2.MediaNotification;
+import androidx.media2.MediaSessionService2.MediaSessionService2Impl;
 
 /**
  * Implementation of {@link MediaSessionService2}.
  */
-class MediaSessionService2ImplBase implements MediaSessionService2.SupportLibraryImpl {
+class MediaSessionService2ImplBase implements MediaSessionService2Impl {
     private static final String TAG = "MSS2ImplBase";
     private static final boolean DEBUG = true;
 

@@ -36,9 +36,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
+import androidx.media2.SessionToken2.SessionToken2Impl;
 import androidx.media2.SessionToken2.TokenType;
 
-final class SessionToken2ImplBase implements SessionToken2.SupportLibraryImpl {
+final class SessionToken2ImplBase implements SessionToken2Impl {
 
     private final int mUid;
     private final @TokenType int mType;

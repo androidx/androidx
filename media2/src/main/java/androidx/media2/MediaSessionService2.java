@@ -116,7 +116,7 @@ public abstract class MediaSessionService2 extends Service {
      */
     public static final String SERVICE_META_DATA = "android.media.session";
 
-    private final SupportLibraryImpl mImpl;
+    private final MediaSessionService2Impl mImpl;
 
     public MediaSessionService2() {
         super();
@@ -124,7 +124,7 @@ public abstract class MediaSessionService2 extends Service {
         mImpl = createImpl();
     }
 
-    SupportLibraryImpl createImpl() {
+    MediaSessionService2Impl createImpl() {
         return new MediaSessionService2ImplBase();
     }
 
@@ -249,7 +249,7 @@ public abstract class MediaSessionService2 extends Service {
         }
     }
 
-    interface SupportLibraryImpl {
+    interface MediaSessionService2Impl {
         void onCreate(MediaSessionService2 service);
         IBinder onBind(Intent intent);
         MediaNotification onUpdateNotification();
