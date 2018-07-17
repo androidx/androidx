@@ -38,6 +38,8 @@ import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -319,10 +321,10 @@ public class RemoteMediaController2Service extends Service {
         }
 
         @Override
-        public void setRating(String controllerId, String mediaId, Bundle rating)
+        public void setRating(String controllerId, String mediaId, ParcelImpl rating)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.setRating(mediaId, Rating2.fromBundle(rating));
+            controller2.setRating(mediaId, ParcelUtils.<Rating2>fromParcelable(rating));
         }
 
         @Override

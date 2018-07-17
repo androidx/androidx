@@ -47,6 +47,13 @@ package androidx.media2 {
     method public androidx.media2.FileDataSourceDesc2 build();
   }
 
+  public final class HeartRating2 implements androidx.media2.Rating2 {
+    ctor public HeartRating2();
+    ctor public HeartRating2(boolean);
+    method public boolean hasHeart();
+    method public boolean isRated();
+  }
+
   public class MediaBrowser2 extends androidx.media2.MediaController2 {
     ctor public MediaBrowser2(android.content.Context, androidx.media2.SessionToken2, java.util.concurrent.Executor, androidx.media2.MediaBrowser2.BrowserCallback);
     method public void getChildren(java.lang.String, int, int, android.os.Bundle);
@@ -702,6 +709,13 @@ package androidx.media2 {
     field public static final androidx.media2.MediaTimestamp2 TIMESTAMP_UNKNOWN;
   }
 
+  public final class PercentageRating2 implements androidx.media2.Rating2 {
+    ctor public PercentageRating2();
+    ctor public PercentageRating2(float);
+    method public float getPercentRating();
+    method public boolean isRated();
+  }
+
   public final class PlaybackParams2 {
     method public java.lang.Integer getAudioFallbackMode();
     method public java.lang.Float getPitch();
@@ -719,25 +733,8 @@ package androidx.media2 {
     method public androidx.media2.PlaybackParams2.Builder setSpeed(float);
   }
 
-  public final class Rating2 implements androidx.versionedparcelable.VersionedParcelable {
-    method public float getPercentRating();
-    method public int getRatingStyle();
-    method public float getStarRating();
-    method public boolean hasHeart();
-    method public boolean isRated();
-    method public boolean isThumbUp();
-    method public static androidx.media2.Rating2 newHeartRating(boolean);
-    method public static androidx.media2.Rating2 newPercentageRating(float);
-    method public static androidx.media2.Rating2 newStarRating(int, float);
-    method public static androidx.media2.Rating2 newThumbRating(boolean);
-    method public static androidx.media2.Rating2 newUnratedRating(int);
-    field public static final int RATING_3_STARS = 3; // 0x3
-    field public static final int RATING_4_STARS = 4; // 0x4
-    field public static final int RATING_5_STARS = 5; // 0x5
-    field public static final int RATING_HEART = 1; // 0x1
-    field public static final int RATING_NONE = 0; // 0x0
-    field public static final int RATING_PERCENTAGE = 6; // 0x6
-    field public static final int RATING_THUMB_UP_DOWN = 2; // 0x2
+  public abstract interface Rating2 implements androidx.versionedparcelable.VersionedParcelable {
+    method public abstract boolean isRated();
   }
 
   public final class SessionCommand2 implements androidx.versionedparcelable.VersionedParcelable {
@@ -823,6 +820,14 @@ package androidx.media2 {
     field public static final int TYPE_SESSION_SERVICE = 1; // 0x1
   }
 
+  public final class StarRating2 implements androidx.media2.Rating2 {
+    ctor public StarRating2(int);
+    ctor public StarRating2(int, float);
+    method public int getMaxStars();
+    method public float getStarRating();
+    method public boolean isRated();
+  }
+
   public final class SubtitleData2 {
     method public byte[] getData();
     method public long getDurationUs();
@@ -831,6 +836,13 @@ package androidx.media2 {
     field public static final java.lang.String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
     field public static final java.lang.String MIMETYPE_TEXT_CEA_708 = "text/cea-708";
     field public static final java.lang.String MIMETYPE_TEXT_VTT = "text/vtt";
+  }
+
+  public final class ThumbRating2 implements androidx.media2.Rating2 {
+    ctor public ThumbRating2();
+    ctor public ThumbRating2(boolean);
+    method public boolean isRated();
+    method public boolean isThumbUp();
   }
 
   public class TimedMetaData2 {

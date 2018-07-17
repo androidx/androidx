@@ -26,6 +26,7 @@ import androidx.media.test.lib.TestUtils;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaMetadata2.Builder;
 import androidx.media2.Rating2;
+import androidx.media2.ThumbRating2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -43,7 +44,7 @@ public class MediaMetadata2Test {
         extras.putString("MediaMetadata2Test", "testBuilder");
         final String title = "title";
         final long discNumber = 10;
-        final Rating2 rating = Rating2.newThumbRating(true);
+        final Rating2 rating = new ThumbRating2(true);
 
         Builder builder = new Builder();
         builder.setExtras(extras);
