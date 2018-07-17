@@ -63,7 +63,12 @@ public class MockMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
         mSessionCompat.release();
         synchronized (sLock) {
             sInstance = null;
-            sServiceProxy = null;
+            // Note: Don't reset sServiceProxy.
+            //       When a test is finished and its next test is running, this service will be
+            //       destroyed and re-created for the next test. When it happens, onDestroy() may be
+            //       called after the next test's proxy has set because onDestroy() and tests run on
+            //       the different threads.
+            //       So keep sServiceProxy for the next test.
         }
     }
 
