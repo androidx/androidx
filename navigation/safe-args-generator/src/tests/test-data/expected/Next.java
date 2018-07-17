@@ -46,36 +46,43 @@ public static class Next implements NavDirections {
         this.parcelable = parcelable;
     }
 
+    @NonNull
     public Next setMain(@NonNull String main) {
         this.main = main;
         return this;
     }
 
+    @NonNull
     public Next setMainInt(int mainInt) {
         this.mainInt = mainInt;
         return this;
     }
 
+    @NonNull
     public Next setOptional(@NonNull String optional) {
         this.optional = optional;
         return this;
     }
 
+    @NonNull
     public Next setOptionalInt(int optionalInt) {
         this.optionalInt = optionalInt;
         return this;
     }
 
+    @NonNull
     public Next setOptionalParcelable(@Nullable ActivityInfo optionalParcelable) {
         this.optionalParcelable = optionalParcelable;
         return this;
     }
 
+    @NonNull
     public Next setParcelable(@NonNull ActivityInfo parcelable) {
         this.parcelable = parcelable;
         return this;
     }
 
+    @NonNull
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
         __outBundle.putString("main", this.main);

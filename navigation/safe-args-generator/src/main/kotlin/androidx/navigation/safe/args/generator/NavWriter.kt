@@ -89,6 +89,7 @@ private class ClassWithArgsSpecs(
 
     fun setters(thisClassName: ClassName) = args.map { arg ->
         MethodSpec.methodBuilder("set${arg.sanitizedName.capitalize()}").apply {
+            addAnnotation(annotations.NONNULL_CLASSNAME)
             addModifiers(Modifier.PUBLIC)
             addParameter(generateParameterSpec(arg))
             addStatement("this.$N = $N", arg.sanitizedName, arg.sanitizedName)
@@ -106,6 +107,7 @@ private class ClassWithArgsSpecs(
     }.build()
 
     fun toBundleMethod(name: String) = MethodSpec.methodBuilder(name).apply {
+        addAnnotation(annotations.NONNULL_CLASSNAME)
         addModifiers(Modifier.PUBLIC)
         returns(BUNDLE_CLASSNAME)
         val bundleName = "__outBundle"
@@ -220,10 +222,12 @@ fun generateDestinationDirectionsTypeSpec(
 
     val getters = actionTypes
             .map { (action, actionType) ->
+                val annotations = Annotations.getInstance(useAndroidX)
                 val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
                 val params = constructor.parameters.joinToString(", ") { param -> param.name }
                 val actionTypeName = ClassName.get("", actionType.name)
                 MethodSpec.methodBuilder(action.id.name.toCamelCaseAsVar())
+                        .addAnnotation(annotations.NONNULL_CLASSNAME)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .addParameters(constructor.parameters)
                         .returns(actionTypeName)
@@ -269,6 +273,7 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
     val specs = ClassWithArgsSpecs(args, annotations)
 
     val fromBundleMethod = MethodSpec.methodBuilder("fromBundle").apply {
+        addAnnotation(annotations.NONNULL_CLASSNAME)
         addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         val bundle = "bundle"
         addParameter(BUNDLE_CLASSNAME, bundle)
@@ -301,6 +306,7 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
             .build()
 
     val buildMethod = MethodSpec.methodBuilder("build")
+            .addAnnotation(annotations.NONNULL_CLASSNAME)
             .addModifiers(Modifier.PUBLIC)
             .returns(className)
             .addStatement("$T result = new $T()", className, className)

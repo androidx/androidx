@@ -6,10 +6,12 @@ import androidx.navigation.NavDirections;
 import java.lang.String;
 
 public class SanitizedMainFragmentDirections {
+    @NonNull
     public static PreviousAction previousAction(@NonNull String arg1, @NonNull String arg2) {
         return new PreviousAction(arg1, arg2);
     }
 
+    @NonNull
     public static NextAction nextAction(@NonNull String mainArg) {
         return new NextAction(mainArg);
     }
@@ -26,16 +28,19 @@ public class SanitizedMainFragmentDirections {
             this.arg2 = arg2;
         }
 
+        @NonNull
         public PreviousAction setArg1(@NonNull String arg1) {
             this.arg1 = arg1;
             return this;
         }
 
+        @NonNull
         public PreviousAction setArg2(@NonNull String arg2) {
             this.arg2 = arg2;
             return this;
         }
 
+        @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             __outBundle.putString("arg_1", this.arg1);
@@ -59,16 +64,19 @@ public class SanitizedMainFragmentDirections {
             this.mainArg = mainArg;
         }
 
+        @NonNull
         public NextAction setMainArg(@NonNull String mainArg) {
             this.mainArg = mainArg;
             return this;
         }
 
+        @NonNull
         public NextAction setOptionalArg(@NonNull String optionalArg) {
             this.optionalArg = optionalArg;
             return this;
         }
 
+        @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             __outBundle.putString("main_arg", this.mainArg);

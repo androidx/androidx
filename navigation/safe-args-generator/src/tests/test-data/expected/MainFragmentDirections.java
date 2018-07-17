@@ -22,10 +22,12 @@ import androidx.navigation.NavDirections;
 import java.lang.String;
 
 public class MainFragmentDirections {
+    @NonNull
     public static Previous previous(@NonNull String arg1, @NonNull String arg2) {
         return new Previous(arg1, arg2);
     }
 
+    @NonNull
     public static Next next(@NonNull String main) {
         return new Next(main);
     }
@@ -42,16 +44,19 @@ public class MainFragmentDirections {
             this.arg2 = arg2;
         }
 
+        @NonNull
         public Previous setArg1(@NonNull String arg1) {
             this.arg1 = arg1;
             return this;
         }
 
+        @NonNull
         public Previous setArg2(@NonNull String arg2) {
             this.arg2 = arg2;
             return this;
         }
 
+        @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             __outBundle.putString("arg1", this.arg1);
@@ -75,16 +80,19 @@ public class MainFragmentDirections {
             this.main = main;
         }
 
+        @NonNull
         public Next setMain(@NonNull String main) {
             this.main = main;
             return this;
         }
 
+        @NonNull
         public Next setOptional(@NonNull String optional) {
             this.optional = optional;
             return this;
         }
 
+        @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             __outBundle.putString("main", this.main);

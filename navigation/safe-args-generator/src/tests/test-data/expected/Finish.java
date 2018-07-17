@@ -17,13 +17,14 @@
 package a.b;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
 
 public static class Finish implements NavDirections {
-
     public Finish() {
     }
 
+    @NonNull
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
         return __outBundle;

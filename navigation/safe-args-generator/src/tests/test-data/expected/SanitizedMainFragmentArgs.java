@@ -1,6 +1,7 @@
 package a.b;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
@@ -15,6 +16,7 @@ public class SanitizedMainFragmentArgs {
     private SanitizedMainFragmentArgs() {
     }
 
+    @NonNull
     public static SanitizedMainFragmentArgs fromBundle(Bundle bundle) {
         SanitizedMainFragmentArgs result = new SanitizedMainFragmentArgs();
         bundle.setClassLoader(SanitizedMainFragmentArgs.class.getClassLoader());
@@ -48,6 +50,7 @@ public class SanitizedMainFragmentArgs {
         return nameWithSpaces;
     }
 
+    @NonNull
     public Bundle toBundle() {
         Bundle __outBundle = new Bundle();
         __outBundle.putInt("name.with.dot", this.nameWithDot);
@@ -108,6 +111,7 @@ public class SanitizedMainFragmentArgs {
             this.nameWithSpaces = nameWithSpaces;
         }
 
+        @NonNull
         public SanitizedMainFragmentArgs build() {
             SanitizedMainFragmentArgs result = new SanitizedMainFragmentArgs();
             result.nameWithDot = this.nameWithDot;
@@ -116,16 +120,19 @@ public class SanitizedMainFragmentArgs {
             return result;
         }
 
+        @NonNull
         public Builder setNameWithDot(int nameWithDot) {
             this.nameWithDot = nameWithDot;
             return this;
         }
 
+        @NonNull
         public Builder setNameWithUnderscore(int nameWithUnderscore) {
             this.nameWithUnderscore = nameWithUnderscore;
             return this;
         }
 
+        @NonNull
         public Builder setNameWithSpaces(int nameWithSpaces) {
             this.nameWithSpaces = nameWithSpaces;
             return this;
