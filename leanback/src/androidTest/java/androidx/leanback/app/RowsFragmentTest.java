@@ -1006,6 +1006,24 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         activity2.finish();
     }
 
+    @Test
+    public void browseFragmentSelectionAfterStop() {
+        final SingleFragmentTestActivity activity = launchAndWaitActivity(
+                RowsFragmentTest.F_2PageRow3ListRow.class, 2000);
+        final F_2PageRow3ListRow fragment = ((F_2PageRow3ListRow) activity.getTestFragment());
+        // create another activity to cause activity pause
+        launchAndWaitActivity2(1000);
+        // select another row to swap page fragment, this should be postponed after activity stop.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragment.setSelectedPosition(1, true);
+            }
+        });
+        activityTestRule2.finishActivity();
+        activity.finish();
+    }
+
     public static class MyPageRow extends PageRow {
         public int type;
         public MyPageRow(int type) {
