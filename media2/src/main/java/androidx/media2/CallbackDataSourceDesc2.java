@@ -40,6 +40,7 @@ public class CallbackDataSourceDesc2 extends DataSourceDesc2 {
      * Return the type of data source.
      * @return the type of data source
      */
+    @Override
     public int getType() {
         return TYPE_CALLBACK;
     }
