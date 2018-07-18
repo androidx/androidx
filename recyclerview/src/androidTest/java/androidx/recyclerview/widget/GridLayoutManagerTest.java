@@ -186,7 +186,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         // Arrange.
 
         final int spanCount = 3;
-        final int itemCount = 100;
+        // For simplicity and test stability, item count should be a multiple of spanCount.
+        final int itemCount = 33 * spanCount;
 
         final RecyclerView recyclerView = inflateWrappedRV();
         ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
