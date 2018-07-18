@@ -81,23 +81,22 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     // Used for testing case that operation is called before setDataSourceDesc().
     private static final int MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE = 400001;
 
-    private static final DataSourceDesc2 sDummyDataSource = new DataSourceDesc2.Builder()
-            .setDataSource(
-                    new MediaDataSource2() {
-                        @Override
-                        public int readAt(long position, byte[] buffer, int offset, int size)
-                                throws IOException {
-                            return -1;
-                        }
+    private static final DataSourceDesc2 sDummyDataSource = new CallbackDataSourceDesc2.Builder(
+            new CallbackDataSource2() {
+                @Override
+                public int readAt(long position, byte[] buffer, int offset, int size)
+                        throws IOException {
+                    return -1;
+                }
 
-                        @Override
-                        public long getSize() throws IOException {
-                            return -1;  // Unknown size
-                        }
+                @Override
+                public long getSize() throws IOException {
+                    return -1;  // Unknown size
+                }
 
-                        @Override
-                        public void close() throws IOException {}
-                    })
+                @Override
+                public void close() throws IOException {}
+            })
             .build();
 
     private static final PlayerOperation sCloseOperation = new PlayerOperation() {
@@ -1037,7 +1036,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
         }
 
         if (mTestState == PLAYER_STATE_ERROR) {
-            MediaDataSource2 invalidDataSource = new MediaDataSource2() {
+            CallbackDataSource2 invalidDataSource = new CallbackDataSource2() {
                 @Override
                 public int readAt(long position, byte[] buffer, int offset, int size)
                         throws IOException {
@@ -1053,8 +1052,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                 public void close() throws IOException {}
             };
             mOnErrorCalled.reset();
-            mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                    .setDataSource(invalidDataSource)
+            mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(invalidDataSource)
                     .build());
             mPlayer.prepare();
             mOnErrorCalled.waitForSignal(1000);

@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.media2.DataSourceDesc2;
+import androidx.media2.FileDataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
@@ -105,7 +106,7 @@ public final class MediaTestUtils {
     }
 
     private static DataSourceDesc2 createDSD() {
-        return new DataSourceDesc2.Builder().setDataSource(new FileDescriptor()).build();
+        return new FileDataSourceDesc2.Builder(new FileDescriptor()).build();
     }
 
     public static List<Bundle> playlistToBundleList(List<MediaItem2> playlist) {
@@ -132,9 +133,8 @@ public final class MediaTestUtils {
                 result.add(new MediaItem2.Builder(item.getFlags())
                         .setMediaId(item.getMediaId())
                         .setMetadata(item.getMetadata())
-                        .setDataSourceDesc(new DataSourceDesc2.Builder()
-                                .setDataSource(new FileDescriptor())
-                                .build())
+                        .setDataSourceDesc(
+                                new FileDataSourceDesc2.Builder(new FileDescriptor()).build())
                         .build());
             }
         } else {

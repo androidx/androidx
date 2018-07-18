@@ -304,7 +304,8 @@ public class MediaPlayer2DrmTestBase {
 
         mPlayer.setEventCallback(mExecutor, mECb);
         Log.v(TAG, "playLoadedVideo: setDataSource()");
-        mPlayer.setDataSource(new DataSourceDesc2.Builder().setDataSource(mContext, file).build());
+        mPlayer.setDataSource(
+                new UriDataSourceDesc2.Builder(mContext, file).build());
         mSetDataSourceCallCompleted.waitForSignal();
         if (mCallStatus != MediaPlayer2.CALL_STATUS_NO_ERROR) {
             throw new PrepareFailedException();
@@ -559,7 +560,7 @@ public class MediaPlayer2DrmTestBase {
 
                 Log.v(TAG, "playLoadedVideo: setDataSource()");
                 mPlayer.setDataSource(
-                        new DataSourceDesc2.Builder().setDataSource(mContext, file).build());
+                        new UriDataSourceDesc2.Builder(mContext, file).build());
 
                 Log.v(TAG, "playLoadedVideo: prepare()");
                 mPlayer.prepare();

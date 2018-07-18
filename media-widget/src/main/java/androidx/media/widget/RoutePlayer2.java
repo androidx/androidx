@@ -30,6 +30,7 @@ import androidx.collection.ArrayMap;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaPlayerConnector;
+import androidx.media2.UriDataSourceDesc2;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaSessionStatus;
@@ -235,9 +236,6 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     @Override
     public void setDataSource(DataSourceDesc2 dsd) {
         mDsd = dsd;
-        if (dsd.getUri() == null) {
-            return;
-        }
     }
 
     @Override
@@ -340,7 +338,11 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     }
 
     private void playInternal() {
-        mClient.play(mDsd.getUri(), "video/mp4", null, mPosition, null,
+        if (mDsd.getType() != DataSourceDesc2.TYPE_URI) {
+            Log.w(TAG, "Data source type is not Uri." + mDsd);
+            return;
+        }
+        mClient.play(((UriDataSourceDesc2) mDsd).getUri(), "video/mp4", null, mPosition, null,
                 new ItemActionCallback() {
                     @Override
                     public void onResult(Bundle data, String sessionId,

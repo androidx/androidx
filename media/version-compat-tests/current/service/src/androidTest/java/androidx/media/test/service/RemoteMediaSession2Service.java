@@ -58,6 +58,7 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media.test.lib.MockActivity;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media2.DataSourceDesc2;
+import androidx.media2.FileDataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
@@ -371,9 +372,8 @@ public class RemoteMediaSession2Service extends Service {
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
             switch (index) {
                 case INDEX_FOR_UNKONWN_DSD:
-                    player.notifyCurrentDataSourceChanged(new DataSourceDesc2.Builder()
-                            .setDataSource(new FileDescriptor())
-                            .build());
+                    player.notifyCurrentDataSourceChanged(
+                            new FileDataSourceDesc2.Builder(new FileDescriptor()).build());
                     break;
                 case INDEX_FOR_NULL_DSD:
                     player.notifyCurrentDataSourceChanged(null);
@@ -489,6 +489,6 @@ public class RemoteMediaSession2Service extends Service {
     }
 
     private DataSourceDesc2 createNewDsd() {
-        return new DataSourceDesc2.Builder().setDataSource(new FileDescriptor()).build();
+        return new FileDataSourceDesc2.Builder(new FileDescriptor()).build();
     }
 }

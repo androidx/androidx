@@ -40,10 +40,12 @@ import android.view.WindowManager;
 
 import androidx.media.widget.test.R;
 import androidx.media2.DataSourceDesc2;
+import androidx.media2.FileDataSourceDesc2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayerConnector;
 import androidx.media2.SessionCommandGroup2;
+import androidx.media2.UriDataSourceDesc2;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
@@ -159,9 +161,8 @@ public class VideoView2Test {
         }
 
         AssetFileDescriptor afd = mContext.getResources().openRawResourceFd(R.raw.testvideo);
-        DataSourceDesc2 dsd = new DataSourceDesc2.Builder()
-                .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
-                .build();
+        DataSourceDesc2 dsd = new FileDataSourceDesc2.Builder(
+                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build();
         final MediaItem2 item = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                 .setDataSourceDesc(dsd)
                 .build();
@@ -294,9 +295,8 @@ public class VideoView2Test {
     private MediaItem2 createTestMediaItem2() {
         Uri testVideoUri = Uri.parse(
                 "android.resource://" + mContext.getPackageName() + "/" + R.raw.testvideo);
-        DataSourceDesc2 dsd = new DataSourceDesc2.Builder()
-                .setDataSource(mVideoView.getContext(), testVideoUri)
-                .build();
+        DataSourceDesc2 dsd = new UriDataSourceDesc2.Builder(
+                mVideoView.getContext(), testVideoUri).build();
         return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE).setDataSourceDesc(dsd).build();
     }
 }

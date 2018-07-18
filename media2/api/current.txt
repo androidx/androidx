@@ -1,38 +1,50 @@
 package androidx.media2 {
 
-  public final class DataSourceDesc2 {
+  public abstract class CallbackDataSource2 implements java.io.Closeable {
+    ctor public CallbackDataSource2();
+    method public abstract long getSize() throws java.io.IOException;
+    method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
+  }
+
+  public class CallbackDataSourceDesc2 extends androidx.media2.DataSourceDesc2 {
+    method public androidx.media2.CallbackDataSource2 getCallbackDataSource2();
+    method public int getType();
+  }
+
+  public static final class CallbackDataSourceDesc2.Builder extends androidx.media2.DataSourceDesc2.Builder {
+    ctor public CallbackDataSourceDesc2.Builder(androidx.media2.CallbackDataSource2);
+    method public androidx.media2.CallbackDataSourceDesc2 build();
+  }
+
+  public abstract class DataSourceDesc2 {
     method public long getEndPosition();
-    method public java.io.FileDescriptor getFileDescriptor();
-    method public long getFileDescriptorLength();
-    method public long getFileDescriptorOffset();
-    method public androidx.media2.MediaDataSource2 getMediaDataSource2();
     method public java.lang.String getMediaId();
     method public long getStartPosition();
-    method public int getType();
-    method public android.net.Uri getUri();
-    method public android.content.Context getUriContext();
-    method public java.util.List<java.net.HttpCookie> getUriCookies();
-    method public java.util.Map<java.lang.String, java.lang.String> getUriHeaders();
-    field public static final long FD_LENGTH_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
+    method public abstract int getType();
     field public static final long POSITION_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
     field public static final int TYPE_CALLBACK = 1; // 0x1
     field public static final int TYPE_FD = 2; // 0x2
-    field public static final int TYPE_NONE = 0; // 0x0
     field public static final int TYPE_URI = 3; // 0x3
   }
 
-  public static class DataSourceDesc2.Builder {
-    ctor public DataSourceDesc2.Builder();
-    ctor public DataSourceDesc2.Builder(androidx.media2.DataSourceDesc2);
-    method public androidx.media2.DataSourceDesc2 build();
-    method public androidx.media2.DataSourceDesc2.Builder setDataSource(androidx.media2.MediaDataSource2);
-    method public androidx.media2.DataSourceDesc2.Builder setDataSource(java.io.FileDescriptor);
-    method public androidx.media2.DataSourceDesc2.Builder setDataSource(java.io.FileDescriptor, long, long);
-    method public androidx.media2.DataSourceDesc2.Builder setDataSource(android.content.Context, android.net.Uri);
-    method public androidx.media2.DataSourceDesc2.Builder setDataSource(android.content.Context, android.net.Uri, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.net.HttpCookie>);
-    method public androidx.media2.DataSourceDesc2.Builder setEndPosition(long);
-    method public androidx.media2.DataSourceDesc2.Builder setMediaId(java.lang.String);
-    method public androidx.media2.DataSourceDesc2.Builder setStartPosition(long);
+  public static abstract class DataSourceDesc2.Builder<T extends androidx.media2.DataSourceDesc2.Builder> {
+    method public T setEndPosition(long);
+    method public T setMediaId(java.lang.String);
+    method public T setStartPosition(long);
+  }
+
+  public class FileDataSourceDesc2 extends androidx.media2.DataSourceDesc2 {
+    method public java.io.FileDescriptor getFileDescriptor();
+    method public long getFileDescriptorLength();
+    method public long getFileDescriptorOffset();
+    method public int getType();
+    field public static final long FD_LENGTH_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
+  }
+
+  public static final class FileDataSourceDesc2.Builder extends androidx.media2.DataSourceDesc2.Builder {
+    ctor public FileDataSourceDesc2.Builder(java.io.FileDescriptor);
+    ctor public FileDataSourceDesc2.Builder(java.io.FileDescriptor, long, long);
+    method public androidx.media2.FileDataSourceDesc2 build();
   }
 
   public class MediaBrowser2 extends androidx.media2.MediaController2 {
@@ -136,12 +148,6 @@ package androidx.media2 {
     method public int getPlaybackType();
     field public static final int PLAYBACK_TYPE_LOCAL = 1; // 0x1
     field public static final int PLAYBACK_TYPE_REMOTE = 2; // 0x2
-  }
-
-  public abstract class MediaDataSource2 implements java.io.Closeable {
-    ctor public MediaDataSource2();
-    method public abstract long getSize() throws java.io.IOException;
-    method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
   }
 
   public class MediaItem2 implements androidx.versionedparcelable.VersionedParcelable {
@@ -835,6 +841,20 @@ package androidx.media2 {
   public class TimedMetaData2 {
     method public byte[] getMetaData();
     method public long getTimestamp();
+  }
+
+  public class UriDataSourceDesc2 extends androidx.media2.DataSourceDesc2 {
+    method public int getType();
+    method public android.net.Uri getUri();
+    method public android.content.Context getUriContext();
+    method public java.util.List<java.net.HttpCookie> getUriCookies();
+    method public java.util.Map<java.lang.String, java.lang.String> getUriHeaders();
+  }
+
+  public static final class UriDataSourceDesc2.Builder extends androidx.media2.DataSourceDesc2.Builder {
+    ctor public UriDataSourceDesc2.Builder(android.content.Context, android.net.Uri);
+    ctor public UriDataSourceDesc2.Builder(android.content.Context, android.net.Uri, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.net.HttpCookie>);
+    method public androidx.media2.UriDataSourceDesc2 build();
   }
 
 }

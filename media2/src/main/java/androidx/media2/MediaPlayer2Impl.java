@@ -629,7 +629,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         switch (dsd.getType()) {
             case DataSourceDesc2.TYPE_CALLBACK:
                 player.setDataSource(new MediaDataSource() {
-                    MediaDataSource2 mDataSource = dsd.getMediaDataSource2();
+                    CallbackDataSource2 mDataSource =
+                            ((CallbackDataSourceDesc2) dsd).getCallbackDataSource2();
                     @Override
                     public int readAt(long position, byte[] buffer, int offset, int size)
                             throws IOException {
@@ -649,18 +650,20 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 break;
 
             case DataSourceDesc2.TYPE_FD:
+                FileDataSourceDesc2 fdsd = (FileDataSourceDesc2) dsd;
                 player.setDataSource(
-                        dsd.getFileDescriptor(),
-                        dsd.getFileDescriptorOffset(),
-                        dsd.getFileDescriptorLength());
+                        fdsd.getFileDescriptor(),
+                        fdsd.getFileDescriptorOffset(),
+                        fdsd.getFileDescriptorLength());
                 break;
 
             case DataSourceDesc2.TYPE_URI:
+                UriDataSourceDesc2 udsd = (UriDataSourceDesc2) dsd;
                 player.setDataSource(
-                        dsd.getUriContext(),
-                        dsd.getUri(),
-                        dsd.getUriHeaders(),
-                        dsd.getUriCookies());
+                        udsd.getUriContext(),
+                        udsd.getUri(),
+                        udsd.getUriHeaders(),
+                        udsd.getUriCookies());
                 break;
 
             default:
