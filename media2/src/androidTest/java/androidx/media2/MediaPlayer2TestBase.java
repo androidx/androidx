@@ -119,9 +119,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                     new AudioAttributesCompat.Builder().build();
             mp.setAudioAttributes(aa);
             mp.setAudioSessionId(audioSessionId);
-            mp.setDataSource(new DataSourceDesc2.Builder()
-                    .setDataSource(context, uri)
-                    .build());
+            mp.setDataSource(new UriDataSourceDesc2.Builder(context, uri).build());
             if (holder != null) {
                 mp.setSurface(holder.getSurface());
             }
@@ -178,9 +176,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             mp.setAudioAttributes(aa);
             mp.setAudioSessionId(audioSessionId);
 
-            mp.setDataSource(new DataSourceDesc2.Builder()
-                    .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
-                    .build());
+            mp.setDataSource(new FileDataSourceDesc2.Builder(
+                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
 
             final Monitor onPrepareCalled = new Monitor();
             ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -377,9 +374,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         try {
-            mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                    .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
-                    .build());
+            mPlayer.setDataSource(new FileDataSourceDesc2.Builder(
+                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
         } finally {
             // Close descriptor later when test finishes since setDataSource is async operation.
             mFdsToClose.add(afd);
@@ -396,9 +392,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         mFdsToClose.add(afd);
-        return new DataSourceDesc2.Builder()
-                .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
-                .build();
+        return new FileDataSourceDesc2.Builder(
+                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build();
     }
 
     protected boolean checkLoadResource(int resid) throws Exception {
@@ -427,9 +422,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         final Uri uri = Uri.parse(path);
         for (int i = 0; i < STREAM_RETRIES; i++) {
             try {
-                mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                        .setDataSource(mContext, uri)
-                        .build());
+                mPlayer.setDataSource(new UriDataSourceDesc2.Builder(mContext, uri).build());
                 playLoadedVideo(width, height, playTime);
                 playedSuccessfully = true;
                 break;
@@ -461,10 +454,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         boolean playedSuccessfully = false;
         for (int i = 0; i < STREAM_RETRIES; i++) {
             try {
-                mPlayer.setDataSource(new DataSourceDesc2.Builder()
-                        .setDataSource(mContext,
-                            uri, headers, cookies)
-                        .build());
+                mPlayer.setDataSource(new UriDataSourceDesc2.Builder(
+                        mContext, uri, headers, cookies).build());
                 playLoadedVideo(width, height, playTime);
                 playedSuccessfully = true;
                 break;

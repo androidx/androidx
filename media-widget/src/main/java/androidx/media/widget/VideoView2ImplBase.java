@@ -56,6 +56,7 @@ import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
 import androidx.media2.SubtitleData2;
+import androidx.media2.UriDataSourceDesc2;
 import androidx.media2.subtitle.Cea708CaptionRenderer;
 import androidx.media2.subtitle.ClosedCaptionRenderer;
 import androidx.media2.subtitle.SubtitleController;
@@ -441,8 +442,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     @Override
     public void setVideoUri(Uri uri, @Nullable Map<String, String> headers) {
-        DataSourceDesc2.Builder builder = new DataSourceDesc2.Builder();
-        builder.setDataSource(mInstance.getContext(), uri, headers, null);
+        UriDataSourceDesc2.Builder builder = new UriDataSourceDesc2.Builder(
+                mInstance.getContext(), uri, headers, null);
         setDataSource(builder.build());
     }
 
@@ -855,7 +856,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
 
         DataSourceDesc2 dsd = mMediaItem.getDataSourceDesc();
-        Uri uri = dsd != null ? dsd.getUri() : null;
+        Uri uri = (dsd != null && dsd.getType() == DataSourceDesc2.TYPE_URI)
+                ? ((UriDataSourceDesc2) dsd).getUri() : null;
         if (uri == null) {
             // Something wrong.
             return;

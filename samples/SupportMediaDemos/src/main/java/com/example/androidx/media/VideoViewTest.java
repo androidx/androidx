@@ -38,8 +38,8 @@ import android.widget.Toast;
 import androidx.fragment.app.FragmentActivity;
 import androidx.media.widget.MediaControlView2;
 import androidx.media.widget.VideoView2;
-import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaItem2;
+import androidx.media2.UriDataSourceDesc2;
 
 /**
  * Test application for VideoView2/MediaControlView2
@@ -85,8 +85,7 @@ public class VideoViewTest extends FragmentActivity {
             if (mUseTextureView) {
                 mVideoView.setViewType(VideoView2.VIEW_TYPE_TEXTUREVIEW);
             }
-            DataSourceDesc2.Builder dsdBuilder = new DataSourceDesc2.Builder();
-            dsdBuilder.setDataSource(this, videoUri);
+            UriDataSourceDesc2.Builder dsdBuilder = new UriDataSourceDesc2.Builder(this, videoUri);
             MediaItem2 mediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                     .setDataSourceDesc(dsdBuilder.build())
                     .build();

@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 
 import androidx.media2.DataSourceDesc2;
+import androidx.media2.FileDataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 
@@ -97,7 +98,7 @@ public final class MediaTestUtils {
     }
 
     private static DataSourceDesc2 createDSD() {
-        return new DataSourceDesc2.Builder().setDataSource(new FileDescriptor()).build();
+        return new FileDataSourceDesc2.Builder(new FileDescriptor()).build();
     }
 
     public static ArrayList<Parcelable> playlistToParcelableArrayList(List<MediaItem2> playlist) {

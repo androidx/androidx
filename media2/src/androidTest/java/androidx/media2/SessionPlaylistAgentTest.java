@@ -481,9 +481,8 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
     private DataSourceDesc2 createDataSourceDesc(int resid) throws Exception {
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         mFdsToClose.add(afd);
-        return new DataSourceDesc2.Builder()
-                .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
-                .build();
+        return new FileDataSourceDesc2.Builder(
+                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build();
     }
 
     private List<MediaItem2> createAndSetPlaylist(int listSize) throws Exception {
@@ -588,8 +587,7 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
             if (item.getMediaId().contains("WITHOUT_DSD")) {
                 return null;
             }
-            return new DataSourceDesc2.Builder()
-                    .setDataSource(mContext, Uri.parse("dsd://test"))
+            return new UriDataSourceDesc2.Builder(mContext, Uri.parse("dsd://test"))
                     .setMediaId(item.getMediaId())
                     .build();
         }
