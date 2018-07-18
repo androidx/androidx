@@ -205,6 +205,9 @@ public class IconCompat extends CustomVersionedParcelable {
         if (pkg == null) {
             throw new IllegalArgumentException("Package must not be null.");
         }
+        if (resId == 0) {
+            throw new IllegalArgumentException("Drawable resource ID must not be 0");
+        }
         final IconCompat rep = new IconCompat(TYPE_RESOURCE);
         rep.mInt1 = resId;
         if (r != null) {
