@@ -43,6 +43,9 @@ import androidx.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,6 +149,38 @@ public class DatabaseCallbackTest {
         // Should not throw an "IllegalStateException: attempt to re-open an already-closed"
         List<Integer> ids = db.getUserDao().loadIds();
         assertThat(ids, is(empty()));
+    }
+
+    @Test
+    @MediumTest
+    public void corruptExceptionOnCreate() throws IOException {
+        Context context = InstrumentationRegistry.getTargetContext();
+
+        TestDatabaseCallback callback = new TestDatabaseCallback();
+
+        // Create fake DB files that will cause a SQLiteDatabaseCorruptException: SQLITE_NOTADB.
+        String[] dbFiles = new String[] {"corrupted", "corrupted-shm", "corrupted-wal"};
+        for (String fileName : dbFiles) {
+            File dbFile = context.getDatabasePath(fileName);
+            try (FileWriter fileWriter = new FileWriter(dbFile)) {
+                fileWriter.write(new char[]{'p', 'o', 'i', 's', 'o', 'n'});
+            }
+        }
+
+        TestDatabase db = Room.databaseBuilder(context, TestDatabase.class, "corrupted")
+                .addCallback(callback)
+                .build();
+
+        assertFalse(callback.mCreated);
+        assertFalse(callback.mOpened);
+
+        // Should not throw a SQLiteDatabaseCorruptException, i.e. default onCorruption() was
+        // executed and DB file was re-created.
+        List<Integer> ids = db.getUserDao().loadIds();
+        assertThat(ids, is(empty()));
+
+        assertTrue(callback.mCreated);
+        assertTrue(callback.mOpened);
     }
 
     public static class TestDatabaseCallback extends RoomDatabase.Callback {
