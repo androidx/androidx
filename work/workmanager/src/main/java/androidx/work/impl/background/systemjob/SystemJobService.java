@@ -108,13 +108,9 @@ public class SystemJobService extends JobService implements ExecutionListener {
                 return false;
             }
 
-            boolean isPeriodic = extras.getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC, false);
-            if (isPeriodic && params.isOverrideDeadlineExpired()) {
-                Logger.debug(TAG, String.format(
-                        "Override deadline expired for id %s. Retry requested", workSpecId));
-                jobFinished(params, true);
-                return false;
-            }
+            // We don't need to worry about the case where JobParams#isOverrideDeadlineExpired()
+            // returns true. This is because JobScheduler ensures that for PeriodicWork, constraints
+            // are actually met irrespective.
 
             Logger.debug(TAG, String.format("onStartJob for %s", workSpecId));
             mJobParameters.put(workSpecId, params);
