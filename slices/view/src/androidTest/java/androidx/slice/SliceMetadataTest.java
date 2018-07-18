@@ -190,6 +190,40 @@ public class SliceMetadataTest {
     }
 
     @Test
+    public void testGetSliceActionsFromEndItems() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        PendingIntent pi = getIntent("");
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+
+        SliceAction action1 = SliceAction.create(pi, icon, ListBuilder.SMALL_IMAGE, "action1");
+        SliceAction action2 = SliceAction.createDeeplink(pi, icon,
+                ListBuilder.SMALL_IMAGE, "action2");
+        SliceAction action3 = SliceAction.create(pi, icon, ListBuilder.SMALL_IMAGE, "action3");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitle("Text")
+                .setPrimaryAction(getAction("Action"))
+                .addEndItem(action1)
+                .addEndItem(action2)
+                .addEndItem(action3));
+
+        ArrayList<SliceAction> expectedActions = new ArrayList<>();
+        expectedActions.add(action1);
+        expectedActions.add(action2);
+        expectedActions.add(action3);
+
+        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
+        List<androidx.slice.core.SliceAction> actions = sliceMetadata.getSliceActions();
+
+        for (int i = 0; i < expectedActions.size(); i++) {
+            assertEquivalent(expectedActions.get(i), actions.get(i));
+        }
+    }
+
+    @Test
     public void testGetPrimaryActionForGrid() {
         Uri uri = Uri.parse("content://pkg/slice");
         SliceAction primaryAction = getAction("Action");
