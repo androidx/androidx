@@ -49,25 +49,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+// TODO: include image examples in the example section when we can (b/111412886)
 /**
- * A slice can be constructed with ListBuilder.
+ * Builder for constructing slices composed of rows of content.
  * <p>
- * A slice is a piece of templated app content that can be presented outside of the app
- * in a {@link androidx.slice.widget.SliceView}. To provide a slice you should implement a
+ * A slice is a piece of templated app content that can be presented outside of the app providing
+ * the slice in a {@link androidx.slice.widget.SliceView}. To provide a slice you should implement a
  * {@link androidx.slice.SliceProvider} and use ListBuilder to construct your slice when
  * {@link androidx.slice.SliceProvider#onBindSlice(Uri)} is called.
+ * </p>
  * <p>
- * ListBuilder allows you to construct a slice made up of rows of content. A list should
- * have at least one row of content as well as a primary {@link SliceAction}. The row types that
+ * ListBuilder allows you to construct a slice made up of rows of content. The row types that
  * ListBuilder supports are:
  * <ul>
- *     <li>{@link HeaderBuilder} - A list can have one header which appears at the top of the list.
- *     The header can support showing title, subtitle, and a row action. A header can also have
- *     a summary of the contents of the slice which can be shown when not all of the slice can be
- *     displayed.
+ *     <li>{@link HeaderBuilder} - The first row of your slice should be a header. The header
+ *     supports a title, subtitle, and tappable row action. A header can also have a summary of the
+ *     contents of the slice which can be shown when not all of the slice can be displayed.
  *     </li>
- *     <li>{@link RowBuilder} - A basic row supports title, subtitle, timestamps, images, row
- *     action, icon actions, and toggle actions.
+ *     <li>{@link RowBuilder} - A basic row supports title, subtitle, timestamps, and various action
+ *     types.
  *     </li>
  *     <li>{@link GridRowBuilder} - A grid row supports cells of vertically laid out content
  *     displayed in a single row.
@@ -78,38 +78,53 @@ import java.util.Set;
  *     allowing slider input (e.g. brightness or volume slider).
  *     </li>
  * </ul>
+ * </p>
+ * <b>Handling modes</b>
  * <p>
- * In addition to rows of content, ListBuilder can also have {@link SliceAction}s added to it. These
- * actions may appear differently on your slice depending on how the
- * {@link androidx.slice.widget.SliceView} is configured. Normally the actions would appear in
- * the header.
- * <p>
- * To ensure your slice is presented correctly you should consider the configurations
- * {@link androidx.slice.widget.SliceView} supports:
+ * Slices are meant to be presented outside of the app providing them, the slice presenter could be
+ * an Android system surface or another application. The presenter will normally use a
+ * {@link androidx.slice.widget.SliceView} to display a slice. SliceView supports a couple of
+ * different modes. These modes are not controlled by the app providing the slice, but
+ * rather by the surface that is presenting the slice. To ensure your slice is presented
+ * correctly you should consider the different modes SliceView supports:
  * <ul>
- *     <li>{@link androidx.slice.widget.SliceView#MODE_SHORTCUT} - The primary {@link SliceAction}
- *     of the slice is used your primary action should contain an image and title representative
- *     of your slice. If providing a tintable icon, use {@link #setAccentColor(int)} to specify the
- *     color. If a header has been specified for the list, the primary action associated with it
- *     will be used, otherwise it will be the primary action associated with the first row of the
- *     list.
- *     </li>
- *     <li>{@link androidx.slice.widget.SliceView#MODE_SMALL} - Only a single row of content is
- *     displayed in small format. If a header has been specified it will be displayed. If no header
- *     was set, then the first row will be used and may appear differently depending on the row
- *     type and the configuration of {@link androidx.slice.widget.SliceView}.
+ *     <li>{@link androidx.slice.widget.SliceView#MODE_SMALL} - Only the first row of content is
+ *     displayed in small format, normally this will be the header. If no header was set, then the
+ *     first row will be used and may appear differently depending on the row type and the
+ *     configuration of {@link androidx.slice.widget.SliceView}.
  *     </li>
  *     <li>{@link androidx.slice.widget.SliceView#MODE_LARGE} - As many rows of content are shown
  *     as possible. If the presenter of the slice allows scrolling then all rows of content will
  *     be displayed in a scrollable view.
  *     </li>
+ *     <li>{@link androidx.slice.widget.SliceView#MODE_SHORTCUT} - In shortcut mode only a tappable
+ *     image is displayed. The image and action used to represent this will be the primary action
+ *     of your slice, i.e. {@link HeaderBuilder#setPrimaryAction(SliceAction)}.
+ *     </li>
  * </ul>
+ * </p>
+ * <b>Specifying actions</b>
+ * <p>
+ * In addition to rows of content, ListBuilder can also have {@link SliceAction}s added to
+ * it. These actions may appear differently on your slice depending on how
+ * {@link androidx.slice.widget.SliceView} is configured. Normally the actions appear as icons in
+ * the header of the slice.
+ * </p>
+ * <b>How much content to add</b>
+ * <p>
+ * There is no limit to the number of rows added to ListBuilder, however, the contents of a slice
+ * should be related to a primary task, action, or set of information. For example: it might make
+ * sense for a slice to manage wi-fi state to have a row for each available network, this might
+ * result in a large number of rows but each of these rows serve utility for the primary purpose
+ * of the slice which is managing wi-fi.
+ * </p>
  * <p>
  * Note that scrolling on SliceView can be disabled, in which case only the header and one or two
  * rows of content may be shown for your slice. If your slice contains many rows of content to
  * scroll through (e.g. list of wifi networks), consider using
  * {@link #setSeeMoreAction(PendingIntent)} to provide a link to open the activity associated with
  * the content.
+ * </p>
  *
  * @see HeaderBuilder
  * @see RowBuilder
@@ -138,7 +153,7 @@ public class ListBuilder extends TemplateSliceBuilder {
     public @interface ImageMode{}
 
     /**
-     * Indicates that an image should be presented as an icon and it can be tinted.
+     * Indicates that an image should be presented as an icon and it can be tinted.</p>
      */
     public static final int ICON_IMAGE = SliceHints.ICON_IMAGE;
     /**
@@ -183,7 +198,7 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Create a builder which will construct a slice that will display rows of content.
+     * Create a ListBuilder for constructing slice content.
      * <p>
      * A slice requires an associated time-to-live, i.e. how long the data contained in the slice
      * can remain fresh. If your slice has content that is not time sensitive, set a TTL of
@@ -198,7 +213,7 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Create a builder which will construct a slice that will display rows of content.
+     * Create a ListBuilder for constructing slice content.
      * <p>
      * A slice requires an associated time-to-live, i.e. how long the data contained in the slice
      * can remain fresh. If your slice has content that is not time sensitive, set {@link Duration}
@@ -214,14 +229,14 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Construct the slice.
+     * Construct the slice defined by this ListBuilder.
      * <p>
-     * Note that a ListBuilder slice requires a row containing a piece of text that is not created
+     * Note that a ListBuilder requires a row containing a piece of text that is not created
      * from a {@link GridRowBuilder}. If the first row added does not fulfill this requirement,
      * build the slice will throw {@link IllegalStateException}.
      * <p>
-     * Note that a slice requires a primary action, this can be set on any of the rows given to the
-     * list builder. If a primary action has not been set on any of the rows, building this slice
+     * Note that a ListBuilder requires a primary action, this can be set on any of the rows added
+     * to the list. If a primary action has not been set on any of the rows, building this slice
      * will throw {@link IllegalStateException}.
      *
      * @see HeaderBuilder#setPrimaryAction(SliceAction)
@@ -263,9 +278,11 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Add a grid row to the list builder. Note that grid rows cannot be the first row in your
-     * slice. Adding a grid row first without calling {@link #setHeader(HeaderBuilder)} will
-     * result in {@link IllegalStateException} when the slice is built.
+     * Add a grid row to the list builder.
+     * <p>
+     * Note that grid rows cannot be the first row in your slice. Adding a grid row first without
+     * calling {@link #setHeader(HeaderBuilder)} will result in {@link IllegalStateException} when
+     * the slice is built.
      */
     @NonNull
     public ListBuilder addGridRow(@NonNull GridRowBuilder builder) {
@@ -335,11 +352,19 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Adds an action to this list builder.
      * <p>
-     * Actions added with this method are grouped together on the list template. These actions may
-     * appear differently on the slice depending on how the {@link androidx.slice.widget.SliceView}
-     * is configured. Generally these actions will be  displayed in the order they were added,
-     * however, if not all actions can be displayed then actions with a higher priority may be shown
-     * first.
+     * Actions added with this method are grouped together on the list template and represented
+     * as tappable icons or images. These actions may appear differently on the slice depending on
+     * how the {@link androidx.slice.widget.SliceView}  is configured. Generally these actions will
+     * be  displayed in the order they were added, however, if not all actions can be displayed
+     * then actions with a higher priority may be shown first.
+     * <p>
+     * These actions are only displayed when the slice is displayed in
+     * {@link androidx.slice.widget.SliceView#MODE_LARGE} or
+     * {@link androidx.slice.widget.SliceView#MODE_SMALL}.
+     * <p>
+     * These actions differ from a slice's primary action. The primary action
+     * is the {@link SliceAction} set on the first row of the slice, normally from
+     * {@link HeaderBuilder#setPrimaryAction(SliceAction)}.
      *
      * @see SliceAction
      * @see SliceAction#setPriority(int)
@@ -994,9 +1019,8 @@ public class ListBuilder extends TemplateSliceBuilder {
      * <p>
      * A row supports:
      * <ul>
-     *     <li>Title item - The title item appears with at the start of the row. There can only
-     *     be one title item added to a row, and it could be a timestamp, image, or a
-     *     {@link SliceAction}.
+     *     <li>Title item - The title item can be a timestamp, image, or a {@link SliceAction}.
+     *     It appears with at the start of the row. There can only be one title item added to a row.
      *     </li>
      *     <li>Title - Single line of text formatted as a title, see
      *     {@link #setTitle(CharSequence)}.
@@ -1004,15 +1028,14 @@ public class ListBuilder extends TemplateSliceBuilder {
      *     <li>Subtitle - Single line of text below the title (if one exists) and is formatted as
      *     normal text, see {@link #setSubtitle(CharSequence)}.
      *     </li>
-     *     <li>End item -  End items appear at the end of the row. There can be multiple end items
+     *     <li>End item - End items appear at the end of the row. There can be multiple end items
      *     that show depending on available width. End items can be a timestamp, image, or a
      *     tappable icon.
      *     </li>
      *     <li>Primary action - The primary action for the row, this is the action that will be sent
      *     when the row is clicked. This is set via {@link #setPrimaryAction(SliceAction)}. If this
-     *     is the only row in a slice, the slice  action set here will be used to represent the
-     *     slice in when slice view is displaying in
-     *     {@link androidx.slice.widget.SliceView#MODE_SMALL}.
+     *     is the only row or first row of the slice, then the action set here will be used to
+     *     represent the slice shown in {@link androidx.slice.widget.SliceView#MODE_SMALL}.
      *     </li>
      * </ul>
      * There are a couple of restrictions to how content can be added to a row:
@@ -1208,7 +1231,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the title for the row builder.
+         * Sets the title for the row builder. A title should fit on a single line and is ellipsized
+         * if too long.
          */
         @NonNull
         public RowBuilder setTitle(@NonNull CharSequence title) {
@@ -1216,7 +1240,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the title for the row builder.
+         * Sets the title for the row builder. A title should fit on a single line and is ellipsized
+         * if too long.
          * <p>
          * Use this method to specify content that will appear in the template once it's been
          * loaded.
@@ -1232,7 +1257,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the subtitle for the row builder.
+         * Sets the subtitle for the row builder. A subtitle should fit on a single line and is
+         * ellipsized if too long.
          */
         @NonNull
         public RowBuilder setSubtitle(@NonNull CharSequence subtitle) {
@@ -1240,7 +1266,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the subtitle for the row builder.
+         * Sets the subtitle for the row builder. A subtitle should fit on a single line and is
+         * ellipsized if too long.
          * <p>
          * Use this method to specify content that will appear in the template once it's been
          * loaded.
@@ -1618,7 +1645,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the title for the header builder.
+         * Sets the title for the header builder. A title should be representative of the
+         * contents of the slice and fit on a single line.
          */
         @NonNull
         public HeaderBuilder setTitle(@NonNull CharSequence title) {
@@ -1626,7 +1654,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the title for the header builder.
+         * Sets the title for the header builder. A title should be representative of the
+         * contents of the slice and fit on a single line.
          * <p>
          * Use this method to specify content that will appear in the template once it's been
          * loaded.
@@ -1642,7 +1671,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the subtitle for the header builder.
+         * Sets the subtitle for the header builder. The subtitle should fit on a single line.
          */
         @NonNull
         public HeaderBuilder setSubtitle(@NonNull CharSequence subtitle) {
@@ -1650,7 +1679,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the subtitle for the header builder.
+         * Sets the subtitle for the header builder. The subtitle should fit on a single line.
          * <p>
          * Use this method to specify content that will appear in the template once it's been
          * loaded.
@@ -1666,7 +1695,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the summary for the header builder. A summary is optional.
+         * Sets the summary for the header builder. A summary is optional and should fit on
+         * a single line and is ellipsized if too long.
          * <p>
          * The summary should be a description of the contents of the list. This summary might be
          * used when the rest of the list content is not shown (e.g. if SliceView presenting slice
@@ -1678,7 +1708,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the summary for the header builder. A summary is optional.
+         * Sets the summary for the header builder. A summary is optional and should fit on
+         * a single line and is ellipsized if too long.
          * <p>
          * The summary should be a description of the contents of the list. This summary might be
          * used when the rest of the list content is not shown (e.g. if SliceView presenting slice

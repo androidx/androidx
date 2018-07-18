@@ -49,21 +49,6 @@ import java.util.List;
  *     large as they can be, in a {@link android.widget.ImageView.ScaleType#CENTER_CROP}</li>
  * </ul>
  * <p>
- * If the first row of your slice was created with {@link GridRowBuilder} then there are a couple
- * of extra considerations you should take for when the slice is displayed in different modes,
- * particularly:
- * <ul>
- *     <li>{@link androidx.slice.widget.SliceView#MODE_SHORTCUT} - ensure you use
- *     {@link #setPrimaryAction(SliceAction)} on grid row builder to specify the shortcut action,
- *     icon, and label. This action will also be activated when the whole row is clicked, unless
- *     the individual cells in the row have actions set on them.</li>
- *     <li>{@link androidx.slice.widget.SliceView#MODE_SMALL} - in small format there might not
- *     be enough space to display a cell containing two lines of text and an image, in this case
- *     only one line of text will be shown with the image, favoring text added via
- *     {@link CellBuilder#addTitleText(CharSequence)} or the first text added if no title was
- *     added.</li>
- * </ul>
- * <p>
  * If more cells are added to the grid row than can be displayed, the cells will be cut off. Using
  * {@link #setSeeMoreAction(PendingIntent)} you can specify an action to take the user to see the
  * rest of the content, this will take up space as a cell item in a row if added.
