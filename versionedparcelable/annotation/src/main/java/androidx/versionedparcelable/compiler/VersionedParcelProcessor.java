@@ -103,6 +103,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 "SparseBooleanArray");
         mMethodLookup.put(Pattern.compile("^android.os.Parcelable$"), "Parcelable");
         mMethodLookup.put(Pattern.compile("^java.util.List<.*>$"), "List");
+        mMethodLookup.put(Pattern.compile("^java.util.Set<.*>$"), "Set");
         mMethodLookup.put(Pattern.compile("^androidx.versionedparcelable.VersionedParcelable$"),
                 "VersionedParcelable");
     }
@@ -114,7 +115,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         TypeElement field = findAnnotation(set, PARCEL_FIELD);
         TypeElement nonField = findAnnotation(set, NON_PARCEL_FIELD);
         List<Element> versionedParcelables = new ArrayList<>();
-        Map<Element, Set<Element>> fields = new HashMap<>();
+        Map<String, Set<Element>> fields = new HashMap<>();
         Set<Element> nonFields = new HashSet<>();
 
         if (cls == null) {
@@ -142,10 +143,8 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 mMessager.printMessage(Diagnostic.Kind.ERROR,
                         cls + " must be added to classes containing " + field);
             } else {
-                if (!fields.containsKey(clsElement)) {
-                    fields.put(clsElement, new HashSet<>());
-                }
-                fields.get(clsElement).add(element);
+                fields.computeIfAbsent(clsElement.toString(), (s) -> new HashSet<Element>())
+                        .add(element);
             }
         }
         if (nonField != null) {
@@ -177,7 +176,18 @@ public class VersionedParcelProcessor extends AbstractProcessor {
             String jetifyAs = getValue(annotation, "jetifyAs", "");
             parseDeprecated(takenIds, deprecatedIds);
             checkClass(versionedParcelable.asType().toString(), versionedParcelable, takenIds);
-            generateSerialization(versionedParcelable, fields.get(versionedParcelable),
+
+            ArrayList<Element> f = new ArrayList<>();
+            TypeElement te = (TypeElement) mEnv.getTypeUtils().asElement(
+                    versionedParcelable.asType());
+            while (te != null) {
+                Set<Element> collection = fields.get(te.getQualifiedName().toString());
+                if (collection != null) {
+                    f.addAll(collection);
+                }
+                te = (TypeElement) mEnv.getTypeUtils().asElement(te.getSuperclass());
+            }
+            generateSerialization(versionedParcelable, f,
                     allowSerialization, ignoreParcelables, isCustom, jetifyAs);
         }
 
@@ -192,7 +202,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         }
     }
 
-    private void generateSerialization(Element versionedParcelable, Set<Element> fields,
+    private void generateSerialization(Element versionedParcelable, List<Element> fields,
             String allowSerialization, String ignoreParcelables, String isCustom,
             String jetifyAs) {
         boolean custom = "true".equals(isCustom);
