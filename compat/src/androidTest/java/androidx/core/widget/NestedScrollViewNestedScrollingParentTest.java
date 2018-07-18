@@ -28,17 +28,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
-import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.test.R;
 import androidx.core.view.NestedScrollingChild2;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -55,22 +54,17 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class NestedScrollViewNestedScrollingParentTest extends
-        BaseInstrumentationTestCase<TestContentViewActivity> {
+public class NestedScrollViewNestedScrollingParentTest {
 
     private NestedScrollView mNestedScrollView;
     private NestedScrollingSpyView mParent;
     private View mChild;
 
-    public NestedScrollViewNestedScrollingParentTest() {
-        super(TestContentViewActivity.class);
-    }
-
     @Before
     public void instantiateMembers() {
-        mNestedScrollView = new NestedScrollView(mActivityTestRule.getActivity());
-        mParent = spy(new NestedScrollingSpyView(mActivityTestRule.getActivity()));
-        mChild = new View(mActivityTestRule.getActivity());
+        mNestedScrollView = new NestedScrollView(InstrumentationRegistry.getContext());
+        mParent = spy(new NestedScrollingSpyView(InstrumentationRegistry.getContext()));
+        mChild = new View(InstrumentationRegistry.getContext());
     }
 
     @Test
@@ -101,498 +95,386 @@ public class NestedScrollViewNestedScrollingParentTest extends
     public void onNestedScrollAccepted_callsParentsOnStartNestedScrollWithCorrectParams()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
 
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent).onStartNestedScroll(mNestedScrollView, mNestedScrollView,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
-            }
-        });
+        verify(mParent).onStartNestedScroll(mNestedScrollView, mNestedScrollView,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
     }
 
     @Test
     public void onNestedScrollAccepted_callsParentsOnNestedScrollAcceptedWithCorrectParams()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
 
-                mNestedScrollView.onNestedScrollAccepted(
-                        mChild,
-                        mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL,
-                        ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScrollAccepted(
+                mChild,
+                mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL,
+                ViewCompat.TYPE_NON_TOUCH);
 
-                    verify(mParent, times(1)).onNestedScrollAccepted(
-                            mNestedScrollView,
-                            mNestedScrollView,
-                            ViewCompat.SCROLL_AXIS_VERTICAL,
-                            ViewCompat.TYPE_NON_TOUCH);
-                    verify(mParent, times(1)).onNestedScrollAccepted(
-                            any(View.class),
-                            any(View.class),
-                            anyInt(),
-                            anyInt());
-            }
-        });
+        verify(mParent, times(1)).onNestedScrollAccepted(
+                mNestedScrollView,
+                mNestedScrollView,
+                ViewCompat.SCROLL_AXIS_VERTICAL,
+                ViewCompat.TYPE_NON_TOUCH);
+        verify(mParent, times(1)).onNestedScrollAccepted(
+                any(View.class),
+                any(View.class),
+                anyInt(),
+                anyInt());
     }
 
     @Test
     public void onNestedScrollAccepted_withBothOrientations_pOnNestedScrollAcceptedCalledWithVert()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
 
-                mNestedScrollView.onNestedScrollAccepted(
-                        mChild,
-                        mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL | ViewCompat.SCROLL_AXIS_HORIZONTAL,
-                        ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScrollAccepted(
+                mChild,
+                mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL | ViewCompat.SCROLL_AXIS_HORIZONTAL,
+                ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, times(1)).onNestedScrollAccepted(
-                        any(View.class),
-                        any(View.class),
-                        eq(ViewCompat.SCROLL_AXIS_VERTICAL),
-                        anyInt());
-                verify(mParent, times(1)).onNestedScrollAccepted(
-                        any(View.class),
-                        any(View.class),
-                        anyInt(),
-                        anyInt());
-
-            }
-        });
+        verify(mParent, times(1)).onNestedScrollAccepted(
+                any(View.class),
+                any(View.class),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL),
+                anyInt());
+        verify(mParent, times(1)).onNestedScrollAccepted(
+                any(View.class),
+                any(View.class),
+                anyInt(),
+                anyInt());
     }
 
     @Test
     public void onNestedScrollAccepted_parentRejects_parentOnNestedScrollAcceptedNotCalled()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(false)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        doReturn(false)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
 
-                mNestedScrollView.onNestedScrollAccepted(
-                        mChild,
-                        mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL,
-                        ViewCompat.TYPE_TOUCH);
+        mNestedScrollView.onNestedScrollAccepted(
+                mChild,
+                mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL,
+                ViewCompat.TYPE_TOUCH);
 
-                verify(mParent, never()).onNestedScrollAccepted(
-                        any(View.class),
-                        any(View.class),
-                        anyInt(),
-                        anyInt());
-            }
-        });
+        verify(mParent, never()).onNestedScrollAccepted(
+                any(View.class),
+                any(View.class),
+                anyInt(),
+                anyInt());
     }
 
     @Test
     public void onNestedScrollAccepted_v1_callsParentWithTypeTouch() throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
 
-                mNestedScrollView.onNestedScrollAccepted(
-                        mChild,
-                        mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL);
+        mNestedScrollView.onNestedScrollAccepted(
+                mChild,
+                mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL);
 
-                verify(mParent, times(1)).onNestedScrollAccepted(
-                        any(View.class),
-                        any(View.class),
-                        anyInt(),
-                        eq(ViewCompat.TYPE_TOUCH));
-                verify(mParent, times(1)).onNestedScrollAccepted(
-                        any(View.class),
-                        any(View.class),
-                        anyInt(),
-                        anyInt());
-            }
-        });
+        verify(mParent, times(1)).onNestedScrollAccepted(
+                any(View.class),
+                any(View.class),
+                anyInt(),
+                eq(ViewCompat.TYPE_TOUCH));
+        verify(mParent, times(1)).onNestedScrollAccepted(
+                any(View.class),
+                any(View.class),
+                anyInt(),
+                anyInt());
     }
 
     @Test
     public void onStopNestedScroll_parentOnStopNestedScrollCalledWithCorrectParams()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                            ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                    ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
 
-                mNestedScrollView.onStopNestedScroll(mChild, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onStopNestedScroll(mChild, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, times(1)).onStopNestedScroll(mNestedScrollView,
-                        ViewCompat.TYPE_NON_TOUCH);
-                verify(mParent, times(1)).onStopNestedScroll(any(View.class), anyInt());
-            }
-        });
+        verify(mParent, times(1)).onStopNestedScroll(mNestedScrollView,
+                ViewCompat.TYPE_NON_TOUCH);
+        verify(mParent, times(1)).onStopNestedScroll(any(View.class), anyInt());
     }
-
-    // TODO(shepshapard), test with interactions where scroll type changes.
 
     @Test
     public void onStopNestedScroll_parentRejects_parentOnStopNestedScrollNotCalled()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(false)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL);
+        doReturn(false)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL);
 
-                mNestedScrollView.onStopNestedScroll(mChild, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onStopNestedScroll(mChild, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, never()).onStopNestedScroll(any(View.class), anyInt());
-            }
-        });
+        verify(mParent, never()).onStopNestedScroll(any(View.class), anyInt());
     }
 
     @Test
     public void onStopNestedScroll_calledWithTypeNotYetAccepted_parentOnStopNestedScrollNotCalled()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
 
-                mNestedScrollView.onStopNestedScroll(mChild, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onStopNestedScroll(mChild, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, never()).onStopNestedScroll(any(View.class), anyInt());
-            }
-        });
+        verify(mParent, never()).onStopNestedScroll(any(View.class), anyInt());
     }
 
     @Test
     public void onStopNestedScroll_v1_parentOnStopNestedScrollCalledWithTypeTouch()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL);
 
-                mNestedScrollView.onStopNestedScroll(mChild);
+        mNestedScrollView.onStopNestedScroll(mChild);
 
-                verify(mParent, times(1)).onStopNestedScroll(any(View.class),
-                        eq(ViewCompat.TYPE_TOUCH));
-                verify(mParent, times(1)).onStopNestedScroll(any(View.class), anyInt());
-            }
-        });
+        verify(mParent, times(1)).onStopNestedScroll(any(View.class),
+                eq(ViewCompat.TYPE_TOUCH));
+        verify(mParent, times(1)).onStopNestedScroll(any(View.class), anyInt());
     }
 
     @Test
     public void onNestedScroll_nsvScrolls() throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
 
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
 
-                assertThat(mNestedScrollView.getScrollY(), is(50));
-            }
-        });
+        assertThat(mNestedScrollView.getScrollY(), is(50));
     }
 
     @Test
     public void onNestedScroll_negativeScroll_nsvScrollsNegative() throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mNestedScrollView.scrollTo(0, 50);
+        mNestedScrollView.scrollTo(0, 50);
 
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, -50, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, -50, ViewCompat.TYPE_NON_TOUCH);
 
-                assertThat(mNestedScrollView.getScrollY(), is(0));
-            }
-        });
+        assertThat(mNestedScrollView.getScrollY(), is(0));
     }
 
     @Test
     public void onNestedScroll_nsvConsumesEntireScroll_correctScrollDistancesPastToParent()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
 
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, times(1)).onNestedScroll(any(View.class), eq(0), eq(50), eq(0),
-                        eq(0), anyInt());
-                verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
-                        anyInt(), anyInt(), anyInt());
-            }
-        });
+        verify(mParent, times(1)).onNestedScroll(any(View.class), eq(0), eq(50), eq(0),
+                eq(0), anyInt());
+        verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
+                anyInt(), anyInt(), anyInt());
     }
 
     @Test
     public void onNestedScroll_nsvCanOnlyConsumePartOfScroll_correctScrollDistancesPastToParent()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 75, ViewCompat.TYPE_NON_TOUCH);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, times(1)).onNestedScroll(any(View.class), eq(0), eq(50), eq(0),
-                        eq(25), anyInt());
-                verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
-                        anyInt(), anyInt(), anyInt());
-            }
-        });
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 75, ViewCompat.TYPE_NON_TOUCH);
+
+        verify(mParent, times(1)).onNestedScroll(any(View.class), eq(0), eq(50), eq(0),
+                eq(25), anyInt());
+        verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
+                anyInt(), anyInt(), anyInt());
     }
 
     @Test
     public void onNestedScroll_nsvCanOnlyConsumePartOfScrollNeg_correctScrollDistancesPastToParent()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
-                mNestedScrollView.scrollTo(0, 50);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.scrollTo(0, 50);
 
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, -75, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, -75, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, times(1)).onNestedScroll(any(View.class), eq(0), eq(-50), eq(0),
-                        eq(-25), anyInt());
-                verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
-                        anyInt(), anyInt(), anyInt());
-            }
-        });
+        verify(mParent, times(1)).onNestedScroll(any(View.class), eq(0), eq(-50), eq(0),
+                eq(-25), anyInt());
+        verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
+                anyInt(), anyInt(), anyInt());
     }
 
     @Test
     public void onNestedScroll_nsvIsAtEndOfScroll_correctScrollDistancesPastToParent()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
-                mNestedScrollView.scrollTo(0, 50);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.scrollTo(0, 50);
 
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, times(1)).onNestedScroll(any(View.class), eq(0), eq(0), eq(0),
-                        eq(50), anyInt());
-                verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
-                        anyInt(), anyInt(), anyInt());
-            }
-        });
+        verify(mParent, times(1)).onNestedScroll(any(View.class), eq(0), eq(0), eq(0),
+                eq(50), anyInt());
+        verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
+                anyInt(), anyInt(), anyInt());
     }
 
     @Test
     public void onNestedScroll_parentRejects_parentOnNestedScrollNotCalled() throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(false)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        doReturn(false)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
 
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, never()).onNestedScroll(any(View.class), anyInt(), anyInt(),
-                        anyInt(), anyInt(), anyInt());
-            }
-        });
+        verify(mParent, never()).onNestedScroll(any(View.class), anyInt(), anyInt(),
+                anyInt(), anyInt(), anyInt());
     }
 
     @Test
     public void onNestedScroll_calledWithTypeNotYetAccepted_parentOnStopNestedScrollNotCalled()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
 
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, never()).onNestedScroll(any(View.class), anyInt(), anyInt(),
-                        anyInt(), anyInt(), anyInt());
-            }
-        });
+        verify(mParent, never()).onNestedScroll(any(View.class), anyInt(), anyInt(),
+                anyInt(), anyInt(), anyInt());
     }
 
     @Test
     public void onNestedScroll_v1_parentOnNestedScrollCalledWithTypeTouch()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild(50, 100);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL);
 
-                mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50);
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50);
 
-                verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
-                        anyInt(), anyInt(), eq(ViewCompat.TYPE_TOUCH));
-                verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
-                        anyInt(), anyInt(), anyInt());
-            }
-        });
+        verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
+                anyInt(), anyInt(), eq(ViewCompat.TYPE_TOUCH));
+        verify(mParent, times(1)).onNestedScroll(any(View.class), anyInt(), anyInt(),
+                anyInt(), anyInt(), anyInt());
     }
 
     @Test
     public void onNestedPreScroll_parentOnNestedPreScrollCalledWithCorrectParams()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
 
-                mNestedScrollView.onNestedPreScroll(mChild, 1, 2, new int[]{0, 0},
-                        ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedPreScroll(mChild, 1, 2, new int[]{0, 0},
+                ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, times(1)).onNestedPreScroll(eq(mNestedScrollView), eq(1), eq(2),
-                        eq(new int[]{0, 0}), eq(ViewCompat.TYPE_NON_TOUCH));
-                verify(mParent, times(1)).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
-                        any(int[].class), anyInt());
-            }
-        });
+        verify(mParent, times(1)).onNestedPreScroll(eq(mNestedScrollView), eq(1), eq(2),
+                eq(new int[]{0, 0}), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(mParent, times(1)).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
+                any(int[].class), anyInt());
     }
 
     @Test
     public void onNestedPreScroll_parentRejects_parentOnNestedPreScrollNotCalled()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(false)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        doReturn(false)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
 
-                mNestedScrollView.onNestedPreScroll(mChild, 1, 2, new int[2],
-                        ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedPreScroll(mChild, 1, 2, new int[2],
+                ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, never()).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
-                        any(int[].class), anyInt());
-            }
-        });
+        verify(mParent, never()).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
+                any(int[].class), anyInt());
     }
 
     @Test
     public void onNestedPreScroll_calledWithTypeNotYetAccepted_parentOnStopNestedScrollNotCalled()
             throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
 
-                mNestedScrollView.onNestedPreScroll(mChild, 1, 2, new int[2],
-                        ViewCompat.TYPE_NON_TOUCH);
+        mNestedScrollView.onNestedPreScroll(mChild, 1, 2, new int[2],
+                ViewCompat.TYPE_NON_TOUCH);
 
-                verify(mParent, never()).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
-                        any(int[].class), anyInt());
-            }
-        });
+        verify(mParent, never()).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
+                any(int[].class), anyInt());
     }
 
     @Test
     public void onNestedPreScroll_v1_parentOnNestedPreScrollCalledWithTypeTouch() throws Throwable {
         setupNestedScrollViewWithParentAndChild();
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doReturn(true)
-                        .when(mParent)
-                        .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
-                mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
-                        ViewCompat.SCROLL_AXIS_VERTICAL);
-                int[] consumed = new int[2];
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
+                ViewCompat.SCROLL_AXIS_VERTICAL);
+        int[] consumed = new int[2];
 
-                mNestedScrollView.onNestedPreScroll(mChild, 1, 2, consumed);
+        mNestedScrollView.onNestedPreScroll(mChild, 1, 2, consumed);
 
-                verify(mParent, times(1)).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
-                        any(int[].class), eq(ViewCompat.TYPE_TOUCH));
-                verify(mParent, times(1)).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
-                        any(int[].class), anyInt());
-            }
-        });
+        verify(mParent, times(1)).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_TOUCH));
+        verify(mParent, times(1)).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
+                any(int[].class), anyInt());
     }
 
     private void onStartNestedScrollV1(int iScrollAxis, boolean oRetValue) {
@@ -613,8 +495,8 @@ public class NestedScrollViewNestedScrollingParentTest extends
 
     private void setupNestedScrollViewWithParentAndChild(int nestedScrollViewHeight,
             int childHeight) throws Throwable {
-        final TestContentView testContentView =
-                mActivityTestRule.getActivity().findViewById(R.id.testContentView);
+
+        final ViewGroup viewGroup = new FrameLayout(InstrumentationRegistry.getContext());
 
         mNestedScrollView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, nestedScrollViewHeight));
@@ -624,16 +506,14 @@ public class NestedScrollViewNestedScrollingParentTest extends
                 ViewGroup.LayoutParams.MATCH_PARENT, childHeight));
         mChild.setMinimumHeight(childHeight);
 
-        testContentView.expectLayouts(1);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mNestedScrollView.addView(mChild);
-                mParent.addView(mNestedScrollView);
-                testContentView.addView(mParent);
-            }
-        });
-        testContentView.awaitLayouts(2);
+        mNestedScrollView.addView(mChild);
+        mParent.addView(mNestedScrollView);
+        viewGroup.addView(mParent);
+
+        int measureSpec = View.MeasureSpec.makeMeasureSpec(nestedScrollViewHeight,
+                View.MeasureSpec.EXACTLY);
+        viewGroup.measure(measureSpec, measureSpec);
+        viewGroup.layout(0, 0, nestedScrollViewHeight, nestedScrollViewHeight);
     }
 
     public class NestedScrollingSpyView extends FrameLayout implements NestedScrollingChild2,
