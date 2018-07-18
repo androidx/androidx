@@ -76,5 +76,6 @@ limitations under the License.
         android:layout_marginBottom="@dimen/car_padding_4"
         android:layout_gravity="start|top"
         android:clickable="true"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        style="@style/Widget.Car.Scrollbar.Light" />
 </FrameLayout>

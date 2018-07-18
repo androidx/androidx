@@ -320,37 +320,39 @@ limitations under the License.
 
     <!-- The default styling for a PagedListView. -->
     <style name="Widget.Car.List" parent="android:Widget">
-        <item name="dayNightStyle">auto</item>
         <item name="listDividerColor">@color/car_list_divider</item>
         <item name="scrollBarGravity">left</item>
     </style>
 
-    <!-- A styling for the PagedListView that has inverted colors for day/night. -->
-    <style name="Widget.Car.List.Inverse">
-        <item name="dayNightStyle">auto_inverse</item>
-        <item name="listDividerColor">@color/car_list_divider_inverse</item>
-    </style>
-
-    <!-- A styling for the PagedListView that is fixed to a light color. -->
-    <style name="Widget.Car.Light.List" parent="Widget.Car.List">
-        <item name="dayNightStyle">always_light</item>
-    </style>
-
-    <!-- A styling for the PagedListView that is fixed to a light color and has dividers that are
-         also fixed to a light color. -->
-    <style name="Widget.Car.Light.List.LightDivider">
+    <!-- A styling for the PagedListView that has light-colored dividers. -->
+    <style name="Widget.Car.List.Light">
         <item name="listDividerColor">@color/car_list_divider_light</item>
     </style>
 
-    <!-- A styling for the PagedListView that is fixed to a dark color. -->
-    <style name="Widget.Car.Dark.List" parent="Widget.Car.List">
-        <item name="dayNightStyle">always_dark</item>
+    <!-- A styling for the PagedListView that has dark-colored dividers. -->
+    <style name="Widget.Car.List.Dark">
+        <item name="listDividerColor">@color/car_list_divider_dark</item>
     </style>
 
-    <!-- A styling for the PagedListView that is fixed to a dark color and has dividers that are
-         also fixed to a dark color. -->
-    <style name="Widget.Car.Dark.List.LightDivider">
-        <item name="listDividerColor">@color/car_list_divider_light</item>
+    <!-- A styling for the scroll bars that is light during the day and dark at night. -->
+    <style name="Widget.Car.Scrollbar" parent="android:Widget">
+        <item name="buttonTintColor">@color/car_tint</item>
+        <item name="buttonRippleBackground">@drawable/car_button_ripple_background</item>
+        <item name="scrollBarColor">@color/car_scrollbar_thumb</item>
+    </style>
+
+    <!-- A styling for the scroll bars that is fixed to light colors. -->
+    <style name="Widget.Car.Scrollbar.Light">
+        <item name="buttonTintColor">@color/car_tint_light</item>
+        <item name="buttonRippleBackground">@drawable/car_button_ripple_background_light</item>
+        <item name="scrollBarColor">@color/car_scrollbar_thumb_light</item>
+    </style>
+
+    <!-- A styling for the scroll bars that is fixed to dark colors. -->
+    <style name="Widget.Car.Scrollbar.Dark">
+        <item name="buttonTintColor">@color/car_tint_dark</item>
+        <item name="buttonRippleBackground">@drawable/car_button_ripple_background_dark</item>
+        <item name="scrollBarColor">@color/car_scrollbar_thumb_dark</item>
     </style>
 
     <!-- =============== -->

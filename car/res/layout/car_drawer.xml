@@ -61,10 +61,10 @@ limitations under the License.
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/car_app_bar_height"
         android:layout_gravity="top|start"
+        android:theme="?attr/drawerListTheme"
         app:dividerStartMargin="@dimen/car_keyline_1"
         app:dividerEndMargin="@dimen/car_keyline_1"
-        app:gutter="start"
-        style="?attr/drawerListStyle" />
+        app:gutter="start" />
 
     <ProgressBar
         android:id="@id/car_drawer_progress"

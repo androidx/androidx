@@ -239,30 +239,30 @@ public class PagedListView extends FrameLayout {
 
     public PagedListView(Context context) {
         super(context);
-        init(context, /* attrs= */ null, R.attr.pagedListViewStyle);
+        init(context, /* attrs= */ null, R.attr.pagedListViewStyle, R.style.Widget_Car_List_Light);
     }
 
     public PagedListView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs, R.attr.pagedListViewStyle);
+        init(context, attrs, R.attr.pagedListViewStyle, R.style.Widget_Car_List_Light);
     }
 
     public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs) {
         super(context, attrs, defStyleAttrs);
-        init(context, attrs, defStyleAttrs);
+        init(context, attrs, defStyleAttrs, R.style.Widget_Car_List_Light);
     }
 
     public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
         super(context, attrs, defStyleAttrs, defStyleRes);
-        init(context, attrs, defStyleAttrs);
+        init(context, attrs, defStyleAttrs, defStyleRes);
     }
 
-    private void init(Context context, AttributeSet attrs, int defStyleAttrs) {
+    private void init(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
         LayoutInflater.from(context).inflate(R.layout.car_paged_recycler_view,
                 /* root= */ this, /* attachToRoot= */ true);
 
         TypedArray a = context.obtainStyledAttributes(
-                attrs, R.styleable.PagedListView, defStyleAttrs, /* defStyleRes= */ 0);
+                attrs, R.styleable.PagedListView, defStyleAttrs, defStyleRes);
         mRecyclerView = findViewById(R.id.recycler_view);
 
         mMaxPages = getDefaultMaxPages();
@@ -367,22 +367,6 @@ public class PagedListView extends FrameLayout {
                     a.getInt(R.styleable.PagedListView_scrollBarGravity, Gravity.LEFT);
         }
 
-        Drawable upButtonIcon = a.getDrawable(R.styleable.PagedListView_upButtonIcon);
-        if (upButtonIcon != null) {
-            setUpButtonIcon(upButtonIcon);
-        }
-
-        Drawable downButtonIcon = a.getDrawable(R.styleable.PagedListView_downButtonIcon);
-        if (downButtonIcon != null) {
-            setDownButtonIcon(downButtonIcon);
-        }
-
-        // Using getResourceId() over getColor() because setScrollbarColor() expects a color resId.
-        int scrollBarColor = a.getResourceId(R.styleable.PagedListView_scrollBarColor, -1);
-        if (scrollBarColor != -1) {
-            setScrollbarColor(scrollBarColor);
-        }
-
         mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
 
         if (mScrollBarEnabled) {
@@ -401,14 +385,6 @@ public class PagedListView extends FrameLayout {
             int scrollBarContainerWidth = a.getDimensionPixelSize(
                     R.styleable.PagedListView_scrollBarContainerWidth, carMargin);
             setScrollBarContainerWidth(scrollBarContainerWidth);
-        }
-
-        if (a.hasValue(R.styleable.PagedListView_dayNightStyle)) {
-            @DayNightStyle int dayNightStyle =
-                    a.getInt(R.styleable.PagedListView_dayNightStyle, DayNightStyle.AUTO);
-            setDayNightStyle(dayNightStyle);
-        } else {
-            setDayNightStyle(DayNightStyle.AUTO);
         }
 
         a.recycle();
@@ -742,25 +718,6 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Sets the color of scrollbar.
-     *
-     * <p>Custom color ignores {@link DayNightStyle}. Calling {@link #resetScrollbarColor} resets to
-     * default color.
-     *
-     * @param color Resource identifier of the color.
-     */
-    public void setScrollbarColor(@ColorRes int color) {
-        mScrollBarView.setThumbColor(color);
-    }
-
-    /**
-     * Resets the color of scrollbar to default.
-     */
-    public void resetScrollbarColor() {
-        mScrollBarView.resetThumbColor();
-    }
-
-    /**
      * Adds an {@link RecyclerView.OnItemTouchListener} to this
      * PagedListView.
      *
@@ -788,18 +745,28 @@ public class PagedListView extends FrameLayout {
      * Sets how this {@link PagedListView} responds to day/night configuration changes. By
      * default, the PagedListView is darker in the day and lighter at night.
      *
+     * <p>This method has been deprecated and no longer does anything.
+     *
      * @param dayNightStyle A value from {@link DayNightStyle}.
      * @see DayNightStyle
+     * @deprecated Set day/night behavior through the theme of the PagedListView.
      */
+    @Deprecated
     public void setDayNightStyle(@DayNightStyle int dayNightStyle) {
-        // Update the scrollbar
-        mScrollBarView.setDayNightStyle(dayNightStyle);
+        // No-op
+    }
 
+    /**
+     * Sets the color that should be used for the dividers in the PagedListView.
+     *
+     * @param dividerColor The resource identifier for the divider color.
+     */
+    public void setDividerColor(@ColorRes int dividerColor) {
         int decorCount = mRecyclerView.getItemDecorationCount();
         for (int i = 0; i < decorCount; i++) {
             RecyclerView.ItemDecoration decor = mRecyclerView.getItemDecorationAt(i);
             if (decor instanceof DividerDecoration) {
-                ((DividerDecoration) decor).updateDividerColor();
+                ((DividerDecoration) decor).setDividerColor(dividerColor);
             }
         }
     }
@@ -1336,7 +1303,7 @@ public class PagedListView extends FrameLayout {
         private final int mDividerEndMargin;
         @IdRes private final int mDividerStartId;
         @IdRes private final int mDividerEndId;
-        @ColorRes private final int mListDividerColor;
+        @ColorRes private int mListDividerColor;
         private DividerVisibilityManager mVisibilityManager;
 
         /**
@@ -1363,6 +1330,12 @@ public class PagedListView extends FrameLayout {
             mPaint.setColor(mContext.getColor(listDividerColor));
             mDividerHeight = mContext.getResources().getDimensionPixelSize(
                     R.dimen.car_list_divider_height);
+        }
+
+        /** Sets the color for the dividers. */
+        public void setDividerColor(@ColorRes int dividerColor) {
+            mListDividerColor = dividerColor;
+            updateDividerColor();
         }
 
         /** Updates the list divider color which may have changed due to a day night transition. */
