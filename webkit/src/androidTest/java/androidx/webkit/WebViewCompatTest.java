@@ -38,7 +38,6 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Assert;
@@ -272,8 +271,9 @@ public class WebViewCompatTest {
      * reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testGetWebViewClient() throws Exception {
+        AssumptionUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_CLIENT);
+
         // Create a new WebView because WebViewOnUiThread sets a WebViewClient during
         // construction.
         WebView webView = WebViewOnUiThread.createWebView();

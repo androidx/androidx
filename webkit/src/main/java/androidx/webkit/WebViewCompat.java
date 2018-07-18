@@ -30,14 +30,12 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebViewProviderAdapter;
 import androidx.webkit.internal.WebViewProviderFactory;
-import androidx.webkit.internal.polyfill.WebViewCompatPolyfill;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.util.Features;
@@ -431,14 +429,16 @@ public class WebViewCompat {
      * Gets the WebViewClient for the WebView argument.
      *
      * <p>
-     * This method should only be called on devices with API level 19 and up
-     * ({@link Build.VERSION_CODES#KITKAT}).
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#GET_WEB_VIEW_CLIENT}.
      *
      * <p>
      * @return the WebViewClient, or a default client if not yet set
      */
     @SuppressLint("NewApi")
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_CLIENT,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebViewClient getWebViewClient(@NonNull WebView webview) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(Features.GET_WEB_VIEW_CLIENT);
@@ -447,8 +447,6 @@ public class WebViewCompat {
         } else if (feature.isSupportedByWebView()) {
             return getProvider(webview).getWebViewClient();
         } else {
-            WebViewClient client = WebViewCompatPolyfill.getWebViewClient(webview);
-            if (client != null) return client;
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
