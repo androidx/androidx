@@ -19,7 +19,6 @@ package androidx.mediarouter.app;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -302,16 +301,10 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
         RecyclerAdapter() {
             mInflater = LayoutInflater.from(mContext);
-            TypedArray styledAttributes = mContext.obtainStyledAttributes(new int[] {
-                    R.attr.mediaRouteDefaultIconDrawable,
-                    R.attr.mediaRouteTvIconDrawable,
-                    R.attr.mediaRouteSpeakerIconDrawable,
-                    R.attr.mediaRouteSpeakerGroupIconDrawable});
-            mDefaultIcon = styledAttributes.getDrawable(0);
-            mTvIcon = styledAttributes.getDrawable(1);
-            mSpeakerIcon = styledAttributes.getDrawable(2);
-            mSpeakerGroupIcon = styledAttributes.getDrawable(3);
-            styledAttributes.recycle();
+            mDefaultIcon = MediaRouterThemeHelper.getDefaultDrawableIcon(mContext);
+            mTvIcon = MediaRouterThemeHelper.getTvDrawableIcon(mContext);
+            mSpeakerIcon = MediaRouterThemeHelper.getSpeakerDrawableIcon(mContext);
+            mSpeakerGroupIcon = MediaRouterThemeHelper.getSpeakerGropuIcon(mContext);
             setItems();
         }
 

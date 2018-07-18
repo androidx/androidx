@@ -19,6 +19,7 @@ package androidx.mediarouter.app;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -40,8 +41,53 @@ final class MediaRouterThemeHelper {
     static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0xDE000000; /* Opacity of 87% */
     static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
 
+    static Drawable sDefaultIcon;
+    static Drawable sTvIcon;
+    static Drawable sSpeakerIcon;
+    static Drawable sSpeakerGroupIcon;
+
     private MediaRouterThemeHelper() {
     }
+
+    static Drawable getDefaultDrawableIcon(Context context) {
+        if (sDefaultIcon == null) {
+            sDefaultIcon = getDrawableIcon(context, 0);
+        }
+        return sDefaultIcon;
+    }
+
+    static Drawable getTvDrawableIcon(Context context) {
+        if (sTvIcon == null) {
+            sTvIcon = getDrawableIcon(context, 1);
+        }
+        return sTvIcon;
+    }
+
+    static Drawable getSpeakerDrawableIcon(Context context) {
+        if (sSpeakerIcon == null) {
+            sSpeakerIcon = getDrawableIcon(context, 2);
+        }
+        return sSpeakerIcon;
+    }
+
+    static Drawable getSpeakerGropuIcon(Context context) {
+        if (sSpeakerGroupIcon == null) {
+            sSpeakerGroupIcon = getDrawableIcon(context, 3);
+        }
+        return sSpeakerGroupIcon;
+    }
+
+    private static Drawable getDrawableIcon(Context context, int resId) {
+        TypedArray styledAttributes = context.obtainStyledAttributes(new int[] {
+                R.attr.mediaRouteDefaultIconDrawable,
+                R.attr.mediaRouteTvIconDrawable,
+                R.attr.mediaRouteSpeakerIconDrawable,
+                R.attr.mediaRouteSpeakerGroupIconDrawable});
+        Drawable icon = styledAttributes.getDrawable(resId);
+        styledAttributes.recycle();
+        return icon;
+    }
+
 
     static Context createThemedButtonContext(Context context) {
         // Apply base Media Router theme.
@@ -132,6 +178,15 @@ final class MediaRouterThemeHelper {
             return getThemeColor(context, 0, androidx.appcompat.R.attr.colorAccent);
         }
         return primaryColor;
+    }
+
+    static TypedArray getStyledAttributes(Context context) {
+        TypedArray styledAttributes = context.obtainStyledAttributes(new int[] {
+                R.attr.mediaRouteDefaultIconDrawable,
+                R.attr.mediaRouteTvIconDrawable,
+                R.attr.mediaRouteSpeakerIconDrawable,
+                R.attr.mediaRouteSpeakerGroupIconDrawable});
+        return styledAttributes;
     }
 
     static void setMediaControlsBackgroundColor(

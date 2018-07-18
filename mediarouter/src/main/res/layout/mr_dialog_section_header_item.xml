@@ -21,6 +21,6 @@
           android:layout_height="48dp"
           android:paddingStart="16dp"
           android:paddingEnd="16dp"
-          android:paddingTop="16dp"
+          android:paddingTop="24dp"
           android:textSize="11sp"
           android:textColor="#80868B" />
