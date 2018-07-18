@@ -463,28 +463,28 @@ public class RemoteMediaSession2Service extends Service {
         public void notifyPlaylistChanged(String sessionId) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
-            agent.notifyPlaylistChanged();
+            agent.callNotifyPlaylistChanged();
         }
 
         @Override
         public void notifyPlaylistMetadataChanged(String sessionId) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
-            agent.notifyPlaylistMetadataChanged();
+            agent.callNotifyPlaylistMetadataChanged();
         }
 
         @Override
         public void notifyShuffleModeChanged(String sessionId) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
-            agent.notifyShuffleModeChanged();
+            agent.callNotifyShuffleModeChanged();
         }
 
         @Override
         public void notifyRepeatModeChanged(String sessionId) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
-            agent.notifyRepeatModeChanged();
+            agent.callNotifyRepeatModeChanged();
         }
     }
 
