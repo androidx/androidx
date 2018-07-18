@@ -529,10 +529,10 @@ package androidx.media2 {
     method public abstract androidx.media2.MediaMetadata2 getPlaylistMetadata();
     method public abstract int getRepeatMode();
     method public abstract int getShuffleMode();
-    method public final void notifyPlaylistChanged();
-    method public final void notifyPlaylistMetadataChanged();
-    method public final void notifyRepeatModeChanged();
-    method public final void notifyShuffleModeChanged();
+    method protected final void notifyPlaylistChanged();
+    method protected final void notifyPlaylistMetadataChanged();
+    method protected final void notifyRepeatModeChanged();
+    method protected final void notifyShuffleModeChanged();
     method public final void registerPlaylistEventCallback(java.util.concurrent.Executor, androidx.media2.MediaPlaylistAgent.PlaylistEventCallback);
     method public abstract void removePlaylistItem(androidx.media2.MediaItem2);
     method public abstract void replacePlaylistItem(int, androidx.media2.MediaItem2);

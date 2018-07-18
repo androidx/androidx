@@ -155,7 +155,7 @@ public abstract class MediaPlaylistAgent {
      * Registered {@link PlaylistEventCallback} would receive this event through the
      * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)}.
      */
-    public final void notifyPlaylistChanged() {
+    protected final void notifyPlaylistChanged() {
         SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
         final List<MediaItem2> playlist = getPlaylist();
         final MediaMetadata2 metadata = getPlaylistMetadata();
@@ -178,7 +178,7 @@ public abstract class MediaPlaylistAgent {
      * Registered {@link PlaylistEventCallback} would receive this event through the
      * {@link PlaylistEventCallback#onPlaylistMetadataChanged(MediaPlaylistAgent, MediaMetadata2)}.
      */
-    public final void notifyPlaylistMetadataChanged() {
+    protected final void notifyPlaylistMetadataChanged() {
         SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
         for (int i = 0; i < callbacks.size(); i++) {
             final PlaylistEventCallback callback = callbacks.keyAt(i);
@@ -199,7 +199,7 @@ public abstract class MediaPlaylistAgent {
      * Registered {@link PlaylistEventCallback} would receive this event through the
      * {@link PlaylistEventCallback#onShuffleModeChanged(MediaPlaylistAgent, int)}.
      */
-    public final void notifyShuffleModeChanged() {
+    protected final void notifyShuffleModeChanged() {
         SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
         for (int i = 0; i < callbacks.size(); i++) {
             final PlaylistEventCallback callback = callbacks.keyAt(i);
@@ -220,7 +220,7 @@ public abstract class MediaPlaylistAgent {
      * Registered {@link PlaylistEventCallback} would receive this event through the
      * {@link PlaylistEventCallback#onRepeatModeChanged(MediaPlaylistAgent, int)}.
      */
-    public final void notifyRepeatModeChanged() {
+    protected final void notifyRepeatModeChanged() {
         SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
         for (int i = 0; i < callbacks.size(); i++) {
             final PlaylistEventCallback callback = callbacks.keyAt(i);
