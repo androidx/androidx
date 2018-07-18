@@ -313,6 +313,7 @@ public class PlaybackFragment extends Fragment {
                 }
             };
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void setBgAlpha(int alpha) {
         mBgAlpha = alpha;
         if (mBackgroundView != null) {
@@ -320,6 +321,7 @@ public class PlaybackFragment extends Fragment {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void enableVerticalGridAnimations(boolean enable) {
         if (getVerticalGridView() != null) {
             getVerticalGridView().setAnimateChildLayout(enable);
@@ -424,6 +426,7 @@ public class PlaybackFragment extends Fragment {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean onInterceptInputEvent(InputEvent event) {
         final boolean controlsHidden = !mControlVisible;
         if (DEBUG) Log.v(TAG, "onInterceptInputEvent hidden " + controlsHidden + " " + event);

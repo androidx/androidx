@@ -46,6 +46,7 @@ abstract class BaseRowFragment extends Fragment {
     final ItemBridgeAdapter mBridgeAdapter = new ItemBridgeAdapter();
     int mSelectedPosition = -1;
     private boolean mPendingTransitionPrepare;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     LateSelectionObserver mLateSelectionObserver = new LateSelectionObserver();
 
     abstract int getLayoutResourceId();

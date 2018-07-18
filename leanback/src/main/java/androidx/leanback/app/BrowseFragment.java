@@ -229,11 +229,12 @@ public class BrowseFragment extends BaseFragment {
         }
     }
 
-    private class SetSelectionRunnable implements Runnable {
+    private final class SetSelectionRunnable implements Runnable {
         static final int TYPE_INVALID = -1;
         static final int TYPE_INTERNAL_SYNC = 0;
         static final int TYPE_USER_REQUEST = 1;
 
+        private boolean mStopped = true;
         private int mPosition;
         private int mType;
         private boolean mSmooth;
@@ -253,7 +254,9 @@ public class BrowseFragment extends BaseFragment {
                 mType = type;
                 mSmooth = smooth;
                 mBrowseFrame.removeCallbacks(this);
-                mBrowseFrame.post(this);
+                if (!mStopped) {
+                    mBrowseFrame.post(this);
+                }
             }
         }
 
@@ -261,6 +264,19 @@ public class BrowseFragment extends BaseFragment {
         public void run() {
             setSelection(mPosition, mSmooth);
             reset();
+        }
+
+        public void stop() {
+            mStopped = true;
+            // remove possible callback when stop, it will be re-added in start().
+            mBrowseFrame.removeCallbacks(this);
+        }
+
+        public void start() {
+            mStopped = false;
+            if (mType != TYPE_INVALID) {
+                mBrowseFrame.post(this);
+            }
         }
 
         private void reset() {
@@ -1667,6 +1683,14 @@ public class BrowseFragment extends BaseFragment {
         }
 
         mStateMachine.fireEvent(EVT_HEADER_VIEW_CREATED);
+
+        mSetSelectionRunnable.start();
+    }
+
+    @Override
+    public void onStop() {
+        mSetSelectionRunnable.stop();
+        super.onStop();
     }
 
     private void onExpandTransitionStart(boolean expand, final Runnable callback) {
