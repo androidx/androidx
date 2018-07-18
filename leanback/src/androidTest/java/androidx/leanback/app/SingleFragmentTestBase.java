@@ -40,6 +40,10 @@ public class SingleFragmentTestBase {
     public ActivityTestRule<SingleFragmentTestActivity> activityTestRule =
             new ActivityTestRule<>(SingleFragmentTestActivity.class, false, false);
 
+    @Rule
+    public ActivityTestRule<TestActivity> activityTestRule2 =
+            new ActivityTestRule<>(TestActivity.class, false, false);
+
     public void sendKeys(int ...keys) {
         for (int i = 0; i < keys.length; i++) {
             InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keys[i]);
@@ -89,6 +93,12 @@ public class SingleFragmentTestBase {
 
     public SingleFragmentTestActivity launchAndWaitActivity(Class fragmentClass, long waitTimeMs) {
         return launchAndWaitActivity(fragmentClass.getName(), null, waitTimeMs);
+    }
+
+    public TestActivity launchAndWaitActivity2(long waitTimeMs) {
+        TestActivity activity = activityTestRule2.launchActivity(new Intent());
+        SystemClock.sleep(waitTimeMs);
+        return activity;
     }
 
     public SingleFragmentTestActivity launchAndWaitActivity(Class fragmentClass, Options options,
