@@ -23,8 +23,11 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
 import androidx.room.Room;
@@ -110,6 +113,37 @@ public class DatabaseCallbackTest {
                     }
                 })
                 .build();
+        List<Integer> ids = db.getUserDao().loadIds();
+        assertThat(ids, is(empty()));
+    }
+
+    @Test
+    @SmallTest
+    public void exceptionOnCreate() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
+                .addCallback(new RoomDatabase.Callback() {
+                    boolean mIsBadInsertDone;
+
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                        if (!mIsBadInsertDone) {
+                            mIsBadInsertDone = true;
+                            db.insert("fake_table",
+                                    SQLiteDatabase.CONFLICT_NONE,
+                                    new ContentValues());
+                        }
+                    }
+                })
+                .build();
+
+        try {
+            db.getUserDao().loadIds();
+        } catch (SQLiteException e) {
+            // Simulate user catching DB exceptions.
+        }
+
+        // Should not throw an "IllegalStateException: attempt to re-open an already-closed"
         List<Integer> ids = db.getUserDao().loadIds();
         assertThat(ids, is(empty()));
     }

@@ -314,4 +314,11 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     public void close() throws IOException {
         mDelegate.close();
     }
+
+    /**
+     * Checks if this object delegates to the same given database reference.
+     */
+    boolean isDelegate(SQLiteDatabase sqLiteDatabase) {
+        return mDelegate == sqLiteDatabase;
+    }
 }

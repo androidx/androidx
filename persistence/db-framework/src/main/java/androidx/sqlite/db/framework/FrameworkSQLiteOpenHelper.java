@@ -28,8 +28,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper;
 class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
     private final OpenHelper mDelegate;
 
-    FrameworkSQLiteOpenHelper(Context context, String name,
-            Callback callback) {
+    FrameworkSQLiteOpenHelper(Context context, String name, Callback callback) {
         mDelegate = createDelegate(context, name, callback);
     }
 
@@ -115,7 +114,7 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
 
         FrameworkSQLiteDatabase getWrappedDb(SQLiteDatabase sqLiteDatabase) {
             FrameworkSQLiteDatabase dbRef = mDbRef[0];
-            if (dbRef == null) {
+            if (dbRef == null || !dbRef.isDelegate(sqLiteDatabase)) {
                 dbRef = new FrameworkSQLiteDatabase(sqLiteDatabase);
                 mDbRef[0] = dbRef;
             }
@@ -147,7 +146,7 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
         @Override
         public void onOpen(SQLiteDatabase db) {
             if (!mMigrated) {
-                // if we've migrated, we'll re-open the db so we  should not call the callback.
+                // if we've migrated, we'll re-open the db so we should not call the callback.
                 mCallback.onOpen(getWrappedDb(db));
             }
         }
