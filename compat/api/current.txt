@@ -1168,6 +1168,8 @@ package androidx.core.os {
   }
 
   public final class HandlerCompat {
+    method public static android.os.Handler createAsync(android.os.Looper);
+    method public static android.os.Handler createAsync(android.os.Looper, android.os.Handler.Callback);
     method public static boolean postDelayed(android.os.Handler, java.lang.Runnable, java.lang.Object, long);
   }
 

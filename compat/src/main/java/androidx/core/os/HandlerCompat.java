@@ -18,15 +18,104 @@ package androidx.core.os;
 
 import android.os.Build;
 import android.os.Handler;
+import android.os.Handler.Callback;
+import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Helper for accessing features in {@link Handler}.
  */
 public final class HandlerCompat {
+    private static final String TAG = "HandlerCompat";
+
+    /**
+     * Create a new Handler whose posted messages and runnables are not subject to
+     * synchronization barriers such as display vsync.
+     *
+     * <p>Messages sent to an async handler are guaranteed to be ordered with respect to one
+     * another, but not necessarily with respect to messages from other Handlers.</p>
+     *
+     * @see #createAsync(Looper, Callback) to create an async Handler with custom message handling.
+     *
+     * @param looper the Looper that the new Handler should be bound to
+     * @return a new async Handler instance
+     * @see Handler#createAsync(Looper)
+     */
+    @NonNull
+    public static Handler createAsync(@NonNull Looper looper) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            return Handler.createAsync(looper);
+        }
+        if (Build.VERSION.SDK_INT >= 16) {
+            try {
+                return Handler.class.getDeclaredConstructor(Looper.class, Callback.class,
+                        boolean.class)
+                        .newInstance(looper, null, true);
+            } catch (IllegalAccessException ignored) {
+            } catch (InstantiationException ignored) {
+            } catch (NoSuchMethodException ignored) {
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw ((RuntimeException) cause);
+                }
+                if (cause instanceof Error) {
+                    throw ((Error) cause);
+                }
+                throw new RuntimeException(cause);
+            }
+            Log.v(TAG, "Unable to invoke Handler(Looper, Callback, boolean) constructor");
+        }
+        return new Handler(looper);
+    }
+
+    /**
+     * Create a new Handler whose posted messages and runnables are not subject to
+     * synchronization barriers such as display vsync.
+     *
+     * <p>Messages sent to an async handler are guaranteed to be ordered with respect to one
+     * another, but not necessarily with respect to messages from other Handlers.</p>
+     *
+     * @see #createAsync(Looper) to create an async Handler without custom message handling.
+     *
+     * @param looper the Looper that the new Handler should be bound to
+     * @return a new async Handler instance
+     * @see Handler#createAsync(Looper, Callback)
+     */
+    @NonNull
+    public static Handler createAsync(@NonNull Looper looper, @NonNull Callback callback) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            return Handler.createAsync(looper, callback);
+        }
+        if (Build.VERSION.SDK_INT >= 16) {
+            try {
+                return Handler.class.getDeclaredConstructor(Looper.class, Callback.class,
+                        boolean.class)
+                        .newInstance(looper, callback, true);
+            } catch (IllegalAccessException ignored) {
+            } catch (InstantiationException ignored) {
+            } catch (NoSuchMethodException ignored) {
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw ((RuntimeException) cause);
+                }
+                if (cause instanceof Error) {
+                    throw ((Error) cause);
+                }
+                throw new RuntimeException(cause);
+            }
+            Log.v(TAG, "Unable to invoke Handler(Looper, Callback, boolean) constructor");
+        }
+        return new Handler(looper, callback);
+    }
+
     /**
      * Causes the Runnable r to be added to the message queue, to be run
      * after the specified amount of time elapses.

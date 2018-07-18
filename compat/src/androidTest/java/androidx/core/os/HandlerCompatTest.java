@@ -24,7 +24,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -34,15 +36,14 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
 public final class HandlerCompatTest {
     private final HandlerThread mThread = new HandlerThread("handler-compat-test");
-    private Handler mHandler;
 
     @Before public void before() {
         mThread.start();
-        mHandler = new Handler(mThread.getLooper());
     }
 
     @After public void after() {
@@ -50,9 +51,11 @@ public final class HandlerCompatTest {
     }
 
     @Test public void postDelayedWithToken() throws InterruptedException {
+        final Handler handler = new Handler(mThread.getLooper());
+
         // Schedule a latch at 300ms to block the test thread.
         final CountDownLatch latch = new CountDownLatch(1);
-        mHandler.postDelayed(new Runnable() {
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 latch.countDown();
@@ -63,7 +66,7 @@ public final class HandlerCompatTest {
         final Object token = new Object();
 
         // Schedule an event at 200ms with the token.
-        HandlerCompat.postDelayed(mHandler, new Runnable() {
+        HandlerCompat.postDelayed(handler, new Runnable() {
             @Override
             public void run() {
                 events.add("200");
@@ -71,16 +74,16 @@ public final class HandlerCompatTest {
         }, token, 200);
 
         // Schedule an event at 100ms which removes future messages with the token.
-        HandlerCompat.postDelayed(mHandler, new Runnable() {
+        HandlerCompat.postDelayed(handler, new Runnable() {
             @Override
             public void run() {
                 events.add("100");
-                mHandler.removeCallbacksAndMessages(token);
+                handler.removeCallbacksAndMessages(token);
             }
         }, token, 100);
 
         // Schedule an event immediately to ensure the delays are being honored.
-        mHandler.post(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 events.add("0");
@@ -89,5 +92,75 @@ public final class HandlerCompatTest {
 
         assertTrue(latch.await(1, SECONDS));
         assertEquals(asList("0", "100"), events);
+    }
+
+    @Test public void createAsyncAllApiLevels() throws InterruptedException {
+        Handler handler = HandlerCompat.createAsync(mThread.getLooper());
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        Message message = Message.obtain(handler, new Runnable() {
+            @Override
+            public void run() {
+                latch.countDown();
+            }
+        });
+
+        handler.sendMessage(message);
+
+        assertTrue(latch.await(1, SECONDS));
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test public void createAsyncWhenAsyncAvailable() throws InterruptedException {
+        Handler handler = HandlerCompat.createAsync(mThread.getLooper());
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<Boolean> isAsync = new AtomicReference<>();
+        final AtomicReference<Message> self = new AtomicReference<>();
+        Message message = Message.obtain(handler, new Runnable() {
+            @Override
+            public void run() {
+                isAsync.set(MessageCompat.isAsynchronous(self.get()));
+                latch.countDown();
+            }
+        });
+        self.set(message);
+
+        handler.sendMessage(message);
+
+        assertTrue(latch.await(1, SECONDS));
+        assertTrue(isAsync.get());
+    }
+
+    @Test public void createAsyncWithCallbackAllApiLevels() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        Handler handler = HandlerCompat.createAsync(mThread.getLooper(), new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                latch.countDown();
+                return true;
+            }
+        });
+
+        handler.sendEmptyMessage(0);
+        assertTrue(latch.await(1, SECONDS));
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test public void createAsyncWithCallbackWhenAsyncAvailable() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<Boolean> isAsync = new AtomicReference<>();
+        Handler handler = HandlerCompat.createAsync(mThread.getLooper(), new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                isAsync.set(MessageCompat.isAsynchronous(msg));
+                latch.countDown();
+                return true;
+            }
+        });
+
+        handler.sendEmptyMessage(0);
+        assertTrue(latch.await(1, SECONDS));
+        assertTrue(isAsync.get());
     }
 }
