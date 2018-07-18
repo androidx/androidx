@@ -63,7 +63,7 @@ public class AccessibilityDelegateCompatTest extends
         // Use a group, so it has a child
         mView = (ViewGroup) activity.findViewById(androidx.core.test.R.id.view).getParent();
         // On KitKat, some delegate methods aren't called for non-important views
-        mView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        ViewCompat.setImportantForAccessibility(mView, View.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
     @Test
