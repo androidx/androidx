@@ -1187,6 +1187,11 @@ package androidx.core.os {
     method public static androidx.core.os.LocaleListCompat wrap(java.lang.Object);
   }
 
+  public final class MessageCompat {
+    method public static boolean isAsynchronous(android.os.Message);
+    method public static void setAsynchronous(android.os.Message, boolean);
+  }
+
   public class OperationCanceledException extends java.lang.RuntimeException {
     ctor public OperationCanceledException();
     ctor public OperationCanceledException(java.lang.String);
