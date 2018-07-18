@@ -55,21 +55,26 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mLastBackStackCount = 1;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mPendingBackStackOperations = 0;
 
     private final FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener =
             new FragmentManager.OnBackStackChangedListener() {
+
                 @Override
                 public void onBackStackChanged() {
-                    if (mPendingBackStackOperations != 0) {
-                        // This was an expected back stack operation caused by a navigate() call,
-                        // nothing else to do
-                        mPendingBackStackOperations--;
-                        return;
-                    }
                     // The initial Fragment won't be on the back stack, so the
                     // real count of destinations is the back stack entry count + 1
                     int newCount = mFragmentManager.getBackStackEntryCount() + 1;
+                    if (mPendingBackStackOperations > 0
+                            && newCount <= mLastBackStackCount + mPendingBackStackOperations) {
+                        // This was an expected back stack operation caused by a navigate() call
+                        mPendingBackStackOperations -= newCount - mLastBackStackCount;
+                        mLastBackStackCount = newCount;
+                        return;
+                    }
+                    mLastBackStackCount = newCount;
                     if (newCount < mBackStack.size()) {
                         // Handle cases where the user hit the system back button
                         while (mBackStack.size() > newCount) {
@@ -218,9 +223,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         if (savedState != null) {
             int[] backStack = savedState.getIntArray(KEY_BACK_STACK_IDS);
             if (backStack != null) {
+                mBackStack.clear();
                 for (int destId : backStack) {
                     mBackStack.add(destId);
                 }
+                mLastBackStackCount = mBackStack.size();
             }
         }
     }
