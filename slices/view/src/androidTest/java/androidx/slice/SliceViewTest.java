@@ -71,7 +71,7 @@ public class SliceViewTest {
     public void testSetSlice() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Title")
                 .setSubtitle("Subtitle")
                 .setPrimaryAction(getAction("Action")));
@@ -85,7 +85,7 @@ public class SliceViewTest {
     public void testSetNullSlice() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Title")
                 .setSubtitle("Subtitle")
                 .setPrimaryAction(getAction("Action")));
@@ -102,7 +102,7 @@ public class SliceViewTest {
     public void testSetScrollable() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Title")
                 .setSubtitle("Subtitle")
                 .setPrimaryAction(getAction("Action")));
@@ -122,7 +122,7 @@ public class SliceViewTest {
     public void testGetActionsNull() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Title")
                 .setSubtitle("Subtitle")
                 .setPrimaryAction(getAction("Action")));
@@ -137,7 +137,7 @@ public class SliceViewTest {
     public void testGetActions() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Title")
                 .setSubtitle("Subtitle")
                 .setPrimaryAction(getAction("Action")));
@@ -205,7 +205,7 @@ public class SliceViewTest {
     public void testSetValidActions() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Title")
                 .setSubtitle("Subtitle")
                 .setPrimaryAction(getAction("Action")));
@@ -239,11 +239,85 @@ public class SliceViewTest {
         }
     }
 
+    @Test
+    public void testSetNullActionsOnHeader() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        PendingIntent pi = getIntent("");
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+
+        SliceAction action1 = SliceAction.create(pi, icon, ListBuilder.SMALL_IMAGE, "action1");
+        SliceAction action2 = SliceAction.createDeeplink(pi, icon,
+                ListBuilder.SMALL_IMAGE, "action2");
+        SliceAction action3 = SliceAction.create(pi, icon, ListBuilder.SMALL_IMAGE, "action3");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.setHeader(new ListBuilder.HeaderBuilder()
+                .setTitle("Text")
+                .setPrimaryAction(getAction("Action")))
+            .addAction(action1)
+            .addAction(action2)
+            .addAction(action3);
+
+        ArrayList<SliceAction> expectedActions = new ArrayList<>();
+        expectedActions.add(action1);
+        expectedActions.add(action2);
+        expectedActions.add(action3);
+
+        mSliceView.setSlice(lb.build());
+
+        List<androidx.slice.core.SliceAction> actualActions = mSliceView.getSliceActions();
+        for (int i = 0; i < expectedActions.size(); i++) {
+            assertEquivalent(expectedActions.get(i), actualActions.get(i));
+        }
+
+        mSliceView.setSliceActions(null);
+        assertNull(mSliceView.getSliceActions());
+    }
+
+    @Test
+    public void testSetNullActionsOnRow() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        PendingIntent pi = getIntent("");
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+
+        SliceAction action1 = SliceAction.create(pi, icon, ListBuilder.SMALL_IMAGE, "action1");
+        SliceAction action2 = SliceAction.createDeeplink(pi, icon,
+                ListBuilder.SMALL_IMAGE, "action2");
+        SliceAction action3 = SliceAction.create(pi, icon, ListBuilder.SMALL_IMAGE, "action3");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitle("Text")
+                .setPrimaryAction(getAction("Action"))
+                .addEndItem(action1)
+                .addEndItem(action2)
+                .addEndItem(action3));
+
+        ArrayList<SliceAction> expectedActions = new ArrayList<>();
+        expectedActions.add(action1);
+        expectedActions.add(action2);
+        expectedActions.add(action3);
+
+        mSliceView.setSlice(lb.build());
+
+        List<androidx.slice.core.SliceAction> actualActions = mSliceView.getSliceActions();
+        for (int i = 0; i < expectedActions.size(); i++) {
+            assertEquivalent(expectedActions.get(i), actualActions.get(i));
+        }
+
+        mSliceView.setSliceActions(null);
+        assertNull(mSliceView.getSliceActions());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSetInvalidActions() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Title")
                 .setSubtitle("Subtitle")
                 .setPrimaryAction(getAction("Action")));

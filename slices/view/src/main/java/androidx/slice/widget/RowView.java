@@ -240,6 +240,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
+    /**
+     * @param actions if the actions are null then there are no header actions for this row.
+     * If the actions are an empty list, then something has explicitly set that no header
+     * actions should appear.
+     */
     @Override
     public void setSliceActions(List<SliceAction> actions) {
         mHeaderActions = actions;
@@ -408,7 +413,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         // If we're here we can can show end items; check for top level actions first
         List endItems = mRowContent.getEndItems();
-        if (mHeaderActions != null && mHeaderActions.size() > 0) {
+        if (mHeaderActions != null) {
             // Use these if we have them instead
             endItems = mHeaderActions;
         }

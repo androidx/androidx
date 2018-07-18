@@ -538,16 +538,16 @@ public class SampleSliceProvider extends SliceProvider {
                 "Create note");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xfff4b400)
-                .setHeader(new HeaderBuilder()
+                .addRow(new RowBuilder()
                         .setTitle("Create new note")
-                        .setPrimaryAction(createNote))
-                .addAction(createNote)
-                .addAction(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "voice note"),
+                        .setPrimaryAction(createNote)
+                .addEndItem(createNote)
+                .addEndItem(SliceAction.create(getBroadcastIntent(ACTION_TOAST, "voice note"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_voice),
                         ICON_IMAGE, "Voice note"))
-                .addAction(SliceAction.create(getIntent("android.media.action.IMAGE_CAPTURE"),
+                .addEndItem(SliceAction.create(getIntent("android.media.action.IMAGE_CAPTURE"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_camera),
-                        ICON_IMAGE, "Photo note"))
+                        ICON_IMAGE, "Photo note")))
                 .build();
     }
 

@@ -23,12 +23,14 @@ import static android.app.slice.Slice.HINT_ERROR;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_KEYWORDS;
 import static android.app.slice.Slice.HINT_LAST_UPDATED;
+import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_PERMISSION_REQUEST;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
+import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
@@ -138,11 +140,27 @@ public class SliceMetadata {
         mListContent = new ListContent(context, slice, null, 0, 0);
         mHeaderItem = mListContent.getHeaderItem();
         mTemplateType = mListContent.getHeaderTemplateType();
-        mSliceActions = mListContent.getSliceActions();
-
         SliceItem action = mListContent.getPrimaryAction();
         if (action != null) {
             mPrimaryAction = new SliceActionImpl(action);
+        }
+
+        mSliceActions = mListContent.getSliceActions();
+        if (mSliceActions == null && mHeaderItem != null
+                && SliceQuery.hasHints(mHeaderItem, HINT_LIST_ITEM)
+                && !SliceQuery.hasHints(mHeaderItem, HINT_HORIZONTAL)) {
+            // It's not a real header, check it for end items.
+            RowContent rc = new RowContent(mContext, mHeaderItem, false /* isHeader */);
+            List<SliceItem> items = rc.getEndItems();
+            List<SliceAction> actions = new ArrayList<>();
+            for (int i = 0; i < items.size(); i++) {
+                if (SliceQuery.find(items.get(i), FORMAT_ACTION) != null) {
+                    actions.add(new SliceActionImpl(items.get(i)));
+                }
+            }
+            if (actions.size() > 0) {
+                mSliceActions = actions;
+            }
         }
     }
 
