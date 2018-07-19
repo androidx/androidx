@@ -17,14 +17,20 @@
 package androidx.recyclerview.widget
 
 import androidx.test.filters.SmallTest
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertSame
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
+import org.mockito.Mockito.verifyZeroInteractions
 import java.lang.UnsupportedOperationException
-import java.util.*
 import java.util.Collections.emptyList
+import java.util.LinkedList
 import java.util.concurrent.Executor
 
 class TestExecutor : Executor {
@@ -52,8 +58,10 @@ class AsyncListDifferTest {
     private val mMainThread = TestExecutor()
     private val mBackgroundThread = TestExecutor()
 
-    private fun <T> createDiffer(listUpdateCallback: ListUpdateCallback,
-            diffCallback: DiffUtil.ItemCallback<T>): AsyncListDiffer<T> {
+    private fun <T> createDiffer(
+        listUpdateCallback: ListUpdateCallback,
+        diffCallback: DiffUtil.ItemCallback<T>
+    ): AsyncListDiffer<T> {
         return AsyncListDiffer(listUpdateCallback,
                 AsyncDifferConfig.Builder<T>(diffCallback)
                         .setMainThreadExecutor(mMainThread)
@@ -135,6 +143,30 @@ class AsyncListDifferTest {
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun submitListReuse() {
+        val callback = mock(ListUpdateCallback::class.java)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val origList = listOf("a", "b")
+
+        // set up original list
+        differ.submitList(origList)
+        verify(callback).onInserted(0, 2)
+        verifyNoMoreInteractions(callback)
+        drain()
+        verifyNoMoreInteractions(callback)
+
+        // submit new list, but don't let it finish
+        differ.submitList(listOf("c", "d"))
+        mMainThread.executeAll()
+        verifyNoMoreInteractions(callback)
+
+        // resubmit original list, which should be final observable state
+        differ.submitList(origList)
+        drain()
+        assertEquals(origList, differ.currentList)
     }
 
     @Test
