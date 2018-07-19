@@ -330,12 +330,10 @@ public final class SessionCommand2 implements VersionedParcelable {
      */
     public static final int COMMAND_CODE_PLAYBACK_SET_SPEED = 39;
 
-    private static final String KEY_COMMAND_CODE =
-            "android.media.media_session2.command.command_code";
+    private static final String KEY_COMMAND_CODE = "android.media.session2.command.command_code";
     private static final String KEY_COMMAND_CUSTOM_COMMAND =
-            "android.media.media_session2.command.custom_command";
-    private static final String KEY_COMMAND_EXTRAS =
-            "android.media.media_session2.command.extras";
+            "android.media.session2.command.custom_command";
+    private static final String KEY_COMMAND_EXTRAS = "android.media.session2.command.extras";
 
     @ParcelField(1)
     int mCommandCode;
