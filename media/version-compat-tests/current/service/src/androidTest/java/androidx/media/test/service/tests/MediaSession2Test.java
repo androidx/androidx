@@ -29,12 +29,12 @@ import android.os.Process;
 
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media.test.service.MediaTestUtils;
-import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlayerConnector;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.RemoteMediaController2;
-import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.SessionCallback;
@@ -61,14 +61,14 @@ import java.util.concurrent.TimeUnit;
 public class MediaSession2Test extends MediaSession2TestBase {
 
     private MediaSession2 mSession;
-    private MockPlayer mPlayer;
+    private MockPlayerConnector mPlayer;
     private MockPlaylistAgent mMockAgent;
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mPlayer = new MockPlayer(0);
+        mPlayer = new MockPlayerConnector(0);
         mMockAgent = new MockPlaylistAgent();
 
         mSession = new MediaSession2.Builder(mContext)
@@ -226,7 +226,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
             }
         });
 
-        MockPlayer player = new MockPlayer(0);
+        MockPlayerConnector player = new MockPlayerConnector(0);
 
         // Test if setPlayer doesn't crash with various situations.
         mSession.updatePlayerConnector(mPlayer, null);
@@ -266,7 +266,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final Handler testHandler = new Handler(testThread.getLooper());
         final CountDownLatch latch = new CountDownLatch(1);
         try {
-            final MockPlayer player = new MockPlayer(0);
+            final MockPlayerConnector player = new MockPlayerConnector(0);
             sessionHandler.postAndSync(new Runnable() {
                 @Override
                 public void run() {

@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 
 import android.os.Build;
 
-import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlayerConnector;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.MediaPlayerConnector;
@@ -51,14 +51,14 @@ import java.util.concurrent.TimeUnit;
 public class MediaPlayerConnectorTest extends MediaSession2TestBase {
 
     MediaSession2 mSession;
-    MockPlayer mPlayer;
+    MockPlayerConnector mPlayer;
     RemoteMediaController2 mController2;
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mPlayer = new MockPlayer(1);
+        mPlayer = new MockPlayerConnector(1);
         mSession = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setPlaylistAgent(new MockPlaylistAgent())

@@ -24,7 +24,7 @@ import android.os.Bundle;
 
 import androidx.media.test.lib.TestUtils;
 import androidx.media.test.service.MockMediaLibraryService2;
-import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlayerConnector;
 import androidx.media.test.service.RemoteMediaBrowser2;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaSession2;
@@ -51,14 +51,14 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
 
-    MockPlayer mPlayer;
+    MockPlayerConnector mPlayer;
     RemoteMediaBrowser2 mBrowser2;
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mPlayer = new MockPlayer(0);
+        mPlayer = new MockPlayerConnector(0);
     }
 
     @After

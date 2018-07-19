@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 import android.os.Build;
 
 import androidx.media.test.service.MediaTestUtils;
-import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlayerConnector;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.MediaItem2;
@@ -66,7 +66,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
         super.setUp();
         mMockAgent = new MockPlaylistAgent();
         mSession = new MediaSession2.Builder(mContext)
-                .setPlayer(new MockPlayer(1))
+                .setPlayer(new MockPlayerConnector(1))
                 .setPlaylistAgent(mMockAgent)
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                     @Override
