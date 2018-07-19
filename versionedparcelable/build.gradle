@@ -25,6 +25,7 @@ plugins {
 
 dependencies {
     implementation project(":annotation")
+    implementation project(path: ':collection')
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
