@@ -20,8 +20,10 @@ import static androidx.leanback.app.BrowseFragmentTestActivity.EXTRA_HEADERS_STA
 import static androidx.leanback.app.BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY;
 import static androidx.leanback.app.BrowseFragmentTestActivity.EXTRA_NUM_ROWS;
 import static androidx.leanback.app.BrowseFragmentTestActivity.EXTRA_REPEAT_PER_ROW;
-import static androidx.leanback.app.BrowseFragmentTestActivity.EXTRA_SET_ADAPTER_AFTER_DATA_LOAD;
-import static androidx.leanback.app.BrowseFragmentTestActivity.EXTRA_TEST_ENTRANCE_TRANSITION;
+import static androidx.leanback.app.BrowseFragmentTestActivity
+        .EXTRA_SET_ADAPTER_AFTER_DATA_LOAD;
+import static androidx.leanback.app.BrowseFragmentTestActivity
+        .EXTRA_TEST_ENTRANCE_TRANSITION;
 
 import android.os.Bundle;
 import android.os.Handler;
