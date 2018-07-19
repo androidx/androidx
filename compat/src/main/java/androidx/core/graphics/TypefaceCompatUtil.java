@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
+import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -134,6 +135,7 @@ public class TypefaceCompatUtil {
      */
     public static boolean copyToFile(File file, InputStream is) {
         FileOutputStream os = null;
+        StrictMode.ThreadPolicy old = StrictMode.allowThreadDiskWrites();
         try {
             os = new FileOutputStream(file, false);
             byte[] buffer = new byte[1024];
@@ -147,6 +149,7 @@ public class TypefaceCompatUtil {
             return false;
         } finally {
             closeQuietly(os);
+            StrictMode.setThreadPolicy(old);
         }
     }
 
