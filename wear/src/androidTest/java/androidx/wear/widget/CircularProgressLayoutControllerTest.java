@@ -95,6 +95,7 @@ public class CircularProgressLayoutControllerTest {
         assertEquals(false, mControllerUnderTest.isTimerRunning());
     }
 
+    @LargeTest
     @Test
     @UiThreadTest
     public void testSwitchFromIndeterminateToDeterminate() {

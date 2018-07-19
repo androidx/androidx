@@ -47,6 +47,7 @@ import androidx.media2.MediaSession2.SessionCallback;
 import androidx.media2.TestServiceRegistry.SessionServiceCallback;
 import androidx.media2.TestUtils.SyncHandler;
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -1298,12 +1299,14 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(controllerLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
+    @LargeTest
     @Test
     public void testControllerAfterSessionIsGone_session() throws InterruptedException {
         prepareLooper();
         testControllerAfterSessionIsClosed(mSession.getToken().getId());
     }
 
+    @LargeTest
     @Test
     public void testControllerAfterSessionIsClosed_sessionService() throws InterruptedException {
         prepareLooper();
@@ -1382,6 +1385,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         mController.close();
     }
 
+    @LargeTest
     @Test
     public void testClose_session() throws InterruptedException {
         prepareLooper();
@@ -1395,12 +1399,14 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(id);
     }
 
+    @LargeTest
     @Test
     public void testClose_sessionService() throws InterruptedException {
         prepareLooper();
         testCloseFromService(MockMediaSessionService2.ID);
     }
 
+    @LargeTest
     @Test
     public void testClose_libraryService() throws InterruptedException {
         prepareLooper();

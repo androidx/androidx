@@ -30,6 +30,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -60,6 +61,7 @@ public class EmojiEditTextHelperPre19Test {
         assertSame(param, keyListener);
     }
 
+    @LargeTest
     @Test
     public void testGetOnCreateInputConnection_returnsSameInputConnection() {
         final InputConnection param = mock(InputConnection.class);

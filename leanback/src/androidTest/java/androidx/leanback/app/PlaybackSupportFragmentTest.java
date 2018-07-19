@@ -43,6 +43,7 @@ import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.Suppress;
 import androidx.test.runner.AndroidJUnit4;
@@ -389,6 +390,7 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
+    @LargeTest
     @Test
     public void autohideAfterPlaying() throws Throwable {
         SingleSupportFragmentTestActivity activity =

@@ -163,7 +163,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
         // TODO: Remove after we figure out why these tests execute on API 17 emulators.
         if (Build.VERSION.SDK_INT < WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {

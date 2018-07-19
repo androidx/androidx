@@ -57,6 +57,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -228,6 +229,7 @@ public final class PagedListViewTest {
         verifyItemSnappedToListTop();
     }
 
+    @LargeTest
     @Test
     public void testPageUpAndDownMoveSameDistance() {
         setUpPagedListView(ITEMS_PER_PAGE * 10);
