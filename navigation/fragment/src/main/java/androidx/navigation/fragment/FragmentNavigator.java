@@ -36,7 +36,6 @@ import androidx.navigation.Navigator;
 import androidx.navigation.NavigatorProvider;
 
 import java.util.ArrayDeque;
-import java.util.HashMap;
 
 /**
  * Navigator that navigates through {@link FragmentTransaction fragment transactions}. Every
@@ -235,9 +234,8 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     /**
      * NavDestination specific to {@link FragmentNavigator}
      */
+    @NavDestination.ClassType(Fragment.class)
     public static class Destination extends NavDestination {
-        private static final HashMap<String, Class<? extends Fragment>> sFragmentClasses =
-                new HashMap<>();
 
         private Class<? extends Fragment> mFragmentClass;
 
@@ -270,28 +268,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             super.onInflate(context, attrs);
             TypedArray a = context.getResources().obtainAttributes(attrs,
                     R.styleable.FragmentNavigator);
-            setFragmentClass(getFragmentClassByName(context, a.getString(
-                            R.styleable.FragmentNavigator_android_name)));
+            String className = a.getString(R.styleable.FragmentNavigator_android_name);
+            if (className != null) {
+                setFragmentClass(parseClassFromName(context, className, Fragment.class));
+            }
             a.recycle();
-        }
-
-        @SuppressWarnings("unchecked")
-        @NonNull
-        private Class<? extends Fragment> getFragmentClassByName(Context context, String name) {
-            if (name != null && name.charAt(0) == '.') {
-                name = context.getPackageName() + name;
-            }
-            Class<? extends Fragment> clazz = sFragmentClasses.get(name);
-            if (clazz == null) {
-                try {
-                    clazz = (Class<? extends Fragment>) Class.forName(name, true,
-                            context.getClassLoader());
-                    sFragmentClasses.put(name, clazz);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return clazz;
         }
 
         /**

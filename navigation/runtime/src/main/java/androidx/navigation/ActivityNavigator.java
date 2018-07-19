@@ -158,6 +158,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     /**
      * NavDestination for activity navigation
      */
+    @NavDestination.ClassType(Activity.class)
     public static class Destination extends NavDestination {
         private Intent mIntent;
         private String mDataPattern;
@@ -192,13 +193,10 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             super.onInflate(context, attrs);
             TypedArray a = context.getResources().obtainAttributes(attrs,
                     R.styleable.ActivityNavigator);
-            String cls = a.getString(R.styleable.ActivityNavigator_android_name);
-            if (!TextUtils.isEmpty(cls)) {
-                // TODO Replace with ComponentName.createRelative() when minSdkVersion is 23
-                if (cls.charAt(0) == '.') {
-                    cls = context.getPackageName() + cls;
-                }
-                setComponentName(new ComponentName(context, cls));
+            String className = a.getString(R.styleable.ActivityNavigator_android_name);
+            if (className != null) {
+                setComponentName(new ComponentName(context,
+                        parseClassFromName(context, className, Activity.class)));
             }
             setAction(a.getString(R.styleable.ActivityNavigator_action));
             String data = a.getString(R.styleable.ActivityNavigator_data);
