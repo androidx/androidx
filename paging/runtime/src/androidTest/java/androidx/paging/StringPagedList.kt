@@ -16,15 +16,23 @@
 
 package androidx.paging
 
-class StringPagedList constructor(leadingNulls: Int, trailingNulls: Int, vararg items: String)
-        : PagedList<String>(PagedStorage<String>(), TestExecutor(), TestExecutor(), null,
-                PagedList.Config.Builder().setPageSize(1).build()), PagedStorage.Callback {
-
+class StringPagedList constructor(
+    leadingNulls: Int,
+    trailingNulls: Int,
+    vararg items: String
+) : PagedList<String>(
+        PagedStorage<String>(),
+        TestExecutor(),
+        TestExecutor(),
+        null,
+        PagedList.Config.Builder().setPageSize(1).build()
+), PagedStorage.Callback {
+    val list = items.toList()
     init {
         @Suppress("UNCHECKED_CAST")
         val keyedStorage = mStorage as PagedStorage<String>
         keyedStorage.init(leadingNulls,
-                items.toList(),
+                list,
                 trailingNulls,
                 0,
                 this)
@@ -61,7 +69,7 @@ class StringPagedList constructor(leadingNulls: Int, trailingNulls: Int, vararg 
     override fun onPageInserted(start: Int, count: Int) {}
 
     override fun getDataSource(): DataSource<*, String> {
-        throw UnsupportedOperationException()
+        return ListDataSource<String>(list)
     }
 
     override fun onPagesRemoved(startOfDrops: Int, count: Int) {
