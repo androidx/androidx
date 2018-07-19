@@ -158,9 +158,6 @@ private class ClassWithArgsSpecs(
                 if (object == null || getClass() != object.getClass()) {
                     return false;
                 }
-                if (!super.equals(object)) {
-                    return false;
-                }
 
                 """.trimIndent())
         addStatement("${className.simpleName()} that = (${className.simpleName()}) object")

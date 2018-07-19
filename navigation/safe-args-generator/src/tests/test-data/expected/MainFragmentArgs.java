@@ -103,9 +103,6 @@ public class MainFragmentArgs {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        if (!super.equals(object)) {
-            return false;
-        }
         MainFragmentArgs that = (MainFragmentArgs) object;
         if (main != null ? !main.equals(that.main) : that.main != null) {
             return false;
