@@ -30,6 +30,8 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.leanback.test.R;
+import androidx.leanback.testutils.PollingCheck;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -59,6 +61,21 @@ public class PinPickerTest {
     @Before
     public void setUp() {
         mPinPicker = mActivityTestRule.getActivity().findViewById(R.id.test_picker);
+    }
+
+    private void waitStable() {
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                for (int i = 0; i < 4; i++) {
+                    if (mPinPicker.mColumnViews.get(i).getScrollState()
+                            != RecyclerView.SCROLL_STATE_IDLE) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
     }
 
     @Test
@@ -123,7 +140,7 @@ public class PinPickerTest {
         onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
         onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
         onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
-
+        waitStable();
         assertThat("dpad input should set pin", futurePin.get(5, TimeUnit.SECONDS), is("1234"));
     }
 
