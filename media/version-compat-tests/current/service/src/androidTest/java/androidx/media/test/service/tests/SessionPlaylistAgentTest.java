@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,10 +25,22 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
+import android.support.mediacompat.service.R;
 
+import androidx.media.test.service.MediaTestUtils;
+import androidx.media2.DataSourceDesc2;
+import androidx.media2.FileDataSourceDesc2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayer2;
+import androidx.media2.MediaPlayerConnector;
+import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaPlaylistAgent.PlaylistEventCallback;
+import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.OnDataSourceMissingHelper;
-import androidx.media2.test.R;
+import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionPlaylistAgentImplBase;
+import androidx.media2.UriDataSourceDesc2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -54,6 +66,7 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
     private static final int WAIT_TIME_MS = 300;
     private static final int INVALID_SHUFFLE_MODE = -1000;
     private static final int INVALID_REPEAT_MODE = -1000;
+
     private static final int VIDEO_RES_1 =
             R.raw.video_480x360_mp4_h264_500kbps_30fps_aac_stereo_128kbps_44100hz;
     private static final int VIDEO_RES_2 =
@@ -446,10 +459,10 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
     public void testCurrentMediaItemChangedAfterSetPlayList() throws Exception {
         prepareLooper();
         final List<MediaItem2> list = new ArrayList<>();
-        list.add(TestUtils.createMediaItem("testItem1", createDataSourceDesc(VIDEO_RES_1)));
-        list.add(TestUtils.createMediaItem("testItem2", createDataSourceDesc(VIDEO_RES_2)));
+        list.add(MediaTestUtils.createMediaItem("testItem1", createDataSourceDesc(VIDEO_RES_1)));
+        list.add(MediaTestUtils.createMediaItem("testItem2", createDataSourceDesc(VIDEO_RES_2)));
 
-        final CountDownLatch mediaItemChangedLatch = new CountDownLatch(2);
+        final CountDownLatch mediaItemChangedLatch = new CountDownLatch(1);
 
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mBasePlayer)
@@ -463,18 +476,10 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
                     }
                 }).build()) {
 
-            final MediaController2 controller = createController(session.getToken(), true,
-                    new MediaController2.ControllerCallback() {
-                        @Override
-                        public void onCurrentMediaItemChanged(MediaController2 controller,
-                                MediaItem2 item) {
-                            assertEquals(list.get(0), item);
-                            mediaItemChangedLatch.countDown();
-                        }
-                    });
-
             session.setPlaylist(list, null);
             assertTrue(mediaItemChangedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+            // TODO: Check that MediaController2 in remote process is also notified.
         }
     }
 

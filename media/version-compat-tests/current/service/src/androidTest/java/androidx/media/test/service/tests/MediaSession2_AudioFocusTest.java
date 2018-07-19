@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service.tests;
 
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
@@ -51,8 +51,12 @@ import android.os.Process;
 
 import androidx.annotation.GuardedBy;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.test.service.MockPlayerConnector;
+import androidx.media2.MediaPlayerConnector;
+import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.SessionCallback;
+import androidx.media2.SessionCommandGroup2;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
@@ -106,7 +110,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
 
     private void testPausedAfterAction(final AudioAttributesCompat attr,
             final SessionRunnable action) throws InterruptedException {
-        MediaPlayerConnector player = new MockPlayer(true);
+        MediaPlayerConnector player = new MockPlayerConnector(true);
         player.setAudioAttributes(attr);
 
         final CountDownLatch latchForPlaying = new CountDownLatch(1);
@@ -155,7 +159,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
     private void testDuckedAfterAction(final AudioAttributesCompat attr,
             final SessionRunnable action) throws InterruptedException {
         final CountDownLatch latchForDucked = new CountDownLatch(1);
-        MediaPlayerConnector player = new MockPlayer(true) {
+        MediaPlayerConnector player = new MockPlayerConnector(true) {
             @Override
             public void setPlayerVolume(float volume) {
                 super.setPlayerVolume(volume);
@@ -260,7 +264,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
     }
 
     private MediaSession2 createSession(AudioAttributesCompat attr) {
-        MediaPlayerConnector player = new MockPlayer(true);
+        MediaPlayerConnector player = new MockPlayerConnector(true);
         player.setAudioAttributes(attr);
         return new MediaSession2.Builder(mContext)
                 .setPlayer(player)
@@ -277,7 +281,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
     }
 
     /**
-     * Tests whether the session requests audio focus, so previsouly focused one loss focus.
+     * Tests whether the session requests audio focus, so previously focused one loss focus.
      */
     @Test
     public void testAudioFocus_requestFocusWhenSessionPlay() throws InterruptedException {
@@ -297,7 +301,7 @@ public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
     }
 
     /**
-     * Tests whether the session requests audio focus, so previsouly focused one loss focus.
+     * Tests whether the session requests audio focus, so previously focused one loss focus.
      */
     @Test
     public void testAudioFocus_requestFocusWhenPlayerPlay() throws InterruptedException {

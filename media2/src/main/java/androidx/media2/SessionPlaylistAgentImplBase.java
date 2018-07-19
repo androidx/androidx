@@ -16,12 +16,15 @@
 
 package androidx.media2;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.TargetApi;
 import android.os.Build;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
@@ -32,12 +35,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @hide
+ */
+@RestrictTo(LIBRARY_GROUP)
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     @VisibleForTesting
-    static final int END_OF_PLAYLIST = -1;
+    public static final int END_OF_PLAYLIST = -1;
     @VisibleForTesting
-    static final int NO_VALID_ITEMS = -2;
+    public static final int NO_VALID_ITEMS = -2;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final PlayItem mEopPlayItem = new PlayItem(END_OF_PLAYLIST, null);
@@ -417,7 +425,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     @VisibleForTesting
-    int getCurShuffledIndex() {
+    public int getCurShuffledIndex() {
         synchronized (mLock) {
             return hasValidItem() ? mCurrent.shuffledIdx : NO_VALID_ITEMS;
         }

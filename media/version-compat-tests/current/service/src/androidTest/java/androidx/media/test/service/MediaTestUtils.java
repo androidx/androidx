@@ -81,6 +81,11 @@ public final class MediaTestUtils {
         return list;
     }
 
+    public static MediaItem2 createMediaItem(String id, DataSourceDesc2 dsd) {
+        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+                .setMediaId(id).setDataSourceDesc(dsd).build();
+    }
+
     /**
      * Create a media item with the metadata for testing purpose.
      *

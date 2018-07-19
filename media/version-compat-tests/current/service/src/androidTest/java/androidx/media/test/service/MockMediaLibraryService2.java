@@ -60,6 +60,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MockMediaLibraryService2 extends MediaLibraryService2 {
+    // Keep in sync with the AndroidManifest.xml
+    public static final String ID = "TestLibrary";
+
     private static final String TAG = "MockMediaLibrarySvc2";
 
     MediaLibrarySession mSession;

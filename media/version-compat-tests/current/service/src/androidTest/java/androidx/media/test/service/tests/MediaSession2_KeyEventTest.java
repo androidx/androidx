@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service.tests;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -24,10 +24,15 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Process;
+import android.support.mediacompat.service.R;
 import android.view.KeyEvent;
 
+import androidx.media.test.service.MockPlayerConnector;
+import androidx.media.test.service.MockPlaylistAgent;
+import androidx.media2.MediaPlayerConnector;
+import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
-import androidx.media2.test.R;
+import androidx.media2.SessionCommandGroup2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -51,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     private AudioManager mAudioManager;
     private MediaSession2 mSession;
-    private MockPlayer mPlayer;
+    private MockPlayerConnector mPlayer;
     private MockPlaylistAgent mMockAgent;
     private TestSessionCallback mSessionCallback;
 
@@ -60,8 +65,8 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     public void setUp() throws Exception {
         super.setUp();
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mPlayer = new MockPlayer(1);
-        mPlayer.notifyPlaybackState(MediaPlayerConnector.PLAYER_STATE_PLAYING);
+        mPlayer = new MockPlayerConnector(1);
+        mPlayer.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PLAYING);
         mMockAgent = new MockPlaylistAgent();
 
         mSessionCallback = new TestSessionCallback();
@@ -73,7 +78,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
 
         // Make this test to get priority for handling media key event
         // SDK < 26: Playback state should become *playing*
-        mPlayer.notifyPlaybackState(MediaPlayerConnector.PLAYER_STATE_PLAYING);
+        mPlayer.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PLAYING);
 
         // SDK >= 26: Play a media item in the same process of the session.
         // Target raw resource should be short enough to finish within the time limit of @SmallTest.
@@ -146,7 +151,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     @Test
     public void testStop() throws Exception {
         prepareLooper();
-        mPlayer = new MockPlayer(2);
+        mPlayer = new MockPlayerConnector(2);
         mSession.updatePlayerConnector(mPlayer, mSession.getPlaylistAgent());
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_STOP, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -173,7 +178,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     @Test
     public void testPlayPause_play() throws Exception {
         prepareLooper();
-        mPlayer.notifyPlaybackState(MediaPlayerConnector.PLAYER_STATE_PAUSED);
+        mPlayer.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PAUSED);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
@@ -182,7 +187,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     @Test
     public void testPlayPause_pause() throws Exception {
         prepareLooper();
-        mPlayer.notifyPlaybackState(MediaPlayerConnector.PLAYER_STATE_PLAYING);
+        mPlayer.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PLAYING);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPauseCalled);
