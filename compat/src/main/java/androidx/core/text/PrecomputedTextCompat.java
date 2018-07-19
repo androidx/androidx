@@ -37,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.core.os.TraceCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
@@ -418,50 +419,57 @@ public class PrecomputedTextCompat implements Spannable {
         Preconditions.checkNotNull(text);
         Preconditions.checkNotNull(params);
 
-        if (Build.VERSION.SDK_INT >= 28 && params.mWrapped != null) {
-            return new PrecomputedTextCompat(PrecomputedText.create(text, params.mWrapped), params);
-        }
+        try {
+            TraceCompat.beginSection("PrecomputedText");
 
-        ArrayList<Integer> ends = new ArrayList<>();
-
-        int paraEnd = 0;
-        int end = text.length();
-        for (int paraStart = 0; paraStart < end; paraStart = paraEnd) {
-            paraEnd = TextUtils.indexOf(text, LINE_FEED, paraStart, end);
-            if (paraEnd < 0) {
-                // No LINE_FEED(U+000A) character found. Use end of the text as the paragraph
-                // end.
-                paraEnd = end;
-            } else {
-                paraEnd++;  // Includes LINE_FEED(U+000A) to the prev paragraph.
+            if (Build.VERSION.SDK_INT >= 28 && params.mWrapped != null) {
+                return new PrecomputedTextCompat(
+                        PrecomputedText.create(text, params.mWrapped), params);
             }
 
-            ends.add(paraEnd);
-        }
-        int[] result = new int[ends.size()];
-        for (int i = 0; i < ends.size(); ++i) {
-            result[i] = ends.get(i);
-        }
+            ArrayList<Integer> ends = new ArrayList<>();
 
-        // No framework support for PrecomputedText
-        // Compute text layout and throw away StaticLayout for the purpose of warming up the
-        // internal text layout cache.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            StaticLayout.Builder.obtain(text, 0, text.length(), params.getTextPaint(),
-                    Integer.MAX_VALUE)
-                    .setBreakStrategy(params.getBreakStrategy())
-                    .setHyphenationFrequency(params.getHyphenationFrequency())
-                    .setTextDirection(params.getTextDirection())
-                    .build();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            new StaticLayout(text, params.getTextPaint(), Integer.MAX_VALUE,
-                    Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-        } else {
-            // There is no way of precomputing text layout on API 20 or before
-            // Do nothing
-        }
+            int paraEnd = 0;
+            int end = text.length();
+            for (int paraStart = 0; paraStart < end; paraStart = paraEnd) {
+                paraEnd = TextUtils.indexOf(text, LINE_FEED, paraStart, end);
+                if (paraEnd < 0) {
+                    // No LINE_FEED(U+000A) character found. Use end of the text as the paragraph
+                    // end.
+                    paraEnd = end;
+                } else {
+                    paraEnd++;  // Includes LINE_FEED(U+000A) to the prev paragraph.
+                }
 
-        return new PrecomputedTextCompat(text, params, result);
+                ends.add(paraEnd);
+            }
+            int[] result = new int[ends.size()];
+            for (int i = 0; i < ends.size(); ++i) {
+                result[i] = ends.get(i);
+            }
+
+            // No framework support for PrecomputedText
+            // Compute text layout and throw away StaticLayout for the purpose of warming up the
+            // internal text layout cache.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                StaticLayout.Builder.obtain(text, 0, text.length(), params.getTextPaint(),
+                        Integer.MAX_VALUE)
+                        .setBreakStrategy(params.getBreakStrategy())
+                        .setHyphenationFrequency(params.getHyphenationFrequency())
+                        .setTextDirection(params.getTextDirection())
+                        .build();
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                new StaticLayout(text, params.getTextPaint(), Integer.MAX_VALUE,
+                        Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+            } else {
+                // There is no way of precomputing text layout on API 20 or before
+                // Do nothing
+            }
+
+            return new PrecomputedTextCompat(text, params, result);
+        } finally {
+            TraceCompat.endSection();
+        }
     }
 
     // Use PrecomputedText.create instead.
