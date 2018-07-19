@@ -18,16 +18,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:orientation="vertical" >
+              android:orientation="vertical">
     <TextView android:id="@+id/mr_group_volume_route_name"
               android:layout_width="match_parent"
-              android:layout_height="48dp"
+              android:layout_height="wrap_content"
+              android:paddingTop="16dp"
               android:paddingStart="16dp"
+              android:paddingEnd="16dp"
               android:gravity="center_vertical"
               android:textSize="11sp"
               android:textColor="#80868B" />
     <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
+                  android:layout_height="48dp"
                   android:paddingStart="16dp"
                   android:paddingEnd="16dp"
                   android:gravity="center_vertical"
@@ -41,7 +43,7 @@
         <androidx.mediarouter.app.MediaRouteVolumeSlider
             android:id="@+id/mr_group_volume_slider"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="match_parent"
             android:contentDescription="@string/mr_controller_volume_slider" />
     </LinearLayout>
 </LinearLayout>

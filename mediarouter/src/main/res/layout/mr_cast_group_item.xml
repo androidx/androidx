@@ -17,11 +17,19 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
-    <include layout="@layout/mr_cast_media_metadata" />
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/mr_cast_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+              android:layout_height="48dp"
+              android:paddingStart="16dp"
+              android:paddingEnd="16dp"
+              android:gravity="center_vertical"
+              android:background="?attr/selectableItemBackground"
+              android:orientation="horizontal">
+    <ImageView android:id="@+id/mr_cast_group_icon"
+               android:layout_width="24dp"
+               android:layout_height="24dp"
+               android:layout_marginRight="16dp" />
+    <TextView android:id="@+id/mr_cast_group_name"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:singleLine="true" />
 </LinearLayout>
