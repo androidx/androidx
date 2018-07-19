@@ -124,9 +124,6 @@ public static class Next implements NavDirections {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        if (!super.equals(object)) {
-            return false;
-        }
         Next that = (Next) object;
         if (main != null ? !main.equals(that.main) : that.main != null) {
             return false;

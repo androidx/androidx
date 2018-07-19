@@ -44,9 +44,6 @@ public static class Finish implements NavDirections {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        if (!super.equals(object)) {
-            return false;
-        }
         Finish that = (Finish) object;
         if (getActionId() != that.getActionId()) {
             return false;
