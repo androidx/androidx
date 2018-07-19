@@ -31,4 +31,9 @@
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Leanback</item>
     </style>
 
+    <style name="SupportPreferenceCar" parent="Theme.Car.NoActionBar">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlayCar</item>
+        <item name="android:windowBackground">@color/car_card</item>
+    </style>
+
 </resources>

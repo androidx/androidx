@@ -20,6 +20,7 @@ import android.arch.persistence.room.ColumnInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 /**
@@ -29,23 +30,24 @@ public final class Constraints {
 
     public static final Constraints NONE = new Constraints.Builder().build();
 
+    // TODO(sumir): Need to make this @NonNull, but that requires a db migration.
     @ColumnInfo(name = "required_network_type")
-    NetworkType mRequiredNetworkType;
+    private NetworkType mRequiredNetworkType;
 
     @ColumnInfo(name = "requires_charging")
-    boolean mRequiresCharging;
+    private boolean mRequiresCharging;
 
     @ColumnInfo(name = "requires_device_idle")
-    boolean mRequiresDeviceIdle;
+    private boolean mRequiresDeviceIdle;
 
     @ColumnInfo(name = "requires_battery_not_low")
-    boolean mRequiresBatteryNotLow;
+    private boolean mRequiresBatteryNotLow;
 
     @ColumnInfo(name = "requires_storage_not_low")
-    boolean mRequiresStorageNotLow;
+    private boolean mRequiresStorageNotLow;
 
     @ColumnInfo(name = "content_uri_triggers")
-    ContentUriTriggers mContentUriTriggers;
+    private @Nullable ContentUriTriggers mContentUriTriggers;
 
     public Constraints() { // stub required for room
     }
@@ -116,12 +118,12 @@ public final class Constraints {
     }
 
     @RequiresApi(24)
-    public void setContentUriTriggers(ContentUriTriggers mContentUriTriggers) {
+    public void setContentUriTriggers(@Nullable ContentUriTriggers mContentUriTriggers) {
         this.mContentUriTriggers = mContentUriTriggers;
     }
 
     @RequiresApi(24)
-    public ContentUriTriggers getContentUriTriggers() {
+    public @Nullable ContentUriTriggers getContentUriTriggers() {
         return mContentUriTriggers;
     }
 
@@ -130,7 +132,7 @@ public final class Constraints {
      */
     @RequiresApi(24)
     public boolean hasContentUriTriggers() {
-        return mContentUriTriggers.size() > 0;
+        return mContentUriTriggers != null && mContentUriTriggers.size() > 0;
     }
 
     @Override
@@ -180,7 +182,7 @@ public final class Constraints {
          * @param requiresCharging true if device must be plugged in, false otherwise
          * @return current builder
          */
-        public Builder setRequiresCharging(boolean requiresCharging) {
+        public @NonNull Builder setRequiresCharging(boolean requiresCharging) {
             this.mRequiresCharging = requiresCharging;
             return this;
         }
@@ -193,7 +195,7 @@ public final class Constraints {
          * @return current builder
          */
         @RequiresApi(23)
-        public Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
+        public @NonNull Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
             this.mRequiresDeviceIdle = requiresDeviceIdle;
             return this;
         }
@@ -205,7 +207,7 @@ public final class Constraints {
          * @param networkType type of network required
          * @return current builder
          */
-        public Builder setRequiredNetworkType(@NonNull NetworkType networkType) {
+        public @NonNull Builder setRequiredNetworkType(@NonNull NetworkType networkType) {
             this.mRequiredNetworkType = networkType;
             return this;
         }
@@ -218,7 +220,7 @@ public final class Constraints {
          *                              false otherwise
          * @return current builder
          */
-        public Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
+        public @NonNull Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
             this.mRequiresBatteryNotLow = requiresBatteryNotLow;
             return this;
         }
@@ -231,7 +233,7 @@ public final class Constraints {
          *                              threshold, false otherwise
          * @return current builder
          */
-        public Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
+        public @NonNull Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
             this.mRequiresStorageNotLow = requiresStorageNotLow;
             return this;
         }
@@ -246,7 +248,7 @@ public final class Constraints {
          * @return The current {@link Builder}
          */
         @RequiresApi(24)
-        public Builder addContentUriTrigger(Uri uri, boolean triggerForDescendants) {
+        public @NonNull Builder addContentUriTrigger(Uri uri, boolean triggerForDescendants) {
             mContentUriTriggers.add(uri, triggerForDescendants);
             return this;
         }
@@ -256,7 +258,7 @@ public final class Constraints {
          *
          * @return new {@link Constraints} which can be attached to a {@link WorkRequest}
          */
-        public Constraints build() {
+        public @NonNull Constraints build() {
             return new Constraints(this);
         }
     }

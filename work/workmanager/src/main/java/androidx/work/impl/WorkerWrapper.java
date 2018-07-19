@@ -21,8 +21,10 @@ import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
 import static androidx.work.State.SUCCEEDED;
+import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -30,6 +32,7 @@ import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
+import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
 import androidx.work.State;
@@ -63,6 +66,7 @@ public class WorkerWrapper implements Runnable {
     private WorkSpec mWorkSpec;
     Worker mWorker;
 
+    private Configuration mConfiguration;
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
@@ -78,6 +82,7 @@ public class WorkerWrapper implements Runnable {
         mRuntimeExtras = builder.mRuntimeExtras;
         mWorker = builder.mWorker;
 
+        mConfiguration = builder.mConfiguration;
         mWorkDatabase = builder.mWorkDatabase;
         mWorkSpecDao = mWorkDatabase.workSpecDao();
         mDependencyDao = mWorkDatabase.dependencyDao();
@@ -91,18 +96,28 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
-        if (mWorkSpec == null) {
-            Log.e(TAG,  String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
-            notifyListener(false, false);
-            return;
-        }
+        mWorkDatabase.beginTransaction();
+        try {
+            mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
+            if (mWorkSpec == null) {
+                Log.e(TAG, String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
+                notifyListener(false, false);
+                return;
+            }
 
-        // Do a quick check to make sure we don't need to bail out in case this work is already
-        // running, finished, or is blocked.
-        if (mWorkSpec.state != ENQUEUED) {
-            notifyIncorrectStatus();
-            return;
+            // Do a quick check to make sure we don't need to bail out in case this work is already
+            // running, finished, or is blocked.
+            if (mWorkSpec.state != ENQUEUED) {
+                notifyIncorrectStatus();
+                mWorkDatabase.setTransactionSuccessful();
+                return;
+            }
+
+            // Needed for nested transactions, such as when we're in a dependent work request when
+            // using a SynchronousExecutor.
+            mWorkDatabase.setTransactionSuccessful();
+        } finally {
+            mWorkDatabase.endTransaction();
         }
 
         // Merge inputs.  This can be potentially expensive code, so this should not be done inside
@@ -154,6 +169,11 @@ public class WorkerWrapper implements Runnable {
                 result = mWorker.doWork();
             } catch (Exception | Error e) {
                 result = Worker.Result.FAILURE;
+                Log.e(TAG,
+                        String.format(
+                                "Worker %s failed because it threw an exception/error",
+                                mWorkSpecId),
+                        e);
             }
 
             try {
@@ -272,9 +292,9 @@ public class WorkerWrapper implements Runnable {
             if (currentState == ENQUEUED) {
                 mWorkSpecDao.setState(RUNNING, mWorkSpecId);
                 mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
-                mWorkDatabase.setTransactionSuccessful();
                 setToRunning = true;
             }
+            mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
         }
@@ -300,7 +320,7 @@ public class WorkerWrapper implements Runnable {
             notifyListener(false, false);
         }
 
-        Schedulers.schedule(mWorkDatabase, mSchedulers);
+        Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
     }
 
     private void recursivelyFailWorkAndDependents(String workSpecId) {
@@ -336,10 +356,28 @@ public class WorkerWrapper implements Runnable {
             mWorkSpecDao.setPeriodStartTime(mWorkSpecId, nextPeriodStartTime);
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
+            if (Build.VERSION.SDK_INT < WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
+                // We only need to reset the schedule_requested_at bit for the AlarmManager
+                // implementation because AlarmManager does not know about periodic WorkRequests.
+                // Otherwise we end up double scheduling the Worker with an identical jobId, and
+                // JobScheduler treats it as the first schedule for a PeriodicWorker. With the
+                // AlarmManager implementation, this is not an problem as AlarmManager only cares
+                // about the actual alarm itself.
+
+                // We need to tell the schedulers that this WorkSpec is no longer occupying a slot.
+                mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+            }
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
             notifyListener(isSuccessful, false);
+        }
+
+        // We need to tell the Schedulers to pick up this newly ENQUEUED Worker.
+        // TODO (rahulrav@) Move this into the Scheduler itself.
+        if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
+            // Reschedule the periodic work.
+            Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
         }
     }
 
@@ -370,7 +408,7 @@ public class WorkerWrapper implements Runnable {
         }
 
         // This takes of scheduling the dependent workers as they have been marked ENQUEUED.
-        Schedulers.schedule(mWorkDatabase, mSchedulers);
+        Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
     }
 
     static Worker workerFromWorkSpec(@NonNull Context context,
@@ -434,6 +472,7 @@ public class WorkerWrapper implements Runnable {
         private Context mAppContext;
         @Nullable
         private Worker mWorker;
+        private Configuration mConfiguration;
         private WorkDatabase mWorkDatabase;
         private String mWorkSpecId;
         private ExecutionListener mListener;
@@ -441,9 +480,11 @@ public class WorkerWrapper implements Runnable {
         private Extras.RuntimeExtras mRuntimeExtras;
 
         public Builder(@NonNull Context context,
+                @NonNull Configuration configuration,
                 @NonNull WorkDatabase database,
                 @NonNull String workSpecId) {
             mAppContext = context.getApplicationContext();
+            mConfiguration = configuration;
             mWorkDatabase = database;
             mWorkSpecId = workSpecId;
         }

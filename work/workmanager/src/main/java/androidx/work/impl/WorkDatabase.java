@@ -16,6 +16,9 @@
 
 package androidx.work.impl;
 
+import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.ENQUEUED;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.RUNNING;
@@ -56,12 +59,14 @@ import java.util.concurrent.TimeUnit;
         WorkTag.class,
         SystemIdInfo.class,
         WorkName.class},
-        version = 2)
+        version = 4)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "androidx.work.workdb";
-    private static final String CLEANUP_SQL = "UPDATE workspec SET state=" + ENQUEUED
+    private static final String CLEANUP_SQL = "UPDATE workspec "
+            + "SET state=" + ENQUEUED + ","
+            + " schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
             + " WHERE state=" + RUNNING;
 
     // Delete rows in the workspec table that...
@@ -82,7 +87,7 @@ public abstract class WorkDatabase extends RoomDatabase {
     /**
      * Creates an instance of the WorkDatabase.
      *
-     * @param context A context (this method will use the application context from it)
+     * @param context         A context (this method will use the application context from it)
      * @param useTestDatabase {@code true} to generate an in-memory database that allows main thread
      *                        access
      * @return The created WorkDatabase
@@ -95,9 +100,13 @@ public abstract class WorkDatabase extends RoomDatabase {
         } else {
             builder = Room.databaseBuilder(context, WorkDatabase.class, DB_NAME);
         }
+
         return builder.addCallback(generateCleanupCallback())
                 .addMigrations(WorkDatabaseMigrations.MIGRATION_1_2)
-                .addMigrations(WorkDatabaseMigrations.MIGRATION_2_1)
+                .addMigrations(
+                        new WorkDatabaseMigrations.WorkMigration(context, VERSION_2, VERSION_3))
+                .addMigrations(MIGRATION_3_4)
+                .fallbackToDestructiveMigration()
                 .build();
     }
 

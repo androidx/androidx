@@ -17,10 +17,12 @@
 package androidx.work;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Blocking methods for {@link WorkManager} operations.  These methods are expected to be called
@@ -123,20 +125,36 @@ public interface SynchronousWorkManager {
      * own repository that must be updated or deleted in case someone cancels their work without
      * their prior knowledge.
      *
-     * @return The timestamp in milliseconds when a method that cancelled all work was last invoked
+     * @return The timestamp in milliseconds when a method that cancelled all work was last invoked;
+     *         this timestamp may be {@code 0L} if this never occurred.
      */
     @WorkerThread
     long getLastCancelAllTimeMillisSync();
+
+    /**
+     * Prunes all eligible finished work from the internal database in a synchronous fashion.
+     * Eligible work must be finished ({@link State#SUCCEEDED}, {@link State#FAILED}, or
+     * {@link State#CANCELLED}), with zero unfinished dependents.
+     * <p>
+     * <b>Use this method with caution</b>; by invoking it, you (and any modules and libraries in
+     * your codebase) will no longer be able to observe the {@link WorkStatus} of the pruned work.
+     * You do not normally need to call this method - WorkManager takes care to auto-prune its work
+     * after a sane period of time.  This method also ignores the
+     * {@link OneTimeWorkRequest.Builder#keepResultsForAtLeast(long, TimeUnit)} policy.
+     */
+    @WorkerThread
+    void pruneWorkSync();
 
     /**
      * Gets the {@link WorkStatus} of a given work id in a synchronous fashion.  This method is
      * expected to be called from a background thread.
      *
      * @param id The id of the work
-     * @return A {@link WorkStatus} associated with {@code id}
+     * @return A {@link WorkStatus} associated with {@code id}, or {@code null} if {@code id} is not
+     *         known to WorkManager
      */
     @WorkerThread
-    WorkStatus getStatusByIdSync(@NonNull UUID id);
+    @Nullable WorkStatus getStatusByIdSync(@NonNull UUID id);
 
     /**
      * Gets the {@link WorkStatus} for all work with a given tag in a synchronous fashion.  This
@@ -146,7 +164,7 @@ public interface SynchronousWorkManager {
      * @return A list of {@link WorkStatus} for work tagged with {@code tag}
      */
     @WorkerThread
-    List<WorkStatus> getStatusesByTagSync(@NonNull String tag);
+    @NonNull List<WorkStatus> getStatusesByTagSync(@NonNull String tag);
 
     /**
      * Gets the {@link WorkStatus} for all work for the chain of work with a given unique name in a
@@ -156,5 +174,5 @@ public interface SynchronousWorkManager {
      * @return A list of {@link WorkStatus} for work in the chain named {@code uniqueWorkName}
      */
     @WorkerThread
-    List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName);
+    @NonNull List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName);
 }

@@ -27,6 +27,7 @@ import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
 import static androidx.work.State.SUCCEEDED;
+import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -167,6 +168,18 @@ public class WorkManagerImplTest {
                     mDatabase.dependencyDao().getPrerequisites(id).size() > 0,
                     is(i > 0));
         }
+    }
+
+    @Test
+    @SmallTest
+    public void testEnqueue_AddsImplicitTags() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        mWorkManagerImpl.synchronous().enqueueSync(work);
+
+        WorkTagDao workTagDao = mDatabase.workTagDao();
+        List<String> tags = workTagDao.getTagsForWorkSpecId(work.getStringId());
+        assertThat(tags, is(notNullValue()));
+        assertThat(tags, contains(TestWorker.class.getName()));
     }
 
     @Test
@@ -841,12 +854,12 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 ENQUEUED,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(TestWorker.class.getName()));
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 ENQUEUED,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(TestWorker.class.getName()));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
@@ -860,7 +873,7 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(TestWorker.class.getName()));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         clearInvocations(mockObserver);
@@ -874,7 +887,7 @@ public class WorkManagerImplTest {
                 work1.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(TestWorker.class.getName()));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         liveData.removeObservers(testLifecycleOwner);
@@ -907,17 +920,17 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Arrays.asList(firstTag, secondTag));
+                Arrays.asList(TestWorker.class.getName(), firstTag, secondTag));
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.singletonList(firstTag));
+                Arrays.asList(TestWorker.class.getName(), firstTag));
         WorkStatus workStatus2 = new WorkStatus(
                 work2.getId(),
                 SUCCEEDED,
                 Data.EMPTY,
-                Collections.singletonList(secondTag));
+                Arrays.asList(TestWorker.class.getName(), secondTag));
 
         List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByTagSync(firstTag);
         assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus1));
@@ -969,12 +982,12 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Arrays.asList(firstTag, secondTag));
+                Arrays.asList(TestWorker.class.getName(), firstTag, secondTag));
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.singletonList(firstTag));
+                Arrays.asList(TestWorker.class.getName(), firstTag));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         workSpecDao.setState(ENQUEUED, work0.getStringId());
@@ -987,7 +1000,7 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 ENQUEUED,
                 Data.EMPTY,
-                Arrays.asList(firstTag, secondTag));
+                Arrays.asList(TestWorker.class.getName(), firstTag, secondTag));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         liveData.removeObservers(testLifecycleOwner);
@@ -1015,17 +1028,17 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(InfiniteTestWorker.class.getName()));
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(InfiniteTestWorker.class.getName()));
         WorkStatus workStatus2 = new WorkStatus(
                 work2.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(InfiniteTestWorker.class.getName()));
 
         List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesForUniqueWorkSync(uniqueName);
         assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus1, workStatus2));
@@ -1069,17 +1082,17 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(InfiniteTestWorker.class.getName()));
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(InfiniteTestWorker.class.getName()));
         WorkStatus workStatus2 = new WorkStatus(
                 work2.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(InfiniteTestWorker.class.getName()));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1, workStatus2));
 
         workSpecDao.setState(ENQUEUED, work0.getStringId());
@@ -1092,7 +1105,7 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 ENQUEUED,
                 Data.EMPTY,
-                Collections.<String>emptyList());
+                Collections.singletonList(InfiniteTestWorker.class.getName()));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1, workStatus2));
 
         liveData.removeObservers(testLifecycleOwner);
@@ -1333,6 +1346,38 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
+    public void pruneFinishedWork() {
+        OneTimeWorkRequest enqueuedWork = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest finishedWork =
+                new OneTimeWorkRequest.Builder(TestWorker.class).setInitialState(SUCCEEDED).build();
+        OneTimeWorkRequest finishedWorkWithUnfinishedDependent =
+                new OneTimeWorkRequest.Builder(TestWorker.class).setInitialState(SUCCEEDED).build();
+        OneTimeWorkRequest finishedWorkWithLongKeepForAtLeast =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setInitialState(SUCCEEDED)
+                        .keepResultsForAtLeast(999, TimeUnit.DAYS)
+                        .build();
+
+        insertWorkSpecAndTags(enqueuedWork);
+        insertWorkSpecAndTags(finishedWork);
+        insertWorkSpecAndTags(finishedWorkWithUnfinishedDependent);
+        insertWorkSpecAndTags(finishedWorkWithLongKeepForAtLeast);
+
+        insertDependency(enqueuedWork, finishedWorkWithUnfinishedDependent);
+
+        mWorkManagerImpl.synchronous().pruneWorkSync();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(enqueuedWork.getStringId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedWork.getStringId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedWorkWithUnfinishedDependent.getStringId()),
+                is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedWorkWithLongKeepForAtLeast.getStringId()),
+                is(nullValue()));
+    }
+
+    @Test
+    @SmallTest
     public void testSynchronousCancelAndGetStatus() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work);
@@ -1361,6 +1406,7 @@ public class WorkManagerImplTest {
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
         assertThat(workSpecDao.getState(work.getStringId()), is(ENQUEUED));
+        assertThat(work.getWorkSpec().scheduleRequestedAt, is(SCHEDULE_NOT_REQUESTED_YET));
     }
 
     @Test
@@ -1464,7 +1510,7 @@ public class WorkManagerImplTest {
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
         assertThat(workSpec.input.getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME),
                 is(TestWorker.class.getName()));
     }
 
@@ -1482,7 +1528,7 @@ public class WorkManagerImplTest {
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
         assertThat(workSpec.input.getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME),
                 is(TestWorker.class.getName()));
     }
 

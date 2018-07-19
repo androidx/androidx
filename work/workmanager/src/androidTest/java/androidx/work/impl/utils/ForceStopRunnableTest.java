@@ -18,7 +18,6 @@ package androidx.work.impl.utils;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -76,37 +75,28 @@ public class ForceStopRunnableTest {
     @Test
     public void testReschedulesOnForceStop() {
         ForceStopRunnable runnable = spy(mRunnable);
-        when(runnable.shouldCancelPersistedJobs()).thenReturn(false);
+        when(runnable.shouldRescheduleWorkers()).thenReturn(false);
         when(runnable.isForceStopped()).thenReturn(true);
         runnable.run();
         verify(mWorkManager, times(1)).rescheduleEligibleWork();
+        verify(mWorkManager, times(1)).onForceStopRunnableCompleted();
     }
 
     @Test
     public void test_doNothingWhenNotForceStopped() {
         ForceStopRunnable runnable = spy(mRunnable);
-        when(runnable.shouldCancelPersistedJobs()).thenReturn(false);
+        when(runnable.shouldRescheduleWorkers()).thenReturn(false);
         when(runnable.isForceStopped()).thenReturn(false);
         runnable.run();
         verify(mWorkManager, times(0)).rescheduleEligibleWork();
+        verify(mWorkManager, times(1)).onForceStopRunnableCompleted();
     }
 
     @Test
-    public void test_cancelAllJobSchedulerJobs() {
+    public void test_rescheduleWorkers_updatesSharedPreferences() {
         ForceStopRunnable runnable = spy(mRunnable);
-        doNothing().when(runnable).cancelAllInJobScheduler();
-        when(runnable.shouldCancelPersistedJobs()).thenReturn(true);
+        when(runnable.shouldRescheduleWorkers()).thenReturn(true);
         runnable.run();
-        verify(runnable, times(1)).cancelAllInJobScheduler();
-        verify(mPreferences, times(1)).setMigratedPersistedJobs();
-    }
-
-    @Test
-    public void test_doNothingWhenThereIsNothingToCancel() {
-        ForceStopRunnable runnable = spy(mRunnable);
-        doNothing().when(runnable).cancelAllInJobScheduler();
-        when(runnable.shouldCancelPersistedJobs()).thenReturn(false);
-        runnable.run();
-        verify(runnable, times(0)).cancelAllInJobScheduler();
+        verify(mPreferences, times(1)).setNeedsReschedule(false);
     }
 }

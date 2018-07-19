@@ -20,7 +20,7 @@
     package="com.example.android.supportpreference">
 
     <uses-sdk
-        tools:overrideLibrary="androidx.leanback.preference, androidx.leanback" />
+        tools:overrideLibrary="androidx.leanback.preference, androidx.leanback, androidx.car" />
 
     <uses-feature android:name="android.software.Leanback" android:required="false" />
 
@@ -62,6 +62,15 @@
             android:label="@string/fragment_support_preferences_leanback_demo"
             android:theme="@style/SupportPreferenceLeanback"
             android:enabled="@bool/atLeastJellyBeanMR2">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".FragmentSupportPreferencesCar"
+            android:label="@string/fragment_support_preferences_car_demo"
+            android:theme="@style/SupportPreferenceCar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>

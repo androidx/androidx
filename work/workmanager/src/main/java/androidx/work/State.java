@@ -17,45 +17,45 @@
 package androidx.work;
 
 /**
- * The current status of a unit of work.
+ * The current state of a unit of work.
  */
 public enum State {
 
     /**
-     * The status for work that is enqueued (hasn't completed and isn't running)
+     * The state for work that is enqueued (hasn't completed and isn't running)
      */
     ENQUEUED,
 
     /**
-     * The status for work that is currently being executed
+     * The state for work that is currently being executed
      */
     RUNNING,
 
     /**
-     * The status for work that has completed successfully
+     * The state for work that has completed successfully
      */
     SUCCEEDED,
 
     /**
-     * The status for work that has completed in a failure state
+     * The state for work that has completed in a failure state
      */
     FAILED,
 
     /**
-     * The status for work that is currently blocked because its prerequisites haven't finished
+     * The state for work that is currently blocked because its prerequisites haven't finished
      * successfully
      */
     BLOCKED,
 
     /**
-     * The status for work that has been cancelled and will not execute
+     * The state for work that has been cancelled and will not execute
      */
     CANCELLED;
 
     /**
      * Returns {@code true} if this State is considered finished.
      *
-     * @return {@code true} for {@link #SUCCEEDED}, {@link #FAILED}, and {@link #CANCELLED} States
+     * @return {@code true} for {@link #SUCCEEDED}, {@link #FAILED}, and {@link #CANCELLED} states
      */
     public boolean isFinished() {
         return (this == SUCCEEDED || this == FAILED || this == CANCELLED);

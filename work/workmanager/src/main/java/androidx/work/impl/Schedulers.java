@@ -25,6 +25,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import androidx.work.Configuration;
 import androidx.work.impl.background.systemalarm.SystemAlarmScheduler;
 import androidx.work.impl.background.systemalarm.SystemAlarmService;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
@@ -61,41 +62,41 @@ public class Schedulers {
      * @param schedulers   The {@link List} of {@link Scheduler}s to delegate to.
      */
     public static void schedule(
+            @NonNull Configuration configuration,
             @NonNull WorkDatabase workDatabase,
             List<Scheduler> schedulers) {
-
-        WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-        List<WorkSpec> eligibleWorkSpecs = workSpecDao.getEligibleWorkForScheduling();
-        scheduleInternal(workDatabase, schedulers, eligibleWorkSpecs);
-    }
-
-    private static void scheduleInternal(
-            @NonNull WorkDatabase workDatabase,
-            List<Scheduler> schedulers,
-            List<WorkSpec> workSpecs) {
-
-        if (workSpecs == null || schedulers == null) {
+        if (schedulers == null || schedulers.size() == 0) {
             return;
         }
 
-        long now = System.currentTimeMillis();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-        // Mark all the WorkSpecs as scheduled.
-        // Calls to Scheduler#schedule() could potentially result in more schedules
-        // on a separate thread. Therefore, this needs to be done first.
+        List<WorkSpec> eligibleWorkSpecs;
+
         workDatabase.beginTransaction();
         try {
-            for (WorkSpec workSpec : workSpecs) {
-                workSpecDao.markWorkSpecScheduled(workSpec.id, now);
+            eligibleWorkSpecs = workSpecDao.getEligibleWorkForScheduling(
+                    configuration.getMaxSchedulerLimit());
+            if (eligibleWorkSpecs != null && eligibleWorkSpecs.size() > 0) {
+                long now = System.currentTimeMillis();
+
+                // Mark all the WorkSpecs as scheduled.
+                // Calls to Scheduler#schedule() could potentially result in more schedules
+                // on a separate thread. Therefore, this needs to be done first.
+                for (WorkSpec workSpec : eligibleWorkSpecs) {
+                    workSpecDao.markWorkSpecScheduled(workSpec.id, now);
+                }
             }
             workDatabase.setTransactionSuccessful();
         } finally {
             workDatabase.endTransaction();
         }
-        WorkSpec[] eligibleWorkSpecsArray = workSpecs.toArray(new WorkSpec[0]);
-        // Delegate to the underlying scheduler.
-        for (Scheduler scheduler : schedulers) {
-            scheduler.schedule(eligibleWorkSpecsArray);
+
+        if (eligibleWorkSpecs != null && eligibleWorkSpecs.size() > 0) {
+            WorkSpec[] eligibleWorkSpecsArray = eligibleWorkSpecs.toArray(new WorkSpec[0]);
+            // Delegate to the underlying scheduler.
+            for (Scheduler scheduler : schedulers) {
+                scheduler.schedule(eligibleWorkSpecsArray);
+            }
         }
     }
 

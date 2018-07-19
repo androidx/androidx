@@ -215,4 +215,8 @@ limitations under the License.
     <dimen name="speed_bump_lock_out_message_height">96dp</dimen>
     <dimen name="speed_bump_lock_out_drawable_margin_bottom">8dp</dimen>
 
+    <!-- Preferences -->
+    <!-- list margin won't be necessary after PagedListView is brought in -->
+    <dimen name="car_preference_list_margin">8dp</dimen>
+
 </resources>

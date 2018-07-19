@@ -29,7 +29,6 @@ import android.support.annotation.NonNull;
 
 import androidx.work.Data;
 import androidx.work.State;
-import androidx.work.impl.Scheduler;
 
 import java.util.List;
 
@@ -285,10 +284,23 @@ public interface WorkSpecDao {
             // We only want WorkSpecs which have not been previously scheduled.
             + " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
             + " LIMIT "
-                + "(SELECT " + Scheduler.MAX_SCHEDULER_LIMIT + "-COUNT(*) FROM workspec WHERE"
+                + "(SELECT :schedulerLimit" + "-COUNT(*) FROM workspec WHERE"
                     + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
                     + " AND state NOT IN " + COMPLETED_STATES
                 + ")"
     )
-    List<WorkSpec> getEligibleWorkForScheduling();
+    List<WorkSpec> getEligibleWorkForScheduling(int schedulerLimit);
+
+    /**
+     * Immediately prunes eligible work from the database meeting the following criteria:
+     * - Is finished (succeeded, failed, or cancelled)
+     * - Has zero unfinished dependents
+     */
+    @Query("DELETE FROM workspec WHERE "
+            + "state IN " + COMPLETED_STATES
+            + " AND (SELECT COUNT(*)=0 FROM dependency WHERE "
+            + "    prerequisite_id=id AND "
+            + "    work_spec_id NOT IN "
+            + "        (SELECT id FROM workspec WHERE state IN " + COMPLETED_STATES + "))")
+    void pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast();
 }

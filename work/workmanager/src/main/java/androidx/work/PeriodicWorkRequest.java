@@ -151,7 +151,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
         }
 
         @Override
-        public PeriodicWorkRequest build() {
+        public @NonNull PeriodicWorkRequest build() {
             if (mBackoffCriteriaSet
                     && Build.VERSION.SDK_INT >= 23
                     && mWorkSpec.constraints.requiresDeviceIdle()) {
@@ -162,7 +162,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
         }
 
         @Override
-        Builder getThis() {
+        @NonNull Builder getThis() {
             return this;
         }
     }
