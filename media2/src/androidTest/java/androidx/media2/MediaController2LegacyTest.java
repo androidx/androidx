@@ -105,6 +105,12 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         super.cleanUp();
         if (mSession != null) {
             mSession.release();
+            mSession = null;
+        }
+
+        if (mController != null) {
+            mController.close();
+            mController = null;
         }
         TestServiceRegistry.getInstance().cleanUp();
     }

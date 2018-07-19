@@ -127,6 +127,12 @@ public class MediaController2Test extends MediaSession2TestBase {
         super.cleanUp();
         if (mSession != null) {
             mSession.close();
+            mSession = null;
+        }
+
+        if (mController != null) {
+            mController.close();
+            mController = null;
         }
         TestServiceRegistry.getInstance().cleanUp();
     }
