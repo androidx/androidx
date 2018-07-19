@@ -84,10 +84,6 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     static final String TAG = "MediaRouteCastDialog";
     static final int CONNECTION_TIMEOUT_MILLIS = (int) TimeUnit.SECONDS.toMillis(30L);
 
-    private static final int ITEM_TYPE_GROUP_VOLUME = 1;
-    private static final int ITEM_TYPE_HEADER = 2;
-    private static final int ITEM_TYPE_ROUTE = 3;
-
     // Do not update the route list immediately to avoid unnatural dialog change.
     private static final long UPDATE_ROUTES_DELAY_MS = 300L;
     static final int MSG_UPDATE_ROUTES = 1;
@@ -465,7 +461,14 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
     private final class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private static final String TAG = "RecyclerAdapter";
+        private static final int ITEM_TYPE_GROUP_VOLUME = 1;
+        private static final int ITEM_TYPE_HEADER = 2;
+        private static final int ITEM_TYPE_ROUTE = 3;
+        private static final int ITEM_TYPE_GROUP = 4;
+
         private final ArrayList<Item> mItems;
+        private final ArrayList<MediaRouter.RouteInfo> mAvailableRoutes;
+        private final ArrayList<MediaRouter.RouteInfo> mAvailableGroups;
 
         private final LayoutInflater mInflater;
         private final Drawable mDefaultIcon;
@@ -475,12 +478,33 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         RecyclerAdapter() {
             mItems = new ArrayList<>();
+            mAvailableRoutes = new ArrayList<>();
+            mAvailableGroups = new ArrayList<>();
+
             mInflater = LayoutInflater.from(mContext);
             mDefaultIcon = MediaRouterThemeHelper.getDefaultDrawableIcon(mContext);
             mTvIcon = MediaRouterThemeHelper.getTvDrawableIcon(mContext);
             mSpeakerIcon = MediaRouterThemeHelper.getSpeakerDrawableIcon(mContext);
             mSpeakerGroupIcon = MediaRouterThemeHelper.getSpeakerGropuIcon(mContext);
             setItems();
+        }
+
+        boolean isSelectedRoute(MediaRouter.RouteInfo route) {
+            if (route.isSelected()) {
+                return true;
+            }
+            // If currently casting on a group and route is a member of the group
+            if (mRoute instanceof MediaRouter.RouteGroup) {
+                List<MediaRouter.RouteInfo> memberRoutes =
+                        ((MediaRouter.RouteGroup) mRoute).getRoutes();
+
+                for (MediaRouter.RouteInfo memberRoute : memberRoutes) {
+                    if (memberRoute.getId().equals(route.getId())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         // Create a list of items with mRoutes and add them to mItems
@@ -498,24 +522,37 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 mItems.add(new Item(mRoute, ITEM_TYPE_ROUTE));
             }
 
-            List<MediaRouter.RouteInfo> activeGroups = new ArrayList<>();
-            List<MediaRouter.RouteInfo> activeRoutes = new ArrayList<>();
+            mAvailableRoutes.clear();
+            mAvailableGroups.clear();
 
             for (MediaRouter.RouteInfo route: mRoutes) {
-                if (route.getId().equals(mRoute.getId())) {
+                // If route is current selected route, skip
+                if (isSelectedRoute(route)) {
                     continue;
                 }
                 if (route instanceof MediaRouter.RouteGroup) {
-                    activeGroups.add(route);
+                    mAvailableGroups.add(route);
                 } else {
-                    activeRoutes.add(route);
+                    mAvailableRoutes.add(route);
                 }
             }
-            // Add list items of single device section to mItems
-            mItems.add(new Item(mContext.getString(R.string.mr_dialog_device_header),
-                    ITEM_TYPE_HEADER));
-            for (MediaRouter.RouteInfo route : activeRoutes) {
-                mItems.add(new Item(route, ITEM_TYPE_ROUTE));
+
+            if (mAvailableRoutes.size() > 0) {
+                // Add list items of single device section to mItems
+                mItems.add(new Item(mContext.getString(R.string.mr_dialog_device_header),
+                        ITEM_TYPE_HEADER));
+                for (MediaRouter.RouteInfo route : mAvailableRoutes) {
+                    mItems.add(new Item(route, ITEM_TYPE_ROUTE));
+                }
+            }
+
+            if (mAvailableGroups.size() > 0) {
+                // Add list items of group section to mItems
+                mItems.add(new Item(mContext.getString(R.string.mr_dialog_route_header),
+                        ITEM_TYPE_HEADER));
+                for (MediaRouter.RouteInfo route : mAvailableGroups) {
+                    mItems.add(new Item(route, ITEM_TYPE_GROUP));
+                }
             }
             notifyDataSetChanged();
         }
@@ -534,6 +571,9 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 case ITEM_TYPE_ROUTE:
                     view = mInflater.inflate(R.layout.mr_cast_route_item, parent, false);
                     return new RouteViewHolder(view);
+                case ITEM_TYPE_GROUP:
+                    view = mInflater.inflate(R.layout.mr_cast_group_item, parent, false);
+                    return new GroupViewHolder(view);
                 default:
                     Log.w(TAG, "Cannot create ViewHolder because of wrong view type");
                     return null;
@@ -554,6 +594,9 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     break;
                 case ITEM_TYPE_ROUTE:
                     ((RouteViewHolder) holder).bindRouteViewHolder(item);
+                    break;
+                case ITEM_TYPE_GROUP:
+                    ((GroupViewHolder) holder).bindGroupViewHolder(item);
                     break;
                 default:
                     Log.w(TAG, "Cannot bind item to ViewHolder because of wrong view type");
@@ -671,14 +714,14 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             ImageView mImageView;
             TextView mTextView;
             CheckBox mCheckBox;
-            MediaRouteVolumeSlider mRouteVolumeSlider;
+            MediaRouteVolumeSlider mVolumeSlider;
 
             RouteViewHolder(View itemView) {
                 super(itemView);
                 mImageView = itemView.findViewById(R.id.mr_cast_route_icon);
                 mTextView = itemView.findViewById(R.id.mr_cast_route_name);
                 mCheckBox = itemView.findViewById(R.id.mr_cast_checkbox);
-                mRouteVolumeSlider = itemView.findViewById(R.id.mr_cast_volume_slider);
+                mVolumeSlider = itemView.findViewById(R.id.mr_cast_volume_slider);
             }
 
             public void bindRouteViewHolder(Item item) {
@@ -686,10 +729,29 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
                 mImageView.setImageDrawable(getIconDrawable(route));
                 mTextView.setText(route.getName());
-                mCheckBox.setChecked(route.isSelected());
-                mRouteVolumeSlider.setColor(mVolumeSliderColor);
-                mRouteVolumeSlider.setProgress(route.getVolume());
-                mRouteVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
+                mCheckBox.setChecked(isSelectedRoute(route));
+                mVolumeSlider.setColor(mVolumeSliderColor);
+                mVolumeSlider.setTag(route);
+                mVolumeSlider.setProgress(route.getVolume());
+                mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
+            }
+        }
+
+        private class GroupViewHolder extends RecyclerView.ViewHolder {
+            ImageView mImageView;
+            TextView mTextView;
+
+            GroupViewHolder(View itemView) {
+                super(itemView);
+                mImageView = itemView.findViewById(R.id.mr_cast_group_icon);
+                mTextView = itemView.findViewById(R.id.mr_cast_group_name);
+            }
+
+            public void bindGroupViewHolder(Item item) {
+                MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
+
+                mImageView.setImageDrawable(getIconDrawable(route));
+                mTextView.setText(route.getName());
             }
         }
     }
