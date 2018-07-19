@@ -42,21 +42,8 @@ import java.util.Set;
  */
 @VersionedParcelize
 public final class SessionCommandGroup2 implements VersionedParcelable {
-
     private static final String TAG = "SessionCommandGroup2";
     private static final String KEY_COMMANDS = "android.media.session2.commandgroup.commands";
-    // Prefix for all command codes
-    private static final String PREFIX_COMMAND_CODE = "COMMAND_CODE_";
-    // Prefix for command codes that will be sent directly to the MediaPlayerConnector
-    private static final String PREFIX_COMMAND_CODE_PLAYBACK = "COMMAND_CODE_PLAYBACK_";
-    // Prefix for command codes that will be sent directly to the MediaPlaylistAgent
-    private static final String PREFIX_COMMAND_CODE_PLAYLIST = "COMMAND_CODE_PLAYLIST_";
-    // Prefix for command codes that will be sent directly to AudioManager or VolumeProvider.
-    private static final String PREFIX_COMMAND_CODE_VOLUME = "COMMAND_CODE_VOLUME_";
-    // Prefix for command codes for session commands
-    private static final String PREFIX_COMMAND_CODE_SESSION = "COMMAND_CODE_SESSION_";
-    // Prefix for command codes for library commands
-    private static final String PREFIX_COMMAND_CODE_LIBRARY = "COMMAND_CODE_LIBRARY_";
 
     @ParcelField(1)
     List<SessionCommand2> mCommands = new ArrayList<>();
@@ -240,7 +227,11 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
          * Adds all predefined commands to this command group.
          */
         public @NonNull Builder addAllPredefinedCommands() {
-            addCommandsWithPrefix(PREFIX_COMMAND_CODE);
+            addAllPlaybackCommands();
+            addAllPlaylistCommands();
+            addAllVolumeCommands();
+            addAllSessionCommands();
+            addAllLibraryCommands();
             return this;
         }
 
@@ -272,27 +263,62 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
         }
 
         @NonNull Builder addAllPlaybackCommands() {
-            addCommandsWithPrefix(PREFIX_COMMAND_CODE_PLAYBACK);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED);
             return this;
         }
 
         @NonNull Builder addAllPlaylistCommands() {
-            addCommandsWithPrefix(PREFIX_COMMAND_CODE_PLAYLIST);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM);
+            addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM);
             return this;
         }
 
         @NonNull Builder addAllVolumeCommands() {
-            addCommandsWithPrefix(PREFIX_COMMAND_CODE_VOLUME);
+            addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME);
+            addCommand(SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME);
             return this;
         }
 
         @NonNull Builder addAllSessionCommands() {
-            addCommandsWithPrefix(PREFIX_COMMAND_CODE_SESSION);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_SET_RATING);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
+            addCommand(SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
             return this;
         }
 
         @NonNull Builder addAllLibraryCommands() {
-            addCommandsWithPrefix(PREFIX_COMMAND_CODE_LIBRARY);
+            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_GET_CHILDREN);
+            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_GET_ITEM);
+            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT);
+            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT);
+            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_SEARCH);
+            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_SUBSCRIBE);
+            addCommand(SessionCommand2.COMMAND_CODE_LIBRARY_UNSUBSCRIBE);
             return this;
         }
 
