@@ -1441,16 +1441,13 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      */
     @VersionedParcelize
     public static final class CommandButton implements VersionedParcelable {
-        private static final String KEY_COMMAND =
-                "android.media.media_session2.command_button.command";
+        private static final String KEY_COMMAND = "android.media.session2.command_button.command";
         private static final String KEY_ICON_RES_ID =
-                "android.media.media_session2.command_button.icon_res_id";
+                "android.media.session2.command_button.icon_res_id";
         private static final String KEY_DISPLAY_NAME =
-                "android.media.media_session2.command_button.display_name";
-        private static final String KEY_EXTRAS =
-                "android.media.media_session2.command_button.extras";
-        private static final String KEY_ENABLED =
-                "android.media.media_session2.command_button.enabled";
+                "android.media.session2.command_button.display_name";
+        private static final String KEY_EXTRAS = "android.media.session2.command_button.extras";
+        private static final String KEY_ENABLED = "android.media.session2.command_button.enabled";
 
         @ParcelField(1)
         SessionCommand2 mCommand;

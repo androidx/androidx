@@ -40,7 +40,7 @@
                 <action android:name="android.media.MediaSessionService2" />
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
-            <meta-data android:name="android.media.session" android:value="TestSession" />
+            <meta-data android:name="android.media.session2.SESSION_ID" android:value="TestSession" />
         </service>
         <!-- Keep the test services synced together with the MockMediaLibraryService -->
         <service android:name="androidx.media2.MockMediaLibraryService2">
@@ -48,7 +48,7 @@
                 <action android:name="android.media.MediaLibraryService2" />
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
-            <meta-data android:name="android.media.session" android:value="TestLibrary" />
+            <meta-data android:name="android.media.session2.SESSION_ID" android:value="TestLibrary" />
         </service>
         <!-- Keep the test services synced together with the MockMediaSessionService2 -->
         <service android:name="androidx.media2.MockMediaBrowserServiceCompat">

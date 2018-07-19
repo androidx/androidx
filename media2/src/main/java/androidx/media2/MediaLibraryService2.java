@@ -55,8 +55,7 @@ import java.util.concurrent.Executor;
  */
 public abstract class MediaLibraryService2 extends MediaSessionService2 {
     /**
-     * This is the interface name that a service implementing a session service should say that it
-     * support -- that is, this is the action it uses for its intent filter.
+     * The {@link Intent} that must be declared as handled by the service.
      */
     public static final String SERVICE_INTERFACE = "android.media.MediaLibraryService2";
 
