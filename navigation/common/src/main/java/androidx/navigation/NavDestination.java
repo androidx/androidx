@@ -16,6 +16,9 @@
 
 package androidx.navigation;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -32,8 +35,11 @@ import android.util.AttributeSet;
 
 import androidx.navigation.common.R;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * NavDestination represents one node within an overall navigation graph.
@@ -51,6 +57,61 @@ import java.util.ArrayList;
  * These arguments can be overridden at the time of navigation.</p>
  */
 public class NavDestination {
+    /**
+     * This optional annotation allows tooling to offer auto-complete for the
+     * <code>android:name</code> attribute. This should match the class type passed to
+     * {@link #parseClassFromName(Context, String, Class)} when parsing the
+     * <code>android:name</code> attribute.
+     */
+    @Retention(SOURCE)
+    @Target({TYPE})
+    public @interface ClassType {
+        Class value();
+    }
+
+    private static final HashMap<String, Class> sClasses = new HashMap<>();
+
+    /**
+     * Parse the class associated with this destination from a raw name, generally extracted
+     * from the <code>android:name</code> attribute added to the destination's XML. This should
+     * be the class providing the visual representation of the destination that the
+     * user sees after navigating to this destination.
+     * <p>
+     * This method does name -> Class caching and should be strongly preferred over doing your
+     * own parsing if your {@link Navigator} supports the <code>android:name</code> attribute to
+     * give consistent behavior across all Navigators.
+     *
+     * @param context Context providing the package name for use with relative class names and the
+     *                ClassLoader
+     * @param name Absolute or relative class name. Null names will be ignored.
+     * @param expectedClassType The expected class type
+     * @return The parsed class
+     * @throws IllegalArgumentException if the class is not found in the provided Context's
+     * ClassLoader or if the class is not of the expected type
+     */
+    @SuppressWarnings("unchecked")
+    @NonNull
+    protected static <C> Class<? extends C> parseClassFromName(@NonNull Context context,
+            @NonNull String name,
+            @NonNull Class<? extends C> expectedClassType) {
+        if (name.charAt(0) == '.') {
+            name = context.getPackageName() + name;
+        }
+        Class clazz = sClasses.get(name);
+        if (clazz == null) {
+            try {
+                clazz = Class.forName(name, true, context.getClassLoader());
+                sClasses.put(name, clazz);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+        if (!expectedClassType.isAssignableFrom(clazz)) {
+            throw new IllegalArgumentException(name + " must be a subclass of "
+                    + expectedClassType);
+        }
+        return clazz;
+    }
 
     /**
      * Retrieve a suitable display name for a given id.
