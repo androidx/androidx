@@ -25,8 +25,6 @@ import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.MediaFormat;
-import android.media.ResourceBusyException;
-import android.media.UnsupportedSchemeException;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.view.Surface;
@@ -1299,12 +1297,26 @@ public abstract class MediaPlayer2 {
      */
     public static final int CALL_COMPLETED_SKIP_TO_NEXT = 29;
 
+    /**
+     * The start of the methods which have separate call complete callback.
+     */
+    static final int SEPARATE_CALL_COMPLETE_CALLBACK_START = 1000;
+
     /** The player just completed a call {@code notifyWhenCommandLabelReached}.
      * @see EventCallback#onCommandLabelReached
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED = 1003;
+    public static final int CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED =
+            SEPARATE_CALL_COMPLETE_CALLBACK_START;
+
+    /** The player just completed a call {@link #prepareDrm}.
+     * @see EventCallback#onCommandLabelReached
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static final int CALL_COMPLETED_PREPARE_DRM =
+            SEPARATE_CALL_COMPLETE_CALLBACK_START + 1;
 
     /**
      * @hide
@@ -1329,6 +1341,7 @@ public abstract class MediaPlayer2 {
             CALL_COMPLETED_SET_SURFACE,
             CALL_COMPLETED_SKIP_TO_NEXT,
             CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED,
+            CALL_COMPLETED_PREPARE_DRM,
     })
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP)
@@ -1480,10 +1493,19 @@ public abstract class MediaPlayer2 {
     public static final int PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR = 2;
 
     /**
-     * The DRM preparation has failed .
+     * The DRM preparation has failed.
      */
     public static final int PREPARE_DRM_STATUS_PREPARATION_ERROR = 3;
 
+    /**
+     * The crypto scheme UUID that is not supported by the device.
+     */
+    public static final int PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME = 4;
+
+    /**
+     * The hardware resources are not available, due to being in use.
+     */
+    public static final int PREPARE_DRM_STATUS_RESOURCE_BUSY = 5;
 
     /** @hide */
     @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
@@ -1491,6 +1513,8 @@ public abstract class MediaPlayer2 {
             PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
             PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
             PREPARE_DRM_STATUS_PREPARATION_ERROR,
+            PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME,
+            PREPARE_DRM_STATUS_RESOURCE_BUSY,
     })
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP)
@@ -1515,34 +1539,18 @@ public abstract class MediaPlayer2 {
      * If the device has not been provisioned before, this call also provisions the device
      * which involves accessing the provisioning server and can take a variable time to
      * complete depending on the network connectivity.
-     * If {@code OnDrmPreparedListener} is registered, prepareDrm() runs in non-blocking
-     * mode by launching the provisioning in the background and returning. The listener
-     * will be called when provisioning and preparation has finished. If a
-     * {@code OnDrmPreparedListener} is not registered, prepareDrm() waits till provisioning
-     * and preparation has finished, i.e., runs in blocking mode.
-     * <p>
-     * If {@code OnDrmPreparedListener} is registered, it is called to indicate the DRM
-     * session being ready. The application should not make any assumption about its call
-     * sequence (e.g., before or after prepareDrm returns), or the thread context that will
-     * execute the listener (unless the listener is registered with a handler thread).
+     * prepareDrm() runs in non-blocking mode by launching the provisioning in the background and
+     * returning. {@link DrmEventCallback#onDrmPrepared} will be called when provisioning and
+     * preparation has finished. The application should check the status code returned with
+     * {@link DrmEventCallback#onDrmPrepared} to proceed.
      * <p>
      *
      * @param uuid The UUID of the crypto scheme. If not known beforehand, it can be retrieved
-     * from the source through {@code getDrmInfo} or registering a {@code onDrmInfoListener}.
-     *
-     * @throws IllegalStateException              if called before being prepared or the DRM was
-     *                                            prepared already
-     * @throws UnsupportedSchemeException         if the crypto scheme is not supported
-     * @throws ResourceBusyException              if required DRM resources are in use
-     * @throws ProvisioningNetworkErrorException  if provisioning is required but failed due to a
-     *                                            network error
-     * @throws ProvisioningServerErrorException   if provisioning is required but failed due to
-     *                                            the request denied by the provisioning server
+     * from the source through {#link getDrmInfo} or registering
+     * {@link DrmEventCallback#onDrmInfo}.
      */
-    // This is a synchronous call.
-    public abstract void prepareDrm(@NonNull UUID uuid)
-            throws UnsupportedSchemeException, ResourceBusyException,
-            ProvisioningNetworkErrorException, ProvisioningServerErrorException;
+    // This is an asynchronous call.
+    public abstract void prepareDrm(@NonNull UUID uuid);
 
     /**
      * Releases the DRM session
@@ -1605,12 +1613,12 @@ public abstract class MediaPlayer2 {
      * provided to the DRM engine plugin using provideDrmKeyResponse. When the
      * response is for an offline key request, a key-set identifier is returned that
      * can be used to later restore the keys to a new session with the method
-     * {@ link # restoreDrmKeys}.
+     * {@link #restoreDrmKeys}.
      * When the response is for a streaming or release request, null is returned.
      *
      * @param keySetId When the response is for a release request, keySetId identifies
      * the saved key associated with the release request (i.e., the same keySetId
-     * passed to the earlier {@ link # getDrmKeyRequest} call. It MUST be null when the
+     * passed to the earlier {@link #getDrmKeyRequest} call. It MUST be null when the
      * response is for either streaming or offline key requests.
      *
      * @param response the byte array response from the server
@@ -1686,28 +1694,6 @@ public abstract class MediaPlayer2 {
      */
     public static class NoDrmSchemeException extends MediaDrmException {
         public NoDrmSchemeException(String detailMessage) {
-            super(detailMessage);
-        }
-    }
-
-    /**
-     * Thrown when the device requires DRM provisioning but the provisioning attempt has
-     * failed due to a network error (Internet reachability, timeout, etc.).
-     * Extends MediaDrm.MediaDrmException
-     */
-    public static class ProvisioningNetworkErrorException extends MediaDrmException {
-        public ProvisioningNetworkErrorException(String detailMessage) {
-            super(detailMessage);
-        }
-    }
-
-    /**
-     * Thrown when the device requires DRM provisioning but the provisioning attempt has
-     * failed due to the provisioning server denying the request.
-     * Extends MediaDrm.MediaDrmException
-     */
-    public static class ProvisioningServerErrorException extends MediaDrmException {
-        public ProvisioningServerErrorException(String detailMessage) {
             super(detailMessage);
         }
     }

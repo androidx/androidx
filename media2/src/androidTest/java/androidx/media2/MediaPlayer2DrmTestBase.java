@@ -31,8 +31,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.media.MediaDrm;
-import android.media.ResourceBusyException;
-import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.os.SystemClock;
@@ -129,7 +127,7 @@ public class MediaPlayer2DrmTestBase {
         mContext = mInstrumentation.getTargetContext();
         mResources = mContext.getResources();
 
-        mExecutor = Executors.newFixedThreadPool(1);
+        mExecutor = Executors.newFixedThreadPool(2);
     }
 
     @After
@@ -689,7 +687,16 @@ public class MediaPlayer2DrmTestBase {
                     Log.d(TAG, "setupDrm: selected " + drmScheme);
 
                     if (prepareDrm) {
+                        final Monitor drmPrepared = new Monitor();
+                        mPlayer.setDrmEventCallback(mExecutor, new MediaPlayer2.DrmEventCallback() {
+                            @Override
+                            public void onDrmPrepared(
+                                    MediaPlayer2 mp, DataSourceDesc2 dsd, int status) {
+                                drmPrepared.signal();
+                            }
+                        });
                         mPlayer.prepareDrm(drmScheme);
+                        drmPrepared.waitForSignal();
                     }
 
                     byte[] psshData = drmInfo.getPssh().get(drmScheme);
@@ -748,22 +755,6 @@ public class MediaPlayer2DrmTestBase {
 
         } catch (MediaPlayer2.NoDrmSchemeException e) {
             Log.d(TAG, "setupDrm: NoDrmSchemeException");
-            e.printStackTrace();
-            throw e;
-        } catch (MediaPlayer2.ProvisioningNetworkErrorException e) {
-            Log.d(TAG, "setupDrm: ProvisioningNetworkErrorException");
-            e.printStackTrace();
-            throw e;
-        } catch (MediaPlayer2.ProvisioningServerErrorException e) {
-            Log.d(TAG, "setupDrm: ProvisioningServerErrorException");
-            e.printStackTrace();
-            throw e;
-        } catch (UnsupportedSchemeException e) {
-            Log.d(TAG, "setupDrm: UnsupportedSchemeException");
-            e.printStackTrace();
-            throw e;
-        } catch (ResourceBusyException e) {
-            Log.d(TAG, "setupDrm: ResourceBusyException");
             e.printStackTrace();
             throw e;
         } catch (Exception e) {
