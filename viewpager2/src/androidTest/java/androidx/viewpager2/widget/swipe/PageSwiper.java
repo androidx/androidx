@@ -17,49 +17,33 @@
 package androidx.viewpager2.widget.swipe;
 
 import static androidx.core.util.Preconditions.checkArgumentNonnegative;
-import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.allOf;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
 import androidx.viewpager2.test.R;
 import androidx.viewpager2.widget.ViewPager2;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 public class PageSwiper {
-    private CountDownLatch mStableAfterSwipe;
     private final int mLastPageIx;
     private final ViewAction mActionPrevious;
     private final ViewAction mActionNext;
 
-    public PageSwiper(int totalPages, RecyclerView recyclerView,
-            @ViewPager2.Orientation int orientation) {
+    public PageSwiper(int totalPages, @ViewPager2.Orientation int orientation) {
         mLastPageIx = checkArgumentNonnegative(totalPages - 1);
 
+        // TODO: handle RTL
         mActionPrevious = orientation == ViewPager2.Orientation.HORIZONTAL
                 ? ViewActions.swipeRight() : ViewActions.swipeDown();
         mActionNext = orientation == ViewPager2.Orientation.HORIZONTAL
                 ? ViewActions.swipeLeft() : ViewActions.swipeUp();
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                // coming to idle from another state (dragging or setting) means we're stable now
-                if (newState == SCROLL_STATE_IDLE) {
-                    mStableAfterSwipe.countDown();
-                }
-            }
-        });
     }
 
-    public void swipe(int currentPageIx, int nextPageIx) throws InterruptedException {
+    public void swipe(int currentPageIx, int nextPageIx) {
         if (nextPageIx > mLastPageIx) {
             throw new IllegalArgumentException("Invalid next page: beyond last page.");
         }
@@ -89,17 +73,15 @@ public class PageSwiper {
         }
     }
 
-    private void swipeNext() throws InterruptedException {
+    private void swipeNext() {
         swipe(mActionNext);
     }
 
-    private void swipePrevious() throws InterruptedException {
+    private void swipePrevious() {
         swipe(mActionPrevious);
     }
 
-    private void swipe(ViewAction swipeAction) throws InterruptedException {
-        mStableAfterSwipe = new CountDownLatch(1);
+    private void swipe(ViewAction swipeAction) {
         onView(allOf(isDisplayed(), withId(R.id.text_view))).perform(swipeAction);
-        mStableAfterSwipe.await(1, TimeUnit.SECONDS);
     }
 }

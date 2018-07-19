@@ -17,6 +17,7 @@
 package androidx.viewpager2.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
@@ -36,6 +37,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
@@ -50,6 +52,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import androidx.viewpager2.R;
+import androidx.viewpager2.widget.impl.ScrollEventAdapter;
 
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
@@ -68,6 +71,8 @@ public class ViewPager2 extends ViewGroup {
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
+    private PagerSnapHelper mPagerSnapHelper;
+    private @Nullable ScrollEventAdapter mScrollEventAdapter;
 
     public ViewPager2(Context context) {
         super(context);
@@ -103,7 +108,8 @@ public class ViewPager2 extends ViewGroup {
                 new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         // TODO(b/70666992): add automated test for orientation change
-        new PagerSnapHelper().attachToRecyclerView(mRecyclerView);
+        mPagerSnapHelper = new PagerSnapHelper();
+        mPagerSnapHelper.attachToRecyclerView(mRecyclerView);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
     }
@@ -521,5 +527,121 @@ public class ViewPager2 extends ViewGroup {
 
     public @Orientation int getOrientation() {
         return mLayoutManager.getOrientation();
+    }
+
+    /**
+     * Set the currently selected page.
+     *
+     * @param item Item index to select
+     * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
+     */
+    public void setCurrentItem(int item, boolean smoothScroll) {
+        // TODO: handle scroll-in-progress case better; could lead to subtle bugs otherwise (WIP)
+        if (getCurrentItem() == item || !getScrollEventAdapter().isIdle()) {
+            return;
+        }
+
+        getScrollEventAdapter().notifyProgrammaticScroll(item, smoothScroll);
+        if (smoothScroll) {
+            // too slow when a lot of distance to travel; fix: http://b/72640299
+            mRecyclerView.smoothScrollToPosition(item);
+        } else {
+            mRecyclerView.scrollToPosition(item);
+        }
+    }
+
+    /**
+     * @return Currently selected page.
+     *
+     * Implementation returns currently visible middle-item, which is not necessarily what is
+     * expected of this API, e.g. for smooth scroll in progress.
+     *
+     * TODO: implement API parity with ViewPager (WIP)
+     */
+    public int getCurrentItem() {
+        View snapView = mPagerSnapHelper.findSnapView(mLayoutManager);
+        if (snapView == null) {
+            return NO_POSITION;
+        }
+        return mLayoutManager.getPosition(snapView);
+    }
+
+    /**
+     * Add a listener that will be invoked whenever the page changes or is incrementally
+     * scrolled. See {@link OnPageChangeListener}.
+     *
+     * <p>Components that add a listener should take care to remove it when finished.
+     * Other components that take ownership of a view may call {@link #clearOnPageChangeListeners()}
+     * to remove all attached listeners.</p>
+     *
+     * @param listener listener to add
+     */
+    public void addOnPageChangeListener(@NonNull OnPageChangeListener listener) {
+        getScrollEventAdapter().addOnPageChangeListener(listener);
+    }
+
+    private ScrollEventAdapter getScrollEventAdapter() {
+        if (mScrollEventAdapter == null) {
+            mScrollEventAdapter = new ScrollEventAdapter(mLayoutManager);
+            mRecyclerView.addOnScrollListener(mScrollEventAdapter);
+        }
+        return mScrollEventAdapter;
+    }
+
+    /**
+     * Remove a listener that was previously added via
+     * {@link #addOnPageChangeListener(OnPageChangeListener)}.
+     *
+     * @param listener listener to remove
+     */
+    public void removeOnPageChangeListener(@NonNull OnPageChangeListener listener) {
+        getScrollEventAdapter().removeOnPageChangeListener(listener);
+    }
+
+    /**
+     * Remove all listeners that are notified of any changes in scroll state or position.
+     */
+    public void clearOnPageChangeListeners() {
+        getScrollEventAdapter().clearOnPageChangeListeners();
+    }
+
+    @Retention(CLASS)
+    @IntDef({ScrollState.IDLE, ScrollState.DRAGGING, ScrollState.SETTLING})
+    public @interface ScrollState {
+        int IDLE = 0;
+        int DRAGGING = 1;
+        int SETTLING = 2;
+    }
+
+    /**
+     * Callback interface for responding to changing state of the selected page.
+     */
+    public interface OnPageChangeListener {
+
+        /**
+         * This method will be invoked when the current page is scrolled, either as part
+         * of a programmatically initiated smooth scroll or a user initiated touch scroll.
+         *
+         * @param position Position index of the first page currently being displayed.
+         *                 Page position+1 will be visible if positionOffset is nonzero.
+         * @param positionOffset Value from [0, 1) indicating the offset from the page at position.
+         * @param positionOffsetPixels Value in pixels indicating the offset from position.
+         */
+        void onPageScrolled(int position, float positionOffset, @Px int positionOffsetPixels);
+
+        /**
+         * This method will be invoked when a new page becomes selected. Animation is not
+         * necessarily complete.
+         *
+         * @param position Position index of the new selected page.
+         */
+        void onPageSelected(int position);
+
+        /**
+         * Called when the scroll state changes. Useful for discovering when the user
+         * begins dragging, when the pager is automatically settling to the current page,
+         * or when it is fully stopped/idle.
+         */
+        void onPageScrollStateChanged(@ScrollState int state);
     }
 }

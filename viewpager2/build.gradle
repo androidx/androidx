@@ -20,6 +20,7 @@ import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -34,6 +35,7 @@ dependencies {
     androidTestImplementation project(':internal-testutils'), {
         exclude group: 'androidx.viewpager2', module: 'viewpager2'
     }
+    androidTestImplementation(KOTLIN_STDLIB)
 }
 
 android {
