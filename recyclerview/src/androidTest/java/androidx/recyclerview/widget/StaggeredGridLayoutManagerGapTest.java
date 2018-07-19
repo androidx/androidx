@@ -82,7 +82,8 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
         getInstrumentation().waitForIdleSync();
         mLayoutManager.expectLayouts(1);
         smoothScrollToPosition(0);
-        mLayoutManager.waitForLayout(2);
+        // Waiting for 10 seconds below because 2 seconds proved to flaky.
+        mLayoutManager.waitForLayout(10);
         checkForMainThreadException();
         // due to data changes, first item may become visible before others which will cause
         // smooth scrolling to stop. Triggering it twice more is a naive hack.
