@@ -211,13 +211,13 @@ public class AsyncListDiffer<T> {
      */
     @SuppressWarnings("WeakerAccess")
     public void submitList(@Nullable final List<T> newList) {
-        if (newList == mList) {
-            // nothing to do
-            return;
-        }
-
         // incrementing generation means any currently-running diffs are discarded when they finish
         final int runGeneration = ++mMaxScheduledGeneration;
+
+        if (newList == mList) {
+            // nothing to do (Note - still had to inc generation, since may have ongoing work)
+            return;
+        }
 
         // fast simple remove all
         if (newList == null) {

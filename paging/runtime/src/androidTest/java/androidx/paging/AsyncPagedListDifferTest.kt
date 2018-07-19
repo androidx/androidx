@@ -135,6 +135,30 @@ class AsyncPagedListDifferTest {
     }
 
     @Test
+    fun submitListReuse() {
+        val callback = mock(ListUpdateCallback::class.java)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val origList = StringPagedList(2, 2, "a", "b")
+
+        // set up original list
+        differ.submitList(origList)
+        verify(callback).onInserted(0, 6)
+        verifyNoMoreInteractions(callback)
+        drain()
+        verifyNoMoreInteractions(callback)
+
+        // submit new list, but don't let it finish
+        differ.submitList(StringPagedList(0, 0, "c", "d"))
+        drainExceptDiffThread()
+        verifyNoMoreInteractions(callback)
+
+        // resubmit original list, which should be final observable state
+        differ.submitList(origList)
+        drain()
+        assertEquals(origList, differ.currentList)
+    }
+
+    @Test
     fun pagingInContent() {
         val config = PagedList.Config.Builder()
                 .setInitialLoadSizeHint(4)
