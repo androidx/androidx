@@ -67,9 +67,6 @@ public class SanitizedMainFragmentArgs {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        if (!super.equals(object)) {
-            return false;
-        }
         SanitizedMainFragmentArgs that = (SanitizedMainFragmentArgs) object;
         if (nameWithDot != that.nameWithDot) {
             return false;

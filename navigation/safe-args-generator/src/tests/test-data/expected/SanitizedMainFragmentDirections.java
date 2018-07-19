@@ -75,9 +75,6 @@ public class SanitizedMainFragmentDirections {
             if (object == null || getClass() != object.getClass()) {
                 return false;
             }
-            if (!super.equals(object)) {
-                return false;
-            }
             PreviousAction that = (PreviousAction) object;
             if (arg1 != null ? !arg1.equals(that.arg1) : that.arg1 != null) {
                 return false;
@@ -151,9 +148,6 @@ public class SanitizedMainFragmentDirections {
                 return true;
             }
             if (object == null || getClass() != object.getClass()) {
-                return false;
-            }
-            if (!super.equals(object)) {
                 return false;
             }
             NextAction that = (NextAction) object;

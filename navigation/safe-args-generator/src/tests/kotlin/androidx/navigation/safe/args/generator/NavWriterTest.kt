@@ -20,13 +20,18 @@ import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
 import androidx.navigation.safe.args.generator.models.ResReference
+import com.google.common.collect.ImmutableList
+import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubject
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
 import org.hamcrest.CoreMatchers
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -82,6 +87,14 @@ class NavWriterTest {
 
     private fun JavaSourcesSubject.parsesAs(fullClassName: String) =
             this.parsesAs(load(fullClassName, "expected"))
+
+    private fun compileFiles(vararg javaFileObject: JavaFileObject) = javac()
+            .compile(load("a.b.R", "a/b"),
+                    JavaFileObjects.forSourceString("android.support.annotation.NonNull",
+                            "package android.support.annotation; public @interface NonNull {}"),
+                    JavaFileObjects.forSourceString("android.support.annotation.Nullable",
+                            "package android.support.annotation; public @interface Nullable {}"),
+                    *javaFileObject)
 
     @Test
     fun testDirectionClassGeneration() {
@@ -190,5 +203,51 @@ class NavWriterTest {
         val actual = toJavaFileObject(generateArgsJavaFile(dest, false))
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.SanitizedMainFragmentArgs")
         assertCompilesWithoutError(actual)
+    }
+
+    @Test
+    fun testGeneratedDirectionEqualsImpl() {
+        val nextAction = Action(id("next"), id("destA"), listOf(Argument("main", StringType)))
+        val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
+                listOf(nextAction))
+
+        val actual = toJavaFileObject(generateDirectionsJavaFile(dest, false))
+
+        val generatedFiles = compileFiles(actual).generatedFiles()
+        val loader = InMemoryGeneratedClassLoader(generatedFiles)
+
+        fun createNextObj(mainArgValue: String) = loader.loadClass("a.b.MainFragmentDirections")
+                .getDeclaredMethod("next", String::class.java)
+                .invoke(null, mainArgValue)
+
+        val nextObjectA = createNextObj("data")
+        val nextObjectB = createNextObj("data")
+        val nextObjectC = createNextObj("different data")
+
+        assertThat(nextObjectA, `is`(nextObjectB))
+        assertThat(nextObjectA, not(`is`(nextObjectC)))
+    }
+
+    /**
+     * Class loader that allows us to load classes from compile testing generated classes.
+     */
+    class InMemoryGeneratedClassLoader(
+        private val generatedFiles: ImmutableList<JavaFileObject>
+    ) : ClassLoader(ClassLoader.getSystemClassLoader()) {
+        override fun findClass(name: String): Class<*> {
+            val simpleName = name.let { it.substring(it.lastIndexOf('.') + 1, it.length) }
+            val match = generatedFiles.firstOrNull {
+                it.isNameCompatible(simpleName, JavaFileObject.Kind.CLASS)
+            }
+            if (match != null) {
+                val data = match.openInputStream().use { inputStream ->
+                    ByteArray(inputStream.available()).apply {
+                        inputStream.read(this)
+                    }
+                }
+                return super.defineClass(name, data, 0, data.size)
+            }
+            return super.findClass(name)
+        }
     }
 }
