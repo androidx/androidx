@@ -33,6 +33,7 @@ import android.util.SparseBooleanArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArraySet;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +44,9 @@ import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @hide
@@ -765,6 +768,20 @@ public abstract class VersionedParcel {
     }
 
     /**
+     * Flatten a Set containing a particular object type into the parcel, at
+     * the current dataPosition() and growing dataCapacity() if needed.  The
+     * type of the objects in the list must be one that implements VersionedParcelable,
+     * Parcelable, String, or Serializable.
+     *
+     * @param val The list of objects to be written.
+     * @see #readSet
+     * @see VersionedParcelable
+     */
+    public <T> void writeSet(Set<T> val, int fieldId) {
+        writeCollection(val, fieldId);
+    }
+
+    /**
      * Flatten a List containing a particular object type into the parcel, at
      * the current dataPosition() and growing dataCapacity() if needed.  The
      * type of the objects in the list must be one that implements VersionedParcelable,
@@ -775,6 +792,10 @@ public abstract class VersionedParcel {
      * @see VersionedParcelable
      */
     public <T> void writeList(List<T> val, int fieldId) {
+        writeCollection(val, fieldId);
+    }
+
+    private <T> void writeCollection(Collection<T> val, int fieldId) {
         setOutputField(fieldId);
         if (val == null) {
             writeInt(-1);
@@ -782,40 +803,34 @@ public abstract class VersionedParcel {
         }
 
         int n = val.size();
-        int i = 0;
         writeInt(n);
         if (n > 0) {
-            int type = getType(val.get(0));
+            int type = getType(val.iterator().next());
             writeInt(type);
             switch (type) {
                 case TYPE_STRING:
-                    while (i < n) {
-                        writeString((String) val.get(i));
-                        i++;
+                    for (T v : val) {
+                        writeString((String) v);
                     }
                     break;
                 case TYPE_PARCELABLE:
-                    while (i < n) {
-                        writeParcelable((Parcelable) val.get(i));
-                        i++;
+                    for (T v : val) {
+                        writeParcelable((Parcelable) v);
                     }
                     break;
                 case TYPE_VERSIONED_PARCELABLE:
-                    while (i < n) {
-                        writeVersionedParcelable((VersionedParcelable) val.get(i));
-                        i++;
+                    for (T v : val) {
+                        writeVersionedParcelable((VersionedParcelable) v);
                     }
                     break;
                 case TYPE_SERIALIZABLE:
-                    while (i < n) {
-                        writeSerializable((Serializable) val.get(i));
-                        i++;
+                    for (T v : val) {
+                        writeSerializable((Serializable) v);
                     }
                     break;
                 case TYPE_BINDER:
-                    while (i < n) {
-                        writeStrongBinder((IBinder) val.get(i));
-                        i++;
+                    for (T v : val) {
+                        writeStrongBinder((IBinder) v);
                     }
                     break;
             }
@@ -1194,6 +1209,25 @@ public abstract class VersionedParcel {
     }
 
     /**
+     * Read and return a new ArraySet containing a particular object type from
+     * the parcel that was written with {@link #writeSet} at the
+     * current dataPosition().  Returns null if the
+     * previously written list object was null.  The list <em>must</em> have
+     * previously been written via {@link #writeSet} with the same object
+     * type.
+     *
+     * @return A newly created ArraySet containing objects with the same data
+     * as those that were previously written.
+     * @see #writeSet
+     */
+    public <T> Set<T> readSet(Set<T> def, int fieldId) {
+        if (!readField(fieldId)) {
+            return def;
+        }
+        return readCollection(fieldId, new ArraySet<T>());
+    }
+
+    /**
      * Read and return a new ArrayList containing a particular object type from
      * the parcel that was written with {@link #writeList} at the
      * current dataPosition().  Returns null if the
@@ -1209,11 +1243,14 @@ public abstract class VersionedParcel {
         if (!readField(fieldId)) {
             return def;
         }
+        return readCollection(fieldId, new ArrayList<T>());
+    }
+
+    private <T, S extends Collection<T>> S readCollection(int fieldId, S list) {
         int n = readInt();
         if (n < 0) {
             return null;
         }
-        ArrayList<T> list = new ArrayList<T>(n);
         if (n != 0) {
             int type = readInt();
             if (n < 0) {

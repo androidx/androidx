@@ -37,6 +37,7 @@ import android.util.Size;
 import android.util.SizeF;
 import android.util.SparseBooleanArray;
 
+import androidx.collection.ArraySet;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -47,6 +48,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @RunWith(Parameterized.class)
 @SmallTest
@@ -320,6 +322,14 @@ public class VersionedParcelIntegTest {
     }
 
     @Test
+    public void testStringSet() {
+        ParcelizableImpl obj = new ParcelizableImpl();
+        obj.mStringSet = new ArraySet<>(Arrays.asList("string_1", "42"));
+        ParcelizableImpl other = parcelCopy(obj);
+        assertEquals(obj.mStringSet, other.mStringSet);
+    }
+
+    @Test
     public void testBinderList() {
         if (mUseStream) {
             return;
@@ -434,6 +444,8 @@ public class VersionedParcelIntegTest {
         public List<String> mStringList;
         @ParcelField(27)
         public List<IBinder> mBinderList;
+        @ParcelField(28)
+        public Set<String> mStringSet;
 
         @NonParcelField
         private boolean mPreParcelled;
