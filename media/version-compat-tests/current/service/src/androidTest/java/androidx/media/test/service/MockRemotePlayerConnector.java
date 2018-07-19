@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 /**
  * Mock implementation of {@link BaseRemoteMediaPlayerConnector}.
  */
-public class MockRemotePlayer extends BaseRemoteMediaPlayerConnector {
+public class MockRemotePlayerConnector extends BaseRemoteMediaPlayerConnector {
     public final CountDownLatch mLatch = new CountDownLatch(1);
     public boolean mSetVolumeToCalled;
     public boolean mAdjustVolumeCalled;
@@ -37,7 +37,7 @@ public class MockRemotePlayer extends BaseRemoteMediaPlayerConnector {
     public int mDirection;
     public AudioAttributesCompat mAudioAttributes;
 
-    public MockRemotePlayer(int controlType, float maxVolume, float currentVolume) {
+    public MockRemotePlayerConnector(int controlType, float maxVolume, float currentVolume) {
         mControlType = controlType;
         mMaxVolume = maxVolume;
         mCurrentVolume = currentVolume;

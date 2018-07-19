@@ -32,7 +32,7 @@ import android.os.ResultReceiver;
 import androidx.annotation.NonNull;
 import androidx.media.test.lib.TestUtils;
 import androidx.media.test.service.MediaTestUtils;
-import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlayerConnector;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.MediaItem2;
@@ -68,7 +68,7 @@ import java.util.concurrent.TimeUnit;
 public class MediaSession2CallbackTest extends MediaSession2TestBase {
     private static final String TAG = "MediaSession2CallbackTest";
 
-    MockPlayer mPlayer;
+    MockPlayerConnector mPlayer;
     MockPlaylistAgent mMockAgent;
     RemoteMediaController2 mController2;
 
@@ -76,7 +76,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mPlayer = new MockPlayer(0);
+        mPlayer = new MockPlayerConnector(0);
         mMockAgent = new MockPlaylistAgent();
     }
 
@@ -89,7 +89,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnCommandRequest() throws InterruptedException {
         prepareLooper();
-        mPlayer = new MockPlayer(1);
+        mPlayer = new MockPlayerConnector(1);
 
         final MockOnCommandCallback callback = new MockOnCommandCallback();
         MediaSession2 session = new MediaSession2.Builder(mContext)
@@ -776,7 +776,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         // TODO(jaewan): Add equivalent tests again
         final CountDownLatch latch = new CountDownLatch(4); // expected call + 1
-        final BadPlayer player = new BadPlayer(0);
+        final BadPlayerConnector player = new BadPlayerConnector(0);
 
         MediaSession2 session = null;
         session.updatePlayerConnector(player, null);
@@ -787,8 +787,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
 
     // This bad player will keep push events to the listener that is previously
     // registered by session.setPlayer().
-    private static class BadPlayer extends MockPlayer {
-        BadPlayer(int count) {
+    private static class BadPlayerConnector extends MockPlayerConnector {
+        BadPlayerConnector(int count) {
             super(count);
         }
 
