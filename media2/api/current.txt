@@ -686,6 +686,11 @@ package androidx.media2 {
     method public void onUnsubscribeRoutesInfo(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
   }
 
+  public final class MediaSessionManager2 {
+    method public static androidx.media2.MediaSessionManager2 getInstance(android.content.Context);
+    method public java.util.List<androidx.media2.SessionToken2> getSessionServiceTokens();
+  }
+
   public abstract class MediaSessionService2 extends android.app.Service {
     ctor public MediaSessionService2();
     method public final androidx.media2.MediaSession2 getSession();

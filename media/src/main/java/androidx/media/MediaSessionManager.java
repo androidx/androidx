@@ -52,17 +52,15 @@ public final class MediaSessionManager {
      * @return The MediaSessionManager instance for this context.
      */
     public static @NonNull MediaSessionManager getSessionManager(@NonNull Context context) {
-        MediaSessionManager manager = sSessionManager;
-        if (manager == null) {
-            synchronized (sLock) {
-                manager = sSessionManager;
-                if (manager == null) {
-                    sSessionManager = new MediaSessionManager(context.getApplicationContext());
-                    manager = sSessionManager;
-                }
-            }
+        if (context == null) {
+            throw new IllegalArgumentException("context cannot be null");
         }
-        return manager;
+        synchronized (sLock) {
+            if (sSessionManager == null) {
+                sSessionManager = new MediaSessionManager(context.getApplicationContext());
+            }
+            return sSessionManager;
+        }
     }
 
     private MediaSessionManager(Context context) {

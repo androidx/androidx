@@ -90,7 +90,7 @@ final class SessionToken2ImplLegacy implements SessionToken2Impl {
 
     @Override
     public int hashCode() {
-        return mLegacyToken.hashCode();
+        return ObjectsCompat.hash(mType, mComponentName, mLegacyToken);
     }
 
     @Override
@@ -99,10 +99,16 @@ final class SessionToken2ImplLegacy implements SessionToken2Impl {
             return false;
         }
         SessionToken2ImplLegacy other = (SessionToken2ImplLegacy) obj;
-        if (mLegacyToken == null && other.mLegacyToken == null) {
-            return ObjectsCompat.equals(mComponentName, other.mComponentName);
+        if (mType != other.mType) {
+            return false;
         }
-        return ObjectsCompat.equals(mLegacyToken, other.mLegacyToken);
+        switch (mType) {
+            case TYPE_SESSION_LEGACY:
+                return ObjectsCompat.equals(mLegacyToken, other.mLegacyToken);
+            case TYPE_BROWSER_SERVICE_LEGACY:
+                return ObjectsCompat.equals(mComponentName, other.mComponentName);
+        }
+        return false;
     }
 
     @Override
