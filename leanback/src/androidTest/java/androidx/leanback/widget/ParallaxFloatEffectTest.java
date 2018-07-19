@@ -19,6 +19,7 @@
 
 package androidx.leanback.widget;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -44,7 +45,7 @@ public class ParallaxFloatEffectTest {
     @Mock ParallaxTarget mTarget;
 
     static void assertFloatEquals(float expected, float actual) {
-        org.junit.Assert.assertEquals((double) expected, (double) actual, 0.0001d);
+        assertEquals((double) expected, (double) actual, 0.0001d);
     }
 
     @Before

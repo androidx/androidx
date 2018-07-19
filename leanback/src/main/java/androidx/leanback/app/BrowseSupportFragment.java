@@ -1515,7 +1515,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         public void onHeaderSelected(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
             int position = mHeadersSupportFragment.getSelectedPosition();
             if (DEBUG) Log.v(TAG, "header selected position " + position);
-            onRowSelected(position);
+            // Layout of Headers Fragment in hidden state may triggers the onRowSelected and
+            // reset to 0. Skip in that case.
+            if (mShowingHeaders) {
+                onRowSelected(position);
+            }
         }
     };
 
