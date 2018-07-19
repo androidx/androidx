@@ -320,8 +320,8 @@ public final class SessionToken2 {
                             // token for framework session.
                             controller.unregisterCallback((MediaControllerCompat.Callback) msg.obj);
                             token.setSessionToken2Bundle(token2ForLegacySession.toBundle());
-                            notifySessionToken2Created(
-                                    executor, listener, token, token2ForLegacySession);
+                            notifySessionToken2Created(executor, listener, token,
+                                    token2ForLegacySession);
                             if (Build.VERSION.SDK_INT >= 18) {
                                 thread.quitSafely();
                             } else {
@@ -336,6 +336,7 @@ public final class SessionToken2 {
                 public void onSessionReady() {
                     synchronized (listener) {
                         handler.removeMessages(MSG_SEND_TOKEN2_FOR_LEGACY_SESSION);
+                        controller.unregisterCallback(this);
                         if (token.getSessionToken2Bundle() == null) {
                             token.setSessionToken2Bundle(token2ForLegacySession.toBundle());
                         }
@@ -349,9 +350,11 @@ public final class SessionToken2 {
                     }
                 }
             };
-            controller.registerCallback(callback, handler);
-            Message msg = handler.obtainMessage(MSG_SEND_TOKEN2_FOR_LEGACY_SESSION, callback);
-            handler.sendMessageDelayed(msg, WAIT_TIME_MS_FOR_SESSION_READY);
+            synchronized (listener) {
+                controller.registerCallback(callback, handler);
+                Message msg = handler.obtainMessage(MSG_SEND_TOKEN2_FOR_LEGACY_SESSION, callback);
+                handler.sendMessageDelayed(msg, WAIT_TIME_MS_FOR_SESSION_READY);
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to create session token2.", e);
         }
