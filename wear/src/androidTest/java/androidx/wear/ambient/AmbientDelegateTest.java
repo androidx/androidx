@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import androidx.fragment.app.FragmentActivity;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -61,6 +62,7 @@ public class AmbientDelegateTest {
                 .thenReturn(mMockWearableController);
     }
 
+    @LargeTest
     @Test
     public void testNullActivity() {
         mAmbientDelegateUnderTest = new AmbientDelegate(null,

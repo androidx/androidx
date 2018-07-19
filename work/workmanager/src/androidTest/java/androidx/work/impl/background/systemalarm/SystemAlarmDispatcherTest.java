@@ -279,6 +279,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(mLatch.getCount(), is(0L));
     }
 
+    @LargeTest
     @Test
     public void testConstraintsChangedMarkedNotScheduled_withNoConstraints()
             throws InterruptedException {

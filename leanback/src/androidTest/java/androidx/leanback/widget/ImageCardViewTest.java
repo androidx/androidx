@@ -33,7 +33,7 @@ import android.widget.ImageView;
 import androidx.leanback.R;
 import androidx.leanback.app.TestActivity;
 import androidx.leanback.testutils.PollingCheck;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Random;
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class ImageCardViewTest {
 

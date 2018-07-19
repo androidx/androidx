@@ -558,7 +558,7 @@ public class ExifInterfaceTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testRotation() throws IOException {
         File imageFile = new File(
                 Environment.getExternalStorageDirectory(), EXIF_BYTE_ORDER_II_JPEG);

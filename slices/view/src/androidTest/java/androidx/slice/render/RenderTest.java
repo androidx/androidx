@@ -31,8 +31,8 @@ import android.content.IntentFilter;
 import android.os.Build;
 
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -48,7 +48,7 @@ import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19)
 public class RenderTest {
