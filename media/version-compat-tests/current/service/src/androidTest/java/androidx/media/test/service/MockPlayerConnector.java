@@ -29,7 +29,7 @@ import java.util.concurrent.Executor;
 /**
  * A mock implementation of {@link MediaPlayerConnector} for testing.
  */
-public class MockPlayer extends MediaPlayerConnector {
+public class MockPlayerConnector extends MediaPlayerConnector {
     public final CountDownLatch mCountDownLatch;
 
     public boolean mPlayCalled;
@@ -50,7 +50,7 @@ public class MockPlayer extends MediaPlayerConnector {
 
     private AudioAttributesCompat mAudioAttributes;
 
-    public MockPlayer(int count) {
+    public MockPlayerConnector(int count) {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
         // This prevents MS2#play() from triggering MediaPlayerConnector#prepare().
         mLastPlayerState = PLAYER_STATE_PAUSED;
@@ -158,7 +158,7 @@ public class MockPlayer extends MediaPlayerConnector {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onPlayerStateChanged(MockPlayer.this, state);
+                    callback.onPlayerStateChanged(MockPlayerConnector.this, state);
                 }
             });
         }
@@ -171,7 +171,7 @@ public class MockPlayer extends MediaPlayerConnector {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onCurrentDataSourceChanged(MockPlayer.this, dsd);
+                    callback.onCurrentDataSourceChanged(MockPlayerConnector.this, dsd);
                 }
             });
         }
@@ -184,7 +184,7 @@ public class MockPlayer extends MediaPlayerConnector {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onMediaPrepared(MockPlayer.this, dsd);
+                    callback.onMediaPrepared(MockPlayerConnector.this, dsd);
                 }
             });
         }
@@ -198,7 +198,7 @@ public class MockPlayer extends MediaPlayerConnector {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onBufferingStateChanged(MockPlayer.this, dsd, buffState);
+                    callback.onBufferingStateChanged(MockPlayerConnector.this, dsd, buffState);
                 }
             });
         }
@@ -211,7 +211,7 @@ public class MockPlayer extends MediaPlayerConnector {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onPlaybackSpeedChanged(MockPlayer.this, speed);
+                    callback.onPlaybackSpeedChanged(MockPlayerConnector.this, speed);
                 }
             });
         }
@@ -224,7 +224,7 @@ public class MockPlayer extends MediaPlayerConnector {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onSeekCompleted(MockPlayer.this, position);
+                    callback.onSeekCompleted(MockPlayerConnector.this, position);
                 }
             });
         }

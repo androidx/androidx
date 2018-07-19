@@ -24,9 +24,9 @@ import static org.junit.Assert.assertTrue;
 import android.media.AudioManager;
 import android.os.Build;
 
-import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlayerConnector;
 import androidx.media.test.service.MockPlaylistAgent;
-import androidx.media.test.service.MockRemotePlayer;
+import androidx.media.test.service.MockRemotePlayerConnector;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.BaseRemoteMediaPlayerConnector;
 import androidx.media2.MediaSession2;
@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class BaseRemoteMediaPlayerTest extends MediaSession2TestBase {
+public class RemoteMediaPlayerConnectorTest extends MediaSession2TestBase {
 
     MediaSession2 mSession;
     RemoteMediaController2 mController2;
@@ -60,7 +60,7 @@ public class BaseRemoteMediaPlayerTest extends MediaSession2TestBase {
         super.setUp();
         // Create this test specific MediaSession2 to use our own Handler.
         mSession = new MediaSession2.Builder(mContext)
-                .setPlayer(new MockPlayer(1))
+                .setPlayer(new MockPlayerConnector(1))
                 .setPlaylistAgent(new MockPlaylistAgent())
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                     @Override
@@ -91,7 +91,7 @@ public class BaseRemoteMediaPlayerTest extends MediaSession2TestBase {
         final float maxVolume = 100;
         final float currentVolume = 23;
         final int volumeControlType = BaseRemoteMediaPlayerConnector.VOLUME_CONTROL_ABSOLUTE;
-        MockRemotePlayer remotePlayer = new MockRemotePlayer(
+        MockRemotePlayerConnector remotePlayer = new MockRemotePlayerConnector(
                 volumeControlType, maxVolume, currentVolume);
 
         mSession.updatePlayerConnector(remotePlayer, null);
@@ -111,7 +111,7 @@ public class BaseRemoteMediaPlayerTest extends MediaSession2TestBase {
         final float currentVolume = 23.0f;
         final int volumeControlType = BaseRemoteMediaPlayerConnector.VOLUME_CONTROL_ABSOLUTE;
 
-        MockRemotePlayer remotePlayer = new MockRemotePlayer(
+        MockRemotePlayerConnector remotePlayer = new MockRemotePlayerConnector(
                 volumeControlType, maxVolume, currentVolume);
 
         mSession.updatePlayerConnector(remotePlayer, null);
