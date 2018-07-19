@@ -42,7 +42,7 @@ public class ParallaxIntEffectTest {
     @Mock ParallaxTarget mTarget;
 
     static void assertFloatEquals(float expected, float actual) {
-        org.junit.Assert.assertEquals((double) expected, (double) actual, 0.0001d);
+        assertEquals((double) expected, (double) actual, 0.0001d);
     }
 
     @Before
