@@ -18,30 +18,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:orientation="vertical" >
-    <TextView android:id="@+id/mr_group_volume_route_name"
-              android:layout_width="match_parent"
-              android:layout_height="48dp"
               android:paddingStart="16dp"
-              android:gravity="center_vertical"
-              android:textSize="11sp"
-              android:textColor="#80868B" />
+              android:paddingEnd="16dp"
+              android:orientation="vertical">
     <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="48dp"
+                  android:gravity="center_vertical"
+                  android:orientation="horizontal">
+        <ImageView android:id="@+id/mr_cast_route_icon"
+                   android:layout_width="24dp"
+                   android:layout_height="24dp" />
+        <TextView android:id="@+id/mr_cast_route_name"
+                  android:layout_width="0dp"
                   android:layout_height="wrap_content"
-                  android:paddingStart="16dp"
-                  android:paddingEnd="16dp"
-                  android:gravity="center"
+                  android:layout_weight="1"
+                  android:layout_marginLeft="16dp"
+                  android:layout_marginRight="16dp"
+                  android:singleLine="true"
+                  android:ellipsize="marquee"/>
+        <CheckBox android:id="@+id/mr_cast_checkbox"
+                  android:layout_width="24dp"
+                  android:layout_height="24dp" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/mr_cast_volume_layout"
+                  android:layout_width="match_parent"
+                  android:layout_height="48dp"
+                  android:gravity="center_vertical"
                   android:orientation="horizontal">
         <ImageView android:layout_width="24dp"
                    android:layout_height="24dp"
                    android:src="?attr/mediaRouteAudioTrackDrawable"
-                   android:gravity="center"
-                   android:scaleType="center"/>
+                   android:layout_marginRight="16dp"/>
         <androidx.mediarouter.app.MediaRouteVolumeSlider
-            android:id="@+id/mr_group_volume_slider"
+            android:id="@+id/mr_cast_volume_slider"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginLeft="16dp"
             android:contentDescription="@string/mr_controller_volume_slider" />
     </LinearLayout>
 </LinearLayout>
