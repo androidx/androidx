@@ -871,7 +871,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         void run(ControllerInfo controller) throws RemoteException;
     }
 
-    static final class Controller2Cb extends ControllerCb {
+    final class Controller2Cb extends ControllerCb {
         private final IMediaController2 mIControllerCallback;
 
         Controller2Cb(@NonNull IMediaController2 callback) {
@@ -946,14 +946,27 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
-            mIControllerCallback.onPlaylistChanged(
-                    MediaUtils2.convertMediaItem2ListToParcelImplList(playlist),
-                    metadata == null ? null : metadata.toBundle());
+            ControllerInfo controller = mConnectedControllersManager.getController(
+                    getCallbackBinder());
+            if (mConnectedControllersManager.isAllowedCommand(controller,
+                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)) {
+                mIControllerCallback.onPlaylistChanged(
+                        MediaUtils2.convertMediaItem2ListToParcelImplList(playlist),
+                        metadata == null ? null : metadata.toBundle());
+            } else if (mConnectedControllersManager.isAllowedCommand(controller,
+                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA)) {
+                mIControllerCallback.onPlaylistMetadataChanged(metadata.toBundle());
+            }
         }
 
         @Override
         void onPlaylistMetadataChanged(MediaMetadata2 metadata) throws RemoteException {
-            mIControllerCallback.onPlaylistMetadataChanged(metadata.toBundle());
+            ControllerInfo controller = mConnectedControllersManager.getController(
+                    getCallbackBinder());
+            if (mConnectedControllersManager.isAllowedCommand(controller,
+                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA)) {
+                mIControllerCallback.onPlaylistMetadataChanged(metadata.toBundle());
+            }
         }
 
         @Override

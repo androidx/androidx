@@ -467,7 +467,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .setPlaylistAgent(agent)
                 .build()) {
             MediaController2 controller = createController(session.getToken(), true, callback);
-            agent.notifyPlaylistMetadataChanged();
+            agent.notifyPlaylistChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
