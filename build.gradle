@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.AndroidXPlugin
 import androidx.build.DacOptions
 import androidx.build.PublishDocsRulesKt
 
@@ -48,8 +49,9 @@ init.configureSubProjects()
 
 def buildTask = init.configureBuildOnServer()
 
-init.setupRelease()
+apply plugin: AndroidXPlugin
 
+// AndroidX needed before jetify since it accesses the createArchive task name directly.
 apply from: 'buildSrc/jetify.gradle'
 
 def allDocs = init.enableDoclavaAndJDiff(this, new DacOptions("androidx", "ANDROIDX_DATA"),
