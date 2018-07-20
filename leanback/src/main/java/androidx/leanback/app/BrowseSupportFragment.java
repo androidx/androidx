@@ -227,7 +227,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         static final int TYPE_INTERNAL_SYNC = 0;
         static final int TYPE_USER_REQUEST = 1;
 
-        private boolean mStopped = true;
         private int mPosition;
         private int mType;
         private boolean mSmooth;
@@ -260,13 +259,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
 
         public void stop() {
-            mStopped = true;
             // remove possible callback when stop, it will be re-added in start().
             mBrowseFrame.removeCallbacks(this);
         }
 
         public void start() {
-            mStopped = false;
             if (mType != TYPE_INVALID) {
                 mBrowseFrame.post(this);
             }
@@ -735,6 +732,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     private float mScaleFactor;
     boolean mIsPageRow;
     Object mPageRow;
+    boolean mStopped = true;
 
     private PresenterSelector mHeaderPresenterSelector;
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
@@ -1557,7 +1555,33 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
     }
 
+    final void commitMainFragment() {
+        FragmentManager fm = getChildFragmentManager();
+        Fragment currentFragment = fm.findFragmentById(R.id.scale_frame);
+        if (currentFragment != mMainFragment) {
+            fm.beginTransaction()
+                    .replace(R.id.scale_frame, mMainFragment).commit();
+        }
+    }
+
+    private final RecyclerView.OnScrollListener mWaitScrollFinishAndCommitMainFragment =
+            new RecyclerView.OnScrollListener() {
+        @SuppressWarnings("ReferenceEquality")
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                recyclerView.removeOnScrollListener(this);
+                if (!mStopped) {
+                    commitMainFragment();
+                }
+            }
+        }
+    };
+
     private void swapToMainFragment() {
+        if (mStopped) {
+            return;
+        }
         final VerticalGridView gridView = mHeadersSupportFragment.getVerticalGridView();
         if (isShowingHeaders() && gridView != null
                 && gridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
@@ -1565,24 +1589,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             // finishes.
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.scale_frame, new Fragment()).commit();
-            gridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @SuppressWarnings("ReferenceEquality")
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        gridView.removeOnScrollListener(this);
-                        FragmentManager fm = getChildFragmentManager();
-                        Fragment currentFragment = fm.findFragmentById(R.id.scale_frame);
-                        if (currentFragment != mMainFragment) {
-                            fm.beginTransaction().replace(R.id.scale_frame, mMainFragment).commit();
-                        }
-                    }
-                }
-            });
+            gridView.removeOnScrollListener(mWaitScrollFinishAndCommitMainFragment);
+            gridView.addOnScrollListener(mWaitScrollFinishAndCommitMainFragment);
         } else {
             // Otherwise swap immediately
-            getChildFragmentManager().beginTransaction()
-                    .replace(R.id.scale_frame, mMainFragment).commit();
+            commitMainFragment();
         }
     }
 
@@ -1665,11 +1676,15 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
         mStateMachine.fireEvent(EVT_HEADER_VIEW_CREATED);
 
+        mStopped = false;
+        // if main fragment wasn't commited in stopped state, do it again in onStart()
+        commitMainFragment();
         mSetSelectionRunnable.start();
     }
 
     @Override
     public void onStop() {
+        mStopped = true;
         mSetSelectionRunnable.stop();
         super.onStop();
     }
