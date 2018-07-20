@@ -57,7 +57,6 @@ import java.util.concurrent.TimeUnit;
  * Users can run {@link MediaSessionCompat} methods remotely with this object.
  */
 public class RemoteMediaSessionCompat {
-
     private static final String TAG = "RemoteMediaSessionCompat";
 
     private final Context mContext;
@@ -104,9 +103,9 @@ public class RemoteMediaSessionCompat {
         }
     }
 
-    /////////////////////////////////////////////////
-    ////        MediaSessionCompat Methods       ////
-    /////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    // MediaSessionCompat methods
+    ////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Gets {@link MediaSessionCompat.Token} from the service app.
@@ -221,9 +220,9 @@ public class RemoteMediaSessionCompat {
         }
     }
 
-    ///////////////////////////////
-    ////    Private methods    ////
-    ///////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    // Non-public methods
+    ////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Connects to service app's RemoteMediaSessionCompatService.
@@ -280,7 +279,6 @@ public class RemoteMediaSessionCompat {
         return bundle;
     }
 
-    // These methods will run on main thread.
     class MyServiceConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {

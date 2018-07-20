@@ -47,7 +47,6 @@ import java.util.concurrent.Executor;
  * client app's requests.
  */
 public class RemoteMediaSessionCompatService extends Service {
-
     private static final String TAG = "RemoteMediaSessionCompatService";
 
     Map<String, MediaSessionCompat> mSessionMap = new HashMap<>();
@@ -109,9 +108,10 @@ public class RemoteMediaSessionCompatService extends Service {
             // If needed, define some commands.
         }
 
-        /**
-         * {@link MediaSessionCompat} methods.
-         */
+        ////////////////////////////////////////////////////////////////////////////////
+        // MediaSessionCompat methods
+        ////////////////////////////////////////////////////////////////////////////////
+
         @Override
         public Bundle getSessionToken(String sessionTag) throws RemoteException {
             MediaSessionCompat session = mSessionMap.get(sessionTag);
