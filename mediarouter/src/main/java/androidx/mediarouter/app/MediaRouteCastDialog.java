@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -88,6 +89,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     // Do not update the route list immediately to avoid unnatural dialog change.
     private static final long UPDATE_ROUTES_DELAY_MS = 300L;
     static final int MSG_UPDATE_ROUTES = 1;
+    // TODO (b/111731099): Remove this once dark theme is implemented inside MediaRouterThemeHelper.
+    static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
 
     final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
@@ -263,6 +266,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         setContentView(R.layout.mr_cast_dialog);
 
         mCloseButton = findViewById(R.id.mr_cast_close_button);
+        mCloseButton.setColorFilter(COLOR_WHITE_ON_DARK_BACKGROUND);
         mCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -270,6 +274,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             }
         });
         mStopCastingButton = findViewById(R.id.mr_cast_stop_button);
+        mStopCastingButton.setTextColor(COLOR_WHITE_ON_DARK_BACKGROUND);
         mStopCastingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -290,7 +295,9 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         mMetadataLayout = findViewById(R.id.mr_cast_meta);
         mArtView = findViewById(R.id.mr_cast_meta_art);
         mTitleView = findViewById(R.id.mr_cast_meta_title);
+        mTitleView.setTextColor(COLOR_WHITE_ON_DARK_BACKGROUND);
         mSubtitleView = findViewById(R.id.mr_cast_meta_subtitle);
+        mSubtitleView.setTextColor(COLOR_WHITE_ON_DARK_BACKGROUND);
         Resources res = mContext.getResources();
         mTitlePlaceholder = res.getString(R.string.mr_cast_dialog_title_view_placeholder);
 
