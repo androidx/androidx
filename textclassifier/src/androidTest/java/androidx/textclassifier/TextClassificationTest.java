@@ -25,16 +25,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SdkSuppress;
 import android.text.SpannableString;
 
 import androidx.core.app.RemoteActionCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.LocaleListCompat;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,8 +47,6 @@ import java.util.TimeZone;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class TextClassificationTest {
-    private static final float EPSILON = 1e-7f;
-
     private static final long REFERENCE_TIME_IN_MS = 946684800000L; // 2000-01-01 00:00:00
     private static final CharSequence TEXT = new SpannableString("This is an apple");
     private static final int START_INDEX = 2;
@@ -70,9 +69,17 @@ public final class TextClassificationTest {
     private static final Intent SECONDARY_INTENT = new Intent("secondaryIntentAction");
 
     private static final Calendar REFERENCE_TIME;
+
     static {
         REFERENCE_TIME = Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
         REFERENCE_TIME.setTimeInMillis(REFERENCE_TIME_IN_MS);
+    }
+
+    private Context mContext;
+
+    @Before
+    public void setup() {
+        mContext = InstrumentationRegistry.getTargetContext();
     }
 
     private static IconCompat generateTestIcon(int width, int height, int colorValue) {
@@ -87,10 +94,10 @@ public final class TextClassificationTest {
 
     @Test
     public void testBundle() {
-        final TextClassification reference = createTextClassification();
+        final TextClassification reference = createExpectedBuilderWithRemoteActions().build();
         // Serialize/deserialize.
         final TextClassification result = TextClassification.createFromBundle(reference.toBundle());
-        assertTextClassification(result);
+        assertTextClassificationEquals(result, reference);
     }
 
     @Test
@@ -145,24 +152,49 @@ public final class TextClassificationTest {
                         .setId(ID)
                         .build();
 
-        TextClassification textClassification =
-                TextClassification.fromPlatform(platformTextClassification);
+        TextClassification actual =
+                TextClassification.fromPlatform(mContext, platformTextClassification);
+        assertTextClassificationEquals(
+                actual, createExpectedBuilderWithRemoteActions().build());
+    }
 
-        assertTextClassification(textClassification);
+    @Test
+    @SdkSuppress(minSdkVersion = 26, maxSdkVersion = 27)
+    public void testConvertFromPlatformTextClassification_O() {
+        android.view.textclassifier.TextClassification platformTextClassification =
+                new android.view.textclassifier.TextClassification.Builder()
+                        .setText(TEXT.toString())
+                        .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
+                        .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
+                        .setIcon(mContext.getDrawable(R.drawable.abc_ic_star_black_16dp))
+                        .setLabel(PRIMARY_LABEL)
+                        .setIntent(PRIMARY_INTENT)
+                        .build();
+
+        TextClassification actual =
+                TextClassification.fromPlatform(mContext, platformTextClassification);
+        TextClassification expected =
+                createExpectedBuilder()
+                        .setId(null)
+                        .addAction(
+                                createRemoteActionCompat(
+                                        PRIMARY_INTENT, PRIMARY_ICON, PRIMARY_LABEL, PRIMARY_LABEL))
+                        .build();
+        assertTextClassificationEquals(actual, expected);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
     public void testConvertToPlatformTextClassification() {
-        TextClassification reference = createTextClassification();
+        TextClassification reference = createExpectedBuilder().build();
 
         android.view.textclassifier.TextClassification platformTextClassification =
                 reference.toPlatform();
 
         TextClassification textClassification =
-                TextClassification.fromPlatform(platformTextClassification);
+                TextClassification.fromPlatform(mContext, platformTextClassification);
 
-        assertTextClassification(textClassification);
+        assertTextClassificationEquals(textClassification, reference);
     }
 
     private static TextClassification.Request createTextClassificationRequest() {
@@ -172,61 +204,62 @@ public final class TextClassificationTest {
                 .build();
     }
 
-    private static TextClassification createTextClassification() {
-        final Context context = InstrumentationRegistry.getTargetContext();
-        final PendingIntent primaryPendingIntent = PendingIntent.getActivity(context, 0,
-                PRIMARY_INTENT, 0);
-        final RemoteActionCompat remoteAction0 = new RemoteActionCompat(PRIMARY_ICON, PRIMARY_LABEL,
-                PRIMARY_DESCRIPTION, primaryPendingIntent);
-
-        final PendingIntent secondaryPendingIntent = PendingIntent.getActivity(context, 0,
-                SECONDARY_INTENT, 0);
-        final RemoteActionCompat remoteAction1 = new RemoteActionCompat(SECONDARY_ICON,
-                SECONDARY_LABEL, SECONDARY_DESCRIPTION, secondaryPendingIntent);
-
-        return new TextClassification.Builder()
+    private TextClassification.Builder createExpectedBuilder() {
+        TextClassification.Builder builder = new TextClassification.Builder()
                 .setText(TEXT.toString())
-                .addAction(remoteAction0)
-                .addAction(remoteAction1)
                 .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
                 .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
-                .setId(ID)
-                .build();
+                .setId(ID);
+        return builder;
     }
 
-    private void assertTextClassification(TextClassification textClassification) {
-        assertEquals(TEXT.toString(), textClassification.getText());
-        assertEquals(ID, textClassification.getId());
-        assertEquals(2, textClassification.getActions().size());
-
-        // Primary action.
-        final RemoteActionCompat primaryAction = textClassification.getActions().get(0);
-        assertEquals(PRIMARY_LABEL, primaryAction.getTitle());
-        assertEquals(PRIMARY_DESCRIPTION, primaryAction.getContentDescription());
-        assertEquals(createPendingIntent(PRIMARY_INTENT), primaryAction.getActionIntent());
-
-        // Secondary action.
-        final RemoteActionCompat secondaryAction = textClassification.getActions().get(1);
-        assertEquals(SECONDARY_LABEL, secondaryAction.getTitle());
-        assertEquals(SECONDARY_DESCRIPTION, secondaryAction.getContentDescription());
-        assertEquals(createPendingIntent(SECONDARY_INTENT), secondaryAction.getActionIntent());
-
-        // Entities.
-        assertEquals(2, textClassification.getEntityCount());
-        assertEquals(TextClassifier.TYPE_ADDRESS, textClassification.getEntity(0));
-        assertEquals(TextClassifier.TYPE_PHONE, textClassification.getEntity(1));
-        assertEquals(
-                PHONE_SCORE,
-                textClassification.getConfidenceScore(TextClassifier.TYPE_PHONE),
-                EPSILON);
-        assertEquals(
-                ADDRESS_SCORE,
-                textClassification.getConfidenceScore(TextClassifier.TYPE_ADDRESS),
-                EPSILON);
+    private TextClassification.Builder createExpectedBuilderWithRemoteActions() {
+        return createExpectedBuilder()
+                .addAction(createRemoteActionCompat(
+                        PRIMARY_INTENT, PRIMARY_ICON, PRIMARY_LABEL, PRIMARY_DESCRIPTION))
+                .addAction(
+                        createRemoteActionCompat(
+                                SECONDARY_INTENT, SECONDARY_ICON, SECONDARY_LABEL,
+                                SECONDARY_DESCRIPTION));
     }
 
-    private static PendingIntent createPendingIntent(Intent intent) {
-        return PendingIntent.getActivity(InstrumentationRegistry.getTargetContext(), 0,
-                intent, 0);
+    private RemoteActionCompat createRemoteActionCompat(
+            Intent intent, IconCompat icon, String label, String contentDescription) {
+        final PendingIntent primaryPendingIntent =
+                PendingIntent.getActivity(mContext, 0, intent, 0);
+        return new RemoteActionCompat(icon, label, contentDescription, primaryPendingIntent);
+    }
+
+    private void assertTextClassificationEquals(
+            TextClassification actual, TextClassification expected) {
+        assertThat(actual.getText()).isEqualTo(expected.getText());
+        assertThat(actual.getId()).isEqualTo(expected.getId());
+        assertThat(actual.getActions()).hasSize(expected.getActions().size());
+
+        for (int i = 0; i < actual.getActions().size(); i++) {
+            RemoteActionCompat actualAction = actual.getActions().get(i);
+            RemoteActionCompat expectedAction = expected.getActions().get(i);
+
+            assertThat(actualAction.getTitle()).isEqualTo(expectedAction.getTitle());
+            assertThat(actualAction.getContentDescription())
+                    .isEqualTo(expectedAction.getContentDescription());
+            // Can't find a way to get the original intent from the PendingIntent, so just
+            // check not null here.
+            assertThat(actualAction.getActionIntent()).isNotNull();
+        }
+
+        assertThat(actual.getEntityCount()).isEqualTo(expected.getEntityCount());
+        for (int i = 0; i < actual.getEntityCount(); i++) {
+            String actualEntity = actual.getEntity(0);
+            String expectedEntity = expected.getEntity(0);
+
+            assertThat(actualEntity).isEqualTo(expectedEntity);
+            assertThat(actual.getConfidenceScore(actualEntity))
+                    .isEqualTo(expected.getConfidenceScore(expectedEntity));
+        }
+    }
+
+    private PendingIntent createPendingIntent(Intent intent) {
+        return PendingIntent.getActivity(mContext, 0, intent, 0);
     }
 }

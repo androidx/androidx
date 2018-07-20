@@ -138,6 +138,8 @@ public abstract class TextClassifier {
     /** The widget involved in the text classification session is of an unknown/unspecified type. */
     public static final String WIDGET_TYPE_UNKNOWN = "unknown";
 
+    private static final int GENERATE_LINKS_MAX_TEXT_LENGTH_DEFAULT = 100 * 1000;
+
     /**
      * No-op TextClassifier.
      * This may be used to turn off text classifier features.
@@ -236,7 +238,7 @@ public abstract class TextClassifier {
      */
     @WorkerThread
     public int getMaxGenerateLinksTextLength() {
-        return Integer.MAX_VALUE;
+        return GENERATE_LINKS_MAX_TEXT_LENGTH_DEFAULT;
     }
 
     /**

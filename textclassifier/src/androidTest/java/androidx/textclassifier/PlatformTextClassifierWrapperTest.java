@@ -16,16 +16,17 @@
 
 package androidx.textclassifier;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
+
+import androidx.core.os.LocaleListCompat;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
-import android.view.textclassifier.TextClassificationContext;
-
-import androidx.core.os.LocaleListCompat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,7 @@ import org.junit.runner.RunWith;
 /** UnInstrumentation unit tests for {@link PlatformTextClassifierWrapper}. */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 public class PlatformTextClassifierWrapperTest {
     private PlatformTextClassifierWrapper mClassifier;
 
@@ -56,7 +57,10 @@ public class PlatformTextClassifierWrapperTest {
 
     @Before
     public void setup() {
-        mClassifier = new PlatformTextClassifierWrapper(getPlatformTextClassifier());
+        mClassifier = PlatformTextClassifierWrapper.create(
+                InstrumentationRegistry.getTargetContext(),
+                new androidx.textclassifier.TextClassificationContext(
+                        "pkg", "widget", "version"));
     }
 
     @Test
@@ -75,20 +79,19 @@ public class PlatformTextClassifierWrapperTest {
     }
 
     @Test
-    public void testDestroy() {
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void testDestroy_P() {
         mClassifier.destroy();
 
         assertTrue(mClassifier.isDestroyed());
     }
 
-    private android.view.textclassifier.TextClassifier getPlatformTextClassifier() {
-        android.view.textclassifier.TextClassificationManager
-                textClassificationManager =
-                InstrumentationRegistry.getContext().getSystemService(
-                        android.view.textclassifier.TextClassificationManager.class);
-        return textClassificationManager.createTextClassificationSession(
-                new TextClassificationContext.Builder("pkg", "widget")
-                        .build());
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.O_MR1)
+    public void testDestroy_O() {
+        mClassifier.destroy();
+
+        assertFalse(mClassifier.isDestroyed());
     }
 
     private static void assertValidResult(TextSelection selection) {

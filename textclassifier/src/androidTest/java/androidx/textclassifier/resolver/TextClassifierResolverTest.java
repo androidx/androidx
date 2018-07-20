@@ -29,13 +29,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
 import androidx.core.os.BuildCompat;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -180,11 +180,15 @@ public class TextClassifierResolverTest {
     @Test
     @SdkSuppress(maxSdkVersion = 27)
     public void testFindBestMatch_system_beforeP() {
+        when(mContext.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE)).thenReturn(
+                InstrumentationRegistry.getTargetContext().getSystemService(
+                        Context.TEXT_CLASSIFICATION_SERVICE));
+
         TextClassifierEntry bestMatch = mTextClassifierResolver.findBestMatch(
                 Arrays.asList(
                         TextClassifierEntry.createOemEntry(),
                         TextClassifierEntry.createAospEntry()));
-        assertThat(bestMatch).isNull();
+        assertThat(bestMatch.isAosp()).isTrue();
     }
 
     private static TextClassifierEntry createTextClassifierEntryFromPackage(

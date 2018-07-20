@@ -20,9 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
 
-import androidx.test.filters.SdkSuppress;
+import android.os.Build;
 
 import androidx.core.os.LocaleListCompat;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -111,6 +112,22 @@ public final class TextSelectionTest {
         android.view.textclassifier.TextSelection platformTextSelection =
                 new android.view.textclassifier.TextSelection.Builder(START_INDEX, END_INDEX)
                         .setId(ID)
+                        .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
+                        .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
+                        .setEntityType(TextClassifier.TYPE_URL, URL_SCORE)
+                        .build();
+
+        TextSelection textSelection = TextSelection.fromPlatform(platformTextSelection);
+
+        assertTextSelection(textSelection);
+        assertThat(textSelection.getId()).isEqualTo(ID);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.O_MR1)
+    public void testFromPlatform_O() {
+        android.view.textclassifier.TextSelection platformTextSelection =
+                new android.view.textclassifier.TextSelection.Builder(START_INDEX, END_INDEX)
                         .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
                         .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
                         .setEntityType(TextClassifier.TYPE_URL, URL_SCORE)
