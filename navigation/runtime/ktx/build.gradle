@@ -51,5 +51,6 @@ supportLibrary {
     inceptionYear = "2018"
     description = "Android Navigation-Runtime-Ktx"
     url = SupportLibraryExtension.ARCHITECTURE_URL
-    useMetalava = true
+    // TODO useMetalava = true
+    // A bug in type parameter bound resolution causes metalava to always fail on validating the API
 }

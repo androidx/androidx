@@ -62,27 +62,13 @@ package androidx.core.database {
 
   public final class CursorKt {
     ctor public CursorKt();
-    method deprecated public static byte[] getBlob(android.database.Cursor, String columnName);
     method public static byte[]? getBlobOrNull(android.database.Cursor, int index);
-    method deprecated public static byte[]? getBlobOrNull(android.database.Cursor, String columnName);
-    method deprecated public static double getDouble(android.database.Cursor, String columnName);
     method public static Double? getDoubleOrNull(android.database.Cursor, int index);
-    method deprecated public static Double? getDoubleOrNull(android.database.Cursor, String columnName);
-    method deprecated public static float getFloat(android.database.Cursor, String columnName);
     method public static Float? getFloatOrNull(android.database.Cursor, int index);
-    method deprecated public static Float? getFloatOrNull(android.database.Cursor, String columnName);
-    method deprecated public static int getInt(android.database.Cursor, String columnName);
     method public static Integer? getIntOrNull(android.database.Cursor, int index);
-    method deprecated public static Integer? getIntOrNull(android.database.Cursor, String columnName);
-    method deprecated public static long getLong(android.database.Cursor, String columnName);
     method public static Long? getLongOrNull(android.database.Cursor, int index);
-    method deprecated public static Long? getLongOrNull(android.database.Cursor, String columnName);
-    method deprecated public static short getShort(android.database.Cursor, String columnName);
     method public static Short? getShortOrNull(android.database.Cursor, int index);
-    method deprecated public static Short? getShortOrNull(android.database.Cursor, String columnName);
-    method deprecated public static String getString(android.database.Cursor, String columnName);
     method public static String? getStringOrNull(android.database.Cursor, int index);
-    method deprecated public static String? getStringOrNull(android.database.Cursor, String columnName);
   }
 
 }
@@ -347,26 +333,6 @@ package androidx.core.os {
 
 }
 
-package androidx.core.preference {
-
-  public final class PreferenceGroupKt {
-    ctor public PreferenceGroupKt();
-    method deprecated public static operator boolean contains(android.preference.PreferenceGroup, android.preference.Preference preference);
-    method deprecated public static void forEach(android.preference.PreferenceGroup, kotlin.jvm.functions.Function1<? super android.preference.Preference,kotlin.Unit> action);
-    method deprecated public static void forEachIndexed(android.preference.PreferenceGroup, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super android.preference.Preference,kotlin.Unit> action);
-    method deprecated public static operator android.preference.Preference get(android.preference.PreferenceGroup, CharSequence key);
-    method deprecated public static operator android.preference.Preference get(android.preference.PreferenceGroup, int index);
-    method deprecated public static kotlin.sequences.Sequence<android.preference.Preference> getChildren(android.preference.PreferenceGroup);
-    method deprecated public static int getSize(android.preference.PreferenceGroup);
-    method deprecated public static boolean isEmpty(android.preference.PreferenceGroup);
-    method deprecated public static boolean isNotEmpty(android.preference.PreferenceGroup);
-    method deprecated public static operator java.util.Iterator<android.preference.Preference> iterator(android.preference.PreferenceGroup);
-    method deprecated public static operator void minusAssign(android.preference.PreferenceGroup, android.preference.Preference preference);
-    method deprecated public static operator void plusAssign(android.preference.PreferenceGroup, android.preference.Preference preference);
-  }
-
-}
-
 package androidx.core.text {
 
   public final class CharSequenceKt {
@@ -405,8 +371,6 @@ package androidx.core.text {
   public final class SpannableStringKt {
     ctor public SpannableStringKt();
     method public static void clearSpans(android.text.Spannable);
-    method deprecated public static operator void minusAssign(android.text.Spannable, Object span);
-    method deprecated public static operator void plusAssign(android.text.Spannable, Object span);
     method public static operator void set(android.text.Spannable, int start, int end, Object span);
     method public static operator void set(android.text.Spannable, kotlin.ranges.IntRange range, Object span);
     method public static android.text.Spannable toSpannable(CharSequence);
@@ -440,18 +404,6 @@ package androidx.core.transition {
 
 package androidx.core.util {
 
-  public final class ArrayMapKt {
-    ctor public ArrayMapKt();
-    method @RequiresApi(19) deprecated public static <K, V> android.util.ArrayMap<K,V> arrayMapOf();
-    method @RequiresApi(19) deprecated public static <K, V> android.util.ArrayMap<K,V> arrayMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
-  }
-
-  public final class ArraySetKt {
-    ctor public ArraySetKt();
-    method @RequiresApi(23) deprecated public static <T> android.util.ArraySet<T> arraySetOf();
-    method @RequiresApi(23) deprecated public static <T> android.util.ArraySet<T> arraySetOf(T... values);
-  }
-
   public final class AtomicFileKt {
     ctor public AtomicFileKt();
     method @RequiresApi(17) public static byte[] readBytes(android.util.AtomicFile);
@@ -467,11 +419,6 @@ package androidx.core.util {
     method @RequiresApi(26) public static android.util.Half toHalf(float);
     method @RequiresApi(26) public static android.util.Half toHalf(double);
     method @RequiresApi(26) public static android.util.Half toHalf(String);
-  }
-
-  public final class LocaleKt {
-    ctor public LocaleKt();
-    method @RequiresApi(17) deprecated public static int getLayoutDirection(java.util.Locale);
   }
 
   public final class LongSparseArrayKt {
@@ -638,7 +585,6 @@ package androidx.core.view {
 
   public final class ViewKt {
     ctor public ViewKt();
-    method @RequiresApi(16) deprecated public static void announceForAccessibility(android.view.View, @StringRes int resource);
     method public static void doOnLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static void doOnNextLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static void doOnPreDraw(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
@@ -658,20 +604,9 @@ package androidx.core.view {
     method public static void setInvisible(android.view.View, boolean value);
     method public static void setPadding(android.view.View, @Px int size);
     method public static void setVisible(android.view.View, boolean value);
-    method deprecated public static android.graphics.Bitmap toBitmap(android.view.View, android.graphics.Bitmap.Config config = "Bitmap.Config.ARGB_8888");
     method public static void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super android.view.ViewGroup.LayoutParams,kotlin.Unit> block);
     method public static void updatePadding(android.view.View, @Px int left = "paddingLeft", @Px int top = "paddingTop", @Px int right = "paddingRight", @Px int bottom = "paddingBottom");
     method @RequiresApi(17) public static void updatePaddingRelative(android.view.View, @Px int start = "paddingStart", @Px int top = "paddingTop", @Px int end = "paddingEnd", @Px int bottom = "paddingBottom");
-  }
-
-}
-
-package androidx.core.widget {
-
-  public final class ToastKt {
-    ctor public ToastKt();
-    method deprecated public static android.widget.Toast toast(android.content.Context, CharSequence text, int duration = "Toast.LENGTH_SHORT");
-    method deprecated public static android.widget.Toast toast(android.content.Context, @StringRes int resId, int duration = "Toast.LENGTH_SHORT");
   }
 
 }

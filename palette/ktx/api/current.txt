@@ -2,7 +2,6 @@ package androidx.palette.graphics {
 
   public final class PaletteKt {
     ctor public PaletteKt();
-    method deprecated public static androidx.palette.graphics.Palette.Builder buildPalette(android.graphics.Bitmap);
     method public static operator androidx.palette.graphics.Palette.Swatch? get(androidx.palette.graphics.Palette, androidx.palette.graphics.Target target);
   }
 
