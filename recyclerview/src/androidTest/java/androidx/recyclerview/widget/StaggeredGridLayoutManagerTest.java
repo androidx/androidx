@@ -147,9 +147,9 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
             @Override
             public void run() {
                 mLayoutManager.onDetachedFromWindow(mRecyclerView, mRecyclerView.mRecycler);
+                assertTrue(mRecyclerView.isLayoutRequested());
             }
         });
-        assertTrue(mRecyclerView.isLayoutRequested());
     }
 
     @Test
@@ -1083,10 +1083,14 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
     @Test
     public void innerGapHandling() throws Throwable {
         innerGapHandlingTest(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+    }
+
+    @Test
+    public void innerGapHandlingMoveItemsBetweenSpans() throws Throwable {
         innerGapHandlingTest(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
     }
 
-    public void innerGapHandlingTest(int strategy) throws Throwable {
+    private void innerGapHandlingTest(int strategy) throws Throwable {
         Config config = new Config().spanCount(3).itemCount(500);
         setupByConfig(config);
         mLayoutManager.setGapStrategy(strategy);
@@ -1136,7 +1140,10 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         new int[]{105, 0});
                 break;
             case GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS:
-                mLayoutManager.waitForLayout(2);
+                // Wait time is 10 seconds because 2 seconds appeared to be flaky.  If test still
+                // flakes with this, there must be another problem and further investigation will be
+                // needed.
+                mLayoutManager.waitForLayout(10);
                 assertSpans("swap items between spans", new int[]{100, 0}, new int[]{101, 0},
                         new int[]{102, 1}, new int[]{103, 2}, new int[]{104, 0}, new int[]{105, 0});
                 break;
