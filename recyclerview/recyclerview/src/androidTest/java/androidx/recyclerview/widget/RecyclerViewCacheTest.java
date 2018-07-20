@@ -1069,18 +1069,14 @@ public class RecyclerViewCacheTest {
         // item 1 is animating, so scroll it out of viewport
         mRecyclerView.scrollBy(0, 200);
 
-        // 2 items attached, 1 cached (pos 0), but item animating pos 1 not accounted for...
-        assertEquals(2, mRecyclerView.mChildHelper.getUnfilteredChildCount());
-        assertEquals(1, mRecycler.mCachedViews.size());
-        CacheUtils.verifyCacheContainsPositions(mRecyclerView, 0);
-        assertEquals(0, mRecyclerView.getRecycledViewPool().getRecycledViewCount(0));
-
-        // until animation ends
-        mRecyclerView.getItemAnimator().endAnimations();
+        // 2 items attached, 2 cached
         assertEquals(2, mRecyclerView.mChildHelper.getUnfilteredChildCount());
         assertEquals(2, mRecycler.mCachedViews.size());
         CacheUtils.verifyCacheContainsPositions(mRecyclerView, 0, 1);
         assertEquals(0, mRecyclerView.getRecycledViewPool().getRecycledViewCount(0));
+
+        // The animation should automatically stop when removing the addition view
+        assertFalse(mRecyclerView.getItemAnimator().isRunning());
 
         for (RecyclerView.ViewHolder viewHolder : mRecycler.mCachedViews) {
             assertNotNull(viewHolder.mNestedRecyclerView);
