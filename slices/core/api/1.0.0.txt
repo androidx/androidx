@@ -22,7 +22,6 @@ package androidx.slice {
     method public androidx.slice.Slice getSlice();
     method public java.lang.String getSubType();
     method public java.lang.CharSequence getText();
-    method public deprecated long getTimestamp();
     method public boolean hasHint(java.lang.String);
   }
 

@@ -75,9 +75,9 @@ public class GridRowBuilder {
     /**
      * Create a builder which will construct a slice displayed in a grid format.
      * @param parent The builder constructing the parent slice.
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public GridRowBuilder(@NonNull ListBuilder parent) {
     }
 
@@ -92,10 +92,10 @@ public class GridRowBuilder {
 
     /**
      * Add a cell to the grid builder.
-     * @deprecated use {@link #addCell(CellBuilder)} instead
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public GridRowBuilder addCell(@NonNull Consumer<CellBuilder> c) {
         CellBuilder b = new CellBuilder(this);
         c.accept(b);
@@ -142,10 +142,10 @@ public class GridRowBuilder {
      * Only one see more affordance can be added, this throws {@link IllegalStateException} if
      * a row or action has been previously added.
      * </p>
-     * @deprecated use {@link #setSeeMoreCell(CellBuilder)} instead
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public GridRowBuilder setSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
         CellBuilder b = new CellBuilder(this);
         c.accept(b);
@@ -321,18 +321,18 @@ public class GridRowBuilder {
         /**
          * Create a builder which will construct a slice displayed as a cell in a grid.
          * @param parent The builder constructing the parent slice.
-         * @deprecated TO BE REMOVED
+         * @hide
          */
-        @Deprecated
+        @RestrictTo(LIBRARY)
         public CellBuilder(@NonNull GridRowBuilder parent) {
         }
 
         /**
          * Create a builder which will construct a slice displayed as a cell in a grid.
          * @param uri Uri to tag for this slice.
-         * @deprecated TO BE REMOVED
+         * @hide
          */
-        @Deprecated
+        @RestrictTo(LIBRARY)
         public CellBuilder(@NonNull GridRowBuilder parent, @NonNull Uri uri) {
         }
 

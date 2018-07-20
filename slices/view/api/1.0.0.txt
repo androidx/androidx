@@ -31,16 +31,9 @@ package androidx.slice {
   }
 
   public class SliceUtils {
-    method public static deprecated int getLoadingState(androidx.slice.Slice);
-    method public static deprecated java.util.List<androidx.slice.SliceItem> getSliceActions(androidx.slice.Slice);
-    method public static deprecated java.util.List<java.lang.String> getSliceKeywords(androidx.slice.Slice);
     method public static androidx.slice.Slice parseSlice(android.content.Context, java.io.InputStream, java.lang.String, androidx.slice.SliceUtils.SliceActionListener) throws java.io.IOException, androidx.slice.SliceUtils.SliceParseException;
-    method public static deprecated void serializeSlice(androidx.slice.Slice, android.content.Context, java.io.OutputStream, java.lang.String, androidx.slice.SliceUtils.SerializeOptions) throws java.io.IOException, java.lang.IllegalArgumentException;
     method public static void serializeSlice(androidx.slice.Slice, android.content.Context, java.io.OutputStream, androidx.slice.SliceUtils.SerializeOptions) throws java.lang.IllegalArgumentException;
     method public static androidx.slice.Slice stripSlice(androidx.slice.Slice, int, boolean);
-    field public static final deprecated int LOADING_ALL = 0; // 0x0
-    field public static final deprecated int LOADING_COMPLETE = 2; // 0x2
-    field public static final deprecated int LOADING_PARTIAL = 1; // 0x1
   }
 
   public static class SliceUtils.SerializeOptions {
@@ -147,7 +140,6 @@ package androidx.slice.widget {
     method public void setScrollable(boolean);
     method public void setSlice(androidx.slice.Slice);
     method public void setSliceActions(java.util.List<androidx.slice.core.SliceAction>);
-    method public deprecated void setTint(int);
     field public static final int MODE_LARGE = 2; // 0x2
     field public static final int MODE_SHORTCUT = 3; // 0x3
     field public static final int MODE_SMALL = 1; // 0x1

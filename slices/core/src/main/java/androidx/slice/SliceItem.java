@@ -289,9 +289,9 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(Scope.LIBRARY)
     public long getTimestamp() {
         return (Long) mObj;
     }

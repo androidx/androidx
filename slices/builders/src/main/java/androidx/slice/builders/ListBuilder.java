@@ -190,9 +190,9 @@ public class ListBuilder extends TemplateSliceBuilder {
      *
      * @param uri Uri to tag for this slice.
      *
-     * @deprecated TO BE REMOVED; use {@link #ListBuilder(Context, Uri, long)}.
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public ListBuilder(@NonNull Context context, @NonNull Uri uri) {
         super(context, uri);
     }
@@ -267,10 +267,10 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add a row to the list builder.
-     * @deprecated use {@link #addRow(RowBuilder)} instead
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public ListBuilder addRow(@NonNull Consumer<RowBuilder> c) {
         RowBuilder b = new RowBuilder(this);
         c.accept(b);
@@ -292,10 +292,10 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add a grid row to the list builder.
-     * @deprecated use {@link #addGridRow(GridRowBuilder)} instead
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public ListBuilder addGridRow(@NonNull Consumer<GridRowBuilder> c) {
         GridRowBuilder b = new GridRowBuilder(this);
         c.accept(b);
@@ -339,10 +339,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      * representation.
      *
      * @see HeaderBuilder#setSummary(CharSequence)
-     * @deprecated use {@link #setHeader(HeaderBuilder)} instead
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public ListBuilder setHeader(@NonNull Consumer<HeaderBuilder> c) {
         HeaderBuilder b = new HeaderBuilder(this);
         c.accept(b);
@@ -377,9 +377,9 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * @deprecated TO BE REMOVED; use {@link #setAccentColor(int)} instead.
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     @NonNull
     public ListBuilder setColor(@ColorInt int color) {
         return setAccentColor(color);
@@ -405,10 +405,10 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Sets keywords to associate with this slice.
-     * @deprecated TO BE REMOVED
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public ListBuilder setKeywords(List<String> keywords) {
         if (keywords != null) {
             mImpl.setKeywords(new HashSet<>(keywords));
@@ -479,10 +479,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      * Only one see more affordance can be added, this throws {@link IllegalStateException} if
      * a row or action has been previously added.
      * </p>
-     * @deprecated use {@link #setSeeMoreRow(RowBuilder)} instead.
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public ListBuilder setSeeMoreRow(@NonNull Consumer<RowBuilder> c) {
         RowBuilder b = new RowBuilder(this);
         c.accept(b);
@@ -566,10 +566,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      * If {@link InputRangeBuilder#setValue(int)} is not between
      * {@link InputRangeBuilder#setMin(int)} and {@link InputRangeBuilder#setMax(int)}, this
      * will throw {@link IllegalArgumentException}.
-     * @deprecated use {@link #addInputRange(InputRangeBuilder)} instead
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public ListBuilder addInputRange(@NonNull Consumer<InputRangeBuilder> c) {
         InputRangeBuilder inputRangeBuilder = new InputRangeBuilder(this);
         c.accept(inputRangeBuilder);
@@ -593,10 +593,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      * <p>
      * If {@link RangeBuilder#setValue(int)} is not between 0 and
      * {@link RangeBuilder#setMax(int)}, this will throw {@link IllegalArgumentException}.
-     * @deprecated use {@link #addRange(RangeBuilder)} instead
+     * @hide
      */
     @NonNull
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public ListBuilder addRange(@NonNull Consumer<RangeBuilder> c) {
         RangeBuilder rangeBuilder = new RangeBuilder(this);
         c.accept(rangeBuilder);
@@ -632,9 +632,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @deprecated TO BE REMOVED
+         * @hide
          */
-        @Deprecated
+        @RestrictTo(LIBRARY)
         public RangeBuilder(@NonNull ListBuilder parent) {
         }
 
@@ -808,9 +808,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @deprecated TO BE REMOVED.
+         * @hide
          */
-        @Deprecated
+        @RestrictTo(LIBRARY)
         public InputRangeBuilder(@NonNull ListBuilder parent) {
         }
 
@@ -1104,9 +1104,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Builder to construct a row.
          * @param parent The builder constructing the parent slice.
-         * @deprecated TO BE REMOVED.
+         * @hide
          */
-        @Deprecated
+        @RestrictTo(LIBRARY)
         public RowBuilder(@NonNull ListBuilder parent) {
             this();
         }
@@ -1114,9 +1114,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Builder to construct a row.
          * @param uri Uri to tag for this slice.
-         * @deprecated TO BE REMOVED.
+         * @hide
          */
-        @Deprecated
+        @RestrictTo(LIBRARY)
         public RowBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
             this(uri);
         }
@@ -1124,9 +1124,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Builder to construct a normal row.
          * @param uri Uri to tag for this slice.
-         * @deprecated TO BE REMOVED.
+         * @hide
          */
-        @Deprecated
+        @RestrictTo(LIBRARY)
         public RowBuilder(@NonNull Context context, @NonNull Uri uri) {
             this(uri);
         }
@@ -1626,20 +1626,18 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @deprecated TO BE REMOVED
+         * @hide
          */
-        @Deprecated
+        @RestrictTo(LIBRARY)
         public HeaderBuilder(@NonNull ListBuilder parent) {
             this();
         }
 
         /**
          * Create builder for a header.
-         * @deprecated TO BE REMOVED
          * @hide
          */
-        @Deprecated
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY)
         public HeaderBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
             this(uri);
         }

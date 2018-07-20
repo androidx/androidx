@@ -1003,7 +1003,6 @@ package androidx.core.graphics.drawable {
   public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public static androidx.core.graphics.drawable.IconCompat createFromBundle(android.os.Bundle);
     method public static androidx.core.graphics.drawable.IconCompat createFromIcon(android.content.Context, android.graphics.drawable.Icon);
-    method public static deprecated androidx.core.graphics.drawable.IconCompat createFromIcon(android.graphics.drawable.Icon);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmap(android.graphics.Bitmap);
     method public static androidx.core.graphics.drawable.IconCompat createWithBitmap(android.graphics.Bitmap);
     method public static androidx.core.graphics.drawable.IconCompat createWithContentUri(java.lang.String);
