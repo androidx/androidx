@@ -19,6 +19,8 @@ package androidx.slice.widget;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_INT;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
@@ -606,9 +608,9 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
-     * @deprecated TO BE REMOVED; use {@link #setAccentColor(int)} instead.
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public void setTint(int tintColor) {
         setAccentColor(tintColor);
     }

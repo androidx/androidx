@@ -32,6 +32,7 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.SliceMetadata.LOADED_ALL;
 import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
@@ -189,9 +190,9 @@ public class SliceUtils {
      * @param encoding The encoding to use for serialization.
      * @param options Options defining how to handle non-serializable items.
      * @throws IllegalArgumentException if the slice cannot be serialized using the given options.
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public static void serializeSlice(@NonNull Slice s, @NonNull Context context,
             @NonNull OutputStream output, @NonNull String encoding,
             @NonNull SerializeOptions options) throws IOException, IllegalArgumentException {
@@ -537,31 +538,31 @@ public class SliceUtils {
     /**
      * Indicates this slice is empty and waiting for content to be loaded.
      *
-     * @deprecated TO BE REMOVED: use {@link SliceMetadata#LOADED_NONE}
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public static final int LOADING_ALL = 0;
     /**
      * Indicates this slice has some content but is waiting for other content to be loaded.
      *
-     * @deprecated TO BE REMOVED: use {@link SliceMetadata#LOADED_PARTIAL}
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public static final int LOADING_PARTIAL = 1;
     /**
      * Indicates this slice has fully loaded and is not waiting for other content.
      *
-     * @deprecated TO BE REMOVED: use {@link SliceMetadata#LOADED_ALL}
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public static final int LOADING_COMPLETE = 2;
 
     /**
      * @return the current loading state of the provided {@link Slice}.
      *
-     * @deprecated TO BE REMOVED: use {@link SliceMetadata#getLoadingState()}
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public static int getLoadingState(@NonNull Slice slice) {
         // Check loading state
         boolean hasHintPartial =
@@ -581,9 +582,9 @@ public class SliceUtils {
     /**
      * @return the group of actions associated with the provided slice, if they exist.
      *
-     * @deprecated TO BE REMOVED; use {@link SliceMetadata#getSliceActions()}
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     @Nullable
     public static List<SliceItem> getSliceActions(@NonNull Slice slice) {
         SliceItem actionGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_ACTIONS, null);
@@ -597,9 +598,9 @@ public class SliceUtils {
      * @return the list of keywords associated with the provided slice, null if no keywords were
      * specified or an empty list if the slice was specified to have no keywords.
      *
-     * @deprecated TO BE REMOVED; use {@link SliceMetadata#getSliceKeywords()}
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     @Nullable
     public static List<String> getSliceKeywords(@NonNull Slice slice) {
         SliceItem keywordGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_KEYWORDS, null);

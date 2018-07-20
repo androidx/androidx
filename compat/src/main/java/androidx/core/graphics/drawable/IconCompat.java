@@ -857,9 +857,9 @@ public class IconCompat extends CustomVersionedParcelable {
 
     /**
      * Creates an IconCompat from an Icon.
-     * @deprecated use {@link #createFromIcon(Context, Icon)} instead.
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY_GROUP)
     @RequiresApi(23)
     @Nullable
     public static IconCompat createFromIcon(@NonNull Icon icon) {
