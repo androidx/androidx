@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service.tests;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -22,7 +22,10 @@ import static junit.framework.Assert.assertTrue;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.media.test.lib.TestUtils;
+import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaMetadata2.Builder;
+import androidx.media2.Rating2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -33,7 +36,7 @@ import org.junit.runner.RunWith;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class MediaMetadata2Test extends MediaTestBase {
+public class MediaMetadata2Test {
     @Test
     public void testBuilder() {
         final Bundle extras = new Bundle();

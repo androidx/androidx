@@ -37,6 +37,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
@@ -348,7 +349,12 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         return mImpl.getCallback();
     }
 
-    @NonNull AudioFocusHandler getAudioFocusHandler() {
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public @NonNull AudioFocusHandler getAudioFocusHandler() {
         return mImpl.getAudioFocusHandler();
     }
 

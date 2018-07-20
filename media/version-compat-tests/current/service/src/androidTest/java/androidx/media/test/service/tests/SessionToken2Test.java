@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service.tests;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -23,6 +23,9 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Process;
 
+import androidx.media.test.service.MockMediaLibraryService2;
+import androidx.media.test.service.MockMediaSessionService2;
+import androidx.media2.SessionToken2;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -38,7 +41,7 @@ import org.junit.runner.RunWith;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class SessionToken2Test extends MediaTestBase {
+public class SessionToken2Test {
     private Context mContext;
 
     @Before

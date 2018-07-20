@@ -56,6 +56,13 @@
             </intent-filter>
         </service>
 
+        <service android:name="androidx.media.test.service.MockMediaSessionService2">
+            <intent-filter>
+                <action android:name="android.media.MediaSessionService2" />
+            </intent-filter>
+            <meta-data android:name="android.media.session2.SESSION_ID" android:value="TestSession" />
+        </service>
+
         <service android:name="androidx.media.test.service.MockMediaLibraryService2">
             <intent-filter>
                 <action android:name="android.media.MediaLibraryService2" />

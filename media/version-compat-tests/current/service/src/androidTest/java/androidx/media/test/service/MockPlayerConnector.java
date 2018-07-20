@@ -31,6 +31,7 @@ import java.util.concurrent.Executor;
  */
 public class MockPlayerConnector extends MediaPlayerConnector {
     public final CountDownLatch mCountDownLatch;
+    public final boolean mChangePlayerStateWithTransportControl;
 
     public boolean mPlayCalled;
     public boolean mPauseCalled;
@@ -45,15 +46,30 @@ public class MockPlayerConnector extends MediaPlayerConnector {
     public @PlayerState int mLastPlayerState;
     public @BuffState int mLastBufferingState;
     public long mDuration;
+    public float mVolume;
 
     public ArrayMap<PlayerEventCallback, Executor> mCallbacks = new ArrayMap<>();
 
     private AudioAttributesCompat mAudioAttributes;
 
     public MockPlayerConnector(int count) {
+        this(count, false);
+    }
+
+    public MockPlayerConnector(boolean changePlayerStateWithTransportControl) {
+        this(0, changePlayerStateWithTransportControl);
+    }
+
+    private MockPlayerConnector(int count, boolean changePlayerStateWithTransportControl) {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
+        mVolume = getMaxPlayerVolume();
+        mChangePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
         // This prevents MS2#play() from triggering MediaPlayerConnector#prepare().
         mLastPlayerState = PLAYER_STATE_PAUSED;
+
+        // Sets default audio attributes to prevent setVolume() from being called with the play().
+        mAudioAttributes = new AudioAttributesCompat.Builder()
+                .setUsage(AudioAttributesCompat.USAGE_MEDIA).build();
     }
 
     @Override
@@ -67,6 +83,9 @@ public class MockPlayerConnector extends MediaPlayerConnector {
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
         }
+        if (mChangePlayerStateWithTransportControl) {
+            notifyPlayerStateChanged(PLAYER_STATE_IDLE);
+        }
     }
 
     @Override
@@ -74,6 +93,9 @@ public class MockPlayerConnector extends MediaPlayerConnector {
         mPlayCalled = true;
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
+        }
+        if (mChangePlayerStateWithTransportControl) {
+            notifyPlayerStateChanged(PLAYER_STATE_PLAYING);
         }
     }
 
@@ -83,6 +105,9 @@ public class MockPlayerConnector extends MediaPlayerConnector {
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
         }
+        if (mChangePlayerStateWithTransportControl) {
+            notifyPlayerStateChanged(PLAYER_STATE_PAUSED);
+        }
     }
 
     @Override
@@ -90,6 +115,9 @@ public class MockPlayerConnector extends MediaPlayerConnector {
         mPrepareCalled = true;
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
+        }
+        if (mChangePlayerStateWithTransportControl) {
+            notifyPlayerStateChanged(PLAYER_STATE_PAUSED);
         }
     }
 
@@ -152,6 +180,7 @@ public class MockPlayerConnector extends MediaPlayerConnector {
     }
 
     public void notifyPlayerStateChanged(final int state) {
+        mLastPlayerState = state;
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
             final Executor executor = mCallbacks.valueAt(i);
@@ -285,13 +314,20 @@ public class MockPlayerConnector extends MediaPlayerConnector {
     }
 
     @Override
+    public float getMaxPlayerVolume() {
+        return 1.0f;
+    }
+
+    @Override
     public void setPlayerVolume(float volume) {
-        // TODO: implement this
+        mVolume = volume;
+        if (mCountDownLatch != null) {
+            mCountDownLatch.countDown();
+        }
     }
 
     @Override
     public float getPlayerVolume() {
-        // TODO: implement this
-        return -1;
+        return mVolume;
     }
 }

@@ -42,7 +42,7 @@ import java.util.concurrent.Executor;
  * For all subclasses, all individual tests should begin with the {@link #prepareLooper()}. See
  * {@link #prepareLooper} for details.
  */
-abstract class MediaSession2TestBase {
+abstract class MediaSession2TestBase extends MediaTestBase {
     // Expected success
     static final int WAIT_TIME_MS = 1000;
 
