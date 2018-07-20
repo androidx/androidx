@@ -17,7 +17,7 @@
 package androidx.recyclerview.widget;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -91,6 +91,8 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         // Record the current center view.
         View view = findCenterView(mGlm);
         assertCenterAligned(view);
+        CharSequence viewText = ((TextView) view).getText();
+
         int scrollDistance = getViewDimension(view) + 1;
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
 
@@ -99,8 +101,9 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         waitForIdleScroll(mRecyclerView);
 
         View viewAfterScroll = findCenterView(mGlm);
+        CharSequence viewAfterFlingText = ((TextView) viewAfterScroll).getText();
 
-        assertNotSame("The view should have scrolled", view, viewAfterScroll);
+        assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText);
         assertCenterAligned(viewAfterScroll);
     }
 
@@ -140,6 +143,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         // Record the current center view.
         View view = findCenterView(mGlm);
         assertCenterAligned(view);
+        CharSequence viewText = ((TextView) view).getText();
 
         // Velocity high enough to scroll beyond the current view.
         int velocity = (int) (0.25 * mRecyclerView.getMaxFlingVelocity());
@@ -151,9 +155,9 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         getInstrumentation().waitForIdleSync();
 
         View viewAfterFling = findCenterView(mGlm);
+        CharSequence viewAfterFlingText = ((TextView) viewAfterFling).getText();
 
-        assertNotSame("The view should have scrolled!",
-                ((TextView) view).getText(),((TextView) viewAfterFling).getText());
+        assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText);
         assertCenterAligned(viewAfterFling);
     }
 
