@@ -1,6 +1,6 @@
 # AOSP AndroidX Contribution Guide
 ## Accepted Types of Contributions
-* Bug fixes (needs a corresponding bug report in b.android.com)
+* Bug fixes - needs a corresponding bug report in the [Android Issue Tracker](https://issuetracker.google.com/issues/new?component=192731&template=842428)
 * Each bug fix is expected to come with tests
 * Fixing spelling errors
 * Updating documentation
@@ -16,7 +16,7 @@ Follow the [“Downloading the Source”](https://source.android.com/source/down
 
     repo init -u https://android.googlesource.com/platform/manifest -b androidx-master-dev
 
-Now your repository is set to pull only what you need for building and running Androix libraries. Download the code (and grab a coffee while we pull down 3GB):
+Now your repository is set to pull only what you need for building and running AndroidX libraries. Download the code (and grab a coffee while we pull down 3GB):
 
     repo sync -j8 -c
 
@@ -37,11 +37,14 @@ You can do most of your work from Android Studio, however you can also build the
     cd path/to/checkout/frameworks/support/
     ./gradlew createArchive
 
-### Building AndroidX Libraries as part of your App build
-If you intend to repeatedly make changes to AndroidX Libraries and to wish to see
-the results in your app, and you don't want to have to repeatedly build them as
-separate Gradle projects, you can
-[configure your app build to build AndroidX Libraries too](adding-support-library-as-included-build.md)
+### Testing modified AndroidX Libraries to in your App
+You can build maven artifacts locally, and test them directly in your app:
+
+    ./gradlew createArchive
+
+And put in your **project** `build.gradle` file:
+
+    handler.maven { url '/path/to/checkout/out/host/gradle/frameworks/support/build/support_repo' }
 
 ## Running Tests
 
@@ -55,9 +58,9 @@ separate Gradle projects, you can
 3. Right-click on the directory and select `Run androidx.foobar`
 
 ## Running Sample Apps
-AndroidX libraries has a set of Android applications that exercise AndroidX code. These applications can be useful when you want to debug a real running application, or reproduce a problem interactively, before writing test code.
+The AndroidX repository has a set of Android applications that exercise AndroidX code. These applications can be useful when you want to debug a real running application, or reproduce a problem interactively, before writing test code.
 
-These applications are named support-\*-demos (e.g. support-4v-demos or support-leanback-demos. You can run them by clicking `Run > Run ...` and choosing the desired application.
+These applications are named either `<libraryname>-integration-tests-testapp`, or `support-\*-demos` (e.g. `support-4v-demos` or `support-leanback-demos`). You can run them by clicking `Run > Run ...` and choosing the desired application.
 
 ## Making a change
     cd path/to/checkout/frameworks/support/
@@ -69,6 +72,15 @@ These applications are named support-\*-demos (e.g. support-4v-demos or support-
 If you see the following prompt, choose `always`:
 
     Run hook scripts from https://android.googlesource.com/platform/manifest (yes/always/NO)?
+
+If the upload succeeds, you'll see output like:
+
+    remote:
+    remote: New Changes:
+    remote:   https://android-review.googlesource.com/c/platform/frameworks/support/+/720062 Further README updates
+    remote:
+
+To edit your change, use `git commit --amend`, and re-upload.
 
 ## Getting reviewed
 * After you run repo upload, open [r.android.com](http://r.android.com)
