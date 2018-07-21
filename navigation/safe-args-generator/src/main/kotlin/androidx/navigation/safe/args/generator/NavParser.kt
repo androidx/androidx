@@ -83,7 +83,7 @@ internal class NavParser(
             }
         }
 
-        actions.groupBy { it.id.name.toCamelCase() }.forEach { (sanitizedName, actions) ->
+        actions.groupBy { it.id.javaIdentifier.toCamelCase() }.forEach { (sanitizedName, actions) ->
             if (actions.size > 1) {
                 context.logger.error(sameSanitizedNameActions(sanitizedName, actions), position)
             }

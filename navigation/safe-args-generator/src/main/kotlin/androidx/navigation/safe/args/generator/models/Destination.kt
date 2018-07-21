@@ -16,15 +16,17 @@
 
 package androidx.navigation.safe.args.generator.models
 
+import androidx.navigation.safe.args.generator.ext.toCamelCase
 import com.squareup.javapoet.ClassName
 
 data class Destination(
-        val id: ResReference?,
-        val name: ClassName?,
-        val type: String,
-        val args: List<Argument>,
-        val actions: List<Action>,
-        val nested: List<Destination> = emptyList()) {
+    val id: ResReference?,
+    val name: ClassName?,
+    val type: String,
+    val args: List<Argument>,
+    val actions: List<Action>,
+    val nested: List<Destination> = emptyList()
+) {
 
     companion object {
         fun createName(id: ResReference?, name: String, applicationId: String): ClassName? = when {
@@ -37,7 +39,7 @@ data class Destination(
                 }
                 ClassName.get(classPackage, name.substringAfterLast('.'))
             }
-            id != null -> ClassName.get(id.packageName, id.name.capitalize())
+            id != null -> ClassName.get(id.packageName, id.javaIdentifier.toCamelCase())
             else -> null
         }
     }

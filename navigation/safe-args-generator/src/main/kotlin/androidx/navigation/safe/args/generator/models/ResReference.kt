@@ -17,8 +17,11 @@
 package androidx.navigation.safe.args.generator.models
 
 data class ResReference(val packageName: String, val resType: String, val name: String) {
+
+    // aapt allows and transforms dots and dashes into underscores
+    val javaIdentifier = name.replace("[.\\-]".toRegex(), "_")
+
     fun isId() = resType == "id"
 }
 
-fun ResReference?.accessor() = this?.let { "$packageName.R.$resType.$name" } ?: "0"
-
+fun ResReference?.accessor() = this?.let { "$packageName.R.$resType.$javaIdentifier" } ?: "0"

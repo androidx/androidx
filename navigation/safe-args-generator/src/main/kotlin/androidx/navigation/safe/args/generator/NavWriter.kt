@@ -236,7 +236,7 @@ fun generateDestinationDirectionsTypeSpec(
                 val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
                 val params = constructor.parameters.joinToString(", ") { param -> param.name }
                 val actionTypeName = ClassName.get("", actionType.name)
-                MethodSpec.methodBuilder(action.id.name.toCamelCaseAsVar())
+                MethodSpec.methodBuilder(action.id.javaIdentifier.toCamelCaseAsVar())
                         .addAnnotation(annotations.NONNULL_CLASSNAME)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .addParameters(constructor.parameters)
@@ -273,7 +273,7 @@ fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
         addStatement("result = 31 * result + $N()", getDestIdMethod)
     }.build()
 
-    val className = ClassName.get("", action.id.name.toCamelCase())
+    val className = ClassName.get("", action.id.javaIdentifier.toCamelCase())
     return TypeSpec.classBuilder(className)
             .addSuperinterface(NAV_DIRECTION_CLASSNAME)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
