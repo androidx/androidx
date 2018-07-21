@@ -145,6 +145,11 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private boolean mShowSupplementalIconDivider;
 
     private boolean mSwitchChecked;
+    /**
+     * {@code true} if the checked state of the switch has changed programmatically and
+     * {@link #mSwitchOnCheckedChangeListener} needs to be notified.
+     */
+    private boolean mShouldNotifySwitchChecked;
     private boolean mShowSwitchDivider;
     private CompoundButton.OnCheckedChangeListener mSwitchOnCheckedChangeListener;
 
@@ -519,8 +524,21 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             case SUPPLEMENTAL_ACTION_SWITCH:
                 mBinders.add(vh -> {
                     vh.getSwitch().setVisibility(View.VISIBLE);
+                    vh.getSwitch().setOnCheckedChangeListener(null);
                     vh.getSwitch().setChecked(mSwitchChecked);
-                    vh.getSwitch().setOnCheckedChangeListener(mSwitchOnCheckedChangeListener);
+                    vh.getSwitch().setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        if (mSwitchOnCheckedChangeListener != null) {
+                            // The checked state changed via user interaction with the switch.
+                            mSwitchOnCheckedChangeListener.onCheckedChanged(buttonView, isChecked);
+                        }
+                        mSwitchChecked = isChecked;
+                    });
+                    if (mShouldNotifySwitchChecked && mSwitchOnCheckedChangeListener != null) {
+                        // The checked state was changed programmatically.
+                        mSwitchOnCheckedChangeListener.onCheckedChanged(vh.getSwitch(),
+                                mSwitchChecked);
+                        mShouldNotifySwitchChecked = false;
+                    }
                     if (mShowSwitchDivider) {
                         vh.getSwitchDivider().setVisibility(View.VISIBLE);
                     }
@@ -810,13 +828,16 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      *
      * @param checked initial value for switched.
      * @param showDivider whether to display a vertical bar between switch and text.
-     * @param listener callback to be invoked when the checked state is markDirty.
+     * @param listener callback to be invoked when the checked state shown in the UI changes.
      */
     public void setSwitch(boolean checked, boolean showDivider,
             CompoundButton.OnCheckedChangeListener listener) {
         mSupplementalActionType = SUPPLEMENTAL_ACTION_SWITCH;
 
         mSwitchChecked = checked;
+        // This method invalidates any previous listener and state changes. Reset so that we *only*
+        // notify when the checked state changes and not on the initial bind.
+        mShouldNotifySwitchChecked = false;
         mShowSwitchDivider = showDivider;
         mSwitchOnCheckedChangeListener = listener;
 
@@ -831,7 +852,11 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param isChecked sets the "checked/unchecked, namely on/off" state of switch.
      */
     public void setSwitchState(boolean isChecked) {
+        if (mSwitchChecked == isChecked) {
+            return;
+        }
         mSwitchChecked = isChecked;
+        mShouldNotifySwitchChecked = true;
         markDirty();
     }
 
