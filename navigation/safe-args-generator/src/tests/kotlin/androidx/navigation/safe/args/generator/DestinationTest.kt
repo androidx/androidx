@@ -51,6 +51,24 @@ class DestinationTest {
         val name = Destination.createName(id("main"), "", "some.app")
         assertThat(name, `is`(ClassName.get("foo.bar", "Main")))
     }
+
+    @Test
+    fun idWithDot() {
+        val name = Destination.createName(id("main.des"), "", "some.app")
+        assertThat(name, `is`(ClassName.get("foo.bar", "MainDes")))
+    }
+
+    @Test
+    fun idWithDash() {
+        val name = Destination.createName(id("main-des"), "", "some.app")
+        assertThat(name, `is`(ClassName.get("foo.bar", "MainDes")))
+    }
+
+    @Test
+    fun idWithUnderscore() {
+        val name = Destination.createName(id("main_des"), "", "some.app")
+        assertThat(name, `is`(ClassName.get("foo.bar", "MainDes")))
+    }
 }
 
 private fun id(name: String) = ResReference("foo.bar", "id", name)
