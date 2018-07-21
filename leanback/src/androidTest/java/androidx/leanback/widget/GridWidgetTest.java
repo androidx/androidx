@@ -2285,6 +2285,15 @@ public class GridWidgetTest {
 
     @Test
     public void testScrollAndInsert() throws Throwable {
+        testScrollAndInsert(3);
+    }
+
+    @Test
+    public void testScrollAndInsertAlot() throws Throwable {
+        testScrollAndInsert(20);
+    }
+
+    public void testScrollAndInsert(int insertedItems) throws Throwable {
 
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
@@ -2292,6 +2301,10 @@ public class GridWidgetTest {
         int[] items = new int[1000];
         for (int i = 0; i < items.length; i++) {
             items[i] = 300 + (int)(Math.random() * 100);
+        }
+        final int[] newItems = new int[insertedItems];
+        for (int i = 0; i < insertedItems; i++) {
+            newItems[i] = 300;
         }
         intent.putExtra(GridActivity.EXTRA_ITEMS, items);
         intent.putExtra(GridActivity.EXTRA_STAGGERED, true);
@@ -2320,12 +2333,13 @@ public class GridWidgetTest {
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int[] newItems = new int[]{300, 300, 300};
                 mActivity.addItems(0, newItems);
             }
         });
         waitForScrollIdle();
-        int topEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getTop();
+        int newFocusToIndex = focusToIndex + insertedItems;
+        assertEquals(newFocusToIndex, mGridView.getSelectedPosition());
+        int topEdge = mGridView.getLayoutManager().findViewByPosition(newFocusToIndex).getTop();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -2334,7 +2348,7 @@ public class GridWidgetTest {
         });
         waitForScrollIdle();
         assertEquals(topEdge,
-                mGridView.getLayoutManager().findViewByPosition(focusToIndex).getTop());
+                mGridView.getLayoutManager().findViewByPosition(newFocusToIndex).getTop());
     }
 
     @Test
