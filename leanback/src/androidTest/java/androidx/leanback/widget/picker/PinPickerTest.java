@@ -112,36 +112,26 @@ public class PinPickerTest {
 
     @Test
     @LargeTest
-    public void dpadInputTest() throws Exception {
-        final CompletableFuture<String> futurePin = new CompletableFuture<>();
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mPinPicker.resetPin();
-                mPinPicker.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        futurePin.complete(mPinPicker.getPin());
-                    }
-                });
-            }
-        });
+    public void dpadInputTest() {
         onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
-        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
         waitStable();
-        assertThat("dpad input should set pin", futurePin.get(5, TimeUnit.SECONDS), is("1234"));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        waitStable();
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        waitStable();
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_DOWN));
+        waitStable();
+        onView(withId(R.id.test_picker)).perform(pressKey(KeyEvent.KEYCODE_DPAD_CENTER));
+        assertThat("dpad input should set pin", mPinPicker.getPin(), is("1234"));
     }
 
     private static class CompletableFuture<V> implements Future<V> {
