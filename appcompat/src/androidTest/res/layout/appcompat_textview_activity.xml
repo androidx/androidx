@@ -281,6 +281,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/sample_text1"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_view_default_values"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_view_hyphen_break_override"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hyphenationFrequency="full"
+            android:breakStrategy="balanced"/>
+
     </LinearLayout>
 
 </ScrollView>
