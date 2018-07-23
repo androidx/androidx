@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -42,6 +43,7 @@ import java.util.concurrent.TimeUnit;
  * A simple activity used for Fragment Transitions and lifecycle event ordering
  */
 public class FragmentTestActivity extends FragmentActivity {
+    private Context mTestThemedContext;
     public final CountDownLatch onDestroyLatch = new CountDownLatch(1);
 
     @Override
@@ -61,6 +63,19 @@ public class FragmentTestActivity extends FragmentActivity {
     protected void onDestroy() {
         super.onDestroy();
         onDestroyLatch.countDown();
+    }
+
+    @NonNull
+    @Override
+    public Context getThemedContext() {
+        if (mTestThemedContext != null) {
+            return mTestThemedContext;
+        }
+        return super.getThemedContext();
+    }
+
+    public void setTestThemedContext(Context testThemedContext) {
+        mTestThemedContext = testThemedContext;
     }
 
     public static class TestFragment extends Fragment {

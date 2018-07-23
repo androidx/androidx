@@ -16,6 +16,7 @@
 
 package androidx.appcompat.app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.TypedArray;
@@ -76,6 +77,12 @@ public class AppCompatViewInflater {
             = new ArrayMap<>();
 
     private final Object[] mConstructorArgs = new Object[2];
+
+    private Context mHostContext;
+
+    void setHostContext(@Nullable Context context) {
+        mHostContext = context;
+    }
 
     final View createView(View parent, final String name, @NonNull Context context,
             @NonNull AttributeSet attrs, boolean inheritContext,
@@ -300,20 +307,19 @@ public class AppCompatViewInflater {
     private void checkOnClickListener(View view, AttributeSet attrs) {
         final Context context = view.getContext();
 
-        if (!(context instanceof ContextWrapper) ||
-                (Build.VERSION.SDK_INT >= 15 && !ViewCompat.hasOnClickListeners(view))) {
-            // Skip our compat functionality if: the Context isn't a ContextWrapper, or
-            // the view doesn't have an OnClickListener (we can only rely on this on API 15+ so
-            // always use our compat code on older devices)
-            return;
+        // Skip our compat functionality if: the Context is an Activity, or
+        // the view doesn't have an OnClickListener (we can only rely on this on API 15+ so
+        // always use our compat code on older devices)
+        if (!(context instanceof Activity)
+                && (Build.VERSION.SDK_INT < 15 || ViewCompat.hasOnClickListeners(view))) {
+            final TypedArray a = context.obtainStyledAttributes(attrs, sOnClickAttrs);
+            final String handlerName = a.getString(0);
+            if (handlerName != null) {
+                view.setOnClickListener(
+                        new DeclaredOnClickListener(view, mHostContext, handlerName));
+            }
+            a.recycle();
         }
-
-        final TypedArray a = context.obtainStyledAttributes(attrs, sOnClickAttrs);
-        final String handlerName = a.getString(0);
-        if (handlerName != null) {
-            view.setOnClickListener(new DeclaredOnClickListener(view, handlerName));
-        }
-        a.recycle();
     }
 
     private View createViewByPrefix(Context context, String name, String prefix)
@@ -375,13 +381,16 @@ public class AppCompatViewInflater {
      */
     private static class DeclaredOnClickListener implements View.OnClickListener {
         private final View mHostView;
+        private final Context mHostContext;
         private final String mMethodName;
 
         private Method mResolvedMethod;
         private Context mResolvedContext;
 
-        public DeclaredOnClickListener(@NonNull View hostView, @NonNull String methodName) {
+        DeclaredOnClickListener(@NonNull View hostView, @NonNull Context hostContext,
+                @NonNull String methodName) {
             mHostView = hostView;
+            mHostContext = hostContext;
             mMethodName = methodName;
         }
 
@@ -403,11 +412,31 @@ public class AppCompatViewInflater {
         }
 
         @NonNull
-        private void resolveMethod(@Nullable Context context, @NonNull String name) {
+        private void resolveMethod(@Nullable Context viewContext, @NonNull String name) {
+            // Try and resolve the method using the view's context
+            resolveMethodForContext(viewContext, name);
+
+            if (mResolvedMethod == null && mHostContext != viewContext) {
+                // If the view context does not contain a method with the name, lets try the
+                // host context
+                resolveMethodForContext(mHostContext, name);
+            }
+
+            if (mResolvedMethod == null) {
+                final int id = mHostView.getId();
+                final String idText = id == View.NO_ID ? "" : " with id '"
+                        + mHostView.getContext().getResources().getResourceEntryName(id) + "'";
+                throw new IllegalStateException("Could not find method " + mMethodName
+                        + "(View) in a parent or ancestor Context for android:onClick "
+                        + "attribute defined on view " + mHostView.getClass() + idText);
+            }
+        }
+
+        private void resolveMethodForContext(@Nullable Context context, @NonNull String name) {
             while (context != null) {
                 try {
                     if (!context.isRestricted()) {
-                        final Method method = context.getClass().getMethod(mMethodName, View.class);
+                        final Method method = context.getClass().getMethod(name, View.class);
                         if (method != null) {
                             mResolvedMethod = method;
                             mResolvedContext = context;
@@ -425,13 +454,6 @@ public class AppCompatViewInflater {
                     context = null;
                 }
             }
-
-            final int id = mHostView.getId();
-            final String idText = id == View.NO_ID ? "" : " with id '"
-                    + mHostView.getContext().getResources().getResourceEntryName(id) + "'";
-            throw new IllegalStateException("Could not find method " + mMethodName
-                    + "(View) in a parent or ancestor Context for android:onClick "
-                    + "attribute defined on view " + mHostView.getClass() + idText);
         }
     }
 }

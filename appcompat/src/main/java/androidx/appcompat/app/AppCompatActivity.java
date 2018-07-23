@@ -16,6 +16,7 @@
 
 package androidx.appcompat.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -63,39 +64,47 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider {
 
     private AppCompatDelegate mDelegate;
-    private int mThemeId = 0;
     private Resources mResources;
 
+    /**
+     * {@inheritDoc}
+     *
+     * When inflating any resources, make sure to use this Activity's themed context from {@link #getThemedContext()}.
+     * The returned context is setup with the correct theme, and is especially important when using this library's
+     * DayNight functionality.
+     * <p>
+     * This context is automatically used when you call {@link #setContentView(int)}, {@link #setContentView(View)},
+     * {@link #setContentView(View, ViewGroup.LayoutParams)}, and is automatically used by
+     * {@link androidx.fragment.app.Fragment}'s layout inflater.
+     * <p>
+     * Please note: make sure that you call {@code super.onCreate()} before using this Activity's {@link Resources}
+     * or its {@link Configuration}.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         final AppCompatDelegate delegate = getDelegate();
         delegate.installViewFactory();
         delegate.onCreate(savedInstanceState);
-        if (delegate.applyDayNight() && mThemeId != 0) {
-            // If DayNight has been applied, we need to re-apply the theme for
-            // the changes to take effect. On API 23+, we should bypass
-            // setTheme(), which will no-op if the theme ID is identical to the
-            // current theme ID.
-            if (Build.VERSION.SDK_INT >= 23) {
-                onApplyThemeResource(getTheme(), mThemeId, false);
-            } else {
-                setTheme(mThemeId);
-            }
-        }
+        delegate.applyDayNight();
         super.onCreate(savedInstanceState);
     }
 
     @Override
-    public void setTheme(@StyleRes final int resid) {
-        super.setTheme(resid);
-        // Keep hold of the theme id so that we can re-set it later if needed
-        mThemeId = resid;
+    public void setTheme(@StyleRes final int resId) {
+        super.setTheme(resId);
+        getDelegate().onSetTheme(resId);
     }
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         getDelegate().onPostCreate(savedInstanceState);
+    }
+
+    @NonNull
+    @Override
+    public Context getThemedContext() {
+        return getDelegate().getThemedContext();
     }
 
     /**
