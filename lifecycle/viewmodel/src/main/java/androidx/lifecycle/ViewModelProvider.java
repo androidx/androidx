@@ -20,6 +20,7 @@ import android.app.Application;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -51,7 +52,27 @@ public class ViewModelProvider {
         <T extends ViewModel> T create(@NonNull Class<T> modelClass);
     }
 
-    private final Factory mFactory;
+    /**
+     * Implementations of {@code Factory} interface are responsible to instantiate ViewModels.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface KeyedFactory {
+        /**
+         * Creates a new instance of the given {@code Class}.
+         * <p>
+         *
+         * @param key a key associated with the requested ViewModel
+         * @param modelClass a {@code Class} whose instance is requested
+         * @param <T>        The type parameter for the ViewModel.
+         * @return a newly created ViewModel
+         */
+        @NonNull
+        <T extends ViewModel> T create(String key, @NonNull Class<T> modelClass);
+    }
+
+    private final KeyedFactory mFactory;
     private final ViewModelStore mViewModelStore;
 
     /**
@@ -76,8 +97,39 @@ public class ViewModelProvider {
      *                new {@code ViewModels}
      */
     public ViewModelProvider(@NonNull ViewModelStore store, @NonNull Factory factory) {
+        this(store, new FactoryWrapper(factory));
+    }
+
+    /**
+     * @hide
+     *
+     * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
+     * {@code Factory} and retain them in a store of the given {@code ViewModelStoreOwner}.
+     *
+     * @param owner   a {@code ViewModelStoreOwner} whose {@link ViewModelStore} will be used to
+     *                retain {@code ViewModels}
+     * @param factory a {@code KeyedFactory} which will be used to instantiate
+     *                new {@code ViewModels}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public ViewModelProvider(@NonNull ViewModelStoreOwner owner, @NonNull KeyedFactory factory) {
+        this(owner.getViewModelStore(), factory);
+    }
+
+    /**
+     * @hide
+     *
+     * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
+     * {@code Factory} and retain them in the given {@code store}.
+     *
+     * @param store   {@code ViewModelStore} where ViewModels will be stored.
+     * @param factory factory a {@code Factory} which will be used to instantiate
+     *                new {@code ViewModels}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public ViewModelProvider(@NonNull ViewModelStore store, @NonNull KeyedFactory factory) {
         mFactory = factory;
-        this.mViewModelStore = store;
+        mViewModelStore = store;
     }
 
     /**
@@ -132,7 +184,7 @@ public class ViewModelProvider {
             }
         }
 
-        viewModel = mFactory.create(modelClass);
+        viewModel = mFactory.create(key, modelClass);
         mViewModelStore.put(key, viewModel);
         //noinspection unchecked
         return (T) viewModel;
@@ -209,6 +261,19 @@ public class ViewModelProvider {
                 }
             }
             return super.create(modelClass);
+        }
+    }
+
+    private static class FactoryWrapper implements KeyedFactory {
+        private final Factory mFactory;
+
+        FactoryWrapper(Factory factory) {
+            mFactory = factory;
+        }
+
+        @Override
+        public <T extends ViewModel> T create(String key, Class<T> modelClass) {
+            return mFactory.create(modelClass);
         }
     }
 }

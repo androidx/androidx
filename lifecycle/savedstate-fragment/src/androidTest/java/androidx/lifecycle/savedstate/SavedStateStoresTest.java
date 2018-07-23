@@ -194,7 +194,7 @@ public class SavedStateStoresTest {
             do {
                 // the documentation says "Block until an Activity is created
                 // that matches this monitor." This statement is true, but there are some other
-                // true statements like: "Block until an Activity is destoyed" or
+                // true statements like: "Block until an Activity is destroyed" or
                 // "Block until an Activity is resumed"...
 
                 // this call will release synchronization monitor's monitor
