@@ -178,3 +178,5 @@ fun compileLibrarySources(vararg sources: JavaFileObject): ClassLoader {
     val classesPath = Paths.get(tempDir.path, StandardLocation.CLASS_OUTPUT.name).toUri().toURL()
     return URLClassLoader(arrayOf(classesPath), ClassLoader.getSystemClassLoader())
 }
+
+fun String.toJFO(qName: String): JavaFileObject = JavaFileObjects.forSourceLines(qName, this)

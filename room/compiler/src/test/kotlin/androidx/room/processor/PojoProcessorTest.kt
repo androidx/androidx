@@ -34,10 +34,8 @@ import androidx.room.vo.Field
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
 import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import simpleRun
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
@@ -50,6 +48,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
+import simpleRun
+import toJFO
 import javax.lang.model.element.Element
 import javax.tools.JavaFileObject
 
@@ -69,8 +69,6 @@ class PojoProcessorTest {
             """
         val FOOTER = "\n}"
     }
-
-    private fun String.toJFO(qName: String) = JavaFileObjects.forSourceLines(qName, this)
 
     @Test
     fun inheritedPrivate() {
@@ -92,7 +90,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString()),
                 parent.toJFO("foo.bar.x.BaseClass")) { invocation ->
-            val pojo = PojoProcessor(baseContext = invocation.context,
+            val pojo = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null).process()
@@ -576,25 +574,25 @@ class PojoProcessorTest {
             """.toJFO(MY_POJO.toString())
         simpleRun(pojo) { invocation ->
             val element = invocation.typeElement(MY_POJO.toString())
-            val pojo1 = PojoProcessor(invocation.context, element,
+            val pojo1 = PojoProcessor.createFor(invocation.context, element,
                     FieldProcessor.BindingScope.BIND_TO_STMT, null).process()
             assertThat(pojo1, notNullValue())
-            val pojo2 = PojoProcessor(invocation.context, element,
+            val pojo2 = PojoProcessor.createFor(invocation.context, element,
                     FieldProcessor.BindingScope.BIND_TO_STMT, null).process()
             assertThat(pojo2, sameInstance(pojo1))
 
-            val pojo3 = PojoProcessor(invocation.context, element,
+            val pojo3 = PojoProcessor.createFor(invocation.context, element,
                     FieldProcessor.BindingScope.READ_FROM_CURSOR, null).process()
             assertThat(pojo3, notNullValue())
             assertThat(pojo3, not(sameInstance(pojo1)))
 
-            val pojo4 = PojoProcessor(invocation.context, element,
+            val pojo4 = PojoProcessor.createFor(invocation.context, element,
                     FieldProcessor.BindingScope.TWO_WAY, null).process()
             assertThat(pojo4, notNullValue())
             assertThat(pojo4, not(sameInstance(pojo1)))
             assertThat(pojo4, not(sameInstance(pojo3)))
 
-            val pojo5 = PojoProcessor(invocation.context, element,
+            val pojo5 = PojoProcessor.createFor(invocation.context, element,
                     FieldProcessor.BindingScope.TWO_WAY, null).process()
             assertThat(pojo5, sameInstance(pojo4))
 
@@ -612,14 +610,14 @@ class PojoProcessorTest {
             )
             val fakeEmbedded = EmbeddedField(fakeField, "", null)
 
-            val pojo6 = PojoProcessor(invocation.context, element,
+            val pojo6 = PojoProcessor.createFor(invocation.context, element,
                     FieldProcessor.BindingScope.TWO_WAY, fakeEmbedded).process()
             assertThat(pojo6, notNullValue())
             assertThat(pojo6, not(sameInstance(pojo1)))
             assertThat(pojo6, not(sameInstance(pojo3)))
             assertThat(pojo6, not(sameInstance(pojo4)))
 
-            val pojo7 = PojoProcessor(invocation.context, element,
+            val pojo7 = PojoProcessor.createFor(invocation.context, element,
                     FieldProcessor.BindingScope.TWO_WAY, fakeEmbedded).process()
             assertThat(pojo7, sameInstance(pojo6))
         }.compilesWithoutError()
@@ -756,7 +754,7 @@ class PojoProcessorTest {
             String mName;
             String mLastName;
         """) { _, invocation ->
-            val process2 = PojoProcessor(baseContext = invocation.context,
+            val process2 = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
                     parent = null).process()
@@ -770,7 +768,7 @@ class PojoProcessorTest {
             String mName;
             String mLastName;
         """) { _, invocation ->
-            val process2 = PojoProcessor(baseContext = invocation.context,
+            val process2 = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                     parent = null).process()
@@ -990,8 +988,8 @@ class PojoProcessorTest {
                 TestData.WithJvmOverloads::class.java.canonicalName
         ).forEach {
             simpleRun { invocation ->
-                PojoProcessor(
-                        baseContext = invocation.context,
+                PojoProcessor.createFor(
+                        context = invocation.context,
                         element = invocation.typeElement(it),
                         bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                         parent = null
@@ -1003,8 +1001,8 @@ class PojoProcessorTest {
     @Test
     fun dataClass_withJvmOverloads_primaryConstructor() {
         simpleRun { invocation ->
-            PojoProcessor(
-                    baseContext = invocation.context,
+            PojoProcessor.createFor(
+                    context = invocation.context,
                     element = invocation.typeElement(
                             TestData.WithJvmOverloads::class.java.canonicalName
                     ),
@@ -1053,7 +1051,7 @@ class PojoProcessorTest {
         val all = (jfos.toList() + pojoJFO).toTypedArray()
         return simpleRun(*all, classLoader = classLoader) { invocation ->
             handler.invoke(
-                PojoProcessor(baseContext = invocation.context,
+                PojoProcessor.createFor(context = invocation.context,
                         element = invocation.typeElement(MY_POJO.toString()),
                         bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                         parent = null).process(),
