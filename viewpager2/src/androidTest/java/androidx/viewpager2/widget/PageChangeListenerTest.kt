@@ -175,12 +175,6 @@ class PageChangeListenerTest {
 
             if (targetPage == initialPage && edgePages.contains(targetPage)) {
                 listener.apply {
-                    if (targetPage == 0) { // TODO: fix b/68716910 and remove this workaround
-                        assertThat(eventCount, isBetweenInIn(0, 1))
-                        if (eventCount == 1) assertThat(draggingIx, equalTo(0))
-                        return@apply
-                    }
-
                     // verify all events
                     assertThat(draggingIx, equalTo(0))
                     assertThat(idleIx, equalTo(lastIx))
