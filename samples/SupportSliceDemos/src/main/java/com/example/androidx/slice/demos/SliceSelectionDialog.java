@@ -22,13 +22,16 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import android.app.ProgressDialog;
 import android.app.slice.SliceProvider;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -155,6 +158,23 @@ public class SliceSelectionDialog {
                     new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
                             .authority(authority)
                             .build()));
+
+            Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            mainIntent.setPackage(provider.packageName);
+            Uri uri = sliceViewManager.mapIntentToUri(mainIntent);
+            List<ResolveInfo> info = context.getPackageManager().queryIntentActivities(mainIntent,
+                    0);
+            if (info.size() == 1) {
+                // If we resolve to an activity, set the intent to explicitly
+                // point at that activity.
+                mainIntent = new Intent()
+                        .setComponent(new ComponentName(provider.packageName,
+                                    info.get(0).activityInfo.name));
+            }
+            if (uri != null) {
+                slices.add(uri);
+            }
             for (Uri slice : slices) {
                 labels.put(slice.toString(), loadLabel(context, sliceViewManager, slice));
             }
@@ -197,9 +217,9 @@ public class SliceSelectionDialog {
                     selectedCallback.accept(slice);
                 };
                 new AlertDialog.Builder(context)
-                        .setTitle(label)
-                        .setAdapter(adapter, clickListener)
-                        .show();
+                    .setTitle(label)
+                    .setAdapter(adapter, clickListener)
+                    .show();
             });
         }).start();
     }
@@ -302,12 +322,12 @@ public class SliceSelectionDialog {
                 return mSharedPreferences.getString(authority, null);
             }
             String type = String.valueOf(mContext.getContentResolver().getType(new Uri.Builder()
-                    .scheme(ContentResolver.SCHEME_CONTENT)
-                    .authority(authority)
-                    .build()));
+                        .scheme(ContentResolver.SCHEME_CONTENT)
+                        .authority(authority)
+                        .build()));
             mSharedPreferences.edit()
-                    .putString(authority, type)
-                    .commit();
+                .putString(authority, type)
+                .commit();
             return type;
         }
     }
