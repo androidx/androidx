@@ -35,5 +35,12 @@
         <argument app:argType="long" android:name="test_long" android:defaultValue="456789013456L" />
         <argument android:name="test_long2" android:defaultValue="456789013456L" />
         <argument android:name="test_long3" android:defaultValue="123L" />
+        <argument android:name="test_enum" app:argType="androidx.navigation.test.TestEnum"
+            android:defaultValue="VALUE_ONE"/>
+        <argument android:name="test_enum2" app:argType="androidx.navigation.test.TestEnum"
+                  app:nullable="true" android:defaultValue="@null"/>
+        <argument android:name="test_relative_classname" app:argType=".TestEnum"
+                  android:defaultValue="VALUE_TWO"/>
+
     </test>
 </navigation>

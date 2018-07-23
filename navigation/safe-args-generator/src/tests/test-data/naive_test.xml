@@ -23,7 +23,7 @@
         <argument android:name="myarg1" android:defaultValue="one" />
         <action android:id="@+id/next" app:destination="@+id/next_fragment">
             <argument android:name="myarg2" app:argType="string"/>
-            <argument android:name="randomArgument"/>
+            <argument android:name="randomArgument" app:argType="string"/>
             <argument android:name="intArgument" app:argType="integer" android:defaultValue="261"/>
             <argument android:name="activityInfo" app:argType="android.content.pm.ActivityInfo"/>
             <argument android:name="activityInfoNull"
@@ -31,11 +31,18 @@
                       app:argType="android.content.pm.ActivityInfo"
                       android:defaultValue="@null"
             />
+            <argument android:name="intArrayArg" app:argType="integer[]"/>
+            <argument android:name="stringArrayArg" app:argType="string[]"/>
+            <argument android:name="objectArrayArg" app:argType="android.content.pm.ActivityInfo[]"/>
+            <argument android:name="enumArg" app:argType="java.nio.file.AccessMode"
+                      android:defaultValue="READ"/>
+            <argument android:name="objectRelativeArg" app:argType=".pkg.ClassName"/>
+            <argument android:name="objectRelativeArg2" app:argType=".ClassName"/>
         </action>
     </fragment>
     <fragment android:id="@+id/next_fragment"
               android:name=".NextFragment">
-        <argument android:name="myarg2" />
+        <argument android:name="myarg2" app:argType="string" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
         <action android:id="@+id/finish" app:popUpTo="@id/first_screen" />
     </fragment>
