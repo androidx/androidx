@@ -66,11 +66,11 @@
 
     <!-- List Styles -->
     <public type="style" name="Widget.Car.List" />
-    <public type="style" name="Widget.Car.List.Inverse" />
-    <public type="style" name="Widget.Car.Light.List" />
-    <public type="style" name="Widget.Car.Light.List.LightDivider" />
-    <public type="style" name="Widget.Car.Dark.List" />
-    <public type="style" name="Widget.Car.Dark.List.LightDivider" />
+    <public type="style" name="Widget.Car.List.Light" />
+    <public type="style" name="Widget.Car.List.Dark" />
+    <public type="style" name="Widget.Car.Scrollbar" />
+    <public type="style" name="Widget.Car.Scrollbar.Light" />
+    <public type="style" name="Widget.Car.Scrollbar.Dark" />
 
     <!-- ListItem Styles -->
     <public type="style" name="Widget.Car.ListItem" />

@@ -316,46 +316,6 @@ public final class PagedListViewTest {
     }
 
     @Test
-    public void testSettingAndResettingScrollbarColor() {
-        setUpPagedListView(0);
-
-        final int color = R.color.car_teal_700;
-
-        // Setting non-zero res ID changes color.
-        mPagedListView.setScrollbarColor(color);
-        assertThat(mPagedListView.mScrollBarView.getScrollbarThumbColor(),
-                is(equalTo(InstrumentationRegistry.getContext().getColor(color))));
-
-        // Resets to default color.
-        mPagedListView.resetScrollbarColor();
-        assertThat(mPagedListView.mScrollBarView.getScrollbarThumbColor(),
-                is(equalTo(InstrumentationRegistry.getContext().getColor(
-                        R.color.car_scrollbar_thumb))));
-    }
-
-    @Test
-    public void testSettingScrollbarColorIgnoresDayNightStyle() {
-        setUpPagedListView(0);
-
-        final int color = R.color.car_teal_700;
-        mPagedListView.setScrollbarColor(color);
-
-        int[] styles = new int[] {
-                DayNightStyle.AUTO,
-                DayNightStyle.AUTO_INVERSE,
-                DayNightStyle.ALWAYS_LIGHT,
-                DayNightStyle.ALWAYS_DARK
-        };
-
-        for (int style : styles) {
-            mPagedListView.setDayNightStyle(style);
-
-            assertThat(mPagedListView.mScrollBarView.getScrollbarThumbColor(),
-                    is(equalTo(InstrumentationRegistry.getContext().getColor(color))));
-        }
-    }
-
-    @Test
     public void testNoVerticalPaddingOnScrollBar() {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);

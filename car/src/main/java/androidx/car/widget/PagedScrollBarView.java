@@ -18,6 +18,7 @@ package androidx.car.widget;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -31,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.R;
@@ -39,8 +41,6 @@ import androidx.core.content.ContextCompat;
 /** A custom view to provide list scroll behaviour -- up/down buttons and scroll indicator. */
 public class PagedScrollBarView extends ViewGroup {
     private static final float BUTTON_DISABLED_ALPHA = 0.2f;
-
-    @DayNightStyle private int mDayNightStyle;
 
     /** Listener for when the list should paginate. */
     public interface PaginationListener {
@@ -58,52 +58,50 @@ public class PagedScrollBarView extends ViewGroup {
         void onAlphaJump();
     }
 
-    private final ImageView mUpButton;
-    private final PaginateButtonClickListener mUpButtonClickListener;
-    private final ImageView mDownButton;
-    private final PaginateButtonClickListener mDownButtonClickListener;
-    private final TextView mAlphaJumpButton;
-    private final AlphaJumpButtonClickListener mAlphaJumpButtonClickListener;
-    private final View mScrollThumb;
+    private ImageView mUpButton;
+    private PaginateButtonClickListener mUpButtonClickListener;
+    private ImageView mDownButton;
+    private PaginateButtonClickListener mDownButtonClickListener;
+    private TextView mAlphaJumpButton;
+    private AlphaJumpButtonClickListener mAlphaJumpButtonClickListener;
+    private View mScrollThumb;
 
-    private final int mSeparatingMargin;
-    private final int mScrollBarThumbWidth;
+    private int mSeparatingMargin;
+    private int mScrollBarThumbWidth;
 
     /** The amount of space that the scroll thumb is allowed to roam over. */
     private int mScrollThumbTrackHeight;
 
     private final Interpolator mPaginationInterpolator = new AccelerateDecelerateInterpolator();
-    private boolean mUseCustomThumbBackground;
-    @ColorRes private int mCustomThumbBackgroundResId;
 
     public PagedScrollBarView(Context context) {
         super(context);
+        init(context, /* attrs= */ null, R.attr.pagedScrollBarViewStyle);
     }
 
     public PagedScrollBarView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init(context, attrs, R.attr.pagedScrollBarViewStyle);
     }
 
     public PagedScrollBarView(Context context, AttributeSet attrs, int defStyleAttrs) {
         super(context, attrs, defStyleAttrs);
+        init(context, attrs, defStyleAttrs);
     }
 
     public PagedScrollBarView(
             Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
         super(context, attrs, defStyleAttrs, defStyleRes);
+        init(context, attrs, defStyleAttrs);
     }
 
-    // Using an initialization block so that the fields referenced in this block can be marked
-    // as "final". This block will run after the super() call in constructors.
-    {
-        Resources res = getResources();
+    private void init(Context context, AttributeSet attrs, int defStyleAttrs) {
+        Resources res = context.getResources();
         mSeparatingMargin = res.getDimensionPixelSize(R.dimen.car_padding_2);
         mScrollBarThumbWidth = res.getDimensionPixelSize(R.dimen.car_scroll_bar_thumb_width);
 
-        LayoutInflater inflater =
-                (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.car_paged_scrollbar_buttons, this /* root */,
-                true /* attachToRoot */);
+        LayoutInflater.from(context).inflate(R.layout.car_paged_scrollbar_buttons,
+                /* root= */ this, /* attachToRoot= */ true);
 
         mUpButtonClickListener = new PaginateButtonClickListener(PaginationListener.PAGE_UP);
         mDownButtonClickListener = new PaginateButtonClickListener(PaginationListener.PAGE_DOWN);
@@ -117,6 +115,37 @@ public class PagedScrollBarView extends ViewGroup {
         mAlphaJumpButton.setOnClickListener(mAlphaJumpButtonClickListener);
 
         mScrollThumb = findViewById(R.id.scrollbar_thumb);
+
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PagedScrollBarView,
+                defStyleAttrs, /* defStyleRes= */ 0);
+
+        Drawable upButtonIcon = a.getDrawable(R.styleable.PagedScrollBarView_upButtonIcon);
+        if (upButtonIcon != null) {
+            setUpButtonIcon(upButtonIcon);
+        }
+
+        Drawable downButtonIcon = a.getDrawable(R.styleable.PagedScrollBarView_downButtonIcon);
+        if (downButtonIcon != null) {
+            setDownButtonIcon(downButtonIcon);
+        }
+
+        int scrollBarColor = a.getResourceId(R.styleable.PagedScrollBarView_scrollBarColor, -1);
+        if (scrollBarColor != -1) {
+            setScrollbarThumbColor(scrollBarColor);
+        }
+
+        int buttonTintColor = a.getResourceId(R.styleable.PagedScrollBarView_buttonTintColor, -1);
+        if (buttonTintColor != -1) {
+            setButtonTintColor(buttonTintColor);
+        }
+
+        int buttonRippleBackground =
+                a.getResourceId(R.styleable.PagedScrollBarView_buttonRippleBackground, -1);
+        if (buttonRippleBackground != -1) {
+            setButtonRippleBackground(buttonRippleBackground);
+        }
+
+        a.recycle();
     }
 
     /** Sets the icon to be used for the up button. */
@@ -238,12 +267,15 @@ public class PagedScrollBarView extends ViewGroup {
      * Sets how this {@link PagedScrollBarView} responds to day/night configuration changes. By
      * default, the PagedScrollBarView is darker in the day and lighter at night.
      *
+     * <p>This method has been deprecated and no longer does anything.
+     *
      * @param dayNightStyle A value from {@link DayNightStyle}.
      * @see DayNightStyle
+     * @deprecated Set the day/night behavior of this view through the theme of this view.
      */
+    @Deprecated
     public void setDayNightStyle(@DayNightStyle int dayNightStyle) {
-        mDayNightStyle = dayNightStyle;
-        reloadColors();
+        // No-op.
     }
 
     /**
@@ -278,23 +310,34 @@ public class PagedScrollBarView extends ViewGroup {
     /**
      * Sets the color of thumb.
      *
-     * <p>Custom thumb color ignores {@link DayNightStyle}. Calling {@link #resetThumbColor} resets
-     * to default color.
-     *
      * @param color Resource identifier of the color.
      */
-    public void setThumbColor(@ColorRes int color) {
-        mUseCustomThumbBackground = true;
-        mCustomThumbBackgroundResId = color;
-        reloadColors();
+    public void setScrollbarThumbColor(@ColorRes int color) {
+        GradientDrawable background = (GradientDrawable) mScrollThumb.getBackground();
+        background.setColor(getContext().getColor(color));
     }
 
     /**
-     * Resets the color of thumb to default.
+     * Sets the tint color for the up and down buttons of this view.
+     *
+     * @param tintResId Resource identifier of the tint color.
      */
-    public void resetThumbColor() {
-        mUseCustomThumbBackground = false;
-        reloadColors();
+    public void setButtonTintColor(@ColorRes int tintResId) {
+        int tint = ContextCompat.getColor(getContext(), tintResId);
+        mUpButton.setColorFilter(tint, PorterDuff.Mode.SRC_IN);
+        mDownButton.setColorFilter(tint, PorterDuff.Mode.SRC_IN);
+    }
+
+    /**
+     * Sets the drawable that will function as the background for the buttons in this view. This
+     * background should provide the ripple.
+     *
+     * @param backgroundResId The drawable resource identifier for the ripple background.
+     */
+    public void setButtonRippleBackground(@DrawableRes int backgroundResId) {
+        mUpButton.setBackgroundResource(backgroundResId);
+        mDownButton.setBackgroundResource(backgroundResId);
+        mAlphaJumpButton.setBackgroundResource(backgroundResId);
     }
 
     @Override
@@ -417,59 +460,6 @@ public class PagedScrollBarView extends ViewGroup {
         int viewLeft = (availableWidth - viewWidth) / 2;
         view.layout(viewLeft, bottom - view.getMeasuredHeight(),
                 viewLeft + viewWidth, bottom);
-    }
-
-    /** Reload the colors for the current {@link DayNightStyle}. */
-    @SuppressWarnings("deprecation")
-    private void reloadColors() {
-        int tintResId;
-        int thumbColorResId;
-        int upDownBackgroundResId;
-
-        switch (mDayNightStyle) {
-            case DayNightStyle.AUTO:
-                tintResId = R.color.car_tint;
-                thumbColorResId = R.color.car_scrollbar_thumb;
-                upDownBackgroundResId = R.drawable.car_button_ripple_background;
-                break;
-            case DayNightStyle.AUTO_INVERSE:
-                tintResId = R.color.car_tint_inverse;
-                thumbColorResId = R.color.car_scrollbar_thumb_inverse;
-                upDownBackgroundResId = R.drawable.car_button_ripple_background_inverse;
-                break;
-            case DayNightStyle.ALWAYS_LIGHT:
-                tintResId = R.color.car_tint_light;
-                thumbColorResId = R.color.car_scrollbar_thumb_light;
-                upDownBackgroundResId = R.drawable.car_button_ripple_background_night;
-                break;
-            case DayNightStyle.ALWAYS_DARK:
-                tintResId = R.color.car_tint_dark;
-                thumbColorResId = R.color.car_scrollbar_thumb_dark;
-                upDownBackgroundResId = R.drawable.car_button_ripple_background_day;
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown DayNightStyle: " + mDayNightStyle);
-        }
-
-        if (mUseCustomThumbBackground) {
-            thumbColorResId = mCustomThumbBackgroundResId;
-        }
-
-        setScrollbarThumbColor(thumbColorResId);
-
-        int tint = ContextCompat.getColor(getContext(), tintResId);
-        mUpButton.setColorFilter(tint, PorterDuff.Mode.SRC_IN);
-        mUpButton.setBackgroundResource(upDownBackgroundResId);
-
-        mDownButton.setColorFilter(tint, PorterDuff.Mode.SRC_IN);
-        mDownButton.setBackgroundResource(upDownBackgroundResId);
-
-        mAlphaJumpButton.setBackgroundResource(upDownBackgroundResId);
-    }
-
-    private void setScrollbarThumbColor(@ColorRes int color) {
-        GradientDrawable background = (GradientDrawable) mScrollThumb.getBackground();
-        background.setColor(getContext().getColor(color));
     }
 
     @VisibleForTesting

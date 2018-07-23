@@ -24,7 +24,6 @@
     <public type="attr" name="gutter" />
     <public type="attr" name="gutterSize" />
     <public type="attr" name="scrollBarEnabled" />
-    <public type="attr" name="scrollBarColor" />
     <public type="attr" name="scrollBarTopMargin" />
     <public type="attr" name="scrollBarContainerWidth" />
     <public type="attr" name="scrollBarGravity" />
@@ -36,11 +35,16 @@
     <public type="attr" name="listDividerColor" />
     <public type="attr" name="listEndMargin" />
     <public type="attr" name="itemSpacing" />
-    <public type="attr" name="upButtonIcon" />
-    <public type="attr" name="downButtonIcon" />
     <public type="attr" name="listContentTopOffset" />
     <public type="attr" name="verticallyCenterListContent" />
     <public type="attr" name="dayNightStyle" />
+
+    <!-- PagedScrollBarView -->
+    <public type="attr" name="scrollBarColor" />
+    <public type="attr" name="upButtonIcon" />
+    <public type="attr" name="downButtonIcon" />
+    <public type="attr" name="buttonTintColor" />
+    <public type="attr" name="buttonRippleBackground" />
 
     <!-- ListItem -->
     <public type="attr" name="listItemBackgroundColor" />
@@ -65,6 +69,7 @@
     <!-- CarTheme -->
     <public type="attr" name="carDialogTheme" />
     <public type="attr" name="pagedListViewStyle" />
+    <public type="attr" name="pagedScrollBarViewStyle" />
 
     <!-- CarTheme dialog styles -->
     <public type="attr" name="dialogBackgroundColor" />
@@ -80,7 +85,7 @@
     <public type="attr" name="drawerRippleColor" />
     <public type="attr" name="drawerItemTitleTextAppearance" />
     <public type="attr" name="drawerItemBodyTextAppearance" />
-    <public type="attr" name="drawerListStyle" />
+    <public type="attr" name="drawerListTheme" />
     <public type="attr" name="drawerBackButtonId" />
     <public type="attr" name="drawerListId" />
     <public type="attr" name="drawerTitleId" />
