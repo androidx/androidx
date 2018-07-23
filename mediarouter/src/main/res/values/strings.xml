@@ -89,4 +89,8 @@
     <!-- TODO(b/111372602): Enable translation when releasing dynamic grouping-->
     <!-- Section header text of group device section in dialog [CHAR LIMIT=50] -->
     <string name="mr_dialog_route_header" translatable="false">Play on a group</string>
+
+    <!-- TODO(b/111372602): Enable translation when releasing dynamic grouping-->
+    <!-- Placeholder text for cast dialog title view [CHAR LIMIT=50] -->
+    <string name="mr_cast_dialog_title_view_placeholder" translatable="false">No info available</string>
 </resources>

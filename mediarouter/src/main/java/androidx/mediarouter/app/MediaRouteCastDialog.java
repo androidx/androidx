@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -120,6 +121,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     private ImageView mArtView;
     private TextView mTitleView;
     private TextView mSubtitleView;
+    private String mTitlePlaceholder;
 
     MediaControllerCompat mMediaController;
     MediaControllerCallback mControllerCallback;
@@ -289,6 +291,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         mArtView = findViewById(R.id.mr_cast_meta_art);
         mTitleView = findViewById(R.id.mr_cast_meta_title);
         mSubtitleView = findViewById(R.id.mr_cast_meta_subtitle);
+        Resources res = mContext.getResources();
+        mTitlePlaceholder = res.getString(R.string.mr_cast_dialog_title_view_placeholder);
 
         mCreated = true;
         updateLayout();
@@ -340,14 +344,19 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         if (mArtIconIsLoaded) {
             if (isBitmapRecycled(mArtIconLoadedBitmap)) {
+                mArtView.setVisibility(View.GONE);
                 Log.w(TAG, "Can't set artwork image with recycled bitmap: " + mArtIconLoadedBitmap);
             } else {
+                mArtView.setVisibility(View.VISIBLE);
                 mArtView.setImageBitmap(mArtIconLoadedBitmap);
                 mArtView.setBackgroundColor(mArtIconBackgroundColor);
                 mMetadataLayout.setBackgroundDrawable(
                         new BitmapDrawable(mArtIconLoadedBitmap));
             }
             clearLoadedBitmap();
+        } else {
+            // Update metadata layout
+            mArtView.setVisibility(View.GONE);
         }
         updateMetadataLayout();
     }
@@ -406,13 +415,18 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         boolean hasTitle = !TextUtils.isEmpty(title);
 
         CharSequence subtitle = mDescription == null ? null : mDescription.getSubtitle();
-        boolean hasSubtitle = !TextUtils.isEmpty(title);
+        boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
 
         if (hasTitle) {
             mTitleView.setText(title);
+        } else {
+            mTitleView.setText(mTitlePlaceholder);
         }
         if (hasSubtitle) {
             mSubtitleView.setText(subtitle);
+            mSubtitleView.setVisibility(View.VISIBLE);
+        } else {
+            mSubtitleView.setVisibility(View.GONE);
         }
     }
 
