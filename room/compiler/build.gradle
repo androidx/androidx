@@ -48,6 +48,7 @@ dependencies {
     compile(project(":room:room-migration"))
     compile(KOTLIN_STDLIB)
     compile(AUTO_COMMON)
+    compile(AUTO_VALUE_ANNOTATIONS)
     compile(JAVAPOET)
     compile(ANTLR)
     compile(XERIAL)

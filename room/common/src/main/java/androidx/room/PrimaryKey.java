@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * from that embedded field becomes the composite primary key (including its grand children
  * fields).
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface PrimaryKey {
     /**
