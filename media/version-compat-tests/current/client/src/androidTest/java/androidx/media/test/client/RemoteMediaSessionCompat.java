@@ -31,7 +31,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
@@ -40,6 +39,7 @@ import android.support.mediacompat.testlib.IRemoteMediaSessionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -144,7 +144,7 @@ public class RemoteMediaSessionCompat {
         }
     }
 
-    public void setPlaybackState(PlaybackState state) {
+    public void setPlaybackState(PlaybackStateCompat state) {
         try {
             mBinder.setPlaybackState(mSessionTag,
                     createBundleWithParcelable(KEY_PLAYBACK_STATE_COMPAT, state));
