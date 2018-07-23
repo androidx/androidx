@@ -65,6 +65,8 @@ includeProject(":lifecycle:lifecycle-runtime", new File(supportRoot, "lifecycle/
 includeProject(":lifecycle:lifecycle-service", new File(supportRoot, "lifecycle/service"))
 includeProject(":lifecycle:lifecycle-viewmodel", new File(supportRoot, "lifecycle/viewmodel"))
 includeProject(":lifecycle:lifecycle-viewmodel-ktx", new File(supportRoot, "lifecycle/viewmodel/ktx"))
+includeProject(":lifecycle:lifecycle-savedstate-core", new File(supportRoot, "lifecycle/savedstate-core"))
+includeProject(":lifecycle:lifecycle-savedstate-fragment", new File(supportRoot, "lifecycle/savedstate-fragment"))
 includeProject(":paging:integration-tests:testapp", new File(supportRoot, "paging/integration-tests/testapp"))
 includeProject(":paging:paging-common", new File(supportRoot, "paging/common"))
 includeProject(":paging:paging-common-ktx", new File(supportRoot, "paging/common/ktx"))
