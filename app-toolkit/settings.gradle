@@ -48,9 +48,9 @@ if (inAppToolkitProject) {
 
 println "support root:${supportRoot}"
 
-includeProject(":arch:core-common", new File(supportRoot, "app-toolkit/common"))
-includeProject(":arch:core-testing", new File(supportRoot, "app-toolkit/core-testing"))
-includeProject(":arch:core-runtime", new File(supportRoot, "app-toolkit/runtime"))
+includeProject(":arch:core-common", new File(supportRoot, "arch/core-common"))
+includeProject(":arch:core-testing", new File(supportRoot, "arch/core-testing"))
+includeProject(":arch:core-runtime", new File(supportRoot, "arch/core-runtime"))
 includeProject(":lifecycle:integration-tests:testapp", new File(supportRoot, "lifecycle/integration-tests/testapp"))
 includeProject(":lifecycle:lifecycle-common", new File(supportRoot, "lifecycle/common"))
 includeProject(":lifecycle:lifecycle-common-java8", new File(supportRoot, "lifecycle/common-java8"))
