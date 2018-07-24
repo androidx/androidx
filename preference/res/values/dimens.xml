@@ -10,6 +10,4 @@
     <dimen name="preference_seekbar_padding_end">22dp</dimen>
     <!-- The width of the TextView indicating the current value of the SeekBarPreference -->
     <dimen name="preference_seekbar_value_width">36dp</dimen>
-    <!-- The width of the padding for PreferenceCategory's title/summary -->
-    <dimen name="preference_category_padding_start">0dp</dimen>
 </resources>
