@@ -213,9 +213,6 @@ class MediaController2ImplLegacy implements MediaController2Impl {
 
             mIsReleased = true;
 
-            if (mControllerCompat != null) {
-                mControllerCompat.unregisterCallback(mControllerCompatCallback);
-            }
             if (mBrowserCompat != null) {
                 mBrowserCompat.disconnect();
                 mBrowserCompat = null;

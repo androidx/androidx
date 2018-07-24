@@ -629,10 +629,11 @@ public final class MediaControllerCompat {
      * commands should only be sent to sessions that the controller owns.
      *
      * @param command The command to send
-     * @param params Any parameters to include with the command
-     * @param cb The callback to receive the result on
+     * @param params Any parameters to include with the command. Can be {@code null}.
+     * @param cb The callback to receive the result on. Can be {@code null}.
      */
-    public void sendCommand(@NonNull String command, Bundle params, ResultReceiver cb) {
+    public void sendCommand(@NonNull String command, @Nullable Bundle params,
+            @Nullable ResultReceiver cb) {
         if (TextUtils.isEmpty(command)) {
             throw new IllegalArgumentException("command must neither be null nor empty");
         }
@@ -1705,7 +1706,7 @@ public final class MediaControllerCompat {
         public void sendCommand(String command, Bundle params, ResultReceiver cb) {
             try {
                 mBinder.sendCommand(command, params,
-                        new MediaSessionCompat.ResultReceiverWrapper(cb));
+                        cb == null ? null : new MediaSessionCompat.ResultReceiverWrapper(cb));
             } catch (RemoteException e) {
                 Log.e(TAG, "Dead object in sendCommand.", e);
             }

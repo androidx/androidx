@@ -355,12 +355,14 @@ public class MediaSessionCompatCallbackTest {
         Bundle extras = new Bundle();
         extras.putString(TEST_KEY, TEST_VALUE);
         arguments.putBundle("extras", extras);
+        ResultReceiver receiver = new ResultReceiver(null /* handler */);
+        arguments.putParcelable("resultReceiver", receiver);
         callMediaControllerMethod(
                 SEND_COMMAND, arguments, getContext(), mSession.getSessionToken());
 
         mCallback.await(TIME_OUT_MS);
         assertTrue(mCallback.mOnCommandCalled);
-        assertNotNull(mCallback.mCommandCallback);
+        assertNotNull(mCallback.mResultReceiver);
         assertEquals(TEST_COMMAND, mCallback.mCommand);
         assertBundleEquals(extras, mCallback.mExtras);
     }
@@ -842,7 +844,7 @@ public class MediaSessionCompatCallbackTest {
         private String mAction;
         private String mCommand;
         private Bundle mExtras;
-        private ResultReceiver mCommandCallback;
+        private ResultReceiver mResultReceiver;
         private boolean mCaptioningEnabled;
         private int mRepeatMode;
         private int mShuffleMode;
@@ -887,7 +889,7 @@ public class MediaSessionCompatCallbackTest {
             mAction = null;
             mExtras = null;
             mCommand = null;
-            mCommandCallback = null;
+            mResultReceiver = null;
             mCaptioningEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
             mShuffleMode = PlaybackStateCompat.SHUFFLE_MODE_NONE;
@@ -1032,7 +1034,7 @@ public class MediaSessionCompatCallbackTest {
             mOnCommandCalled = true;
             mCommand = command;
             mExtras = extras;
-            mCommandCallback = cb;
+            mResultReceiver = cb;
             mLatch.countDown();
         }
 

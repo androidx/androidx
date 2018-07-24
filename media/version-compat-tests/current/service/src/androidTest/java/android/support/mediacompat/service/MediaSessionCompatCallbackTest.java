@@ -58,6 +58,7 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_QUE
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_SESSION_TAG;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_VALUE;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_CLIENT_VERSION;
+import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaControllerMethod;
 import static android.support.mediacompat.testlib.util.IntentUtil.callTransportControlsMethod;
 import static android.support.mediacompat.testlib.util.TestUtil.assertBundleEquals;
@@ -99,6 +100,7 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -400,14 +402,38 @@ public class MediaSessionCompatCallbackTest {
         Bundle extras = new Bundle();
         extras.putString(TEST_KEY, TEST_VALUE);
         arguments.putBundle("extras", extras);
+        ResultReceiver receiver = new ResultReceiver(null /* handler */);
+        arguments.putParcelable("resultReceiver", receiver);
         callMediaControllerMethod(
                 SEND_COMMAND, arguments, getContext(), mSession.getSessionToken());
 
         mCallback.await(TIME_OUT_MS);
         assertTrue(mCallback.mOnCommandCalled);
-        assertNotNull(mCallback.mCommandCallback);
+        assertNotNull(mCallback.mResultReceiver);
         assertEquals(TEST_COMMAND, mCallback.mCommand);
         assertBundleEquals(extras, mCallback.mExtras);
+    }
+
+    @Test
+    @SmallTest
+    public void testSendCommandWithNullResultReceiver() throws Exception {
+        mCallback.reset(1);
+        if (Build.VERSION.SDK_INT < 21 && !TextUtils.equals(VERSION_TOT, mClientVersion)) {
+            // In previous version, MediaControllerCompat#sendCommand() cannot send/receive a
+            // null ResultReceiver.
+            return;
+        }
+
+        Bundle arguments = new Bundle();
+        arguments.putString("command", TEST_COMMAND);
+        // No result receiver.
+        callMediaControllerMethod(
+                SEND_COMMAND, arguments, getContext(), mSession.getSessionToken());
+
+        mCallback.await(TIME_OUT_MS);
+        assertTrue(mCallback.mOnCommandCalled);
+        assertNull(mCallback.mResultReceiver);
+        assertEquals(TEST_COMMAND, mCallback.mCommand);
     }
 
     @Test
@@ -1036,7 +1062,7 @@ public class MediaSessionCompatCallbackTest {
         private String mAction;
         private String mCommand;
         private Bundle mExtras;
-        private ResultReceiver mCommandCallback;
+        private ResultReceiver mResultReceiver;
         private boolean mCaptioningEnabled;
         private int mRepeatMode;
         private int mShuffleMode;
@@ -1082,7 +1108,7 @@ public class MediaSessionCompatCallbackTest {
             mAction = null;
             mExtras = null;
             mCommand = null;
-            mCommandCallback = null;
+            mResultReceiver = null;
             mCaptioningEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
             mShuffleMode = PlaybackStateCompat.SHUFFLE_MODE_NONE;
@@ -1298,7 +1324,7 @@ public class MediaSessionCompatCallbackTest {
             mOnCommandCalled = true;
             mCommand = command;
             mExtras = extras;
-            mCommandCallback = cb;
+            mResultReceiver = cb;
             mLatch.countDown();
         }
 
