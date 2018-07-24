@@ -65,6 +65,7 @@ public class Transformations {
      * {@code mapFunction} to each value set.
      */
     @MainThread
+    @NonNull
     public static <X, Y> LiveData<Y> map(
             @NonNull LiveData<X> source,
             @NonNull final Function<X, Y> mapFunction) {
@@ -129,6 +130,7 @@ public class Transformations {
      * value set
      */
     @MainThread
+    @NonNull
     public static <X, Y> LiveData<Y> switchMap(
             @NonNull LiveData<X> source,
             @NonNull final Function<X, LiveData<Y>> switchMapFunction) {
