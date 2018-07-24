@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * <p>
  * For example, you can specify a column name for the field or change the column's type affinity.
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface ColumnInfo {
     /**

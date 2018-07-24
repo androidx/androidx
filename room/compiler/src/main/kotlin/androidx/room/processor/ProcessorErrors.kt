@@ -27,6 +27,7 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
 import androidx.room.vo.Field
 import com.squareup.javapoet.TypeName
+import javax.lang.model.element.ElementKind
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -558,4 +559,11 @@ object ProcessorErrors {
 
     val PREPARED_INSERT_METHOD_INVALID_RETURN_TYPE = "Insert methods must either return void or " +
             "long (the rowid of the inserted row)."
+
+    val MISSING_COPY_ANNOTATIONS = "Annotated property getter is missing " +
+            "@AutoValue.CopyAnnotations."
+
+    fun invalidAnnotationTarget(annotationName: String, elementKind: ElementKind): String {
+        return "@$annotationName is not allowed in this ${elementKind.name.toLowerCase()}."
+    }
 }

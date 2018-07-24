@@ -26,12 +26,14 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
+import javax.lang.model.util.ElementFilter
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 import javax.lang.model.util.SimpleTypeVisitor7
 import javax.lang.model.util.Types
@@ -45,10 +47,18 @@ fun Element.hasAnnotation(klass: KClass<out Annotation>): Boolean {
     return MoreElements.isAnnotationPresent(this, klass.java)
 }
 
+fun Element.hasAnnotation(clazz: Class<out Annotation>): Boolean {
+    return MoreElements.isAnnotationPresent(this, clazz)
+}
+
+fun Element.hasAnyOf(vararg klass: KClass<out Annotation>): Boolean {
+    return klass.any { MoreElements.isAnnotationPresent(this, it.java) }
+}
+
 fun Element.isNonNull() =
-        asType().kind.isPrimitive
-                || hasAnnotation(androidx.annotation.NonNull::class)
-                || hasAnnotation(org.jetbrains.annotations.NotNull::class)
+        asType().kind.isPrimitive ||
+                hasAnnotation(androidx.annotation.NonNull::class) ||
+                hasAnnotation(org.jetbrains.annotations.NotNull::class)
 
 /**
  * gets all members including super privates. does not handle duplicate field names!!!
@@ -66,6 +76,21 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
                 .getAllFieldsIncludingPrivateSupers(processingEnvironment)
     } else {
         return myMembers
+    }
+}
+
+fun TypeElement.getAllAbstractMethodsIncludingSupers(): Set<ExecutableElement> {
+    val myMethods = ElementFilter.methodsIn(this.enclosedElements)
+            .filter { it.hasAnyOf(Modifier.ABSTRACT) }
+            .toSet()
+    val interfaceMethods = interfaces.flatMap {
+        MoreTypes.asTypeElement(it).getAllAbstractMethodsIncludingSupers()
+    }
+    if (superclass.kind != TypeKind.NONE) {
+        return myMethods + interfaceMethods + MoreTypes.asTypeElement(superclass)
+                .getAllAbstractMethodsIncludingSupers()
+    } else {
+        return myMethods + interfaceMethods
     }
 }
 
@@ -109,9 +134,9 @@ fun AnnotationValue.toClassType(): TypeMirror? {
 }
 
 fun TypeMirror.isCollection(): Boolean {
-    return MoreTypes.isType(this)
-            && (MoreTypes.isTypeOf(java.util.List::class.java, this)
-            || MoreTypes.isTypeOf(java.util.Set::class.java, this))
+    return MoreTypes.isType(this) &&
+            (MoreTypes.isTypeOf(java.util.List::class.java, this) ||
+            MoreTypes.isTypeOf(java.util.Set::class.java, this))
 }
 
 fun Element.getAnnotationValue(annotation: Class<out Annotation>, fieldName: String): Any? {
@@ -243,8 +268,8 @@ fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
         it.kind == ElementKind.CLASS && it.simpleName.contentEquals(JvmAbi.DEFAULT_IMPLS_CLASS_NAME)
     } ?: return null
     return innerClass.enclosedElements.find {
-        it.kind == ElementKind.METHOD && it.simpleName == this.simpleName
-                && paramsMatch(MoreElements.asExecutable(this).parameters,
+        it.kind == ElementKind.METHOD && it.simpleName == this.simpleName &&
+                paramsMatch(MoreElements.asExecutable(this).parameters,
                 MoreElements.asExecutable(it).parameters)
     }
 }
