@@ -19,10 +19,10 @@ package androidx.benchmark;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import androidx.test.InstrumentationRegistry;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.test.InstrumentationRegistry;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -31,10 +31,10 @@ import org.junit.runners.model.Statement;
 /**
  * Use this rule to make sure we report the status after the test success.
  *
- * <code>
+ * <pre>
  *
- * @Rule public PerfStatusReporter mPerfStatusReporter = new PerfStatusReporter();
- * @Test public void functionName() {
+ * {@literal @}Rule public PerfStatusReporter mPerfStatusReporter = new PerfStatusReporter();
+ * {@literal @}Test public void functionName() {
  *     ...
  *     BenchmarkState state = mPerfStatusReporter.getBenchmarkState();
  *     while (state.keepRunning()) {
@@ -42,7 +42,7 @@ import org.junit.runners.model.Statement;
  *     }
  *     ...
  * }
- * </code>
+ * </pre>
  *
  * When test succeeded, the status report will use the key as
  * "functionName[optional subTestName]_*"

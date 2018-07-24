@@ -29,8 +29,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
+// TODO: make "KeyedFactory" link, once it will be public (current it is hidden)
 /**
- * Utility methods that provides {@link ViewModelProvider.KeyedFactory} that can create ViewModels
+ * Utility methods that provides ViewModelProvider.KeyedFactory that can create ViewModels
  * that receive {@link SavedStateHandle} in constructor
  */
 public class ViewModelsWithStateFactories {
@@ -57,8 +58,9 @@ public class ViewModelsWithStateFactories {
     private ViewModelsWithStateFactories() {
     }
 
+    // TODO: make "KeyedFactory" link, once it will be public (current it is hidden)
     /**
-     * Creates {@link KeyedFactory} that wraps the given {@code factory} and
+     * Creates  KeyedFactory that wraps the given {@code factory} and
      * manages {@link SavedStateHandle} for it.
      *
      * @param activity an activity to use for state saving.
@@ -88,8 +90,9 @@ public class ViewModelsWithStateFactories {
         return of(activity, null);
     }
 
+    // TODO: make "KeyedFactory" link, once it will be public (current it is hidden)
     /**
-     * Creates {@link KeyedFactory} that wraps the given {@code factory} and
+     * Creates KeyedFactory that wraps the given {@code factory} and
      * manages {@link SavedStateHandle} for it.
      *
      * @param fragment an activity to use for state saving
