@@ -1,6 +1,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
+import static androidx.build.dependencies.DependenciesKt.CHECKER_FRAMEWORK
 import static androidx.build.dependencies.DependenciesKt.ESPRESSO_CORE
 import static androidx.build.dependencies.DependenciesKt.TEST_RULES
 import static androidx.build.dependencies.DependenciesKt.TEST_RUNNER
@@ -12,6 +13,16 @@ plugins {
 dependencies {
     api(project(":media"))
     api(project(':versionedparcelable'))
+    compileOnly(CHECKER_FRAMEWORK)
+    if (System.getProperties()['idea.platform.prefix'] != null) {
+        // :media2-exoplayer merges the ExoPlayer JAR into its outputs, but Android Studio can't see
+        // the symbols, so depend on the JAR directly.
+        compileOnly fileTree(dir: "media2-exoplayer/src/main/libs",
+                include: ["exoplayer-core-media2.jar"])
+    } else {
+        // Depend on media2-exoplayer so that the library groupId is set to match media2.
+        implementation(project(":media2-exoplayer"))
+    }
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
