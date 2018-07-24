@@ -16,12 +16,12 @@
 
 package androidx.work.impl;
 
-import static androidx.work.worker.CheckLimitsWorker.KEY_EXCEEDS_SCHEDULER_LIMIT;
-import static androidx.work.worker.CheckLimitsWorker.KEY_LIMIT_TO_ENFORCE;
-import static androidx.work.worker.CheckLimitsWorker.KEY_RECURSIVE;
+import static androidx.work.worker.RandomSleepTestWorker.MAX_SLEEP_DURATION_MS;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -37,13 +37,14 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
-import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkStatus;
+import androidx.work.impl.background.greedy.GreedyScheduler;
+import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
-import androidx.work.worker.CheckLimitsWorker;
+import androidx.work.worker.RandomSleepTestWorker;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,6 +53,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,7 +77,10 @@ public class WorkManagerImplLargeExecutorTest {
     // Keep alive time for a thread before its claimed.
     private static final long KEEP_ALIVE_TIME = 2L;
 
-    private WorkManagerImpl mWorkManagerImpl;
+    private static final int TEST_SCHEDULER_LIMIT = 50;
+
+
+    private WorkManagerImpl mWorkManagerImplSpy;
     private TestLifecycleOwner mLifecycleOwner;
 
     @Rule
@@ -106,11 +111,23 @@ public class WorkManagerImplLargeExecutorTest {
                 MIN_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME, SECONDS, queue);
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(executor)
-                .setMaxSchedulerLimit(50)
+                .setMaxSchedulerLimit(TEST_SCHEDULER_LIMIT)
                 .build();
-        mWorkManagerImpl = new WorkManagerImpl(context, configuration, true);
+        mWorkManagerImplSpy = spy(new WorkManagerImpl(context, configuration, true));
+
+        TrackingScheduler trackingScheduler = new TrackingScheduler(context, mWorkManagerImplSpy);
+        Processor processor = new Processor(context,
+                configuration,
+                mWorkManagerImplSpy.getWorkDatabase(),
+                Collections.singletonList((Scheduler) trackingScheduler),
+                executor);
+
+        when(mWorkManagerImplSpy.getSchedulers()).thenReturn(
+                Collections.singletonList((Scheduler) trackingScheduler));
+        when(mWorkManagerImplSpy.getProcessor()).thenReturn(processor);
+
         mLifecycleOwner = new TestLifecycleOwner();
-        WorkManagerImpl.setDelegate(mWorkManagerImpl);
+        WorkManagerImpl.setDelegate(mWorkManagerImplSpy);
     }
 
     @After
@@ -125,25 +142,16 @@ public class WorkManagerImplLargeExecutorTest {
     public void testSchedulerLimits() throws InterruptedException {
         List<OneTimeWorkRequest> workRequests = new ArrayList<>(NUM_WORKERS);
         final Set<UUID> completed = new HashSet<>(NUM_WORKERS);
-        final int schedulerLimit = mWorkManagerImpl
-                .getConfiguration()
-                .getMaxSchedulerLimit();
-
-        final Data input = new Data.Builder()
-                .putInt(KEY_LIMIT_TO_ENFORCE, schedulerLimit)
-                .build();
 
         for (int i = 0; i < NUM_WORKERS; i++) {
-            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(CheckLimitsWorker.class)
-                    .setInputData(input)
-                    .build();
-
+            OneTimeWorkRequest request =
+                    new OneTimeWorkRequest.Builder(RandomSleepTestWorker.class).build();
             workRequests.add(request);
         }
 
 
         final CountDownLatch latch = new CountDownLatch(NUM_WORKERS);
-        WorkContinuation continuation = mWorkManagerImpl.beginWith(workRequests);
+        WorkContinuation continuation = mWorkManagerImplSpy.beginWith(workRequests);
 
         continuation.getStatuses()
                 .observe(mLifecycleOwner, new Observer<List<WorkStatus>>() {
@@ -155,13 +163,6 @@ public class WorkManagerImplLargeExecutorTest {
 
                         for (WorkStatus workStatus: workStatuses) {
                             if (workStatus.getState().isFinished()) {
-
-                                Data output = workStatus.getOutputData();
-
-                                boolean exceededLimits = output.getBoolean(
-                                        KEY_EXCEEDS_SCHEDULER_LIMIT, true);
-
-                                assertThat(exceededLimits, is(false));
                                 if (!completed.contains(workStatus.getId())) {
                                     completed.add(workStatus.getId());
                                     latch.countDown();
@@ -172,66 +173,39 @@ public class WorkManagerImplLargeExecutorTest {
                 });
 
         continuation.enqueue();
-        latch.await(120L, TimeUnit.SECONDS);
+        latch.await((NUM_WORKERS * MAX_SLEEP_DURATION_MS) + 1000L, TimeUnit.MILLISECONDS);
         assertThat(latch.getCount(), is(0L));
     }
 
-    @Test
-    @LargeTest
-    @SdkSuppress(maxSdkVersion = 22)
-    public void testSchedulerLimitsRecursive() throws InterruptedException {
-        List<OneTimeWorkRequest> workRequests = new ArrayList<>(NUM_WORKERS);
-        final Set<UUID> completed = new HashSet<>(NUM_WORKERS);
-        final int schedulerLimit = mWorkManagerImpl
-                .getConfiguration()
-                .getMaxSchedulerLimit();
+    /**
+     * A GreedyScheduler that makes sure we never exceed TEST_SCHEDULER_LIMIT.
+     */
+    private static class TrackingScheduler extends GreedyScheduler {
 
-        final Data input = new Data.Builder()
-                .putBoolean(KEY_RECURSIVE, true)
-                .putInt(KEY_LIMIT_TO_ENFORCE, schedulerLimit)
-                .build();
+        private Set<String> mScheduledWorkSpecIds;
 
-        for (int i = 0; i < NUM_WORKERS; i++) {
-            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(CheckLimitsWorker.class)
-                    .setInputData(input)
-                    .build();
-
-            workRequests.add(request);
+        TrackingScheduler(Context context, WorkManagerImpl workManagerImpl) {
+            super(context, workManagerImpl);
+            mScheduledWorkSpecIds = new HashSet<>();
         }
 
+        @Override
+        public synchronized void schedule(WorkSpec... workSpecs) {
+            for (WorkSpec workSpec : workSpecs) {
+                assertThat(mScheduledWorkSpecIds.contains(workSpec.id), is(false));
+                mScheduledWorkSpecIds.add(workSpec.id);
+                assertThat(mScheduledWorkSpecIds.size() <= TEST_SCHEDULER_LIMIT, is(true));
+            }
+            super.schedule(workSpecs);
+        }
 
-        final CountDownLatch latch = new CountDownLatch(NUM_WORKERS * 2); // recursive
-        WorkContinuation continuation = mWorkManagerImpl.beginWith(workRequests);
-
-        // There are more workers being enqueued recursively so use implicit tags.
-        mWorkManagerImpl.getStatusesByTag(CheckLimitsWorker.class.getName())
-                .observe(mLifecycleOwner, new Observer<List<WorkStatus>>() {
-                    @Override
-                    public void onChanged(@Nullable List<WorkStatus> workStatuses) {
-                        if (workStatuses == null || workStatuses.isEmpty()) {
-                            return;
-                        }
-
-                        for (WorkStatus workStatus: workStatuses) {
-                            if (workStatus.getState().isFinished()) {
-
-                                Data output = workStatus.getOutputData();
-
-                                boolean exceededLimits = output.getBoolean(
-                                        KEY_EXCEEDS_SCHEDULER_LIMIT, true);
-
-                                assertThat(exceededLimits, is(false));
-                                if (!completed.contains(workStatus.getId())) {
-                                    completed.add(workStatus.getId());
-                                    latch.countDown();
-                                }
-                            }
-                        }
-                    }
-                });
-
-        continuation.enqueue();
-        latch.await(240L, TimeUnit.SECONDS);
-        assertThat(latch.getCount(), is(0L));
+        @Override
+        public synchronized void onExecuted(@NonNull String workSpecId,
+                boolean isSuccessful,
+                boolean needsReschedule) {
+            assertThat(mScheduledWorkSpecIds.contains(workSpecId), is(true));
+            mScheduledWorkSpecIds.remove(workSpecId);
+            super.onExecuted(workSpecId, isSuccessful, needsReschedule);
+        }
     }
 }
