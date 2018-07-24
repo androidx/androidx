@@ -47,8 +47,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/seek_bar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/barrier"
-        app:layout_constraintVertical_chainStyle="packed"/>
+        app:layout_constraintEnd_toStartOf="@+id/barrier" />
 
     <!-- Note: the horizontal padding and offset are set to 0 so that the track and thumb
          aligns with the proper keylines. -->
@@ -64,7 +63,7 @@
         android:thumbOffset="0dp"
         android:min="0"
         android:splitTrack="false"
-        app:layout_constraintTop_toBottomOf="@+id/text"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/barrier"/>
