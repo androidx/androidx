@@ -355,6 +355,47 @@ class AutoValueTargetCheckerTest {
         ).compilesWithoutError()
     }
 
+    @Test
+    fun validEmbeddedAnnotationInAutoValueAbstractMethod() {
+        val embeddedPojo = """
+            package foo.bar;
+
+            public class EmbeddedPojo {
+                private final String value;
+                public EmbeddedPojo(String value) { this.value = value; }
+                String getValue() { return this.value; }
+            }
+            """
+        singleRun(
+                """
+                @AutoValue.CopyAnnotations
+                @PrimaryKey
+                abstract long getId();
+                @AutoValue.CopyAnnotations
+                @Embedded
+                abstract EmbeddedPojo getEmbedded();
+                static MyPojo create(long id, EmbeddedPojo embedded) {
+                    return new AutoValue_MyPojo(id, embedded);
+                }
+                """,
+                """
+                @PrimaryKey
+                private final long id;
+                @Embedded
+                private final EmbeddedPojo embedded;
+                AutoValue_MyPojo(long id, EmbeddedPojo embedded) {
+                    this.id = id;
+                    this.embedded = embedded;
+                }
+                @PrimaryKey
+                long getId() { return this.id; }
+                @Embedded
+                EmbeddedPojo getEmbedded() { return this.embedded; }
+                """,
+                embeddedPojo.toJFO("foo.bar.EmbeddedPojo")
+        ).compilesWithoutError()
+    }
+
     private fun singleRun(vararg jfos: JavaFileObject) =
             Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                     .that(jfos.toList())

@@ -21,6 +21,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 
 import androidx.room.integration.autovaluetestapp.vo.Person;
+import androidx.room.integration.autovaluetestapp.vo.PersonAndCat;
+import androidx.room.integration.autovaluetestapp.vo.Pet;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -52,5 +54,17 @@ public class PersonDaoTest extends TestDatabaseTest {
 
         List<Person> loaded = mPersonDao.getAllPersons();
         assertThat(entities, is(loaded));
+    }
+
+    @Test
+    public void readEmbedded() {
+        Person person = Person.create(1, "firstName", "lastName");
+        Pet.Cat cat = Pet.Cat.create(1, 1, "Tom");
+        mPersonDao.insert(person);
+        mPetDao.insert(cat);
+
+        PersonAndCat loaded = mPersonDao.getAllPersonAndCat().get(0);
+        assertThat(person, is(loaded.getPerson()));
+        assertThat(cat, is(loaded.getCat()));
     }
 }

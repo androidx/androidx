@@ -30,15 +30,15 @@ public interface PetDao {
     @Insert
     void insert(Pet.Cat cat);
 
-    @Query("SELECT id, kittyName FROM cat")
+    @Query("SELECT petId, kittyName, ownerId FROM cat")
     List<Pet.Cat> getAllCats();
 
     @Insert
     void insert(Pet.Dog dog);
 
-    @Query("SELECT id, doggoName FROM dog")
+    @Query("SELECT petId, doggoName, ownerId FROM dog")
     List<Pet.Dog> getAllDogs();
 
-    @Query("SELECT id, kittyName, 'food' as mSomething from cat where id = :catId")
+    @Query("SELECT petId, kittyName, ownerId, 'food' as mSomething from cat where petId = :catId")
     EmbeddedAutoValue getCatAndSomething(long catId);
 }
