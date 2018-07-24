@@ -49,6 +49,7 @@ import androidx.core.util.Pair;
 import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.SliceAction;
+import androidx.slice.core.SliceHints;
 import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
@@ -826,6 +827,25 @@ public class SliceMetadataTest {
                 .build();
         SliceMetadata data = SliceMetadata.from(mContext, slice);
         assertEquals("Summary", data.getSummary());
+    }
+
+    @Test
+    public void testIsCached() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice slice = new Slice.Builder(uri)
+                .addHints(SliceHints.HINT_CACHED)
+                .build();
+        SliceMetadata data = SliceMetadata.from(mContext, slice);
+        assertTrue(data.isCachedSlice());
+    }
+
+    @Test
+    public void testNotCached() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice slice = new Slice.Builder(uri)
+                .build();
+        SliceMetadata data = SliceMetadata.from(mContext, slice);
+        assertFalse(data.isCachedSlice());
     }
 
     private SliceAction getAction(String actionName) {

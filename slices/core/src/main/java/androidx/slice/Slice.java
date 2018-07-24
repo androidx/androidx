@@ -44,6 +44,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.core.SliceHints.HINT_ACTIVITY;
+import static androidx.slice.core.SliceHints.HINT_CACHED;
 
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -114,6 +115,7 @@ public final class Slice implements VersionedParcelable {
             HINT_PERMISSION_REQUEST,
             HINT_ERROR,
             HINT_ACTIVITY,
+            HINT_CACHED
     })
     public @interface SliceHint{ }
 
