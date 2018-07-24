@@ -23,5 +23,9 @@
     <!-- Important: disable debuggable for accurate performance results -->
     <application
             android:debuggable="false"
-            tools:replace="android:debuggable"/>
+            tools:replace="android:debuggable">
+            <activity
+                    android:name=".RecyclerViewActivity"
+                    android:theme="@style/BenchmarkTheme"/>
+    </application>
 </manifest>
