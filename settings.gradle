@@ -35,9 +35,9 @@ def includeProject(name, filePath) {
 
 includeProject(":annotation", "annotations")
 includeProject(":appcompat", "appcompat")
-includeProject(":arch:core-common", "app-toolkit/common")
-includeProject(":arch:core-testing", "app-toolkit/core-testing")
-includeProject(":arch:core-runtime", "app-toolkit/runtime")
+includeProject(":arch:core-common", "arch/core-common")
+includeProject(":arch:core-testing", "arch/core-testing")
+includeProject(":arch:core-runtime", "arch/core-runtime")
 includeProject(":asynclayoutinflater", "asynclayoutinflater")
 includeProject(":benchmark", "benchmark")
 includeProject(":biometric", "biometric")
