@@ -45,6 +45,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -68,7 +70,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements the route cast dialog for {@link MediaRouter}.
@@ -83,10 +84,12 @@ import java.util.concurrent.TimeUnit;
 @RestrictTo(LIBRARY_GROUP)
 public class MediaRouteCastDialog extends AppCompatDialog {
     static final String TAG = "MediaRouteCastDialog";
-    static final int CONNECTION_TIMEOUT_MILLIS = (int) TimeUnit.SECONDS.toMillis(30L);
 
     // Do not update the route list immediately to avoid unnatural dialog change.
-    private static final long UPDATE_ROUTES_DELAY_MS = 300L;
+    private static final int UPDATE_ROUTES_DELAY_MS = 300;
+    private static final int CONNECTION_TIMEOUT_MS = 30;
+    private static final int PROGRESS_BAR_DISPLAY_MS = 400;
+
     static final int MSG_UPDATE_ROUTES = 1;
 
     final MediaRouter mRouter;
@@ -430,7 +433,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         }
     }
 
-    // TODO(111421478): Implement actual VolumeChangeListener
+    // TODO(b/111421478): Implement actual VolumeChangeListener
     private class VolumeChangeListener implements SeekBar.OnSeekBarChangeListener {
         VolumeChangeListener() {
         }
@@ -601,7 +604,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
             switch (viewType) {
                 case ITEM_TYPE_GROUP_VOLUME:
-                    ((GroupVolumeViewHolder) holder).bindGroupVolumeView(item);
+                    ((GroupVolumeViewHolder) holder).bindGroupVolumeViewHolder(item);
                     break;
                 case ITEM_TYPE_HEADER:
                     ((HeaderViewHolder) holder).bindHeaderViewHolder(item);
@@ -698,12 +701,11 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 mGroupVolumeSlider = itemView.findViewById(R.id.mr_group_volume_slider);
             }
 
-            public void bindGroupVolumeView(Item item) {
+            public void bindGroupVolumeViewHolder(Item item) {
                 MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
 
                 mTextView.setText(route.getName().toUpperCase());
                 mGroupVolumeSlider.setColor(mVolumeSliderColor);
-                mGroupVolumeSlider.setTag(route);
                 mGroupVolumeSlider.setProgress(mRoute.getVolume());
                 mGroupVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
             }
@@ -725,29 +727,63 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         }
 
         private class RouteViewHolder extends RecyclerView.ViewHolder {
-            ImageView mImageView;
-            TextView mTextView;
-            CheckBox mCheckBox;
-            MediaRouteVolumeSlider mVolumeSlider;
+            final ImageView mImageView;
+            final ProgressBar mProgressBar;
+            final TextView mTextView;
+            final MediaRouteVolumeSlider mVolumeSlider;
+            final LinearLayout mVolumeSliderLayout;
+            final CheckBox mCheckBox;
+            final Runnable mSelectRoute = new Runnable() {
+                @Override
+                public void run() {
+                    mImageView.setVisibility(View.VISIBLE);
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                    mCheckBox.setEnabled(true);
+                    mVolumeSliderLayout.setVisibility(View.VISIBLE);
+                }
+            };
+            final View.OnClickListener mCheckBoxClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (((CheckBox) v).isChecked()) {
+                        mImageView.setVisibility(View.INVISIBLE);
+                        mProgressBar.setVisibility(View.VISIBLE);
+                        mCheckBox.postDelayed(mSelectRoute, PROGRESS_BAR_DISPLAY_MS);
+                    } else {
+                        mVolumeSliderLayout.setVisibility(View.GONE);
+                        mCheckBox.removeCallbacks(mSelectRoute);
+                    }
+                }
+            };
 
             RouteViewHolder(View itemView) {
                 super(itemView);
                 mImageView = itemView.findViewById(R.id.mr_cast_route_icon);
+                mProgressBar = itemView.findViewById(R.id.mr_cast_progress_bar);
                 mTextView = itemView.findViewById(R.id.mr_cast_route_name);
-                mCheckBox = itemView.findViewById(R.id.mr_cast_checkbox);
                 mVolumeSlider = itemView.findViewById(R.id.mr_cast_volume_slider);
+                mVolumeSliderLayout = itemView.findViewById(R.id.mr_cast_volume_layout);
+                mCheckBox = itemView.findViewById(R.id.mr_cast_checkbox);
             }
 
             public void bindRouteViewHolder(Item item) {
                 MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
+                boolean selected = isSelectedRoute(route);
 
                 mImageView.setImageDrawable(getIconDrawable(route));
                 mTextView.setText(route.getName());
-                mCheckBox.setChecked(isSelectedRoute(route));
                 mVolumeSlider.setColor(mVolumeSliderColor);
-                mVolumeSlider.setTag(route);
                 mVolumeSlider.setProgress(route.getVolume());
                 mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
+                mVolumeSliderLayout.setVisibility(selected ? View.VISIBLE : View.GONE);
+                mCheckBox.setOnClickListener(mCheckBoxClickListener);
+                // TODO(b/111624415): Make CheckBox works for both selected and unselected routes.
+                if (selected) {
+                    mCheckBox.setChecked(true);
+                    mCheckBox.setEnabled(true);
+                } else {
+                    mCheckBox.setEnabled(false);
+                }
             }
         }
 
@@ -937,8 +973,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             } else {
                 URL url = new URL(uri.toString());
                 URLConnection conn = url.openConnection();
-                conn.setConnectTimeout(CONNECTION_TIMEOUT_MILLIS);
-                conn.setReadTimeout(CONNECTION_TIMEOUT_MILLIS);
+                conn.setConnectTimeout(CONNECTION_TIMEOUT_MS);
+                conn.setReadTimeout(CONNECTION_TIMEOUT_MS);
                 stream = conn.getInputStream();
             }
             return (stream == null) ? null : new BufferedInputStream(stream);
