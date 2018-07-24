@@ -21,10 +21,10 @@ import android.app.Instrumentation;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
-import androidx.test.InstrumentationRegistry;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.test.InstrumentationRegistry;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -226,6 +226,10 @@ public final class BenchmarkState {
         return (long) getStats().getStandardDeviation();
     }
 
+    private long count() {
+        return mMaxIterations;
+    }
+
     private String summaryLine() {
         StringBuilder sb = new StringBuilder();
         sb.append("Summary: ");
@@ -233,7 +237,7 @@ public final class BenchmarkState {
         sb.append("mean=").append(mean()).append("ns, ");
         sb.append("min=").append(min()).append("ns, ");
         sb.append("sigma=").append(standardDeviation()).append(", ");
-        sb.append("iteration=").append(mResults.size()).append(", ");
+        sb.append("count=").append(count()).append(", ");
         // print out the first few iterations' number for double checking.
         int sampleNumber = Math.min(mResults.size(), 16);
         for (int i = 0; i < sampleNumber; i++) {
@@ -257,6 +261,7 @@ public final class BenchmarkState {
         status.putLong(key + "_mean", mean());
         status.putLong(key + "_min", min());
         status.putLong(key + "_standardDeviation", standardDeviation());
+        status.putLong(key + "_count", count());
         instrumentation.sendStatus(Activity.RESULT_OK, status);
     }
 }
