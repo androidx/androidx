@@ -88,6 +88,4 @@
     <color name="lb_page_indicator_arrow_background">#EEEEEE</color>
     <color name="lb_page_indicator_arrow_shadow">#4C000000</color>
 
-    <!-- Leanback settings category text & radio button color -->
-    <color name="lb_preference_item_category_text_color">#FF51AAFF</color>
 </resources>
