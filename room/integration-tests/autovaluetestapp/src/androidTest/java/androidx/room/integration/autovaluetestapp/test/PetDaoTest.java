@@ -33,8 +33,8 @@ import org.junit.runner.RunWith;
 public class PetDaoTest extends TestDatabaseTest {
 
     @Test
-    public void read_embeddedAtuoValue() {
-        Pet.Cat catEntity = Pet.Cat.create(1, "Tom");
+    public void read_embeddedAutoValue() {
+        Pet.Cat catEntity = Pet.Cat.create(1, 1, "Tom");
         mPetDao.insert(catEntity);
         EmbeddedAutoValue loaded = mPetDao.getCatAndSomething(1);
         assertThat(loaded.getCat(), is(catEntity));

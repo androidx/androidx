@@ -27,7 +27,10 @@ public abstract class Pet {
 
     @CopyAnnotations
     @PrimaryKey(autoGenerate = true)
-    public abstract long getId();
+    public abstract long getPetId();
+    @CopyAnnotations
+    @PrimaryKey(autoGenerate = true)
+    public abstract long getOwnerId();
 
     @AutoValue
     @Entity
@@ -36,8 +39,8 @@ public abstract class Pet {
         @ColumnInfo(name = "kittyName")
         public abstract String getName();
 
-        public static Cat create(long id, String name) {
-            return new AutoValue_Pet_Cat(id, name);
+        public static Cat create(long petId, long ownerId, String name) {
+            return new AutoValue_Pet_Cat(petId, ownerId, name);
         }
     }
 
@@ -48,8 +51,8 @@ public abstract class Pet {
         @ColumnInfo(name = "doggoName")
         public abstract String getName();
 
-        public static Dog create(long id, String name) {
-            return new AutoValue_Pet_Dog(id, name);
+        public static Dog create(long petId, long ownerId, String name) {
+            return new AutoValue_Pet_Dog(petId, ownerId, name);
         }
     }
 }
