@@ -59,9 +59,21 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
     private ConstraintTracker<T> mTracker;
     private OnConstraintUpdatedCallback mCallback;
 
-    ConstraintController(ConstraintTracker<T> tracker, OnConstraintUpdatedCallback callback) {
+    ConstraintController(ConstraintTracker<T> tracker) {
         mTracker = tracker;
-        mCallback = callback;
+    }
+
+    /**
+     * Sets the callback to inform when constraints change.  This callback is also triggered the
+     * first time it is set.
+     *
+     * @param callback The callback to inform about constraint met/unmet states
+     */
+    public void setCallback(OnConstraintUpdatedCallback callback) {
+        if (mCallback != callback) {
+            mCallback = callback;
+            updateCallback();
+        }
     }
 
     abstract boolean hasConstraint(@NonNull WorkSpec workSpec);
@@ -113,7 +125,7 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
     }
 
     private void updateCallback() {
-        if (mMatchingWorkSpecIds.isEmpty()) {
+        if (mMatchingWorkSpecIds.isEmpty() || mCallback == null) {
             return;
         }
 

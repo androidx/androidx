@@ -16,11 +16,13 @@
 package androidx.work.impl.constraints;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +36,7 @@ import androidx.work.impl.model.WorkSpec;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,8 +78,17 @@ public class WorkConstraintsTrackerTest {
     @Test
     public void testReplace() {
         List<WorkSpec> emptyList = Collections.emptyList();
+
+        ArgumentCaptor<ConstraintController.OnConstraintUpdatedCallback> captor =
+                ArgumentCaptor.forClass(ConstraintController.OnConstraintUpdatedCallback.class);
+
         mWorkConstraintsTracker.replace(emptyList);
         verify(mMockController).replace(emptyList);
+        verify(mMockController, times(2)).setCallback(captor.capture());
+        assertThat(captor.getAllValues().size(), is(2));
+        assertThat(captor.getAllValues().get(0), is(nullValue()));
+        assertThat(captor.getAllValues().get(1),
+                is((ConstraintController.OnConstraintUpdatedCallback) mWorkConstraintsTracker));
     }
 
     @Test

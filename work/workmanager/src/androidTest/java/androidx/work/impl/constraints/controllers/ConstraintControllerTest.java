@@ -53,7 +53,8 @@ public class ConstraintControllerTest extends WorkManagerTest {
 
     @Before
     public void setUp() {
-        mTestIdleController = new TestDeviceIdleConstraintController(mMockTracker, mCallback);
+        mTestIdleController = new TestDeviceIdleConstraintController(mMockTracker);
+        mTestIdleController.setCallback(mCallback);
     }
 
     private WorkSpec createTestWorkSpec(Constraints constraints) {
@@ -244,9 +245,8 @@ public class ConstraintControllerTest extends WorkManagerTest {
     }
 
     private static class TestDeviceIdleConstraintController extends ConstraintController<Boolean> {
-        TestDeviceIdleConstraintController(ConstraintTracker<Boolean> tracker,
-                OnConstraintUpdatedCallback callback) {
-            super(tracker, callback);
+        TestDeviceIdleConstraintController(ConstraintTracker<Boolean> tracker) {
+            super(tracker);
         }
 
         @Override

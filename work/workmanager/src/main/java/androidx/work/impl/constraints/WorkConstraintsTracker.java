@@ -63,13 +63,13 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
         Context appContext = context.getApplicationContext();
         mCallback = callback;
         mConstraintControllers = new ConstraintController[] {
-                new BatteryChargingController(appContext, this),
-                new BatteryNotLowController(appContext, this),
-                new StorageNotLowController(appContext, this),
-                new NetworkConnectedController(appContext, this),
-                new NetworkUnmeteredController(appContext, this),
-                new NetworkNotRoamingController(appContext, this),
-                new NetworkMeteredController(appContext, this)
+                new BatteryChargingController(appContext),
+                new BatteryNotLowController(appContext),
+                new StorageNotLowController(appContext),
+                new NetworkConnectedController(appContext),
+                new NetworkUnmeteredController(appContext),
+                new NetworkNotRoamingController(appContext),
+                new NetworkMeteredController(appContext)
         };
         mLock = new Object();
     }
@@ -92,7 +92,15 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
     public void replace(@NonNull List<WorkSpec> workSpecs) {
         synchronized (mLock) {
             for (ConstraintController controller : mConstraintControllers) {
+                controller.setCallback(null);
+            }
+
+            for (ConstraintController controller : mConstraintControllers) {
                 controller.replace(workSpecs);
+            }
+
+            for (ConstraintController controller : mConstraintControllers) {
+                controller.setCallback(this);
             }
         }
     }
