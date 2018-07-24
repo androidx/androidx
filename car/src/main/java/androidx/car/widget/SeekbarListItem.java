@@ -313,16 +313,24 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
             textLayoutParams.setMarginEnd(marginEnd);
             vh.getText().requestLayout();
 
-            ViewGroup.MarginLayoutParams seekBarLayoutParams =
-                    (ViewGroup.MarginLayoutParams) vh.getSeekBar().getLayoutParams();
+            ConstraintLayout.LayoutParams seekBarLayoutParams =
+                    (ConstraintLayout.LayoutParams) vh.getSeekBar().getLayoutParams();
             seekBarLayoutParams.setMarginStart(marginStart);
             seekBarLayoutParams.setMarginEnd(marginEnd);
 
-            // If there's not text, then the seekbar should not have a bottom margin so that it
-            // will be vertically centered.
-            seekBarLayoutParams.bottomMargin = TextUtils.isEmpty(mText)
-                    ? 0
-                    : mContext.getResources().getDimensionPixelSize(R.dimen.car_padding_1);
+            if (TextUtils.isEmpty(mText)) {
+                // If there is no text, set the vertical bias to 0.5 so that the seekbar is
+                // vertically centered.
+                seekBarLayoutParams.verticalBias = 0.5f;
+                seekBarLayoutParams.bottomMargin = 0;
+            } else {
+                // If there is text, set the vertical bias to 1 so that it is aligned to the bottom
+                // of the parent view, allowing the bottom margin to take effect.
+                seekBarLayoutParams.verticalBias = 1f;
+                seekBarLayoutParams.bottomMargin =
+                        mContext.getResources().getDimensionPixelSize(R.dimen.car_padding_1);
+            }
+
             vh.getSeekBar().requestLayout();
         });
     }
