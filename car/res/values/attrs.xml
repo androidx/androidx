@@ -48,10 +48,6 @@ limitations under the License.
         <attr name="gutterSize" format="dimension" />
         <!-- Whether to display the scrollbar or not. Defaults to true. -->
         <attr name="scrollBarEnabled" format="boolean" />
-        <!-- Sets the color of the scroll bar. This color only affects the thumb of the scroll bar;
-             the up/down buttons are unaffected. To set these, use upButtonIcon and downButtonIcon
-             respectively. -->
-        <attr name="scrollBarColor" format="color" />
         <!-- The top margin before the scroll bar is drawn. -->
         <attr name="scrollBarTopMargin" format="dimension" />
         <!-- The width of the container that will hold the scrollbar. The scrollbar is centered
@@ -90,10 +86,6 @@ limitations under the License.
         <!-- An optional vertical spacing between items in the list. In GridLayoutManager items in
              the last row would still have spacing at bottom. -->
         <attr name="itemSpacing" format="dimension" />
-        <!-- The icon to be used for the up button of the scroll bar. -->
-        <attr name="upButtonIcon" format="reference" />
-        <!-- The icon to be used for the down button of the scroll bar.  -->
-        <attr name="downButtonIcon" format="reference" />
         <!-- The amount of space before the first item in the list view. This space is
              scrollable with the contents of the list. -->
         <attr name="listContentTopOffset" format="reference" />
@@ -115,6 +107,22 @@ limitations under the License.
             <!-- Fixes the colors to be dark colored.  -->
             <enum name="always_dark" value="3" />
         </attr>
+    </declare-styleable>
+
+    <declare-styleable name="PagedScrollBarView">
+        <!-- Sets the color of the scroll bar. This color only affects the thumb of the scroll bar;
+             the up/down buttons are unaffected. To set these, use upButtonIcon and downButtonIcon
+             respectively. -->
+        <attr name="scrollBarColor" format="color" />
+        <!-- The icon to be used for the up button of the scroll bar. -->
+        <attr name="upButtonIcon" format="reference" />
+        <!-- The icon to be used for the down button of the scroll bar.  -->
+        <attr name="downButtonIcon" format="reference" />
+        <!-- The tint for the up and down buttons. -->
+        <attr name="buttonTintColor" format="color" />
+        <!-- The background for the buttons in the PagedListView. This background should provide
+             the ripple. -->
+        <attr name="buttonRippleBackground" format="reference" />
     </declare-styleable>
 
     <!-- The configuration for modifying the ListItem. These ListItems are only intended to be used
@@ -175,8 +183,11 @@ limitations under the License.
              only affect the styling of dialogs provided by the car support library. -->
         <attr name="carDialogTheme" format="reference"/>
 
-        <!-- An attribute for specifying a style that modifies the look of a PagedListView. -->
+        <!-- An attribute for specifying a style that modifies the look of PagedListViews. -->
         <attr name="pagedListViewStyle" format="reference"/>
+
+        <!-- An attribute for specifying a style that modifies the look of PagedScrollBarViews. -->
+        <attr name="pagedScrollBarViewStyle" format="reference"/>
 
         <!-- ================= -->
         <!-- Dialog Attributes -->
@@ -212,8 +223,8 @@ limitations under the License.
         <attr name="drawerItemTitleTextAppearance" format="reference"/>
         <!-- The TextAppearance of each item's body text in the drawer list. -->
         <attr name="drawerItemBodyTextAppearance" format="reference"/>
-        <!-- The styling of the list in the drawer. -->
-        <attr name="drawerListStyle" format="reference"/>
+        <!-- The theme of the list in the drawer. -->
+        <attr name="drawerListTheme" format="reference"/>
         <!-- The id of the view that will function as the back button within the drawer. The back
              button should navigate up the drawer stack or exit the drawer completely if the
              stack is empty. -->

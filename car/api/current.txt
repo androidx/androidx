@@ -189,7 +189,7 @@ package androidx.car.widget {
     method public void setColumnSpan(int);
   }
 
-  public abstract class DayNightStyle implements java.lang.annotation.Annotation {
+  public abstract deprecated class DayNightStyle implements java.lang.annotation.Annotation {
     field public static final int ALWAYS_DARK = 3; // 0x3
     field public static final int ALWAYS_LIGHT = 2; // 0x2
     field public static final int AUTO = 0; // 0x0
@@ -293,11 +293,11 @@ package androidx.car.widget {
     method public void removeItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
     method public void removeOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public void resetMaxPages();
-    method public void resetScrollbarColor();
     method public void scrollToPosition(int);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
-    method public void setDayNightStyle(int);
+    method public deprecated void setDayNightStyle(int);
     method public void setDefaultMaxPages(int);
+    method public void setDividerColor(int);
     method public void setDividerVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager);
     method public void setDownButtonIcon(android.graphics.drawable.Drawable);
     method public void setGutter(int);
@@ -308,7 +308,6 @@ package androidx.car.widget {
     method public void setOnScrollListener(androidx.car.widget.PagedListView.OnScrollListener);
     method public void setScrollBarContainerWidth(int);
     method public void setScrollBarTopMargin(int);
-    method public void setScrollbarColor(int);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable);
     method public void snapToPosition(int);
     field public static final int DEFAULT_MAX_CLICKS = 6; // 0x6
@@ -354,13 +353,14 @@ package androidx.car.widget {
     method public boolean isDownPressed();
     method public boolean isUpPressed();
     method public void onLayout(boolean, int, int, int, int);
-    method public void resetThumbColor();
-    method public void setDayNightStyle(int);
+    method public void setButtonRippleBackground(int);
+    method public void setButtonTintColor(int);
+    method public deprecated void setDayNightStyle(int);
     method public void setDownButtonIcon(android.graphics.drawable.Drawable);
     method public void setDownEnabled(boolean);
     method public void setPaginationListener(androidx.car.widget.PagedScrollBarView.PaginationListener);
     method public void setParameters(int, int, int, boolean);
-    method public void setThumbColor(int);
+    method public void setScrollbarThumbColor(int);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable);
     method public void setUpEnabled(boolean);
   }

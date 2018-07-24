@@ -58,7 +58,8 @@ limitations under the License.
         <item name="listItemSupplementalIconTint">@null</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
-        <item name="pagedListViewStyle">@style/Widget.Car.Light.List.LightDivider</item>
+        <item name="pagedListViewStyle">@style/Widget.Car.List.Light</item>
+        <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar.Light</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
@@ -101,6 +102,7 @@ limitations under the License.
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
+        <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
@@ -123,7 +125,7 @@ limitations under the License.
         <item name="drawerHeaderColor">@color/car_title2_light</item>
         <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
-        <item name="drawerListStyle">@style/Widget.Car.Light.List.LightDivider</item>
+        <item name="drawerListTheme">@style/Theme.Car.Light.List.DarkItems</item>
     </style>
 
     <!-- A Theme for activities that have a drawer affordance. This theme will automatically switch
@@ -136,7 +138,7 @@ limitations under the License.
         <item name="drawerHeaderColor">@color/car_title2</item>
         <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
-        <item name="drawerListStyle">@style/Widget.Car.List</item>
+        <item name="drawerListTheme">@style/Theme.Car.List</item>
     </style>
 
     <!-- A theme that is a pass-through for the base theme. -->
@@ -218,6 +220,7 @@ limitations under the License.
          colors will darken during night mode. -->
     <style name="Theme.Car.List" parent="android:Theme">
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
+        <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
@@ -226,7 +229,8 @@ limitations under the License.
     <!-- A theme for PagedListViews that will have a light scrollbars and light-colored items. The
          colors will darken during night mode. -->
     <style name="Theme.Car.Light.List" parent="Theme.Car.List">
-        <item name="pagedListViewStyle">@style/Widget.Car.Light.List.LightDivider</item>
+        <item name="pagedListViewStyle">@style/Widget.Car.List.Light</item>
+        <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar.Light</item>
     </style>
 
     <!-- A theme for PagedListViews that will have a light scrollbars and dark-colored items. The

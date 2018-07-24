@@ -50,9 +50,4 @@
     <style name="CarDrawerArrowStyle" parent="@style/Widget.Car.DrawerArrowToggle">
         <item name="color">@color/car_title2_dark</item>
     </style>
-
-    <!-- The default styling for a PagedListView. Currently empty, but allows for testing of various
-         styles. -->
-    <style name="CarDemoList" parent="Widget.Car.Light.List.LightDivider">
-    </style>
 </resources>

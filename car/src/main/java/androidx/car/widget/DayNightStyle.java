@@ -24,6 +24,8 @@ import java.lang.annotation.Retention;
 
 /**
  * Specifies how the system UI should respond to day/night mode events.
+ *
+ * @deprecated Set the day/night behavior via themes instead.
  */
 @IntDef({
         DayNightStyle.AUTO,
@@ -32,6 +34,7 @@ import java.lang.annotation.Retention;
         DayNightStyle.ALWAYS_DARK
 })
 @Retention(SOURCE)
+@Deprecated
 public @interface DayNightStyle {
     /**
      * Sets the foreground color to be automatically changed based on day/night mode, assuming the

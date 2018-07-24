@@ -35,7 +35,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.car.R;
 import androidx.car.utils.DropShadowScrollListener;
-import androidx.car.widget.DayNightStyle;
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
@@ -209,7 +208,6 @@ public class CarListDialog extends Dialog {
      */
     private void initializeScrollbar() {
         mScrollBarView = getWindow().findViewById(R.id.scrollbar);
-        mScrollBarView.setDayNightStyle(DayNightStyle.ALWAYS_LIGHT);
 
         mScrollBarView.setPaginationListener(new PagedScrollBarView.PaginationListener() {
             @Override
