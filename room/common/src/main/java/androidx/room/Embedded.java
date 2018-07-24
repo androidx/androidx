@@ -69,7 +69,7 @@ import java.lang.annotation.Target;
  * You can override this behavior by annotating the embedded field with
  * {@link androidx.annotation.NonNull}.
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Embedded {
     /**
