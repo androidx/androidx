@@ -1905,7 +1905,7 @@ public class MediaSessionCompat {
     public static final class ResultReceiverWrapper implements Parcelable {
         ResultReceiver mResultReceiver;
 
-        public ResultReceiverWrapper(ResultReceiver resultReceiver) {
+        public ResultReceiverWrapper(@NonNull ResultReceiver resultReceiver) {
             mResultReceiver = resultReceiver;
         }
 
@@ -2654,7 +2654,7 @@ public class MediaSessionCompat {
             @Override
             public void sendCommand(String command, Bundle args, ResultReceiverWrapper cb) {
                 postToHandler(MessageHandler.MSG_COMMAND,
-                        new Command(command, args, cb.mResultReceiver));
+                        new Command(command, args, cb == null ? null : cb.mResultReceiver));
             }
 
             @Override

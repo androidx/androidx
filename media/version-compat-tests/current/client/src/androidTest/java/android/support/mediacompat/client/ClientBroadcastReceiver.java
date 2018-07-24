@@ -97,7 +97,7 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
                     controller.sendCommand(
                             arguments.getString("command"),
                             arguments.getBundle("extras"),
-                            new ResultReceiver(null));
+                            (ResultReceiver) arguments.getParcelable("resultReceiver"));
                     break;
                 case ADD_QUEUE_ITEM:
                     controller.addQueueItem(
