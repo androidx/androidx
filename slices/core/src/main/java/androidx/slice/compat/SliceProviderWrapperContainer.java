@@ -18,13 +18,18 @@ package androidx.slice.compat;
 
 import static androidx.slice.SliceConvert.wrap;
 
+import android.app.PendingIntent;
 import android.app.slice.Slice;
+import android.app.slice.SliceManager;
 import android.app.slice.SliceProvider;
 import android.app.slice.SliceSpec;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.net.Uri;
+import android.os.Binder;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -46,12 +51,21 @@ public class SliceProviderWrapperContainer {
     @RequiresApi(28)
     public static class SliceProviderWrapper extends SliceProvider {
         private static final String TAG = "SliceProviderWrapper";
+        private static final String METHOD_BIND = "bind_slice";
+        private static final String METHOD_MAP = "map_slice";
+        private static final String EXTRA_URI = "slice_uri";
+        private static final String EXTRA_INTENT = "slice_intent";
 
         private androidx.slice.SliceProvider mSliceProvider;
+
+        private String[] mAutoGrantPermissions;
+        private SliceManager mSliceManager;
 
         public SliceProviderWrapper(androidx.slice.SliceProvider provider,
                 String[] autoGrantPermissions) {
             super(autoGrantPermissions);
+            mAutoGrantPermissions = autoGrantPermissions == null
+                    || autoGrantPermissions.length == 0 ? null : autoGrantPermissions;
             mSliceProvider = provider;
         }
 
@@ -59,11 +73,55 @@ public class SliceProviderWrapperContainer {
         public void attachInfo(Context context, ProviderInfo info) {
             mSliceProvider.attachInfo(context, info);
             super.attachInfo(context, info);
+            mSliceManager = context.getSystemService(SliceManager.class);
         }
 
         @Override
         public boolean onCreate() {
             return true;
+        }
+
+        @Override
+        public PendingIntent onCreatePermissionRequest(Uri sliceUri) {
+            if (mAutoGrantPermissions != null) {
+                checkPermissions(sliceUri);
+            }
+            return super.onCreatePermissionRequest(sliceUri);
+        }
+
+        @Override
+        public Bundle call(String method, String arg, Bundle extras) {
+            if (mAutoGrantPermissions != null) {
+                Uri uri = null;
+                if (METHOD_BIND.equals(method)) {
+                    uri = extras != null ? (Uri) extras.getParcelable(EXTRA_URI) : null;
+                } else if (METHOD_MAP.equals(method)) {
+                    Intent intent = extras.getParcelable(EXTRA_INTENT);
+                    if (intent != null) {
+                        uri = onMapIntentToUri(intent);
+                    }
+                }
+                if (uri != null) {
+                    if (mSliceManager.checkSlicePermission(uri, Binder.getCallingPid(),
+                                Binder.getCallingUid()) != PackageManager.PERMISSION_GRANTED) {
+                        checkPermissions(uri);
+                    }
+                }
+            }
+            return super.call(method, arg, extras);
+        }
+
+        private void checkPermissions(Uri uri) {
+            if (uri != null) {
+                for (String pkg : mAutoGrantPermissions) {
+                    if (getContext().checkCallingPermission(pkg)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        mSliceManager.grantSlicePermission(pkg, uri);
+                        getContext().getContentResolver().notifyChange(uri, null);
+                        return;
+                    }
+                }
+            }
         }
 
         @Override
