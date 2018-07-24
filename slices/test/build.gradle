@@ -37,7 +37,7 @@ dependencies {
 supportLibrary {
     name = "Slice test code"
     publish = false
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.SLICE
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "A library that holds common code for testing slices"

@@ -31,7 +31,7 @@ dependencies {
 supportLibrary {
     name = "Slice builders"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.SLICE
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "A set of builders to create templates using SliceProvider APIs"
