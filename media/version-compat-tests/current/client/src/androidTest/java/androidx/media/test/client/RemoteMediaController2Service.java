@@ -51,7 +51,6 @@ import java.util.concurrent.TimeUnit;
  * according to the service app's requests.
  */
 public class RemoteMediaController2Service extends Service {
-
     private static final String TAG = "RemoteMediaController2Service";
 
     Map<String, MediaController2> mMediaController2Map = new HashMap<>();
@@ -139,9 +138,9 @@ public class RemoteMediaController2Service extends Service {
             // If needed, define some commands in MediaController2Constants.
         }
 
-        /**
-         * {@link MediaController2} methods.
-         */
+        ////////////////////////////////////////////////////////////////////////////////
+        // MediaController2 methods
+        ////////////////////////////////////////////////////////////////////////////////
 
         @Override
         public void play(String controllerId) throws RemoteException {
@@ -350,9 +349,9 @@ public class RemoteMediaController2Service extends Service {
             controller2.close();
         }
 
-        /**
-         * {@link MediaBrowser2} methods.
-         */
+        ////////////////////////////////////////////////////////////////////////////////
+        // MediaBrowser2 methods
+        ////////////////////////////////////////////////////////////////////////////////
 
         @Override
         public void subscribe(String controllerId, String parentId, Bundle extras)

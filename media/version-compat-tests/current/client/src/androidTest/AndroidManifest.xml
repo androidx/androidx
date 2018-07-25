@@ -30,5 +30,12 @@
                 <action android:name="androidx.media.test.action.MEDIA_CONTROLLER2" />
             </intent-filter>
         </service>
+
+        <service android:name="androidx.media.test.client.RemoteMediaControllerCompatService">
+            <intent-filter>
+                <!-- Keep sync with CommonConstants.java -->
+                <action android:name="androidx.media.test.action.MEDIA_CONTROLLER_COMPAT" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
