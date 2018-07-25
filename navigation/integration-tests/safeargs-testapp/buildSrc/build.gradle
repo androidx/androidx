@@ -26,7 +26,7 @@ task createArchive(type: Exec) {
     inputs.files(fileTree(dir: "$supportRootFolder/navigation",
             includes: ['**/*.java', '**/*.kt'], exclude: 'integration-tests/*'))
     outputs.dir(repoDir)
-    workingDir "$supportRootFolder/app-toolkit/"
+    workingDir supportRootFolder
     commandLine "./gradlew", "createArchive"
 }
 
