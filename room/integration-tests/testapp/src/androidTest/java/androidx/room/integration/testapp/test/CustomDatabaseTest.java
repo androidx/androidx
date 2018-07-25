@@ -49,9 +49,11 @@ public class CustomDatabaseTest {
 
     @Test
     public void invalidationTrackerAfterClose() {
+        final String databaseName = "custom.db";
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        context.deleteDatabase(databaseName);
         RoomDatabase.Builder<SampleDatabase> builder =
-                Room.databaseBuilder(context, SampleDatabase.class, "db")
+                Room.databaseBuilder(context, SampleDatabase.class, databaseName)
                         .openHelperFactory(new RethrowExceptionFactory());
         Customer customer = new Customer();
         for (int i = 0; i < 100; i++) {
