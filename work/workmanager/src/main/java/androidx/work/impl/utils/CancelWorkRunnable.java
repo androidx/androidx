@@ -134,11 +134,13 @@ public abstract class CancelWorkRunnable implements Runnable {
      *
      * @param name The name to cancel
      * @param workManagerImpl The {@link WorkManagerImpl} to use
+     * @param allowReschedule If {@code true}, reschedule pending workers at the end
      * @return A {@link Runnable} that cancels work labelled with a specific name
      */
     public static Runnable forName(
             @NonNull final String name,
-            @NonNull final WorkManagerImpl workManagerImpl) {
+            @NonNull final WorkManagerImpl workManagerImpl,
+            final boolean allowReschedule) {
         return new CancelWorkRunnable() {
             @WorkerThread
             @Override
@@ -155,7 +157,10 @@ public abstract class CancelWorkRunnable implements Runnable {
                 } finally {
                     workDatabase.endTransaction();
                 }
-                reschedulePendingWorkers(workManagerImpl);
+
+                if (allowReschedule) {
+                    reschedulePendingWorkers(workManagerImpl);
+                }
             }
         };
     }

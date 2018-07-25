@@ -157,6 +157,8 @@ public class EnqueueRunnable implements Runnable {
             String name,
             ExistingWorkPolicy existingWorkPolicy) {
 
+        boolean needsScheduling = false;
+
         long currentTimeMillis = System.currentTimeMillis();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
 
@@ -227,7 +229,16 @@ public class EnqueueRunnable implements Runnable {
                     }
 
                     // Cancel all of these workers.
-                    CancelWorkRunnable.forName(name, workManagerImpl).run();
+                    // Don't allow rescheduling in CancelWorkRunnable because it will happen inside
+                    // the current transasction.  We want it to happen separately to avoid race
+                    // conditions (see ag/4502245, which tries to avoid work trying to run before
+                    // it's actually been committed to the database).
+                    CancelWorkRunnable.forName(name, workManagerImpl, false).run();
+                    // Because we cancelled some work but didn't allow rescheduling inside
+                    // CancelWorkRunnable, we need to make sure we do schedule work at the end of
+                    // this runnable.
+                    needsScheduling = true;
+
                     // And delete all the database records.
                     WorkSpecDao workSpecDao = workDatabase.workSpecDao();
                     for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
@@ -237,7 +248,6 @@ public class EnqueueRunnable implements Runnable {
             }
         }
 
-        boolean needsScheduling = false;
         for (WorkRequest work : workList) {
             WorkSpec workSpec = work.getWorkSpec();
 

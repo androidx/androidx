@@ -357,14 +357,14 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     @Override
     public void cancelUniqueWork(@NonNull String uniqueWorkName) {
         mTaskExecutor.executeOnBackgroundThread(
-                CancelWorkRunnable.forName(uniqueWorkName, this));
+                CancelWorkRunnable.forName(uniqueWorkName, this, true));
     }
 
     @Override
     @WorkerThread
     public void cancelUniqueWorkSync(@NonNull String uniqueWorkName) {
         assertBackgroundThread("Cannot cancelAllWorkByNameBlocking on main thread!");
-        CancelWorkRunnable.forName(uniqueWorkName, this).run();
+        CancelWorkRunnable.forName(uniqueWorkName, this, true).run();
     }
 
     @Override
