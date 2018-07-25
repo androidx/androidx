@@ -376,10 +376,28 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                     return;
                 }
             }
+        } else if (element.getKind() == ElementKind.CLASS) {
+            TypeElement te = (TypeElement) mEnv.getTypeUtils().asElement(
+                    element.asType());
+            if (te != null && te.getSuperclass() != null) {
+                Element e = (TypeElement) mEnv.getTypeUtils().asElement(te.getSuperclass());
+                if (e != null) {
+                    checkClass(clsName, e, takenIds);
+                }
+            }
         }
         for (Element e : element.getEnclosedElements()) {
             if (e.getKind() != ElementKind.CLASS) {
                 checkClass(clsName, e, takenIds);
+            } else {
+                TypeElement te = (TypeElement) mEnv.getTypeUtils().asElement(
+                        element.asType());
+                if (te != null && te.getSuperclass() != null) {
+                    Element s = (TypeElement) mEnv.getTypeUtils().asElement(te.getSuperclass());
+                    if (s != null) {
+                        checkClass(clsName, s, takenIds);
+                    }
+                }
             }
         }
     }
