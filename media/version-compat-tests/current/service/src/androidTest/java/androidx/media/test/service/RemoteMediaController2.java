@@ -54,7 +54,6 @@ import java.util.concurrent.TimeUnit;
  * Users can run {@link MediaController2} methods remotely with this object.
  */
 public class RemoteMediaController2 {
-
     static final String TAG = "RemoteMediaController2";
 
     final String mControllerId;
@@ -103,9 +102,9 @@ public class RemoteMediaController2 {
         }
     }
 
-    /**
-     * {@link MediaController2} methods.
-     */
+    ////////////////////////////////////////////////////////////////////////////////
+    // MediaController2 methods
+    ////////////////////////////////////////////////////////////////////////////////
 
     public void play() {
         try {
@@ -366,10 +365,9 @@ public class RemoteMediaController2 {
         }
     }
 
-
-    //////////////////////////////////
-    ////    Non-public methods    ////
-    //////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    // Non-public methods
+    ////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Connects to client app's RemoteMediaController2Service.
@@ -424,7 +422,6 @@ public class RemoteMediaController2 {
         }
     }
 
-    // ServiceConnection methods will run on the main thread.
     class MyServiceConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
