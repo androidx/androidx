@@ -36,8 +36,8 @@ import androidx.work.impl.model.WorkSpec;
  */
 
 public class NetworkConnectedController extends ConstraintController<NetworkState> {
-    public NetworkConnectedController(Context context, OnConstraintUpdatedCallback callback) {
-        super(Trackers.getInstance(context).getNetworkStateTracker(), callback);
+    public NetworkConnectedController(Context context) {
+        super(Trackers.getInstance(context).getNetworkStateTracker());
     }
 
     @Override

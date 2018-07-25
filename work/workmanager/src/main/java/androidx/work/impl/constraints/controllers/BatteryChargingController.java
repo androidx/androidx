@@ -26,8 +26,8 @@ import androidx.work.impl.model.WorkSpec;
  */
 
 public class BatteryChargingController extends ConstraintController<Boolean> {
-    public BatteryChargingController(Context context, OnConstraintUpdatedCallback callback) {
-        super(Trackers.getInstance(context).getBatteryChargingTracker(), callback);
+    public BatteryChargingController(Context context) {
+        super(Trackers.getInstance(context).getBatteryChargingTracker());
     }
 
     @Override

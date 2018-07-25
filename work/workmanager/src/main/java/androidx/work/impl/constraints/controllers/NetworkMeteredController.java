@@ -34,8 +34,8 @@ import androidx.work.impl.model.WorkSpec;
 public class NetworkMeteredController extends ConstraintController<NetworkState> {
     private static final String TAG = "NetworkMeteredCtrlr";
 
-    public NetworkMeteredController(Context context, OnConstraintUpdatedCallback callback) {
-        super(Trackers.getInstance(context).getNetworkStateTracker(), callback);
+    public NetworkMeteredController(Context context) {
+        super(Trackers.getInstance(context).getNetworkStateTracker());
     }
 
     @Override
