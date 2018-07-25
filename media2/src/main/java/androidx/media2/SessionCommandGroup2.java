@@ -46,7 +46,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
     private static final String KEY_COMMANDS = "android.media.session2.commandgroup.commands";
 
     @ParcelField(1)
-    List<SessionCommand2> mCommands = new ArrayList<>();
+    Set<SessionCommand2> mCommands = new HashSet<>();
 
     /**
      * Default Constructor.
