@@ -77,6 +77,7 @@ package androidx.media2 {
 
   public class MediaController2 implements java.lang.AutoCloseable {
     ctor public MediaController2(android.content.Context, androidx.media2.SessionToken2, java.util.concurrent.Executor, androidx.media2.MediaController2.ControllerCallback);
+    ctor public MediaController2(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token, java.util.concurrent.Executor, androidx.media2.MediaController2.ControllerCallback);
     method public void addPlaylistItem(int, androidx.media2.MediaItem2);
     method public void adjustVolume(int, int);
     method public void close();
