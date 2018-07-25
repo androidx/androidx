@@ -19,6 +19,7 @@ package androidx.core.os;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -395,6 +396,13 @@ public class LocaleListCompatTest {
         assertEquals(
                 forLanguageTag("sr"),
                 LocaleListCompat.forLanguageTags("sr,qaa").getFirstMatch(onePrivateLocale));
+    }
+
+    @Test
+    public void testLocaleListCompat_twoDifferentInstances() {
+        LocaleListCompat first = LocaleListCompat.forLanguageTags("en-US");
+        LocaleListCompat second = LocaleListCompat.forLanguageTags("zh-HK");
+        assertNotEquals(first.toLanguageTags(), second.toLanguageTags());
     }
 
     private Locale forLanguageTag(String str) {

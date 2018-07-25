@@ -31,7 +31,7 @@ import java.util.Locale;
  * Helper for accessing features in {@link LocaleList}.
  */
 public final class LocaleListCompat {
-    static final LocaleListInterface IMPL;
+    final LocaleListInterface mImpl;
     private static final LocaleListCompat sEmptyLocaleList = new LocaleListCompat();
 
 
@@ -166,15 +166,13 @@ public final class LocaleListCompat {
         }
     }
 
-    static {
+    private LocaleListCompat() {
         if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new LocaleListCompatApi24Impl();
+            mImpl = new LocaleListCompatApi24Impl();
         } else {
-            IMPL = new LocaleListCompatBaseImpl();
+            mImpl = new LocaleListCompatBaseImpl();
         }
     }
-
-    private LocaleListCompat() {}
 
     /**
      * Creates a new instance of {@link LocaleListCompat} from the Locale list.
@@ -196,7 +194,7 @@ public final class LocaleListCompat {
      */
     @Nullable
     public Object unwrap() {
-        return IMPL.getLocaleList();
+        return mImpl.getLocaleList();
     }
 
     /**
@@ -215,7 +213,7 @@ public final class LocaleListCompat {
      * @return The {@link Locale} in the given index
      */
     public Locale get(int index) {
-        return IMPL.get(index);
+        return mImpl.get(index);
     }
 
     /**
@@ -225,7 +223,7 @@ public final class LocaleListCompat {
      *         {@code false} otherwise
      */
     public boolean isEmpty() {
-        return IMPL.isEmpty();
+        return mImpl.isEmpty();
     }
 
     /**
@@ -233,7 +231,7 @@ public final class LocaleListCompat {
      */
     @IntRange(from = 0)
     public int size() {
-        return IMPL.size();
+        return mImpl.size();
     }
 
     /**
@@ -246,7 +244,7 @@ public final class LocaleListCompat {
      */
     @IntRange(from = -1)
     public int indexOf(Locale locale) {
-        return IMPL.indexOf(locale);
+        return mImpl.indexOf(locale);
     }
 
     /**
@@ -254,7 +252,7 @@ public final class LocaleListCompat {
      */
     @NonNull
     public String toLanguageTags() {
-        return IMPL.toLanguageTags();
+        return mImpl.toLanguageTags();
     }
 
     /**
@@ -265,7 +263,7 @@ public final class LocaleListCompat {
      *         {@code null} if the {@link LocaleListCompat} is empty.
      */
     public Locale getFirstMatch(String[] supportedLocales) {
-        return IMPL.getFirstMatch(supportedLocales);
+        return mImpl.getFirstMatch(supportedLocales);
     }
 
     /**
@@ -337,17 +335,17 @@ public final class LocaleListCompat {
 
     @Override
     public boolean equals(Object other) {
-        return IMPL.equals(other);
+        return mImpl.equals(other);
     }
 
     @Override
     public int hashCode() {
-        return IMPL.hashCode();
+        return mImpl.hashCode();
     }
 
     @Override
     public String toString() {
-        return IMPL.toString();
+        return mImpl.toString();
     }
 
     @RequiresApi(24)
@@ -358,11 +356,11 @@ public final class LocaleListCompat {
             for (int i = 0; i < localeListSize; i++) {
                 localeArrayList[i] = localeList.get(i);
             }
-            IMPL.setLocaleList(localeArrayList);
+            mImpl.setLocaleList(localeArrayList);
         }
     }
 
     private void setLocaleListArray(Locale... localeArrayList) {
-        IMPL.setLocaleList(localeArrayList);
+        mImpl.setLocaleList(localeArrayList);
     }
 }
