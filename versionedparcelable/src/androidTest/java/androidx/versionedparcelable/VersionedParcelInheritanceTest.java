@@ -79,7 +79,7 @@ public class VersionedParcelInheritanceTest {
     @VersionedParcelize(allowSerialization = true,
             ignoreParcelables = true)
     public static class ParcelizableSubImpl extends ParcelizableImplBase {
-        @ParcelField(1)
+        @ParcelField(2)
         public String mSubField;
     }
 
