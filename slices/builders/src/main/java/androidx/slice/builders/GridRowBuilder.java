@@ -19,14 +19,12 @@ package androidx.slice.builders;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 
 import java.util.ArrayList;
@@ -73,33 +71,12 @@ public class GridRowBuilder {
     }
 
     /**
-     * Create a builder which will construct a slice displayed in a grid format.
-     * @param parent The builder constructing the parent slice.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public GridRowBuilder(@NonNull ListBuilder parent) {
-    }
-
-    /**
      * Add a cell to the grid builder.
      */
     @NonNull
     public GridRowBuilder addCell(@NonNull CellBuilder builder) {
         mCells.add(builder);
         return this;
-    }
-
-    /**
-     * Add a cell to the grid builder.
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public GridRowBuilder addCell(@NonNull Consumer<CellBuilder> c) {
-        CellBuilder b = new CellBuilder(this);
-        c.accept(b);
-        return addCell(b);
     }
 
     /**
@@ -126,30 +103,6 @@ public class GridRowBuilder {
         mSeeMoreCell = builder;
         mHasSeeMore = true;
         return this;
-    }
-
-    /**
-     * If all content in a slice cannot be shown, the cell added here may be displayed where the
-     * content is cut off.
-     * <p>
-     * This method should only be used if you want to display a custom cell to indicate more
-     * content, consider using {@link #setSeeMoreAction(PendingIntent)} otherwise. If you do
-     * choose to specify a custom cell, the cell should have
-     * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
-     * activity to see all of the content.
-     * </p>
-     * <p>
-     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
-     * a row or action has been previously added.
-     * </p>
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public GridRowBuilder setSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
-        CellBuilder b = new CellBuilder(this);
-        c.accept(b);
-        return setSeeMoreCell(b);
     }
 
     /**
@@ -316,24 +269,6 @@ public class GridRowBuilder {
          * Create a builder which will construct a slice displayed as a cell in a grid.
          */
         public CellBuilder() {
-        }
-
-        /**
-         * Create a builder which will construct a slice displayed as a cell in a grid.
-         * @param parent The builder constructing the parent slice.
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public CellBuilder(@NonNull GridRowBuilder parent) {
-        }
-
-        /**
-         * Create a builder which will construct a slice displayed as a cell in a grid.
-         * @param uri Uri to tag for this slice.
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public CellBuilder(@NonNull GridRowBuilder parent, @NonNull Uri uri) {
         }
 
         /**

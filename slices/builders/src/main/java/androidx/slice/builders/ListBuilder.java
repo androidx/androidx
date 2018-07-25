@@ -32,7 +32,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpecs;
@@ -45,7 +44,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -186,18 +184,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     public @interface LayoutDirection{}
 
     /**
-     * Create a builder which will construct a slice made up of rows of content.
-     *
-     * @param uri Uri to tag for this slice.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public ListBuilder(@NonNull Context context, @NonNull Uri uri) {
-        super(context, uri);
-    }
-
-    /**
      * Create a ListBuilder for constructing slice content.
      * <p>
      * A slice requires an associated time-to-live, i.e. how long the data contained in the slice
@@ -266,18 +252,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Add a row to the list builder.
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public ListBuilder addRow(@NonNull Consumer<RowBuilder> c) {
-        RowBuilder b = new RowBuilder(this);
-        c.accept(b);
-        return addRow(b);
-    }
-
-    /**
      * Add a grid row to the list builder.
      * <p>
      * Note that grid rows cannot be the first row in your slice. Adding a grid row first without
@@ -288,18 +262,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     public ListBuilder addGridRow(@NonNull GridRowBuilder builder) {
         mImpl.addGridRow(builder);
         return this;
-    }
-
-    /**
-     * Add a grid row to the list builder.
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public ListBuilder addGridRow(@NonNull Consumer<GridRowBuilder> c) {
-        GridRowBuilder b = new GridRowBuilder(this);
-        c.accept(b);
-        return addGridRow(b);
     }
 
     /**
@@ -322,31 +284,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     public ListBuilder setHeader(@NonNull HeaderBuilder builder) {
         mImpl.setHeader(builder);
         return this;
-    }
-
-    /**
-     * Sets a header for this list builder. A list can have only one header. Setting a header allows
-     * some flexibility in what's displayed in your slice when SliceView displays in
-     * {@link androidx.slice.widget.SliceView#MODE_SMALL} and
-     * {@link androidx.slice.widget.SliceView#MODE_SHORTCUT}.
-     * <p>
-     * In MODE_SMALL, the header row shown if one has been added. The header will also
-     * display the {@link HeaderBuilder#setSummary(CharSequence)} text if it has been
-     * specified, allowing a summary of otherwise hidden content to be shown.
-     * <p>
-     * In MODE_SHORTCUT, the primary action set using
-     * {@link HeaderBuilder#setPrimaryAction(SliceAction)} will be used for the shortcut
-     * representation.
-     *
-     * @see HeaderBuilder#setSummary(CharSequence)
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public ListBuilder setHeader(@NonNull Consumer<HeaderBuilder> c) {
-        HeaderBuilder b = new HeaderBuilder(this);
-        c.accept(b);
-        return setHeader(b);
     }
 
     /**
@@ -377,15 +314,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    @NonNull
-    public ListBuilder setColor(@ColorInt int color) {
-        return setAccentColor(color);
-    }
-
-    /**
      * Sets the color to use on tintable items within the list builder.
      * Things that might be tinted are:
      * <ul>
@@ -400,19 +328,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     @NonNull
     public ListBuilder setAccentColor(@ColorInt int color) {
         mImpl.setColor(color);
-        return this;
-    }
-
-    /**
-     * Sets keywords to associate with this slice.
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public ListBuilder setKeywords(List<String> keywords) {
-        if (keywords != null) {
-            mImpl.setKeywords(new HashSet<>(keywords));
-        }
         return this;
     }
 
@@ -460,37 +375,6 @@ public class ListBuilder extends TemplateSliceBuilder {
                     + "already been added");
         }
         mImpl.setSeeMoreRow(builder);
-        mHasSeeMore = true;
-        return this;
-    }
-
-    /**
-     * If all content in a slice cannot be shown, the row added here may be displayed where the
-     * content is cut off. This row should have an affordance to take the user to an activity to
-     * see all of the content.
-     * <p>
-     * This method should only be used if you want to display a customized row to indicate more
-     * content, consider using {@link #setSeeMoreAction(PendingIntent)} otherwise. If you do
-     * choose to specify a custom row, the row should have a content intent or action end item
-     * specified to take the user to an activity to see all of the content. The row added here
-     * will only appear when not all content can be displayed and it will not be styled any
-     * differently from row built by {@link RowBuilder} normally.
-     * </p>
-     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
-     * a row or action has been previously added.
-     * </p>
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public ListBuilder setSeeMoreRow(@NonNull Consumer<RowBuilder> c) {
-        RowBuilder b = new RowBuilder(this);
-        c.accept(b);
-        if (mHasSeeMore) {
-            throw new IllegalArgumentException("Trying to add see more row when one has "
-                    + "already been added");
-        }
-        mImpl.setSeeMoreRow(b);
         mHasSeeMore = true;
         return this;
     }
@@ -561,22 +445,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Add an input range row to the list builder.
-     * <p>
-     * If {@link InputRangeBuilder#setValue(int)} is not between
-     * {@link InputRangeBuilder#setMin(int)} and {@link InputRangeBuilder#setMax(int)}, this
-     * will throw {@link IllegalArgumentException}.
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public ListBuilder addInputRange(@NonNull Consumer<InputRangeBuilder> c) {
-        InputRangeBuilder inputRangeBuilder = new InputRangeBuilder(this);
-        c.accept(inputRangeBuilder);
-        return addInputRange(inputRangeBuilder);
-    }
-
-    /**
      * Add a range row to the list builder.
      * <p>
      * If {@link RangeBuilder#setValue(int)} is not between 0 and
@@ -586,21 +454,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     public ListBuilder addRange(@NonNull RangeBuilder rangeBuilder) {
         mImpl.addRange(rangeBuilder);
         return this;
-    }
-
-    /**
-     * Add a range row to the list builder.
-     * <p>
-     * If {@link RangeBuilder#setValue(int)} is not between 0 and
-     * {@link RangeBuilder#setMax(int)}, this will throw {@link IllegalArgumentException}.
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(LIBRARY)
-    public ListBuilder addRange(@NonNull Consumer<RangeBuilder> c) {
-        RangeBuilder rangeBuilder = new RangeBuilder(this);
-        c.accept(rangeBuilder);
-        return addRange(rangeBuilder);
     }
 
     /**
@@ -629,13 +482,6 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#addRange(RangeBuilder)
          */
         public RangeBuilder() {
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public RangeBuilder(@NonNull ListBuilder parent) {
         }
 
         /**
@@ -805,13 +651,6 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#addInputRange(InputRangeBuilder)
          */
         public InputRangeBuilder() {
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public InputRangeBuilder(@NonNull ListBuilder parent) {
         }
 
         /**
@@ -1099,36 +938,6 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         public RowBuilder(Uri uri) {
             mUri = uri;
-        }
-
-        /**
-         * Builder to construct a row.
-         * @param parent The builder constructing the parent slice.
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public RowBuilder(@NonNull ListBuilder parent) {
-            this();
-        }
-
-        /**
-         * Builder to construct a row.
-         * @param uri Uri to tag for this slice.
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public RowBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
-            this(uri);
-        }
-
-        /**
-         * Builder to construct a normal row.
-         * @param uri Uri to tag for this slice.
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public RowBuilder(@NonNull Context context, @NonNull Uri uri) {
-            this(uri);
         }
 
         /**
@@ -1623,23 +1432,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         @RestrictTo(LIBRARY_GROUP)
         public HeaderBuilder(Uri uri) {
             mUri = uri;
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public HeaderBuilder(@NonNull ListBuilder parent) {
-            this();
-        }
-
-        /**
-         * Create builder for a header.
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public HeaderBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
-            this(uri);
         }
 
         /**

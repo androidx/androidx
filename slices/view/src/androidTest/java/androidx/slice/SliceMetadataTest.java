@@ -396,10 +396,10 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("a title")
                 .setPrimaryAction(getAction("Action")));
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("another row another title"));
 
         Slice rowSlice = lb.build();
@@ -412,7 +412,7 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("a title")
                 .setPrimaryAction(getAction("Action")));
 
@@ -426,7 +426,7 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("a title")
                 .setPrimaryAction(getAction("Action")));
 
@@ -442,7 +442,7 @@ public class SliceMetadataTest {
 
         SliceAction toggleAction = new SliceAction(pi, "toggle", false /* isChecked */);
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("another title")
                 .setPrimaryAction(toggleAction));
 
@@ -465,7 +465,7 @@ public class SliceMetadataTest {
         SliceAction toggleAction2 = new SliceAction(pi, icon, "toggle2", true /* isChecked */);
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("another title")
                 .setPrimaryAction(getAction("Action"))
                 .addEndItem(toggleAction)
@@ -505,7 +505,7 @@ public class SliceMetadataTest {
 
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.setHeader(new ListBuilder.HeaderBuilder(lb)
+        lb.setHeader(new ListBuilder.HeaderBuilder()
                 .setTitle("another title")
                 .setPrimaryAction(getAction("Action")));
         lb.addAction(toggle);
@@ -530,7 +530,7 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("a title")
                 .setPrimaryAction(getAction("Action")));
 
@@ -545,7 +545,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+        lb.addInputRange(new ListBuilder.InputRangeBuilder()
                 .setTitle("another title")
                 .setValue(7)
                 .setMin(5)
@@ -575,7 +575,7 @@ public class SliceMetadataTest {
         SliceAction primaryAction = new SliceAction(getIntent(""), icon, "action");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+        lb.addInputRange(new ListBuilder.InputRangeBuilder()
                 .setTitle("another title")
                 .setValue(7)
                 .setMin(5)
@@ -651,7 +651,7 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRange(new ListBuilder.RangeBuilder(lb)
+        lb.addRange(new ListBuilder.RangeBuilder()
                 .setTitle("another title")
                 .setValue(5)
                 .setPrimaryAction(getAction("Action"))
