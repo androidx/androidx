@@ -19,6 +19,8 @@ package androidx.preference;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,10 +32,14 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.AbsSavedState;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -84,11 +90,13 @@ import java.util.Set;
  * @attr name android:singleLineTitle
  * @attr name android:iconSpaceReserved
  */
-public class Preference implements Comparable<Preference> {
+public class Preference implements Comparable<Preference>, View.OnCreateContextMenuListener {
     /**
      * Specify for {@link #setOrder(int)} if a specific order is not required.
      */
     public static final int DEFAULT_ORDER = Integer.MAX_VALUE;
+
+    private static final String CLIPBOARD_ID = "Preference";
 
     private Context mContext;
 
@@ -147,6 +155,7 @@ public class Preference implements Comparable<Preference> {
     private boolean mHasSingleLineTitleAttr;
     private boolean mSingleLineTitle = true;
     private boolean mIconSpaceReserved;
+    private boolean mCopyingEnabled;
 
     /**
      * @see #setShouldDisableView(boolean)
@@ -170,6 +179,24 @@ public class Preference implements Comparable<Preference> {
             performClick(v);
         }
     };
+
+    private final MenuItem.OnMenuItemClickListener mCopyMenuListener =
+            new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    ClipboardManager clipboard =
+                            (ClipboardManager) getContext().getSystemService(
+                                    Context.CLIPBOARD_SERVICE);
+                    CharSequence summary = getSummary();
+                    ClipData clip = ClipData.newPlainText(CLIPBOARD_ID, summary);
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(getContext(),
+                            getContext().getString(R.string.preference_copied,
+                                    summary),
+                            Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            };
 
     /**
      * Perform inflation from XML and apply a class-specific base style. This constructor allows
@@ -259,6 +286,9 @@ public class Preference implements Comparable<Preference> {
 
         mVisible = TypedArrayUtils.getBoolean(a, R.styleable.Preference_isPreferenceVisible,
                 R.styleable.Preference_isPreferenceVisible, true);
+
+        mCopyingEnabled = TypedArrayUtils.getBoolean(a, R.styleable.Preference_enableCopying,
+                R.styleable.Preference_enableCopying, false);
 
         a.recycle();
     }
@@ -554,6 +584,20 @@ public class Preference implements Comparable<Preference> {
 
         holder.setDividerAllowedAbove(mAllowDividerAbove);
         holder.setDividerAllowedBelow(mAllowDividerBelow);
+
+        holder.itemView.setOnCreateContextMenuListener(this);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
+        CharSequence summary = getSummary();
+        if (!isCopyingEnabled() || TextUtils.isEmpty(summary)) {
+            return;
+        }
+        menu.setHeaderTitle(summary);
+        menu.add(Menu.NONE, Menu.NONE, Menu.NONE, R.string.copy)
+                .setOnMenuItemClickListener(mCopyMenuListener);
     }
 
     /**
@@ -1000,6 +1044,32 @@ public class Preference implements Comparable<Preference> {
      */
     public boolean isIconSpaceReserved() {
         return mIconSpaceReserved;
+    }
+
+    /**
+     * Sets whether the summary of this preference can be copied to the clipboard by
+     * long pressing on the preference.
+     *
+     * @param enabled Set true to enable copying the summary of this preference.
+     * @hide
+     * @pending
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setCopyingEnabled(boolean enabled) {
+        mCopyingEnabled = enabled;
+    }
+
+    /**
+     * Returns whether the summary of this preference can be copied to the clipboard by
+     * long pressing on the preference.
+     *
+     * @return True if copying is enabled, false otherwise.
+     * @hide
+     * @pending
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean isCopyingEnabled() {
+        return mCopyingEnabled;
     }
 
     /**
