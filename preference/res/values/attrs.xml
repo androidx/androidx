@@ -181,6 +181,9 @@
         <!-- Whether the Preference is visible. By default, this is set to true. -->
         <attr name="isPreferenceVisible" format="boolean" />
 
+        <!-- Whether the summary of this preference can be copied to the clipboard by long pressing
+             on the preference. By default, this is set to false. -->
+        <attr name="enableCopying" format="boolean"/>
     </declare-styleable>
 
     <!-- Base attributes available to CheckBoxPreference. -->

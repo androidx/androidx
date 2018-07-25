@@ -50,7 +50,7 @@ public class PreferenceVisibilityTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mPreferenceManager = new PreferenceManager(mContext);
         final PreferenceScreen screen = mPreferenceManager.inflateFromResource(mContext,
-                R.layout.test_visibility,
+                R.xml.test_visibility,
                 null);
         mPreferenceManager.setPreferences(screen);
     }

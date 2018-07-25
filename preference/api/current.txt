@@ -123,7 +123,7 @@ package androidx.preference {
     method public void onDialogClosed(boolean);
   }
 
-  public class Preference implements java.lang.Comparable {
+  public class Preference implements java.lang.Comparable android.view.View.OnCreateContextMenuListener {
     ctor public Preference(android.content.Context, android.util.AttributeSet, int, int);
     ctor public Preference(android.content.Context, android.util.AttributeSet, int);
     ctor public Preference(android.content.Context, android.util.AttributeSet);
@@ -171,6 +171,7 @@ package androidx.preference {
     method protected void onAttachedToHierarchy(androidx.preference.PreferenceManager);
     method public void onBindViewHolder(androidx.preference.PreferenceViewHolder);
     method protected void onClick();
+    method public void onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo);
     method public void onDependencyChanged(androidx.preference.Preference, boolean);
     method public void onDetached();
     method protected java.lang.Object onGetDefaultValue(android.content.res.TypedArray, int);
