@@ -37,7 +37,6 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.net.Uri;
@@ -73,7 +72,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 class MediaController2ImplLegacy implements MediaController2Impl {
 
     private static final String TAG = "MC2ImplLegacy";

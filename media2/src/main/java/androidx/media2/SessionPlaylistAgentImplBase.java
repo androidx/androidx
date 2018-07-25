@@ -18,9 +18,6 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,7 +36,6 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     @VisibleForTesting
