@@ -89,7 +89,7 @@ class PluginTest {
         buildFile = File(projectRoot(), "build.gradle")
         buildFile.createNewFile()
         // copy local.properties
-        val appToolkitProperties = File("../../app-toolkit/local.properties")
+        val appToolkitProperties = File("../../local.properties")
         if (appToolkitProperties.exists()) {
             appToolkitProperties.copyTo(File(projectRoot(), "local.properties"), overwrite = true)
         } else {
