@@ -64,7 +64,6 @@ import androidx.media2.MediaUtils2;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -86,7 +85,6 @@ import java.util.concurrent.TimeUnit;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@FlakyTest
 public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
     private static final String TAG = "MediaSession2LegacyCallbackTest";
 
