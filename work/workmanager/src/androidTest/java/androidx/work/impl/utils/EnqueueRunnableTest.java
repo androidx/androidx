@@ -22,10 +22,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import android.content.Context;
 
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.WorkContinuationImpl;
+import androidx.work.impl.WorkManagerImpl;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,11 +41,17 @@ import org.mockito.stubbing.Answer;
 @SmallTest
 public class EnqueueRunnableTest {
 
+    private Context mContext;
+    private WorkManagerImpl mWorkManagerImpl;
     private WorkContinuationImpl mWorkContinuation;
 
     @Before
     public void setup() {
+        mContext = mock(Context.class);
+        mWorkManagerImpl = mock(WorkManagerImpl.class);
         mWorkContinuation = mock(WorkContinuationImpl.class);
+        when(mWorkManagerImpl.getApplicationContext()).thenReturn(mContext);
+        when(mWorkContinuation.getWorkManagerImpl()).thenReturn(mWorkManagerImpl);
     }
 
     @Test
