@@ -26,8 +26,8 @@ import androidx.work.impl.model.WorkSpec;
  */
 
 public class StorageNotLowController extends ConstraintController<Boolean> {
-    public StorageNotLowController(Context context, OnConstraintUpdatedCallback callback) {
-        super(Trackers.getInstance(context).getStorageNotLowTracker(), callback);
+    public StorageNotLowController(Context context) {
+        super(Trackers.getInstance(context).getStorageNotLowTracker());
     }
 
     @Override

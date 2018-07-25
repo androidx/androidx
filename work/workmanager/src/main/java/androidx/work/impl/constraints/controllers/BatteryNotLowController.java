@@ -26,8 +26,8 @@ import androidx.work.impl.model.WorkSpec;
  */
 
 public class BatteryNotLowController extends ConstraintController<Boolean> {
-    public BatteryNotLowController(Context context, OnConstraintUpdatedCallback callback) {
-        super(Trackers.getInstance(context).getBatteryNotLowTracker(), callback);
+    public BatteryNotLowController(Context context) {
+        super(Trackers.getInstance(context).getBatteryNotLowTracker());
     }
 
     @Override
