@@ -87,6 +87,8 @@ includeProject(":lifecycle:lifecycle-savedstate-fragment", "lifecycle/savedstate
 includeProject(":lifecycle:lifecycle-service", "lifecycle/service")
 includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/viewmodel")
 includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/viewmodel/ktx")
+includeProject(":lifecycle:lifecycle-viewmodel-savedstate", "lifecycle/viewmodel-savedstate")
+includeProject(":lifecycle:lifecycle-viewmodel-fragment","lifecycle/viewmodel-fragment")
 includeProject(":loader", "loader")
 includeProject(":localbroadcastmanager", "localbroadcastmanager")
 includeProject(":media", "media")

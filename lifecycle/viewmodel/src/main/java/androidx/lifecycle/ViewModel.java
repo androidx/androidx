@@ -16,6 +16,12 @@
 
 package androidx.lifecycle;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * ViewModel is a class that is responsible for preparing and managing the data for
  * an {@link android.app.Activity Activity} or a {@link androidx.fragment.app.Fragment Fragment}.
@@ -94,6 +100,9 @@ package androidx.lifecycle;
  * </>
  */
 public abstract class ViewModel {
+    @Nullable
+    private Map<String, Object> mBagOfTags;
+
     /**
      * This method will be called when this ViewModel is no longer used and will be destroyed.
      * <p>
@@ -102,5 +111,25 @@ public abstract class ViewModel {
      */
     @SuppressWarnings("WeakerAccess")
     protected void onCleared() {
+    }
+
+    /**
+     * Sets a tag associated with this viewmodel and a key.
+     */
+    @MainThread
+    void setTag(String key, Object obj) {
+        if (mBagOfTags == null) {
+            mBagOfTags = new HashMap<>();
+        }
+        mBagOfTags.put(key, obj);
+    }
+
+    /**
+     * Returns the tag associated with this viewmodel and the specified key.
+     */
+    @MainThread
+    <T> T getTag(String key) {
+        //noinspection unchecked
+        return mBagOfTags != null ? (T) mBagOfTags.get(key) : null;
     }
 }

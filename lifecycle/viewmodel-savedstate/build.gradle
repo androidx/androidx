@@ -26,25 +26,24 @@ plugins {
 dependencies {
     api(SUPPORT_ANNOTATIONS)
     api(project(":lifecycle:lifecycle-savedstate-core"))
-    api(SUPPORT_FRAGMENTS, libs.support_exclude_config)
-    implementation(project(":lifecycle:lifecycle-livedata"))
-    implementation(project(":lifecycle:lifecycle-runtime"))
-    implementation(project(":lifecycle:lifecycle-viewmodel"))
+    api(project(":lifecycle:lifecycle-livedata-core"))
+    api(project(":lifecycle:lifecycle-viewmodel"))
 
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
+    testImplementation(project(":arch:core-testing"))
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-
-    androidTestImplementation(TEST_RULES)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
 }
 
 supportLibrary {
-    name = "Android Lifecycle Saved State"
+    name = "Android Lifecycle ViewModel with SavedState"
     publish = false
     mavenVersion = LibraryVersions.LIFECYCLES_SAVEDSTATE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
-    description = "Android Lifecycle Saved State"
+    description = "Android Lifecycle ViewModel"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }
