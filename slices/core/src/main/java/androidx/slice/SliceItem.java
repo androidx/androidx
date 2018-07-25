@@ -289,14 +289,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY)
-    public long getTimestamp() {
-        return (Long) mObj;
-    }
-
-    /**
      * @param hint The hint to check for
      * @return true if this item contains the given hint
      */

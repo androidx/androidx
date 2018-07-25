@@ -19,8 +19,6 @@ package androidx.slice;
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_KEYWORDS;
 import static android.app.slice.Slice.HINT_LAST_UPDATED;
-import static android.app.slice.Slice.HINT_PARTIAL;
-import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
@@ -32,10 +30,6 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.slice.SliceMetadata.LOADED_ALL;
-import static androidx.slice.SliceMetadata.LOADED_NONE;
-import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -46,11 +40,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
@@ -71,7 +63,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -148,7 +139,8 @@ public class SliceUtils {
         }
 
         // Adds color item into new slice builder.
-        SliceItem colorItem = SliceQuery.findTopLevelItem(s, FORMAT_INT, SUBTYPE_COLOR, null, null);
+        SliceItem colorItem = SliceQuery.findTopLevelItem(s, FORMAT_INT, SUBTYPE_COLOR, null,
+                null);
         if (colorItem != null) {
             slice.addInt(colorItem.getInt(), SUBTYPE_COLOR);
         }
@@ -161,7 +153,7 @@ public class SliceUtils {
         }
 
         // Adds key words item into new slice builder.
-        List<String> keyWords = getSliceKeywords(s);
+        List<String> keyWords = SliceMetadata.from(null, s).getSliceKeywords();
         if (keyWords != null && keyWords.size() > 0) {
             Slice.Builder sb = new Slice.Builder(slice);
             for (String keyword : keyWords) {
@@ -176,28 +168,6 @@ public class SliceUtils {
             slice.addHints(hints);
         }
         return slice;
-    }
-
-    /**
-     * Serialize a slice to an OutputStream.
-     * <p>
-     * The slice can later be read into slice form again with {@link #parseSlice}.
-     * Some slice types cannot be serialized, their handling is controlled by
-     * {@link SerializeOptions}.
-     *
-     * @param s The slice to serialize.
-     * @param context Context used to load any resources in the slice.
-     * @param output The output of the serialization.
-     * @param encoding The encoding to use for serialization.
-     * @param options Options defining how to handle non-serializable items.
-     * @throws IllegalArgumentException if the slice cannot be serialized using the given options.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static void serializeSlice(@NonNull Slice s, @NonNull Context context,
-            @NonNull OutputStream output, @NonNull String encoding,
-            @NonNull SerializeOptions options) throws IOException, IllegalArgumentException {
-        serializeSlice(s, context, output, options);
     }
 
     /**
@@ -538,91 +508,6 @@ public class SliceUtils {
             mQuality = quality;
             return this;
         }
-    }
-
-    /**
-     * Indicates this slice is empty and waiting for content to be loaded.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int LOADING_ALL = 0;
-    /**
-     * Indicates this slice has some content but is waiting for other content to be loaded.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int LOADING_PARTIAL = 1;
-    /**
-     * Indicates this slice has fully loaded and is not waiting for other content.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int LOADING_COMPLETE = 2;
-
-    /**
-     * @return the current loading state of the provided {@link Slice}.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static int getLoadingState(@NonNull Slice slice) {
-        // Check loading state
-        boolean hasHintPartial =
-                SliceQuery.find(slice, null, HINT_PARTIAL, null) != null;
-        if (slice.getItems().size() == 0) {
-            // Empty slice
-            return LOADED_NONE;
-        } else if (hasHintPartial) {
-            // Slice with specific content to load
-            return LOADED_PARTIAL;
-        } else {
-            // Full slice
-            return LOADED_ALL;
-        }
-    }
-
-    /**
-     * @return the group of actions associated with the provided slice, if they exist.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    @Nullable
-    public static List<SliceItem> getSliceActions(@NonNull Slice slice) {
-        SliceItem actionGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_ACTIONS, null);
-        String[] hints = new String[] {HINT_ACTIONS, HINT_SHORTCUT};
-        return (actionGroup != null)
-                ? SliceQuery.findAll(actionGroup, FORMAT_SLICE, hints, null)
-                : null;
-    }
-
-    /**
-     * @return the list of keywords associated with the provided slice, null if no keywords were
-     * specified or an empty list if the slice was specified to have no keywords.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    @Nullable
-    public static List<String> getSliceKeywords(@NonNull Slice slice) {
-        SliceItem keywordGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_KEYWORDS, null);
-        if (keywordGroup != null) {
-            List<SliceItem> itemList = SliceQuery.findAll(keywordGroup, FORMAT_TEXT);
-            if (itemList != null) {
-                ArrayList<String> stringList = new ArrayList<>();
-                for (int i = 0; i < itemList.size(); i++) {
-                    String keyword = (String) itemList.get(i).getText();
-                    if (!TextUtils.isEmpty(keyword)) {
-                        stringList.add(keyword);
-                    }
-                }
-                return stringList;
-            }
-        }
-        return null;
     }
 
     /**
