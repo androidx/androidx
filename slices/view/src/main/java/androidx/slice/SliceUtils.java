@@ -57,6 +57,7 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
+import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.widget.ListContent;
 import androidx.slice.widget.ShortcutContent;
@@ -323,6 +324,8 @@ public class SliceUtils {
         bufferedInputStream.reset();
         if (usesParcel) {
             Slice slice = ParcelUtils.fromInputStream(bufferedInputStream);
+            slice.mHints = ArrayUtils.appendElement(String.class, slice.mHints,
+                    SliceHints.HINT_CACHED);
             setActionsAndUpdateIcons(slice, new SliceItem.ActionHandler() {
                 @Override
                 public void onAction(SliceItem item, Context context, Intent intent) {
@@ -331,7 +334,9 @@ public class SliceUtils {
             }, context);
             return slice;
         }
-        return SliceXml.parseSlice(context, bufferedInputStream, encoding, listener);
+        Slice s = SliceXml.parseSlice(context, bufferedInputStream, encoding, listener);
+        s.mHints = ArrayUtils.appendElement(String.class, s.mHints, SliceHints.HINT_CACHED);
+        return s;
     }
 
     private static void setActionsAndUpdateIcons(Slice slice, SliceItem.ActionHandler listener,

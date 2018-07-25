@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -55,6 +57,7 @@ import java.util.Set;
  */
 @RequiresApi(19)
 public final class SliceLiveData {
+    private static final String TAG = "SliceLiveData";
 
     /**
      * @hide
@@ -102,7 +105,16 @@ public final class SliceLiveData {
      */
     public static @NonNull LiveData<Slice> fromStream(@NonNull Context context,
             @NonNull InputStream input, OnErrorListener listener) {
-        return fromStream(context, SliceViewManager.getInstance(context), input, listener);
+        return fromStream(context, SliceViewManager.getInstance(context), input, listener, false);
+    }
+
+    /**
+     * Version of {@link #fromStream} that blocks until initial slice loading
+     * is complete.
+     */
+    public static @NonNull LiveData<Slice> fromStreamBlocking(@NonNull Context context,
+            @NonNull InputStream input, OnErrorListener listener) {
+        return fromStream(context, SliceViewManager.getInstance(context), input, listener, true);
     }
 
     /**
@@ -112,8 +124,9 @@ public final class SliceLiveData {
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public static LiveData<Slice> fromStream(@NonNull Context context,
-            SliceViewManager manager, @NonNull InputStream input, OnErrorListener listener) {
-        return new CachedLiveDataImpl(context, manager, input, listener);
+            SliceViewManager manager, @NonNull InputStream input, OnErrorListener listener,
+            boolean blocking) {
+        return new CachedLiveDataImpl(context, manager, input, listener, blocking);
     }
 
     private static class CachedLiveDataImpl extends LiveData<Slice> {
@@ -130,32 +143,44 @@ public final class SliceLiveData {
         private boolean mSliceCallbackRegistered;
 
         CachedLiveDataImpl(final Context context, final SliceViewManager manager,
-                final InputStream input, final OnErrorListener listener) {
+                final InputStream input, final OnErrorListener listener, boolean blocking) {
             super();
             mContext = context;
             mSliceViewManager = manager;
             mUri = null;
             mListener = listener;
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Slice s = SliceUtils.parseSlice(context, input, "UTF-8",
-                                new SliceUtils.SliceActionListener() {
-                                    @Override
-                                    public void onSliceAction(Uri actionUri, Context context,
-                                            Intent intent) {
-                                        goLive(actionUri, context, intent);
-                                    }
-                                });
-                        mStructure = new SliceStructure(s);
-                        mUri = s.getUri();
-                        postValue(s);
-                    } catch (Exception e) {
-                        listener.onSliceError(OnErrorListener.ERROR_INVALID_INPUT, e);
+            if (blocking) {
+                loadInitialSlice(input);
+            } else {
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadInitialSlice(input);
                     }
+                });
+            }
+        }
+
+        protected void loadInitialSlice(InputStream input) {
+            try {
+                Slice s = SliceUtils.parseSlice(mContext, input, "UTF-8",
+                        new SliceUtils.SliceActionListener() {
+                            @Override
+                            public void onSliceAction(Uri actionUri, Context context,
+                                    Intent intent) {
+                                goLive(actionUri, context, intent);
+                            }
+                        });
+                mStructure = new SliceStructure(s);
+                mUri = s.getUri();
+                if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+                    setValue(s);
+                } else {
+                    postValue(s);
                 }
-            });
+            } catch (Exception e) {
+                mListener.onSliceError(OnErrorListener.ERROR_INVALID_INPUT, e);
+            }
         }
 
         void goLive(Uri actionUri, Context context, Intent intent) {
@@ -200,11 +225,20 @@ public final class SliceLiveData {
             }
         }
 
+        protected void updateSlice() {
+            try {
+                Slice s = mSliceViewManager.bindSlice(mUri);
+                mSliceCallback.onSliceUpdated(s);
+            } catch (Exception e) {
+                mListener.onSliceError(OnErrorListener.ERROR_UNKNOWN, e);
+            }
+        }
+
+
         private final Runnable mUpdateSlice = new Runnable() {
             @Override
             public void run() {
-                Slice s = mSliceViewManager.bindSlice(mUri);
-                mSliceCallback.onSliceUpdated(s);
+                updateSlice();
             }
         };
 
@@ -287,13 +321,18 @@ public final class SliceLiveData {
         private final Runnable mUpdateSlice = new Runnable() {
             @Override
             public void run() {
-                Slice s = mUri != null ? mSliceViewManager.bindSlice(mUri)
-                        : mSliceViewManager.bindSlice(mIntent);
-                if (mUri == null && s != null) {
-                    mUri = s.getUri();
-                    mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
+                try {
+                    Slice s = mUri != null ? mSliceViewManager.bindSlice(mUri)
+                            : mSliceViewManager.bindSlice(mIntent);
+                    if (mUri == null && s != null) {
+                        mUri = s.getUri();
+                        mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
+                    }
+                    postValue(s);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error binding slice", e);
+                    postValue(null);
                 }
-                postValue(s);
             }
         };
 

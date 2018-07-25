@@ -38,6 +38,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 import androidx.test.InstrumentationRegistry;
@@ -51,6 +52,8 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -162,7 +165,7 @@ public class SliceXmlTest {
         SliceUtils.SliceActionListener listener = mock(SliceUtils.SliceActionListener.class);
         Slice after = SliceUtils.parseSlice(mContext, inputStream, "UTF-8", listener);
 
-        assertEquivalent(before, after);
+        assertEquivalentRoot(before, after);
 
         SliceItem action = SliceQuery.find(after, FORMAT_ACTION);
         action.fireAction(null, null);
@@ -203,12 +206,24 @@ public class SliceXmlTest {
         SliceUtils.SliceActionListener listener = mock(SliceUtils.SliceActionListener.class);
         Slice after = SliceUtils.parseSlice(mContext, inputStream, "UTF-8", listener);
 
-        assertEquivalent(before, after);
+        assertEquivalentRoot(before, after);
 
         SliceItem action = SliceQuery.find(after, FORMAT_ACTION);
         action.fireAction(null, null);
         verify(listener).onSliceAction(eq(Uri.parse("content://pkg/slice/action")),
                 (Context) eq(null), (Intent) eq(null));
+    }
+
+    private void assertEquivalentRoot(Slice desired, Slice actual) {
+        assertEquals(desired.getUri(), actual.getUri());
+        List<String> desiredHints = new ArrayList<>(desired.getHints());
+        desiredHints.add(SliceHints.HINT_CACHED);
+        assertEquals(desiredHints, actual.getHints());
+        assertEquals(desired.getItems().size(), actual.getItems().size());
+
+        for (int i = 0; i < desired.getItems().size(); i++) {
+            assertEquivalent(desired.getItems().get(i), actual.getItems().get(i));
+        }
     }
 
     private void assertEquivalent(Slice desired, Slice actual) {

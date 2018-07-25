@@ -59,6 +59,11 @@ public class SliceHints {
      */
     public static final String HINT_ACTIVITY = "activity";
 
+    /**
+     * Hint indicating that this slice was parsed from a serialized format.
+     */
+    public static final String HINT_CACHED = "cached";
+
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
     })
