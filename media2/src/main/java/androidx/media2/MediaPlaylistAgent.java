@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
+import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,9 +38,12 @@ import java.util.concurrent.Executor;
  * to a MediaSession2 that will override default playlist handling behaviors. It contains a set of
  * notify methods to signal MediaSession2 that playlist-related state has changed.
  * <p>
- * Playlists are composed of one or multiple {@link MediaItem2} instances, which combine metadata
+ * A playlist is composed of one or multiple {@link MediaItem2} instances, which combine metadata
  * and data sources (as {@link DataSourceDesc2})
- * Used by {@link MediaSession2} and {@link MediaController2}.
+ * <p>
+ * Calls may be asynchronous except for getters. Wait for callbacks for the completion.
+ * <p>
+ * Used by {@link MediaSession2}.
  */
 // This class only includes methods that contain {@link MediaItem2}.
 public abstract class MediaPlaylistAgent {
@@ -236,45 +240,64 @@ public abstract class MediaPlaylistAgent {
     }
 
     /**
-     * Returns the playlist
+     * Gets the playlist.
+     * <p>
+     * This will be also called by {@link #notifyPlaylistChanged()} to get the list for
+     * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)}.
      *
      * @return playlist, or null if none is set.
+     * @see #notifyPlaylistChanged()
      */
     public abstract @Nullable List<MediaItem2> getPlaylist();
 
     /**
      * Sets the playlist with the metadata.
      * <p>
-     * When the playlist is changed, call {@link #notifyPlaylistChanged()} to notify changes to the
-     * registered callbacks.
+     * This may be the asynchronous call depending on the implementation. Wait for
+     * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)}
+     * for completion.
+     * <p>
+     * The implementation must call {@link #notifyPlaylistChanged()} when it's completed.
      *
      * @param list playlist
      * @param metadata metadata of the playlist
+     * @see PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)
      * @see #notifyPlaylistChanged()
      */
     public abstract void setPlaylist(@NonNull List<MediaItem2> list,
             @Nullable MediaMetadata2 metadata);
 
     /**
-     * Returns the playlist metadata
+     * Gets the playlist metadata.
+     * <p>
+     * This will be also called by {@link #notifyPlaylistChanged()} to get the playlist metadata for
+     * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)}
+     * and also called by {@link #notifyPlaylistMetadataChanged()} for
+     * {@link PlaylistEventCallback#onPlaylistMetadataChanged(MediaPlaylistAgent, MediaMetadata2)}.
      *
      * @return metadata metadata of the playlist, or null if none is set
+     * @see #notifyPlaylistChanged()
+     * @see #notifyPlaylistMetadataChanged()
      */
     public abstract @Nullable MediaMetadata2 getPlaylistMetadata();
 
     /**
      * Updates the playlist metadata.
      * <p>
-     * When the playlist metadata is changed, call {@link #notifyPlaylistMetadataChanged()} to
-     * notify changes to the registered callbacks.
+     * This may be the asynchronous call depending on the implementation. Wait for
+     * {@link PlaylistEventCallback#onPlaylistMetadataChanged(MediaPlaylistAgent, MediaMetadata2)}
+     * for completion.
+     * <p>
+     * The implementation must call {@link #notifyPlaylistMetadataChanged()} when it's completed.
      *
      * @param metadata metadata of the playlist
+     * @see PlaylistEventCallback#onPlaylistMetadataChanged(MediaPlaylistAgent, MediaMetadata2)
      * @see #notifyPlaylistMetadataChanged()
      */
     public abstract void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata);
 
     /**
-     * Returns currently playing media item.
+     * Gets currently playing media item.
      */
     public abstract MediaItem2 getCurrentMediaItem();
 
@@ -283,9 +306,15 @@ public abstract class MediaPlaylistAgent {
      * the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end of
      * the playlist.
      * <p>
-     * This will not change the currently playing media item.
+     * This may be the asynchronous call depending on the implementation. Wait for
+     * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)}
+     * for completion.
+     * <p>
+     * The implementation may not change the currently playing media item.
      * If index is less than or equal to the current index of the playlist,
-     * the current index of the playlist will be incremented correspondingly.
+     * the current index of the playlist will be increased correspondingly.
+     * <p>
+     * The implementation must call {@link #notifyPlaylistChanged()} when it's completed.
      *
      * @param index the index you want to add
      * @param item the media item you want to add
@@ -294,6 +323,12 @@ public abstract class MediaPlaylistAgent {
 
     /**
      * Removes the media item from the playlist
+     * <p>
+     * This may be the asynchronous call depending on the implementation. Wait for
+     * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)}
+     * for completion.
+     * <p>
+     * The implementation must call {@link #notifyPlaylistChanged()} when it's completed.
      *
      * @param item media item to remove
      */
@@ -302,6 +337,12 @@ public abstract class MediaPlaylistAgent {
     /**
      * Replace the media item at index in the playlist. This can be also used to update metadata of
      * an item.
+     * <p>
+     * This may be the asynchronous call depending on the implementation. Wait for
+     * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)}
+     * for completion.
+     * <p>
+     * The implementation must call {@link #notifyPlaylistChanged()} when it's completed.
      *
      * @param index the index of the item to replace
      * @param item the new item
@@ -310,6 +351,12 @@ public abstract class MediaPlaylistAgent {
 
     /**
      * Skips to the the media item, and plays from it.
+     * <p>
+     * This may be the asynchronous call depending on the implementation. Wait for underlying player
+     * connector's
+     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
+     * for completion. Callee needs to call {@link #getCurrentMediaItem()} or
+     * {@link #getMediaItem(DataSourceDesc2)} to get the current {@link MediaItem2}.
      *
      * @param item media item to start playing from
      */
@@ -317,30 +364,50 @@ public abstract class MediaPlaylistAgent {
 
     /**
      * Skips to the previous item in the playlist.
+     * <p>
+     * This may be the asynchronous call depending on the implementation. Wait for underlying player
+     * connector's
+     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
+     * for completion. Callee needs to call {@link #getCurrentMediaItem()} or
+     * {@link #getMediaItem(DataSourceDesc2)} to get the current {@link MediaItem2}.
      */
     public abstract void skipToPreviousItem();
 
     /**
      * Skips to the next item in the playlist.
+     * <p>
+     * This may be the asynchronous call depending on the implementation. Wait for underlying player
+     * connector's
+     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
+     * for completion. Callee needs to call {@link #getCurrentMediaItem()} or
+     * {@link #getMediaItem(DataSourceDesc2)} to get the current {@link MediaItem2}.
+     *
+     * @see PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)
      */
     public abstract void skipToNextItem();
 
     /**
-     * Gets the repeat mode
+     * Gets the repeat mode.
+     * <p>
+     * This will be also called by {@link #notifyRepeatModeChanged()} to get the repeat mode for
+     * {@link PlaylistEventCallback#onRepeatModeChanged(MediaPlaylistAgent, int)}.
      *
      * @return repeat mode
      * @see #REPEAT_MODE_NONE
      * @see #REPEAT_MODE_ONE
      * @see #REPEAT_MODE_ALL
      * @see #REPEAT_MODE_GROUP
+     * @see #notifyRepeatModeChanged()
      */
     public abstract @RepeatMode int getRepeatMode();
 
     /**
      * Sets the repeat mode.
      * <p>
-     * When the repeat mode is changed, call {@link #notifyRepeatModeChanged()} to notify changes
-     * to the registered callbacks.
+     * This may be the asynchronous call depending on the implementation. Wait for
+     * {@link PlaylistEventCallback#onRepeatModeChanged(MediaPlaylistAgent, int)} for completion.
+     * <p>
+     * The implementation must call {@link #notifyRepeatModeChanged()} when it's completed.
      *
      * @param repeatMode repeat mode
      * @see #REPEAT_MODE_NONE
@@ -352,31 +419,39 @@ public abstract class MediaPlaylistAgent {
     public abstract void setRepeatMode(@RepeatMode int repeatMode);
 
     /**
-     * Gets the shuffle mode
+     * Gets the shuffle mode.
+     * <p>
+     * This will be also called by {@link #notifyShuffleModeChanged()} to get the shuffle mode for
+     * {@link PlaylistEventCallback#onShuffleModeChanged(MediaPlaylistAgent, int)}.
      *
      * @return The shuffle mode
      * @see #SHUFFLE_MODE_NONE
      * @see #SHUFFLE_MODE_ALL
      * @see #SHUFFLE_MODE_GROUP
+     * @see #notifyShuffleModeChanged()
      */
     public abstract @ShuffleMode int getShuffleMode();
 
     /**
      * Sets the shuffle mode.
      * <p>
-     * When the shuffle mode is changed, call {@link #notifyShuffleModeChanged()} to notify changes
-     * to the registered callbacks.
+     * This may be the asynchronous call depending on the implementation. Wait for
+     * {@link PlaylistEventCallback#onShuffleModeChanged(MediaPlaylistAgent, int)}.
+     * <p>
+     * The implementation must call {@link #notifyShuffleModeChanged()} when it's completed.
      *
      * @param shuffleMode The shuffle mode
      * @see #SHUFFLE_MODE_NONE
      * @see #SHUFFLE_MODE_ALL
      * @see #SHUFFLE_MODE_GROUP
+     * @see PlaylistEventCallback#onShuffleModeChanged(MediaPlaylistAgent, int)
      * @see #notifyShuffleModeChanged()
      */
     public abstract void setShuffleMode(@ShuffleMode int shuffleMode);
 
     /**
-     * Called by {@link MediaSession2} when it wants to translate {@link DataSourceDesc2} from the
+     * Gets the media item with the given {@link DataSourceDesc2}. Called by {@link MediaSession2}
+     * when it wants to translate {@link DataSourceDesc2} from the
      * {@link MediaPlayerConnector.PlayerEventCallback} to the {@link MediaItem2}. Override this
      * method if you want to create {@link DataSourceDesc2}s dynamically, instead of specifying them
      * with {@link #setPlaylist(List, MediaMetadata2)}.
@@ -446,7 +521,7 @@ public abstract class MediaPlaylistAgent {
          * Called when the shuffle mode is changed.
          *
          * @param playlistAgent playlist agent for this event
-         * @param shuffleMode repeat mode
+         * @param shuffleMode shuffle mode
          * @see #SHUFFLE_MODE_NONE
          * @see #SHUFFLE_MODE_ALL
          * @see #SHUFFLE_MODE_GROUP
