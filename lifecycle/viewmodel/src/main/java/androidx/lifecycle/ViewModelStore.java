@@ -17,6 +17,8 @@
 package androidx.lifecycle;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class to store {@code ViewModels}.
@@ -46,6 +48,10 @@ public class ViewModelStore {
 
     final ViewModel get(String key) {
         return mMap.get(key);
+    }
+
+    Set<String> keys() {
+        return new HashSet<>(mMap.keySet());
     }
 
     /**
