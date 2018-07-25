@@ -15,24 +15,124 @@
  */
 package androidx.core.content;
 
+import static android.content.Context.ACCESSIBILITY_SERVICE;
+import static android.content.Context.ACCOUNT_SERVICE;
+import static android.content.Context.ACTIVITY_SERVICE;
+import static android.content.Context.ALARM_SERVICE;
+import static android.content.Context.APPWIDGET_SERVICE;
+import static android.content.Context.APP_OPS_SERVICE;
+import static android.content.Context.AUDIO_SERVICE;
+import static android.content.Context.BATTERY_SERVICE;
+import static android.content.Context.BLUETOOTH_SERVICE;
+import static android.content.Context.CAMERA_SERVICE;
+import static android.content.Context.CAPTIONING_SERVICE;
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.CONSUMER_IR_SERVICE;
+import static android.content.Context.DEVICE_POLICY_SERVICE;
+import static android.content.Context.DISPLAY_SERVICE;
+import static android.content.Context.DOWNLOAD_SERVICE;
+import static android.content.Context.DROPBOX_SERVICE;
+import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.Context.INPUT_SERVICE;
+import static android.content.Context.JOB_SCHEDULER_SERVICE;
+import static android.content.Context.KEYGUARD_SERVICE;
+import static android.content.Context.LAUNCHER_APPS_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.content.Context.LOCATION_SERVICE;
+import static android.content.Context.MEDIA_PROJECTION_SERVICE;
+import static android.content.Context.MEDIA_ROUTER_SERVICE;
+import static android.content.Context.MEDIA_SESSION_SERVICE;
+import static android.content.Context.NFC_SERVICE;
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.content.Context.NSD_SERVICE;
+import static android.content.Context.POWER_SERVICE;
+import static android.content.Context.PRINT_SERVICE;
+import static android.content.Context.RESTRICTIONS_SERVICE;
+import static android.content.Context.SEARCH_SERVICE;
+import static android.content.Context.SENSOR_SERVICE;
+import static android.content.Context.STORAGE_SERVICE;
+import static android.content.Context.TELECOM_SERVICE;
+import static android.content.Context.TELEPHONY_SERVICE;
+import static android.content.Context.TELEPHONY_SUBSCRIPTION_SERVICE;
+import static android.content.Context.TEXT_SERVICES_MANAGER_SERVICE;
+import static android.content.Context.TV_INPUT_SERVICE;
+import static android.content.Context.UI_MODE_SERVICE;
+import static android.content.Context.USAGE_STATS_SERVICE;
+import static android.content.Context.USB_SERVICE;
+import static android.content.Context.USER_SERVICE;
+import static android.content.Context.VIBRATOR_SERVICE;
+import static android.content.Context.WALLPAPER_SERVICE;
+import static android.content.Context.WIFI_P2P_SERVICE;
+import static android.content.Context.WIFI_SERVICE;
+import static android.content.Context.WINDOW_SERVICE;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.accounts.AccountManager;
+import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.AppOpsManager;
+import android.app.DownloadManager;
+import android.app.KeyguardManager;
+import android.app.NotificationManager;
+import android.app.SearchManager;
+import android.app.UiModeManager;
+import android.app.WallpaperManager;
+import android.app.admin.DevicePolicyManager;
+import android.app.job.JobScheduler;
+import android.app.usage.UsageStatsManager;
+import android.appwidget.AppWidgetManager;
+import android.bluetooth.BluetoothManager;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.RestrictionsManager;
+import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.hardware.ConsumerIrManager;
+import android.hardware.SensorManager;
+import android.hardware.camera2.CameraManager;
+import android.hardware.display.DisplayManager;
+import android.hardware.input.InputManager;
+import android.hardware.usb.UsbManager;
+import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.MediaRouter;
+import android.media.projection.MediaProjectionManager;
+import android.media.session.MediaSessionManager;
+import android.media.tv.TvInputManager;
+import android.net.ConnectivityManager;
+import android.net.nsd.NsdManager;
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.nfc.NfcManager;
+import android.os.BatteryManager;
 import android.os.Build;
+import android.os.DropBoxManager;
+import android.os.PowerManager;
+import android.os.UserManager;
+import android.os.Vibrator;
+import android.os.storage.StorageManager;
+import android.print.PrintManager;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.ThemedYellowActivity;
 import android.support.v4.testutils.TestUtils;
+import android.telecom.TelecomManager;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
+import android.view.WindowManager;
+import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.CaptioningManager;
+import android.view.inputmethod.InputMethodManager;
+import android.view.textservice.TextServicesManager;
 
 import androidx.core.test.R;
 import androidx.test.filters.SdkSuppress;
@@ -58,8 +158,138 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
 
     @Test
     public void getSystemServiceName() {
-        String serviceName = ContextCompat.getSystemServiceName(mContext, LayoutInflater.class);
-        assertEquals(LAYOUT_INFLATER_SERVICE, serviceName);
+        assertEquals(ACCESSIBILITY_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, AccessibilityManager.class));
+        assertEquals(ACCOUNT_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, AccountManager.class));
+        assertEquals(ACTIVITY_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, ActivityManager.class));
+        assertEquals(ALARM_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, AlarmManager.class));
+        assertEquals(AUDIO_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, AudioManager.class));
+        assertEquals(CLIPBOARD_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, ClipboardManager.class));
+        assertEquals(CONNECTIVITY_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, ConnectivityManager.class));
+        assertEquals(DEVICE_POLICY_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, DevicePolicyManager.class));
+        assertEquals(DOWNLOAD_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, DownloadManager.class));
+        assertEquals(DROPBOX_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, DropBoxManager.class));
+        assertEquals(INPUT_METHOD_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, InputMethodManager.class));
+        assertEquals(KEYGUARD_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, KeyguardManager.class));
+        assertEquals(LAYOUT_INFLATER_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, LayoutInflater.class));
+        assertEquals(LOCATION_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, LocationManager.class));
+        assertEquals(NFC_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, NfcManager.class));
+        assertEquals(NOTIFICATION_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, NotificationManager.class));
+        assertEquals(POWER_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, PowerManager.class));
+        assertEquals(SEARCH_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, SearchManager.class));
+        assertEquals(SENSOR_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, SensorManager.class));
+        assertEquals(STORAGE_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, StorageManager.class));
+        assertEquals(TELEPHONY_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, TelephonyManager.class));
+        assertEquals(TEXT_SERVICES_MANAGER_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, TextServicesManager.class));
+        assertEquals(UI_MODE_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, UiModeManager.class));
+        assertEquals(USB_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, UsbManager.class));
+        assertEquals(VIBRATOR_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, Vibrator.class));
+        assertEquals(WALLPAPER_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, WallpaperManager.class));
+        assertEquals(WIFI_P2P_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, WifiP2pManager.class));
+        assertEquals(WIFI_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, WifiManager.class));
+        assertEquals(WINDOW_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, WindowManager.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 16)
+    public void getSystemServiceNameApi16() {
+        assertEquals(INPUT_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, InputManager.class));
+        assertEquals(MEDIA_ROUTER_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, MediaRouter.class));
+        assertEquals(NSD_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, NsdManager.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 17)
+    public void getSystemServiceNameApi17() {
+        assertEquals(DISPLAY_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, DisplayManager.class));
+        assertEquals(USER_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, UserManager.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 18)
+    public void getSystemServiceNameApi18() {
+        assertEquals(BLUETOOTH_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, BluetoothManager.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void getSystemServiceNameApi19() {
+        assertEquals(APP_OPS_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, AppOpsManager.class));
+        assertEquals(CAPTIONING_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, CaptioningManager.class));
+        assertEquals(CONSUMER_IR_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, ConsumerIrManager.class));
+        assertEquals(PRINT_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, PrintManager.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void getSystemServiceNameApi21() {
+        assertEquals(APPWIDGET_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, AppWidgetManager.class));
+        assertEquals(BATTERY_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, BatteryManager.class));
+        assertEquals(CAMERA_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, CameraManager.class));
+        assertEquals(JOB_SCHEDULER_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, JobScheduler.class));
+        assertEquals(LAUNCHER_APPS_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, LauncherApps.class));
+        assertEquals(MEDIA_PROJECTION_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, MediaProjectionManager.class));
+        assertEquals(MEDIA_SESSION_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, MediaSessionManager.class));
+        assertEquals(RESTRICTIONS_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, RestrictionsManager.class));
+        assertEquals(TELECOM_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, TelecomManager.class));
+        assertEquals(TV_INPUT_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, TvInputManager.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 22)
+    public void getSystemServiceNameApi22() {
+        assertEquals(TELEPHONY_SUBSCRIPTION_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, SubscriptionManager.class));
+        assertEquals(USAGE_STATS_SERVICE,
+                ContextCompat.getSystemServiceName(mContext, UsageStatsManager.class));
     }
 
     @Test
