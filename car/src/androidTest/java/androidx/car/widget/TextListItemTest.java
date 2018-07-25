@@ -32,6 +32,12 @@ import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -39,6 +45,7 @@ import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import androidx.car.test.R;
 import androidx.car.utils.CarUxRestrictionsTestUtils;
@@ -59,6 +66,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -134,6 +142,17 @@ public class TextListItemTest {
     private TextListItem.ViewHolder getViewHolderAtPosition(int position) {
         return (TextListItem.ViewHolder) mPagedListView.getRecyclerView()
                 .findViewHolderForAdapterPosition(position);
+    }
+
+    private void toggleChecked(CompoundButton button) {
+        try {
+            mActivityRule.runOnUiThread(button::toggle);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            throw new RuntimeException(throwable);
+        }
+        // Wait for paged list view to layout by using espresso to scroll to a position.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
     }
 
     @Test
@@ -252,6 +271,22 @@ public class TextListItemTest {
     }
 
     @Test
+    public void testSwitchStatePersistsOnRebind() {
+        TextListItem item0 = new TextListItem(mActivity);
+        // Switch initially checked.
+        item0.setSwitch(true, true, null);
+
+        setupPagedListView(Collections.singletonList(item0));
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+
+        toggleChecked(viewHolder.getSwitch());
+        refreshUi();
+
+        viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getSwitch().isChecked(), is(equalTo(false)));
+    }
+
+    @Test
     public void testSetSwitchState() {
         TextListItem item0 = new TextListItem(mActivity);
         item0.setSwitch(true, true, null);
@@ -265,6 +300,81 @@ public class TextListItemTest {
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSwitch().isChecked(), is(equalTo(false)));
+    }
+
+    @Test
+    public void testSetSwitchStateCallsListener() {
+        CompoundButton.OnCheckedChangeListener listener =
+                mock(CompoundButton.OnCheckedChangeListener.class);
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setSwitch(true, true, listener);
+
+        setupPagedListView(Collections.singletonList(item0));
+
+        item0.setSwitchState(false);
+
+        refreshUi();
+
+        verify(listener).onCheckedChanged(any(CompoundButton.class), eq(false));
+    }
+
+    @Test
+    public void testSetSwitchDoesNotCallListener() {
+        CompoundButton.OnCheckedChangeListener listener =
+                mock(CompoundButton.OnCheckedChangeListener.class);
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setSwitch(true, true, listener);
+
+        setupPagedListView(Collections.singletonList(item0));
+
+        refreshUi();
+
+        verify(listener, never()).onCheckedChanged(any(CompoundButton.class), anyBoolean());
+    }
+
+    @Test
+    public void testSetSwitchStateBeforeFirstBindCallsListener() {
+        CompoundButton.OnCheckedChangeListener listener =
+                mock(CompoundButton.OnCheckedChangeListener.class);
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setSwitch(true, true, listener);
+        item0.setSwitchState(false);
+
+        setupPagedListView(Collections.singletonList(item0));
+
+        refreshUi();
+
+        verify(listener).onCheckedChanged(any(CompoundButton.class), eq(false));
+    }
+
+    @Test
+    public void testSwitchToggleCallsListener() {
+        CompoundButton.OnCheckedChangeListener listener =
+                mock(CompoundButton.OnCheckedChangeListener.class);
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setSwitch(true, true, listener);
+
+        setupPagedListView(Collections.singletonList(item0));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        toggleChecked(viewHolder.getSwitch());
+
+        verify(listener).onCheckedChanged(any(CompoundButton.class), eq(false));
+    }
+
+    @Test
+    public void testSetSwitchStateNotDirtyDoesNotCallListener() {
+        CompoundButton.OnCheckedChangeListener listener =
+                mock(CompoundButton.OnCheckedChangeListener.class);
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setSwitch(true, true, listener);
+        item0.setSwitchState(true);
+
+        setupPagedListView(Collections.singletonList(item0));
+
+        refreshUi();
+
+        verify(listener, never()).onCheckedChanged(any(CompoundButton.class), anyBoolean());
     }
 
     @Test
