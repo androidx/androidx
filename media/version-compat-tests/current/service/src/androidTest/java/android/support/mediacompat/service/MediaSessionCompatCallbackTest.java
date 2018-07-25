@@ -107,6 +107,7 @@ import android.view.KeyEvent;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.test.lib.CustomParcelable;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -682,6 +683,7 @@ public class MediaSessionCompatCallbackTest {
      */
     @Test
     @MediumTest
+    @FlakyTest (bugId = 111811728)
     public void testCallbackOnMediaButtonEvent() throws Exception {
         mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS);
         mSession.setActive(true);
