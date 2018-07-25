@@ -29,6 +29,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
+import android.os.Build;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
@@ -164,8 +165,8 @@ public class TextClassifierResolverTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
-    public void testFindBestMatch_system_P() {
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    public void testFindBestMatch_system_O() {
         when(mContext.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE)).thenReturn(
                 InstrumentationRegistry.getTargetContext().getSystemService(
                         Context.TEXT_CLASSIFICATION_SERVICE));
@@ -178,17 +179,13 @@ public class TextClassifierResolverTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 27)
-    public void testFindBestMatch_system_beforeP() {
-        when(mContext.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE)).thenReturn(
-                InstrumentationRegistry.getTargetContext().getSystemService(
-                        Context.TEXT_CLASSIFICATION_SERVICE));
-
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
+    public void testFindBestMatch_system_beforeO() {
         TextClassifierEntry bestMatch = mTextClassifierResolver.findBestMatch(
                 Arrays.asList(
                         TextClassifierEntry.createOemEntry(),
                         TextClassifierEntry.createAospEntry()));
-        assertThat(bestMatch.isAosp()).isTrue();
+        assertThat(bestMatch).isNull();
     }
 
     private static TextClassifierEntry createTextClassifierEntryFromPackage(
