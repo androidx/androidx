@@ -50,6 +50,9 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
         List<Config> variations = createBaseVariations();
         List<Object[]> params = new ArrayList<>();
         for (Config config : variations) {
+            if (config.mSpanCount < 2 || config.mGapStrategy == GAP_HANDLING_NONE) {
+                continue;
+            }
             for (int deleteCount = 1; deleteCount < config.mSpanCount * 2; deleteCount++) {
                 for (int deletePosition = config.mSpanCount - 1;
                         deletePosition < config.mSpanCount + 2; deletePosition++) {
@@ -62,9 +65,6 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
 
     @Test
     public void gapAtTheBeginningOfTheListTest() throws Throwable {
-        if (mConfig.mSpanCount < 2 || mConfig.mGapStrategy == GAP_HANDLING_NONE) {
-            return;
-        }
         if (mConfig.mItemCount < 100) {
             mConfig.itemCount(100);
         }
@@ -78,12 +78,12 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
         assertNull(" test sanity, to be deleted child should be invisible",
                 mRecyclerView.findViewHolderForLayoutPosition(mDeletePosition));
         // delete the child and notify
+
+        mLayoutManager.expectLayouts(2);
         mAdapter.deleteAndNotify(mDeletePosition, mDeleteCount);
-        getInstrumentation().waitForIdleSync();
-        mLayoutManager.expectLayouts(1);
+        mLayoutManager.waitForLayout(2);
+
         smoothScrollToPosition(0);
-        // Waiting for 10 seconds below because 2 seconds proved to flaky.
-        mLayoutManager.waitForLayout(10);
         checkForMainThreadException();
         // due to data changes, first item may become visible before others which will cause
         // smooth scrolling to stop. Triggering it twice more is a naive hack.
