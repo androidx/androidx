@@ -17,6 +17,7 @@ package androidx.slice {
     method public java.lang.CharSequence getTitle();
     method public java.util.List<androidx.slice.core.SliceAction> getToggles();
     method public boolean hasLargeMode();
+    method public boolean isCachedSlice();
     method public boolean isErrorSlice();
     method public boolean isPermissionSlice();
     method public boolean sendInputRangeAction(int) throws android.app.PendingIntent.CanceledException;
@@ -109,6 +110,7 @@ package androidx.slice.widget {
   public final class SliceLiveData {
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromIntent(android.content.Context, android.content.Intent);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener);
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromStreamBlocking(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromUri(android.content.Context, android.net.Uri);
   }
 

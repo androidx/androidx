@@ -36,6 +36,7 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.slice.core.SliceHints.HINT_CACHED;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_PROGRESS;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
@@ -459,6 +460,14 @@ public class SliceMetadata {
      */
     public boolean isErrorSlice() {
         return mSlice.hasHint(HINT_ERROR);
+    }
+
+    /**
+     * Indicates whether this slice was created using {@link SliceUtils#parseSlice} or through
+     * normal binding.
+     */
+    public boolean isCachedSlice() {
+        return mSlice.hasHint(HINT_CACHED);
     }
 
     /**

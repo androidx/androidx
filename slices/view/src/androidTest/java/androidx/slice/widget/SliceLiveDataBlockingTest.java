@@ -61,7 +61,7 @@ import java.util.concurrent.CountDownLatch;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 19)
-public class SliceLiveDataTest {
+public class SliceLiveDataBlockingTest {
 
     private static final Uri URI = Uri.parse("content://test/something");
     private static final Intent INTENT_ONE = new Intent("intent1");
@@ -87,17 +87,16 @@ public class SliceLiveDataTest {
 
     @Before
     public void setUp() throws InterruptedException {
-        InputStream input = createInput(mBaseSlice);
+        final InputStream input = createInput(mBaseSlice);
 
-        mLiveData = SliceLiveData.fromStream(mContext, mManager, input, mErrorListener, false);
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
+                mLiveData = SliceLiveData.fromStream(mContext, mManager, input, mErrorListener,
+                        true);
                 mLiveData.observeForever(mObserver);
             }
         });
-        waitForAsync();
-        mInstrumentation.waitForIdleSync();
     }
 
     @After
@@ -261,10 +260,13 @@ public class SliceLiveDataTest {
 
     @Test
     public void testInvalidInput() throws PendingIntent.CanceledException, InterruptedException {
-        mLiveData = SliceLiveData.fromStream(mContext, mManager,
-                new ByteArrayInputStream(new byte[0]), mErrorListener, false);
-        waitForAsync();
-        mInstrumentation.waitForIdleSync();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mLiveData = SliceLiveData.fromStream(mContext, mManager,
+                        new ByteArrayInputStream(new byte[0]), mErrorListener, true);
+            }
+        });
         verify(mErrorListener).onSliceError(
                 eq(SliceLiveData.OnErrorListener.ERROR_INVALID_INPUT),
                 any(Throwable.class));
