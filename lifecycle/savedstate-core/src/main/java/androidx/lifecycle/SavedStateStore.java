@@ -16,6 +16,7 @@
 
 package androidx.lifecycle;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 
@@ -30,6 +31,7 @@ import java.util.Map;
 /**
  * A class for managing saved state.
  */
+@SuppressLint("RestrictedApi")
 public abstract class SavedStateStore {
     private static final String SAVED_COMPONENTS_KEY =
             "androidx.lifecycle.SavedStateStoreImpl.key";
