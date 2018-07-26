@@ -490,9 +490,11 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * @param future a future for the precomputed text
      * @see PrecomputedTextCompat#getTextFuture
      */
-    public void setTextFuture(@NonNull Future<PrecomputedTextCompat> future) {
+    public void setTextFuture(@Nullable Future<PrecomputedTextCompat> future) {
         mPrecomputedTextFuture = future;
-        requestLayout();
+        if (future != null) {
+            requestLayout();
+        }
     }
 
     @Override
