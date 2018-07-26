@@ -146,6 +146,15 @@ public final class TextLinks {
                 .apply(text, this);
     }
 
+    /**
+     * Sets the classifier factory used to generate the links.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    void setClassifierFactory(@Nullable TextClassifierFactory factory) {
+        // TODO: Pass the factory to the TextLink objects.
+    }
+
     @Override
     @NonNull
     public String toString() {
