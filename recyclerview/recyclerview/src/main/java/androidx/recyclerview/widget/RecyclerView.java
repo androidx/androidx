@@ -417,7 +417,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     final ArrayList<ItemDecoration> mItemDecorations = new ArrayList<>();
     private final ArrayList<OnItemTouchListener> mOnItemTouchListeners =
             new ArrayList<>();
-    private OnItemTouchListener mActiveOnItemTouchListener;
+    private OnItemTouchListener mInterceptingOnItemTouchListener;
     boolean mIsAttached;
     boolean mHasFixedSize;
     boolean mEnableFastScroller;
@@ -2915,54 +2915,70 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     public void removeOnItemTouchListener(@NonNull OnItemTouchListener listener) {
         mOnItemTouchListeners.remove(listener);
-        if (mActiveOnItemTouchListener == listener) {
-            mActiveOnItemTouchListener = null;
+        if (mInterceptingOnItemTouchListener == listener) {
+            mInterceptingOnItemTouchListener = null;
         }
     }
 
-    private boolean dispatchOnItemTouchIntercept(MotionEvent e) {
-        final int action = e.getAction();
-        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_DOWN) {
-            mActiveOnItemTouchListener = null;
-        }
+    /**
+     * Dispatches the motion event to the intercepting OnItemTouchListener or provides opportunity
+     * for OnItemTouchListeners to intercept.
+     * @param e The MotionEvent
+     * @return True if handled by an intercepting OnItemTouchListener.
+     */
+    private boolean dispatchToOnItemTouchListeners(MotionEvent e) {
 
+        // OnItemTouchListeners should receive calls to their methods in the same pattern that
+        // ViewGroups do. That pattern is a bit confusing, which in turn makes the below code a
+        // bit confusing.  Here are rules for the pattern:
+        //
+        // 1. A single MotionEvent should not be passed to either OnInterceptTouchEvent or
+        // OnTouchEvent twice.
+        // 2. ACTION_DOWN MotionEvents may be passed to both onInterceptTouchEvent and
+        // onTouchEvent.
+        // 3. All other MotionEvents should be passed to either onInterceptTouchEvent or
+        // onTouchEvent, not both.
+
+        // Side Note: If we are to truly mimic how MotionEvents work in the view system, for every
+        // MotionEvent, any OnItemTouchListener that is before the intercepting OnItemTouchEvent
+        // should still have a chance to intercept, and if it does, the previously intercepting
+        // OnItemTouchEvent should get an ACTION_CANCEL event.
+
+        if (mInterceptingOnItemTouchListener == null) {
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                return false;
+            }
+            return findInterceptingOnItemTouchListener(e);
+        } else {
+            mInterceptingOnItemTouchListener.onTouchEvent(this, e);
+            final int action = e.getAction();
+            if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
+                mInterceptingOnItemTouchListener = null;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Looks for an OnItemTouchListener that wants to intercept.
+     *
+     * <p>Passes the MotionEvent to all registered OnItemTouchListeners one at a time. If one wants
+     * to intercept and the action is not ACTION_UP or ACTION_CANCEL, saves the intercepting
+     * OnItemTouchListener and immediately returns true. If none want to intercept
+     * or the action is ACTION_UP or ACTION_CANCEL, returns false.
+     *
+     * @param e The MotionEvent
+     * @return true if an OnItemTouchListener is saved as intercepting.
+     */
+    private boolean findInterceptingOnItemTouchListener(MotionEvent e) {
+        int action = e.getAction();
         final int listenerCount = mOnItemTouchListeners.size();
         for (int i = 0; i < listenerCount; i++) {
             final OnItemTouchListener listener = mOnItemTouchListeners.get(i);
-            if (listener.onInterceptTouchEvent(this, e) && action != MotionEvent.ACTION_CANCEL) {
-                mActiveOnItemTouchListener = listener;
+            if (listener.onInterceptTouchEvent(this, e)
+                    && action != MotionEvent.ACTION_UP && action != MotionEvent.ACTION_CANCEL) {
+                mInterceptingOnItemTouchListener = listener;
                 return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean dispatchOnItemTouch(MotionEvent e) {
-        final int action = e.getAction();
-        if (mActiveOnItemTouchListener != null) {
-            if (action == MotionEvent.ACTION_DOWN) {
-                // Stale state from a previous gesture, we're starting a new one. Clear it.
-                mActiveOnItemTouchListener = null;
-            } else {
-                mActiveOnItemTouchListener.onTouchEvent(this, e);
-                if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-                    // Clean up for the next gesture.
-                    mActiveOnItemTouchListener = null;
-                }
-                return true;
-            }
-        }
-
-        // Listeners will have already received the ACTION_DOWN via dispatchOnItemTouchIntercept
-        // as called from onInterceptTouchEvent; skip it.
-        if (action != MotionEvent.ACTION_DOWN) {
-            final int listenerCount = mOnItemTouchListeners.size();
-            for (int i = 0; i < listenerCount; i++) {
-                final OnItemTouchListener listener = mOnItemTouchListeners.get(i);
-                if (listener.onInterceptTouchEvent(this, e)) {
-                    mActiveOnItemTouchListener = listener;
-                    return true;
-                }
             }
         }
         return false;
@@ -2975,8 +2991,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // A child view e.g. a button may still get the click.
             return false;
         }
-        if (dispatchOnItemTouchIntercept(e)) {
-            cancelTouch();
+
+        // Clear the active onInterceptTouchListener.  None should be set at this time, and if one
+        // is, it's because some other code didn't follow the standard contract.
+        mInterceptingOnItemTouchListener = null;
+        if (findInterceptingOnItemTouchListener(e)) {
+            cancelScroll();
             return true;
         }
 
@@ -3066,7 +3086,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             } break;
 
             case MotionEvent.ACTION_CANCEL: {
-                cancelTouch();
+                cancelScroll();
             }
         }
         return mScrollState == SCROLL_STATE_DRAGGING;
@@ -3087,8 +3107,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLayoutFrozen || mIgnoreMotionEventTillDown) {
             return false;
         }
-        if (dispatchOnItemTouch(e)) {
-            cancelTouch();
+        if (dispatchToOnItemTouchListeners(e)) {
+            cancelScroll();
             return true;
         }
 
@@ -3211,11 +3231,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (!((xvel != 0 || yvel != 0) && fling((int) xvel, (int) yvel))) {
                     setScrollState(SCROLL_STATE_IDLE);
                 }
-                resetTouch();
+                resetScroll();
             } break;
 
             case MotionEvent.ACTION_CANCEL: {
-                cancelTouch();
+                cancelScroll();
             } break;
         }
 
@@ -3227,7 +3247,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         return true;
     }
 
-    private void resetTouch() {
+    private void resetScroll() {
         if (mVelocityTracker != null) {
             mVelocityTracker.clear();
         }
@@ -3235,8 +3255,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         releaseGlows();
     }
 
-    private void cancelTouch() {
-        resetTouch();
+    private void cancelScroll() {
+        resetScroll();
         setScrollState(SCROLL_STATE_IDLE);
     }
 
