@@ -1114,9 +1114,8 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testSetRating() throws InterruptedException {
         prepareLooper();
-        final int ratingType = Rating2.RATING_5_STARS;
         final float ratingValue = 3.5f;
-        final Rating2 rating = Rating2.newStarRating(ratingType, ratingValue);
+        final Rating2 rating = new StarRating2(5, ratingValue);
         final String mediaId = "media_id";
 
         final CountDownLatch latch = new CountDownLatch(1);
