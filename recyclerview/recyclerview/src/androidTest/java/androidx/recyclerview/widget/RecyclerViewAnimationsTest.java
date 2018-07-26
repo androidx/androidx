@@ -594,6 +594,87 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         ));
     }
 
+    @Test
+    public void scrollPassRemoveMovingView() throws Throwable {
+        setupBasic(4, 0, 3);
+        waitForAnimations(2);
+        final View[] targetChild = new View[1];
+        final DummyItemAnimator animator = new DummyItemAnimator();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setItemAnimator(animator);
+                targetChild[0] = mRecyclerView.getChildAt(1);
+            }
+        });
+
+        assertNotNull("test sanity", targetChild);
+        final RecyclerView.ViewHolder targetVH = mRecyclerView.getChildViewHolder(targetChild[0]);
+
+        // remove first child causing targetChild moving
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.deleteAndNotify(0, 1);
+        mLayoutManager.waitForLayout(2);
+        // Note that SimpleItemAnimator will not stop animating when remove the view, so we
+        // test the beahvior that recyclerview must endAnimation() in removeAndRecyleView() call.
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    animator.expect(DummyItemAnimator.MOVE_FINISHED, 1);
+                    assertFalse("sanity check", targetVH.isRecyclable());
+                    mRecyclerView.getLayoutManager().removeAndRecycleView(targetChild[0],
+                            mRecyclerView.mRecycler);
+                    assertTrue("if scroll pass remove the view, should not immediately"
+                                    + " stop animating",
+                            animator.waitFor(DummyItemAnimator.MOVE_FINISHED));
+                    assertTrue("sanity check", targetVH.isRecyclable());
+                } catch (InterruptedException ex) {
+                    fail("waitFor interrupted");
+                }
+            }
+        });
+    }
+
+
+    @Test
+    public void scrollPassRemoveAdditionView() throws Throwable {
+        setupBasic(4, 0, 3);
+        waitForAnimations(2);
+        final DummyItemAnimator animator = new DummyItemAnimator();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setItemAnimator(animator);
+            }
+        });
+
+        // adding new child
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.addAndNotify(0, 1);
+        mLayoutManager.waitForLayout(2);
+        // Note that SimpleItemAnimator will not stop animating when remove the view, so we
+        // test the beahvior that recyclerview must endAnimation() in removeAndRecyleView() call.
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    animator.expect(DummyItemAnimator.ADD_FINISHED, 1);
+                    RecyclerView.ViewHolder vh = animator.mAdds.get(0);
+                    assertFalse("sanity check", vh.isRecyclable());
+                    mRecyclerView.getLayoutManager().removeAndRecycleView(vh.itemView,
+                            mRecyclerView.mRecycler);
+                    assertTrue("if scroll pass remove the view, should not immediately"
+                                    + " stop animating",
+                            animator.waitFor(DummyItemAnimator.ADD_FINISHED));
+                    assertTrue("sanity check", vh.isRecyclable());
+                } catch (InterruptedException ex) {
+                    fail("waitFor interrupted");
+                }
+            }
+        });
+    }
+
     private void runTestImportantForAccessibilityWhileDeteling(
             final int boundImportantForAccessibility,
             final int expectedImportantForAccessibility) throws Throwable {
