@@ -16,24 +16,13 @@
 
 package androidx.core.os;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.Locale;
 
-/**
- * Interface describing backwards-compatible LocaleList APIs.
- *
- * @hide Internal use only
- */
-@RestrictTo(LIBRARY_GROUP)
 interface LocaleListInterface {
-    void setLocaleList(@NonNull Locale... list);
-
     Object getLocaleList();
 
     Locale get(int index);
@@ -46,17 +35,8 @@ interface LocaleListInterface {
     @IntRange(from = -1)
     int indexOf(Locale locale);
 
-    @Override
-    boolean equals(Object other);
-
-    @Override
-    int hashCode();
-
-    @Override
-    String toString();
-
     String toLanguageTags();
 
     @Nullable
-    Locale getFirstMatch(String[] supportedLocales);
+    Locale getFirstMatch(@NonNull String[] supportedLocales);
 }
