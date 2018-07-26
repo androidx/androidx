@@ -144,9 +144,9 @@ public class DummyItemAnimator extends SimpleItemAnimator {
         mCountDownLatches[index] = new CountDownLatch(count);
     }
 
-    public void waitFor(@CountDownLatchIndex int index)
+    public boolean waitFor(@CountDownLatchIndex int index)
             throws InterruptedException {
-        mCountDownLatches[index].await(TIMEOUT_SECOND, TimeUnit.SECONDS);
+        return mCountDownLatches[index].await(TIMEOUT_SECOND, TimeUnit.SECONDS);
     }
 
     @Override
