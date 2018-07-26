@@ -18,6 +18,7 @@ package androidx.room.integration.testapp.test;
 
 import androidx.room.integration.testapp.vo.Address;
 import androidx.room.integration.testapp.vo.Coordinates;
+import androidx.room.integration.testapp.vo.House;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.School;
 import androidx.room.integration.testapp.vo.Toy;
@@ -105,6 +106,14 @@ public class TestUtil {
         coordinates.lat = Math.random();
         coordinates.lng = Math.random();
         return coordinates;
+    }
+
+    public static House[] createHousesForUser(int uid, int houseStartId, int count) {
+        House[] houses = new House[count];
+        for (int i = 0; i < count; i++) {
+            houses[i] = new House(houseStartId++, uid, createAddress());
+        }
+        return houses;
     }
 
     private TestUtil() {

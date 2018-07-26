@@ -21,12 +21,14 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import androidx.room.integration.testapp.vo.EmbeddedUserAndAllPets;
+import androidx.room.integration.testapp.vo.House;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetWithToyIds;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
 import androidx.room.integration.testapp.vo.UserAndPetAdoptionDates;
+import androidx.room.integration.testapp.vo.UserAndPetsAndHouses;
 import androidx.room.integration.testapp.vo.UserIdAndPetNames;
 import androidx.room.integration.testapp.vo.UserWithPetsAndToys;
 import androidx.test.filters.SmallTest;
@@ -229,6 +231,34 @@ public class PojoWithRelationTest extends TestDatabaseTest {
         for (int i = 0; i < 2000; i++) {
             assertThat(result.get(i).user, is(users.get(i)));
             assertThat(result.get(i).pets, is(Collections.singletonList(pets.get(i))));
+        }
+    }
+
+    @Test
+    public void multipleRelations() {
+        final List<User> users = new ArrayList<>();
+        final List<List<Pet>> pets = new ArrayList<>();
+        final List<List<House>> houses = new ArrayList<>();
+        users.add(TestUtil.createUser(1));
+        users.add(TestUtil.createUser(2));
+        pets.add(Arrays.asList(TestUtil.createPetsForUser(1, 1, 2)));
+        pets.add(Arrays.asList(TestUtil.createPetsForUser(2, 10, 1)));
+        houses.add(Arrays.asList(TestUtil.createHousesForUser(1, 1, 1)));
+        houses.add(Arrays.asList(TestUtil.createHousesForUser(2, 10, 5)));
+
+        mUserDao.insertAll(users.toArray(new User[users.size()]));
+        for (List<Pet> petList : pets) {
+            mPetDao.insertAll(petList.toArray(new Pet[petList.size()]));
+        }
+        for (List<House> houseList : houses) {
+            mUserHouseDao.insertAll(houseList.toArray(new House[houseList.size()]));
+        }
+
+        List<UserAndPetsAndHouses> result = mUserHouseDao.getUsersAndTheirPetsAndHouses();
+        for (int i = 0; i < users.size(); i++) {
+            assertThat(result.get(i).getUser(), is(users.get(i)));
+            assertThat(result.get(i).getPets(), is(pets.get(i)));
+            assertThat(result.get(i).getHouses(), is(houses.get(i)));
         }
     }
 }

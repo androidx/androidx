@@ -19,6 +19,7 @@ package androidx.room.solver.query.result
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.writer.DaoWriter
@@ -41,22 +42,30 @@ abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?)
         }.build()
     }
 
-    protected fun createRunQueryAndReturnStatements(builder: MethodSpec.Builder,
-                                                    roomSQLiteQueryVar: String,
-                                                    dbField: FieldSpec,
-                                                    inTransaction: Boolean,
-                                                    scope: CodeGenScope) {
+    protected fun createRunQueryAndReturnStatements(
+        builder: MethodSpec.Builder,
+        roomSQLiteQueryVar: String,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
         val transactionWrapper = if (inTransaction) {
             builder.transactionWrapper(dbField)
         } else {
             null
         }
+        val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
         transactionWrapper?.beginTransactionWithControlFlow()
         builder.apply {
-            addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
-                    DaoWriter.dbField, roomSQLiteQueryVar)
+            addStatement("final $T $L = $T.query($N, $L, $L)",
+                    AndroidTypeNames.CURSOR,
+                    cursorVar,
+                    RoomTypeNames.DB_UTIL,
+                    DaoWriter.dbField,
+                    roomSQLiteQueryVar,
+                    if (shouldCopyCursor) "true" else "false")
             beginControlFlow("try").apply {
                 val adapterScope = scope.fork()
                 adapter?.convert(outVar, cursorVar, adapterScope)

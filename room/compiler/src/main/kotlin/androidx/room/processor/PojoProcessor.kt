@@ -284,12 +284,10 @@ class PojoProcessor private constructor(
         val constructors = delegate.findConstructors(element)
         val fieldMap = myFields.associateBy { it.name }
         val embeddedMap = embedded.associateBy { it.field.name }
+        val relationMap = relations.associateBy { it.field.name }
         val typeUtils = context.processingEnv.typeUtils
         // list of param names -> matched params pairs for each failed constructor
         val failedConstructors = arrayListOf<FailedConstructor>()
-        // if developer puts a relation into a constructor, it is usually an error but if there
-        // is another constructor that is good, we can ignore the error. b/72884434
-        val relationsInConstructor = arrayListOf<VariableElement>()
         val goodConstructors = constructors.map { constructor ->
             val parameterNames = getParamNames(constructor)
             val params = constructor.parameters.mapIndexed param@{ index, param ->
@@ -308,13 +306,16 @@ class PojoProcessor private constructor(
                 }
 
                 val exactFieldMatch = fieldMap[paramName]
-
                 if (matches(exactFieldMatch)) {
                     return@param Constructor.FieldParam(exactFieldMatch!!)
                 }
                 val exactEmbeddedMatch = embeddedMap[paramName]
                 if (matches(exactEmbeddedMatch?.field)) {
                     return@param Constructor.EmbeddedParam(exactEmbeddedMatch!!)
+                }
+                val exactRelationMatch = relationMap[paramName]
+                if (matches(exactRelationMatch?.field)) {
+                    return@param Constructor.RelationParam(exactRelationMatch!!)
                 }
 
                 val matchingFields = myFields.filter {
@@ -323,30 +324,29 @@ class PojoProcessor private constructor(
                 val embeddedMatches = embedded.filter {
                     matches(it.field)
                 }
-                if (matchingFields.isEmpty() && embeddedMatches.isEmpty()) {
-                    // if it didn't match a proper field, a common mistake is to have a relation
-                    // so check to see if it is a relation
-                    val matchedRelation = relations.any {
-                        it.field.nameWithVariations.contains(paramName)
+                val relationMatches = relations.filter {
+                    matches(it.field)
+                }
+                when (matchingFields.size + embeddedMatches.size + relationMatches.size) {
+                    0 -> null
+                    1 -> when {
+                        matchingFields.isNotEmpty() ->
+                            Constructor.FieldParam(matchingFields.first())
+                        embeddedMatches.isNotEmpty() ->
+                            Constructor.EmbeddedParam(embeddedMatches.first())
+                        else ->
+                            Constructor.RelationParam(relationMatches.first())
                     }
-                    if (matchedRelation) {
-                        relationsInConstructor.add(param)
+                    else -> {
+                        context.logger.e(param, ProcessorErrors.ambigiousConstructor(
+                                pojo = element.qualifiedName.toString(),
+                                paramName = paramName,
+                                matchingFields = matchingFields.map { it.getPath() } +
+                                        embeddedMatches.map { it.field.getPath() } +
+                                        relationMatches.map { it.field.getPath() }
+                        ))
+                        null
                     }
-                    null
-                } else if (matchingFields.size + embeddedMatches.size == 1) {
-                    if (matchingFields.isNotEmpty()) {
-                        Constructor.FieldParam(matchingFields.first())
-                    } else {
-                        Constructor.EmbeddedParam(embeddedMatches.first())
-                    }
-                } else {
-                    context.logger.e(param, ProcessorErrors.ambigiousConstructor(
-                            pojo = element.qualifiedName.toString(),
-                            paramName = paramName,
-                            matchingFields = matchingFields.map { it.getPath() } +
-                                    embedded.map { it.field.getPath() }
-                    ))
-                    null
                 }
             }
             if (params.any { it == null }) {
@@ -359,10 +359,6 @@ class PojoProcessor private constructor(
         }.filterNotNull()
         when {
             goodConstructors.isEmpty() -> {
-                relationsInConstructor.forEach {
-                    context.logger.e(it,
-                            ProcessorErrors.RELATION_CANNOT_BE_CONSTRUCTOR_PARAMETER)
-                }
                 if (failedConstructors.isNotEmpty()) {
                     val failureMsg = failedConstructors.joinToString("\n") { entry ->
                         entry.log()
