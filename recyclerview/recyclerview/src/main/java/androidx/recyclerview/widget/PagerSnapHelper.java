@@ -85,13 +85,16 @@ public class PagerSnapHelper extends SnapHelper {
             return RecyclerView.NO_POSITION;
         }
 
-        View mStartMostChildView = null;
+        OrientationHelper orientationHelper;
         if (layoutManager.canScrollVertically()) {
-            mStartMostChildView = findStartView(layoutManager, getVerticalHelper(layoutManager));
+            orientationHelper = getVerticalHelper(layoutManager);
         } else if (layoutManager.canScrollHorizontally()) {
-            mStartMostChildView = findStartView(layoutManager, getHorizontalHelper(layoutManager));
+            orientationHelper = getHorizontalHelper(layoutManager);
+        } else {
+            return RecyclerView.NO_POSITION;
         }
 
+        View mStartMostChildView = findStartView(layoutManager, orientationHelper);
         if (mStartMostChildView == null) {
             return RecyclerView.NO_POSITION;
         }
@@ -115,6 +118,16 @@ public class PagerSnapHelper extends SnapHelper {
                 reverseLayout = vectorForEnd.x < 0 || vectorForEnd.y < 0;
             }
         }
+
+        // No snapping is needed for "before first" case. By returning NO_POSITION here we yield
+        // handling the fling back to RecyclerView.
+        //
+        // Below (A == B) is same as ((A && B) || (!A && !B)) ; basically moving back pages wise.
+        if (centerPosition == 0 && forwardDirection == reverseLayout
+                && distanceToCenter(layoutManager, mStartMostChildView, orientationHelper) == 0) {
+            return RecyclerView.NO_POSITION;
+        }
+
         return reverseLayout
                 ? (forwardDirection ? centerPosition - 1 : centerPosition)
                 : (forwardDirection ? centerPosition + 1 : centerPosition);
