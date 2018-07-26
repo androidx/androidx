@@ -26,17 +26,17 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TrivialBenchmark {
     @get:Rule
-    val reporter = PerfStatusReporter()
+    val benchmarkRule = BenchmarkRule()
 
     @Test
     fun nothing() {
-        val state = reporter.benchmarkState
+        val state = benchmarkRule.state
         while (state.keepRunning()) {}
     }
 
     @Test
     fun increment() {
-        val state = reporter.benchmarkState
+        val state = benchmarkRule.state
         var i = 0
         while (state.keepRunning()) {
             i++

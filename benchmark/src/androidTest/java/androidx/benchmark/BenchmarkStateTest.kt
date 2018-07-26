@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class BenchmarkStateTest {
-    fun ms2ns(ms: Long): Long = TimeUnit.MILLISECONDS.toNanos(ms)
+    private fun ms2ns(ms: Long): Long = TimeUnit.MILLISECONDS.toNanos(ms)
 
     @Test
     fun simple() {
