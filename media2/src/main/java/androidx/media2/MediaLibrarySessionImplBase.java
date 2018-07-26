@@ -16,10 +16,8 @@
 
 package androidx.media2;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaSessionCompat.Token;
@@ -42,7 +40,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-@TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements MediaLibrarySessionImpl {
     @GuardedBy("mLock")
     private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();

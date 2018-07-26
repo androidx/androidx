@@ -35,7 +35,7 @@ import java.util.concurrent.Executor;
 /**
  * Base interface for all media players that want media session.
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
+@TargetApi(Build.VERSION_CODES.P)
 public abstract class MediaPlayerConnector implements AutoCloseable {
     /**
      * @hide

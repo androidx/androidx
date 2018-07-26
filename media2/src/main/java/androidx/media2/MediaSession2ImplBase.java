@@ -26,7 +26,6 @@ import static androidx.media2.SessionToken2.TYPE_LIBRARY_SERVICE;
 import static androidx.media2.SessionToken2.TYPE_SESSION;
 import static androidx.media2.SessionToken2.TYPE_SESSION_SERVICE;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -68,7 +67,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
 
-@TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaSession2ImplBase implements MediaSession2Impl {
     private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "android.media.session2.id";
     private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
