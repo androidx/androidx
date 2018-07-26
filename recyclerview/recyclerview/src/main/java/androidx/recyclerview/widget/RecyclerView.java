@@ -6120,15 +6120,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
 
-        /**
-         * Internally, use this method instead of {@link #recycleView(android.view.View)} to
-         * catch potential bugs.
-         * @param view
-         */
-        void recycleViewInternal(View view) {
-            recycleViewHolderInternal(getChildViewHolderInt(view));
-        }
-
         void recycleAndClearCachedViews() {
             final int count = mCachedViews.size();
             for (int i = count - 1; i >= 0; i--) {
@@ -7321,16 +7312,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private final ViewBoundsCheck.Callback mHorizontalBoundCheckCallback =
                 new ViewBoundsCheck.Callback() {
                     @Override
-                    public int getChildCount() {
-                        return LayoutManager.this.getChildCount();
-                    }
-
-                    @Override
-                    public View getParent() {
-                        return mRecyclerView;
-                    }
-
-                    @Override
                     public View getChildAt(int index) {
                         return LayoutManager.this.getChildAt(index);
                     }
@@ -7366,16 +7347,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         private final ViewBoundsCheck.Callback mVerticalBoundCheckCallback =
                 new ViewBoundsCheck.Callback() {
-                    @Override
-                    public int getChildCount() {
-                        return LayoutManager.this.getChildCount();
-                    }
-
-                    @Override
-                    public View getParent() {
-                        return mRecyclerView;
-                    }
-
                     @Override
                     public View getChildAt(int index) {
                         return LayoutManager.this.getChildAt(index);
@@ -9576,17 +9547,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Returns the scroll amount that brings the given rect in child's coordinate system within
          * the padded area of RecyclerView.
-         * @param parent The parent RecyclerView.
          * @param child The direct child making the request.
          * @param rect The rectangle in the child's coordinates the child
          *             wishes to be on the screen.
-         * @param immediate True to forbid animated or delayed scrolling,
-         *                  false otherwise
          * @return The array containing the scroll amount in x and y directions that brings the
          * given rect into RV's padded area.
          */
-        private int[] getChildRectangleOnScreenScrollAmount(RecyclerView parent, View child,
-                Rect rect, boolean immediate) {
+        private int[] getChildRectangleOnScreenScrollAmount(View child, Rect rect) {
             int[] out = new int[2];
             final int parentLeft = getPaddingLeft();
             final int parentTop = getPaddingTop();
@@ -9659,8 +9626,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public boolean requestChildRectangleOnScreen(@NonNull RecyclerView parent,
                 @NonNull View child, @NonNull Rect rect, boolean immediate,
                 boolean focusedChildVisible) {
-            int[] scrollAmount = getChildRectangleOnScreenScrollAmount(parent, child, rect,
-                    immediate);
+            int[] scrollAmount = getChildRectangleOnScreenScrollAmount(child, rect
+            );
             int dx = scrollAmount[0];
             int dy = scrollAmount[1];
             if (!focusedChildVisible || isFocusedChildVisibleAfterScrolling(parent, dx, dy)) {
@@ -12208,17 +12175,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         int mRemainingScrollVertical;
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-
-        State reset() {
-            mTargetPosition = RecyclerView.NO_POSITION;
-            if (mData != null) {
-                mData.clear();
-            }
-            mItemCount = 0;
-            mStructureChanged = false;
-            mIsMeasuring = false;
-            return this;
-        }
 
         /**
          * Prepare for a prefetch occurring on the RecyclerView in between traversals, potentially

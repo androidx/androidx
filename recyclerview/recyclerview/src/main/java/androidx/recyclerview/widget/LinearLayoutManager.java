@@ -1811,27 +1811,23 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
 
     // returns the out-of-bound child view closest to RV's end bounds. An out-of-bound child is
     // defined as a child that's either partially or fully invisible (outside RV's padding area).
-    private View findPartiallyOrCompletelyInvisibleChildClosestToEnd(RecyclerView.Recycler recycler,
-            RecyclerView.State state) {
-        return mShouldReverseLayout ? findFirstPartiallyOrCompletelyInvisibleChild(recycler, state)
-                : findLastPartiallyOrCompletelyInvisibleChild(recycler, state);
+    private View findPartiallyOrCompletelyInvisibleChildClosestToEnd() {
+        return mShouldReverseLayout ? findFirstPartiallyOrCompletelyInvisibleChild()
+                : findLastPartiallyOrCompletelyInvisibleChild();
     }
 
     // returns the out-of-bound child view closest to RV's starting bounds. An out-of-bound child is
     // defined as a child that's either partially or fully invisible (outside RV's padding area).
-    private View findPartiallyOrCompletelyInvisibleChildClosestToStart(
-            RecyclerView.Recycler recycler, RecyclerView.State state) {
-        return mShouldReverseLayout ? findLastPartiallyOrCompletelyInvisibleChild(recycler, state) :
-                findFirstPartiallyOrCompletelyInvisibleChild(recycler, state);
+    private View findPartiallyOrCompletelyInvisibleChildClosestToStart() {
+        return mShouldReverseLayout ? findLastPartiallyOrCompletelyInvisibleChild() :
+                findFirstPartiallyOrCompletelyInvisibleChild();
     }
 
-    private View findFirstPartiallyOrCompletelyInvisibleChild(RecyclerView.Recycler recycler,
-            RecyclerView.State state) {
+    private View findFirstPartiallyOrCompletelyInvisibleChild() {
         return findOnePartiallyOrCompletelyInvisibleChild(0, getChildCount());
     }
 
-    private View findLastPartiallyOrCompletelyInvisibleChild(RecyclerView.Recycler recycler,
-            RecyclerView.State state) {
+    private View findLastPartiallyOrCompletelyInvisibleChild() {
         return findOnePartiallyOrCompletelyInvisibleChild(getChildCount() - 1, -1);
     }
 
@@ -1995,9 +1991,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         // the screen if no focusable views are found in the given layout direction.
         final View nextCandidate;
         if (layoutDir == LayoutState.LAYOUT_START) {
-            nextCandidate = findPartiallyOrCompletelyInvisibleChildClosestToStart(recycler, state);
+            nextCandidate = findPartiallyOrCompletelyInvisibleChildClosestToStart();
         } else {
-            nextCandidate = findPartiallyOrCompletelyInvisibleChildClosestToEnd(recycler, state);
+            nextCandidate = findPartiallyOrCompletelyInvisibleChildClosestToEnd();
         }
         // nextFocus is meaningful only if it refers to a focusable child, in which case it
         // indicates the next view to gain focus.
