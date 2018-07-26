@@ -115,7 +115,7 @@ public abstract class JobIntentService extends Service {
         boolean mHasJobId;
         int mJobId;
 
-        WorkEnqueuer(Context context, ComponentName cn) {
+        WorkEnqueuer(ComponentName cn) {
             mComponentName = cn;
         }
 
@@ -160,7 +160,7 @@ public abstract class JobIntentService extends Service {
         boolean mServiceProcessing;
 
         CompatWorkEnqueuer(Context context, ComponentName cn) {
-            super(context, cn);
+            super(cn);
             mContext = context.getApplicationContext();
             // Make wake locks.  We need two, because the launch wake lock wants to have
             // a timeout, and the system does not do the right thing if you mix timeout and
@@ -329,7 +329,7 @@ public abstract class JobIntentService extends Service {
         private final JobScheduler mJobScheduler;
 
         JobWorkEnqueuer(Context context, ComponentName cn, int jobId) {
-            super(context, cn);
+            super(cn);
             ensureJobId(jobId);
             JobInfo.Builder b = new JobInfo.Builder(jobId, mComponentName);
             mJobInfo = b.setOverrideDeadline(0).build();

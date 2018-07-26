@@ -44,8 +44,6 @@ import java.io.IOException;
 @RestrictTo(LIBRARY_GROUP)
 public final class ColorStateListInflaterCompat {
 
-    private static final int DEFAULT_COLOR = Color.RED;
-
     private ColorStateListInflaterCompat() {
     }
 
@@ -107,7 +105,6 @@ public final class ColorStateListInflaterCompat {
         final int innerDepth = parser.getDepth() + 1;
         int depth;
         int type;
-        int defaultColor = DEFAULT_COLOR;
 
         int[][] stateSpecList = new int[20][];
         int[] colorList = new int[stateSpecList.length];
@@ -152,9 +149,6 @@ public final class ColorStateListInflaterCompat {
             // alpha yet, the default values leave us enough information to
             // modulate again during applyTheme().
             final int color = modulateColorAlpha(baseColor, alphaMod);
-            if (listSize == 0 || stateSpec.length == 0) {
-                defaultColor = color;
-            }
 
             colorList = GrowingArrayUtils.append(colorList, listSize, color);
             stateSpecList = GrowingArrayUtils.append(stateSpecList, listSize, stateSpec);

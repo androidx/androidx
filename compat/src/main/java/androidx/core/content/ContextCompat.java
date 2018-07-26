@@ -434,18 +434,6 @@ public class ContextCompat {
         }
     }
 
-    private static File buildPath(File base, String... segments) {
-        File cur = base;
-        for (String segment : segments) {
-            if (cur == null) {
-                cur = new File(segment);
-            } else if (segment != null) {
-                cur = new File(cur, segment);
-            }
-        }
-        return cur;
-    }
-
     /**
      * Returns a drawable object associated with a particular resource ID.
      * <p>

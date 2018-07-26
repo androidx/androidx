@@ -25,7 +25,6 @@ import android.view.animation.Interpolator;
 import java.lang.ref.WeakReference;
 
 public final class ViewPropertyAnimatorCompat {
-    private static final String TAG = "ViewAnimatorCompat";
     private WeakReference<View> mView;
     Runnable mStartAction = null;
     Runnable mEndAction = null;

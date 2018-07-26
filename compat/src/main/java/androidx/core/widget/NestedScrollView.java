@@ -1505,7 +1505,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     @Override
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
-            final int x = mScroller.getCurrX();
             final int y = mScroller.getCurrY();
 
             int dy = y - mLastScrollerY;

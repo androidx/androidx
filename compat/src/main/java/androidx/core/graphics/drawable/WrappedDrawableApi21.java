@@ -140,13 +140,12 @@ class WrappedDrawableApi21 extends WrappedDrawableApi14 {
     @NonNull
     @Override
     DrawableWrapperState mutateConstantState() {
-        return new DrawableWrapperStateLollipop(mState, null);
+        return new DrawableWrapperStateLollipop(mState);
     }
 
     private static class DrawableWrapperStateLollipop extends DrawableWrapperState {
-        DrawableWrapperStateLollipop(@Nullable DrawableWrapperState orig,
-                @Nullable Resources res) {
-            super(orig, res);
+        DrawableWrapperStateLollipop(@Nullable DrawableWrapperState orig) {
+            super(orig);
         }
 
         @NonNull

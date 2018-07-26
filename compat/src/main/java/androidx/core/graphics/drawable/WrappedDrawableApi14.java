@@ -240,7 +240,7 @@ class WrappedDrawableApi14 extends Drawable
      */
     @NonNull
     DrawableWrapperState mutateConstantState() {
-        return new DrawableWrapperStateBase(mState, null);
+        return new DrawableWrapperStateBase(mState);
     }
 
     /**
@@ -360,7 +360,7 @@ class WrappedDrawableApi14 extends Drawable
         ColorStateList mTint = null;
         PorterDuff.Mode mTintMode = DEFAULT_TINT_MODE;
 
-        DrawableWrapperState(@Nullable DrawableWrapperState orig, @Nullable Resources res) {
+        DrawableWrapperState(@Nullable DrawableWrapperState orig) {
             if (orig != null) {
                 mChangingConfigurations = orig.mChangingConfigurations;
                 mDrawableState = orig.mDrawableState;
@@ -391,9 +391,8 @@ class WrappedDrawableApi14 extends Drawable
     }
 
     private static class DrawableWrapperStateBase extends DrawableWrapperState {
-        DrawableWrapperStateBase(
-                @Nullable DrawableWrapperState orig, @Nullable Resources res) {
-            super(orig, res);
+        DrawableWrapperStateBase(@Nullable DrawableWrapperState orig) {
+            super(orig);
         }
 
         @NonNull
