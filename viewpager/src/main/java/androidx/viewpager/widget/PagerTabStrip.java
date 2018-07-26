@@ -46,8 +46,6 @@ import androidx.core.content.ContextCompat;
  * <p>For a non-interactive indicator, see {@link PagerTitleStrip}.</p>
  */
 public class PagerTabStrip extends PagerTitleStrip {
-    private static final String TAG = "PagerTabStrip";
-
     private static final int INDICATOR_HEIGHT = 3; // dp
     private static final int MIN_PADDING_BOTTOM = INDICATOR_HEIGHT + 3; // dp
     private static final int TAB_PADDING = 16; // dp
