@@ -23,10 +23,12 @@ plugins {
 }
 
 dependencies {
+    androidTestImplementation(project(":appcompat"))
     androidTestImplementation(project(":recyclerview"))
     androidTestImplementation(project(":benchmark"))
     androidTestImplementation(JUNIT)
     androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
     androidTestImplementation(KOTLIN_STDLIB)
 }
 
