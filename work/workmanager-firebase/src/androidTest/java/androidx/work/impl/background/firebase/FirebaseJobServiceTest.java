@@ -22,6 +22,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.arch.core.executor.ArchTaskExecutor;
+import android.arch.core.executor.TaskExecutor;
+import android.support.annotation.NonNull;
+
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -58,10 +62,28 @@ public class FirebaseJobServiceTest {
         mDatabase = WorkManagerImpl.getInstance().getWorkDatabase();
         mFirebaseJobService = new FirebaseJobService();
         mFirebaseJobService.onCreate();
+
+        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+            @Override
+            public void executeOnDiskIO(@NonNull Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public void postToMainThread(@NonNull Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public boolean isMainThread() {
+                return true;
+            }
+        });
     }
 
     @After
     public void tearDown() {
+        ArchTaskExecutor.getInstance().setDelegate(null);
         mFirebaseJobService.onDestroy();
     }
 
