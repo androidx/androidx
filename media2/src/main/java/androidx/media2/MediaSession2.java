@@ -447,9 +447,11 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     }
 
     /**
-     * Stop playback, and reset the player to the initial state.
+     * Resets the player connector to the idle state.
      * <p>
-     * This calls {@link MediaPlayerConnector#reset()}.
+     * This calls {@link MediaPlayerConnector#reset()} which resets the player connector to the
+     * idle state, and detailed behaviors may differ depending on the player implementation. Use
+     * this with caution.
      */
     @Override
     public void reset() {
