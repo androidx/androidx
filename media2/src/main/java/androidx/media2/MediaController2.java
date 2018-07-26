@@ -71,7 +71,7 @@ import java.util.concurrent.Executor;
  * @see MediaSession2
  * @see MediaSessionService2
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
+@TargetApi(Build.VERSION_CODES.P)
 public class MediaController2 implements AutoCloseable {
     /**
      * @hide

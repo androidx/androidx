@@ -19,12 +19,10 @@ package androidx.media2;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ParcelUuid;
@@ -63,7 +61,6 @@ import java.util.UUID;
  * We cannot create a subclass for library service specific function because AIDL doesn't support
  * subclassing and it's generated stub class is an abstract class.
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaSession2Stub extends IMediaSession2.Stub {
 
     private static final String TAG = "MediaSession2Stub";

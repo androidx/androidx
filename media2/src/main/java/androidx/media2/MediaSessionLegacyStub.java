@@ -21,10 +21,8 @@ import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.RemoteException;
@@ -50,7 +48,6 @@ import androidx.media2.MediaSession2.MediaSession2Impl;
 import java.util.List;
 import java.util.Set;
 
-@TargetApi(Build.VERSION_CODES.KITKAT)
 // Getting the commands from MediaControllerCompat'
 class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 

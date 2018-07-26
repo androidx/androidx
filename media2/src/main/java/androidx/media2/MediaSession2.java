@@ -182,7 +182,7 @@ import java.util.concurrent.RejectedExecutionException;
  * </table>
  * @see MediaSessionService2
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
+@TargetApi(Build.VERSION_CODES.P)
 public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseable {
     /**
      * @hide
