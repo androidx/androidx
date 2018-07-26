@@ -19,6 +19,7 @@ package androidx.media2;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_TITLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
+import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -62,9 +63,9 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     static {
         SessionCommandGroup2 group = new SessionCommandGroup2.Builder()
-                .addAllPlaybackCommands()
-                .addAllPlaylistCommands()
-                .addAllVolumeCommands()
+                .addAllPlaybackCommands(COMMAND_VERSION_CURRENT)
+                .addAllPlaylistCommands(COMMAND_VERSION_CURRENT)
+                .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand2> commands = group.getCommands();
         for (SessionCommand2 command : commands) {

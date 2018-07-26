@@ -919,7 +919,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         public @Nullable SessionCommandGroup2 onConnect(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller) {
             SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
-                    .addAllPredefinedCommands().build();
+                    .addAllPredefinedCommands(SessionCommand2.COMMAND_VERSION_1)
+                    .build();
             return commands;
         }
 
@@ -962,7 +963,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SET_LIST
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST_METADATA
-         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SET_LIST_METADATA
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA
          * @see SessionCommand2#COMMAND_CODE_VOLUME_SET_VOLUME
          * @see SessionCommand2#COMMAND_CODE_VOLUME_ADJUST_VOLUME
          */

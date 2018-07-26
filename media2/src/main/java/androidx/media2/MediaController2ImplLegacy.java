@@ -32,10 +32,11 @@ import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_IDLE;
 import static androidx.media2.MediaPlayerConnector.UNKNOWN_TIME;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
+import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -786,9 +787,9 @@ class MediaController2ImplLegacy implements MediaController2Impl {
                 return;
             }
             long sessionFlags = mControllerCompat.getFlags();
-            commandsBuilder.addAllPlaybackCommands();
-            commandsBuilder.addAllVolumeCommands();
-            commandsBuilder.addAllSessionCommands();
+            commandsBuilder.addAllPlaybackCommands(COMMAND_VERSION_CURRENT);
+            commandsBuilder.addAllVolumeCommands(COMMAND_VERSION_CURRENT);
+            commandsBuilder.addAllSessionCommands(COMMAND_VERSION_CURRENT);
 
             commandsBuilder.removeCommand(COMMAND_CODE_PLAYBACK_SET_SPEED);
             commandsBuilder.removeCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
@@ -796,9 +797,9 @@ class MediaController2ImplLegacy implements MediaController2Impl {
             commandsBuilder.removeCommand(COMMAND_CODE_SESSION_SELECT_ROUTE);
 
             if ((sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0) {
-                commandsBuilder.addAllPlaylistCommands();
+                commandsBuilder.addAllPlaylistCommands(COMMAND_VERSION_CURRENT);
                 commandsBuilder.removeCommand(COMMAND_CODE_PLAYLIST_SET_LIST);
-                commandsBuilder.removeCommand(COMMAND_CODE_PLAYLIST_SET_LIST_METADATA);
+                commandsBuilder.removeCommand(COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA);
             }
 
             commandsBuilder.addCommand(new SessionCommand2(SESSION_COMMAND_ON_EXTRA_CHANGED, null));

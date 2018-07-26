@@ -29,12 +29,12 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH;
@@ -569,7 +569,7 @@ class MediaController2ImplBase implements MediaController2Impl {
     @Override
     public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
         final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
-                COMMAND_CODE_PLAYLIST_SET_LIST_METADATA);
+                COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA);
         if (iSession2 != null) {
             try {
                 iSession2.updatePlaylistMetadata(mControllerStub,
