@@ -9,6 +9,7 @@ package androidx.room {
     field public final android.content.Context context;
     field public final androidx.room.RoomDatabase.JournalMode journalMode;
     field public final androidx.room.RoomDatabase.MigrationContainer migrationContainer;
+    field public final boolean multiInstanceInvalidation;
     field public final java.lang.String name;
     field public final java.util.concurrent.Executor queryExecutor;
     field public final boolean requireMigration;
@@ -64,6 +65,7 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T> addMigrations(androidx.room.migration.Migration...);
     method public androidx.room.RoomDatabase.Builder<T> allowMainThreadQueries();
     method public T build();
+    method public androidx.room.RoomDatabase.Builder<T> enableMultiInstanceInvalidation();
     method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigration();
     method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(int...);
     method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade();

@@ -16,6 +16,7 @@
 
 package androidx.room.integration.testapp.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -61,6 +62,12 @@ public interface CustomerDao {
      */
     @Query("SELECT COUNT(*) FROM customer")
     int countCustomers();
+
+    /**
+     * @return All customers
+     */
+    @Query("SELECT * FROM customer")
+    LiveData<List<Customer>> all();
 
     // Keyed
 

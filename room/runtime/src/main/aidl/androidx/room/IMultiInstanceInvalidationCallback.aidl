@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.room.integration.testapp.database;
-
-import androidx.room.Database;
-import androidx.room.RoomDatabase;
+package androidx.room;
 
 /**
- * Sample database of customers.
+ * RPC Callbacks for {@link IMultiInstanceInvalidationService}.
+ *
+ * @hide
  */
-@Database(entities = {Customer.class, Product.class},
-        version = 1, exportSchema = false)
-public abstract class SampleDatabase extends RoomDatabase {
-    /**
-     * @return customer dao.
-     */
-    public abstract CustomerDao getCustomerDao();
+interface IMultiInstanceInvalidationCallback {
 
     /**
-     * @return product dao.
+     * Called when invalidation is detected in another instance of the same database.
+     *
+     * @param tables List of invalidated table names
      */
-    public abstract ProductDao getProductDao();
+    oneway void onInvalidation(in String[] tables);
+
 }

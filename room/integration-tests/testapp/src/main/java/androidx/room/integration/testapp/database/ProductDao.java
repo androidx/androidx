@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,19 @@
 
 package androidx.room.integration.testapp.database;
 
-import androidx.room.Database;
-import androidx.room.RoomDatabase;
+import androidx.room.Dao;
+import androidx.room.Insert;
 
 /**
- * Sample database of customers.
+ * Simple Product DAO.
  */
-@Database(entities = {Customer.class, Product.class},
-        version = 1, exportSchema = false)
-public abstract class SampleDatabase extends RoomDatabase {
-    /**
-     * @return customer dao.
-     */
-    public abstract CustomerDao getCustomerDao();
+@Dao
+public interface ProductDao {
 
     /**
-     * @return product dao.
+     * Insert the product.
      */
-    public abstract ProductDao getProductDao();
+    @Insert
+    void insert(Product product);
+
 }
