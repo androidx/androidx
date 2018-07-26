@@ -62,7 +62,7 @@ import java.util.List;
  * &lt;/text-classifiers&gt;
  * </pre>
  */
-public class TextClassificationManager {
+public final class TextClassificationManager {
     private static final String TAG = TextClassifier.DEFAULT_LOG_TAG;
     private static final int NO_RES = -1;
     @VisibleForTesting

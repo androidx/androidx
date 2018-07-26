@@ -1,0 +1,262 @@
+package androidx.textclassifier {
+
+  public final class SelectionEvent {
+    method public static androidx.textclassifier.SelectionEvent createFromBundle(android.os.Bundle);
+    method public static androidx.textclassifier.SelectionEvent createSelectionActionEvent(int, int, int);
+    method public static androidx.textclassifier.SelectionEvent createSelectionActionEvent(int, int, int, androidx.textclassifier.TextClassification);
+    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int);
+    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int, androidx.textclassifier.TextClassification);
+    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int, androidx.textclassifier.TextSelection);
+    method public static androidx.textclassifier.SelectionEvent createSelectionStartedEvent(int, int);
+    method public long getDurationSincePreviousEvent();
+    method public long getDurationSinceSessionStart();
+    method public int getEnd();
+    method public java.lang.String getEntityType();
+    method public int getEventIndex();
+    method public long getEventTime();
+    method public int getEventType();
+    method public int getInvocationMethod();
+    method public java.lang.String getPackageName();
+    method public java.lang.String getResultId();
+    method public androidx.textclassifier.TextClassificationSessionId getSessionId();
+    method public int getSmartEnd();
+    method public int getSmartStart();
+    method public int getStart();
+    method public java.lang.String getWidgetType();
+    method public java.lang.String getWidgetVersion();
+    method public static boolean isTerminal(int);
+    method public android.os.Bundle toBundle();
+    field public static final int ACTION_ABANDON = 107; // 0x6b
+    field public static final int ACTION_COPY = 101; // 0x65
+    field public static final int ACTION_CUT = 103; // 0x67
+    field public static final int ACTION_DRAG = 106; // 0x6a
+    field public static final int ACTION_OTHER = 108; // 0x6c
+    field public static final int ACTION_OVERTYPE = 100; // 0x64
+    field public static final int ACTION_PASTE = 102; // 0x66
+    field public static final int ACTION_RESET = 201; // 0xc9
+    field public static final int ACTION_SELECT_ALL = 200; // 0xc8
+    field public static final int ACTION_SHARE = 104; // 0x68
+    field public static final int ACTION_SMART_SHARE = 105; // 0x69
+    field public static final int EVENT_AUTO_SELECTION = 5; // 0x5
+    field public static final int EVENT_SELECTION_MODIFIED = 2; // 0x2
+    field public static final int EVENT_SELECTION_STARTED = 1; // 0x1
+    field public static final int EVENT_SMART_SELECTION_MULTI = 4; // 0x4
+    field public static final int EVENT_SMART_SELECTION_SINGLE = 3; // 0x3
+    field public static final int INVOCATION_LINK = 2; // 0x2
+    field public static final int INVOCATION_MANUAL = 1; // 0x1
+    field public static final int INVOCATION_UNKNOWN = 0; // 0x0
+  }
+
+  public final class TextClassification {
+    method public static androidx.textclassifier.TextClassification createFromBundle(android.os.Bundle);
+    method public java.util.List<androidx.core.app.RemoteActionCompat> getActions();
+    method public float getConfidenceScore(java.lang.String);
+    method public java.lang.String getEntityType(int);
+    method public int getEntityTypeCount();
+    method public java.lang.String getId();
+    method public java.lang.CharSequence getText();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static final class TextClassification.Builder {
+    ctor public TextClassification.Builder();
+    method public androidx.textclassifier.TextClassification.Builder addAction(androidx.core.app.RemoteActionCompat);
+    method public androidx.textclassifier.TextClassification build();
+    method public androidx.textclassifier.TextClassification.Builder setEntityType(java.lang.String, float);
+    method public androidx.textclassifier.TextClassification.Builder setId(java.lang.String);
+    method public androidx.textclassifier.TextClassification.Builder setText(java.lang.CharSequence);
+  }
+
+  public static final class TextClassification.Request {
+    method public static androidx.textclassifier.TextClassification.Request createFromBundle(android.os.Bundle);
+    method public androidx.core.os.LocaleListCompat getDefaultLocales();
+    method public int getEndIndex();
+    method public java.util.Calendar getReferenceTime();
+    method public int getStartIndex();
+    method public java.lang.CharSequence getText();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static final class TextClassification.Request.Builder {
+    ctor public TextClassification.Request.Builder(java.lang.CharSequence, int, int);
+    method public androidx.textclassifier.TextClassification.Request build();
+    method public androidx.textclassifier.TextClassification.Request.Builder setDefaultLocales(androidx.core.os.LocaleListCompat);
+    method public androidx.textclassifier.TextClassification.Request.Builder setReferenceTime(java.util.Calendar);
+  }
+
+  public final class TextClassificationContext {
+    method public static androidx.textclassifier.TextClassificationContext createFromBundle(android.os.Bundle);
+    method public java.lang.String getPackageName();
+    method public java.lang.String getWidgetType();
+    method public java.lang.String getWidgetVersion();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static final class TextClassificationContext.Builder {
+    ctor public TextClassificationContext.Builder(java.lang.String, java.lang.String);
+    method public androidx.textclassifier.TextClassificationContext build();
+    method public androidx.textclassifier.TextClassificationContext.Builder setWidgetVersion(java.lang.String);
+  }
+
+  public final class TextClassificationManager {
+    method public androidx.textclassifier.TextClassifier createTextClassifier(androidx.textclassifier.TextClassificationContext);
+    method public static androidx.textclassifier.TextClassificationManager of(android.content.Context);
+    method public void setTextClassifierFactory(androidx.textclassifier.TextClassificationManager.TextClassifierFactory);
+  }
+
+  public static abstract interface TextClassificationManager.TextClassifierFactory {
+    method public abstract androidx.textclassifier.TextClassifier create(androidx.textclassifier.TextClassificationContext);
+  }
+
+  public final class TextClassificationSessionId {
+    method public static androidx.textclassifier.TextClassificationSessionId createFromBundle(android.os.Bundle);
+    method public android.os.Bundle toBundle();
+  }
+
+  public abstract class TextClassifier {
+    ctor public TextClassifier(androidx.textclassifier.TextClassificationContext);
+    method public androidx.textclassifier.TextClassification classifyText(androidx.textclassifier.TextClassification.Request);
+    method public final void destroy();
+    method public androidx.textclassifier.TextLinks generateLinks(androidx.textclassifier.TextLinks.Request);
+    method public int getMaxGenerateLinksTextLength();
+    method public final boolean isDestroyed();
+    method public void onSelectionEvent(androidx.textclassifier.SelectionEvent);
+    method public final void reportSelectionEvent(androidx.textclassifier.SelectionEvent);
+    method public androidx.textclassifier.TextSelection suggestSelection(androidx.textclassifier.TextSelection.Request);
+    field public static final java.lang.String HINT_TEXT_IS_EDITABLE = "android.text_is_editable";
+    field public static final java.lang.String HINT_TEXT_IS_NOT_EDITABLE = "android.text_is_not_editable";
+    field public static final androidx.textclassifier.TextClassifier NO_OP;
+    field public static final java.lang.String TYPE_ADDRESS = "address";
+    field public static final java.lang.String TYPE_DATE = "date";
+    field public static final java.lang.String TYPE_DATE_TIME = "datetime";
+    field public static final java.lang.String TYPE_EMAIL = "email";
+    field public static final java.lang.String TYPE_FLIGHT_NUMBER = "flight";
+    field public static final java.lang.String TYPE_OTHER = "other";
+    field public static final java.lang.String TYPE_PHONE = "phone";
+    field public static final java.lang.String TYPE_UNKNOWN = "";
+    field public static final java.lang.String TYPE_URL = "url";
+    field public static final java.lang.String WIDGET_TYPE_CUSTOM_EDITTEXT = "customedit";
+    field public static final java.lang.String WIDGET_TYPE_CUSTOM_TEXTVIEW = "customview";
+    field public static final java.lang.String WIDGET_TYPE_CUSTOM_UNSELECTABLE_TEXTVIEW = "nosel-customview";
+    field public static final java.lang.String WIDGET_TYPE_EDITTEXT = "edittext";
+    field public static final java.lang.String WIDGET_TYPE_EDIT_WEBVIEW = "edit-webview";
+    field public static final java.lang.String WIDGET_TYPE_TEXTVIEW = "textview";
+    field public static final java.lang.String WIDGET_TYPE_UNKNOWN = "unknown";
+    field public static final java.lang.String WIDGET_TYPE_UNSELECTABLE_TEXTVIEW = "nosel-textview";
+    field public static final java.lang.String WIDGET_TYPE_WEBVIEW = "webview";
+  }
+
+  public static final class TextClassifier.EntityConfig {
+    method public static androidx.textclassifier.TextClassifier.EntityConfig createFromBundle(android.os.Bundle);
+    method public java.util.Collection<java.lang.String> getHints();
+    method public java.util.Collection<java.lang.String> resolveEntityTypes(java.util.Collection<java.lang.String>);
+    method public boolean shouldIncludeDefaultEntityTypes();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static final class TextClassifier.EntityConfig.Builder {
+    ctor public TextClassifier.EntityConfig.Builder();
+    method public androidx.textclassifier.TextClassifier.EntityConfig build();
+    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder setExcludedEntityTypes(java.util.Collection<java.lang.String>);
+    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder setHints(java.util.Collection<java.lang.String>);
+    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder setIncludeDefaultEntityTypes(boolean);
+    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder setIncludedEntityTypes(java.util.Collection<java.lang.String>);
+  }
+
+  public final class TextLinks {
+    method public static androidx.textclassifier.TextLinks createFromBundle(android.os.Bundle);
+    method public java.util.Collection<androidx.textclassifier.TextLinks.TextLink> getLinks();
+    method public android.os.Bundle toBundle();
+    field public static final int APPLY_STRATEGY_IGNORE = 0; // 0x0
+    field public static final int APPLY_STRATEGY_REPLACE = 1; // 0x1
+    field public static final int STATUS_DIFFERENT_TEXT = 3; // 0x3
+    field public static final int STATUS_LINKS_APPLIED = 0; // 0x0
+    field public static final int STATUS_NO_LINKS_APPLIED = 2; // 0x2
+    field public static final int STATUS_NO_LINKS_FOUND = 1; // 0x1
+    field public static final int STATUS_UNKNOWN = -1; // 0xffffffff
+  }
+
+  public static final class TextLinks.Builder {
+    ctor public TextLinks.Builder(java.lang.String);
+    method public androidx.textclassifier.TextLinks.Builder addLink(int, int, java.util.Map<java.lang.String, java.lang.Float>);
+    method public androidx.textclassifier.TextLinks build();
+    method public androidx.textclassifier.TextLinks.Builder clearTextLinks();
+  }
+
+  public static final class TextLinks.Request {
+    method public static androidx.textclassifier.TextLinks.Request createFromBundle(android.os.Bundle);
+    method public androidx.core.os.LocaleListCompat getDefaultLocales();
+    method public androidx.textclassifier.TextClassifier.EntityConfig getEntityConfig();
+    method public java.lang.CharSequence getText();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static final class TextLinks.Request.Builder {
+    ctor public TextLinks.Request.Builder(java.lang.CharSequence);
+    method public androidx.textclassifier.TextLinks.Request build();
+    method public androidx.textclassifier.TextLinks.Request.Builder setDefaultLocales(androidx.core.os.LocaleListCompat);
+    method public androidx.textclassifier.TextLinks.Request.Builder setEntityConfig(androidx.textclassifier.TextClassifier.EntityConfig);
+  }
+
+  public static final class TextLinks.TextLink {
+    method public static androidx.textclassifier.TextLinks.TextLink createFromBundle(android.os.Bundle);
+    method public float getConfidenceScore(java.lang.String);
+    method public int getEnd();
+    method public java.lang.String getEntity(int);
+    method public int getEntityCount();
+    method public int getStart();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static class TextLinks.TextLinkSpan extends android.text.style.ClickableSpan {
+    ctor public TextLinks.TextLinkSpan(androidx.textclassifier.TextLinks.TextLink);
+    method public final androidx.textclassifier.TextLinks.TextLink getTextLink();
+    method public void onClick(android.view.View);
+  }
+
+  public final class TextLinksParams {
+  }
+
+  public static final class TextLinksParams.Builder {
+    ctor public TextLinksParams.Builder();
+    method public androidx.textclassifier.TextLinksParams build();
+    method public androidx.textclassifier.TextLinksParams.Builder setApplyStrategy(int);
+    method public androidx.textclassifier.TextLinksParams.Builder setDefaultLocales(androidx.core.os.LocaleListCompat);
+    method public androidx.textclassifier.TextLinksParams.Builder setEntityConfig(androidx.textclassifier.TextClassifier.EntityConfig);
+  }
+
+  public final class TextSelection {
+    method public static androidx.textclassifier.TextSelection createFromBundle(android.os.Bundle);
+    method public float getConfidenceScore(java.lang.String);
+    method public java.lang.String getEntity(int);
+    method public int getEntityCount();
+    method public java.lang.String getId();
+    method public int getSelectionEndIndex();
+    method public int getSelectionStartIndex();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static final class TextSelection.Builder {
+    ctor public TextSelection.Builder(int, int);
+    method public androidx.textclassifier.TextSelection build();
+    method public androidx.textclassifier.TextSelection.Builder setEntityType(java.lang.String, float);
+    method public androidx.textclassifier.TextSelection.Builder setId(java.lang.String);
+  }
+
+  public static final class TextSelection.Request {
+    method public static androidx.textclassifier.TextSelection.Request createFromBundle(android.os.Bundle);
+    method public androidx.core.os.LocaleListCompat getDefaultLocales();
+    method public int getEndIndex();
+    method public int getStartIndex();
+    method public java.lang.CharSequence getText();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static final class TextSelection.Request.Builder {
+    ctor public TextSelection.Request.Builder(java.lang.CharSequence, int, int);
+    method public androidx.textclassifier.TextSelection.Request build();
+    method public androidx.textclassifier.TextSelection.Request.Builder setDefaultLocales(androidx.core.os.LocaleListCompat);
+  }
+
+}
+

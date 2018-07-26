@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
-
 import androidx.textclassifier.service.DummyTextClassifierService;
 
 import org.junit.After;
@@ -77,8 +76,8 @@ public class RemoteServiceTextClassifierTest {
                 new TextClassification.Request.Builder(TEXT, START, END).build();
         TextClassification textClassification = mTextClassifier.classifyText(request);
         assertThat(textClassification).isNotNull();
-        assertThat(textClassification.getEntityCount()).isEqualTo(1);
-        assertThat(textClassification.getEntity(0)).isEqualTo(ENTITY_TYPE);
+        assertThat(textClassification.getEntityTypeCount()).isEqualTo(1);
+        assertThat(textClassification.getEntityType(0)).isEqualTo(ENTITY_TYPE);
     }
 
     @Test

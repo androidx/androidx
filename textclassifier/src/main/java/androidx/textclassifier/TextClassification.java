@@ -103,27 +103,27 @@ public final class TextClassification {
      * Gets the classified text.
      */
     @Nullable
-    public String getText() {
+    public CharSequence getText() {
         return mText;
     }
 
     /**
-     * Returns the number of entities found in the classified text.
+     * Returns the number of entity types found in the classified text.
      */
     @IntRange(from = 0)
-    public int getEntityCount() {
+    public int getEntityTypeCount() {
         return mEntityConfidence.getEntities().size();
     }
 
     /**
-     * Returns the entity at the specified index. Entities are ordered from high confidence
+     * Returns the entity type at the specified index. Entities are ordered from high confidence
      * to low confidence.
      *
      * @throws IndexOutOfBoundsException if the specified index is out of range.
-     * @see #getEntityCount() for the number of entities available.
+     * @see #getEntityTypeCount() for the number of entities available.
      */
     @NonNull
-    public @EntityType String getEntity(int index) {
+    public @EntityType String getEntityType(int index) {
         return mEntityConfidence.getEntities().get(index);
     }
 
@@ -276,12 +276,12 @@ public final class TextClassification {
     android.view.textclassifier.TextClassification toPlatform() {
         android.view.textclassifier.TextClassification.Builder builder =
                 new android.view.textclassifier.TextClassification.Builder()
-                        .setText(getText())
+                        .setText(getText() == null ? null : getText().toString())
                         .setId(getId());
 
-        final int entityCount = getEntityCount();
+        final int entityCount = getEntityTypeCount();
         for (int i = 0; i < entityCount; i++) {
-            String entity = getEntity(i);
+            String entity = getEntityType(i);
             builder.setEntityType(entity, getConfidenceScore(entity));
         }
 
@@ -318,8 +318,8 @@ public final class TextClassification {
         /**
          * Sets the classified text.
          */
-        public Builder setText(@Nullable String text) {
-            mText = text;
+        public Builder setText(@Nullable CharSequence text) {
+            mText = text == null ? null : text.toString();
             return this;
         }
 

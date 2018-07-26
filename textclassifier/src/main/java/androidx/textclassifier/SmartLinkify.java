@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.core.util.Preconditions;
 import androidx.core.util.Supplier;
@@ -33,7 +34,10 @@ import java.util.concurrent.Executor;
 
 /**
  * Provides {@link android.text.util.Linkify} functionality using a {@link TextClassifier}.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class SmartLinkify {
 
     private SmartLinkify() {}

@@ -132,7 +132,10 @@ public final class TextLinks {
      *
      * @return a status code indicating whether or not the links were successfully applied
      *      e.g. {@link #STATUS_LINKS_APPLIED}
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Status
     public int apply(
             @NonNull Spannable text,
