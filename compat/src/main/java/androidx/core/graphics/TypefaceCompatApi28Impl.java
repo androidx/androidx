@@ -34,8 +34,6 @@ import java.lang.reflect.Method;
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(28)
 public class TypefaceCompatApi28Impl extends TypefaceCompatApi26Impl {
-    private static final String TAG = "TypefaceCompatApi28Impl";
-
     private static final String CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD =
             "createFromFamiliesWithDefault";
     private static final int RESOLVE_BY_FONT_TABLE = -1;

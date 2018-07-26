@@ -51,9 +51,6 @@ import java.util.ArrayList;
  */
 public class FrameMetricsAggregator {
 
-    private static final String TAG = "FrameMetrics";
-    private static final boolean DBG = false;
-
     /**
      * The index in the metrics array where the data for {@link #TOTAL_DURATION}
      * is stored.

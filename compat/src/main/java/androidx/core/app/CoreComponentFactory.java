@@ -35,8 +35,6 @@ import androidx.annotation.RestrictTo;
 @RequiresApi(api = 28)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CoreComponentFactory extends AppComponentFactory {
-    private static final String TAG = "CoreComponentFactory";
-
     @Override
     public Activity instantiateActivity(ClassLoader cl, String className, Intent intent)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {

@@ -70,8 +70,6 @@ import java.util.concurrent.Callable;
  * Utility class to deal with Font ContentProviders.
  */
 public class FontsContractCompat {
-    private static final String TAG = "FontsContractCompat";
-
     private FontsContractCompat() { }
 
     /**
