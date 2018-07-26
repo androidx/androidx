@@ -1127,6 +1127,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO)
@@ -1137,8 +1138,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE)
                     .addCommand(new SessionCommand2(
                             MediaControlView2.COMMAND_SELECT_AUDIO_TRACK, null))
-                    .addCommand(new SessionCommand2(
-                            MediaControlView2.COMMAND_SET_PLAYBACK_SPEED, null))
                     .addCommand(new SessionCommand2(MediaControlView2.COMMAND_MUTE, null))
                     .addCommand(new SessionCommand2(MediaControlView2.COMMAND_UNMUTE, null))
                     .addCommand(new SessionCommand2(
