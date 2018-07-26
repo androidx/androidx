@@ -52,20 +52,23 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
     @GuardedBy("mKeyLock")
     private Key mPreviousKey = null;
 
-    private void initKeys(@Nullable Key previousKey, @Nullable Key nextKey) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void initKeys(@Nullable Key previousKey, @Nullable Key nextKey) {
         synchronized (mKeyLock) {
             mPreviousKey = previousKey;
             mNextKey = nextKey;
         }
     }
 
-    private void setPreviousKey(@Nullable Key previousKey) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void setPreviousKey(@Nullable Key previousKey) {
         synchronized (mKeyLock) {
             mPreviousKey = previousKey;
         }
     }
 
-    private void setNextKey(@Nullable Key nextKey) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void setNextKey(@Nullable Key nextKey) {
         synchronized (mKeyLock) {
             mNextKey = nextKey;
         }

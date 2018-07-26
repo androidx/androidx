@@ -23,7 +23,8 @@ import java.util.List;
 
 class WrapperPositionalDataSource<A, B> extends PositionalDataSource<B> {
     private final PositionalDataSource<A> mSource;
-    private final Function<List<A>, List<B>> mListFunction;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Function<List<A>, List<B>> mListFunction;
 
     WrapperPositionalDataSource(PositionalDataSource<A> source,
             Function<List<A>, List<B>> listFunction) {

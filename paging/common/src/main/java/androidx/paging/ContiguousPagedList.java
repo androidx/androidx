@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Callback {
-    private final ContiguousDataSource<K, V> mDataSource;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ContiguousDataSource<K, V> mDataSource;
 
     @Retention(SOURCE)
     @IntDef({READY_TO_FETCH, FETCHING, DONE_FETCHING})
@@ -40,19 +41,27 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
     private static final int DONE_FETCHING = 2;
 
     @FetchState
-    private int mPrependWorkerState = READY_TO_FETCH;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mPrependWorkerState = READY_TO_FETCH;
     @FetchState
-    private int mAppendWorkerState = READY_TO_FETCH;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mAppendWorkerState = READY_TO_FETCH;
 
-    private int mPrependItemsRequested = 0;
-    private int mAppendItemsRequested = 0;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mPrependItemsRequested = 0;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mAppendItemsRequested = 0;
 
-    private boolean mReplacePagesWithNulls = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mReplacePagesWithNulls = false;
 
-    private final boolean mShouldTrim;
-    private final int mRequiredRemainder = mConfig.prefetchDistance * 2 + mConfig.pageSize;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final boolean mShouldTrim;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mRequiredRemainder = mConfig.prefetchDistance * 2 + mConfig.pageSize;
 
-    private PageResult.Receiver<V> mReceiver = new PageResult.Receiver<V>() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    PageResult.Receiver<V> mReceiver = new PageResult.Receiver<V>() {
         // Creation thread for initial synchronous load, otherwise main thread
         // Safe to access main thread only state - no other thread has reference during construction
         @AnyThread

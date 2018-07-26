@@ -25,9 +25,11 @@ import java.util.concurrent.Executor;
 
 class TiledPagedList<T> extends PagedList<T>
         implements PagedStorage.Callback {
-    private final PositionalDataSource<T> mDataSource;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final PositionalDataSource<T> mDataSource;
 
-    private PageResult.Receiver<T> mReceiver = new PageResult.Receiver<T>() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    PageResult.Receiver<T> mReceiver = new PageResult.Receiver<T>() {
         // Creation thread for initial synchronous load, otherwise main thread
         // Safe to access main thread only state - no other thread has reference during construction
         @AnyThread
