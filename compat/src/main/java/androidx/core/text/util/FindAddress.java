@@ -44,7 +44,7 @@ class FindAddress {
             mLow = low;
             mHigh = high;
             mException1 = exception1;
-            mException2 = exception1;
+            mException2 = exception2;
         }
 
         boolean matches(String zipCode) {

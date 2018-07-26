@@ -41,14 +41,12 @@ import androidx.core.view.ViewCompat.ScrollAxis;
  * 5.0 Lollipop and newer.</p>
  */
 public class NestedScrollingParentHelper {
-    private final ViewGroup mViewGroup;
     private int mNestedScrollAxes;
 
     /**
      * Construct a new helper for a given ViewGroup
      */
     public NestedScrollingParentHelper(@NonNull ViewGroup viewGroup) {
-        mViewGroup = viewGroup;
     }
 
     /**

@@ -44,8 +44,6 @@ import java.io.IOException;
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(21)
 class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
-    private static final String TAG = "TypefaceCompatApi21Impl";
-
     private File getFile(ParcelFileDescriptor fd) {
         try {
             final String path = Os.readlink("/proc/self/fd/" + fd.getFd());

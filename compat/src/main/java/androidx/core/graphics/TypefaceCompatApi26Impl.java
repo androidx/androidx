@@ -62,7 +62,6 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     private static final String FREEZE_METHOD = "freeze";
     private static final String ABORT_CREATION_METHOD = "abortCreation";
     private static final int RESOLVE_BY_FONT_TABLE = -1;
-    private static final String DEFAULT_FAMILY = "sans-serif";
 
     protected final Class mFontFamily;
     protected final Constructor mFontFamilyCtor;

@@ -232,7 +232,6 @@ public class ViewPager extends ViewGroup {
     private EdgeEffect mRightEdge;
 
     private boolean mFirstLayout = true;
-    private boolean mNeedCalculatePageOffsets = false;
     private boolean mCalledSuper;
     private int mDecorChildCount;
 
@@ -934,16 +933,6 @@ public class ViewPager extends ViewGroup {
      *
      * @param x the number of pixels to scroll by on the X axis
      * @param y the number of pixels to scroll by on the Y axis
-     */
-    void smoothScrollTo(int x, int y) {
-        smoothScrollTo(x, y, 0);
-    }
-
-    /**
-     * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
-     *
-     * @param x the number of pixels to scroll by on the X axis
-     * @param y the number of pixels to scroll by on the Y axis
      * @param velocity the velocity associated with a fling, if applicable. (0 otherwise)
      */
     void smoothScrollTo(int x, int y, int velocity) {
@@ -1376,8 +1365,6 @@ public class ViewPager extends ViewGroup {
             ii.offset = offset;
             offset += ii.widthFactor + marginOffset;
         }
-
-        mNeedCalculatePageOffsets = false;
     }
 
     /**

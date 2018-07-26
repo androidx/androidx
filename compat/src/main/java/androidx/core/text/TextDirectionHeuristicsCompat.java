@@ -233,7 +233,6 @@ public final class TextDirectionHeuristicsCompat {
         }
 
         static final AnyStrong INSTANCE_RTL = new AnyStrong(true);
-        static final AnyStrong INSTANCE_LTR = new AnyStrong(false);
     }
 
     /**

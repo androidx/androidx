@@ -42,8 +42,6 @@ import androidx.core.provider.FontsContractCompat.FontInfo;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class TypefaceCompat {
-    private static final String TAG = "TypefaceCompat";
-
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
         if (Build.VERSION.SDK_INT >= 28) {

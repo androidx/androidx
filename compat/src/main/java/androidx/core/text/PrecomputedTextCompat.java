@@ -545,18 +545,6 @@ public class PrecomputedTextCompat implements Spannable {
         }
     }
 
-
-    private int findParaIndex(@IntRange(from = 0) int pos) {
-        for (int i = 0; i < mParagraphEnds.length; ++i) {
-            if (pos < mParagraphEnds[i]) {
-                return i;
-            }
-        }
-        throw new IndexOutOfBoundsException(
-                "pos must be less than " + mParagraphEnds[mParagraphEnds.length - 1]
-                        + ", gave " + pos);
-    }
-
     /**
      * A helper class for computing text layout in background
      */

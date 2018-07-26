@@ -40,9 +40,6 @@ import java.io.InputStream;
  */
 @RestrictTo(LIBRARY_GROUP)
 class TypefaceCompatBaseImpl {
-    private static final String TAG = "TypefaceCompatBaseImpl";
-    private static final String CACHE_FILE_PREFIX = "cached_font_";
-
     private interface StyleExtractor<T> {
         int getWeight(T t);
         boolean isItalic(T t);
