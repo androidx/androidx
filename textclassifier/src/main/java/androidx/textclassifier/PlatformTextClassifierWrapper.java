@@ -66,7 +66,8 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             platformTextClassifier =
                     textClassificationManager.createTextClassificationSession(
-                            textClassificationContext.toPlatform());
+                            (android.view.textclassifier.TextClassificationContext)
+                                    textClassificationContext.toPlatform());
             sessionStrategy = new ProxySessionStrategy(platformTextClassifier);
         } else {
             // No session handling before P.
@@ -87,7 +88,9 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
         ensureNotOnMainThread();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             return TextSelection.fromPlatform(
-                    mPlatformTextClassifier.suggestSelection(request.toPlatform()));
+                    mPlatformTextClassifier.suggestSelection(
+                            (android.view.textclassifier.TextSelection.Request)
+                                    request.toPlatform()));
         }
         return TextSelection.fromPlatform(
                 mPlatformTextClassifier.suggestSelection(
@@ -106,7 +109,9 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
         ensureNotOnMainThread();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             return TextClassification.fromPlatform(mContext,
-                    mPlatformTextClassifier.classifyText(request.toPlatform()));
+                    mPlatformTextClassifier.classifyText(
+                            (android.view.textclassifier.TextClassification.Request)
+                                    request.toPlatform()));
         }
         TextClassification textClassification = TextClassification.fromPlatform(mContext,
                 mPlatformTextClassifier.classifyText(
@@ -163,7 +168,8 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
         @Override
         public void reportSelectionEvent(@NonNull SelectionEvent event) {
             Preconditions.checkNotNull(event);
-            mPlatformTextClassifier.onSelectionEvent(event.toPlatform());
+            mPlatformTextClassifier.onSelectionEvent(
+                    (android.view.textclassifier.SelectionEvent) event.toPlatform());
         }
 
         @Override

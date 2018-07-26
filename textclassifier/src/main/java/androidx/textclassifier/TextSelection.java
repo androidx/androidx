@@ -183,7 +183,7 @@ public final class TextSelection {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
     @NonNull
-    android.view.textclassifier.TextSelection toPlatform() {
+    Object toPlatform() {
         android.view.textclassifier.TextSelection.Builder builder =
                 new android.view.textclassifier.TextSelection.Builder(
                         getSelectionStartIndex(),
@@ -324,7 +324,7 @@ public final class TextSelection {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @NonNull
-        android.view.textclassifier.TextSelection.Request toPlatform() {
+        Object toPlatform() {
             return new android.view.textclassifier.TextSelection.Request.Builder(
                     mText, mStartIndex, mEndIndex)
                     .setDefaultLocales(ConvertUtils.unwrapLocalListCompat(mDefaultLocales))
