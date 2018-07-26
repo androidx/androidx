@@ -25,9 +25,19 @@
                   android:layout_height="48dp"
                   android:gravity="center_vertical"
                   android:orientation="horizontal">
-        <ImageView android:id="@+id/mr_cast_route_icon"
-                   android:layout_width="24dp"
-                   android:layout_height="24dp" />
+        <FrameLayout android:layout_width="24dp"
+                     android:layout_height="24dp">
+            <ImageView android:id="@+id/mr_cast_route_icon"
+                       android:layout_width="match_parent"
+                       android:layout_height="match_parent"
+                       android:scaleType="fitCenter" />
+            <ProgressBar android:id="@+id/mr_cast_progress_bar"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:indeterminate="true"
+                         android:visibility="invisible"
+                         style="?android:attr/progressBarStyle" />
+        </FrameLayout>
         <TextView android:id="@+id/mr_cast_route_name"
                   android:layout_width="0dp"
                   android:layout_height="wrap_content"
