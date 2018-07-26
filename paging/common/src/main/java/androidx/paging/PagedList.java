@@ -148,8 +148,10 @@ public abstract class PagedList<T> extends AbstractList<T> {
 
     // if set to true, mBoundaryCallback is non-null, and should
     // be dispatched when nearby load has occurred
-    private boolean mBoundaryCallbackBeginDeferred = false;
-    private boolean mBoundaryCallbackEndDeferred = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mBoundaryCallbackBeginDeferred = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mBoundaryCallbackEndDeferred = false;
 
     // lowest and highest index accessed by loadAround. Used to
     // decide when mBoundaryCallback should be dispatched
@@ -190,7 +192,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * @return Newly created PagedList, which will page in data from the DataSource as needed.
      */
     @NonNull
-    private static <K, T> PagedList<T> create(@NonNull DataSource<K, T> dataSource,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static <K, T> PagedList<T> create(@NonNull DataSource<K, T> dataSource,
             @NonNull Executor notifyExecutor,
             @NonNull Executor fetchExecutor,
             @Nullable BoundaryCallback<T> boundaryCallback,
@@ -488,7 +491,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * Call this when mLowest/HighestIndexAccessed are changed, or
      * mBoundaryCallbackBegin/EndDeferred is set.
      */
-    private void tryDispatchBoundaryCallbacks(boolean post) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void tryDispatchBoundaryCallbacks(boolean post) {
         final boolean dispatchBegin = mBoundaryCallbackBeginDeferred
                 && mLowestIndexAccessed <= mConfig.prefetchDistance;
         final boolean dispatchEnd = mBoundaryCallbackEndDeferred
@@ -516,7 +520,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
         }
     }
 
-    private void dispatchBoundaryCallbacks(boolean begin, boolean end) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void dispatchBoundaryCallbacks(boolean begin, boolean end) {
         // safe to deref mBoundaryCallback here, since we only defer if mBoundaryCallback present
         if (begin) {
             //noinspection ConstantConditions
@@ -860,7 +865,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
         @SuppressWarnings("WeakerAccess")
         public final int initialLoadSizeHint;
 
-        private Config(int pageSize, int prefetchDistance,
+        Config(int pageSize, int prefetchDistance,
                 boolean enablePlaceholders, int initialLoadSizeHint, int maxSize) {
             this.pageSize = pageSize;
             this.prefetchDistance = prefetchDistance;
