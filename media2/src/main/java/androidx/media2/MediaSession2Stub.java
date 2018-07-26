@@ -17,6 +17,7 @@
 package androidx.media2;
 
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
+import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -74,9 +75,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     static {
         SessionCommandGroup2 group = new SessionCommandGroup2.Builder()
-                .addAllPlaybackCommands()
-                .addAllPlaylistCommands()
-                .addAllVolumeCommands()
+                .addAllPlaybackCommands(COMMAND_VERSION_CURRENT)
+                .addAllPlaylistCommands(COMMAND_VERSION_CURRENT)
+                .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand2> commands = group.getCommands();
         for (SessionCommand2 command : commands) {
@@ -571,7 +572,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void updatePlaylistMetadata(final IMediaController2 caller, final Bundle metadata) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {

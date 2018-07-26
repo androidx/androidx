@@ -26,10 +26,10 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH;
@@ -137,7 +137,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
 
     private SessionCommandGroup2 createCommandGroupWithout(int commandCode) {
         SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
-                .addAllPredefinedCommands()
+                .addAllPredefinedCommands(SessionCommand2.COMMAND_VERSION_1)
                 .removeCommand(new SessionCommand2(commandCode))
                 .build();
         return commands;
@@ -255,12 +255,13 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     @Test
     public void testUpdatePlaylistMetadata() throws InterruptedException {
         prepareLooper();
-        testOnCommandRequest(COMMAND_CODE_PLAYLIST_SET_LIST_METADATA, new PermissionTestRunnable() {
-            @Override
-            public void run(RemoteMediaController2 controller) {
-                controller.updatePlaylistMetadata(null);
-            }
-        });
+        testOnCommandRequest(COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA,
+                new PermissionTestRunnable() {
+                    @Override
+                    public void run(RemoteMediaController2 controller) {
+                        controller.updatePlaylistMetadata(null);
+                    }
+                });
     }
 
     @Test
