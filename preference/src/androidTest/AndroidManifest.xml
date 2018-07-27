@@ -19,6 +19,6 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <application>
         <activity android:name="androidx.preference.tests.helpers.PreferenceTestHelperActivity"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
+                  android:theme="@style/PreferenceTestTheme"/>
     </application>
 </manifest>

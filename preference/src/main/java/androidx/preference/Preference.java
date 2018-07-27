@@ -585,7 +585,9 @@ public class Preference implements Comparable<Preference>, View.OnCreateContextM
         holder.setDividerAllowedAbove(mAllowDividerAbove);
         holder.setDividerAllowedBelow(mAllowDividerBelow);
 
-        holder.itemView.setOnCreateContextMenuListener(this);
+        if (isCopyingEnabled()) {
+            holder.itemView.setOnCreateContextMenuListener(this);
+        }
     }
 
     @Override
@@ -817,8 +819,10 @@ public class Preference implements Comparable<Preference>, View.OnCreateContextM
      *                          preference is disabled.
      */
     public void setShouldDisableView(boolean shouldDisableView) {
-        mShouldDisableView = shouldDisableView;
-        notifyChanged();
+        if (mShouldDisableView != shouldDisableView) {
+            mShouldDisableView = shouldDisableView;
+            notifyChanged();
+        }
     }
 
     /**
@@ -1031,8 +1035,10 @@ public class Preference implements Comparable<Preference>, View.OnCreateContextM
      * @attr ref R.styleable#Preference_android_iconSpaceReserved
      */
     public void setIconSpaceReserved(boolean iconSpaceReserved) {
-        mIconSpaceReserved = iconSpaceReserved;
-        notifyChanged();
+        if (mIconSpaceReserved != iconSpaceReserved) {
+            mIconSpaceReserved = iconSpaceReserved;
+            notifyChanged();
+        }
     }
 
     /**
@@ -1056,7 +1062,10 @@ public class Preference implements Comparable<Preference>, View.OnCreateContextM
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setCopyingEnabled(boolean enabled) {
-        mCopyingEnabled = enabled;
+        if (mCopyingEnabled != enabled) {
+            mCopyingEnabled = enabled;
+            notifyChanged();
+        }
     }
 
     /**
