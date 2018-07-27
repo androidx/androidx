@@ -30,7 +30,6 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Method;
@@ -45,7 +44,7 @@ class WrappedDrawableApi21 extends WrappedDrawableApi14 {
         findAndCacheIsProjectedDrawableMethod();
     }
 
-    WrappedDrawableApi21(DrawableWrapperState state, Resources resources) {
+    WrappedDrawableApi21(WrappedDrawableState state, Resources resources) {
         super(state, resources);
         findAndCacheIsProjectedDrawableMethod();
     }
@@ -135,24 +134,6 @@ class WrappedDrawableApi21 extends WrappedDrawableApi14 {
         }
 
         return false;
-    }
-
-    @NonNull
-    @Override
-    DrawableWrapperState mutateConstantState() {
-        return new DrawableWrapperStateLollipop(mState);
-    }
-
-    private static class DrawableWrapperStateLollipop extends DrawableWrapperState {
-        DrawableWrapperStateLollipop(@Nullable DrawableWrapperState orig) {
-            super(orig);
-        }
-
-        @NonNull
-        @Override
-        public Drawable newDrawable(@Nullable Resources res) {
-            return new WrappedDrawableApi21(this, res);
-        }
     }
 
     private void findAndCacheIsProjectedDrawableMethod() {
