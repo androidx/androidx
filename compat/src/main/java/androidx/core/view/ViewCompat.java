@@ -2747,8 +2747,14 @@ public class ViewCompat {
      * {@link #isNestedScrollingEnabled(View) enabled} for this view this method does nothing.</p>
      *
      * <p>Compatible View implementations should also call
-     * {@link #dispatchNestedPreScroll(View, int, int, int[], int[]) dispatchNestedPreScroll} before
-     * consuming a component of the scroll event themselves.</p>
+     * {@link #dispatchNestedPreScroll(View, int, int, int[], int[], int) dispatchNestedPreScroll}
+     * before consuming a component of the scroll event themselves.
+     *
+     * <p>A non-null <code>consumed</code> int array of length 2 may be passed in to enable nested
+     * scrolling parents to report how much of the scroll distance was consumed.  The original
+     * caller (where the input event was received to start the scroll) should initialize the values
+     * to be 0, in order to tell how much was actually consumed up the hierarchy of scrolling
+     * parents.
      *
      * @param dxConsumed Horizontal distance in pixels consumed by this view during this scroll step
      * @param dyConsumed Vertical distance in pixels consumed by this view during this scroll step
@@ -2759,7 +2765,43 @@ public class ViewCompat {
      *                       to after it completes. View implementations may use this to adjust
      *                       expected input coordinate tracking.
      * @param type the type of input which cause this scroll event
-     * @return true if the event was dispatched, false if it could not be dispatched.
+     * @param consumed Output, If not null, <code>consumed[0]</code> will contain the consumed
+     *                 component of dx and <code>consumed[1]</code> the consumed dy.
+     */
+    public static void dispatchNestedScroll(@NonNull View view, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed, @Nullable int[] offsetInWindow,
+            @NestedScrollType int type, @NonNull int[] consumed) {
+        if (view instanceof NestedScrollingChild3) {
+            ((NestedScrollingChild3) view).dispatchNestedScroll(dxConsumed, dyConsumed,
+                    dxUnconsumed, dyUnconsumed, offsetInWindow, type, consumed);
+        } else {
+            dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                    offsetInWindow, type);
+        }
+    }
+
+    /**
+     * Dispatch one step of a nested scroll in progress.
+     *
+     * <p>Implementations of views that support nested scrolling should call this to report
+     * info about a scroll in progress to the current nested scrolling parent. If a nested scroll
+     * is not currently in progress or nested scrolling is not
+     * {@link #isNestedScrollingEnabled(View) enabled} for this view this method does nothing.
+     *
+     * <p>Compatible View implementations should also call
+     * {@link #dispatchNestedPreScroll(View, int, int, int[], int[]) dispatchNestedPreScroll} before
+     * consuming a component of the scroll event themselves.
+     *
+     * @param dxConsumed Horizontal distance in pixels consumed by this view during this scroll step
+     * @param dyConsumed Vertical distance in pixels consumed by this view during this scroll step
+     * @param dxUnconsumed Horizontal scroll distance in pixels not consumed by this view
+     * @param dyUnconsumed Horizontal scroll distance in pixels not consumed by this view
+     * @param offsetInWindow Optional. If not null, on return this will contain the offset
+     *                       in local view coordinates of this view from before this operation
+     *                       to after it completes. View implementations may use this to adjust
+     *                       expected input coordinate tracking.
+     * @param type the type of input which cause this scroll event
+     * @return true if the event was dispatched, and therefore the scroll distance was consumed
      * @see #dispatchNestedPreScroll(View, int, int, int[], int[])
      */
     public static boolean dispatchNestedScroll(@NonNull View view, int dxConsumed, int dyConsumed,
@@ -2769,8 +2811,8 @@ public class ViewCompat {
             return ((NestedScrollingChild2) view).dispatchNestedScroll(dxConsumed, dyConsumed,
                     dxUnconsumed, dyUnconsumed, offsetInWindow, type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
-            return dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed,
-                    dyUnconsumed, offsetInWindow);
+            return dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                    offsetInWindow);
         }
         return false;
     }

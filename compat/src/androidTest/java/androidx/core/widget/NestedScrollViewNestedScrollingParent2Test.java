@@ -54,7 +54,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class NestedScrollViewNestedScrollingParentTest {
+public class NestedScrollViewNestedScrollingParent2Test {
 
     private NestedScrollView mNestedScrollView;
     private NestedScrollingSpyView mParent;
@@ -92,8 +92,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScrollAccepted_callsParentsOnStartNestedScrollWithCorrectParams()
-            throws Throwable {
+    public void onNestedScrollAccepted_callsParentsOnStartNestedScrollWithCorrectParams() {
         setupNestedScrollViewWithParentAndChild();
 
         mNestedScrollView.onNestedScrollAccepted(mChild, mChild,
@@ -104,8 +103,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScrollAccepted_callsParentsOnNestedScrollAcceptedWithCorrectParams()
-            throws Throwable {
+    public void onNestedScrollAccepted_callsParentsOnNestedScrollAcceptedWithCorrectParams() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -130,8 +128,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScrollAccepted_withBothOrientations_pOnNestedScrollAcceptedCalledWithVert()
-            throws Throwable {
+    public void onNestedScrollAccepted_bothOrientations_pOnNestedScrollAcceptedCalledWithVert() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -156,8 +153,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScrollAccepted_parentRejects_parentOnNestedScrollAcceptedNotCalled()
-            throws Throwable {
+    public void onNestedScrollAccepted_parentRejects_parentOnNestedScrollAcceptedNotCalled() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(false)
                 .when(mParent)
@@ -177,7 +173,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScrollAccepted_v1_callsParentWithTypeTouch() throws Throwable {
+    public void onNestedScrollAccepted_v1_callsParentWithTypeTouch() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -201,8 +197,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onStopNestedScroll_parentOnStopNestedScrollCalledWithCorrectParams()
-            throws Throwable {
+    public void onStopNestedScroll_parentOnStopNestedScrollCalledWithCorrectParams() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -218,8 +213,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onStopNestedScroll_parentRejects_parentOnStopNestedScrollNotCalled()
-            throws Throwable {
+    public void onStopNestedScroll_parentRejects_parentOnStopNestedScrollNotCalled() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(false)
                 .when(mParent)
@@ -233,8 +227,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onStopNestedScroll_calledWithTypeNotYetAccepted_parentOnStopNestedScrollNotCalled()
-            throws Throwable {
+    public void onStopNestedScroll_typeNotYetAccepted_parentOnStopNestedScrollNotCalled() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -248,8 +241,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onStopNestedScroll_v1_parentOnStopNestedScrollCalledWithTypeTouch()
-            throws Throwable {
+    public void onStopNestedScroll_v1_parentOnStopNestedScrollCalledWithTypeTouch() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -265,7 +257,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_nsvScrolls() throws Throwable {
+    public void onNestedScroll_nsvScrolls() {
         setupNestedScrollViewWithParentAndChild(50, 100);
 
         mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
@@ -274,7 +266,16 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_negativeScroll_nsvScrollsNegative() throws Throwable {
+    public void onNestedScroll_canOnlyScrollPartWay_nsvScrollsPartWay() {
+        setupNestedScrollViewWithParentAndChild(50, 75);
+
+        mNestedScrollView.onNestedScroll(mChild, 0, 0, 0, 50, ViewCompat.TYPE_NON_TOUCH);
+
+        assertThat(mNestedScrollView.getScrollY(), is(25));
+    }
+
+    @Test
+    public void onNestedScroll_negativeScroll_nsvScrollsNegative() {
         setupNestedScrollViewWithParentAndChild(50, 100);
         mNestedScrollView.scrollTo(0, 50);
 
@@ -284,8 +285,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_nsvConsumesEntireScroll_correctScrollDistancesPastToParent()
-            throws Throwable {
+    public void onNestedScroll_nsvConsumesEntireScroll_correctScrollDistancesPastToParent() {
         setupNestedScrollViewWithParentAndChild(50, 100);
         doReturn(true)
                 .when(mParent)
@@ -302,8 +302,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_nsvCanOnlyConsumePartOfScroll_correctScrollDistancesPastToParent()
-            throws Throwable {
+    public void onNestedScroll_nsvCanOnlyConsumePartOfScroll_correctScrollDistancesPastToParent() {
         setupNestedScrollViewWithParentAndChild(50, 100);
         doReturn(true)
                 .when(mParent)
@@ -320,8 +319,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_nsvCanOnlyConsumePartOfScrollNeg_correctScrollDistancesPastToParent()
-            throws Throwable {
+    public void onNestedScroll_nsvCanOnlyConsumePartOfScrollNeg_correctScrollPastToParent() {
         setupNestedScrollViewWithParentAndChild(50, 100);
         doReturn(true)
                 .when(mParent)
@@ -339,8 +337,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_nsvIsAtEndOfScroll_correctScrollDistancesPastToParent()
-            throws Throwable {
+    public void onNestedScroll_nsvIsAtEndOfScroll_correctScrollDistancesPastToParent() {
         setupNestedScrollViewWithParentAndChild(50, 100);
         doReturn(true)
                 .when(mParent)
@@ -358,7 +355,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_parentRejects_parentOnNestedScrollNotCalled() throws Throwable {
+    public void onNestedScroll_parentRejects_parentOnNestedScrollNotCalled() {
         setupNestedScrollViewWithParentAndChild(50, 100);
         doReturn(false)
                 .when(mParent)
@@ -373,8 +370,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_calledWithTypeNotYetAccepted_parentOnStopNestedScrollNotCalled()
-            throws Throwable {
+    public void onNestedScroll_calledWithTypeNotYetAccepted_parentOnStopNestedScrollNotCalled() {
         setupNestedScrollViewWithParentAndChild(50, 100);
         doReturn(true)
                 .when(mParent)
@@ -389,8 +385,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedScroll_v1_parentOnNestedScrollCalledWithTypeTouch()
-            throws Throwable {
+    public void onNestedScroll_v1_parentOnNestedScrollCalledWithTypeTouch() {
         setupNestedScrollViewWithParentAndChild(50, 100);
         doReturn(true)
                 .when(mParent)
@@ -407,8 +402,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedPreScroll_parentOnNestedPreScrollCalledWithCorrectParams()
-            throws Throwable {
+    public void onNestedPreScroll_parentOnNestedPreScrollCalledWithCorrectParams() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -426,8 +420,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedPreScroll_parentRejects_parentOnNestedPreScrollNotCalled()
-            throws Throwable {
+    public void onNestedPreScroll_parentRejects_parentOnNestedPreScrollNotCalled() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(false)
                 .when(mParent)
@@ -443,8 +436,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedPreScroll_calledWithTypeNotYetAccepted_parentOnStopNestedScrollNotCalled()
-            throws Throwable {
+    public void onNestedPreScroll_calledWithTypeNotYetAccepted_parentOnStopNestedScrollNotCalled() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -460,7 +452,7 @@ public class NestedScrollViewNestedScrollingParentTest {
     }
 
     @Test
-    public void onNestedPreScroll_v1_parentOnNestedPreScrollCalledWithTypeTouch() throws Throwable {
+    public void onNestedPreScroll_v1_parentOnNestedPreScrollCalledWithTypeTouch() {
         setupNestedScrollViewWithParentAndChild();
         doReturn(true)
                 .when(mParent)
@@ -488,13 +480,13 @@ public class NestedScrollViewNestedScrollingParentTest {
         assertThat(retVal, is(oRetValue));
     }
 
-    private void setupNestedScrollViewWithParentAndChild() throws Throwable {
+    private void setupNestedScrollViewWithParentAndChild() {
         setupNestedScrollViewWithParentAndChild(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     private void setupNestedScrollViewWithParentAndChild(int nestedScrollViewHeight,
-            int childHeight) throws Throwable {
+            int childHeight) {
 
         final ViewGroup viewGroup = new FrameLayout(InstrumentationRegistry.getContext());
 
