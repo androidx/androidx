@@ -18,13 +18,13 @@ package androidx.core.app;
 
 import android.app.PendingIntent;
 import android.app.RemoteAction;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 /**
@@ -84,7 +84,7 @@ public final class RemoteActionCompat {
                 IconCompat.createFromIcon(remoteAction.getIcon()), remoteAction.getTitle(),
                 remoteAction.getContentDescription(), remoteAction.getActionIntent());
         action.setEnabled(remoteAction.isEnabled());
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             action.setShouldShowIcon(remoteAction.shouldShowIcon());
         }
         return action;
@@ -157,7 +157,7 @@ public final class RemoteActionCompat {
         RemoteAction action = new RemoteAction(mIcon.toIcon(), mTitle, mContentDescription,
                 mActionIntent);
         action.setEnabled(isEnabled());
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             action.setShouldShowIcon(shouldShowIcon());
         }
         return action;
