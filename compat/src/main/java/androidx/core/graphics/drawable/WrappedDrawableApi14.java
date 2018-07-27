@@ -44,12 +44,12 @@ class WrappedDrawableApi14 extends Drawable
     private PorterDuff.Mode mCurrentMode;
     private boolean mColorFilterSet;
 
-    DrawableWrapperState mState;
+    WrappedDrawableState mState;
     private boolean mMutated;
 
     Drawable mDrawable;
 
-    WrappedDrawableApi14(@NonNull DrawableWrapperState state, @Nullable Resources res) {
+    WrappedDrawableApi14(@NonNull WrappedDrawableState state, @Nullable Resources res) {
         mState = state;
         updateLocalState(res);
     }
@@ -239,8 +239,8 @@ class WrappedDrawableApi14 extends Drawable
      * @return the new state
      */
     @NonNull
-    DrawableWrapperState mutateConstantState() {
-        return new DrawableWrapperStateBase(mState);
+    private WrappedDrawableState mutateConstantState() {
+        return new WrappedDrawableState(mState);
     }
 
     /**
@@ -353,52 +353,4 @@ class WrappedDrawableApi14 extends Drawable
         return true;
     }
 
-    protected abstract static class DrawableWrapperState extends Drawable.ConstantState {
-        int mChangingConfigurations;
-        Drawable.ConstantState mDrawableState;
-
-        ColorStateList mTint = null;
-        PorterDuff.Mode mTintMode = DEFAULT_TINT_MODE;
-
-        DrawableWrapperState(@Nullable DrawableWrapperState orig) {
-            if (orig != null) {
-                mChangingConfigurations = orig.mChangingConfigurations;
-                mDrawableState = orig.mDrawableState;
-                mTint = orig.mTint;
-                mTintMode = orig.mTintMode;
-            }
-        }
-
-        @NonNull
-        @Override
-        public Drawable newDrawable() {
-            return newDrawable(null);
-        }
-
-        @NonNull
-        @Override
-        public abstract Drawable newDrawable(@Nullable Resources res);
-
-        @Override
-        public int getChangingConfigurations() {
-            return mChangingConfigurations
-                    | (mDrawableState != null ? mDrawableState.getChangingConfigurations() : 0);
-        }
-
-        boolean canConstantState() {
-            return mDrawableState != null;
-        }
-    }
-
-    private static class DrawableWrapperStateBase extends DrawableWrapperState {
-        DrawableWrapperStateBase(@Nullable DrawableWrapperState orig) {
-            super(orig);
-        }
-
-        @NonNull
-        @Override
-        public Drawable newDrawable(@Nullable Resources res) {
-            return new WrappedDrawableApi14(this, res);
-        }
-    }
 }
