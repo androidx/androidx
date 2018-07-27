@@ -130,6 +130,25 @@ public class WorkSpec {
         this.workerClassName = workerClassName;
     }
 
+    public WorkSpec(@NonNull WorkSpec other) {
+        id = other.id;
+        workerClassName = other.workerClassName;
+        state = other.state;
+        inputMergerClassName = other.inputMergerClassName;
+        input = new Data(other.input);
+        output = new Data(other.output);
+        initialDelay = other.initialDelay;
+        intervalDuration = other.intervalDuration;
+        flexDuration = other.flexDuration;
+        constraints = new Constraints(other.constraints);
+        runAttemptCount = other.runAttemptCount;
+        backoffPolicy = other.backoffPolicy;
+        backoffDelayDuration = other.backoffDelayDuration;
+        periodStartTime = other.periodStartTime;
+        minimumRetentionDuration = other.minimumRetentionDuration;
+        scheduleRequestedAt = other.scheduleRequestedAt;
+    }
+
     /**
      * @param backoffDelayDuration The backoff delay duration in milliseconds
      */

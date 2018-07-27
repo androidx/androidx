@@ -16,11 +16,14 @@
 
 package androidx.work;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
 
 import org.junit.Before;
@@ -29,6 +32,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.time.Duration;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
@@ -41,6 +45,24 @@ public class WorkTest extends WorkManagerTest {
     @Before
     public void setUp() {
         mBuilder = new OneTimeWorkRequest.Builder(TestWorker.class);
+    }
+
+    @Test
+    public void testBuild_GetsUniqueIdsOnBuild() {
+        UUID firstId = mBuilder.build().getId();
+        UUID secondId = mBuilder.build().getId();
+        assertThat(firstId, is(not(secondId)));
+    }
+
+    @Test
+    public void testBuild_GeneratesSimilarWorkSpecsOnBuild() {
+        WorkSpec firstWorkSpec = mBuilder.build().getWorkSpec();
+        WorkSpec secondWorkSpec = mBuilder.build().getWorkSpec();
+
+        // Because of the previous test (testBuild_GetsUniqueIdsOnBuild), we know the id's are
+        // different, so just set them to be the same for now so we can use an equality check.
+        firstWorkSpec.id = secondWorkSpec.id;
+        assertThat(firstWorkSpec, is(equalTo(secondWorkSpec)));
     }
 
     @Test
