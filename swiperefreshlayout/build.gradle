@@ -26,7 +26,7 @@ dependencies {
 supportLibrary {
     name = "Android Support Library Custom View"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.SWIPE_REFRESH_LAYOUT
     mavenGroup = LibraryGroups.SWIPEREFRESHLAYOUT
     inceptionYear = "2018"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
