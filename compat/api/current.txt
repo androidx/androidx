@@ -1727,6 +1727,10 @@ package androidx.core.view {
     method public abstract void stopNestedScroll(int);
   }
 
+  public abstract interface NestedScrollingChild3 implements androidx.core.view.NestedScrollingChild2 {
+    method public abstract void dispatchNestedScroll(int, int, int, int, int[], int, int[]);
+  }
+
   public class NestedScrollingChildHelper {
     ctor public NestedScrollingChildHelper(android.view.View);
     method public boolean dispatchNestedFling(float, float, boolean);
@@ -1735,6 +1739,7 @@ package androidx.core.view {
     method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
     method public boolean dispatchNestedScroll(int, int, int, int, int[]);
     method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
+    method public void dispatchNestedScroll(int, int, int, int, int[], int, int[]);
     method public boolean hasNestedScrollingParent();
     method public boolean hasNestedScrollingParent(int);
     method public boolean isNestedScrollingEnabled();
@@ -1764,6 +1769,10 @@ package androidx.core.view {
     method public abstract void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
     method public abstract boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
     method public abstract void onStopNestedScroll(android.view.View, int);
+  }
+
+  public abstract interface NestedScrollingParent3 implements androidx.core.view.NestedScrollingParent2 {
+    method public abstract void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
   }
 
   public class NestedScrollingParentHelper {
@@ -1852,6 +1861,7 @@ package androidx.core.view {
     method public static boolean dispatchNestedPreScroll(android.view.View, int, int, int[], int[]);
     method public static boolean dispatchNestedPreScroll(android.view.View, int, int, int[], int[], int);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]);
+    method public static void dispatchNestedScroll(android.view.View, int, int, int, int, int[], int, int[]);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[], int);
     method public static void dispatchStartTemporaryDetach(android.view.View);
     method public static int generateViewId();
@@ -2055,6 +2065,7 @@ package androidx.core.view {
     method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[], int);
     method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int);
     method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int, int);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int, int, int[]);
     method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int, int);
     method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int);
@@ -2685,7 +2696,7 @@ package androidx.core.widget {
     method public static void scrollListBy(android.widget.ListView, int);
   }
 
-  public class NestedScrollView extends android.widget.FrameLayout implements androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingParent2 androidx.core.view.ScrollingView {
+  public class NestedScrollView extends android.widget.FrameLayout implements androidx.core.view.NestedScrollingChild3 androidx.core.view.NestedScrollingParent3 androidx.core.view.ScrollingView {
     ctor public NestedScrollView(android.content.Context);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet, int);
@@ -2698,6 +2709,7 @@ package androidx.core.widget {
     method public int computeVerticalScrollOffset();
     method public int computeVerticalScrollRange();
     method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public void dispatchNestedScroll(int, int, int, int, int[], int, int[]);
     method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
     method public boolean executeKeyEvent(android.view.KeyEvent);
     method public void fling(int);
@@ -2708,6 +2720,7 @@ package androidx.core.widget {
     method public boolean isSmoothScrollingEnabled();
     method public void onAttachedToWindow();
     method public void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
     method public void onNestedScroll(android.view.View, int, int, int, int, int);
     method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
     method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
