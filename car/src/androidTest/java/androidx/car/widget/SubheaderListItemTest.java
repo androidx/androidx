@@ -104,7 +104,7 @@ public class SubheaderListItemTest {
 
         setupPagedListView(Arrays.asList(subheader, item));
 
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(),
+        assertThat(getViewHolderAtPosition(0).getText().getPaddingStart(),
                 is(equalTo(getTextViewHolderAtPosition(1).getTitle().getLeft())));
     }
 
@@ -119,7 +119,7 @@ public class SubheaderListItemTest {
 
         setupPagedListView(Arrays.asList(subheader, item));
 
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(),
+        assertThat(getViewHolderAtPosition(0).getText().getPaddingStart(),
                 is(equalTo(getTextViewHolderAtPosition(1).getTitle().getLeft())));
     }
 
@@ -135,7 +135,7 @@ public class SubheaderListItemTest {
 
         setupPagedListView(Arrays.asList(subheader, item));
 
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(),
+        assertThat(getViewHolderAtPosition(0).getText().getPaddingStart(),
                 is(equalTo(getTextViewHolderAtPosition(1).getTitle().getLeft())));
     }
 

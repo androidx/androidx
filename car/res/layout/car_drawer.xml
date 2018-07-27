@@ -48,8 +48,8 @@ limitations under the License.
         <TextView
             android:id="@id/car_drawer_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:includeFontPadding="false"
             android:textColor="?attr/drawerHeaderColor"
             android:textAppearance="@style/TextAppearance.Car.Title2" />

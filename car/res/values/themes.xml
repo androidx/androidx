@@ -29,7 +29,7 @@ limitations under the License.
         <item name="android:buttonStyle">@style/Widget.Car.Button.DarkText</item>
         <item name="android:checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="android:colorButtonNormal">@color/car_accent_light</item>
-        <item name="android:colorControlHighlight">@color/car_card_ripple_background_inverse</item>
+        <item name="android:colorControlHighlight">@color/car_card_ripple_background_light</item>
         <item name="android:colorControlNormal">@color/car_body2_light</item>
         <item name="android:colorPrimary">@color/car_card_dark</item>
         <item name="android:editTextColor">@color/car_body1_light</item>
@@ -166,8 +166,8 @@ limitations under the License.
     <!-- Styling for dialogs provided by the car support library that is fixed in a dark-color. -->
     <style name="Theme.Car.Dark.Dialog" parent="Theme.Car.Dialog">
         <item name="android:colorButtonNormal">@color/car_accent_light</item>
-        <item name="android:colorControlHighlight">@color/car_card_ripple_background_inverse</item>
-        <item name="colorControlHighlight">@color/car_card_ripple_background_inverse</item>
+        <item name="android:colorControlHighlight">@color/car_card_ripple_background_light</item>
+        <item name="colorControlHighlight">@color/car_card_ripple_background_light</item>
         <item name="dialogButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="dialogBackgroundColor">@color/car_card_dark</item>
         <item name="dialogListTheme">@style/Theme.Car.Light.List.DarkItems</item>

@@ -16,14 +16,19 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- The style for main list that displays all the demo activities. -->
-    <style name="CarListTheme" parent="Theme.AppCompat.Light" />
+    <style name="CarListTheme" parent="Theme.AppCompat">
+        <item name="android:background">@android:color/black</item>
+    </style>
 
     <!-- The main theme for all activities within the Car Demo. -->
     <style name="CarTheme" parent="Theme.Car.NoActionBar">
+        <item name="android:background">@android:color/black</item>
     </style>
 
     <!-- A theme for activities within the Car Demo that have a drawer. -->
-    <style name="CarDrawerTheme" parent="Theme.Car.NoActionBar.Drawer" />
+    <style name="CarDrawerTheme" parent="Theme.Car.NoActionBar.Drawer">
+        <item name="android:background">@android:color/black</item>
+    </style>
 
     <!-- A theme for drawers that have a custom layout. -->
     <style name="CarDrawerTheme.Custom">
@@ -35,7 +40,7 @@
 
     <!-- The style of the hamburger icon. This style affects the ripple color. -->
     <style name="CarDrawerToolbarButton" parent="Widget.Car.Toolbar.Button.Navigation">
-        <item name="android:background">@drawable/car_card_ripple_background_day</item>
+        <item name="android:background">@drawable/car_card_ripple_background_dark</item>
     </style>
 
     <!-- The style of the toolbar. Permanently makes the title a dark color. -->
