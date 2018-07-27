@@ -5,18 +5,18 @@ package androidx.biometrics {
     method public void authenticate(androidx.biometrics.BiometricPrompt.PromptInfo, androidx.biometrics.BiometricPrompt.CryptoObject);
     method public void authenticate(androidx.biometrics.BiometricPrompt.PromptInfo);
     method public void cancelAuthentication();
-    field public static final int BIOMETRIC_ERROR_CANCELED = 5; // 0x5
-    field public static final int BIOMETRIC_ERROR_HW_NOT_PRESENT = 12; // 0xc
-    field public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE = 1; // 0x1
-    field public static final int BIOMETRIC_ERROR_LOCKOUT = 7; // 0x7
-    field public static final int BIOMETRIC_ERROR_LOCKOUT_PERMANENT = 9; // 0x9
-    field public static final int BIOMETRIC_ERROR_NEGATIVE_BUTTON = 13; // 0xd
-    field public static final int BIOMETRIC_ERROR_NO_BIOMETRICS = 11; // 0xb
-    field public static final int BIOMETRIC_ERROR_NO_SPACE = 4; // 0x4
-    field public static final int BIOMETRIC_ERROR_TIMEOUT = 3; // 0x3
-    field public static final int BIOMETRIC_ERROR_UNABLE_TO_PROCESS = 2; // 0x2
-    field public static final int BIOMETRIC_ERROR_USER_CANCELED = 10; // 0xa
-    field public static final int BIOMETRIC_ERROR_VENDOR = 8; // 0x8
+    field public static final int ERROR_CANCELED = 5; // 0x5
+    field public static final int ERROR_HW_NOT_PRESENT = 12; // 0xc
+    field public static final int ERROR_HW_UNAVAILABLE = 1; // 0x1
+    field public static final int ERROR_LOCKOUT = 7; // 0x7
+    field public static final int ERROR_LOCKOUT_PERMANENT = 9; // 0x9
+    field public static final int ERROR_NEGATIVE_BUTTON = 13; // 0xd
+    field public static final int ERROR_NO_BIOMETRICS = 11; // 0xb
+    field public static final int ERROR_NO_SPACE = 4; // 0x4
+    field public static final int ERROR_TIMEOUT = 3; // 0x3
+    field public static final int ERROR_UNABLE_TO_PROCESS = 2; // 0x2
+    field public static final int ERROR_USER_CANCELED = 10; // 0xa
+    field public static final int ERROR_VENDOR = 8; // 0x8
   }
 
   public static abstract class BiometricPrompt.AuthenticationCallback {
@@ -40,6 +40,10 @@ package androidx.biometrics {
   }
 
   public static class BiometricPrompt.PromptInfo {
+    method public java.lang.CharSequence getDescription();
+    method public java.lang.CharSequence getNegativeButtonText();
+    method public java.lang.CharSequence getSubtitle();
+    method public java.lang.CharSequence getTitle();
   }
 
   public static class BiometricPrompt.PromptInfo.Builder {

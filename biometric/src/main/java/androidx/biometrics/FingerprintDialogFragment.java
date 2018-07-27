@@ -231,7 +231,7 @@ public class FingerprintDialogFragment extends DialogFragment {
     /**
      * The negative button text is persisted in the fragment, not in BiometricPromptCompat. Since
      * the dialog persists through rotation, this allows us to return this as the error text for
-     * BIOMETRIC_ERROR_NEGATIVE_BUTTON.
+     * ERROR_NEGATIVE_BUTTON.
      */
     protected CharSequence getNegativeButtonText() {
         return mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);

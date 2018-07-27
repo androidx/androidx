@@ -67,7 +67,7 @@ public class FingerprintHelperFragment extends Fragment {
                 @Override
                 public void onAuthenticationError(final int errMsgId,
                         final CharSequence errString) {
-                    if (errMsgId == BiometricPrompt.BIOMETRIC_ERROR_CANCELED) {
+                    if (errMsgId == BiometricPrompt.ERROR_CANCELED) {
                         if (mCanceledFrom == USER_CANCELED_FROM_NONE) {
                             mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG)
                                     .sendToTarget();
@@ -200,7 +200,7 @@ public class FingerprintHelperFragment extends Fragment {
     protected void cancel(int canceledFrom) {
         mCanceledFrom = canceledFrom;
         if (canceledFrom == USER_CANCELED_FROM_USER) {
-            sendErrorToClient(BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED);
+            sendErrorToClient(BiometricPrompt.ERROR_USER_CANCELED);
         }
 
         if (mCancellationSignal != null) {
@@ -224,13 +224,13 @@ public class FingerprintHelperFragment extends Fragment {
      */
     private boolean handlePreAuthenticationErrors(FingerprintManagerCompat fingerprintManager) {
         if (!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
-            sendErrorToClient(BiometricPrompt.BIOMETRIC_ERROR_HW_NOT_PRESENT);
+            sendErrorToClient(BiometricPrompt.ERROR_HW_NOT_PRESENT);
             return true;
         } else if (!fingerprintManager.isHardwareDetected()) {
-            sendErrorToClient(BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE);
+            sendErrorToClient(BiometricPrompt.ERROR_HW_UNAVAILABLE);
             return true;
         } else if (!fingerprintManager.hasEnrolledFingerprints()) {
-            sendErrorToClient(BiometricPrompt.BIOMETRIC_ERROR_NO_BIOMETRICS);
+            sendErrorToClient(BiometricPrompt.ERROR_NO_BIOMETRICS);
             return true;
         }
         return false;
@@ -251,13 +251,13 @@ public class FingerprintHelperFragment extends Fragment {
      */
     private String getErrorString(Context context, int errorCode) {
         switch (errorCode) {
-            case BiometricPrompt.BIOMETRIC_ERROR_HW_NOT_PRESENT:
+            case BiometricPrompt.ERROR_HW_NOT_PRESENT:
                 return context.getString(R.string.fingerprint_error_hw_not_present);
-            case BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+            case BiometricPrompt.ERROR_HW_UNAVAILABLE:
                 return context.getString(R.string.fingerprint_error_hw_not_available);
-            case BiometricPrompt.BIOMETRIC_ERROR_NO_BIOMETRICS:
+            case BiometricPrompt.ERROR_NO_BIOMETRICS:
                 return context.getString(R.string.fingerprint_error_no_fingerprints);
-            case BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED:
+            case BiometricPrompt.ERROR_USER_CANCELED:
                 return context.getString(R.string.fingerprint_error_user_canceled);
         }
         return null;
