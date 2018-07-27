@@ -36,15 +36,23 @@ package androidx.swiperefreshlayout.widget {
     field public static final int LARGE = 0; // 0x0
   }
 
-  public class SwipeRefreshLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingChild androidx.core.view.NestedScrollingParent {
+  public class SwipeRefreshLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingChild androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingParent androidx.core.view.NestedScrollingParent2 {
     ctor public SwipeRefreshLayout(android.content.Context);
     ctor public SwipeRefreshLayout(android.content.Context, android.util.AttributeSet);
     method public boolean canChildScrollUp();
+    method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
     method public int getProgressCircleDiameter();
     method public int getProgressViewEndOffset();
     method public int getProgressViewStartOffset();
+    method public boolean hasNestedScrollingParent(int);
     method public boolean isRefreshing();
     method public void onMeasure(int, int);
+    method public void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.view.View, int);
     method public deprecated void setColorScheme(int...);
     method public void setColorSchemeColors(int...);
     method public void setColorSchemeResources(int...);
@@ -59,6 +67,8 @@ package androidx.swiperefreshlayout.widget {
     method public void setRefreshing(boolean);
     method public void setSize(int);
     method public void setSlingshotDistance(int);
+    method public boolean startNestedScroll(int, int);
+    method public void stopNestedScroll(int);
     field public static final int DEFAULT = 1; // 0x1
     field public static final int DEFAULT_SLINGSHOT_DISTANCE = -1; // 0xffffffff
     field public static final int LARGE = 0; // 0x0
