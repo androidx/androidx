@@ -35,7 +35,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
-import androidx.core.os.BuildCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 import androidx.test.filters.MediumTest;
@@ -100,7 +99,7 @@ public class AccessibilityDelegateCompatTest extends
     @Test
     public void testScreenReaderFocusable_generatesAccessibilityEvent() {
         // The core framework is responsible for this behavior from P
-        if (!BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT < 28) {
             //This test isn't to test the propgation up, just that the event is sent correctly.
             ViewCompat.setAccessibilityLiveRegion(mView,
                     ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
@@ -138,7 +137,7 @@ public class AccessibilityDelegateCompatTest extends
     @Test
     public void testSetAccessibilityHeading_generatesAccessibilityEvent() {
         // The core framework is responsible for this behavior from P
-        if (!BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT < 28) {
             //This test isn't to test the propgation up, just that the event is sent correctly.
             ViewCompat.setAccessibilityLiveRegion(mView,
                     ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);

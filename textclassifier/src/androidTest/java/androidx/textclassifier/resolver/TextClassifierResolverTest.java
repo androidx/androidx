@@ -33,7 +33,6 @@ import android.os.Build;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.BuildCompat;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -122,7 +121,7 @@ public class TextClassifierResolverTest {
                         return new ResolveInfo();
                     }});
 
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             when(mPackageManager.hasSigningCertificate(anyString(), any(byte[].class), anyInt()))
                     .then(new Answer<Boolean>() {
                             @Override
