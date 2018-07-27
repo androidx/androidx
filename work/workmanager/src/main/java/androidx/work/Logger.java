@@ -25,7 +25,7 @@ import android.util.Log;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Logger {
 
     private static int sLoggingLevel = Log.INFO;
