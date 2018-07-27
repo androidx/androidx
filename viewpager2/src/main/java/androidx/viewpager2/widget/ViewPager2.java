@@ -131,6 +131,7 @@ public class ViewPager2 extends ViewGroup {
         SavedState ss = new SavedState(superState);
 
         ss.mRecyclerViewId = mRecyclerView.getId();
+        ss.mOrientation = getOrientation();
 
         Adapter adapter = mRecyclerView.getAdapter();
         if (adapter instanceof FragmentStateAdapter) {
@@ -149,6 +150,7 @@ public class ViewPager2 extends ViewGroup {
 
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
+        setOrientation(ss.mOrientation);
 
         if (ss.mAdapterState != null) {
             Adapter adapter = mRecyclerView.getAdapter();
@@ -174,6 +176,7 @@ public class ViewPager2 extends ViewGroup {
 
     static class SavedState extends BaseSavedState {
         int mRecyclerViewId;
+        @Orientation int mOrientation;
         Parcelable[] mAdapterState;
 
         @RequiresApi(24)
@@ -193,6 +196,7 @@ public class ViewPager2 extends ViewGroup {
 
         private void readValues(Parcel source, ClassLoader loader) {
             mRecyclerViewId = source.readInt();
+            mOrientation = source.readInt();
             mAdapterState = source.readParcelableArray(loader);
         }
 
@@ -200,6 +204,7 @@ public class ViewPager2 extends ViewGroup {
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(mRecyclerViewId);
+            out.writeInt(mOrientation);
             out.writeParcelableArray(mAdapterState, flags);
         }
 
