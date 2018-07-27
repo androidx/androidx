@@ -192,8 +192,8 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         }
 
         if (shouldShowDisabledListItem()) {
-            holder.getTitle().setText(null);
-            holder.getIcon().setImageDrawable(mEmptyListDrawable);
+            holder.getTitleView().setText(null);
+            holder.getIconView().setImageDrawable(mEmptyListDrawable);
             holder.setItemClickListener(null);
         } else {
             holder.setItemClickListener(this);

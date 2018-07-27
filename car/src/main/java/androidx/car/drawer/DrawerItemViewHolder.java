@@ -34,7 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class DrawerItemViewHolder extends RecyclerView.ViewHolder {
     private final ImageView mIcon;
     private final TextView mTitle;
-    private final TextView mText;
+    private final TextView mBody;
     private final ImageView mEndIcon;
 
     DrawerItemViewHolder(View view) {
@@ -50,31 +50,34 @@ public class DrawerItemViewHolder extends RecyclerView.ViewHolder {
         }
 
         // Next two are optional and may be null.
-        mText = view.findViewById(R.id.text);
+        mBody = view.findViewById(R.id.body);
         mEndIcon = view.findViewById(R.id.end_icon);
     }
 
     /** Returns the view that should be used to display the main icon. */
     @NonNull
-    public ImageView getIcon() {
+    public ImageView getIconView() {
         return mIcon;
     }
 
     /** Returns the view that will display the main title. */
     @NonNull
-    public TextView getTitle() {
+    public TextView getTitleView() {
         return mTitle;
     }
 
-    /** Returns the view that is used for text that is smaller than the title text. */
+    /**
+     * Returns the view that is used for the body text that is smaller than the title text and
+     * appears beneath the title.
+     */
     @Nullable
-    public TextView getText() {
-        return mText;
+    public TextView getBodyView() {
+        return mBody;
     }
 
     /** Returns the icon that is displayed at the end of the view. */
     @Nullable
-    public ImageView getEndIcon() {
+    public ImageView getEndIconView() {
         return mEndIcon;
     }
 
@@ -96,6 +99,6 @@ public class DrawerItemViewHolder extends RecyclerView.ViewHolder {
      * @param restrictions current car UX restrictions.
      */
     void applyUxRestrictions(@NonNull CarUxRestrictions restrictions) {
-        CarUxRestrictionsUtils.apply(itemView.getContext(), restrictions, getText());
+        CarUxRestrictionsUtils.apply(itemView.getContext(), restrictions, getBodyView());
     }
 }

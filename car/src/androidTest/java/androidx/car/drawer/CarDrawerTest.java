@@ -117,16 +117,16 @@ public final class CarDrawerTest {
         mActivityRule.runOnUiThread(() -> mActivity.getDrawerController().setRootAdapter(adapter));
 
         DrawerItemViewHolder vh = getViewHolderAtPositionInDrawer(0);
-        final String originalText = (String) vh.getText().getText();
+        final String originalText = (String) vh.getBodyView().getText();
 
         vh.applyUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
         refreshUi();
 
-        assumeThat(vh.getText().getText().length(), is(lessThan(originalText.length())));
+        assumeThat(vh.getBodyView().getText().length(), is(lessThan(originalText.length())));
     }
 
     /**
-     * Drawer adapter that populates {@itemCount} items, each with text set to {@cod text}.
+     * Drawer adapter that populates {@code itemCount} items, each with text set to {@code text}.
      */
     private static class TextDrawerAdapter extends CarDrawerAdapter {
         private int mItemCount;
@@ -147,7 +147,7 @@ public final class CarDrawerTest {
 
         @Override
         protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
-            holder.getText().setText(mText);
+            holder.getBodyView().setText(mText);
         }
 
         @Override

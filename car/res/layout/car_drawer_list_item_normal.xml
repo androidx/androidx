@@ -42,7 +42,7 @@ limitations under the License.
             android:maxLines="1"
             android:textAppearance="?attr/drawerItemTitleTextAppearance" />
         <TextView
-            android:id="@+id/text"
+            android:id="@+id/body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"

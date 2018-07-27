@@ -86,7 +86,8 @@ public class CustomDrawerDemoActivity extends AppCompatActivity {
 
         @Override
         protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
-            holder.getTitle().setText(getString(R.string.drawer_demo_root_item_label, position));
+            holder.getTitleView().setText(
+                    getString(R.string.drawer_demo_root_item_label, position));
         }
 
         @Override
