@@ -20,7 +20,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.benchmark.PerfStatusReporter
+import androidx.benchmark.BenchmarkRule
 import androidx.recyclerview.benchmark.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.annotation.UiThreadTest
@@ -42,7 +42,7 @@ class ScrollBenchmark {
     private lateinit var trivialAdapter: TrivialAdapter
 
     @get:Rule
-    val reporter = PerfStatusReporter()
+    val benchmarkRule = BenchmarkRule()
 
     @get:Rule
     val activityRule = ActivityTestRule(RecyclerViewActivity::class.java)
@@ -63,7 +63,7 @@ class ScrollBenchmark {
     @UiThreadTest
     @Test
     fun offset() {
-        val state = reporter.benchmarkState
+        val state = benchmarkRule.state
 
         val rv = activityRule.activity.recyclerView
         var offset = 10
@@ -77,7 +77,7 @@ class ScrollBenchmark {
     @UiThreadTest
     @Test
     fun bindOffset() {
-        val state = reporter.benchmarkState
+        val state = benchmarkRule.state
 
         val rv = activityRule.activity.recyclerView
         while (state.keepRunning()) {
@@ -89,7 +89,7 @@ class ScrollBenchmark {
     @UiThreadTest
     @Test
     fun createBindOffset() {
-        val state = reporter.benchmarkState
+        val state = benchmarkRule.state
         trivialAdapter.disableReuse = true
         trivialAdapter.inflater = {
             val view = View(it.context)
@@ -107,7 +107,7 @@ class ScrollBenchmark {
     @UiThreadTest
     @Test
     fun inflateBindOffset() {
-        val state = reporter.benchmarkState
+        val state = benchmarkRule.state
         trivialAdapter.disableReuse = true
 
         val rv = activityRule.activity.recyclerView
