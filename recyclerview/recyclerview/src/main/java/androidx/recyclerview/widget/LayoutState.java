@@ -24,8 +24,6 @@ import android.view.View;
  */
 class LayoutState {
 
-    static final String TAG = "LayoutState";
-
     static final int LAYOUT_START = -1;
 
     static final int LAYOUT_END = 1;

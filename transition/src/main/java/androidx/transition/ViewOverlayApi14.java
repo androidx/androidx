@@ -76,33 +76,15 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         return null;
     }
 
-    /**
-     * Used internally by View and ViewGroup to handle drawing and invalidation
-     * of the overlay
-     */
-    ViewGroup getOverlayView() {
-        return mOverlayViewGroup;
-    }
-
     @Override
     public void add(@NonNull Drawable drawable) {
         mOverlayViewGroup.add(drawable);
     }
 
     @Override
-    public void clear() {
-        mOverlayViewGroup.clear();
-    }
-
-    @Override
     public void remove(@NonNull Drawable drawable) {
         mOverlayViewGroup.remove(drawable);
     }
-
-    boolean isEmpty() {
-        return mOverlayViewGroup.isEmpty();
-    }
-
 
     /**
      * OverlayViewGroup is a container that View and ViewGroup use to host
@@ -230,13 +212,6 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             }
         }
 
-        public void clear() {
-            removeAllViews();
-            if (mDrawables != null) {
-                mDrawables.clear();
-            }
-        }
-
         boolean isEmpty() {
             return getChildCount() == 0
                     && (mDrawables == null || mDrawables.size() == 0);
@@ -287,24 +262,6 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             offset[1] = hostViewLocation[1] - contentViewLocation[1];
         }
 
-        public void invalidateChildFast(View child, final Rect dirty) {
-            if (mHostView != null) {
-                // Note: This is not a "fast" invalidation. Would be nice to instead invalidate
-                // using DisplayList properties and a dirty rect instead of causing a real
-                // invalidation of the host view
-                int left = child.getLeft();
-                int top = child.getTop();
-                int[] offset = new int[2];
-                getOffset(offset);
-                // TODO: implement transforms
-//                if (!child.getMatrix().isIdentity()) {
-//                    child.transformRect(dirty);
-//                }
-                dirty.offset(left + offset[0], top + offset[1]);
-                mHostView.invalidate(dirty);
-            }
-        }
-
         /**
          * @hide
          */
@@ -343,14 +300,5 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             }
             return null;
         }
-
-        static class TouchInterceptor extends View {
-            TouchInterceptor(Context context) {
-                super(context);
-            }
-        }
-    }
-
-    private ViewOverlayApi14() {
     }
 }

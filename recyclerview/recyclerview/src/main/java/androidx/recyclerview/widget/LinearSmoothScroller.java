@@ -35,8 +35,6 @@ import android.view.animation.LinearInterpolator;
  */
 public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
 
-    private static final String TAG = "LinearSmoothScroller";
-
     private static final boolean DEBUG = false;
 
     private static final float MILLISECONDS_PER_INCH = 25f;

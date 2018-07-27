@@ -572,7 +572,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         float maxSizeInOther = 0; // use a float to get size per span
 
         // we should assign spans before item decor offsets are calculated
-        assignSpans(recycler, state, count, consumedSpanCount, layingOutInPrimaryDirection);
+        assignSpans(recycler, state, count, layingOutInPrimaryDirection);
         for (int i = 0; i < count; i++) {
             View view = mSet[i];
             if (layoutState.mScrapList == null) {
@@ -763,7 +763,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     }
 
     private void assignSpans(RecyclerView.Recycler recycler, RecyclerView.State state, int count,
-            int consumedSpanCount, boolean layingOutInPrimaryDirection) {
+            boolean layingOutInPrimaryDirection) {
         // spans are always assigned from 0 to N no matter if it is RTL or not.
         // RTL is used only when positioning the view.
         int span, start, end, diff;

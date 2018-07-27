@@ -224,11 +224,6 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
         return mState == STATE_VISIBLE;
     }
 
-    @VisibleForTesting boolean isHidden() {
-        return mState == STATE_HIDDEN;
-    }
-
-
     public void show() {
         switch (mAnimationState) {
             case ANIMATION_STATE_FADING_OUT:
@@ -242,10 +237,6 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
                 mShowHideAnimator.start();
                 break;
         }
-    }
-
-    public void hide() {
-        hide(0);
     }
 
     @VisibleForTesting
