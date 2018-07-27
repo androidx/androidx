@@ -30,6 +30,7 @@ import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -66,6 +67,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
@@ -73,6 +75,7 @@ import androidx.media2.MediaPlayerConnector;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
+import androidx.media2.UriDataSourceDesc2;
 import androidx.mediarouter.app.MediaRouteButton;
 import androidx.mediarouter.media.MediaRouteSelector;
 
@@ -267,6 +270,7 @@ public class MediaControlView2 extends BaseLayout {
     private static final long SHOW_TIME_MS = 250;
     private static final int MAX_PROGRESS = 1000;
     private static final int RESOURCE_NON_EXISTENT = -1;
+    private static final int SEEK_POSITION_NOT_SET = -1;
     private static final String RESOURCE_EMPTY = "";
 
     Resources mResources;
@@ -294,11 +298,15 @@ public class MediaControlView2 extends BaseLayout {
     int mSelectedVideoQualityIndex;
     int mSelectedSpeedIndex;
     int mMediaType;
+    // TODO: Add lock for accessing mSizeType and mUxState (b/111862062)
     int mSizeType;
     int mUxState;
     long mDuration;
     long mPlaybackActions;
     long mShowControllerIntervalMs;
+    // TODO: Add lock for accessing mCurrentSeekPosition and mNextSeekPosition (b/111862062)
+    long mCurrentSeekPosition;
+    long mNextSeekPosition;
     boolean mDragging;
     boolean mIsFullScreen;
     boolean mOverflowIsShowing;
@@ -307,6 +315,7 @@ public class MediaControlView2 extends BaseLayout {
     boolean mIsAdvertisement;
     boolean mIsMute;
     boolean mNeedToHideBars;
+    boolean mWasPlaying;
 
     // Relating to Title Bar View
     private ViewGroup mRoot;
@@ -373,7 +382,6 @@ public class MediaControlView2 extends BaseLayout {
     List<String> mVideoQualityList;
     List<String> mPlaybackSpeedTextList;
     List<Float> mPlaybackSpeedList;
-    List<Long> mSeekList;
 
     AnimatorSet mHideMainBarsAnimator;
     AnimatorSet mHideProgressBarAnimator;
@@ -788,7 +796,8 @@ public class MediaControlView2 extends BaseLayout {
             mProgress.setMax(MAX_PROGRESS);
         }
         mProgressBuffer = v.findViewById(R.id.progress_buffer);
-        mSeekList = new ArrayList<>();
+        mCurrentSeekPosition = SEEK_POSITION_NOT_SET;
+        mNextSeekPosition = SEEK_POSITION_NOT_SET;
 
         // Relating to Bottom Bar View
         mBottomBar = v.findViewById(R.id.bottom_bar);
@@ -1353,6 +1362,11 @@ public class MediaControlView2 extends BaseLayout {
                         mResources.getString(R.string.mcv2_play_button_desc));
                 mIsStopped = false;
             }
+
+            if (isHttpSchemeUrl(mController.getCurrentMediaItem()) && mController.isPlaying()) {
+                mWasPlaying = true;
+                mController.pause();
+            }
         }
 
         @Override
@@ -1369,8 +1383,10 @@ public class MediaControlView2 extends BaseLayout {
             // onStopTrackingTouch() is called.
             if (mDragging && mDuration > 0) {
                 long newPosition = ((mDuration * progress) / MAX_PROGRESS);
-                updateSeekList(newPosition);
-                mCurrentTime.setText(stringForTime(newPosition));
+                // Do not seek if the current media item has a http scheme URL to improve seek
+                // performance.
+                boolean shouldSeekNow = !isHttpSchemeUrl(mController.getCurrentMediaItem());
+                seekTo(newPosition, shouldSeekNow);
             }
         }
 
@@ -1381,13 +1397,17 @@ public class MediaControlView2 extends BaseLayout {
             }
             mDragging = false;
 
-            // If there still are seek commands in the queue, set the position on the progress bar
-            // to the last place the touch was released except for the first and the last.
-            if (mSeekList.size() > 0) {
-                long lastSeekPosition = mSeekList.get(mSeekList.size() - 1);
-                int positionOnProgressBar = (int) (MAX_PROGRESS * lastSeekPosition / mDuration);
-                mProgress.setProgress(positionOnProgressBar);
-                mCurrentTime.setText(stringForTime(lastSeekPosition));
+            long latestSeekPosition = getLatestSeekPosition();
+            // Reset existing seek positions since we only need to seek to the latest position.
+            if (isHttpSchemeUrl(mController.getCurrentMediaItem())) {
+                mCurrentSeekPosition = SEEK_POSITION_NOT_SET;
+                mNextSeekPosition = SEEK_POSITION_NOT_SET;
+            }
+            seekTo(latestSeekPosition, true);
+
+            if (mWasPlaying) {
+                mWasPlaying = false;
+                mController.play();
             }
         }
     };
@@ -1406,19 +1426,8 @@ public class MediaControlView2 extends BaseLayout {
             resetHideCallbacks();
             removeCallbacks(mUpdateProgress);
 
-            // When the rewind button is pressed multiple times and the seek commands have not been
-            // processed yet, getCurrentPosition() will return a value that does not reflect the
-            // previous rewind button clicks. In order to prevent this, check if mSeekList is not
-            // empty and replace the next seek position.
-            long currentPosition = (mSeekList.size() > 0) ? mSeekList.get(mSeekList.size() - 1)
-                    : getCurrentPosition();
-            long newPosition = Math.max(currentPosition - REWIND_TIME_MS, 0);
-            updateSeekList(newPosition);
-
-            // Update progress bar position and current time text.
-            int positionOnProgressBar = (int) (MAX_PROGRESS * newPosition / mDuration);
-            mProgress.setProgress(positionOnProgressBar);
-            mCurrentTime.setText(stringForTime(newPosition));
+            long latestSeekPosition = getLatestSeekPosition();
+            seekTo(Math.max(latestSeekPosition - REWIND_TIME_MS, 0), true);
         }
     };
 
@@ -1428,19 +1437,8 @@ public class MediaControlView2 extends BaseLayout {
             resetHideCallbacks();
             removeCallbacks(mUpdateProgress);
 
-            // When the ffwd button is pressed multiple times and the seek commands have not been
-            // processed yet, getCurrentPosition() will return a value that does not reflect the
-            // previous ffwd button clicks. In order to prevent this, check if mSeekList is not
-            // empty and replace the next seek position.
-            long currentPosition = (mSeekList.size() > 0) ? mSeekList.get(mSeekList.size() - 1)
-                    : getCurrentPosition();
-            long newPosition = Math.min(currentPosition + FORWARD_TIME_MS, mDuration);
-            updateSeekList(newPosition);
-
-            // Update progress bar position and current time text.
-            int positionOnProgressBar = (int) (MAX_PROGRESS * newPosition / mDuration);
-            mProgress.setProgress(positionOnProgressBar);
-            mCurrentTime.setText(stringForTime(newPosition));
+            long latestSeekPosition = getLatestSeekPosition();
+            seekTo(Math.min(latestSeekPosition + FORWARD_TIME_MS, mDuration), true);
         }
     };
 
@@ -2024,6 +2022,28 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
+    boolean isHttpSchemeUrl(MediaItem2 currentMediaItem) {
+        if (currentMediaItem == null) {
+            return false;
+        }
+
+        DataSourceDesc2 dsd = currentMediaItem.getDataSourceDesc();
+        Uri uri = (dsd != null && dsd.getType() == DataSourceDesc2.TYPE_URI)
+                ? ((UriDataSourceDesc2) dsd).getUri() : null;
+        if (uri == null) {
+            // Something wrong.
+            return false;
+        }
+
+        String scheme = uri.getScheme();
+        if (scheme != null) {
+            if (scheme.equals("http") || scheme.equals("https")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void displaySettingsWindow(BaseAdapter adapter) {
         // Set Adapter
         mSettingsListView.setAdapter(adapter);
@@ -2128,7 +2148,6 @@ public class MediaControlView2 extends BaseLayout {
             mSeekAvailable = true;
             mProgress.setEnabled(true);
         }
-
         if (commands.hasCommand(new SessionCommand2(COMMAND_SHOW_SUBTITLE, null))
                 && commands.hasCommand(new SessionCommand2(COMMAND_HIDE_SUBTITLE, null))) {
             mSubtitleButton.setVisibility(View.VISIBLE);
@@ -2140,20 +2159,6 @@ public class MediaControlView2 extends BaseLayout {
             mMuteButton.setVisibility(View.VISIBLE);
         } else {
             mMuteButton.setVisibility(View.GONE);
-        }
-    }
-
-    void updateSeekList(long position) {
-        if (mSeekList.size() == 0) {
-            mSeekList.add(position);
-            // Seek now only if there are no additional seek commands in the queue.
-            mController.seekTo(position);
-        } else if (mSeekList.size() == 1) {
-            mSeekList.add(position);
-        } else if (mSeekList.size() == 2) {
-            // If there are already two commands in the queue, replace the second one with
-            // the new one.
-            mSeekList.set(1, position);
         }
     }
 
@@ -2169,6 +2174,33 @@ public class MediaControlView2 extends BaseLayout {
 
     boolean shouldNotHideBars() {
         return mMediaType == MEDIA_TYPE_MUSIC && mSizeType == SIZE_TYPE_FULL;
+    }
+
+    void seekTo(long newPosition, boolean shouldSeekNow) {
+        int positionOnProgressBar = (int) (MAX_PROGRESS * newPosition / mDuration);
+        mProgress.setProgress(positionOnProgressBar);
+        mCurrentTime.setText(stringForTime(newPosition));
+
+        if (mCurrentSeekPosition == SEEK_POSITION_NOT_SET) {
+            // If current seek position is not set, update its value and seek now if necessary.
+            mCurrentSeekPosition = newPosition;
+
+            if (shouldSeekNow) {
+                mController.seekTo(mCurrentSeekPosition);
+            }
+        } else {
+            // If current seek position is already set, update the next seek position.
+            mNextSeekPosition = newPosition;
+        }
+    }
+
+    long getLatestSeekPosition() {
+        if (mNextSeekPosition != SEEK_POSITION_NOT_SET) {
+            return mNextSeekPosition;
+        } else if (mCurrentSeekPosition != SEEK_POSITION_NOT_SET) {
+            return mCurrentSeekPosition;
+        }
+        return getCurrentPosition();
     }
 
     private class SettingsAdapter extends BaseAdapter {
@@ -2339,6 +2371,7 @@ public class MediaControlView2 extends BaseLayout {
         long getDurationMs();
         String getTitle();
         String getArtistText();
+        MediaItem2 getCurrentMediaItem();
 
         void close();
     }
@@ -2477,6 +2510,10 @@ public class MediaControlView2 extends BaseLayout {
         public void close() {
             mController2.close();
         }
+        @Override
+        public MediaItem2 getCurrentMediaItem() {
+            return mController2.getCurrentMediaItem();
+        }
 
         class MediaControllerCallback extends MediaController2.ControllerCallback {
             @Override
@@ -2520,21 +2557,29 @@ public class MediaControlView2 extends BaseLayout {
 
             @Override
             public void onSeekCompleted(MediaController2 controller, long position) {
-                if (mSeekList.size() > 0) {
-                    mSeekList.remove(0);
+                if (DEBUG) {
+                    Log.d(TAG, "onSeekCompleted(): " + position);
+                }
 
-                    // Check if there are still seek commands in the queue.
-                    if (mSeekList.size() > 0) {
-                        mController.seekTo(mSeekList.get(0));
-                    } else {
-                        // If there are no more seek commands in the queue, check if the bar has
-                        // stopped being dragged. In this case, all the seek commands have been
-                        // called so start to update progress.
-                        if (!mDragging) {
-                            post(mUpdateProgress);
-                            postDelayed(mHideMainBars, mShowControllerIntervalMs);
-                        }
-                    }
+                // Update progress bar and time text.
+                int positionOnProgressBar = (int) (MAX_PROGRESS * position / mDuration);
+                mProgress.setProgress(positionOnProgressBar);
+                mCurrentTime.setText(stringForTime(position));
+
+                if (mNextSeekPosition != SEEK_POSITION_NOT_SET) {
+                    mCurrentSeekPosition = mNextSeekPosition;
+
+                    // If the next seek position is set, seek to that position.
+                    mController.seekTo(mNextSeekPosition);
+                    mNextSeekPosition = SEEK_POSITION_NOT_SET;
+                } else {
+                    mCurrentSeekPosition = SEEK_POSITION_NOT_SET;
+
+                    // If the next seek position is not set, start to update progress.
+                    removeCallbacks(mUpdateProgress);
+                    removeCallbacks(mHideMainBars);
+                    post(mUpdateProgress);
+                    postDelayed(mHideMainBars, mShowControllerIntervalMs);
                 }
             }
 
@@ -2788,6 +2833,10 @@ public class MediaControlView2 extends BaseLayout {
         @Override
         public void close() {
             // Nothing.
+        }
+        @Override
+        public MediaItem2 getCurrentMediaItem() {
+            return null;
         }
 
         private class MediaControllerCompatCallback extends MediaControllerCompat.Callback {
