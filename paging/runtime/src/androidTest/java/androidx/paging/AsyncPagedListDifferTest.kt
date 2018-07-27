@@ -349,6 +349,42 @@ class AsyncPagedListDifferTest {
         assertEquals(differ.currentList!!.lastKey, 10)
     }
 
+    @Test
+    fun pagedListListener() {
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+
+        @Suppress("UNCHECKED_CAST")
+        val listener = mock(AsyncPagedListDiffer.PagedListListener::class.java)
+                as AsyncPagedListDiffer.PagedListListener<String>
+        differ.addPagedListListener(listener)
+
+        // first - simple insert
+        val first = StringPagedList(2, 2, "a", "b")
+        verifyZeroInteractions(listener)
+        differ.submitList(first)
+        verify(listener).onCurrentListChanged(null, first)
+        verifyNoMoreInteractions(listener)
+
+        // second - async update
+        val second = StringPagedList(2, 2, "c", "d")
+        differ.submitList(second)
+        verifyNoMoreInteractions(listener)
+        drain()
+        verify(listener).onCurrentListChanged(first, second)
+        verifyNoMoreInteractions(listener)
+
+        // third - null
+        differ.submitList(null)
+        verify(listener).onCurrentListChanged(second, null)
+        verifyNoMoreInteractions(listener)
+
+        // remove listener, see nothing
+        differ.removePagedListListener(listener)
+        differ.submitList(first)
+        drain()
+        verifyNoMoreInteractions(listener)
+    }
+
     private fun drainExceptDiffThread() {
         var executed: Boolean
         do {

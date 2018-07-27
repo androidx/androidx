@@ -22,8 +22,14 @@ package androidx.recyclerview.widget {
   public class AsyncListDiffer<T> {
     ctor public AsyncListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
     ctor public AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T>);
+    method public void addListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T>);
     method public java.util.List<T> getCurrentList();
+    method public void removeListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T>);
     method public void submitList(java.util.List<T>);
+  }
+
+  public static abstract interface AsyncListDiffer.ListListener<T> {
+    method public abstract void onCurrentListChanged(java.util.List<T>, java.util.List<T>);
   }
 
   public class AsyncListUtil<T> {
@@ -293,8 +299,10 @@ package androidx.recyclerview.widget {
   public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter {
     ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
     ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T>);
+    method public java.util.List<T> getCurrentList();
     method protected T getItem(int);
     method public int getItemCount();
+    method public void onCurrentListChanged(java.util.List<T>, java.util.List<T>);
     method public void submitList(java.util.List<T>);
   }
 

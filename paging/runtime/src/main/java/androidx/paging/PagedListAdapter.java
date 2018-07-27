@@ -113,8 +113,10 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
     private final AsyncPagedListDiffer.PagedListListener<T> mListener =
             new AsyncPagedListDiffer.PagedListListener<T>() {
         @Override
-        public void onCurrentListChanged(@Nullable PagedList<T> currentList) {
+        public void onCurrentListChanged(
+                @Nullable PagedList<T> previousList, @Nullable PagedList<T> currentList) {
             PagedListAdapter.this.onCurrentListChanged(currentList);
+            PagedListAdapter.this.onCurrentListChanged(previousList, currentList);
         }
     };
 
@@ -130,13 +132,13 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      */
     protected PagedListAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
         mDiffer = new AsyncPagedListDiffer<>(this, diffCallback);
-        mDiffer.mListener = mListener;
+        mDiffer.addPagedListListener(mListener);
     }
 
     @SuppressWarnings("unused, WeakerAccess")
     protected PagedListAdapter(@NonNull AsyncDifferConfig<T> config) {
         mDiffer = new AsyncPagedListDiffer<>(new AdapterListUpdateCallback(this), config);
-        mDiffer.mListener = mListener;
+        mDiffer.addPagedListListener(mListener);
     }
 
     /**
@@ -169,6 +171,8 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      * updating the currentList value. May be null if no PagedList is being presented.
      *
      * @return The list currently being displayed.
+     *
+     * @see #onCurrentListChanged(PagedList, PagedList)
      */
     @Nullable
     public PagedList<T> getCurrentList() {
@@ -187,9 +191,37 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      * to a snapshot version of the PagedList during a diff. This means you cannot observe each
      * PagedList via this method.
      *
+     * @deprecated Use the two argument variant instead:
+     * {@link #onCurrentListChanged(PagedList, PagedList)}
+     *
      * @param currentList new PagedList being displayed, may be null.
+     *
+     * @see #getCurrentList()
+     */
+    @SuppressWarnings({"WeakerAccess", "DeprecatedIsStillUsed"})
+    @Deprecated
+    public void onCurrentListChanged(@Nullable PagedList<T> currentList) {
+    }
+
+    /**
+     * Called when the current PagedList is updated.
+     * <p>
+     * This may be dispatched as part of {@link #submitList(PagedList)} if a background diff isn't
+     * needed (such as when the first list is passed, or the list is cleared). In either case,
+     * PagedListAdapter will simply call
+     * {@link #notifyItemRangeInserted(int, int) notifyItemRangeInserted/Removed(0, mPreviousSize)}.
+     * <p>
+     * This method will <em>not</em>be called when the Adapter switches from presenting a PagedList
+     * to a snapshot version of the PagedList during a diff. This means you cannot observe each
+     * PagedList via this method.
+     *
+     * @param previousList PagedList that was previously displayed, may be null.
+     * @param currentList new PagedList being displayed, may be null.
+     *
+     * @see #getCurrentList()
      */
     @SuppressWarnings("WeakerAccess")
-    public void onCurrentListChanged(@Nullable PagedList<T> currentList) {
+    public void onCurrentListChanged(
+            @Nullable PagedList<T> previousList, @Nullable PagedList<T> currentList) {
     }
 }

@@ -17,6 +17,7 @@
 package androidx.recyclerview.widget;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.util.concurrent.Executor;
@@ -32,7 +33,7 @@ import java.util.concurrent.Executors;
  * @param <T> Type of items in the lists, and being compared.
  */
 public final class AsyncDifferConfig<T> {
-    @NonNull
+    @Nullable
     private final Executor mMainThreadExecutor;
     @NonNull
     private final Executor mBackgroundThreadExecutor;
@@ -41,7 +42,7 @@ public final class AsyncDifferConfig<T> {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     AsyncDifferConfig(
-            @NonNull Executor mainThreadExecutor,
+            @Nullable Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
             @NonNull DiffUtil.ItemCallback<T> diffCallback) {
         mMainThreadExecutor = mainThreadExecutor;
@@ -52,7 +53,7 @@ public final class AsyncDifferConfig<T> {
     /** @hide */
     @SuppressWarnings("WeakerAccess")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
+    @Nullable
     public Executor getMainThreadExecutor() {
         return mMainThreadExecutor;
     }
@@ -75,6 +76,7 @@ public final class AsyncDifferConfig<T> {
      * @param <T>
      */
     public static final class Builder<T> {
+        @Nullable
         private Executor mMainThreadExecutor;
         private Executor mBackgroundThreadExecutor;
         private final DiffUtil.ItemCallback<T> mDiffCallback;
