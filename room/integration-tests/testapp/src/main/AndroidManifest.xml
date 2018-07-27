@@ -46,5 +46,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".SampleDatabaseService"
+            android:label="Multi-process SampleDatabase"
+            android:exported="false"
+            android:process="androidx.room.integration.testapp.service"/>
     </application>
 </manifest>
