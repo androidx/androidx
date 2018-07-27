@@ -19,6 +19,7 @@
                 android:id="@+id/mr_cast_meta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/mr_cast_meta_default_background"
                 android:paddingStart="24dp"
                 android:paddingEnd="24dp"
                 android:paddingTop="12dp"
@@ -62,7 +63,8 @@
         <Button android:id="@+id/mr_cast_stop_button"
                 android:layout_width="114dp"
                 android:layout_height="36sp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/mr_cast_stop"
+                android:textAllCaps="false"
                 android:text="@string/mr_controller_stop_casting" />
     </LinearLayout>
 </RelativeLayout>
