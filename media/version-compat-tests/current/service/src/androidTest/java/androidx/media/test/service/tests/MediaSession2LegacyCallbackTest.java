@@ -775,7 +775,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
     @Test
     public void testSetRating() throws InterruptedException {
         prepareLooper();
-        final int ratingType = Rating2.RATING_5_STARS;
+        final int ratingType = RatingCompat.RATING_5_STARS;
         final float ratingValue = 3.5f;
         final RatingCompat rating = RatingCompat.newStarRating(ratingType, ratingValue);
         final String mediaId = "media_id";

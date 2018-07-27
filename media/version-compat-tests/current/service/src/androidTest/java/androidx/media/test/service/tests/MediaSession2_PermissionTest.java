@@ -64,6 +64,7 @@ import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.media2.StarRating2;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
@@ -480,7 +481,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     public void testSetRating() throws InterruptedException {
         prepareLooper();
         final String mediaId = "testSetRating";
-        final Rating2 rating = Rating2.newStarRating(Rating2.RATING_5_STARS, 3.5f);
+        final Rating2 rating = new StarRating2(5, 3.5f);
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_SET_RATING));
         createRemoteController2(mSession.getToken()).setRating(mediaId, rating);

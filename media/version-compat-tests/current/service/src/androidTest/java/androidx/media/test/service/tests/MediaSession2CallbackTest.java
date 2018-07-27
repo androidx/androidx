@@ -44,6 +44,7 @@ import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.media2.StarRating2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -364,9 +365,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnSetRating() throws InterruptedException {
         prepareLooper();
-        final int ratingType = Rating2.RATING_5_STARS;
         final float ratingValue = 3.5f;
-        final Rating2 testRating = Rating2.newStarRating(ratingType, ratingValue);
+        final Rating2 testRating = new StarRating2(5, ratingValue);
         final String testMediaId = "media_id";
 
         final CountDownLatch latch = new CountDownLatch(1);

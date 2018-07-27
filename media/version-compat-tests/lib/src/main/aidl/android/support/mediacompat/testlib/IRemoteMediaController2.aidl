@@ -19,6 +19,8 @@ package android.support.mediacompat.testlib;
 import android.net.Uri;
 import android.os.ResultReceiver;
 
+import androidx.versionedparcelable.ParcelImpl;
+
 interface IRemoteMediaController2 {
 
     void create(boolean isBrowser, String controllerId, in Bundle token, boolean waitForConnection);
@@ -53,7 +55,7 @@ interface IRemoteMediaController2 {
     void prepareFromMediaId(String controllerId, String mediaId, in Bundle extras);
     void prepareFromSearch(String controllerId, String query, in Bundle extras);
     void prepareFromUri(String controllerId, in Uri uri, in Bundle extras);
-    void setRating(String controllerId, String mediaId, in Bundle rating);
+    void setRating(String controllerId, String mediaId, in ParcelImpl rating);
     void subscribeRoutesInfo(String controllerId);
     void unsubscribeRoutesInfo(String controllerId);
     void selectRoute(String controllerId, in Bundle route);

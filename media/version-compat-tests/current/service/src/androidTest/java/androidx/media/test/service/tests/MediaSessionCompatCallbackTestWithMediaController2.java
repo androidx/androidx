@@ -50,6 +50,7 @@ import androidx.media2.MediaUtils2;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionToken2;
+import androidx.media2.StarRating2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -574,9 +575,8 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testSetRating() throws Exception {
         prepareLooper();
-        final int ratingType = Rating2.RATING_5_STARS;
         final float ratingValue = 3.5f;
-        final Rating2 rating2 = Rating2.newStarRating(ratingType, ratingValue);
+        final Rating2 rating2 = new StarRating2(5, ratingValue);
         final String mediaId = "media_id";
         final MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId).build();

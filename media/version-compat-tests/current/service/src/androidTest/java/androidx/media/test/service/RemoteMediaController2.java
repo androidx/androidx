@@ -43,6 +43,8 @@ import androidx.media2.MediaMetadata2;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionToken2;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -327,7 +329,8 @@ public class RemoteMediaController2 {
 
     public void setRating(@NonNull String mediaId, @NonNull Rating2 rating) {
         try {
-            mBinder.setRating(mControllerId, mediaId, rating.toBundle());
+            mBinder.setRating(mControllerId, mediaId,
+                    (ParcelImpl) ParcelUtils.toParcelable(rating));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setRating()");
         }
