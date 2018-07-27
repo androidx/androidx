@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.exoplayer.ExoPlayerMediaPlayer2Impl;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -226,8 +227,15 @@ import java.util.concurrent.Executor;
  * MediaPlayer2 objects on a thread that has its own running Looper. This can be done on the main UI
  * thread, which has a Looper.</p>
  */
-@TargetApi(Build.VERSION_CODES.P)
+@TargetApi(Build.VERSION_CODES.KITKAT)
 public abstract class MediaPlayer2 {
+
+    /**
+     * Debug flag that forces use of {@link ExoPlayerMediaPlayer2Impl} even if the device is running
+     * an Android P build.
+     */
+    private static final boolean DEBUG_USE_EXOPLAYER = false;
+
     /**
      * Create a MediaPlayer2 object.
      *
@@ -235,7 +243,11 @@ public abstract class MediaPlayer2 {
      * @return A MediaPlayer2 object created
      */
     public static final MediaPlayer2 create(@NonNull Context context) {
-        return new MediaPlayer2Impl();
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1 || DEBUG_USE_EXOPLAYER) {
+            return new ExoPlayerMediaPlayer2Impl(context);
+        } else {
+            return new MediaPlayer2Impl();
+        }
     }
 
     /**
