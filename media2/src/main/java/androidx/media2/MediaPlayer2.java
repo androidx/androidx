@@ -57,9 +57,9 @@ import java.util.concurrent.Executor;
  * <h3 id="PlayerStates">Player states</h3>
  *
  * <p>The playback control of audio/video files is managed as a state machine.</p>
- * <p><img src="../../../images/mediaplayer2_state_diagram.png"
+ * <p><div style="text-align:center;"><img src="../../../images/mediaplayer2_state_diagram.png"
  *         alt="MediaPlayer2 State diagram"
- *         border="0" /></p>
+ *         border="0" /></div></p>
  * <p>The MediaPlayer2 object has five states:</p>
  * <ol>
  *     <li><p>{@link #PLAYER_STATE_IDLE}: MediaPlayer2 is in the <strong>Idle</strong>
