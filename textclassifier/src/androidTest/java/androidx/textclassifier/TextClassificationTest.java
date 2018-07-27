@@ -248,10 +248,10 @@ public final class TextClassificationTest {
             assertThat(actualAction.getActionIntent()).isNotNull();
         }
 
-        assertThat(actual.getEntityCount()).isEqualTo(expected.getEntityCount());
-        for (int i = 0; i < actual.getEntityCount(); i++) {
-            String actualEntity = actual.getEntity(0);
-            String expectedEntity = expected.getEntity(0);
+        assertThat(actual.getEntityTypeCount()).isEqualTo(expected.getEntityTypeCount());
+        for (int i = 0; i < actual.getEntityTypeCount(); i++) {
+            String actualEntity = actual.getEntityType(0);
+            String expectedEntity = expected.getEntityType(0);
 
             assertThat(actualEntity).isEqualTo(expectedEntity);
             assertThat(actual.getConfidenceScore(actualEntity))

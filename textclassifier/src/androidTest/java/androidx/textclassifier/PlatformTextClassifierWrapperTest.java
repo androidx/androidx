@@ -110,9 +110,9 @@ public class PlatformTextClassifierWrapperTest {
 
     private static void assertValidResult(TextClassification classification) {
         assertNotNull(classification);
-        assertTrue(classification.getEntityCount() >= 0);
-        for (int i = 0; i < classification.getEntityCount(); i++) {
-            final String entity = classification.getEntity(i);
+        assertTrue(classification.getEntityTypeCount() >= 0);
+        for (int i = 0; i < classification.getEntityTypeCount(); i++) {
+            final String entity = classification.getEntityType(i);
             assertNotNull(entity);
             final float confidenceScore = classification.getConfidenceScore(entity);
             assertTrue(confidenceScore >= 0);
