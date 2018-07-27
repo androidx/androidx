@@ -118,7 +118,7 @@ public abstract class WorkRequest {
         WorkSpec mWorkSpec;
         Set<String> mTags = new HashSet<>();
 
-        public Builder(@NonNull Class<? extends Worker> workerClass) {
+        Builder(@NonNull Class<? extends Worker> workerClass) {
             mId = UUID.randomUUID();
             mWorkSpec = new WorkSpec(mId.toString(), workerClass.getName());
             addTag(workerClass.getName());
@@ -136,7 +136,7 @@ public abstract class WorkRequest {
          * @param timeUnit The {@link TimeUnit} for {@code backoffDelay}
          * @return The current {@link Builder}
          */
-        public @NonNull B setBackoffCriteria(
+        public final @NonNull B setBackoffCriteria(
                 @NonNull BackoffPolicy backoffPolicy,
                 long backoffDelay,
                 @NonNull TimeUnit timeUnit) {
@@ -152,7 +152,7 @@ public abstract class WorkRequest {
          * @param constraints The constraints for the work
          * @return The current {@link Builder}
          */
-        public @NonNull B setConstraints(@NonNull Constraints constraints) {
+        public final @NonNull B setConstraints(@NonNull Constraints constraints) {
             mWorkSpec.constraints = constraints;
             return getThis();
         }
@@ -163,7 +163,7 @@ public abstract class WorkRequest {
          * @param inputData key/value pairs that will be provided to the {@link Worker} class
          * @return The current {@link Builder}
          */
-        public @NonNull B setInputData(@NonNull Data inputData) {
+        public final @NonNull B setInputData(@NonNull Data inputData) {
             mWorkSpec.input = inputData;
             return getThis();
         }
@@ -175,7 +175,7 @@ public abstract class WorkRequest {
          * @param tag A tag for identifying the work in queries.
          * @return The current {@link Builder}
          */
-        public @NonNull B addTag(@NonNull String tag) {
+        public final @NonNull B addTag(@NonNull String tag) {
             mTags.add(tag);
             return getThis();
         }
@@ -196,7 +196,7 @@ public abstract class WorkRequest {
          * @param timeUnit The unit of time for {@code duration}
          * @return The current {@link Builder}
          */
-        public @NonNull B keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
+        public final @NonNull B keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
             mWorkSpec.minimumRetentionDuration = timeUnit.toMillis(duration);
             return getThis();
         }
@@ -216,7 +216,7 @@ public abstract class WorkRequest {
          * @return The current {@link Builder}
          */
         @RequiresApi(26)
-        public @NonNull B keepResultsForAtLeast(@NonNull Duration duration) {
+        public final @NonNull B keepResultsForAtLeast(@NonNull Duration duration) {
             mWorkSpec.minimumRetentionDuration = duration.toMillis();
             return getThis();
         }
@@ -226,7 +226,16 @@ public abstract class WorkRequest {
          *
          * @return The concrete implementation of the work associated with this builder
          */
-        public abstract @NonNull W build();
+        public final @NonNull W build() {
+            W returnValue = buildInternal();
+            // Create a new id and WorkSpec so this WorkRequest.Builder can be used multiple times.
+            mId = UUID.randomUUID();
+            mWorkSpec = new WorkSpec(mWorkSpec);
+            mWorkSpec.id = mId.toString();
+            return returnValue;
+        }
+
+        abstract @NonNull W buildInternal();
 
         abstract @NonNull B getThis();
 
@@ -239,7 +248,7 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public @NonNull B setInitialState(@NonNull State state) {
+        public final @NonNull B setInitialState(@NonNull State state) {
             mWorkSpec.state = state;
             return getThis();
         }
@@ -253,7 +262,7 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public @NonNull B setInitialRunAttemptCount(int runAttemptCount) {
+        public final @NonNull B setInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.runAttemptCount = runAttemptCount;
             return getThis();
         }
@@ -268,7 +277,9 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public @NonNull B setPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+        public final @NonNull B setPeriodStartTime(
+                long periodStartTime,
+                @NonNull TimeUnit timeUnit) {
             mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
             return getThis();
         }
@@ -283,7 +294,7 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public @NonNull B setScheduleRequestedAt(
+        public final @NonNull B setScheduleRequestedAt(
                 long scheduleRequestedAt,
                 @NonNull TimeUnit timeUnit) {
             mWorkSpec.scheduleRequestedAt = timeUnit.toMillis(scheduleRequestedAt);

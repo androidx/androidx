@@ -52,6 +52,10 @@ public final class Data {
     Data() {    // stub required for room
     }
 
+    public Data(@NonNull Data other) {
+        mValues = new HashMap<>(other.mValues);
+    }
+
     Data(Map<String, ?> values) {
         mValues = new HashMap<>(values);
     }

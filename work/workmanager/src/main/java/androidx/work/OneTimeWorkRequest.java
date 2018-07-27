@@ -115,9 +115,8 @@ public final class OneTimeWorkRequest extends WorkRequest {
             return this;
         }
 
-
         @Override
-        public @NonNull OneTimeWorkRequest build() {
+        @NonNull OneTimeWorkRequest buildInternal() {
             if (mBackoffCriteriaSet
                     && Build.VERSION.SDK_INT >= 23
                     && mWorkSpec.constraints.requiresDeviceIdle()) {
