@@ -34,11 +34,6 @@ interface ViewOverlayImpl {
     void add(@NonNull Drawable drawable);
 
     /**
-     * Removes all content from the overlay.
-     */
-    void clear();
-
-    /**
      * Removes the specified Drawable from the overlay.
      *
      * @param drawable The Drawable to be removed from the overlay.

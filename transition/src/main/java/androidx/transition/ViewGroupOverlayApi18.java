@@ -39,11 +39,6 @@ class ViewGroupOverlayApi18 implements ViewGroupOverlayImpl {
     }
 
     @Override
-    public void clear() {
-        mViewGroupOverlay.clear();
-    }
-
-    @Override
     public void remove(@NonNull Drawable drawable) {
         mViewGroupOverlay.remove(drawable);
     }

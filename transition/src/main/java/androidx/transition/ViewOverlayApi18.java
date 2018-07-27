@@ -38,11 +38,6 @@ class ViewOverlayApi18 implements ViewOverlayImpl {
     }
 
     @Override
-    public void clear() {
-        mViewOverlay.clear();
-    }
-
-    @Override
     public void remove(@NonNull Drawable drawable) {
         mViewOverlay.remove(drawable);
     }

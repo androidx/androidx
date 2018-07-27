@@ -144,10 +144,6 @@ class ViewBoundsCheck {
             mChildEnd = childEnd;
         }
 
-        void setFlags(@ViewBounds int flags, int mask) {
-            mBoundFlags = (mBoundFlags & ~mask) | (flags & mask);
-        }
-
         void addFlags(@ViewBounds int flags) {
             mBoundFlags |= flags;
         }
@@ -264,8 +260,6 @@ class ViewBoundsCheck {
      * parent boundaries.
      */
     interface Callback {
-        int getChildCount();
-        View getParent();
         View getChildAt(int index);
         int getParentStart();
         int getParentEnd();

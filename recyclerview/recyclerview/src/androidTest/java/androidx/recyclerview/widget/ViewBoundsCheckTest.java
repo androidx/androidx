@@ -60,16 +60,6 @@ public class ViewBoundsCheckTest {
     private final ViewBoundsCheck.Callback mBoundCheckCallback =
             new ViewBoundsCheck.Callback() {
                 @Override
-                public int getChildCount() {
-                    return mChildren.length;
-                }
-
-                @Override
-                public View getParent() {
-                    return mParent;
-                }
-
-                @Override
                 public View getChildAt(int index) {
                     return mChildren[index];
                 }
