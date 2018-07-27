@@ -101,11 +101,7 @@ package androidx.textclassifier {
   public final class TextClassificationManager {
     method public androidx.textclassifier.TextClassifier createTextClassifier(androidx.textclassifier.TextClassificationContext);
     method public static androidx.textclassifier.TextClassificationManager of(android.content.Context);
-    method public void setTextClassifierFactory(androidx.textclassifier.TextClassificationManager.TextClassifierFactory);
-  }
-
-  public static abstract interface TextClassificationManager.TextClassifierFactory {
-    method public abstract androidx.textclassifier.TextClassifier create(androidx.textclassifier.TextClassificationContext);
+    method public void setTextClassifierFactory(androidx.textclassifier.TextClassifierFactory);
   }
 
   public final class TextClassificationSessionId {
@@ -161,6 +157,10 @@ package androidx.textclassifier {
     method public androidx.textclassifier.TextClassifier.EntityConfig.Builder setHints(java.util.Collection<java.lang.String>);
     method public androidx.textclassifier.TextClassifier.EntityConfig.Builder setIncludeDefaultEntityTypes(boolean);
     method public androidx.textclassifier.TextClassifier.EntityConfig.Builder setIncludedEntityTypes(java.util.Collection<java.lang.String>);
+  }
+
+  public abstract interface TextClassifierFactory {
+    method public abstract androidx.textclassifier.TextClassifier create(androidx.textclassifier.TextClassificationContext);
   }
 
   public final class TextLinks {
