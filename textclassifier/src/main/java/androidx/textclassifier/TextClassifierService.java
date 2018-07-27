@@ -48,7 +48,10 @@ import androidx.core.util.Preconditions;
  * </service>}</pre>
  *
  * @see TextClassifier
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class TextClassifierService extends Service {
 
     private static final String LOG_TAG = "TextClassifierService";

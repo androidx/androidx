@@ -21,6 +21,7 @@ import android.text.style.ClickableSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextLinks.SpanFactory;
@@ -161,7 +162,10 @@ public final class TextLinksParams {
          * Set to {@code null} to use the default span factory.
          *
          * @return this builder
+         *
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public Builder setSpanFactory(@Nullable SpanFactory spanFactory) {
             mSpanFactory = spanFactory == null ? DEFAULT_SPAN_FACTORY : spanFactory;
             return this;
