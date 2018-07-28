@@ -68,6 +68,15 @@ public final class Constraints {
                 : new ContentUriTriggers();
     }
 
+    public Constraints(@NonNull Constraints other) {
+        mRequiresCharging = other.mRequiresCharging;
+        mRequiresDeviceIdle = other.mRequiresDeviceIdle;
+        mRequiredNetworkType = other.mRequiredNetworkType;
+        mRequiresBatteryNotLow = other.mRequiresBatteryNotLow;
+        mRequiresStorageNotLow = other.mRequiresStorageNotLow;
+        mContentUriTriggers = other.mContentUriTriggers;
+    }
+
     public @NonNull NetworkType getRequiredNetworkType() {
         return mRequiredNetworkType;
     }
