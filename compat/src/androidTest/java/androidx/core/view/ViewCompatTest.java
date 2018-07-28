@@ -22,14 +22,22 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.core.test.R;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
@@ -40,7 +48,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivity> {
 
     private View mView;
@@ -84,6 +92,120 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
     }
 
     @Test
+    public void  dispatchNestedScroll_viewIsNestedScrollingChild3_callsCorrectMethod() {
+        final NestedScrollingChild3Impl nestedScrollingChild3Impl =
+                mock(NestedScrollingChild3Impl.class);
+
+        ViewCompat.dispatchNestedScroll(
+                nestedScrollingChild3Impl,
+                1,
+                2,
+                3,
+                4,
+                new int[]{5, 6},
+                ViewCompat.TYPE_TOUCH,
+                new int[]{9, 10});
+
+        verify(nestedScrollingChild3Impl).dispatchNestedScroll(
+                1,
+                2,
+                3,
+                4,
+                new int[]{5, 6},
+                ViewCompat.TYPE_TOUCH,
+                new int[]{9, 10});
+        verify(nestedScrollingChild3Impl, never()).dispatchNestedScroll(
+                anyInt(),
+                anyInt(),
+                anyInt(),
+                anyInt(),
+                any(int[].class),
+                anyInt());
+        verify(nestedScrollingChild3Impl, never()).dispatchNestedScroll(
+                anyInt(),
+                anyInt(),
+                anyInt(),
+                anyInt(),
+                any(int[].class));
+    }
+
+    @Test
+    public void  dispatchNestedScroll_viewIsNestedScrollingChild2_callsCorrectMethod() {
+        final NestedScrollingChild2Impl nestedScrollingChild2Impl =
+                mock(NestedScrollingChild2Impl.class);
+
+        ViewCompat.dispatchNestedScroll(
+                nestedScrollingChild2Impl,
+                1,
+                2,
+                3,
+                4,
+                new int[]{5, 6},
+                ViewCompat.TYPE_TOUCH,
+                new int[]{9, 10});
+
+        verify(nestedScrollingChild2Impl).dispatchNestedScroll(
+                1,
+                2,
+                3,
+                4,
+                new int[]{5, 6},
+                ViewCompat.TYPE_TOUCH);
+        verify(nestedScrollingChild2Impl, never()).dispatchNestedScroll(
+                anyInt(),
+                anyInt(),
+                anyInt(),
+                anyInt(),
+                any(int[].class));
+    }
+
+    @Test
+    public void  dispatchNestedScroll_viewIsNscTouchTypeNotTouch_callsNothing() {
+        final NestedScrollingChildImpl nestedScrollingChildImpl =
+                mock(NestedScrollingChildImpl.class);
+
+        ViewCompat.dispatchNestedScroll(
+                nestedScrollingChildImpl,
+                11,
+                2,
+                3,
+                4,
+                new int[]{5, 6},
+                ViewCompat.TYPE_NON_TOUCH,
+                new int[]{9, 10});
+
+        verify(nestedScrollingChildImpl, never()).dispatchNestedScroll(
+                anyInt(),
+                anyInt(),
+                anyInt(),
+                anyInt(),
+                any(int[].class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void  dispatchNestedScroll_viewIsNotAndroidXNestedScrollingChild_callsCorrectMethod() {
+        final ViewSubclass viewSubclass = mock(ViewSubclass.class);
+
+        ViewCompat.dispatchNestedScroll(
+                viewSubclass,
+                1,
+                2,
+                3,
+                4,
+                new int[]{5, 6},
+                ViewCompat.TYPE_TOUCH,
+                new int[]{9, 10});
+
+        verify(viewSubclass).dispatchNestedScroll(
+                1,
+                2,
+                3,
+                4,
+                new int[]{5, 6});
+    }
+
+    @Test
     public void testGenerateViewId() {
         final int requestCount = 100;
 
@@ -121,5 +243,52 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
 
     private static boolean isViewIdGenerated(int id) {
         return (id & 0xFF000000) == 0 && (id & 0x00FFFFFF) != 0;
+    }
+
+    public abstract static class ViewSubclass extends View {
+        public ViewSubclass(Context context) {
+            super(context);
+        }
+    }
+
+    public abstract static class NestedScrollingChildImpl extends ViewSubclass
+            implements NestedScrollingChild{
+        public NestedScrollingChildImpl(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed, @Nullable int[] offsetInWindow) {
+            return true;
+        }
+    }
+
+    public abstract static class NestedScrollingChild2Impl extends NestedScrollingChildImpl
+            implements NestedScrollingChild2 {
+
+        public NestedScrollingChild2Impl(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed, @Nullable int[] offsetInWindow, int type) {
+            return true;
+        }
+    }
+
+    public abstract static class NestedScrollingChild3Impl extends NestedScrollingChild2Impl
+            implements NestedScrollingChild3 {
+
+        public NestedScrollingChild3Impl(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed, @Nullable int[] offsetInWindow, int type,
+                @Nullable int[] consumed) {
+        }
     }
 }
