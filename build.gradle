@@ -17,6 +17,7 @@
 import androidx.build.AndroidXPlugin
 import androidx.build.DacOptions
 import androidx.build.PublishDocsRulesKt
+import androidx.build.jacoco.Jacoco
 
 def currentJvmVersion = org.gradle.api.JavaVersion.current()
 if (currentJvmVersion.getMajorVersion() != "8") {
@@ -36,8 +37,10 @@ buildscript {
 
     dependencies {
         classpath build_libs.gradle
-        classpath build_libs.jacoco
         classpath build_libs.kotlin.gradle_plugin
+
+        // AGP only declares a compileOnly dependency on Jacoco. This forces an explicit version.
+        classpath Jacoco.CORE_DEPENDENCY
     }
 }
 
