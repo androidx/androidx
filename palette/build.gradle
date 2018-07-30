@@ -6,6 +6,12 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
+android {
+    lintOptions {
+        fatal("UnknownNullness")
+    }
+}
+
 dependencies {
     api(project(":core"))
     api(project(":legacy-support-core-utils"))
