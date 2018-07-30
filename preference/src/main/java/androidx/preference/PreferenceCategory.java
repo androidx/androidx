@@ -36,7 +36,6 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionIt
  * </div>
  */
 public class PreferenceCategory extends PreferenceGroup {
-    private static final String TAG = "PreferenceCategory";
 
     public PreferenceCategory(
             Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
