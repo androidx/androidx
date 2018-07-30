@@ -16,16 +16,10 @@
 
 package androidx.core.util;
 
-import androidx.annotation.RestrictTo;
-
 /**
  * Compat version of {@link java.util.function.Supplier}
  * @param <T> the type of the input to the operation
- *
- * @hide
  */
-// TODO: Make this public API.
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface Supplier<T> {
 
     /**
