@@ -96,10 +96,10 @@ package androidx.car.drawer {
   }
 
   public class DrawerItemViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
-    method public android.widget.ImageView getEndIcon();
-    method public android.widget.ImageView getIcon();
-    method public android.widget.TextView getText();
-    method public android.widget.TextView getTitle();
+    method public android.widget.TextView getBodyView();
+    method public android.widget.ImageView getEndIconView();
+    method public android.widget.ImageView getIconView();
+    method public android.widget.TextView getTitleView();
   }
 
 }
