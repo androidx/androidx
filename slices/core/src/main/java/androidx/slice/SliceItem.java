@@ -33,8 +33,15 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.text.style.AlignmentSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -101,6 +108,8 @@ public final class SliceItem extends CustomVersionedParcelable {
     String mSubType;
     @NonParcelField
     Object mObj;
+    @NonParcelField
+    CharSequence mSanitizedText;
 
     @ParcelField(4)
     SliceItemHolder mHolder;
@@ -204,6 +213,17 @@ public final class SliceItem extends CustomVersionedParcelable {
      */
     public CharSequence getText() {
         return (CharSequence) mObj;
+    }
+
+    /**
+     * @hide
+     * @return The text held by this {@link android.app.slice.SliceItem#FORMAT_TEXT} SliceItem with
+     * ony spans that are unsupported by the androidx Slice renderer removed.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public CharSequence getSanitizedText() {
+        if (mSanitizedText == null) mSanitizedText = sanitizeText(getText());
+        return mSanitizedText;
     }
 
     /**
@@ -528,6 +548,57 @@ public final class SliceItem extends CustomVersionedParcelable {
             default:
                 return Integer.toString(layoutDirection);
         }
+    }
+
+    private static CharSequence sanitizeText(CharSequence text) {
+        if (text instanceof Spannable) {
+            fixSpannableText((Spannable) text);
+            return text;
+        } else if (text instanceof Spanned) {
+            if (checkSpannedText((Spanned) text)) return text;
+            Spannable fixedText = new SpannableString(text);
+            fixSpannableText(fixedText);
+            return fixedText;
+        } else {
+            return text;
+        }
+    }
+
+    private static boolean checkSpannedText(Spanned text) {
+        for (Object span : text.getSpans(0, text.length(), Object.class)) {
+            if (!checkSpan(span)) return false;
+        }
+        return true;
+    }
+
+    private static void fixSpannableText(Spannable text) {
+        for (Object span : text.getSpans(0, text.length(), Object.class)) {
+            Object fixedSpan = fixSpan(span);
+            if (fixedSpan == span) continue;
+
+            if (fixedSpan != null) {
+                int spanStart = text.getSpanStart(span);
+                int spanEnd = text.getSpanEnd(span);
+                int spanFlags = text.getSpanFlags(span);
+                text.setSpan(fixedSpan, spanStart, spanEnd, spanFlags);
+            }
+
+            text.removeSpan(span);
+        }
+    }
+
+    // TODO: Allow only highlight color in ForegroundColorSpan.
+    // TODO: Cap smallest/largest sizeChange for RelativeSizeSpans, minding nested ones.
+
+    private static boolean checkSpan(Object span) {
+        return span instanceof AlignmentSpan
+                || span instanceof ForegroundColorSpan
+                || span instanceof RelativeSizeSpan
+                || span instanceof StyleSpan;
+    }
+
+    private static Object fixSpan(Object span) {
+        return checkSpan(span) ? span : null;
     }
 
     /**
