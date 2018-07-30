@@ -18,6 +18,7 @@ package androidx.benchmark;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
@@ -48,6 +49,12 @@ import java.util.concurrent.TimeUnit;
  * }
  */
 public final class BenchmarkState {
+    private static final boolean IS_DEBUGGABLE;
+
+    static {
+        ApplicationInfo appInfo = InstrumentationRegistry.getTargetContext().getApplicationInfo();
+        IS_DEBUGGABLE = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
 
     private static final String TAG = "BenchmarkState";
     private static final boolean ENABLE_PROFILING = false;
@@ -255,6 +262,9 @@ public final class BenchmarkState {
     @SuppressWarnings("WeakerAccess")
     public void sendFullStatusReport(@NonNull Instrumentation instrumentation,
             @NonNull String key) {
+        if (IS_DEBUGGABLE) {
+            key = "DEBUGGABLE_" + key;
+        }
         Log.i(TAG, key + summaryLine());
         Bundle status = new Bundle();
         status.putLong(key + "_median", median());
