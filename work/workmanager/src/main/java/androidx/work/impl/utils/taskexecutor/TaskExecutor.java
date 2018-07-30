@@ -18,6 +18,8 @@ package androidx.work.impl.utils.taskexecutor;
 
 import android.support.annotation.RestrictTo;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Interface for executing common tasks in WorkManager.
  * @hide
@@ -27,12 +29,19 @@ import android.support.annotation.RestrictTo;
 public interface TaskExecutor {
 
     /**
-     * @param runnable {@link Runnable} to post to the main thread.
+     * @param runnable {@link Runnable} to post to the main thread
      */
     void postToMainThread(Runnable runnable);
 
     /**
-     * @param runnable {@link Runnable} to execute on a background thread pool.
+     * @param runnable {@link Runnable} to execute on a background thread pool
      */
     void executeOnBackgroundThread(Runnable runnable);
+
+    /**
+     * @param runnable {@link Runnable} to execute on a background thread pool
+     * @param delay The delay for {@code runnable} in {@code timeUnit} time units
+     * @param timeUnit The time units for {@code delay}
+     */
+    void executeOnBackgroundThread(Runnable runnable, long delay, TimeUnit timeUnit);
 }

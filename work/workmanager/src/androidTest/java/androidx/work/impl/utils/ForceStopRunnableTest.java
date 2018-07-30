@@ -16,6 +16,8 @@
 
 package androidx.work.impl.utils;
 
+import static androidx.work.impl.utils.ForceStopRunnable.MAX_RETRIES;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,15 +36,19 @@ import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.TimeUnit;
+
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ForceStopRunnableTest {
 
+    private TaskExecutor mSynchronousTaskExecutor;
     private Context mContext;
     private WorkManagerImpl mWorkManager;
     private WorkDatabase mWorkDatabase;
@@ -52,6 +58,25 @@ public class ForceStopRunnableTest {
 
     @Before
     public void setUp() {
+        mSynchronousTaskExecutor = new TaskExecutor() {
+            @Override
+            public void postToMainThread(Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public void executeOnBackgroundThread(Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public void executeOnBackgroundThread(Runnable runnable,
+                    long delay,
+                    TimeUnit timeUnit) {
+                runnable.run();
+            }
+        };
+
         mContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mWorkManager = mock(WorkManagerImpl.class);
         mWorkDatabase = mock(WorkDatabase.class);
@@ -60,6 +85,7 @@ public class ForceStopRunnableTest {
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
         when(mWorkDatabase.workSpecDao()).thenReturn(mWorkSpecDao);
         when(mWorkManager.getPreferences()).thenReturn(mPreferences);
+        when(mWorkManager.getTaskExecutor()).thenReturn(mSynchronousTaskExecutor);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);
     }
 
@@ -89,7 +115,7 @@ public class ForceStopRunnableTest {
         when(runnable.isForceStopped()).thenReturn(false);
         runnable.run();
         verify(mWorkManager, times(0)).rescheduleEligibleWork();
-        verify(mWorkManager, times(1)).onForceStopRunnableCompleted();
+        verify(mWorkManager, times(MAX_RETRIES)).onForceStopRunnableCompleted();
     }
 
     @Test

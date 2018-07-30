@@ -28,6 +28,7 @@ import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Helps initialize {@link androidx.work.WorkManager} for testing.
@@ -102,6 +103,13 @@ public final class WorkManagerTestInitHelper {
                     @Override
                     public void executeOnBackgroundThread(Runnable runnable) {
                         runnable.run();
+                    }
+
+                    @Override
+                    public void executeOnBackgroundThread(Runnable r,
+                            long delay,
+                            TimeUnit timeUnit) {
+                        r.run();
                     }
                 });
     }
