@@ -16,8 +16,10 @@
 
 package androidx.viewpager2.widget
 
+import android.os.SystemClock.sleep
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
@@ -38,6 +40,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.roundToInt
 
 @RunWith(AndroidJUnit4::class)
@@ -439,6 +442,75 @@ class PageChangeListenerTest : BaseTest() {
         test_selectItemProgrammatically_noSmoothScroll(VERTICAL)
     }
 
+    /**
+     * Test behavior when no OnPageChangeListeners are attached.
+     * Introduced after finding a regression.
+     */
+    private fun test_selectItemProgrammatically_noListener(
+        @Orientation orientation: Int,
+        smoothScroll: Boolean
+    ) {
+        // given
+        setUpTest(3, orientation).apply {
+
+            // when
+            listOf(2, 2, 0, 0, 1, 2, 1, 0).forEach { targetPage ->
+                runOnUiThread { viewPager.setCurrentItem(targetPage, smoothScroll) }
+
+                // poll the viewpager on the ui thread
+                val targetReached = AtomicBoolean(false)
+                val checkFunctionExecuted = AtomicBoolean(false)
+
+                // this function will be called on the ui thread
+                fun checkTargetReached() {
+                    targetReached.set(targetPage == viewPager.currentCompletelyVisibleItem)
+                    checkFunctionExecuted.set(true)
+                }
+
+                // poll for up to 2 seconds
+                val end = System.currentTimeMillis() + 2000
+                runOnUiThread(::checkTargetReached)
+                while (System.currentTimeMillis() < end) {
+                    if (checkFunctionExecuted.get()) {
+                        if (targetReached.get()) {
+                            break
+                        } else {
+                            checkFunctionExecuted.set(false)
+                            runOnUiThread(::checkTargetReached)
+                        }
+                    }
+                    sleep(10)
+                }
+                // wait until scroll events have propagated in the system
+                sleep(100)
+
+                // then
+                assertThat(targetPage, equalTo(viewPager.currentItem))
+                assertThat(targetPage, equalTo(viewPager.currentCompletelyVisibleItem))
+            }
+        }
+    }
+
+    @Test
+    fun test_selectItemProgrammatically_noSmoothScroll_noListener_horizontal() {
+        test_selectItemProgrammatically_noListener(HORIZONTAL, false)
+    }
+
+    @Test
+    fun test_selectItemProgrammatically_noSmoothScroll_noListener_vertical() {
+        test_selectItemProgrammatically_noListener(VERTICAL, false)
+    }
+
+    @Test
+    fun test_selectItemProgrammatically_smoothScroll_noListener_horizontal() {
+        test_selectItemProgrammatically_noListener(HORIZONTAL, true)
+    }
+
+    @Test
+    fun test_selectItemProgrammatically_smoothScroll_noListener_vertical() {
+        test_selectItemProgrammatically_noListener(VERTICAL, true)
+    }
+
     @Test
     fun test_scrollStateValuesInSync() {
         assertThat(ViewPager2.ScrollState.IDLE, allOf(equalTo(ViewPager.SCROLL_STATE_IDLE),
@@ -481,6 +553,13 @@ class PageChangeListenerTest : BaseTest() {
         addOnPageChangeListener(listener)
         return listener
     }
+
+    private val ViewPager2.currentCompletelyVisibleItem: Int
+        get() {
+            return ((getChildAt(0) as RecyclerView)
+                    .layoutManager as LinearLayoutManager)
+                    .findFirstCompletelyVisibleItemPosition()
+        }
 
     private sealed class Event {
         data class OnPageScrolledEvent(
