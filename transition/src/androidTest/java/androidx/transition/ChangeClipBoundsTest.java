@@ -19,17 +19,22 @@ package androidx.transition;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.transition.test.R;
 
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 
 @MediumTest
 public class ChangeClipBoundsTest extends BaseTransitionTest {
@@ -42,11 +47,16 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
     @SdkSuppress(minSdkVersion = 18)
     @Test
     public void testChangeClipBounds() throws Throwable {
-        enterScene(R.layout.scene1);
+        final View redSquare = spy(new View(rule.getActivity()));
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                redSquare.setBackgroundColor(Color.RED);
+                mRoot.addView(redSquare, 100, 100);
+            }
+        });
 
-        final View redSquare = rule.getActivity().findViewById(R.id.redSquare);
-        final Rect newClip = new Rect(redSquare.getLeft() + 10, redSquare.getTop() + 10,
-                redSquare.getRight() - 10, redSquare.getBottom() - 10);
+        final Rect newClip = new Rect(40, 40, 60, 60);
 
         rule.runOnUiThread(new Runnable() {
             @Override
@@ -57,19 +67,8 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
             }
         });
         waitForStart();
-        Thread.sleep(150);
-        rule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Rect midClip = ViewCompat.getClipBounds(redSquare);
-                assertNotNull(midClip);
-                assertTrue(midClip.left > 0 && midClip.left < newClip.left);
-                assertTrue(midClip.top > 0 && midClip.top < newClip.top);
-                assertTrue(midClip.right < redSquare.getRight() && midClip.right > newClip.right);
-                assertTrue(midClip.bottom < redSquare.getBottom()
-                        && midClip.bottom > newClip.bottom);
-            }
-        });
+        verify(redSquare, timeout(1000).atLeastOnce())
+                .setClipBounds(argThat(isRectContaining(newClip)));
         waitForEnd();
 
         rule.runOnUiThread(new Runnable() {
@@ -82,6 +81,7 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
         });
 
         resetListener();
+        reset(redSquare);
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -90,19 +90,8 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
             }
         });
         waitForStart();
-        Thread.sleep(150);
-        rule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Rect midClip = ViewCompat.getClipBounds(redSquare);
-                assertNotNull(midClip);
-                assertTrue(midClip.left > 0 && midClip.left < newClip.left);
-                assertTrue(midClip.top > 0 && midClip.top < newClip.top);
-                assertTrue(midClip.right < redSquare.getRight() && midClip.right > newClip.right);
-                assertTrue(midClip.bottom < redSquare.getBottom()
-                        && midClip.bottom > newClip.bottom);
-            }
-        });
+        verify(redSquare, timeout(1000).atLeastOnce())
+                .setClipBounds(argThat(isRectContainedIn(newClip)));
         waitForEnd();
 
         rule.runOnUiThread(new Runnable() {
@@ -112,6 +101,24 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
             }
         });
 
+    }
+
+    private ArgumentMatcher<Rect> isRectContaining(final Rect rect) {
+        return new ArgumentMatcher<Rect>() {
+            @Override
+            public boolean matches(Rect self) {
+                return rect != null && self != null && self.contains(rect);
+            }
+        };
+    }
+
+    private ArgumentMatcher<Rect> isRectContainedIn(final Rect rect) {
+        return new ArgumentMatcher<Rect>() {
+            @Override
+            public boolean matches(Rect self) {
+                return rect != null && self != null && rect.contains(self);
+            }
+        };
     }
 
     @Test
