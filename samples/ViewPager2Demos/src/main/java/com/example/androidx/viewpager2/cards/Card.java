@@ -32,9 +32,9 @@ import java.util.Set;
 public class Card {
     private static final String ARGS_BUNDLE = Card.class.getName() + ":Bundle";
 
-    private static final Set<Character> SUITS = unmodifiableSet(new LinkedHashSet<>(
+    public static final Set<Character> SUITS = unmodifiableSet(new LinkedHashSet<>(
             asList('♣' /* clubs*/, '♦' /* diamonds*/, '♥' /* hearts*/, '♠' /*spades*/)));
-    private static final Set<Character> VALUES = unmodifiableSet(new LinkedHashSet<>(
+    public static final Set<Character> VALUES = unmodifiableSet(new LinkedHashSet<>(
             asList('2', '3', '4', '5', '6', '7', '8', '9', '⒑', 'J', 'Q', 'K', 'A')));
 
     private final char mSuit;
