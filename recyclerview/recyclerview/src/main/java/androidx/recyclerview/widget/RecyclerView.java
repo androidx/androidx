@@ -69,6 +69,7 @@ import androidx.core.util.Preconditions;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild2;
+import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.ScrollingView;
 import androidx.core.view.ViewCompat;
@@ -204,7 +205,8 @@ import java.util.List;
  *
  * @attr ref androidx.recyclerview.R.styleable#RecyclerView_layoutManager
  */
-public class RecyclerView extends ViewGroup implements ScrollingView, NestedScrollingChild2 {
+public class RecyclerView extends ViewGroup implements ScrollingView,
+        NestedScrollingChild2, NestedScrollingChild3 {
 
     static final String TAG = "RecyclerView";
 
@@ -565,14 +567,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     private NestedScrollingChildHelper mScrollingChildHelper;
     private final int[] mScrollOffset = new int[2];
-    final int[] mScrollConsumed = new int[2];
     private final int[] mNestedOffsets = new int[2];
 
-    /**
-     * Reusable int array for use in calls to {@link #scrollStep(int, int, int[])} so that the
-     * method may mutate it to "return" 2 ints.
-     */
-    final int[] mScrollStepConsumed = new int[2];
+    // Reusable int array to be passed to method calls that mutate it in order to "return" two ints.
+    final int[] mReusableIntPair = new int[2];
 
     /**
      * These are views that had their a11y importance changed during a layout. We defer these events
@@ -1919,14 +1917,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @return Whether any scroll was consumed in either direction.
      */
     boolean scrollByInternal(int x, int y, MotionEvent ev) {
-        int unconsumedX = 0, unconsumedY = 0;
-        int consumedX = 0, consumedY = 0;
+        int unconsumedX = 0;
+        int unconsumedY = 0;
+        int consumedX = 0;
+        int consumedY = 0;
 
         consumePendingUpdateOperations();
         if (mAdapter != null) {
-            scrollStep(x, y, mScrollStepConsumed);
-            consumedX = mScrollStepConsumed[0];
-            consumedY = mScrollStepConsumed[1];
+            mReusableIntPair[0] = 0;
+            mReusableIntPair[1] = 0;
+            scrollStep(x, y, mReusableIntPair);
+            consumedX = mReusableIntPair[0];
+            consumedY = mReusableIntPair[1];
             unconsumedX = x - consumedX;
             unconsumedY = y - consumedY;
         }
@@ -1934,17 +1936,23 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             invalidate();
         }
 
-        if (dispatchNestedScroll(consumedX, consumedY, unconsumedX, unconsumedY, mScrollOffset,
-                TYPE_TOUCH)) {
-            // Update the last touch co-ords, taking any scroll offset into account
-            mLastTouchX -= mScrollOffset[0];
-            mLastTouchY -= mScrollOffset[1];
-            if (ev != null) {
-                ev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
-            }
-            mNestedOffsets[0] += mScrollOffset[0];
-            mNestedOffsets[1] += mScrollOffset[1];
-        } else if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
+        mReusableIntPair[0] = 0;
+        mReusableIntPair[1] = 0;
+        dispatchNestedScroll(consumedX, consumedY, unconsumedX, unconsumedY, mScrollOffset,
+                TYPE_TOUCH, mReusableIntPair);
+        unconsumedX -= mReusableIntPair[0];
+        unconsumedY -= mReusableIntPair[1];
+
+        // Update the last touch co-ords, taking any scroll offset into account
+        mLastTouchX -= mScrollOffset[0];
+        mLastTouchY -= mScrollOffset[1];
+        if (ev != null) {
+            ev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
+        }
+        mNestedOffsets[0] += mScrollOffset[0];
+        mNestedOffsets[1] += mScrollOffset[1];
+
+        if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
             if (ev != null && !MotionEventCompat.isFromSource(ev, InputDevice.SOURCE_MOUSE)) {
                 pullGlows(ev.getX(), unconsumedX, ev.getY(), unconsumedY);
             }
@@ -2439,18 +2447,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     void absorbGlows(int velocityX, int velocityY) {
         if (velocityX < 0) {
             ensureLeftGlow();
-            mLeftGlow.onAbsorb(-velocityX);
+            if (mLeftGlow.isFinished()) {
+                mLeftGlow.onAbsorb(-velocityX);
+            }
         } else if (velocityX > 0) {
             ensureRightGlow();
-            mRightGlow.onAbsorb(velocityX);
+            if (mRightGlow.isFinished()) {
+                mRightGlow.onAbsorb(velocityX);
+            }
         }
 
         if (velocityY < 0) {
             ensureTopGlow();
-            mTopGlow.onAbsorb(-velocityY);
+            if (mTopGlow.isFinished()) {
+                mTopGlow.onAbsorb(-velocityY);
+            }
         } else if (velocityY > 0) {
             ensureBottomGlow();
-            mBottomGlow.onAbsorb(velocityY);
+            if (mBottomGlow.isFinished()) {
+                mBottomGlow.onAbsorb(velocityY);
+            }
         }
 
         if (velocityX != 0 || velocityY != 0) {
@@ -3027,6 +3043,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (mScrollState == SCROLL_STATE_SETTLING) {
                     getParent().requestDisallowInterceptTouchEvent(true);
                     setScrollState(SCROLL_STATE_DRAGGING);
+                    stopNestedScroll(TYPE_NON_TOUCH);
                 }
 
                 // Clear the nested offsets
@@ -3168,9 +3185,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 int dx = mLastTouchX - x;
                 int dy = mLastTouchY - y;
 
-                if (dispatchNestedPreScroll(dx, dy, mScrollConsumed, mScrollOffset, TYPE_TOUCH)) {
-                    dx -= mScrollConsumed[0];
-                    dy -= mScrollConsumed[1];
+                mReusableIntPair[0] = 0;
+                mReusableIntPair[1] = 0;
+                if (dispatchNestedPreScroll(dx, dy, mReusableIntPair, mScrollOffset, TYPE_TOUCH)) {
+                    dx -= mReusableIntPair[0];
+                    dy -= mReusableIntPair[1];
                     vtev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
                     // Updated the nested offsets
                     mNestedOffsets[0] += mScrollOffset[0];
@@ -5075,29 +5094,42 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // cause unexpected behaviors
             final OverScroller scroller = mScroller;
             if (scroller.computeScrollOffset()) {
-                final int[] scrollConsumed = mScrollConsumed;
                 final int x = scroller.getCurrX();
                 final int y = scroller.getCurrY();
-                int dx = x - mLastFlingX;
-                int dy = y - mLastFlingY;
-                int hresult = 0;
-                int vresult = 0;
+                int unconsumedX = x - mLastFlingX;
+                int unconsumedY = y - mLastFlingY;
                 mLastFlingX = x;
                 mLastFlingY = y;
-                int overscrollX = 0, overscrollY = 0;
+                int consumedX = 0;
+                int consumedY = 0;
 
-                if (dispatchNestedPreScroll(dx, dy, scrollConsumed, null, TYPE_NON_TOUCH)) {
-                    dx -= scrollConsumed[0];
-                    dy -= scrollConsumed[1];
+                // Nested Pre Scroll
+                mReusableIntPair[0] = 0;
+                mReusableIntPair[1] = 0;
+                if (dispatchNestedPreScroll(unconsumedX, unconsumedY, mReusableIntPair, null,
+                        TYPE_NON_TOUCH)) {
+                    unconsumedX -= mReusableIntPair[0];
+                    unconsumedY -= mReusableIntPair[1];
                 }
 
-                if (mAdapter != null) {
-                    scrollStep(dx, dy, mScrollStepConsumed);
-                    hresult = mScrollStepConsumed[0];
-                    vresult = mScrollStepConsumed[1];
-                    overscrollX = dx - hresult;
-                    overscrollY = dy - vresult;
+                // Based on movement, we may want to trigger the hiding of existing over scroll
+                // glows.
+                if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
+                    considerReleasingGlowsOnScroll(unconsumedX, unconsumedY);
+                }
 
+                // Local Scroll
+                if (mAdapter != null) {
+                    mReusableIntPair[0] = 0;
+                    mReusableIntPair[1] = 0;
+                    scrollStep(unconsumedX, unconsumedY, mReusableIntPair);
+                    consumedX = mReusableIntPair[0];
+                    consumedY = mReusableIntPair[1];
+                    unconsumedX -= consumedX;
+                    unconsumedY -= consumedY;
+
+                    // If SmoothScroller exists, this ViewFlinger was started by it, so we must
+                    // report back to SmoothScroller.
                     SmoothScroller smoothScroller = mLayout.mSmoothScroller;
                     if (smoothScroller != null && !smoothScroller.isPendingInitialRun()
                             && smoothScroller.isRunning()) {
@@ -5106,62 +5138,57 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                             smoothScroller.stop();
                         } else if (smoothScroller.getTargetPosition() >= adapterSize) {
                             smoothScroller.setTargetPosition(adapterSize - 1);
-                            smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
+                            smoothScroller.onAnimation(consumedX, consumedY);
                         } else {
-                            smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
+                            smoothScroller.onAnimation(consumedX, consumedY);
                         }
                     }
                 }
+
                 if (!mItemDecorations.isEmpty()) {
                     invalidate();
                 }
-                if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
-                    considerReleasingGlowsOnScroll(dx, dy);
-                }
 
-                if (!dispatchNestedScroll(hresult, vresult, overscrollX, overscrollY, null,
-                        TYPE_NON_TOUCH)
-                        && (overscrollX != 0 || overscrollY != 0)) {
-                    final int vel = (int) scroller.getCurrVelocity();
+                // Nested Post Scroll
+                mReusableIntPair[0] = 0;
+                mReusableIntPair[1] = 0;
+                dispatchNestedScroll(consumedX, consumedY, unconsumedX, unconsumedY, null,
+                        TYPE_NON_TOUCH, mReusableIntPair);
+                unconsumedX -= mReusableIntPair[0];
+                unconsumedY -= mReusableIntPair[1];
 
-                    int velX = 0;
-                    if (overscrollX != x) {
-                        velX = overscrollX < 0 ? -vel : overscrollX > 0 ? vel : 0;
-                    }
-
-                    int velY = 0;
-                    if (overscrollY != y) {
-                        velY = overscrollY < 0 ? -vel : overscrollY > 0 ? vel : 0;
-                    }
-
-                    if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
-                        absorbGlows(velX, velY);
-                    }
-                    if ((velX != 0 || overscrollX == x || scroller.getFinalX() == 0)
-                            && (velY != 0 || overscrollY == y || scroller.getFinalY() == 0)) {
-                        scroller.abortAnimation();
-                    }
-                }
-                if (hresult != 0 || vresult != 0) {
-                    dispatchOnScrolled(hresult, vresult);
+                if (consumedX != 0 || consumedY != 0) {
+                    dispatchOnScrolled(consumedX, consumedY);
                 }
 
                 if (!awakenScrollBars()) {
                     invalidate();
                 }
 
-                final boolean fullyConsumedVertical = dy != 0 && mLayout.canScrollVertically()
-                        && vresult == dy;
-                final boolean fullyConsumedHorizontal = dx != 0 && mLayout.canScrollHorizontally()
-                        && hresult == dx;
-                final boolean fullyConsumedAny = (dx == 0 && dy == 0) || fullyConsumedHorizontal
-                        || fullyConsumedVertical;
+                // We are done scrolling if scroller is finished, or for both the x and y dimension,
+                // we are done scrolling or we can't scroll further (we know we can't scroll further
+                // when we have unconsumed scroll distance).  It's possible that we don't need
+                // to also check for scroller.isFinished() at all, but no harm in doing so in case
+                // of old bugs in Overscroller.
+                boolean scrollerFinishedX = scroller.getCurrX() == scroller.getFinalX();
+                boolean scrollerFinishedY = scroller.getCurrY() == scroller.getFinalY();
+                final boolean doneScrolling = scroller.isFinished()
+                        || ((scrollerFinishedX || unconsumedX != 0)
+                            && (scrollerFinishedY || unconsumedY != 0));
 
                 SmoothScroller smoothScroller = mLayout.mSmoothScroller;
-                boolean smoothScrollerPending = smoothScroller != null
-                        && smoothScroller.isPendingInitialRun();
-                if (!smoothScrollerPending && (scroller.isFinished() || (!fullyConsumedAny
-                        && !hasNestedScrollingParent(TYPE_NON_TOUCH)))) {
+                boolean smoothScrollerPending =
+                        smoothScroller != null && smoothScroller.isPendingInitialRun();
+
+                if (!smoothScrollerPending && doneScrolling) {
+                    // If we are done scrolling and the layout's SmoothScroller is not pending,
+                    // stop the scroll.
+
+                    final int vel = (int) scroller.getCurrVelocity();
+                    int velX = unconsumedX < 0 ? -vel : unconsumedX > 0 ? vel : 0;
+                    int velY = unconsumedY < 0 ? -vel : unconsumedY > 0 ? vel : 0;
+                    absorbGlows(velX, velY);
+
                     // setting state to idle will stop this.
                     setScrollState(SCROLL_STATE_IDLE);
                     if (ALLOW_THREAD_GAP_WORK) {
@@ -5169,9 +5196,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     }
                     stopNestedScroll(TYPE_NON_TOUCH);
                 } else {
+                    // Otherwise continue the scroll.
+
                     postOnAnimation();
                     if (mGapWorker != null) {
-                        mGapWorker.postFromTraversal(RecyclerView.this, dx, dy);
+                        mGapWorker.postFromTraversal(RecyclerView.this, unconsumedX, unconsumedY);
                     }
                 }
             }
@@ -11342,6 +11371,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             int dyUnconsumed, int[] offsetInWindow, int type) {
         return getScrollingChildHelper().dispatchNestedScroll(dxConsumed, dyConsumed,
                 dxUnconsumed, dyUnconsumed, offsetInWindow, type);
+    }
+
+    @Override
+    public final void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+            int dyUnconsumed, int[] offsetInWindow, int type, int[] consumed) {
+        getScrollingChildHelper().dispatchNestedScroll(dxConsumed, dyConsumed,
+                dxUnconsumed, dyUnconsumed, offsetInWindow, type, consumed);
     }
 
     @Override
