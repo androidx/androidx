@@ -116,34 +116,38 @@ public final class Palette {
     /**
      * @deprecated Use {@link Builder} to generate the Palette.
      */
+    @NonNull
     @Deprecated
-    public static Palette generate(Bitmap bitmap) {
+    public static Palette generate(@NonNull Bitmap bitmap) {
         return from(bitmap).generate();
     }
 
     /**
      * @deprecated Use {@link Builder} to generate the Palette.
      */
+    @NonNull
     @Deprecated
-    public static Palette generate(Bitmap bitmap, int numColors) {
+    public static Palette generate(@NonNull Bitmap bitmap, int numColors) {
         return from(bitmap).maximumColorCount(numColors).generate();
     }
 
     /**
      * @deprecated Use {@link Builder} to generate the Palette.
      */
+    @NonNull
     @Deprecated
     public static AsyncTask<Bitmap, Void, Palette> generateAsync(
-            Bitmap bitmap, PaletteAsyncListener listener) {
+            @NonNull Bitmap bitmap, @NonNull PaletteAsyncListener listener) {
         return from(bitmap).generate(listener);
     }
 
     /**
      * @deprecated Use {@link Builder} to generate the Palette.
      */
+    @NonNull
     @Deprecated
     public static AsyncTask<Bitmap, Void, Palette> generateAsync(
-            final Bitmap bitmap, final int numColors, final PaletteAsyncListener listener) {
+            @NonNull Bitmap bitmap, int numColors, @NonNull PaletteAsyncListener listener) {
         return from(bitmap).maximumColorCount(numColors).generate(listener);
     }
 
@@ -563,6 +567,7 @@ public final class Palette {
             }
         }
 
+        @NonNull // TODO Remove once AGP 3.3. Fixed by I32b659c4e842ba5ac3d45b2d75b080b810fe1fe8.
         @Override
         public String toString() {
             return new StringBuilder(getClass().getSimpleName())
@@ -576,7 +581,8 @@ public final class Palette {
         }
 
         @Override
-        public boolean equals(Object o) {
+        // TODO Remove @Nullable once AGP 3.3. Fixed by I32b659c4e842ba5ac3d45b2d75b080b810fe1fe8.
+        public boolean equals(@Nullable Object o) {
             if (this == o) {
                 return true;
             }
@@ -714,7 +720,7 @@ public final class Palette {
          * @param filter filter to add.
          */
         @NonNull
-        public Builder addFilter(Filter filter) {
+        public Builder addFilter(@NonNull Filter filter) {
             if (filter != null) {
                 mFilters.add(filter);
             }
