@@ -19,7 +19,7 @@
     android:id="@+id/main_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/lb_preference_decor_list_background"
+    android:background="?android:attr/windowBackground"
     android:orientation="vertical"
     android:transitionGroup="false"
     >
@@ -35,17 +35,8 @@
         <TextView
             android:id="@+id/decor_title"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/lb_preference_decor_title_text_height"
-            android:layout_marginTop="@dimen/lb_preference_decor_title_margin_top"
-            android:layout_marginStart="@dimen/lb_preference_decor_title_margin_start"
-            android:layout_marginEnd="@dimen/lb_preference_decor_title_margin_end"
-            android:fontFamily="sans-serif"
-            android:textStyle="bold"
-            android:gravity="center_vertical"
-            android:singleLine="true"
-            android:textSize="@dimen/lb_preference_decor_title_text_size"
-            android:textColor="?android:attr/textColorPrimary"
-            />
+            android:layout_height="wrap_content"
+            style="?android:attr/titleTextStyle" />
     </FrameLayout>
 
 </LinearLayout>

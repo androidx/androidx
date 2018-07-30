@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2015 The Android Open Source Project
+  ~ Copyright 2018 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -12,22 +12,26 @@
   ~ distributed under the License is distributed on an "AS IS" BASIS,
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
-  ~ limitations under the License
+  ~ limitations under the License.
   -->
 
 <resources>
 
+    <!-- TODO: the whole theme will be moved to platforms >= API 28 so that we have a single place
+    on device to control colors and fonts across all apps. -->
+
     <style name="PreferenceThemeOverlayLeanbackBase" >
         <!-- settings panel background color -->
-        <item name="android:windowBackground">@color/default_preference_window_background_legacy</item>
-
-        <!-- no accent color defined < v28: we use material default accent color -->
+        <item name="android:windowBackground">@color/default_preference_window_background</item>
 
         <!-- settings title panel background color -->
-        <item name="android:colorPrimary">@color/default_preference_brand_color_legacy</item>
+        <item name="android:colorPrimary">@color/default_preference_brand_color</item>
+
+        <!-- colorAccent is normally used for category, checkbox, switch and seekbar -->
+        <item name="android:colorAccent">@color/default_preference_color_accent</item>
 
         <!-- text appearance for Settings panel main title, it by default reference titleTextColor for text color -->
-        <item name="android:titleTextAppearance">@style/TextAppearance.LeanbackPreference.Title</item>
+        <item name="android:titleTextAppearance">@style/TextAppearance.LeanbackPreference.Title.V23</item>
 
         <!-- text appearance for item text, it by default reference textColorPrimary for text color -->
         <item name="android:textAppearanceListItem">@style/TextAppearance.LeanbackPreference.ListItem</item>
@@ -44,14 +48,14 @@
         <!-- padding end for each item -->
         <item name="android:listPreferredItemPaddingEnd">@dimen/lb_preference_item_padding_end</item>
 
+        <!-- color for title text -->
+        <item name="android:titleTextColor">?android:attr/textColorPrimary</item>
+
         <!-- color for item text -->
         <item name="android:textColorPrimary">@color/lb_preference_item_primary_text_color</item>
 
         <!-- color for item second text -->
         <item name="android:textColorSecondary">@color/lb_preference_item_secondary_text_color</item>
-
-        <!-- style of window title TextView, customize margin, minHeight can be done here -->
-        <item name="android:titleTextStyle">@style/LeanbackPreference.Title</item>
 
         <!-- android:colorControlNormal is color of unchecked checkbox and radio, seekbar's track it is by default same as textColorPrimary -->
         <item name="android:colorControlNormal">@color/lb_preference_item_primary_text_color_default</item>
@@ -59,28 +63,20 @@
         <!-- android:colorControlActivated normally uses the "blue" colorAccent for checkbox, switch, seekbar, etc -->
         <item name="android:colorControlActivated">?android:attr/colorAccent</item>
 
+        <!-- style of window title TextView -->
+        <item name="android:titleTextStyle">@style/LeanbackPreference.Title</item>
+
         <!-- style for the icon-->
         <item name="android:imageButtonStyle">@null</item>
 
+        <item name="android:checkboxStyle">@android:style/Widget.Material.CompoundButton.CheckBox</item>
+
+        <item name="android:radioButtonStyle">@android:style/Widget.Material.CompoundButton.RadioButton</item>
+
+        <item name="android:switchStyle">@android:style/Widget.Material.CompoundButton.Switch</item>
+
+        <item name="android:seekBarStyle">@android:style/Widget.Material.SeekBar</item>
+
     </style>
 
-    <style name="PreferenceThemeOverlayLeanback" parent="PreferenceThemeOverlayLeanbackBase">
-        <item name="checkBoxPreferenceStyle">@style/LeanbackPreference.CheckBoxPreference</item>
-        <item name="dialogPreferenceStyle">@style/LeanbackPreference.DialogPreference</item>
-        <item name="dropdownPreferenceStyle">@style/Preference.DropDown</item>
-        <item name="editTextPreferenceStyle">@style/LeanbackPreference.DialogPreference.EditTextPreference</item>
-        <item name="preferenceCategoryStyle">@style/LeanbackPreference.Category</item>
-        <item name="preferenceFragmentCompatStyle">@style/PreferenceFragment.Leanback</item>
-        <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList.Leanback</item>
-        <item name="preferenceFragmentStyle">@style/PreferenceFragment.Leanback</item>
-        <item name="preferenceInformationStyle">@style/LeanbackPreference.Information</item>
-        <item name="preferenceScreenStyle">@style/LeanbackPreference.PreferenceScreen</item>
-        <item name="preferenceStyle">@style/LeanbackPreference</item>
-        <item name="seekBarPreferenceStyle">@style/LeanbackPreference.SeekBarPreference</item>
-        <item name="switchPreferenceCompatStyle">@style/LeanbackPreference.SwitchPreferenceCompat</item>
-        <item name="switchPreferenceStyle">@style/LeanbackPreference.SwitchPreference</item>
-    </style>
-
-    <!-- Deprecated. Use PreferenceThemeOverlayLeanback instead. -->
-    <style name="PreferenceThemeOverlay.v14.Leanback" parent="PreferenceThemeOverlayLeanback"/>
 </resources>

@@ -20,8 +20,8 @@
               android:layout_height="wrap_content"
               android:minHeight="?android:attr/listPreferredItemHeight"
               android:gravity="center_vertical"
-              android:paddingStart="@dimen/lb_preference_item_padding_start"
-              android:paddingEnd="@dimen/lb_preference_item_padding_end"
+              android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+              android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
               android:clickable="true"
               android:focusable="true"
               android:clipChildren="false"
@@ -29,14 +29,17 @@
 
     <ImageView
             android:id="@android:id/icon"
+            android:duplicateParentState="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            style="?android:attr/imageButtonStyle"
             android:minWidth="@dimen/preference_icon_minWidth"/>
 
     <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:duplicateParentState="true"
             android:layout_marginTop="6dip"
             android:layout_marginBottom="6dip"
             android:layout_weight="1"
@@ -48,20 +51,18 @@
                   android:layout_height="wrap_content"
                   android:singleLine="true"
                   android:layout_marginBottom="@dimen/lb_preference_item_primary_text_margin_bottom"
-                  android:fontFamily="sans-serif"
+                  android:duplicateParentState="true"
                   android:ellipsize="marquee"
                   android:fadingEdge="horizontal"
-                  android:textColor="@color/lb_preference_item_primary_text_color"
-                  android:textSize="@dimen/lb_preference_item_primary_text_size"/>
+                  android:textAppearance="?android:attr/textAppearanceListItem"/>
 
         <TextView android:id="@android:id/summary"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_below="@android:id/title"
+                  android:duplicateParentState="true"
                   android:layout_alignStart="@android:id/title"
-                  android:fontFamily="sans-serif-condensed"
-                  android:textColor="@color/lb_preference_item_secondary_text_color"
-                  android:textSize="@dimen/lb_preference_item_secondary_text_size"
+                  android:textAppearance="?android:attr/textAppearanceListItemSecondary"
                   android:maxLines="4" />
 
         <!-- Using UnPressableLinearLayout as a workaround to disable the pressed state propagation
@@ -71,6 +72,7 @@
         <androidx.preference.UnPressableLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:duplicateParentState="true"
                 android:layout_below="@android:id/summary"
                 android:layout_alignStart="@android:id/title"
                 android:clipChildren="false"
@@ -80,6 +82,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    style="?android:attr/seekBarStyle"
                     android:paddingStart="@dimen/lb_preference_seekbar_padding_start"
                     android:paddingEnd="@dimen/lb_preference_seekbar_padding_end"
                     android:focusable="false"
@@ -90,9 +93,8 @@
                       android:layout_width="@dimen/lb_preference_seekbar_value_width"
                       android:layout_height="match_parent"
                       android:gravity="right|center_vertical"
-                      android:fontFamily="sans-serif-condensed"
-                      android:textColor="@color/lb_preference_item_primary_text_color"
-                      android:textSize="@dimen/lb_preference_item_primary_text_size"/>
+                      android:duplicateParentState="true"
+                      android:textAppearance="?android:attr/textAppearanceListItem"/>
         </androidx.preference.UnPressableLinearLayout>
 
     </RelativeLayout>
