@@ -16,15 +16,17 @@
 
 package androidx.transition;
 
-import static org.hamcrest.CoreMatchers.both;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.mockito.AdditionalMatchers.and;
+import static org.mockito.AdditionalMatchers.gt;
+import static org.mockito.AdditionalMatchers.lt;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
-import android.view.View;
+import android.widget.TextView;
 
+import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
@@ -40,11 +42,18 @@ public class ChangeScrollTest extends BaseTransitionTest {
 
     @Test
     public void testChangeScroll() throws Throwable {
-        enterScene(R.layout.scene5);
+        final TextView view = spy(new TextView(rule.getActivity()));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mRoot.addView(view, 100, 100);
+                view.setText(R.string.longText);
+            }
+        });
+
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final View view = rule.getActivity().findViewById(R.id.text);
                 assertEquals(0, view.getScrollX());
                 assertEquals(0, view.getScrollY());
                 TransitionManager.beginDelayedTransition(mRoot, mTransition);
@@ -52,22 +61,14 @@ public class ChangeScrollTest extends BaseTransitionTest {
             }
         });
         waitForStart();
-        Thread.sleep(150);
-        rule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final View view = rule.getActivity().findViewById(R.id.text);
-                final int scrollX = view.getScrollX();
-                final int scrollY = view.getScrollY();
-                assertThat(scrollX, is(both(greaterThan(0)).and(lessThan(150))));
-                assertThat(scrollY, is(both(greaterThan(0)).and(lessThan(300))));
-            }
-        });
+
+        verify(view, timeout(1000).atLeastOnce()).setScrollX(and(gt(0), lt(150)));
+        verify(view, timeout(1000).atLeastOnce()).setScrollY(and(gt(0), lt(300)));
+
         waitForEnd();
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final View view = rule.getActivity().findViewById(R.id.text);
                 assertEquals(150, view.getScrollX());
                 assertEquals(300, view.getScrollY());
             }

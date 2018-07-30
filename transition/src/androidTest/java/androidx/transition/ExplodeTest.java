@@ -16,93 +16,112 @@
 
 package androidx.transition;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
+import static org.mockito.AdditionalMatchers.and;
+import static org.mockito.AdditionalMatchers.gt;
+import static org.mockito.AdditionalMatchers.lt;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.os.SystemClock;
+import android.graphics.Color;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
-import androidx.transition.test.R;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.verification.VerificationMode;
 
 @MediumTest
 public class ExplodeTest extends BaseTransitionTest {
+
+    private View mRedSquare;
+    private View mGreenSquare;
+    private View mBlueSquare;
+    private View mYellowSquare;
 
     @Override
     Transition createTransition() {
         return new Explode();
     }
 
+    @Before
+    public void prepareViews() {
+        mRedSquare = spy(new View(rule.getActivity()));
+        mGreenSquare = spy(new View(rule.getActivity()));
+        mBlueSquare = spy(new View(rule.getActivity()));
+        mYellowSquare = spy(new View(rule.getActivity()));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                final FrameLayout frame = new FrameLayout(rule.getActivity());
+                mRedSquare.setBackgroundColor(Color.RED);
+                frame.addView(mRedSquare,
+                        new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.TOP));
+                mGreenSquare.setBackgroundColor(Color.GREEN);
+                frame.addView(mGreenSquare,
+                        new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.TOP));
+                mBlueSquare.setBackgroundColor(Color.BLUE);
+                frame.addView(mBlueSquare,
+                        new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.BOTTOM));
+                mYellowSquare.setBackgroundColor(Color.YELLOW);
+                frame.addView(mYellowSquare,
+                        new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.BOTTOM));
+                mRoot.addView(frame,
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+            }
+        });
+    }
+
     @Test
     public void testExplode() throws Throwable {
-        enterScene(R.layout.scene10);
-        final View redSquare = rule.getActivity().findViewById(R.id.redSquare);
-        final View greenSquare = rule.getActivity().findViewById(R.id.greenSquare);
-        final View blueSquare = rule.getActivity().findViewById(R.id.blueSquare);
-        final View yellowSquare = rule.getActivity().findViewById(R.id.yellowSquare);
-
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 TransitionManager.beginDelayedTransition(mRoot, mTransition);
-                redSquare.setVisibility(View.INVISIBLE);
-                greenSquare.setVisibility(View.INVISIBLE);
-                blueSquare.setVisibility(View.INVISIBLE);
-                yellowSquare.setVisibility(View.INVISIBLE);
+                mRedSquare.setVisibility(View.INVISIBLE);
+                mGreenSquare.setVisibility(View.INVISIBLE);
+                mBlueSquare.setVisibility(View.INVISIBLE);
+                mYellowSquare.setVisibility(View.INVISIBLE);
             }
         });
         waitForStart();
-        verify(mListener, never()).onTransitionEnd(any(Transition.class));
-        assertEquals(View.VISIBLE, redSquare.getVisibility());
-        assertEquals(View.VISIBLE, greenSquare.getVisibility());
-        assertEquals(View.VISIBLE, blueSquare.getVisibility());
-        assertEquals(View.VISIBLE, yellowSquare.getVisibility());
-        float redStartX = redSquare.getTranslationX();
-        float redStartY = redSquare.getTranslationY();
+        assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+        assertEquals(View.VISIBLE, mGreenSquare.getVisibility());
+        assertEquals(View.VISIBLE, mBlueSquare.getVisibility());
+        assertEquals(View.VISIBLE, mYellowSquare.getVisibility());
 
-        SystemClock.sleep(100);
-        verifyTranslation(redSquare, true, true);
-        verifyTranslation(greenSquare, false, true);
-        verifyTranslation(blueSquare, false, false);
-        verifyTranslation(yellowSquare, true, false);
-        assertThat(redStartX, is(greaterThan(redSquare.getTranslationX()))); // moving left
-        assertThat(redStartY, is(greaterThan(redSquare.getTranslationY()))); // moving up
+        verifyMovement(mRedSquare, Gravity.LEFT | Gravity.TOP, true);
+        verifyMovement(mGreenSquare, Gravity.RIGHT | Gravity.TOP, true);
+        verifyMovement(mBlueSquare, Gravity.RIGHT | Gravity.BOTTOM, true);
+        verifyMovement(mYellowSquare, Gravity.LEFT | Gravity.BOTTOM, true);
         waitForEnd();
 
-        verifyNoTranslation(redSquare);
-        verifyNoTranslation(greenSquare);
-        verifyNoTranslation(blueSquare);
-        verifyNoTranslation(yellowSquare);
-        assertEquals(View.INVISIBLE, redSquare.getVisibility());
-        assertEquals(View.INVISIBLE, greenSquare.getVisibility());
-        assertEquals(View.INVISIBLE, blueSquare.getVisibility());
-        assertEquals(View.INVISIBLE, yellowSquare.getVisibility());
+        verifyNoTranslation(mRedSquare);
+        verifyNoTranslation(mGreenSquare);
+        verifyNoTranslation(mBlueSquare);
+        verifyNoTranslation(mYellowSquare);
+        assertEquals(View.INVISIBLE, mRedSquare.getVisibility());
+        assertEquals(View.INVISIBLE, mGreenSquare.getVisibility());
+        assertEquals(View.INVISIBLE, mBlueSquare.getVisibility());
+        assertEquals(View.INVISIBLE, mYellowSquare.getVisibility());
     }
 
     @Test
     public void testImplode() throws Throwable {
-        enterScene(R.layout.scene10);
-        final View redSquare = rule.getActivity().findViewById(R.id.redSquare);
-        final View greenSquare = rule.getActivity().findViewById(R.id.greenSquare);
-        final View blueSquare = rule.getActivity().findViewById(R.id.blueSquare);
-        final View yellowSquare = rule.getActivity().findViewById(R.id.yellowSquare);
-
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                redSquare.setVisibility(View.INVISIBLE);
-                greenSquare.setVisibility(View.INVISIBLE);
-                blueSquare.setVisibility(View.INVISIBLE);
-                yellowSquare.setVisibility(View.INVISIBLE);
+                mRedSquare.setVisibility(View.INVISIBLE);
+                mGreenSquare.setVisibility(View.INVISIBLE);
+                mBlueSquare.setVisibility(View.INVISIBLE);
+                mYellowSquare.setVisibility(View.INVISIBLE);
             }
         });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
@@ -111,54 +130,64 @@ public class ExplodeTest extends BaseTransitionTest {
             @Override
             public void run() {
                 TransitionManager.beginDelayedTransition(mRoot, mTransition);
-                redSquare.setVisibility(View.VISIBLE);
-                greenSquare.setVisibility(View.VISIBLE);
-                blueSquare.setVisibility(View.VISIBLE);
-                yellowSquare.setVisibility(View.VISIBLE);
+                mRedSquare.setVisibility(View.VISIBLE);
+                mGreenSquare.setVisibility(View.VISIBLE);
+                mBlueSquare.setVisibility(View.VISIBLE);
+                mYellowSquare.setVisibility(View.VISIBLE);
             }
         });
         waitForStart();
 
-        assertEquals(View.VISIBLE, redSquare.getVisibility());
-        assertEquals(View.VISIBLE, greenSquare.getVisibility());
-        assertEquals(View.VISIBLE, blueSquare.getVisibility());
-        assertEquals(View.VISIBLE, yellowSquare.getVisibility());
-        float redStartX = redSquare.getTranslationX();
-        float redStartY = redSquare.getTranslationY();
+        assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+        assertEquals(View.VISIBLE, mGreenSquare.getVisibility());
+        assertEquals(View.VISIBLE, mBlueSquare.getVisibility());
+        assertEquals(View.VISIBLE, mYellowSquare.getVisibility());
 
-        SystemClock.sleep(100);
-        verifyTranslation(redSquare, true, true);
-        verifyTranslation(greenSquare, false, true);
-        verifyTranslation(blueSquare, false, false);
-        verifyTranslation(yellowSquare, true, false);
-        assertThat(redStartX, is(lessThan(redSquare.getTranslationX()))); // moving right
-        assertThat(redStartY, is(lessThan(redSquare.getTranslationY()))); // moving down
+        verifyMovement(mRedSquare, Gravity.LEFT | Gravity.TOP, false);
+        verifyMovement(mGreenSquare, Gravity.RIGHT | Gravity.TOP, false);
+        verifyMovement(mBlueSquare, Gravity.RIGHT | Gravity.BOTTOM, false);
+        verifyMovement(mYellowSquare, Gravity.LEFT | Gravity.BOTTOM, false);
         waitForEnd();
 
-        verifyNoTranslation(redSquare);
-        verifyNoTranslation(greenSquare);
-        verifyNoTranslation(blueSquare);
-        verifyNoTranslation(yellowSquare);
-        assertEquals(View.VISIBLE, redSquare.getVisibility());
-        assertEquals(View.VISIBLE, greenSquare.getVisibility());
-        assertEquals(View.VISIBLE, blueSquare.getVisibility());
-        assertEquals(View.VISIBLE, yellowSquare.getVisibility());
+        verifyNoTranslation(mRedSquare);
+        verifyNoTranslation(mGreenSquare);
+        verifyNoTranslation(mBlueSquare);
+        verifyNoTranslation(mYellowSquare);
+        assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+        assertEquals(View.VISIBLE, mGreenSquare.getVisibility());
+        assertEquals(View.VISIBLE, mBlueSquare.getVisibility());
+        assertEquals(View.VISIBLE, mYellowSquare.getVisibility());
     }
 
-    private void verifyTranslation(View view, boolean goLeft, boolean goUp) {
-        float translationX = view.getTranslationX();
-        float translationY = view.getTranslationY();
-
-        if (goLeft) {
-            assertThat(translationX, is(lessThan(0.f)));
-        } else {
-            assertThat(translationX, is(greaterThan(0.f)));
+    private void verifyMovement(View v, int direction, boolean movingOut) {
+        final float startX = v.getTranslationX();
+        final float startY = v.getTranslationY();
+        final VerificationMode mode = timeout(1000).atLeastOnce();
+        if ((direction & Gravity.LEFT) == Gravity.LEFT) {
+            if (movingOut) {
+                verify(v, mode).setTranslationX(and(lt(0f), lt(startX)));
+            } else {
+                verify(v, mode).setTranslationX(and(lt(0f), gt(startX)));
+            }
+        } else if ((direction & Gravity.RIGHT) == Gravity.RIGHT) {
+            if (movingOut) {
+                verify(v, mode).setTranslationX(and(gt(0f), gt(startX)));
+            } else {
+                verify(v, mode).setTranslationX(and(gt(0f), lt(startX)));
+            }
         }
-
-        if (goUp) {
-            assertThat(translationY, is(lessThan(0.f)));
-        } else {
-            assertThat(translationY, is(greaterThan(0.f)));
+        if ((direction & Gravity.TOP) == Gravity.TOP) {
+            if (movingOut) {
+                verify(v, mode).setTranslationY(and(lt(0f), lt(startY)));
+            } else {
+                verify(v, mode).setTranslationY(and(lt(0f), gt(startY)));
+            }
+        } else if ((direction & Gravity.BOTTOM) == Gravity.BOTTOM) {
+            if (movingOut) {
+                verify(v, mode).setTranslationY(and(gt(0f), gt(startY)));
+            } else {
+                verify(v, mode).setTranslationY(and(gt(0f), lt(startY)));
+            }
         }
     }
 
