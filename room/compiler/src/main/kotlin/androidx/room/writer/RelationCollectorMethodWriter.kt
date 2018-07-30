@@ -23,6 +23,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
+import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.vo.RelationCollector
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
@@ -112,8 +113,16 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector)
             }.endControlFlow()
             collector.queryWriter.prepareReadAndBind(sqlQueryVar, stmtVar, scope)
 
-            addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
-                    DaoWriter.dbField, stmtVar)
+            val shouldCopyCursor = collector.rowAdapter.let {
+                it is PojoRowAdapter && it.relationCollectors.isNotEmpty()
+            }
+            addStatement("final $T $L = $T.query($N, $L, $L)",
+                    AndroidTypeNames.CURSOR,
+                    cursorVar,
+                    RoomTypeNames.DB_UTIL,
+                    DaoWriter.dbField,
+                    stmtVar,
+                    if (shouldCopyCursor) "true" else "false")
 
             beginControlFlow("try").apply {
                 addStatement("final $T $L = $L.getColumnIndex($S)",

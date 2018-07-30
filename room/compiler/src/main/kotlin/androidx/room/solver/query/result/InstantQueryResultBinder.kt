@@ -18,6 +18,7 @@ package androidx.room.solver.query.result
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.writer.DaoWriter
@@ -27,11 +28,13 @@ import com.squareup.javapoet.FieldSpec
  * Instantly runs and returns the query.
  */
 class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder(adapter) {
-    override fun convertAndReturn(roomSQLiteQueryVar: String,
-                                  canReleaseQuery: Boolean,
-                                  dbField: FieldSpec,
-                                  inTransaction: Boolean,
-                                  scope: CodeGenScope) {
+    override fun convertAndReturn(
+        roomSQLiteQueryVar: String,
+        canReleaseQuery: Boolean,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
         val transactionWrapper = if (inTransaction) {
             scope.builder().transactionWrapper(dbField)
         } else {
@@ -39,10 +42,16 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         }
         transactionWrapper?.beginTransactionWithControlFlow()
         scope.builder().apply {
+            val shouldCopyCursor = adapter?.shouldCopyCursor() == true
             val outVar = scope.getTmpVar("_result")
             val cursorVar = scope.getTmpVar("_cursor")
-            addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
-                    DaoWriter.dbField, roomSQLiteQueryVar)
+            addStatement("final $T $L = $T.query($N, $L, $L)",
+                    AndroidTypeNames.CURSOR,
+                    cursorVar,
+                    RoomTypeNames.DB_UTIL,
+                    DaoWriter.dbField,
+                    roomSQLiteQueryVar,
+                    if (shouldCopyCursor) "true" else "false")
             beginControlFlow("try").apply {
                 adapter?.convert(outVar, cursorVar, scope)
                 transactionWrapper?.commitTransaction()

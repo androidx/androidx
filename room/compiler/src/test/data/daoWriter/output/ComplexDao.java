@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.InvalidationTracker.Observer;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import java.lang.Integer;
 import java.lang.Override;
@@ -46,7 +47,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
-        final Cursor _cursor = __db.query(_statement);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfFullName = _cursor.getColumnIndexOrThrow("fullName");
             final int _cursorIndexOfId = _cursor.getColumnIndexOrThrow("id");
@@ -71,7 +72,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
-        final Cursor _cursor = __db.query(_statement);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
             final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
@@ -112,7 +113,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         } else {
             _statement.bindString(_argIndex, lastName);
         }
-        final Cursor _cursor = __db.query(_statement);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
             final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
@@ -152,7 +153,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
-        final Cursor _cursor = __db.query(_statement);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
             final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
@@ -183,7 +184,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
-        final Cursor _cursor = __db.query(_statement);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _result;
             if(_cursor.moveToFirst()) {
@@ -213,7 +214,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
-        final Cursor _cursor = __db.query(_statement);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int[] _result = new int[_cursor.getCount()];
             int _index = 0;
@@ -249,7 +250,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             }
             _argIndex ++;
         }
-        final Cursor _cursor = __db.query(_statement);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
             while(_cursor.moveToNext()) {
@@ -288,7 +289,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     };
                     __db.getInvalidationTracker().addWeakObserver(_observer);
                 }
-                final Cursor _cursor = __db.query(_statement);
+                final Cursor _cursor = DBUtil.query(__db, _statement, false);
                 try {
                     final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
                     final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
@@ -348,7 +349,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     };
                     __db.getInvalidationTracker().addWeakObserver(_observer);
                 }
-                final Cursor _cursor = __db.query(_statement);
+                final Cursor _cursor = DBUtil.query(__db, _statement, false);
                 try {
                     final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
                     final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
@@ -414,7 +415,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindLong(_argIndex, _item_2);
             _argIndex ++;
         }
-        final Cursor _cursor = __db.query(_statement);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
             while(_cursor.moveToNext()) {
