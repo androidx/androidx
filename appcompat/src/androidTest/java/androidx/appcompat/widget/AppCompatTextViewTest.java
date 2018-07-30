@@ -564,6 +564,31 @@ public class AppCompatTextViewTest
     }
 
     @Test
+    public void testSetTextAsync_executionOrder_withNull() throws Throwable {
+        final ManualExecutor executor = new ManualExecutor();
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                tv.setText(""); // Make the measured width to be zero.
+                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+                tv.setTextFuture(null);
+            }
+        });
+        executor.doExecution(0);  // Do execution of 1st runnable.
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
+                // The setTextFuture was reset by passing null.
+                assertEquals(0.0f, tv.getMeasuredWidth(), 0.0f);
+            }
+        });
+    }
+
+    @Test
     public void testSetTextAsync_throwExceptionAfterSetTextFuture() throws Throwable {
         final ManualExecutor executor = new ManualExecutor();
         mActivity.runOnUiThread(new Runnable() {
