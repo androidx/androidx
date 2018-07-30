@@ -1470,6 +1470,10 @@ package androidx.core.util {
     ctor public Pools.SynchronizedPool(int);
   }
 
+  public abstract interface Supplier<T> {
+    method public abstract T get();
+  }
+
 }
 
 package androidx.core.view {
