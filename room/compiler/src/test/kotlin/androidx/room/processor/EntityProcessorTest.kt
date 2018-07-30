@@ -1831,8 +1831,8 @@ class EntityProcessorTest : BaseEntityParserTest() {
 
                 static class A {
                     int entityId;
-                    @Relation(parentColumn = "pojoId", entityColumn = "entityId")
-                    MyEntity myEntity;
+                    @Relation(parentColumn = "entityId", entityColumn = "pojoId")
+                    List<MyEntity> myEntity;
                 }
                 """) { _, _ ->
         }.failsToCompile().withErrorContaining(

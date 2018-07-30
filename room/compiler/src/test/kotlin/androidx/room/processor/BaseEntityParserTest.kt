@@ -34,6 +34,7 @@ abstract class BaseEntityParserTest {
             package foo.bar;
             import androidx.room.*;
             import androidx.annotation.NonNull;
+            import java.util.*;
             @Entity%s
             public class MyEntity %s {
             """

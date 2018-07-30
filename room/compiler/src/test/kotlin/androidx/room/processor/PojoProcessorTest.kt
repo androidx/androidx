@@ -817,7 +817,7 @@ class PojoProcessorTest {
     }
 
     @Test
-    fun recursion_1Level() {
+    fun recursion_1Level_embedded() {
         singleRun(
                 """
                 @Embedded
@@ -826,6 +826,50 @@ class PojoProcessorTest {
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_1Level_relation() {
+        singleRun(
+                """
+                long id;
+                long parentId;
+                @Relation(parentColumn = "id", entityColumn = "parentId")
+                Set<MyPojo> children;
+                """) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_1Level_relation_specifyEntity() {
+        singleRun(
+                """
+                @Embedded
+                A a;
+
+                static class A {
+                    long id;
+                    long parentId;
+                    @Relation(entity = A.class, parentColumn = "id", entityColumn = "parentId")
+                    Set<AWithB> children;
+                }
+
+                static class B {
+                   long id;
+                }
+
+                static class AWithB {
+                    @Embedded
+                    A a;
+                    @Embedded
+                    B b;
+                }
+                """) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo.A -> foo.bar.MyPojo.A"))
     }
 
     @Test
@@ -882,6 +926,36 @@ class PojoProcessorTest {
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_2Level_relationToEmbed() {
+        singleRun(
+                """
+                @Embedded
+                A a;
+
+                static class A {
+                    long id;
+                    long parentId;
+                    @Relation(parentColumn = "id", entityColumn = "parentId")
+                    Set<AWithB> children;
+                }
+
+                static class B {
+                   long id;
+                }
+
+                static class AWithB {
+                    @Embedded
+                    A a;
+                    @Embedded
+                    B b;
+                }
+                """) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo.A -> foo.bar.MyPojo.AWithB -> foo.bar.MyPojo.A"))
     }
 
     @Test

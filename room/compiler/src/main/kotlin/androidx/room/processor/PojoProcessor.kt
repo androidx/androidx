@@ -449,13 +449,6 @@ class PojoProcessor private constructor(
         container: DeclaredType?,
         relationElement: VariableElement
     ): androidx.room.vo.Relation? {
-        val asTypeElement = MoreTypes.asTypeElement(
-                MoreElements.asVariable(relationElement).asType())
-
-        if (detectReferenceRecursion(asTypeElement)) {
-            return null
-        }
-
         val annotation = MoreElements.getAnnotationMirror(relationElement, Relation::class.java)
                 .orNull()!!
         val parentColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "parentColumn")
@@ -496,13 +489,17 @@ class PojoProcessor private constructor(
         // do we need to decide on the entity?
         val inferEntity = (entityClassInput == null ||
                 MoreTypes.isTypeOf(Any::class.java, entityClassInput))
-
-        val entity = if (inferEntity) {
-            EntityProcessor(context, typeArgElement, referenceStack).process()
+        val entityElement = if (inferEntity) {
+            typeArgElement
         } else {
-            EntityProcessor(context, MoreTypes.asTypeElement(entityClassInput),
-                    referenceStack).process()
+            MoreTypes.asTypeElement(entityClassInput)
         }
+
+        if (detectReferenceRecursion(entityElement)) {
+            return null
+        }
+
+        val entity = EntityProcessor(context, entityElement, referenceStack).process()
 
         // now find the field in the entity.
         val entityColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "entityColumn")
