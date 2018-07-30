@@ -26,6 +26,7 @@ import static androidx.work.State.RUNNING;
 import static androidx.work.State.SUCCEEDED;
 import static androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME;
 
+import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -42,6 +43,7 @@ import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
@@ -78,6 +80,9 @@ public class EnqueueRunnable implements Runnable {
         }
         boolean needsScheduling = addToDatabase();
         if (needsScheduling) {
+            // Enable RescheduleReceiver, only when there are Worker's that need scheduling.
+            final Context context = mWorkContinuation.getWorkManagerImpl().getApplicationContext();
+            PackageManagerHelper.setComponentEnabled(context, RescheduleReceiver.class, true);
             scheduleWorkInBackground();
         }
     }
