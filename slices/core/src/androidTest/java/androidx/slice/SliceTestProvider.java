@@ -24,6 +24,10 @@ import static android.app.slice.Slice.HINT_TITLE;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.text.style.AbsoluteSizeSpan;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice.Builder;
@@ -50,6 +54,16 @@ public class SliceTestProvider extends androidx.slice.SliceProvider {
                 return b.addSubSlice(new Slice.Builder(b).build(), "subslice").build();
             case "/text":
                 return new Slice.Builder(sliceUri).addText("Expected text", "text").build();
+            case "/prohibited_span":
+                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+                spannableStringBuilder.append("Expected text");
+                spannableStringBuilder.setSpan(
+                        new AbsoluteSizeSpan(1000),
+                        0, spannableStringBuilder.length(),
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                return new Slice.Builder(sliceUri)
+                        .addText(new SpannedString(spannableStringBuilder), "text")
+                        .build();
             case "/icon":
                 return new Slice.Builder(sliceUri).addIcon(
                         IconCompat.createWithResource(getContext(), R.drawable.size_48x48),

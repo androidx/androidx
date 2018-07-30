@@ -40,6 +40,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.Build;
+import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.core.test.R;
@@ -112,6 +115,41 @@ public class SliceTest {
         assertEquals(FORMAT_TEXT, item.getFormat());
         // TODO: Test spannables here.
         assertEquals("Expected text", item.getText().toString());
+    }
+
+    // TODO: Add testAllowedSpan also.
+
+    @Test
+    public void testProhibitedSpan() {
+        Uri uri = BASE_URI.buildUpon().appendPath("prohibited_span").build();
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
+        assertEquals(uri, s.getUri());
+        assertEquals(1, s.getItems().size());
+
+        SliceItem item = s.getItems().get(0);
+        assertEquals(FORMAT_TEXT, item.getFormat());
+
+        String expectedText = "Expected text";
+        // TODO: Figure out why pre-P platforms are getting newlines here.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            expectedText += "\n\n";
+        }
+        assertEquals(expectedText, item.getText().toString());
+
+        assertTrue(item.getText() instanceof Spanned);
+        Spanned spannedText = (Spanned) item.getText();
+        Object[] spans = spannedText.getSpans(0, spannedText.length(), Object.class);
+        // TODO: Figure out why pre-P platforms aren't getting the span at all.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            assertEquals(1, spans.length);
+            assertTrue(spans[0] instanceof AbsoluteSizeSpan);
+        }
+
+        assertTrue(item.getSanitizedText() instanceof Spanned);
+        Spanned sanitizedSpannedText = (Spanned) item.getSanitizedText();
+        Object[] sanitizedSpans = sanitizedSpannedText.getSpans(
+                0, sanitizedSpannedText.length(), Object.class);
+        assertEquals(0, sanitizedSpans.length);
     }
 
     @Test
