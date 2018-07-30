@@ -44,6 +44,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -76,6 +77,17 @@ public abstract class VersionedParcel {
     private static final int TYPE_INTEGER = 7;
     private static final int TYPE_FLOAT = 8;
 
+    protected final ArrayMap<String, Method> mReadCache;
+    protected final ArrayMap<String, Method> mWriteCache;
+    protected final ArrayMap<String, Class> mParcelizerCache;
+
+    public VersionedParcel(ArrayMap<String, Method> readCache,
+            ArrayMap<String, Method> writeCache,
+            ArrayMap<String, Class> parcelizerCache) {
+        mReadCache = readCache;
+        mWriteCache = writeCache;
+        mParcelizerCache = parcelizerCache;
+    }
 
     /**
      * Whether this VersionedParcel is serializing into a stream and will not accept Parcelables.
@@ -1547,12 +1559,11 @@ public abstract class VersionedParcel {
     /**
      */
     @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-    protected static <T extends VersionedParcelable> T readFromParcel(
+    protected <T extends VersionedParcelable> T readFromParcel(
             String parcelCls, VersionedParcel versionedParcel) {
         try {
-            Class cls = Class.forName(parcelCls, true, VersionedParcel.class.getClassLoader());
-            return (T) cls.getDeclaredMethod("read", VersionedParcel.class)
-                    .invoke(null, versionedParcel);
+            Method m = getReadMethod(parcelCls);
+            return (T) m.invoke(null, versionedParcel);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("VersionedParcel encountered IllegalAccessException", e);
         } catch (InvocationTargetException e) {
@@ -1569,12 +1580,11 @@ public abstract class VersionedParcel {
 
     /**
      */
-    protected static <T extends VersionedParcelable> void writeToParcel(T val,
+    protected <T extends VersionedParcelable> void writeToParcel(T val,
             VersionedParcel versionedParcel) {
         try {
-            Class cls = findParcelClass(val);
-            cls.getDeclaredMethod("write", val.getClass(), VersionedParcel.class)
-                    .invoke(null, val, versionedParcel);
+            Method m = getWriteMethod(val.getClass());
+            m.invoke(null, val, versionedParcel);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("VersionedParcel encountered IllegalAccessException", e);
         } catch (InvocationTargetException e) {
@@ -1589,17 +1599,40 @@ public abstract class VersionedParcel {
         }
     }
 
-    private static <T extends VersionedParcelable> Class findParcelClass(T val)
-            throws ClassNotFoundException {
-        Class<? extends VersionedParcelable> cls = val.getClass();
-        return findParcelClass(cls);
+    private Method getReadMethod(String parcelCls) throws IllegalAccessException,
+            NoSuchMethodException, ClassNotFoundException {
+        Method m = mReadCache.get(parcelCls);
+        if (m == null) {
+            long start = System.currentTimeMillis();
+            Class cls = Class.forName(parcelCls, true, VersionedParcel.class.getClassLoader());
+            m = cls.getDeclaredMethod("read", VersionedParcel.class);
+            mReadCache.put(parcelCls, m);
+        }
+        return m;
     }
 
-    private static Class findParcelClass(Class<? extends VersionedParcelable> cls)
+    private Method getWriteMethod(Class baseCls) throws IllegalAccessException,
+            NoSuchMethodException, ClassNotFoundException {
+        Method m = mWriteCache.get(baseCls.getName());
+        if (m == null) {
+            Class cls = findParcelClass(baseCls);
+            long start = System.currentTimeMillis();
+            m = cls.getDeclaredMethod("write", baseCls, VersionedParcel.class);
+            mWriteCache.put(baseCls.getName(), m);
+        }
+        return m;
+    }
+
+    private Class findParcelClass(Class<? extends VersionedParcelable> cls)
             throws ClassNotFoundException {
-        String pkg = cls.getPackage().getName();
-        String c = String.format("%s.%sParcelizer", pkg, cls.getSimpleName());
-        return Class.forName(c, false, cls.getClassLoader());
+        Class ret = mParcelizerCache.get(cls.getName());
+        if (ret == null) {
+            String pkg = cls.getPackage().getName();
+            String c = String.format("%s.%sParcelizer", pkg, cls.getSimpleName());
+            ret = Class.forName(c, false, cls.getClassLoader());
+            mParcelizerCache.put(cls.getName(), ret);
+        }
+        return ret;
     }
 
     /**

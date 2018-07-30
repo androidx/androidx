@@ -26,6 +26,9 @@ import android.util.Log;
 import android.util.SparseIntArray;
 
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
+
+import java.lang.reflect.Method;
 
 /**
  * @hide
@@ -44,10 +47,16 @@ class VersionedParcelParcel extends VersionedParcel {
     private int mNextRead = 0;
 
     VersionedParcelParcel(Parcel p) {
-        this(p, p.dataPosition(), p.dataSize(), "");
+        this(p, p.dataPosition(), p.dataSize(), "", new ArrayMap<String, Method>(),
+                new ArrayMap<String, Method>(),
+                new ArrayMap<String, Class>());
     }
 
-    VersionedParcelParcel(Parcel p, int offset, int end, String prefix) {
+    private VersionedParcelParcel(Parcel p, int offset, int end, String prefix,
+            ArrayMap<String, Method> readCache,
+            ArrayMap<String, Method> writeCache,
+            ArrayMap<String, Class> parcelizerCache) {
+        super(readCache, writeCache, parcelizerCache);
         mParcel = p;
         mOffset = offset;
         mEnd = end;
@@ -112,7 +121,8 @@ class VersionedParcelParcel extends VersionedParcel {
                     + mParcel.dataPosition() + " - " + (mNextRead == mOffset ? mEnd : mNextRead));
         }
         return new VersionedParcelParcel(mParcel, mParcel.dataPosition(),
-                mNextRead == mOffset ? mEnd : mNextRead, mPrefix + "  ");
+                mNextRead == mOffset ? mEnd : mNextRead, mPrefix + "  ", mReadCache, mWriteCache,
+                mParcelizerCache);
     }
 
     @Override

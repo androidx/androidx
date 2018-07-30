@@ -17,6 +17,7 @@ package androidx.versionedparcelable.compiler;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -176,6 +177,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
             String isCustom = getValue(annotation, "isCustom", "false");
             String deprecatedIds = getValue(annotation, "deprecatedIds", "");
             String jetifyAs = getValue(annotation, "jetifyAs", "");
+            String factoryClass = getValue(annotation, "factory", "");
             parseDeprecated(takenIds, deprecatedIds);
             checkClass(versionedParcelable.asType().toString(), versionedParcelable, takenIds);
 
@@ -190,7 +192,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 te = (TypeElement) mEnv.getTypeUtils().asElement(te.getSuperclass());
             }
             generateSerialization(versionedParcelable, f,
-                    allowSerialization, ignoreParcelables, isCustom, jetifyAs);
+                    allowSerialization, ignoreParcelables, isCustom, jetifyAs, factoryClass);
         }
 
         return true;
@@ -206,7 +208,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
 
     private void generateSerialization(Element versionedParcelable, List<Element> fields,
             String allowSerialization, String ignoreParcelables, String isCustom,
-            String jetifyAs) {
+            String jetifyAs, String factoryClass) {
         boolean custom = "true".equals(isCustom);
         AnnotationSpec restrictTo = AnnotationSpec.builder(
                 ClassName.get("androidx.annotation", "RestrictTo"))
@@ -229,8 +231,24 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(type)
                 .addParameter(ClassName.get("androidx.versionedparcelable", "VersionedParcel"),
-                        "parcel")
-                .addStatement("$L obj = new $L()", type, type);
+                        "parcel");
+        if (factoryClass != null && factoryClass.length() != 0) {
+            // Strip the .class
+            int index = factoryClass.lastIndexOf('.');
+            factoryClass = factoryClass.substring(0, index);
+            // Now filter for pkg/classname.
+            index = factoryClass.lastIndexOf('.');
+            String pkg = factoryClass.substring(0, index);
+            String clsName = factoryClass.substring(index + 1);
+            ClassName cls = ClassName.get(pkg, clsName);
+            genClass.addField(FieldSpec.builder(cls, "sBuilder")
+                    .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+                    .initializer("new " + factoryClass + "()")
+                    .build());
+            readBuilder.addStatement("$L obj = sBuilder.get()", type);
+        } else {
+            readBuilder.addStatement("$L obj = new $L()", type, type);
+        }
 
         MethodSpec.Builder writeBuilder = MethodSpec
                 .methodBuilder(WRITE)

@@ -65,8 +65,8 @@ import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Preconditions;
 import androidx.slice.compat.SliceProviderCompat;
+import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.ParcelField;
-import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
@@ -82,9 +82,9 @@ import java.util.Set;
  * in a tree structure that provides the OS some information about how the content should be
  * displayed.
  */
-@VersionedParcelize(allowSerialization = true)
+@VersionedParcelize(allowSerialization = true, isCustom = true)
 @RequiresApi(19)
-public final class Slice implements VersionedParcelable {
+public final class Slice extends CustomVersionedParcelable {
 
     private static final String HINTS = "hints";
     private static final String ITEMS = "items";
@@ -225,6 +225,27 @@ public final class Slice implements VersionedParcelable {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean hasHint(@SliceHint String hint) {
         return ArrayUtils.contains(mHints, hint);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void onPreParceling(boolean isStream) {
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void onPostParceling() {
+        for (int i = mItems.length - 1; i >= 0; i--) {
+            if (mItems[i].mObj == null) {
+                mItems = ArrayUtils.removeElement(SliceItem.class, mItems, mItems[i]);
+            }
+        }
     }
 
     /**

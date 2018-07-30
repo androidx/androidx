@@ -40,6 +40,30 @@ public class VersionedParcelStreamTest {
     }
 
     @Test
+    public void testInt() {
+        mOutputParcel.writeInt(42, 0);
+        assertEquals(42, createInputParcel().readInt(0, 0));
+    }
+
+    @Test
+    public void testBoolean() {
+        mOutputParcel.writeBoolean(true, 0);
+        assertEquals(true, createInputParcel().readBoolean(false, 0));
+    }
+
+    @Test
+    public void testByte() {
+        mOutputParcel.writeByte((byte) 5, 0);
+        assertEquals((byte) 5, createInputParcel().readByte((byte) 0, 0));
+    }
+
+    @Test
+    public void testString() {
+        mOutputParcel.writeString("My string", 0);
+        assertEquals("My string", createInputParcel().readString(null, 0));
+    }
+
+    @Test
     public void testNoException() {
         mOutputParcel.writeException(null, 0);
         assertNull(createInputParcel().readException(null, 0));
