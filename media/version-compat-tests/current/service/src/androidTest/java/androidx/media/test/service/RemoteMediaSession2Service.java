@@ -242,6 +242,13 @@ public class RemoteMediaSession2Service extends Service {
         }
 
         @Override
+        public Bundle getCompatToken(String sessionId) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            return session2 != null ? session2.getSessionCompat().getSessionToken().toBundle()
+                    : null;
+        }
+
+        @Override
         public void sendCustomCommand(String sessionId, Bundle command, Bundle args)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
