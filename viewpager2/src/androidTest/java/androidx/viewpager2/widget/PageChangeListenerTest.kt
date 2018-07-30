@@ -110,6 +110,7 @@ class PageChangeListenerTest : BaseTest() {
                     scrollEvents.assertOffsetSorted(sortOrder)
                     scrollEvents.assertValueSanity(initialPage, targetPage, viewPager.pageSize)
                     scrollEvents.assertLastCorrect(targetPage)
+                    scrollEvents.assertMaxShownPages(initialPage)
                 }
             }
         }
@@ -338,17 +339,17 @@ class PageChangeListenerTest : BaseTest() {
      */
     private fun test_selectItemProgrammatically_smoothScroll(@Orientation orientation: Int) {
         // given
-        setUpTest(5, orientation).apply {
+        setUpTest(1000, orientation).apply {
 
             // when
-            listOf(4, 4, 2, 0, 0, 3).forEach { targetPage ->
+            listOf(6, 5, 6, 4, 7, 3, 8, 2, 9, 1, 10, 0, 0, 999, 999, 0).forEach { targetPage ->
                 val currentPage = viewPager.currentItem
                 viewPager.clearOnPageChangeListeners()
                 val listener = viewPager.addNewRecordingListener()
                 val latch = viewPager.addWaitForScrolledLatch(targetPage)
 
                 runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
-                latch.await(1, SECONDS)
+                latch.await(2, SECONDS)
 
                 // then
                 val pageIxDelta = targetPage - currentPage
@@ -369,6 +370,7 @@ class PageChangeListenerTest : BaseTest() {
                             scrollEvents.assertValueSanity(currentPage, targetPage,
                                     viewPager.pageSize)
                             scrollEvents.assertLastCorrect(targetPage)
+                            scrollEvents.assertMaxShownPages(currentPage)
                         }
                     }
                 }
@@ -633,5 +635,9 @@ class PageChangeListenerTest : BaseTest() {
 
     private fun List<OnPageScrolledEvent>.assertPositionSorted(sortOrder: SortOrder) {
         map { it.position }.assertSorted { it * sortOrder.sign }
+    }
+
+    private fun List<OnPageScrolledEvent>.assertMaxShownPages(startPage: Int) {
+        assertThat(map { it.position }.distinct().minus(startPage).size, isBetweenInIn(0, 3))
     }
 }
