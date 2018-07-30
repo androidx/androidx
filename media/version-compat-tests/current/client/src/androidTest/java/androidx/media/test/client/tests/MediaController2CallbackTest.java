@@ -224,7 +224,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         final int listSize = 5;
         final List<MediaItem2> list = MediaTestUtils.createPlaylist(listSize);
-        mRemoteSession2.getMockPlaylistAgent().setPlaylistNewDsd(list);
+        mRemoteSession2.getMockPlaylistAgent().setPlaylistWithDummyDsd(list);
 
         final int currentItemIndex = 3;
         final MediaItem2 currentItem = list.get(currentItemIndex);
@@ -364,7 +364,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
 
         RemoteMediaSession2.RemoteMockPlaylistAgent agent = mRemoteSession2.getMockPlaylistAgent();
-        agent.setPlaylistNewDsd(playlist);
+        agent.setPlaylistWithDummyDsd(playlist);
         agent.setCurrentMediaItem(testItemIndex);
 
         RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
@@ -538,7 +538,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        mRemoteSession2.getMockPlaylistAgent().setPlaylistNewDsd(testPlaylist);
+        mRemoteSession2.getMockPlaylistAgent().setPlaylistWithDummyDsd(testPlaylist);
 
         RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
         player.setBufferedPosition(testBufferingPosition);
