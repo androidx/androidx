@@ -15,8 +15,7 @@
  */
 
 import androidx.build.AndroidXPlugin
-import androidx.build.DacOptions
-import androidx.build.PublishDocsRulesKt
+import androidx.build.SdkHelperKt
 import androidx.build.jacoco.Jacoco
 
 def currentJvmVersion = org.gradle.api.JavaVersion.current()
@@ -32,8 +31,8 @@ buildscript {
     apply from: 'buildSrc/repos.gradle'
     apply from: 'buildSrc/init.gradle'
     apply from: 'buildSrc/build_dependencies.gradle'
-    init.setSdkInLocalPropertiesFile()
     repos.addMavenRepositories(repositories)
+    SdkHelperKt.setSdkInLocalPropertiesFile(ext.supportRootFolder)
 
     dependencies {
         classpath build_libs.gradle
