@@ -803,7 +803,7 @@ class PojoProcessorTest {
         }.compilesWithoutError()
     }
 
-    @Test // b/69118713 common mistake so we better provide a good explanation
+    @Test
     fun constructor_relationParameter() {
         singleRun("""
             @Relation(entity = foo.bar.User.class, parentColumn = "uid", entityColumn="uid",
@@ -813,9 +813,7 @@ class PojoProcessorTest {
             public MyPojo(String uid, List<String> items) {
             }
             """, COMMON.USER) { _ ->
-        }.failsToCompile().withErrorContaining(
-                ProcessorErrors.RELATION_CANNOT_BE_CONSTRUCTOR_PARAMETER
-        )
+        }.compilesWithoutError()
     }
 
     @Test

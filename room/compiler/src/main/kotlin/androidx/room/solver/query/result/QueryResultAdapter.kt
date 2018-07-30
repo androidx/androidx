@@ -22,7 +22,13 @@ import androidx.room.solver.CodeGenScope
  * Gets a Cursor and converts it into the return type of a method annotated with @Query.
  */
 abstract class QueryResultAdapter(val rowAdapter: RowAdapter?) {
+
     abstract fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope)
+
+    // indicates whether the cursor should be copied before converting
+    open fun shouldCopyCursor() = rowAdapter is PojoRowAdapter &&
+            rowAdapter.relationCollectors.isNotEmpty()
+
     fun accessedTableNames(): List<String> {
         return (rowAdapter as? PojoRowAdapter)?.relationTableNames() ?: emptyList()
     }

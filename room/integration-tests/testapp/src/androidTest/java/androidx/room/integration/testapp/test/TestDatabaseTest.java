@@ -28,6 +28,7 @@ import androidx.room.integration.testapp.dao.SchoolDao;
 import androidx.room.integration.testapp.dao.SpecificDogDao;
 import androidx.room.integration.testapp.dao.ToyDao;
 import androidx.room.integration.testapp.dao.UserDao;
+import androidx.room.integration.testapp.dao.UserHouseDao;
 import androidx.room.integration.testapp.dao.UserPetDao;
 import androidx.room.integration.testapp.dao.WithClauseDao;
 import androidx.test.InstrumentationRegistry;
@@ -47,6 +48,7 @@ public abstract class TestDatabaseTest {
     protected WithClauseDao mWithClauseDao;
     protected FunnyNamedDao mFunnyNamedDao;
     protected RawDao mRawDao;
+    protected UserHouseDao mUserHouseDao;
 
     @Before
     public void createDb() {
@@ -62,5 +64,6 @@ public abstract class TestDatabaseTest {
         mWithClauseDao = mDatabase.getWithClauseDao();
         mFunnyNamedDao = mDatabase.getFunnyNamedDao();
         mRawDao = mDatabase.getRawDao();
+        mUserHouseDao = mDatabase.getUserHouseDao();
     }
 }
