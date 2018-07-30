@@ -59,16 +59,16 @@ public final class BenchmarkState {
 
     private int mState = NOT_STARTED;  // Current benchmark state.
 
-    private static final long WARMUP_DURATION_NS = ms2ns(250); // warm-up for at least 250ms
-    private static final int WARMUP_MIN_ITERATIONS = 16; // minimum iterations to warm-up for
+    private WarmupManager mWarmupManager = new WarmupManager();
 
-    // TODO: Tune these values.
-    private static final long TARGET_TEST_DURATION_NS = ms2ns(500); // target testing for 500 ms
+    // values determined emperically
+    private static final long TARGET_TEST_DURATION_NS = TimeUnit.MILLISECONDS.toNanos(500);
     private static final int MAX_TEST_ITERATIONS = 1000000;
     private static final int MIN_TEST_ITERATIONS = 10;
     private static final int REPEAT_COUNT = 5;
 
-    private long mStartTimeNs = 0;  // Previously captured System.nanoTime().
+    private long mStartTimeNs = 0; // System.nanoTime() at start of last warmup iter / test repeat.
+
     private boolean mPaused;
     private long mPausedTimeNs = 0; // The System.nanoTime() when the pauseTiming() is called.
     private long mPausedDurationNs = 0;  // The duration of paused state in nano sec.
@@ -84,10 +84,6 @@ public final class BenchmarkState {
 
     // Individual duration in nano seconds.
     private ArrayList<Long> mResults = new ArrayList<>();
-
-    private static long ms2ns(long ms) {
-        return TimeUnit.MILLISECONDS.toNanos(ms);
-    }
 
     /**
      * Stops the benchmark timer.
@@ -124,16 +120,17 @@ public final class BenchmarkState {
         mState = WARMUP;
     }
 
-    private void beginBenchmark(long warmupDuration, int iterations) {
+    private void beginBenchmark() {
         if (ENABLE_PROFILING && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             // TODO: support data dir for old platforms
             File f = new File(InstrumentationRegistry.getContext().getDataDir(), "benchprof");
             Log.d(TAG, "Tracing to: " + f.getAbsolutePath());
             Debug.startMethodTracingSampling(f.getAbsolutePath(), 16 * 1024 * 1024, 100);
         }
-        mMaxIterations = (int) (TARGET_TEST_DURATION_NS / (warmupDuration / iterations));
+        final int idealIterations =
+                (int) (TARGET_TEST_DURATION_NS / mWarmupManager.getEstimatedIterationTime());
         mMaxIterations = Math.min(MAX_TEST_ITERATIONS,
-                Math.max(mMaxIterations, MIN_TEST_ITERATIONS));
+                Math.max(idealIterations, MIN_TEST_ITERATIONS));
         mPausedDurationNs = 0;
         mIteration = 0;
         mRepeatCount = 0;
@@ -173,9 +170,11 @@ public final class BenchmarkState {
                 mIteration++;
                 // Only check nanoTime on every iteration in WARMUP since we
                 // don't yet have a target iteration count.
-                final long duration = System.nanoTime() - mStartTimeNs;
-                if (mIteration >= WARMUP_MIN_ITERATIONS && duration >= WARMUP_DURATION_NS) {
-                    beginBenchmark(duration, mIteration);
+                final long time = System.nanoTime();
+                final long lastDuration = time - mStartTimeNs;
+                mStartTimeNs = time;
+                if (mWarmupManager.onNextIteration(lastDuration)) {
+                    beginBenchmark();
                 }
                 return true;
             case RUNNING:
