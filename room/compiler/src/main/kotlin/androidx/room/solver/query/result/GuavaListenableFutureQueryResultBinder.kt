@@ -16,7 +16,6 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
@@ -37,16 +36,18 @@ import javax.lang.model.type.TypeMirror
  * <p>The Future runs on the background thread Executor.
  */
 class GuavaListenableFutureQueryResultBinder(
-        val typeArg: TypeMirror,
-        adapter: QueryResultAdapter?)
+    val typeArg: TypeMirror,
+    adapter: QueryResultAdapter?
+)
     : BaseObservableQueryResultBinder(adapter) {
 
     override fun convertAndReturn(
-            roomSQLiteQueryVar: String,
-            canReleaseQuery: Boolean,
-            dbField: FieldSpec,
-            inTransaction: Boolean,
-            scope: CodeGenScope) {
+        roomSQLiteQueryVar: String,
+        canReleaseQuery: Boolean,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
         // Callable<T>
         val callableImpl = createCallableOfT(
                 roomSQLiteQueryVar,
@@ -72,10 +73,11 @@ class GuavaListenableFutureQueryResultBinder(
      * <p>Note that this method does not release the query object.
      */
     private fun createCallableOfT(
-            roomSQLiteQueryVar: String,
-            dbField: FieldSpec,
-            inTransaction: Boolean,
-            scope: CodeGenScope): TypeSpec {
+        roomSQLiteQueryVar: String,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ): TypeSpec {
         return TypeSpec.anonymousClassBuilder("").apply {
             superclass(
                     ParameterizedTypeName.get(java.util.concurrent.Callable::class.typeName(),
@@ -89,31 +91,12 @@ class GuavaListenableFutureQueryResultBinder(
                         addException(Exception::class.typeName())
 
                         // Body.
-                        val transactionWrapper = if (inTransaction) {
-                            transactionWrapper(dbField)
-                        } else {
-                            null
-                        }
-                        transactionWrapper?.beginTransactionWithControlFlow()
-                        apply {
-                            val outVar = scope.getTmpVar("_result")
-                            val cursorVar = scope.getTmpVar("_cursor")
-                            addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR,
-                                    cursorVar,
-                                    DaoWriter.dbField, roomSQLiteQueryVar)
-                            beginControlFlow("try").apply {
-                                val adapterScope = scope.fork()
-                                adapter?.convert(outVar, cursorVar, adapterScope)
-                                addCode(adapterScope.builder().build())
-                                transactionWrapper?.commitTransaction()
-                                addStatement("return $L", outVar)
-                            }
-                            nextControlFlow("finally").apply {
-                                addStatement("$L.close()", cursorVar)
-                            }
-                            endControlFlow()
-                        }
-                        transactionWrapper?.endTransactionWithControlFlow()
+                        createRunQueryAndReturnStatements(
+                                builder = this,
+                                roomSQLiteQueryVar = roomSQLiteQueryVar,
+                                dbField = dbField,
+                                inTransaction = inTransaction,
+                                scope = scope)
                     }.build())
         }.build()
     }

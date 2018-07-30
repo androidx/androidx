@@ -35,6 +35,7 @@ data class Constructor(val element: ExecutableElement, val params: List<Param>) 
             when (it) {
                 is FieldParam -> it.field === field
                 is EmbeddedParam -> it.embedded.field === field
+                is RelationParam -> it.relation.field === field
                 else -> false
             }
         }
@@ -63,12 +64,17 @@ data class Constructor(val element: ExecutableElement, val params: List<Param>) 
         override fun log(): String = embedded.field.getPath()
     }
 
+    class RelationParam(val relation: Relation) : Param(ParamType.RELATION) {
+        override fun log(): String = relation.field.getPath()
+    }
+
     abstract class Param(val type: ParamType) {
         abstract fun log(): String
     }
 
     enum class ParamType {
         FIELD,
-        EMBEDDED
+        EMBEDDED,
+        RELATION
     }
 }

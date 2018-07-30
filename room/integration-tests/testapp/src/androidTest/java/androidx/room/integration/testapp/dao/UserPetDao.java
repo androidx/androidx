@@ -33,6 +33,7 @@ import androidx.room.integration.testapp.vo.UserAndGenericPet;
 import androidx.room.integration.testapp.vo.UserAndPet;
 import androidx.room.integration.testapp.vo.UserAndPetAdoptionDates;
 import androidx.room.integration.testapp.vo.UserAndPetNonNull;
+import androidx.room.integration.testapp.vo.UserIdAndPetIds;
 import androidx.room.integration.testapp.vo.UserIdAndPetNames;
 import androidx.room.integration.testapp.vo.UserWithPetsAndToys;
 
@@ -70,6 +71,11 @@ public interface UserPetDao {
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction
     @Query("SELECT * FROM User u")
+    List<UserIdAndPetIds> loadUserIdAndPetids();
+
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
+    @Query("SELECT * FROM User u")
     List<UserIdAndPetNames> loadUserAndPetNames();
 
     @Transaction
@@ -99,6 +105,10 @@ public interface UserPetDao {
     @Transaction
     @Query("SELECT * FROM User u where u.mId = :uid")
     EmbeddedUserAndAllPets loadUserAndPetsAsEmbedded(int uid);
+
+    @Transaction
+    @Query("SELECT mId FROM user")
+    List<UserIdAndPetIds> getUserIdsAndPetsIds();
 
     @Insert
     void insertUserAndPet(User user, Pet pet);
