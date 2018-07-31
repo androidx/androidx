@@ -19,8 +19,6 @@ package androidx.work.impl.utils.taskexecutor;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * A {@link org.junit.Rule} that swaps the background executor used by WorkManager with a
  * different one which executes each task synchronously.
@@ -39,11 +37,6 @@ public class InstantTaskExecutorRule extends TestWatcher {
 
             @Override
             public void executeOnBackgroundThread(Runnable r) {
-                r.run();
-            }
-
-            @Override
-            public void executeOnBackgroundThread(Runnable r, long delay, TimeUnit timeUnit) {
                 r.run();
             }
         });
