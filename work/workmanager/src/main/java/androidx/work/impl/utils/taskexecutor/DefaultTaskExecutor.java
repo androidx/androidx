@@ -20,9 +20,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.RestrictTo;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Default Task Executor for executing common tasks in WorkManager
@@ -31,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DefaultTaskExecutor implements TaskExecutor {
-    private final ScheduledExecutorService mBackgroundExecutor =
-            Executors.newSingleThreadScheduledExecutor();
+    private final ExecutorService mBackgroundExecutor = Executors.newSingleThreadExecutor();
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -43,10 +41,5 @@ public class DefaultTaskExecutor implements TaskExecutor {
     @Override
     public void executeOnBackgroundThread(Runnable r) {
         mBackgroundExecutor.execute(r);
-    }
-
-    @Override
-    public void executeOnBackgroundThread(Runnable r, long delay, TimeUnit timeUnit) {
-        mBackgroundExecutor.schedule(r, delay, timeUnit);
     }
 }
