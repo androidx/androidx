@@ -65,7 +65,7 @@ public class ForceStopRunnableTest {
 
     @Test
     public void testIntent() {
-        Intent intent = mRunnable.getIntent();
+        Intent intent = ForceStopRunnable.getIntent(mContext);
         ComponentName componentName = intent.getComponent();
         assertThat(componentName.getClassName(),
                 is(ForceStopRunnable.BroadcastReceiver.class.getName()));
