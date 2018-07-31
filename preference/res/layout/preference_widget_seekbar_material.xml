@@ -23,6 +23,7 @@
               android:gravity="center_vertical"
               android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
               android:paddingRight="?android:attr/listPreferredItemPaddingRight"
+              android:background="?android:attr/selectableItemBackground"
               android:clipChildren="false"
               android:clipToPadding="false">
 
@@ -88,8 +89,8 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:paddingStart="@dimen/preference_seekbar_padding_start"
-                    android:paddingEnd="@dimen/preference_seekbar_padding_end"
+                    android:paddingLeft="@dimen/preference_seekbar_padding_start"
+                    android:paddingRight="@dimen/preference_seekbar_padding_end"
                     android:focusable="false"
                     android:clickable="false"
                     android:background="@null" />
