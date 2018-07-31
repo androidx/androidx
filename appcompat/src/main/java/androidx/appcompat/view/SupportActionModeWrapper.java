@@ -25,7 +25,8 @@ import android.view.MenuInflater;
 import android.view.View;
 
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.view.menu.MenuWrapperFactory;
+import androidx.appcompat.view.menu.MenuItemWrapperICS;
+import androidx.appcompat.view.menu.MenuWrapperICS;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.internal.view.SupportMenu;
 import androidx.core.internal.view.SupportMenuItem;
@@ -82,7 +83,7 @@ public class SupportActionModeWrapper extends ActionMode {
 
     @Override
     public Menu getMenu() {
-        return MenuWrapperFactory.wrapSupportMenu(mContext, (SupportMenu) mWrappedObject.getMenu());
+        return new MenuWrapperICS(mContext, (SupportMenu) mWrappedObject.getMenu());
     }
 
     @Override
@@ -169,7 +170,7 @@ public class SupportActionModeWrapper extends ActionMode {
         public boolean onActionItemClicked(androidx.appcompat.view.ActionMode mode,
                 android.view.MenuItem item) {
             return mWrappedCallback.onActionItemClicked(getActionModeWrapper(mode),
-                    MenuWrapperFactory.wrapSupportMenuItem(mContext, (SupportMenuItem) item));
+                    new MenuItemWrapperICS(mContext, (SupportMenuItem) item));
         }
 
         @Override
@@ -180,7 +181,7 @@ public class SupportActionModeWrapper extends ActionMode {
         private Menu getMenuWrapper(Menu menu) {
             Menu wrapper = mMenus.get(menu);
             if (wrapper == null) {
-                wrapper = MenuWrapperFactory.wrapSupportMenu(mContext, (SupportMenu) menu);
+                wrapper = new MenuWrapperICS(mContext, (SupportMenu) menu);
                 mMenus.put(menu, wrapper);
             }
             return wrapper;

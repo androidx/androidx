@@ -52,7 +52,7 @@ abstract class BaseMenuWrapper {
 
             if (null == wrappedItem) {
                 // ... if not, create one and add it to our map
-                wrappedItem = MenuWrapperFactory.wrapSupportMenuItem(mContext, supportMenuItem);
+                wrappedItem = new MenuItemWrapperICS(mContext, supportMenuItem);
                 mMenuItems.put(supportMenuItem, wrappedItem);
             }
 
@@ -73,7 +73,7 @@ abstract class BaseMenuWrapper {
             SubMenu wrappedMenu = mSubMenus.get(supportSubMenu);
 
             if (null == wrappedMenu) {
-                wrappedMenu = MenuWrapperFactory.wrapSupportSubMenu(mContext, supportSubMenu);
+                wrappedMenu = new SubMenuWrapperICS(mContext, supportSubMenu);
                 mSubMenus.put(supportSubMenu, wrappedMenu);
             }
             return wrappedMenu;
