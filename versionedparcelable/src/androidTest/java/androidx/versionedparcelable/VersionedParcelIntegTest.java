@@ -24,6 +24,7 @@ import static androidx.versionedparcelable.ParcelUtils.toParcelable;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
@@ -37,6 +38,7 @@ import android.util.Size;
 import android.util.SizeF;
 import android.util.SparseBooleanArray;
 
+import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.test.filters.SmallTest;
 
@@ -48,6 +50,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RunWith(Parameterized.class)
@@ -382,6 +385,53 @@ public class VersionedParcelIntegTest {
         assertEquals(5.6f, floatArray[2], .01f);
     }
 
+    @Test
+    public void testIntList() {
+        ParcelizableImpl obj = new ParcelizableImpl();
+        obj.mIntList = Arrays.asList(1, 2);
+        ParcelizableImpl other = parcelCopy(obj);
+        assertEquals(obj.mIntList, other.mIntList);
+    }
+
+    @Test
+    public void testFloatList() {
+        ParcelizableImpl obj = new ParcelizableImpl();
+        obj.mFloatList = Arrays.asList(1.f, 2.f);
+        ParcelizableImpl other = parcelCopy(obj);
+        assertEquals(obj.mFloatList, other.mFloatList);
+    }
+
+    @Test
+    public void testStringFloatMap() {
+        ParcelizableImpl obj = new ParcelizableImpl();
+        Map<String, Float> arrayMap = new ArrayMap<>();
+        arrayMap.put("one", 1f);
+        arrayMap.put("two", 1f);
+        arrayMap.put("three", 3f);
+
+        obj.mStringFloatMap = arrayMap;
+        ParcelizableImpl other = parcelCopy(obj);
+        assertEquals(obj.mStringFloatMap, other.mStringFloatMap);
+    }
+
+    @Test
+    public void testStringFloatMap_empty() {
+        ParcelizableImpl obj = new ParcelizableImpl();
+        Map<String, Float> arrayMap = new ArrayMap<>();
+        obj.mStringFloatMap = arrayMap;
+        ParcelizableImpl other = parcelCopy(obj);
+        assertEquals(obj.mStringFloatMap, other.mStringFloatMap);
+        assertTrue(other.mStringFloatMap.isEmpty());
+    }
+
+    @Test
+    public void testStringFloatMap_null() {
+        ParcelizableImpl obj = new ParcelizableImpl();
+        obj.mStringFloatMap = null;
+        ParcelizableImpl other = parcelCopy(obj);
+        assertNull(other.mStringFloatMap);
+    }
+
     @VersionedParcelize(allowSerialization = true,
             ignoreParcelables = true,
             isCustom = true,
@@ -446,6 +496,12 @@ public class VersionedParcelIntegTest {
         public List<IBinder> mBinderList;
         @ParcelField(28)
         public Set<String> mStringSet;
+        @ParcelField(29)
+        public List<Integer> mIntList;
+        @ParcelField(30)
+        public List<Float> mFloatList;
+        @ParcelField(31)
+        public Map<String, Float> mStringFloatMap;
 
         @NonParcelField
         private boolean mPreParcelled;
