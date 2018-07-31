@@ -19,6 +19,8 @@ package androidx.work.impl.utils.taskexecutor;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A static class that serves as a central point to execute common tasks in WorkManager.
  * This is used for business logic internal to WorkManager and NOT for worker processing.
@@ -63,5 +65,10 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     @Override
     public void executeOnBackgroundThread(Runnable r) {
         mTaskExecutor.executeOnBackgroundThread(r);
+    }
+
+    @Override
+    public void executeOnBackgroundThread(Runnable r, long delay, TimeUnit timeUnit) {
+        mTaskExecutor.executeOnBackgroundThread(r, delay, timeUnit);
     }
 }
