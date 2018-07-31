@@ -384,6 +384,11 @@ object ProcessorErrors {
         it.java.simpleName
     }
 
+    fun missingIgnoredColumns(missingIgnoredColumns: List<String>): String {
+        return "Non-existent columns are specified to be ignored in ignoreColumns: " +
+                missingIgnoredColumns.joinToString(",")
+    }
+
     fun relationBadProject(
         entityQName: String,
         missingColumnNames: List<String>,

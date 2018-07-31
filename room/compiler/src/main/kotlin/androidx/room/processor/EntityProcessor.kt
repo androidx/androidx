@@ -63,35 +63,41 @@ class EntityProcessor(
     private fun doProcess(): Entity {
         context.checker.hasAnnotation(element, androidx.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
-        val pojo = PojoProcessor.createFor(
-                context = context,
-                element = element,
-                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
-                parent = null,
-                referenceStack = referenceStack).process()
-        context.checker.check(pojo.relations.isEmpty(), element, RELATION_IN_ENTITY)
         val annotation = MoreElements.getAnnotationMirror(element,
                 androidx.room.Entity::class.java).orNull()
         val tableName: String
         val entityIndices: List<IndexInput>
         val foreignKeyInputs: List<ForeignKeyInput>
         val inheritSuperIndices: Boolean
+        val ignoredColumns: Set<String>
         if (annotation != null) {
             tableName = extractTableName(element, annotation)
             entityIndices = extractIndices(annotation, tableName)
             inheritSuperIndices = AnnotationMirrors
                     .getAnnotationValue(annotation, "inheritSuperIndices").getAsBoolean(false)
             foreignKeyInputs = extractForeignKeys(annotation)
+            ignoredColumns = AnnotationMirrors
+                    .getAnnotationValue(annotation, "ignoredColumns").getAsStringList().toSet()
         } else {
             tableName = element.simpleName.toString()
             foreignKeyInputs = emptyList()
             entityIndices = emptyList()
             inheritSuperIndices = false
+            ignoredColumns = emptySet()
         }
         context.checker.notBlank(tableName, element,
                 ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
         context.checker.check(!tableName.startsWith("sqlite_", true), element,
                 ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE)
+
+        val pojo = PojoProcessor.createFor(
+                context = context,
+                element = element,
+                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                parent = null,
+                referenceStack = referenceStack,
+                ignoredColumns = ignoredColumns).process()
+        context.checker.check(pojo.relations.isEmpty(), element, RELATION_IN_ENTITY)
 
         val fieldIndices = pojo.fields
                 .filter { it.indexed }.mapNotNull {
