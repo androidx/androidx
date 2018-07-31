@@ -23,7 +23,8 @@ import androidx.versionedparcelable.ParcelImpl;
 
 interface IRemoteMediaController2 {
 
-    void create(boolean isBrowser, String controllerId, in Bundle token, boolean waitForConnection);
+    void create(boolean isBrowser, String controllerId, in ParcelImpl token,
+            boolean waitForConnection);
 
     // MediaController2 Methods
     void play(String controllerId);

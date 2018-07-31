@@ -16,39 +16,39 @@
 
 package androidx.media2;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.SessionToken2.KEY_PACKAGE_NAME;
-import static androidx.media2.SessionToken2.KEY_SERVICE_NAME;
-import static androidx.media2.SessionToken2.KEY_SESSION_BINDER;
-import static androidx.media2.SessionToken2.KEY_SESSION_ID;
-import static androidx.media2.SessionToken2.KEY_TYPE;
-import static androidx.media2.SessionToken2.KEY_UID;
-import static androidx.media2.SessionToken2.TYPE_BROWSER_SERVICE_LEGACY;
-import static androidx.media2.SessionToken2.TYPE_LIBRARY_SERVICE;
 import static androidx.media2.SessionToken2.TYPE_SESSION;
-import static androidx.media2.SessionToken2.TYPE_SESSION_SERVICE;
 
 import android.content.ComponentName;
-import android.os.Bundle;
+import android.os.IBinder;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media2.SessionToken2.SessionToken2Impl;
 import androidx.media2.SessionToken2.TokenType;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelize;
 
+@VersionedParcelize
 final class SessionToken2ImplBase implements SessionToken2Impl {
-
-    private final int mUid;
-    private final @TokenType int mType;
-    private final String mPackageName;
-    private final String mServiceName;
-    private final String mSessionId;
-    private final IMediaSession2 mISession2;
-    private final ComponentName mComponentName;
+    @ParcelField(1)
+    int mUid;
+    @ParcelField(2)
+    @TokenType int mType;
+    @ParcelField(3)
+    String mPackageName;
+    @ParcelField(4)
+    String mServiceName;
+    @ParcelField(5)
+    String mSessionId;
+    @ParcelField(6)
+    IBinder mISession2;
+    @ParcelField(7)
+    ComponentName mComponentName;
 
     /**
      * Constructor for the token. You can only create token for session service or library service
@@ -82,7 +82,16 @@ final class SessionToken2ImplBase implements SessionToken2Impl {
         mComponentName = (mType == TYPE_SESSION) ? null
                 : new ComponentName(packageName, serviceName);
         mSessionId = sessionId;
-        mISession2 = iSession2;
+        mISession2 = iSession2.asBinder();
+    }
+
+    /**
+     * Used for {@link VersionedParcelize}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    SessionToken2ImplBase() {
+        // Do nothing.
     }
 
     @Override
@@ -101,14 +110,7 @@ final class SessionToken2ImplBase implements SessionToken2Impl {
                 && TextUtils.equals(mServiceName, other.mServiceName)
                 && TextUtils.equals(mSessionId, other.mSessionId)
                 && mType == other.mType
-                && sessionBinderEquals(mISession2, other.mISession2);
-    }
-
-    private boolean sessionBinderEquals(IMediaSession2 a, IMediaSession2 b) {
-        if (a == null || b == null) {
-            return a == b;
-        }
-        return a.asBinder().equals(b.asBinder());
+                && ObjectsCompat.equals(mISession2, other.mISession2);
     }
 
     @Override
@@ -158,62 +160,7 @@ final class SessionToken2ImplBase implements SessionToken2Impl {
     }
 
     @Override
-    public Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putInt(KEY_UID, mUid);
-        bundle.putString(KEY_PACKAGE_NAME, mPackageName);
-        bundle.putString(KEY_SERVICE_NAME, mServiceName);
-        bundle.putString(KEY_SESSION_ID, mSessionId);
-        bundle.putInt(KEY_TYPE, mType);
-        if (mISession2 != null) {
-            BundleCompat.putBinder(bundle, KEY_SESSION_BINDER, mISession2.asBinder());
-        }
-        return bundle;
-    }
-
-    @Override
     public Object getBinder() {
-        return mISession2 == null ? null : mISession2.asBinder();
-    }
-    /**
-     * Create a token from the bundle, exported by {@link #toBundle()}.
-     *
-     * @param bundle
-     * @return SessionToken2 object
-     */
-    public static SessionToken2ImplBase fromBundle(@NonNull Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-        final int uid = bundle.getInt(KEY_UID);
-        final @TokenType int type = bundle.getInt(KEY_TYPE, -1);
-        final String packageName = bundle.getString(KEY_PACKAGE_NAME);
-        final String serviceName = bundle.getString(KEY_SERVICE_NAME);
-        final String sessionId = bundle.getString(KEY_SESSION_ID);
-        final IMediaSession2 iSession2 = IMediaSession2.Stub.asInterface(BundleCompat.getBinder(
-                bundle, KEY_SESSION_BINDER));
-
-        // Sanity check.
-        switch (type) {
-            case TYPE_SESSION:
-                if (iSession2 == null) {
-                    throw new IllegalArgumentException("Unexpected token for session,"
-                            + " binder=" + iSession2);
-                }
-                break;
-            case TYPE_SESSION_SERVICE:
-            case TYPE_LIBRARY_SERVICE:
-            case TYPE_BROWSER_SERVICE_LEGACY:
-                if (TextUtils.isEmpty(serviceName)) {
-                    throw new IllegalArgumentException("Session service needs service name");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid type");
-        }
-        if (TextUtils.isEmpty(packageName) || sessionId == null) {
-            throw new IllegalArgumentException("Package name nor ID cannot be null.");
-        }
-        return new SessionToken2ImplBase(uid, type, packageName, serviceName, sessionId, iSession2);
+        return mISession2;
     }
 }

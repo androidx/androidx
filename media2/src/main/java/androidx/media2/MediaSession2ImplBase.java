@@ -150,7 +150,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
 
-        mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mSessionToken.toBundle());
+        mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mSessionToken);
         // NOTE: mSessionLegacyStub should be created after mSessionCompat created.
         mSessionLegacyStub = new MediaSessionLegacyStub(this);
 
