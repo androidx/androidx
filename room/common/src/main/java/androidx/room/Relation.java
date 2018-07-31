@@ -99,7 +99,7 @@ import java.lang.annotation.Target;
  * Note that the {@code @Relation} annotated field cannot be a constructor parameter, it must be
  * public or have a public setter.
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Relation {
     /**
