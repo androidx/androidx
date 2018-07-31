@@ -31,6 +31,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.IRemoteMediaSession2;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -139,6 +140,26 @@ public class RemoteMediaSession2 {
             token = SessionToken2.fromBundle(bundle);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to get session token. sessionId=" + mSessionId);
+        }
+        return token;
+    }
+
+    /**
+     * Gets {@link MediaSessionCompat.Token} from the service app.
+     * Should be used after the creation of the session through {@link #create()}.
+     *
+     * @return A {@link SessionToken2} object if succeeded, {@code null} if failed.
+     */
+    public MediaSessionCompat.Token getCompatToken() {
+        MediaSessionCompat.Token token = null;
+        try {
+            Bundle bundle = mBinder.getCompatToken(mSessionId);
+            if (bundle != null) {
+                bundle.setClassLoader(MediaSession2.class.getClassLoader());
+            }
+            token = MediaSessionCompat.Token.fromBundle(bundle);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to get session compat token. sessionId=" + mSessionId);
         }
         return token;
     }
