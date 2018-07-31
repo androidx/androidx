@@ -60,11 +60,7 @@
     <color name="car_red_500a">#ffd50000</color>
     <color name="car_red_700">#ffc22a2a</color>
     <color name="car_teal_200">#ff80cbc4</color>
-    <!-- A tinted teal 200 for disabled state. Semi-transparent color affects widget. -->
-    <color name="car_teal_200_disabled">#ffd5edec</color>
     <color name="car_teal_700">#ff00796b</color>
-    <!-- A tinted teal 700 for disabled state. Semi-transparent color affects widget. -->
-    <color name="car_teal_700_disabled">#ffacd3cf</color>
     <color name="car_indigo_800">#ff283593</color>
 
     <!--  Various colors for text sizes. "Light" and "dark" here refer to the lighter or darker
@@ -143,11 +139,10 @@
 
     <!-- Colors for the switch widget (thumb and track) -->
     <color name="car_switch_thumb_on">@color/car_teal_700</color>
-    <color name="car_switch_thumb_on_disabled">@color/car_teal_700_disabled</color>
     <color name="car_switch_thumb_off">@color/car_body2</color>
     <color name="car_switch_track_on">@color/car_teal_700</color>
     <color name="car_switch_track_off">@color/car_body2</color>
-    <color name="car_switch_compat_track_on">@color/car_teal_700_disabled</color>
+    <color name="car_switch_compat_track_on">@color/car_teal_700</color>
     <color name="car_switch_compat_track_off">@color/car_grey_400</color>
 
     <!-- Misc colors -->
