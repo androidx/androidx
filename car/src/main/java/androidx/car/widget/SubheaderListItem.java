@@ -21,7 +21,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.DimenRes;
@@ -138,29 +137,26 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     }
 
     private void setText() {
-        @DimenRes int textStartMarginDimen;
+        @DimenRes int textStartPadding;
         switch (mTextStartMarginType) {
             case TEXT_START_MARGIN_TYPE_NONE:
-                textStartMarginDimen = R.dimen.car_keyline_1;
+                textStartPadding = R.dimen.car_keyline_1;
                 break;
             case TEXT_START_MARGIN_TYPE_LARGE:
-                textStartMarginDimen = R.dimen.car_keyline_4;
+                textStartPadding = R.dimen.car_keyline_4;
                 break;
             case TEXT_START_MARGIN_TYPE_SMALL:
-                textStartMarginDimen = R.dimen.car_keyline_3;
+                textStartPadding = R.dimen.car_keyline_3;
                 break;
             default:
                 throw new IllegalStateException("Unknown text start margin type.");
         }
 
-        int startMargin = mContext.getResources().getDimensionPixelSize(textStartMarginDimen);
+        int startMargin = mContext.getResources().getDimensionPixelSize(textStartPadding);
 
         mBinders.add(vh -> {
             vh.getText().setText(mText);
-
-            ViewGroup.MarginLayoutParams layoutParams =
-                    (ViewGroup.MarginLayoutParams) vh.getText().getLayoutParams();
-            layoutParams.setMarginStart(startMargin);
+            vh.getText().setPaddingRelative(startMargin, 0, 0, 0);
             vh.getText().requestLayout();
         });
     }

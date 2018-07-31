@@ -16,10 +16,10 @@
 <TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/title"
-    android:background="@drawable/car_card_ripple_background"
+    android:background="@drawable/car_card_ripple_background_light"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textAppearance="@style/TextAppearance.Car.Body1"
+    android:textAppearance="@style/TextAppearance.Car.Body1.Light"
     android:gravity="center_vertical"
     android:paddingStart="@dimen/car_keyline_1"
     android:paddingEnd="@dimen/car_keyline_1"
