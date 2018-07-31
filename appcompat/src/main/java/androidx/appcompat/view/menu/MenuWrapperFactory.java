@@ -19,7 +19,6 @@ package androidx.appcompat.view.menu;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import android.os.Build;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -42,11 +41,7 @@ public final class MenuWrapperFactory {
     }
 
     public static MenuItem wrapSupportMenuItem(Context context, SupportMenuItem supportMenuItem) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return new MenuItemWrapperJB(context, supportMenuItem);
-        } else {
-            return new MenuItemWrapperICS(context, supportMenuItem);
-        }
+        return new MenuItemWrapperICS(context, supportMenuItem);
     }
 
     public static SubMenu wrapSupportSubMenu(Context context, SupportSubMenu supportSubMenu) {
