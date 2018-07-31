@@ -234,10 +234,9 @@ public class MediaControlView2 extends BaseLayout {
 
     private static final int SETTINGS_MODE_AUDIO_TRACK = 0;
     private static final int SETTINGS_MODE_PLAYBACK_SPEED = 1;
-    private static final int SETTINGS_MODE_HELP = 2;
-    private static final int SETTINGS_MODE_SUBTITLE_TRACK = 3;
-    private static final int SETTINGS_MODE_VIDEO_QUALITY = 4;
-    private static final int SETTINGS_MODE_MAIN = 5;
+    private static final int SETTINGS_MODE_SUBTITLE_TRACK = 2;
+    private static final int SETTINGS_MODE_VIDEO_QUALITY = 3;
+    private static final int SETTINGS_MODE_MAIN = 4;
     private static final int PLAYBACK_SPEED_1x_INDEX = 3;
 
     private static final int MEDIA_TYPE_DEFAULT = 0;
@@ -1587,9 +1586,6 @@ public class MediaControlView2 extends BaseLayout {
                         mSubSettingsAdapter.setTexts(mPlaybackSpeedTextList);
                         mSubSettingsAdapter.setCheckPosition(mSelectedSpeedIndex);
                         mSettingsMode = SETTINGS_MODE_PLAYBACK_SPEED;
-                    } else if (position == SETTINGS_MODE_HELP) {
-                        dismissSettingsWindow();
-                        return;
                     }
                     displaySettingsWindow(mSubSettingsAdapter);
                     break;
@@ -1613,8 +1609,6 @@ public class MediaControlView2 extends BaseLayout {
                                 mSubSettingsAdapter.getMainText(position));
                     }
                     dismissSettingsWindow();
-                    break;
-                case SETTINGS_MODE_HELP:
                     break;
                 case SETTINGS_MODE_SUBTITLE_TRACK:
                     if (position != mSelectedSubtitleTrackIndex) {
@@ -1985,8 +1979,6 @@ public class MediaControlView2 extends BaseLayout {
                 mResources.getString(R.string.MediaControlView2_audio_track_text));
         mSettingsMainTextsList.add(
                 mResources.getString(R.string.MediaControlView2_playback_speed_text));
-        mSettingsMainTextsList.add(
-                mResources.getString(R.string.MediaControlView2_help_text));
 
         mSettingsSubTextsList = new ArrayList<String>();
         mSettingsSubTextsList.add(
@@ -1999,7 +1991,6 @@ public class MediaControlView2 extends BaseLayout {
         mSettingsIconIdsList = new ArrayList<Integer>();
         mSettingsIconIdsList.add(R.drawable.ic_audiotrack);
         mSettingsIconIdsList.add(R.drawable.ic_play_circle_filled);
-        mSettingsIconIdsList.add(R.drawable.ic_help);
 
         mAudioTrackList = new ArrayList<String>();
         mAudioTrackList.add(
