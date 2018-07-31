@@ -35,7 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.car.R;
-import androidx.car.utils.DropShadowScrollListener;
+import androidx.car.util.DropShadowScrollListener;
 import androidx.car.widget.PagedListView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
