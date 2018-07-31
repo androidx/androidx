@@ -104,6 +104,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         mMethodLookup.put(Pattern.compile("^android.os.Parcelable$"), "Parcelable");
         mMethodLookup.put(Pattern.compile("^java.util.List<.*>$"), "List");
         mMethodLookup.put(Pattern.compile("^java.util.Set<.*>$"), "Set");
+        mMethodLookup.put(Pattern.compile("^java.util.Map<.*>$"), "Map");
         mMethodLookup.put(Pattern.compile("^androidx.versionedparcelable.VersionedParcelable$"),
                 "VersionedParcelable");
     }
