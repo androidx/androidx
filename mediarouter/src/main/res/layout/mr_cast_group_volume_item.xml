@@ -34,14 +34,13 @@
                   android:paddingEnd="16dp"
                   android:gravity="center_vertical"
                   android:orientation="horizontal">
-        <ImageView android:layout_width="24dp"
-                   android:layout_height="24dp"
-                   android:src="?attr/mediaRouteAudioTrackDrawable"
-                   android:gravity="center"
-                   android:scaleType="center"
-                   android:layout_marginRight="16dp" />
+        <ImageButton android:id="@+id/mr_cast_mute_button"
+                     android:layout_width="24dp"
+                     android:layout_height="24dp"
+                     android:layout_gravity="center_vertical"
+                     android:background="?attr/selectableItemBackgroundBorderless" />
         <androidx.mediarouter.app.MediaRouteVolumeSlider
-            android:id="@+id/mr_cast_group_volume_slider"
+            android:id="@+id/mr_cast_volume_slider"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/mr_controller_volume_slider" />
