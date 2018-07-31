@@ -52,7 +52,7 @@ public class MenuItemWrapperICS extends BaseMenuWrapper implements MenuItem {
     // Reflection Method to call setExclusiveCheckable
     private Method mSetExclusiveCheckableMethod;
 
-    MenuItemWrapperICS(Context context, SupportMenuItem object) {
+    public MenuItemWrapperICS(Context context, SupportMenuItem object) {
         super(context);
         if (object == null) {
             throw new IllegalArgumentException("Wrapped Object can not be null.");
