@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.CollapsibleActionView;
 import androidx.core.internal.view.SupportMenuItem;
@@ -42,14 +44,20 @@ import java.lang.reflect.Method;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> implements MenuItem {
+public class MenuItemWrapperICS extends BaseMenuWrapper implements MenuItem {
     static final String LOG_TAG = "MenuItemWrapper";
+
+    private final SupportMenuItem mWrappedObject;
 
     // Reflection Method to call setExclusiveCheckable
     private Method mSetExclusiveCheckableMethod;
 
     MenuItemWrapperICS(Context context, SupportMenuItem object) {
-        super(context, object);
+        super(context);
+        if (object == null) {
+            throw new IllegalArgumentException("Wrapped Object can not be null.");
+        }
+        mWrappedObject = object;
     }
 
     @Override
@@ -289,8 +297,13 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
 
     @Override
     public MenuItem setActionProvider(android.view.ActionProvider provider) {
-        mWrappedObject.setSupportActionProvider(
-                provider != null ? createActionProviderWrapper(provider) : null);
+        ActionProviderWrapper actionProviderWrapper;
+        if (Build.VERSION.SDK_INT >= 16) {
+            actionProviderWrapper = new ActionProviderWrapperJB(mContext, provider);
+        } else {
+            actionProviderWrapper = new ActionProviderWrapper(mContext, provider);
+        }
+        mWrappedObject.setSupportActionProvider(provider != null ? actionProviderWrapper : null);
         return this;
     }
 
@@ -381,45 +394,42 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
         }
     }
 
-    ActionProviderWrapper createActionProviderWrapper(android.view.ActionProvider provider) {
-        return new ActionProviderWrapper(mContext, provider);
-    }
-
-    private class OnMenuItemClickListenerWrapper extends BaseWrapper<OnMenuItemClickListener>
-            implements android.view.MenuItem.OnMenuItemClickListener {
+    private class OnMenuItemClickListenerWrapper implements
+            android.view.MenuItem.OnMenuItemClickListener {
+        private final OnMenuItemClickListener mObject;
 
         OnMenuItemClickListenerWrapper(OnMenuItemClickListener object) {
-            super(object);
+            mObject = object;
         }
 
         @Override
         public boolean onMenuItemClick(android.view.MenuItem item) {
-            return mWrappedObject.onMenuItemClick(getMenuItemWrapper(item));
+            return mObject.onMenuItemClick(getMenuItemWrapper(item));
         }
     }
 
-    private class OnActionExpandListenerWrapper extends BaseWrapper<MenuItem.OnActionExpandListener>
-            implements MenuItem.OnActionExpandListener {
+    private class OnActionExpandListenerWrapper implements MenuItem.OnActionExpandListener {
+        private final MenuItem.OnActionExpandListener mObject;
 
         OnActionExpandListenerWrapper(MenuItem.OnActionExpandListener object) {
-            super(object);
+            mObject = object;
         }
 
         @Override
         public boolean onMenuItemActionExpand(android.view.MenuItem item) {
-            return mWrappedObject.onMenuItemActionExpand(getMenuItemWrapper(item));
+            return mObject.onMenuItemActionExpand(getMenuItemWrapper(item));
         }
 
         @Override
         public boolean onMenuItemActionCollapse(android.view.MenuItem item) {
-            return mWrappedObject.onMenuItemActionCollapse(getMenuItemWrapper(item));
+            return mObject.onMenuItemActionCollapse(getMenuItemWrapper(item));
         }
     }
 
-    class ActionProviderWrapper extends androidx.core.view.ActionProvider {
+    private class ActionProviderWrapper extends androidx.core.view.ActionProvider {
         final android.view.ActionProvider mInner;
 
-        public ActionProviderWrapper(Context context, android.view.ActionProvider inner) {
+        ActionProviderWrapper(Context context, android.view.ActionProvider inner) {
             super(context);
             mInner = inner;
         }
@@ -444,6 +454,50 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
             mInner.onPrepareSubMenu(getSubMenuWrapper(subMenu));
         }
     }
+
+    @RequiresApi(16)
+    private class ActionProviderWrapperJB extends ActionProviderWrapper
+            implements android.view.ActionProvider.VisibilityListener {
+        private ActionProvider.VisibilityListener mListener;
+
+        ActionProviderWrapperJB(Context context, android.view.ActionProvider inner) {
+            super(context, inner);
+        }
+
+        @Override
+        public View onCreateActionView(MenuItem forItem) {
+            return mInner.onCreateActionView(forItem);
+        }
+
+        @Override
+        public boolean overridesItemVisibility() {
+            return mInner.overridesItemVisibility();
+        }
+
+        @Override
+        public boolean isVisible() {
+            return mInner.isVisible();
+        }
+
+        @Override
+        public void refreshVisibility() {
+            mInner.refreshVisibility();
+        }
+
+        @Override
+        public void setVisibilityListener(ActionProvider.VisibilityListener listener) {
+            mListener = listener;
+            mInner.setVisibilityListener(listener != null ? this : null);
+        }
+
+        @Override
+        public void onActionProviderVisibilityChanged(boolean isVisible) {
+            if (mListener != null) {
+                mListener.onActionProviderVisibilityChanged(isVisible);
+            }
+        }
+    }
+
 
     /**
      * Wrap a support {@link androidx.appcompat.view.CollapsibleActionView} into a framework
