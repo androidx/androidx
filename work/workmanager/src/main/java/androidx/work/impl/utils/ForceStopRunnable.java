@@ -54,47 +54,26 @@ public class ForceStopRunnable implements Runnable {
     private static final int ALARM_ID = -1;
     private static final long TEN_YEARS = TimeUnit.DAYS.toMillis(10 * 365);
 
-    @VisibleForTesting
-    static final int MAX_RETRIES = 3;
-    private static final int[] RETRY_BACKOFFS_SECS = { 10, 30, 120 };
-
     private final Context mContext;
-    private final WorkManagerImpl mWorkManagerImpl;
-    private int mRunCount;
+    private final WorkManagerImpl mWorkManager;
 
-    public ForceStopRunnable(@NonNull Context context, @NonNull WorkManagerImpl workManagerImpl) {
+    public ForceStopRunnable(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
-        mWorkManagerImpl = workManagerImpl;
-        mRunCount = 0;
+        mWorkManager = workManager;
     }
 
     @Override
     public void run() {
         if (shouldRescheduleWorkers()) {
             Logger.debug(TAG, "Rescheduling Workers.");
-            mWorkManagerImpl.rescheduleEligibleWork();
+            mWorkManager.rescheduleEligibleWork();
             // Mark the jobs as migrated.
-            mWorkManagerImpl.getPreferences().setNeedsReschedule(false);
+            mWorkManager.getPreferences().setNeedsReschedule(false);
         } else if (isForceStopped()) {
             Logger.debug(TAG, "Application was force-stopped, rescheduling.");
-            mWorkManagerImpl.rescheduleEligibleWork();
-        } else {
-            // This code exists as a workaround for b/111765866.  If the app is force-stopped and
-            // immediately restarted, the PendingIntent we use to determine the force-stop status
-            // may still exist in the system server process even though it isn't tied to a real
-            // alarm.  (Essentially it hasn't been garbage-collected yet.)  This introduces the very
-            // real possibility of false-negatives for isForceStopped() in a very rare set of
-            // circumstances.  It seems that trying after a couple of seconds yields the correct
-            // result, but since this is tied to GC and system/device specifics, we're going to try
-            // again a few times with backoff to make absolutely sure we are in the correct state so
-            // that our jobs can get correctly rescheduled if needed.
-            if (++mRunCount < MAX_RETRIES) {
-                mWorkManagerImpl.getTaskExecutor().executeOnBackgroundThread(this,
-                        RETRY_BACKOFFS_SECS[mRunCount - 1],
-                        TimeUnit.SECONDS);
-            }
+            mWorkManager.rescheduleEligibleWork();
         }
-        mWorkManagerImpl.onForceStopRunnableCompleted();
+        mWorkManager.onForceStopRunnableCompleted();
     }
 
     /**
@@ -120,7 +99,7 @@ public class ForceStopRunnable implements Runnable {
      */
     @VisibleForTesting
     boolean shouldRescheduleWorkers() {
-        return mWorkManagerImpl.getPreferences().needsReschedule();
+        return mWorkManager.getPreferences().needsReschedule();
     }
 
     /**
