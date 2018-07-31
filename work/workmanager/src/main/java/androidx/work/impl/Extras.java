@@ -60,7 +60,7 @@ public class Extras {
         return mTags;
     }
 
-    public @Nullable RuntimeExtras getRuntimeExtras() {
+    public @NonNull RuntimeExtras getRuntimeExtras() {
         return mRuntimeExtras;
     }
 
@@ -75,7 +75,7 @@ public class Extras {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class RuntimeExtras {
-
+        public ExecutionListener mExecutionListener;
         public String[] triggeredContentAuthorities;
         public Uri[] triggeredContentUris;
 
