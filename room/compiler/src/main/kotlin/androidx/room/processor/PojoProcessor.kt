@@ -82,6 +82,7 @@ class PojoProcessor private constructor(
     val bindingScope: FieldProcessor.BindingScope,
     val parent: EmbeddedField?,
     val referenceStack: LinkedHashSet<Name> = LinkedHashSet(),
+    val ignoredColumns: Set<String>,
     private val delegate: Delegate
 ) : KotlinMetadataProcessor {
     val context = baseContext.fork(element)
@@ -108,7 +109,8 @@ class PojoProcessor private constructor(
             element: TypeElement,
             bindingScope: FieldProcessor.BindingScope,
             parent: EmbeddedField?,
-            referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+            referenceStack: LinkedHashSet<Name> = LinkedHashSet(),
+            ignoredColumns: Set<String> = emptySet()
         ): PojoProcessor {
             val (pojoElement, delegate) = if (element.hasAnnotation(AutoValue::class)) {
                 val elementUtils = context.processingEnv.elementUtils
@@ -127,6 +129,7 @@ class PojoProcessor private constructor(
                     bindingScope = bindingScope,
                     parent = parent,
                     referenceStack = referenceStack,
+                    ignoredColumns = ignoredColumns,
                     delegate = delegate)
         }
     }
@@ -188,7 +191,15 @@ class PojoProcessor private constructor(
                         ?: emptyList()
 
         val subFields = embeddedFields.flatMap { it.pojo.fields }
-        val fields = myFields + subFields
+        val combinedFields = myFields + subFields
+        val fields = combinedFields.filterNot { ignoredColumns.contains(it.columnName) }
+        val missingIgnoredColumns = ignoredColumns.filterNot { ignoredColumn ->
+            combinedFields.any { it.columnName == ignoredColumn }
+        }
+        context.checker.check(
+                missingIgnoredColumns.isEmpty(), element,
+                ProcessorErrors.missingIgnoredColumns(missingIgnoredColumns)
+        )
 
         val myRelationsList = allFields[Relation::class]
                 ?.mapNotNull {

@@ -120,4 +120,14 @@ public @interface Entity {
      * @return The list of {@link ForeignKey} constraints on this entity.
      */
     ForeignKey[] foreignKeys() default {};
+
+    /**
+     * The list of column names that should be ignored by Room.
+     * <p>
+     * Normally, you can use {@link Ignore}, but this is useful for ignoring fields inherited from
+     * parents.
+     *
+     * @return The list of field names.
+     */
+    String[] ignoredColumns() default {};
 }
