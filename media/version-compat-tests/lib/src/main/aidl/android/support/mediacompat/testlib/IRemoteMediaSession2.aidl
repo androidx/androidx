@@ -27,6 +27,7 @@ interface IRemoteMediaSession2 {
     // MediaSession2 Methods
     Bundle getToken(String sessionId);
     Bundle getCompatToken(String sessionId);
+    void updatePlayerConnector(String sessionId, in Bundle playerBundle, in Bundle agentBundle);
     void sendCustomCommand(String sessionId, in Bundle command, in Bundle args);
     void sendCustomCommand2(String sessionId, in Bundle controller, in Bundle command,
             in Bundle args, in ResultReceiver receiver);

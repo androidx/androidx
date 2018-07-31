@@ -22,16 +22,7 @@ import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
-import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
-import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_VOLUME;
-import static androidx.media.test.lib.CommonConstants.KEY_MAX_VOLUME;
-import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
-import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
-import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands.UPDATE_PLAYER;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
-        .UPDATE_PLAYER_WITH_VOLUME_PROVIDER;
 import static androidx.media.test.lib.MediaSession2Constants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DURATION;
@@ -218,13 +209,13 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     }
                 });
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_PLAYER_STATE, testState);
-        args.putParcelableArrayList(
-                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(testPlaylist));
-        args.putBundle(KEY_AUDIO_ATTRIBUTES, testAudioAttributes.toBundle());
+        Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
+                testState, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
+                0f /* speed */, testAudioAttributes);
+        Bundle agentConfig = RemoteMediaSession2.createMockPlaylistAgentConfig(
+                testPlaylist, null /* currentItem */, null /* metadata */);
 
-        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER, args);
+        mRemoteSession2.updatePlayerConnector(playerConfig, agentConfig);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -317,12 +308,9 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         };
         MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_MAX_VOLUME, maxVolume);
-        args.putInt(KEY_CURRENT_VOLUME, currentVolume);
-        args.putInt(KEY_VOLUME_CONTROL_TYPE, volumeControlType);
-        args.putParcelable(KEY_AUDIO_ATTRIBUTES, attrs.toBundle());
-        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER_WITH_VOLUME_PROVIDER, args);
+        Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
+                volumeControlType, maxVolume, currentVolume, attrs);
+        mRemoteSession2.updatePlayerConnector(playerConfig, null);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         PlaybackInfo info = controller.getPlaybackInfo();
