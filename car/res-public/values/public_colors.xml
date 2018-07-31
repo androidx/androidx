@@ -59,7 +59,6 @@
     <public type="color" name="car_tint_dark" />
     <public type="color" name="car_tint_light" />
     <public type="color" name="car_tint" />
-    <public type="color" name="car_tint_inverse" />
 
     <public type="color" name="car_list_header" />
 
@@ -67,25 +66,21 @@
     <public type="color" name="car_list_divider_dark" />
     <public type="color" name="car_list_divider_light" />
     <public type="color" name="car_list_divider" />
-    <public type="color" name="car_list_divider_inverse" />
 
     <!-- Card background colors -->
     <public type="color" name="car_card_dark" />
     <public type="color" name="car_card_light" />
     <public type="color" name="car_card" />
-    <public type="color" name="car_card_inverse" />
 
     <!-- Touch ripple colors -->
     <public type="color" name="car_card_ripple_background_dark" />
     <public type="color" name="car_card_ripple_background_light" />
     <public type="color" name="car_card_ripple_background" />
-    <public type="color" name="car_card_ripple_background_inverse" />
 
     <!-- Scrollbar colors -->
     <public type="color" name="car_scrollbar_thumb_dark" />
     <public type="color" name="car_scrollbar_thumb_light" />
     <public type="color" name="car_scrollbar_thumb" />
-    <public type="color" name="car_scrollbar_thumb_inverse" />
 
     <!-- Seekbar colors -->
     <public type="color" name="car_seekbar_track_secondary_progress" />
