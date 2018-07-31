@@ -33,65 +33,62 @@ import androidx.core.internal.view.SupportSubMenu;
  */
 @RestrictTo(LIBRARY_GROUP)
 class SubMenuWrapperICS extends MenuWrapperICS implements SubMenu {
+    private final SupportSubMenu mSubMenu;
 
     SubMenuWrapperICS(Context context, SupportSubMenu subMenu) {
         super(context, subMenu);
-    }
-
-    @Override
-    public SupportSubMenu getWrappedObject() {
-        return (SupportSubMenu) mWrappedObject;
+        mSubMenu = subMenu;
     }
 
     @Override
     public SubMenu setHeaderTitle(int titleRes) {
-        getWrappedObject().setHeaderTitle(titleRes);
+        mSubMenu.setHeaderTitle(titleRes);
         return this;
     }
 
     @Override
     public SubMenu setHeaderTitle(CharSequence title) {
-        getWrappedObject().setHeaderTitle(title);
+        mSubMenu.setHeaderTitle(title);
         return this;
     }
 
     @Override
     public SubMenu setHeaderIcon(int iconRes) {
-        getWrappedObject().setHeaderIcon(iconRes);
+        mSubMenu.setHeaderIcon(iconRes);
         return this;
     }
 
     @Override
     public SubMenu setHeaderIcon(Drawable icon) {
-        getWrappedObject().setHeaderIcon(icon);
+        mSubMenu.setHeaderIcon(icon);
         return this;
     }
 
     @Override
     public SubMenu setHeaderView(View view) {
-        getWrappedObject().setHeaderView(view);
+        mSubMenu.setHeaderView(view);
         return this;
     }
 
     @Override
     public void clearHeader() {
-        getWrappedObject().clearHeader();
+        mSubMenu.clearHeader();
     }
 
     @Override
     public SubMenu setIcon(int iconRes) {
-        getWrappedObject().setIcon(iconRes);
+        mSubMenu.setIcon(iconRes);
         return this;
     }
 
     @Override
     public SubMenu setIcon(Drawable icon) {
-        getWrappedObject().setIcon(icon);
+        mSubMenu.setIcon(icon);
         return this;
     }
 
     @Override
     public MenuItem getItem() {
-        return getMenuItemWrapper(getWrappedObject().getItem());
+        return getMenuItemWrapper(mSubMenu.getItem());
     }
 }

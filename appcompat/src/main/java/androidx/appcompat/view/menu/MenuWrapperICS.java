@@ -29,10 +29,15 @@ import androidx.core.internal.view.SupportMenu;
 /**
  * Wraps a support {@link SupportMenu} as a framework {@link android.view.Menu}
  */
-class MenuWrapperICS extends BaseMenuWrapper<SupportMenu> implements Menu {
+class MenuWrapperICS extends BaseMenuWrapper implements Menu {
+    private final SupportMenu mWrappedObject;
 
     MenuWrapperICS(Context context, SupportMenu object) {
-        super(context, object);
+        super(context);
+        if (object == null) {
+            throw new IllegalArgumentException("Wrapped Object can not be null.");
+        }
+        mWrappedObject = object;
     }
 
     @Override

@@ -42,14 +42,20 @@ import java.lang.reflect.Method;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> implements MenuItem {
+public class MenuItemWrapperICS extends BaseMenuWrapper implements MenuItem {
     static final String LOG_TAG = "MenuItemWrapper";
+
+    private final SupportMenuItem mWrappedObject;
 
     // Reflection Method to call setExclusiveCheckable
     private Method mSetExclusiveCheckableMethod;
 
     MenuItemWrapperICS(Context context, SupportMenuItem object) {
-        super(context, object);
+        super(context);
+        if (object == null) {
+            throw new IllegalArgumentException("Wrapped Object can not be null.");
+        }
+        mWrappedObject = object;
     }
 
     @Override
@@ -385,34 +391,35 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
         return new ActionProviderWrapper(mContext, provider);
     }
 
-    private class OnMenuItemClickListenerWrapper extends BaseWrapper<OnMenuItemClickListener>
-            implements android.view.MenuItem.OnMenuItemClickListener {
+    private class OnMenuItemClickListenerWrapper implements
+            android.view.MenuItem.OnMenuItemClickListener {
+        private final OnMenuItemClickListener mObject;
 
         OnMenuItemClickListenerWrapper(OnMenuItemClickListener object) {
-            super(object);
+            mObject = object;
         }
 
         @Override
         public boolean onMenuItemClick(android.view.MenuItem item) {
-            return mWrappedObject.onMenuItemClick(getMenuItemWrapper(item));
+            return mObject.onMenuItemClick(getMenuItemWrapper(item));
         }
     }
 
-    private class OnActionExpandListenerWrapper extends BaseWrapper<MenuItem.OnActionExpandListener>
-            implements MenuItem.OnActionExpandListener {
+    private class OnActionExpandListenerWrapper implements MenuItem.OnActionExpandListener {
+        private final MenuItem.OnActionExpandListener mObject;
 
         OnActionExpandListenerWrapper(MenuItem.OnActionExpandListener object) {
-            super(object);
+            mObject = object;
         }
 
         @Override
         public boolean onMenuItemActionExpand(android.view.MenuItem item) {
-            return mWrappedObject.onMenuItemActionExpand(getMenuItemWrapper(item));
+            return mObject.onMenuItemActionExpand(getMenuItemWrapper(item));
         }
 
         @Override
         public boolean onMenuItemActionCollapse(android.view.MenuItem item) {
-            return mWrappedObject.onMenuItemActionCollapse(getMenuItemWrapper(item));
+            return mObject.onMenuItemActionCollapse(getMenuItemWrapper(item));
         }
     }
 

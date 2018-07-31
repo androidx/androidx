@@ -27,15 +27,14 @@ import androidx.core.internal.view.SupportSubMenu;
 import java.util.Iterator;
 import java.util.Map;
 
-abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
+abstract class BaseMenuWrapper {
 
     final Context mContext;
 
     private Map<SupportMenuItem, MenuItem> mMenuItems;
     private Map<SupportSubMenu, SubMenu> mSubMenus;
 
-    BaseMenuWrapper(Context context, T object) {
-        super(object);
+    BaseMenuWrapper(Context context) {
         mContext = context;
     }
 
