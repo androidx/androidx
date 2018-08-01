@@ -243,7 +243,7 @@ public final class BenchmarkState {
         sb.append("median=").append(median()).append("ns, ");
         sb.append("mean=").append(mean()).append("ns, ");
         sb.append("min=").append(min()).append("ns, ");
-        sb.append("sigma=").append(standardDeviation()).append(", ");
+        sb.append("stddev=").append(standardDeviation()).append(", ");
         sb.append("count=").append(count()).append(", ");
         // print out the first few iterations' number for double checking.
         int sampleNumber = Math.min(mResults.size(), 16);
