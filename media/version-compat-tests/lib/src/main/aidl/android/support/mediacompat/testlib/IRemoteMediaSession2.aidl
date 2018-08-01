@@ -27,6 +27,7 @@ interface IRemoteMediaSession2 {
     // MediaSession2 Methods
     Bundle getToken(String sessionId);
     Bundle getCompatToken(String sessionId);
+    void updatePlayerConnector(String sessionId, in Bundle playerBundle, in Bundle agentBundle);
     void sendCustomCommand(String sessionId, in Bundle command, in Bundle args);
     void sendCustomCommand2(String sessionId, in Bundle controller, in Bundle command,
             in Bundle args, in ResultReceiver receiver);
@@ -51,7 +52,7 @@ interface IRemoteMediaSession2 {
 
     // MockPlaylistAgent Methods
     void setPlaylist(String sessionId, in List<Bundle> playlist);
-    void setPlaylistWithNewDsd(String sessionId, in List<Bundle> playlist);
+    void setPlaylistWithDummyDsd(String sessionId, in List<Bundle> playlist);
     void setPlaylistMetadata(String sessionId, in Bundle metadata);
     void setShuffleMode(String sessionId, int shuffleMode);
     void setRepeatMode(String sessionId, int repeatMode);

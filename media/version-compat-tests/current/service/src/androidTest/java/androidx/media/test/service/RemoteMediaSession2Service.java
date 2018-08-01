@@ -26,18 +26,11 @@ import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_VOLUME;
 import static androidx.media.test.lib.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media.test.lib.CommonConstants.KEY_MEDIA_ITEM;
+import static androidx.media.test.lib.CommonConstants.KEY_METADATA;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
 import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
-import static androidx.media.test.lib.CommonConstants.KEY_STREAM;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
-        .CUSTOM_METHOD_SET_MULTIPLE_VALUES;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands.UPDATE_PLAYER;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
-        .UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
-        .UPDATE_PLAYER_WITH_VOLUME_PROVIDER;
 import static androidx.media.test.lib.MediaSession2Constants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
 import static androidx.media.test.lib.MediaSession2Constants.TEST_GET_SESSION_ACTIVITY;
@@ -54,6 +47,8 @@ import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.IRemoteMediaSession2;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.test.lib.MockActivity;
 import androidx.media.test.lib.TestUtils.SyncHandler;
@@ -61,6 +56,8 @@ import androidx.media2.DataSourceDesc2;
 import androidx.media2.FileDataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayerConnector;
+import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.SessionCommand2;
@@ -179,56 +176,6 @@ public class RemoteMediaSession2Service extends Service {
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             args.setClassLoader(MediaSession2.class.getClassLoader());
-
-            switch (command) {
-                case UPDATE_PLAYER: {
-                    MockPlayerConnector newPlayer = new MockPlayerConnector(0);
-                    newPlayer.mLastPlayerState = args.getInt(KEY_PLAYER_STATE);
-                    newPlayer.setAudioAttributes(AudioAttributesCompat.fromBundle(
-                            (Bundle) args.getParcelable(KEY_AUDIO_ATTRIBUTES)));
-
-                    MockPlaylistAgent newAgent = new MockPlaylistAgent();
-                    newAgent.mPlaylist = MediaTestUtils.playlistFromParcelableList(
-                            args.getParcelableArrayList(KEY_PLAYLIST), false /* createDsd */);
-
-                    session2.updatePlayerConnector(newPlayer, newAgent);
-                    break;
-                }
-                case UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE: {
-                    // Set stream of the session.
-                    final int stream = args.getInt(KEY_STREAM);
-                    AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
-                            .setLegacyStreamType(stream)
-                            .build();
-                    MockPlayerConnector newPlayer = new MockPlayerConnector(0);
-                    newPlayer.setAudioAttributes(attrs);
-                    session2.updatePlayerConnector(newPlayer, null);
-                    break;
-                }
-                case UPDATE_PLAYER_WITH_VOLUME_PROVIDER: {
-                    MockRemotePlayerConnector remotePlayer = new MockRemotePlayerConnector(
-                            args.getInt(KEY_VOLUME_CONTROL_TYPE),
-                            args.getInt(KEY_MAX_VOLUME),
-                            args.getInt(KEY_CURRENT_VOLUME));
-                    remotePlayer.setAudioAttributes(AudioAttributesCompat.fromBundle(
-                            (Bundle) args.getParcelable(KEY_AUDIO_ATTRIBUTES)));
-                    session2.updatePlayerConnector(remotePlayer, null);
-                    break;
-                }
-                case CUSTOM_METHOD_SET_MULTIPLE_VALUES: {
-                    MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
-                    MockPlayerConnector player =
-                            (MockPlayerConnector) session2.getPlayerConnector();
-
-                    player.mLastPlayerState = args.getInt(KEY_PLAYER_STATE);
-                    player.mLastBufferingState = args.getInt(KEY_BUFFERING_STATE);
-                    player.mCurrentPosition = args.getLong(KEY_CURRENT_POSITION);
-                    player.mBufferedPosition = args.getLong(KEY_BUFFERED_POSITION);
-                    player.mPlaybackSpeed = args.getFloat(KEY_SPEED);
-                    agent.mCurrentMediaItem = MediaItem2.fromBundle(args.getBundle(KEY_MEDIA_ITEM));
-                    break;
-                }
-            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -238,14 +185,62 @@ public class RemoteMediaSession2Service extends Service {
         @Override
         public Bundle getToken(String sessionId) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            return session2 != null ? session2.getToken().toBundle() : null;
+            return session2.getToken().toBundle();
         }
 
         @Override
         public Bundle getCompatToken(String sessionId) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            return session2 != null ? session2.getSessionCompat().getSessionToken().toBundle()
-                    : null;
+            return session2.getSessionCompat().getSessionToken().toBundle();
+        }
+
+        @Override
+        public void updatePlayerConnector(String sessionId, @NonNull Bundle playerConfig,
+                @Nullable Bundle agentConfig) throws RemoteException {
+            playerConfig.setClassLoader(MediaSession2.class.getClassLoader());
+            if (agentConfig != null) {
+                agentConfig.setClassLoader(MediaSession2.class.getClassLoader());
+            }
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            session2.updatePlayerConnector(
+                    createMockPlayerConnector(playerConfig),
+                    createMockPlaylistAgent(agentConfig));
+        }
+
+        private MediaPlayerConnector createMockPlayerConnector(Bundle playerConfig) {
+            MediaPlayerConnector playerConnector;
+            if (playerConfig.containsKey(KEY_VOLUME_CONTROL_TYPE)) {
+                // Remote player
+                playerConnector = new MockRemotePlayerConnector(
+                        playerConfig.getInt(KEY_VOLUME_CONTROL_TYPE),
+                        playerConfig.getInt(KEY_MAX_VOLUME),
+                        playerConfig.getInt(KEY_CURRENT_VOLUME));
+            } else {
+                // Local player
+                MockPlayerConnector localPlayer = new MockPlayerConnector(0);
+                localPlayer.mLastPlayerState = playerConfig.getInt(KEY_PLAYER_STATE);
+                localPlayer.mLastBufferingState = playerConfig.getInt(KEY_BUFFERING_STATE);
+                localPlayer.mCurrentPosition = playerConfig.getLong(KEY_CURRENT_POSITION);
+                localPlayer.mBufferedPosition = playerConfig.getLong(KEY_BUFFERED_POSITION);
+                localPlayer.mPlaybackSpeed = playerConfig.getFloat(KEY_SPEED);
+                playerConnector = localPlayer;
+            }
+            playerConnector.setAudioAttributes(
+                    AudioAttributesCompat.fromBundle(
+                            playerConfig.getBundle(KEY_AUDIO_ATTRIBUTES)));
+            return playerConnector;
+        }
+
+        private MediaPlaylistAgent createMockPlaylistAgent(Bundle agentConfig) {
+            if (agentConfig == null) {
+                return null;
+            }
+            MockPlaylistAgent agent = new MockPlaylistAgent();
+            agent.mPlaylist = MediaTestUtils.playlistFromParcelableList(
+                    agentConfig.getParcelableArrayList(KEY_PLAYLIST), false /* createDsd */);
+            agent.mCurrentMediaItem = MediaItem2.fromBundle(agentConfig.getBundle(KEY_MEDIA_ITEM));
+            agent.mMetadata = MediaMetadata2.fromBundle(agentConfig.getBundle(KEY_METADATA));
+            return agent;
         }
 
         @Override
@@ -419,7 +414,7 @@ public class RemoteMediaSession2Service extends Service {
         }
 
         @Override
-        public void setPlaylistWithNewDsd(String sessionId, List<Bundle> playlist)
+        public void setPlaylistWithDummyDsd(String sessionId, List<Bundle> playlist)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();

@@ -56,6 +56,7 @@ public class CommonConstants {
     public static final String KEY_BUFFERING_STATE = "bufferingState";
     public static final String KEY_SPEED = "speed";
     public static final String KEY_MEDIA_ITEM = "mediaItem";
+    public static final String KEY_METADATA = "metadata";
     public static final String KEY_ARGUMENTS = "arguments";
     public static final String KEY_RESULT_RECEIVER = "resultReceiver";
     public static final String KEY_MAX_VOLUME = "maxVolume";

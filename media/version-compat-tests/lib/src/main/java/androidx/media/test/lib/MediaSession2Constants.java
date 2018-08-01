@@ -32,10 +32,6 @@ public class MediaSession2Constants {
      * Constants for test-specific custom command which will be run in the service app.
      */
     public static class CustomCommands {
-        public static final int UPDATE_PLAYER = 1000;
-        public static final int UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE = 1001;
-        public static final int UPDATE_PLAYER_WITH_VOLUME_PROVIDER = 1002;
-        public static final int CUSTOM_METHOD_SET_MULTIPLE_VALUES = 1900;
 
         private CustomCommands() {
         }
