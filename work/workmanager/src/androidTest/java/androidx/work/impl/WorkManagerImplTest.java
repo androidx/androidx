@@ -1492,8 +1492,10 @@ public class WorkManagerImplTest {
         };
         mWorkManagerImpl = new WorkManagerImpl(mContext, mConfiguration);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
+        // Call getSchedulers() so WM calls createBestAvailableBackgroundScheduler()
+        // which in turn initializes the right System(*)Service.
+        mWorkManagerImpl.getSchedulers();
         mDatabase = mWorkManagerImpl.getWorkDatabase();
-
         // Initialization of WM enables SystemJobService which needs to be discounted.
         reset(packageManager);
         OneTimeWorkRequest infiniteWorkerRequest =
