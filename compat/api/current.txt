@@ -1185,7 +1185,8 @@ package androidx.core.os {
     method public int size();
     method public java.lang.String toLanguageTags();
     method public java.lang.Object unwrap();
-    method public static androidx.core.os.LocaleListCompat wrap(java.lang.Object);
+    method public static deprecated androidx.core.os.LocaleListCompat wrap(java.lang.Object);
+    method public static androidx.core.os.LocaleListCompat wrap(android.os.LocaleList);
   }
 
   public final class MessageCompat {

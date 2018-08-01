@@ -409,7 +409,7 @@ public class LocaleListCompatTest {
         if (Build.VERSION.SDK_INT >= 21) {
             return Locale.forLanguageTag(str);
         } else {
-            return LocaleHelper.forLanguageTag(str);
+            return LocaleListCompat.forLanguageTagCompat(str);
         }
     }
 
@@ -417,7 +417,9 @@ public class LocaleListCompatTest {
         if (Build.VERSION.SDK_INT >= 21) {
             return locale.toLanguageTag();
         } else {
-            return LocaleHelper.toLanguageTag(locale);
+            StringBuilder builder = new StringBuilder();
+            LocaleListCompatWrapper.toLanguageTag(builder, locale);
+            return builder.toString();
         }
     }
 
