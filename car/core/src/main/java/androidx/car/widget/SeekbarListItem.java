@@ -596,7 +596,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         }
 
         @NonNull
-        public View[] getWidgetViews() {
+        View[] getWidgetViews() {
             return mWidgetViews;
         }
     }
