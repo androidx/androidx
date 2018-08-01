@@ -57,7 +57,7 @@ public @interface VersionedParcelize {
      * {@link VersionedParcel#writeStrongBinder(IBinder, int)}, or
      * {@link VersionedParcel#writeStrongInterface(IInterface, int)} is made, then a runtime
      * exception
-     * is thrown. If the flag is false, then the object will simply be skipped and initalized
+     * is thrown. If the flag is true, then the object will simply be skipped and initalized
      * to its default value upon deserialization.
      * <p>
      * If {@link #allowSerialization()} is false, this flag has no effect.
