@@ -37,6 +37,9 @@ public class CommonConstants {
             IntentUtil.CLIENT_PACKAGE_NAME,
             "androidx.media.test.client.MediaBrowserCompatProviderService");
 
+    public static final ComponentName MOCK_MEDIA_SESSION_SERVICE = new ComponentName(
+            IntentUtil.SERVICE_PACKAGE_NAME,
+            "androidx.media.test.service.MockMediaSessionService2");
     public static final ComponentName MOCK_MEDIA_LIBRARY_SERVICE = new ComponentName(
             IntentUtil.SERVICE_PACKAGE_NAME,
             "androidx.media.test.service.MockMediaLibraryService2");

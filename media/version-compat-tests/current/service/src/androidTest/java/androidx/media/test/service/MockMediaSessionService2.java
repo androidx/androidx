@@ -16,19 +16,37 @@
 
 package androidx.media.test.service;
 
+import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
+
+import android.text.TextUtils;
+
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSessionService2;
-import androidx.media2.SessionToken2;
+import androidx.media2.SessionCommandGroup2;
 
-/**
- * Dummy MediaSessionService2 for testing {@link SessionToken2}.
- */
+import java.util.concurrent.Executors;
+
 public class MockMediaSessionService2 extends MediaSessionService2 {
     // Keep in sync with the AndroidManifest.xml
     public static final String ID = "TestSession";
 
     @Override
     public MediaSession2 onCreateSession(String sessionId) {
-        return null;
+        return new MediaSession2.Builder(MockMediaSessionService2.this)
+                .setId(sessionId)
+                .setPlayer(new MockPlayerConnector(0))
+                .setSessionCallback(Executors.newSingleThreadExecutor(), new TestSessionCallback())
+                .build();
+    }
+
+    private class TestSessionCallback extends MediaSession2.SessionCallback {
+        @Override
+        public SessionCommandGroup2 onConnect(MediaSession2 session,
+                MediaSession2.ControllerInfo controller) {
+            if (TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName())) {
+                return super.onConnect(session, controller);
+            }
+            return null;
+        }
     }
 }
