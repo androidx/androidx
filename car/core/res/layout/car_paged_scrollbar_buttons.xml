@@ -31,7 +31,7 @@
 
     <!-- TODO(deanh): Replace this with a proper asset when we have done. -->
     <TextView
-        android:textAppearance="@style/TextAppearance.Car.Title"
+        android:textAppearance="@style/TextAppearance.Car.Body1"
         android:id="@+id/alpha_jump"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"

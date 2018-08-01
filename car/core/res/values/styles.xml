@@ -22,95 +22,28 @@ limitations under the License.
     <!-- Base namespace for all TextAppearances. -->
     <style name="TextAppearance.Car" parent="TextAppearance.AppCompat" />
 
-    <!-- The styling for title text. The color of this text changes based on day/night mode. -->
-    <style name="TextAppearance.Car.Title">
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="TextAppearance.Car.Display1">
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_title_size</item>
-        <item name="android:textColor">@color/car_title</item>
+        <item name="android:textSize">@dimen/car_display1_size</item>
+        <item name="android:textColor">@color/car_display1</item>
     </style>
 
-    <!-- Title text that is permanently a dark color. -->
-    <style name="TextAppearance.Car.Title.Dark">
-        <item name="android:textColor">@color/car_title_dark</item>
-    </style>
-
-    <!-- Title text that is permanently a light color. -->
-    <style name="TextAppearance.Car.Title.Light">
-        <item name="android:textColor">@color/car_title_light</item>
-    </style>
-
-    <!-- The styling for title2 text. The color of this text changes based on day/night mode. -->
-    <style name="TextAppearance.Car.Title2">
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="TextAppearance.Car.Display2">
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_title2_size</item>
-        <item name="android:textColor">@color/car_title2</item>
+        <item name="android:textSize">@dimen/car_display2_size</item>
+        <item name="android:textColor">@color/car_display2</item>
     </style>
 
-    <!-- Title2 text that is permanently a dark color. -->
-    <style name="TextAppearance.Car.Title2.Dark">
-        <item name="android:textColor">@color/car_title2_dark</item>
-    </style>
-
-    <!-- Title2 text that is permanently a light color. -->
-    <style name="TextAppearance.Car.Title2.Light">
-        <item name="android:textColor">@color/car_title2_light</item>
-    </style>
-
-    <!-- The styling for subheader text. This text uses android:colorAccent defined in the theme as
-         its text color. -->
-    <style name="TextAppearance.Car.Subheader" parent="TextAppearance.Car.Action2">
-        <item name="android:textColor">?attr/android:colorAccent</item>
-    </style>
-
-    <!-- The styling for the main headline text. The color of this text changes based on the
-         day/night mode. -->
-    <style name="TextAppearance.Car.Headline1">
+    <style name="TextAppearance.Car.Display3">
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_headline1_size</item>
-        <item name="android:textColor">@color/car_headline1</item>
+        <item name="android:textSize">@dimen/car_display3_size</item>
+        <item name="android:textColor">@color/car_display3</item>
     </style>
 
-    <!-- Title2 text that is permanently a light color. -->
-    <style name="TextAppearance.Car.Headline1.Light">
-        <item name="android:textColor">@color/car_headline1_light</item>
-    </style>
-
-    <!-- Title2 text that is permanently a dark color. -->
-    <style name="TextAppearance.Car.Headline1.Dark">
-        <item name="android:textColor">@color/car_headline1_dark</item>
-    </style>
-
-    <!-- The styling for a sub-headline text. The color of this text changes based on the
-         day/night mode. -->
-    <style name="TextAppearance.Car.Headline2">
+    <style name="TextAppearance.Car.Display4">
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_headline2_size</item>
-        <item name="android:textColor">@color/car_headline2</item>
-    </style>
-
-    <!-- The styling for a smaller alternate headline text. The color of this text changes based on
-         the day/night mode. -->
-    <style name="TextAppearance.Car.Headline3">
-        <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_headline3_size</item>
-        <item name="android:textColor">@color/car_headline3</item>
-    </style>
-
-    <!-- The styling for the smallest headline text. The color of this text changes based on the
-         day/night mode. -->
-    <style name="TextAppearance.Car.Headline4">
-        <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_headline4_size</item>
-        <item name="android:textColor">@color/car_headline4</item>
-    </style>
-
-    <!-- The styling for label text. The color of this text changes based on the day/night mode. -->
-    <style name="TextAppearance.Car.Label1">
-        <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_label1_size</item>
-        <item name="android:textColor">@color/car_label1</item>
+        <item name="android:textSize">@dimen/car_display4_size</item>
+        <item name="android:textColor">@color/car_display4</item>
     </style>
 
     <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
@@ -120,14 +53,26 @@ limitations under the License.
         <item name="android:textColor">@color/car_body1</item>
     </style>
 
+    <style name="TextAppearance.Car.Body1.Medium">
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
     <!-- Title2 text that is permanently a light color. -->
     <style name="TextAppearance.Car.Body1.Light">
+        <item name="android:textColor">@color/car_body1_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body1.Medium.Light">
         <item name="android:textColor">@color/car_body1_light</item>
     </style>
 
     <!-- Title2 text that is permanently a dark color. -->
     <style name="TextAppearance.Car.Body1.Dark">
         <item name="android:textColor">@color/car_body2_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body1.Medium.Dark">
+        <item name="android:textColor">@color/car_body1_light</item>
     </style>
 
     <!-- An alternate styling for body text that is both a different color and size than
@@ -156,6 +101,30 @@ limitations under the License.
         <item name="android:textColor">@color/car_body3</item>
     </style>
 
+    <style name="TextAppearance.Car.Body3.Medium">
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body3.Light">
+        <item name="android:textColor">@color/car_body3_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body3.Medium.Light">
+        <item name="android:textColor">@color/car_body3_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body3.Dark">
+        <item name="android:textColor">@color/car_body3_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body3.Medium.Dark">
+        <item name="android:textColor">@color/car_body3_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body3.Medium.Accent">
+        <item name="android:textColor">@color/car_accent</item>
+    </style>
+
     <!-- The smallest styling for body text. The color of this text changes based on the day/night
          mode. -->
     <style name="TextAppearance.Car.Body4">
@@ -164,25 +133,44 @@ limitations under the License.
         <item name="android:textColor">@color/car_body4</item>
     </style>
 
-    <!-- The styling for action button text. This style is all-caps. -->
-    <style name="TextAppearance.Car.Action1">
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="TextAppearance.Car.SubText1">
         <item name="android:textStyle">normal</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textSize">@dimen/car_action1_size</item>
-        <item name="android:textColor">@color/car_accent</item>
+        <item name="android:textSize">@dimen/car_subtext1_size</item>
+        <item name="android:textColor">@color/car_subtext1</item>
     </style>
 
-    <!-- The styling for action button text. This style is sentence case. -->
-    <style name="TextAppearance.Car.Action2">
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="TextAppearance.Car.SubText2">
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_action2_size</item>
-        <item name="android:textColor">@color/car_accent</item>
+        <item name="android:textSize">@dimen/car_subtext2_size</item>
+        <item name="android:textColor">@color/car_subtext2</item>
+    </style>
+
+    <style name="TextAppearance.Car.SubText3">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_subtext3_size</item>
+        <item name="android:textColor">@color/car_subtext3</item>
+    </style>
+
+    <style name="TextAppearance.Car.SubText4">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_subtext4_size</item>
+        <item name="android:textColor">@color/car_subtext4</item>
+    </style>
+
+    <style name="TextAppearance.Car.SubText5">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_subtext5_size</item>
+        <item name="android:textColor">@color/car_subtext5</item>
+    </style>
+
+    <!-- The styling for subheader text. This text uses android:colorAccent defined in the theme as
+         its text color. -->
+    <style name="TextAppearance.Car.Subheader" parent="TextAppearance.Car.Body3.Medium">
+        <item name="android:textColor">?attr/android:colorAccent</item>
     </style>
 
     <!-- The styling for menu text in action bar. -->
-    <style name="TextAppearance.Car.ActionBar.Menu" parent="TextAppearance.Car.Action1">
+    <style name="TextAppearance.Car.ActionBar.Menu" parent="TextAppearance.Car.Body3.Medium">
         <item name="android:textColor">?attr/actionMenuTextColor</item>
     </style>
 
@@ -205,14 +193,14 @@ limitations under the License.
         <item name="contentInsetStart">@dimen/car_keyline_1</item>
         <item name="elevation">@dimen/car_action_bar_elevation</item>
         <item name="subtitleTextAppearance">@style/TextAppearance.Car.Body2</item>
-        <item name="titleTextAppearance">@style/TextAppearance.Car.Title2</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Car.Body1.Medium</item>
         <item name="navigationIcon">@drawable/ic_nav_arrow_back</item>
     </style>
 
     <!-- The styling of a Toolbar that is fixed to light-colored text. -->
     <style name="Widget.Car.Toolbar.Light">
         <item name="subtitleTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
-        <item name="titleTextAppearance">@style/TextAppearance.Car.Title2.Light</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Car.Body1.Medium.Light</item>
     </style>
 
     <!-- The styling for the navigation button in action bar. -->
@@ -257,14 +245,15 @@ limitations under the License.
         <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
-        <item name="android:textSize">@dimen/car_action1_size</item>
+        <item name="android:textSize">@dimen/car_body3_size</item>
+        <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/car_button_background</item>
-        <item name="android:textColor">@color/car_action1</item>
+        <item name="android:textColor">@color/car_body3</item>
     </style>
 
     <!-- A style for buttons that is fixed with dark-colored text. -->
     <style name="Widget.Car.Button.DarkText">
-        <item name="android:textColor">@color/car_action1_dark</item>
+        <item name="android:textColor">@color/car_body3_dark</item>
     </style>
 
     <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
@@ -273,7 +262,8 @@ limitations under the License.
         <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingStart">@dimen/car_borderless_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_borderless_button_horizontal_padding</item>
-        <item name="android:textSize">@dimen/car_action1_size</item>
+        <item name="android:textSize">@dimen/car_body3_size</item>
+        <item name="android:textAllCaps">false</item>
         <item name="android:textColor">?android:attr/colorButtonNormal</item>
     </style>
 
@@ -405,19 +395,19 @@ limitations under the License.
     <!-- The title text for a dialog. -->
     <style name="Widget.Car.Dialog.Title">
         <item name="android:maxLines">1</item>
-        <item name="android:textAppearance">@style/TextAppearance.Car.Title2</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Medium</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAlignment">viewStart</item>
     </style>
 
     <!-- Title text for a dialog that is fixed in a light color. -->
     <style name="Widget.Car.Dialog.Title.Light">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Title2.Light</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Medium.Light</item>
     </style>
 
     <!-- Title text for a dialog that is fixed in a dark color. -->
     <style name="Widget.Car.Dialog.Title.Dark">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Title2.Dark</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Medium.Dark</item>
     </style>
 
     <!-- The body text for a dialog. -->

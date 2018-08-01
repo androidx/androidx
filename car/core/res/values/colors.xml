@@ -69,22 +69,21 @@
 
     <!--  Various colors for text sizes. "Light" and "dark" here refer to the lighter or darker
           shades. -->
-    <color name="car_title">@color/car_title_dark</color>
-    <color name="car_title2">@color/car_title2_dark</color>
-
-    <color name="car_headline1">@color/car_headline1_dark</color>
-    <color name="car_headline2">@color/car_headline2_dark</color>
-    <color name="car_headline3">@color/car_headline3_dark</color>
-    <color name="car_headline4">@color/car_headline4_dark</color>
+    <color name="car_display1">@color/car_display1_dark</color>
+    <color name="car_display2">@color/car_display2_dark</color>
+    <color name="car_display3">@color/car_display3_dark</color>
+    <color name="car_display4">@color/car_display4_dark</color>
 
     <color name="car_body1">@color/car_body1_dark</color>
     <color name="car_body2">@color/car_body2_dark</color>
     <color name="car_body3">@color/car_body3_dark</color>
     <color name="car_body4">@color/car_body4_dark</color>
 
-    <color name="car_label1">@color/car_label1_dark</color>
-
-    <color name="car_action1">@color/car_action1_light</color>
+    <color name="car_subtext1">@color/car_subtext1_dark</color>
+    <color name="car_subtext2">@color/car_subtext2_dark</color>
+    <color name="car_subtext3">@color/car_subtext3_dark</color>
+    <color name="car_subtext4">@color/car_subtext4_dark</color>
+    <color name="car_subtext5">@color/car_subtext5_dark</color>
 
     <!-- The tinting color for an icon. This icon is assumed to be on a light background. -->
     <color name="car_tint">@color/car_tint_dark</color>
