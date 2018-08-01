@@ -922,11 +922,14 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
             RouteViewHolder(View itemView) {
                 super(itemView);
+                Drawable checkBoxIcon = MediaRouterThemeHelper.getCheckBoxDrawableIcon(mContext);
+
                 mImageView = itemView.findViewById(R.id.mr_cast_route_icon);
                 mProgressBar = itemView.findViewById(R.id.mr_cast_progress_bar);
                 mTextView = itemView.findViewById(R.id.mr_cast_route_name);
                 mVolumeSliderLayout = itemView.findViewById(R.id.mr_cast_volume_layout);
                 mCheckBox = itemView.findViewById(R.id.mr_cast_checkbox);
+                mCheckBox.setButtonDrawable(checkBoxIcon);
             }
 
             public void bindRouteViewHolder(Item item) {
@@ -943,6 +946,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     mCheckBox.setChecked(true);
                     mCheckBox.setEnabled(true);
                 } else {
+                    mCheckBox.setChecked(false);
                     mCheckBox.setEnabled(false);
                 }
             }
