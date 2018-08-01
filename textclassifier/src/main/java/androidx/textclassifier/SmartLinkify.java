@@ -302,6 +302,7 @@ public final class SmartLinkify {
         protected TextLinks doInBackground(Void... nil) {
             final TextLinks textLinks = mClassifier.generateLinks(mRequest);
             textLinks.setClassifierFactory(mClassifierFactory);
+            textLinks.setReferenceTime(mParams.getReferenceTime());
             return textLinks;
         }
 
