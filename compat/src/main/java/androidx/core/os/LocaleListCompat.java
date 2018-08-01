@@ -31,166 +31,33 @@ import java.util.Locale;
  * Helper for accessing features in {@link LocaleList}.
  */
 public final class LocaleListCompat {
-    final LocaleListInterface mImpl;
-    private static final LocaleListCompat sEmptyLocaleList = new LocaleListCompat();
+    private static final LocaleListCompat sEmptyLocaleList = create();
 
+    private LocaleListInterface mImpl;
 
-    static class LocaleListCompatBaseImpl implements LocaleListInterface {
-        private LocaleListHelper mLocaleList = new LocaleListHelper();
-
-        @Override
-        public void setLocaleList(@NonNull Locale... list) {
-            mLocaleList = new LocaleListHelper(list);
-        }
-
-        @Override
-        public Object getLocaleList() {
-            return mLocaleList;
-        }
-
-        @Override
-        public Locale get(int index) {
-            return mLocaleList.get(index);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return mLocaleList.isEmpty();
-        }
-
-        @Override
-        @IntRange(from = 0)
-        public int size() {
-            return mLocaleList.size();
-        }
-
-        @Override
-        @IntRange(from = -1)
-        public int indexOf(Locale locale) {
-            return mLocaleList.indexOf(locale);
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return mLocaleList.equals(((LocaleListCompat) other).unwrap());
-        }
-
-        @Override
-        public int hashCode() {
-            return mLocaleList.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return mLocaleList.toString();
-        }
-
-        @Override
-        public String toLanguageTags() {
-            return mLocaleList.toLanguageTags();
-        }
-
-        @Nullable
-        @Override
-        public Locale getFirstMatch(String[] supportedLocales) {
-            if (mLocaleList != null) {
-                return mLocaleList.getFirstMatch(supportedLocales);
-            }
-            return null;
-        }
+    private LocaleListCompat(LocaleListInterface impl) {
+        mImpl = impl;
     }
 
+    /** @deprecated Use {@link #wrap(LocaleList)} */
+    @Deprecated
     @RequiresApi(24)
-    static class LocaleListCompatApi24Impl implements LocaleListInterface {
-        private LocaleList mLocaleList = new LocaleList();
-
-        @Override
-        public void setLocaleList(@NonNull Locale... list) {
-            mLocaleList = new LocaleList(list);
-        }
-
-        @Override
-        public Object getLocaleList() {
-            return mLocaleList;
-        }
-
-        @Override
-        public Locale get(int index) {
-            return mLocaleList.get(index);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return mLocaleList.isEmpty();
-        }
-
-        @Override
-        @IntRange(from = 0)
-        public int size() {
-            return mLocaleList.size();
-        }
-
-        @Override
-        @IntRange(from = -1)
-        public int indexOf(Locale locale) {
-            return mLocaleList.indexOf(locale);
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return mLocaleList.equals(((LocaleListCompat) other).unwrap());
-        }
-
-        @Override
-        public int hashCode() {
-            return mLocaleList.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return mLocaleList.toString();
-        }
-
-        @Override
-        public String toLanguageTags() {
-            return mLocaleList.toLanguageTags();
-        }
-
-        @Nullable
-        @Override
-        public Locale getFirstMatch(String[] supportedLocales) {
-            if (mLocaleList != null) {
-                return mLocaleList.getFirstMatch(supportedLocales);
-            }
-            return null;
-        }
-    }
-
-    private LocaleListCompat() {
-        if (Build.VERSION.SDK_INT >= 24) {
-            mImpl = new LocaleListCompatApi24Impl();
-        } else {
-            mImpl = new LocaleListCompatBaseImpl();
-        }
+    public static LocaleListCompat wrap(Object localeList) {
+        return wrap((LocaleList) localeList);
     }
 
     /**
      * Creates a new instance of {@link LocaleListCompat} from the Locale list.
      */
     @RequiresApi(24)
-    public static LocaleListCompat wrap(Object object) {
-        LocaleListCompat instance = new LocaleListCompat();
-        if (object instanceof LocaleList) {
-            instance.setLocaleList((LocaleList) object);
-
-        }
-        return instance;
+    public static LocaleListCompat wrap(LocaleList localeList) {
+        return new LocaleListCompat(new LocaleListPlatformWrapper(localeList));
     }
 
     /**
      * Gets the underlying framework object.
      *
-     * @return an android.os.LocaleList object if API &gt;= 24 , or {@link Locale} if not.
+     * @return an android.os.LocaleList object if API &gt;= 24 , or {@code null} if not.
      */
     @Nullable
     public Object unwrap() {
@@ -201,9 +68,10 @@ public final class LocaleListCompat {
      * Creates a new instance of {@link LocaleListCompat} from the {@link Locale} array.
      */
     public static LocaleListCompat create(@NonNull Locale... localeList) {
-        LocaleListCompat instance = new LocaleListCompat();
-        instance.setLocaleListArray(localeList);
-        return instance;
+        if (Build.VERSION.SDK_INT >= 24) {
+            return wrap(new LocaleList(localeList));
+        }
+        return new LocaleListCompat(new LocaleListCompatWrapper(localeList));
     }
 
     /**
@@ -262,12 +130,13 @@ public final class LocaleListCompat {
      * @return The first {@link Locale} from this list that appears in the given array, or
      *         {@code null} if the {@link LocaleListCompat} is empty.
      */
-    public Locale getFirstMatch(String[] supportedLocales) {
+    @Nullable
+    public Locale getFirstMatch(@NonNull String[] supportedLocales) {
         return mImpl.getFirstMatch(supportedLocales);
     }
 
     /**
-     * Retrieve an empty instance of {@link LocaleList}.
+     * Retrieve an empty instance of {@link LocaleListCompat}.
      */
     @NonNull
     public static LocaleListCompat getEmptyLocaleList() {
@@ -292,12 +161,37 @@ public final class LocaleListCompat {
             for (int i = 0; i < localeArray.length; i++) {
                 localeArray[i] = Build.VERSION.SDK_INT >= 21
                         ? Locale.forLanguageTag(tags[i])
-                        : LocaleHelper.forLanguageTag(tags[i]);
+                        : forLanguageTagCompat(tags[i]);
             }
-            LocaleListCompat instance = new LocaleListCompat();
-            instance.setLocaleListArray(localeArray);
-            return instance;
+            return create(localeArray);
         }
+    }
+
+    // Simpleton implementation for Locale.forLanguageTag(...)
+    static Locale forLanguageTagCompat(String str) {
+        if (str.contains("-")) {
+            String[] args = str.split("-", -1);
+            if (args.length > 2) {
+                return new Locale(args[0], args[1], args[2]);
+            } else if (args.length > 1) {
+                return new Locale(args[0], args[1]);
+            } else if (args.length == 1) {
+                return new Locale(args[0]);
+            }
+        } else if (str.contains("_")) {
+            String[] args = str.split("_", -1);
+            if (args.length > 2) {
+                return new Locale(args[0], args[1], args[2]);
+            } else if (args.length > 1) {
+                return new Locale(args[0], args[1]);
+            } else if (args.length == 1) {
+                return new Locale(args[0]);
+            }
+        } else {
+            return new Locale(str);
+        }
+
+        throw new IllegalArgumentException("Can not parse language tag: [" + str + "]");
     }
 
     /**
@@ -335,7 +229,7 @@ public final class LocaleListCompat {
 
     @Override
     public boolean equals(Object other) {
-        return mImpl.equals(other);
+        return other instanceof LocaleListCompat && mImpl.equals(((LocaleListCompat) other).mImpl);
     }
 
     @Override
@@ -346,21 +240,5 @@ public final class LocaleListCompat {
     @Override
     public String toString() {
         return mImpl.toString();
-    }
-
-    @RequiresApi(24)
-    private void setLocaleList(LocaleList localeList) {
-        final int localeListSize = localeList.size();
-        if (localeListSize > 0) {
-            Locale[] localeArrayList = new Locale[localeListSize];
-            for (int i = 0; i < localeListSize; i++) {
-                localeArrayList[i] = localeList.get(i);
-            }
-            mImpl.setLocaleList(localeArrayList);
-        }
-    }
-
-    private void setLocaleListArray(Locale... localeArrayList) {
-        mImpl.setLocaleList(localeArrayList);
     }
 }
