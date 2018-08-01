@@ -97,7 +97,8 @@ public final class TextSelectionTest {
                 .setDefaultLocales(LOCALE_LIST)
                 .build();
 
-        android.view.textclassifier.TextSelection.Request platformRequest = request.toPlatform();
+        android.view.textclassifier.TextSelection.Request platformRequest =
+                (android.view.textclassifier.TextSelection.Request) request.toPlatform();
 
         assertThat(platformRequest.getStartIndex()).isEqualTo(START_INDEX);
         assertThat(platformRequest.getEndIndex()).isEqualTo(END_INDEX);
@@ -143,7 +144,8 @@ public final class TextSelectionTest {
     public void testToPlatform() {
         TextSelection reference = createTextSelection();
 
-        android.view.textclassifier.TextSelection platformTextSelection = reference.toPlatform();
+        android.view.textclassifier.TextSelection platformTextSelection =
+                (android.view.textclassifier.TextSelection) reference.toPlatform();
         TextSelection textSelection = TextSelection.fromPlatform(platformTextSelection);
 
         assertTextSelection(textSelection);

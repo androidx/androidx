@@ -19,6 +19,7 @@ package androidx.textclassifier;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
+
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -56,7 +57,8 @@ public class TextClassificationContextTest {
                         .setWidgetVersion(WIDGET_VERSION)
                         .build();
         android.view.textclassifier.TextClassificationContext platformContext =
-                textClassificationContext.toPlatform();
+                (android.view.textclassifier.TextClassificationContext)
+                        textClassificationContext.toPlatform();
         assertThat(platformContext.getPackageName()).isEqualTo(PKG_NAME);
         assertThat(platformContext.getWidgetType()).isEqualTo(WIDGET_TYPE);
         assertThat(platformContext.getWidgetVersion()).isEqualTo(WIDGET_VERSION);

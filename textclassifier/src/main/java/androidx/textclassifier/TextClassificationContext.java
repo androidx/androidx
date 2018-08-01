@@ -160,7 +160,7 @@ public final class TextClassificationContext {
     @RequiresApi(28)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
-    android.view.textclassifier.TextClassificationContext toPlatform() {
+    Object toPlatform() {
         return new android.view.textclassifier.TextClassificationContext.Builder(
                 mPackageName, mWidgetType).setWidgetVersion(mWidgetVersion).build();
     }
