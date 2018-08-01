@@ -324,13 +324,13 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
             }
 
             // Add list items of single device section to mItems
-            mItems.add(new Item(mContext.getString(R.string.mr_dialog_device_header)));
+            mItems.add(new Item(mContext.getString(R.string.mr_dialog_groupable_header)));
             for (MediaRouter.RouteInfo route : mRoutes) {
                 mItems.add(new Item(route));
             }
 
             // Add list items of group section to mItems
-            mItems.add(new Item(mContext.getString(R.string.mr_dialog_route_header)));
+            mItems.add(new Item(mContext.getString(R.string.mr_dialog_transferable_header)));
             for (MediaRouter.RouteInfo routeGroup : routeGroups) {
                 mItems.add(new Item(routeGroup));
             }

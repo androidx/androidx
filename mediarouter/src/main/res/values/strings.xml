@@ -83,12 +83,12 @@
     <string name="mr_controller_casting_screen">Casting screen</string>
 
     <!-- TODO(b/111372602): Enable translation when releasing dynamic grouping-->
-    <!-- Section header text of single device section in dialog [CHAR LIMIT=50] -->
-    <string name="mr_dialog_device_header" translatable="false">Cast to a device</string>
+    <!-- Section header text of groupable route section in dialog [CHAR LIMIT=50] -->
+    <string name="mr_dialog_groupable_header" translatable="false">Add a device</string>
 
     <!-- TODO(b/111372602): Enable translation when releasing dynamic grouping-->
-    <!-- Section header text of group device section in dialog [CHAR LIMIT=50] -->
-    <string name="mr_dialog_route_header" translatable="false">Play on a group</string>
+    <!-- Section header text of transferable route section in dialog [CHAR LIMIT=50] -->
+    <string name="mr_dialog_transferable_header" translatable="false">Play on a group</string>
 
     <!-- TODO(b/111372602): Enable translation when releasing dynamic grouping-->
     <!-- Placeholder text for cast dialog title view [CHAR LIMIT=50] -->
