@@ -1877,6 +1877,7 @@ package androidx.core.view {
     method public static void dispatchNestedScroll(android.view.View, int, int, int, int, int[], int, int[]);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[], int);
     method public static void dispatchStartTemporaryDetach(android.view.View);
+    method public static void enableAccessibleClickableSpanSupport(android.view.View);
     method public static int generateViewId();
     method public static androidx.core.view.AccessibilityDelegateCompat getAccessibilityDelegate(android.view.View);
     method public static int getAccessibilityLiveRegion(android.view.View);
@@ -2180,6 +2181,10 @@ package androidx.core.view {
 }
 
 package androidx.core.view.accessibility {
+
+  public final class AccessibilityClickableSpanCompat extends android.text.style.ClickableSpan {
+    method public void onClick(android.view.View);
+  }
 
   public final class AccessibilityEventCompat {
     method public static deprecated void appendRecord(android.view.accessibility.AccessibilityEvent, androidx.core.view.accessibility.AccessibilityRecordCompat);
