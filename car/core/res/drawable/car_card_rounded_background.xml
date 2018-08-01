@@ -17,5 +17,5 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="?attr/listItemBackgroundColor"/>
     <corners
-        android:radius="@dimen/car_radius_3"/>
+        android:radius="@dimen/car_radius_2"/>
 </shape>
