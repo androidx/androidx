@@ -23,6 +23,7 @@ import static androidx.textclassifier.SelectionEvent.INVOCATION_MANUAL;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
+
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -172,7 +173,7 @@ public class SelectionEventTest {
                 START
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionStartedEvent(
@@ -190,7 +191,7 @@ public class SelectionEventTest {
                 END
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
@@ -209,7 +210,7 @@ public class SelectionEventTest {
                 new TextClassification.Builder().setText(TEXT).build()
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
@@ -230,7 +231,7 @@ public class SelectionEventTest {
                 new TextSelection.Builder(START, END).build()
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
@@ -250,7 +251,7 @@ public class SelectionEventTest {
                 ACTION_COPY
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
@@ -271,7 +272,7 @@ public class SelectionEventTest {
                 new TextClassification.Builder().setText(TEXT).build()
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
