@@ -18,12 +18,24 @@ package androidx.textclassifier;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.text.style.URLSpan;
 
 import androidx.collection.ArraySet;
+import androidx.core.app.RemoteActionCompat;
+import androidx.core.graphics.drawable.IconCompat;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
+import androidx.textclassifier.LegacyTextClassifier.MatchMaker;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,9 +46,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Tests for {@link LegacyTextClassifier}.
+ */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class LegacyTextClassifierTest {
+public final class LegacyTextClassifierTest {
     private static final String URL = "www.example.com";
     private static final String EMAIL = "my@example.com";
     private static final String PHONE_NUMBER = "+447481123456";
@@ -45,8 +60,93 @@ public class LegacyTextClassifierTest {
     private static final String TEXT_WITH_ALL_ENTITIES =
             String.format("Visit %s, email to %s and call my number %s", URL, EMAIL, PHONE_NUMBER);
     private static final int START = 16;
+    private static final IconCompat ICON = IconCompat.createWithData(new byte[0], 0, 0);
+    private static final float EPSILON = 0.001f;
 
-    private final LegacyTextClassifier mLegacyTextClassifier = LegacyTextClassifier.INSTANCE;
+    private LegacyTextClassifier mLegacyTextClassifier;
+    private MatchMaker mMatchMaker;
+    private PendingIntent mPendingIntent;
+
+    @Before
+    public void setUp() {
+        mPendingIntent = PendingIntent.getActivity(
+                InstrumentationRegistry.getTargetContext(), 0, new Intent(), 0);
+
+        mMatchMaker = mock(MatchMaker.class);
+        when(mMatchMaker.getActions(anyString(), anyString()))
+                .thenReturn(Collections.<RemoteActionCompat>emptyList());
+
+        mLegacyTextClassifier = new LegacyTextClassifier(mMatchMaker);
+    }
+
+    @Test
+    public void classifyText_url() throws Exception {
+        final List<RemoteActionCompat> actions = Collections.singletonList(
+                new RemoteActionCompat(ICON, "Browse", "Browse", mPendingIntent));
+        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_URL), anyString()))
+                .thenReturn(actions);
+        final TextClassification.Request request =
+                new TextClassification.Request.Builder(URL, 0, URL.length())
+                        .build();
+
+        final TextClassification classification = mLegacyTextClassifier.classifyText(request);
+
+        assertThat(classification.getEntityTypeCount()).isEqualTo(1);
+        assertThat(classification.getEntityType(0)).isEqualTo(TextClassifier.TYPE_URL);
+        final float score = classification.getConfidenceScore(classification.getEntityType(0));
+        assertThat(score).isWithin(EPSILON).of(1f);
+        assertThat(classification.getActions()).isEqualTo(actions);
+    }
+
+    @Test
+    public void classifyText_email() throws Exception {
+        final List<RemoteActionCompat> actions = Collections.singletonList(
+                new RemoteActionCompat(ICON, "Email", "Email", mPendingIntent));
+        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_EMAIL), anyString()))
+                .thenReturn(actions);
+        final TextClassification.Request request =
+                new TextClassification.Request.Builder(EMAIL, 0, EMAIL.length())
+                        .build();
+
+        final TextClassification classification = mLegacyTextClassifier.classifyText(request);
+
+        assertThat(classification.getEntityTypeCount()).isEqualTo(1);
+        assertThat(classification.getEntityType(0)).isEqualTo(TextClassifier.TYPE_EMAIL);
+        final float score = classification.getConfidenceScore(classification.getEntityType(0));
+        assertThat(score).isWithin(EPSILON).of(1f);
+        assertThat(classification.getActions()).isEqualTo(actions);
+    }
+
+    @Test
+    public void classifyText_phone() throws Exception {
+        final List<RemoteActionCompat> actions = Collections.singletonList(
+                new RemoteActionCompat(ICON, "Phone", "Phone", mPendingIntent));
+        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_PHONE), anyString()))
+                .thenReturn(actions);
+        final TextClassification.Request request =
+                new TextClassification.Request.Builder(PHONE_NUMBER, 0, PHONE_NUMBER.length())
+                        .build();
+
+        final TextClassification classification = mLegacyTextClassifier.classifyText(request);
+
+        assertThat(classification.getEntityTypeCount()).isEqualTo(1);
+        assertThat(classification.getEntityType(0)).isEqualTo(TextClassifier.TYPE_PHONE);
+        final float score = classification.getConfidenceScore(classification.getEntityType(0));
+        assertThat(score).isWithin(EPSILON).of(1f);
+        assertThat(classification.getActions()).isEqualTo(actions);
+    }
+
+    @Test
+    public void classifyText_map() throws Exception {
+        final TextClassification.Request request =
+                new TextClassification.Request.Builder(ADDRESS, 0, ADDRESS.length())
+                        .build();
+
+        final TextClassification classification = mLegacyTextClassifier.classifyText(request);
+
+        assertThat(classification.getEntityTypeCount()).isEqualTo(0);
+        assertThat(classification.getActions()).isEmpty();
+    }
 
     @Test
     public void generateLinks_url() throws Exception {

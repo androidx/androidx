@@ -73,7 +73,7 @@ public class TextClassificationManagerTest {
         TextClassifier textClassifier =
                 mTextClassificationManager.createTextClassifier(mTextClassificationContext);
 
-        assertThat(textClassifier).isSameAs(LegacyTextClassifier.INSTANCE);
+        assertThat(textClassifier).isInstanceOf(LegacyTextClassifier.class);
     }
 
     @Test

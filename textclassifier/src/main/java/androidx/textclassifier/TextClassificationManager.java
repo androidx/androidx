@@ -87,6 +87,6 @@ public final class TextClassificationManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return PlatformTextClassifierWrapper.create(mContext, textClassificationContext);
         }
-        return LegacyTextClassifier.INSTANCE;
+        return LegacyTextClassifier.of(mContext);
     }
 }
