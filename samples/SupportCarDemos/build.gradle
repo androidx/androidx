@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation(project(":car"))
 
-    compileOnly fileTree(dir: '../../car/car-stubs', include: ['android.car.jar'])
+    compileOnly fileTree(dir: '../../car/core/car-stubs', include: ['android.car.jar'])
 }
 
 android {
