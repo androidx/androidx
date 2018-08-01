@@ -18,9 +18,12 @@ package androidx.media.test.client.tests;
 
 import androidx.media2.MediaController2;
 
+import org.junit.Ignore;
+
 /**
  * Tests {@link MediaController2}.
  */
+@Ignore("b/111487997")
 public class MediaController2Test_copied extends MediaSession2TestBase {
     private static final String TAG = "MediaController2Test_copied";
 
