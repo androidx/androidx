@@ -22,19 +22,6 @@ import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
-import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
-import static androidx.media.test.lib.CommonConstants.KEY_BUFFERED_POSITION;
-import static androidx.media.test.lib.CommonConstants.KEY_BUFFERING_STATE;
-import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_POSITION;
-import static androidx.media.test.lib.CommonConstants.KEY_MEDIA_ITEM;
-import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
-import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
-import static androidx.media.test.lib.CommonConstants.KEY_STREAM;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
-        .CUSTOM_METHOD_SET_MULTIPLE_VALUES;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands.UPDATE_PLAYER;
-import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
-        .UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE;
 import static androidx.media.test.lib.MediaSession2Constants.TEST_GET_SESSION_ACTIVITY;
 
 import static org.junit.Assert.assertEquals;
@@ -53,10 +40,10 @@ import android.support.mediacompat.testlib.util.PollingCheck;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
-import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaItem2;
+import androidx.media2.MediaPlayerConnector;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -143,9 +130,12 @@ public class MediaController2Test extends MediaSession2TestBase {
             return;
         }
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_STREAM, stream);
-        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE, args);
+        AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(stream).build();
+        Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
+                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
+                0f /* speed */, attrs);
+        mRemoteSession2.updatePlayerConnector(playerConfig, null);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
@@ -182,9 +172,12 @@ public class MediaController2Test extends MediaSession2TestBase {
             return;
         }
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_STREAM, stream);
-        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE, args);
+        AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(stream).build();
+        Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
+                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
+                0f /* speed */, attrs);
+        mRemoteSession2.updatePlayerConnector(playerConfig, null);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int direction = originalVolume == minVolume
@@ -248,14 +241,11 @@ public class MediaController2Test extends MediaSession2TestBase {
         final long timeDiff = 102;
         final MediaItem2 currentMediaItem = MediaTestUtils.createMediaItemWithMetadata();
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_PLAYER_STATE, state);
-        args.putInt(KEY_BUFFERING_STATE, bufferingState);
-        args.putLong(KEY_CURRENT_POSITION, position);
-        args.putLong(KEY_BUFFERED_POSITION, bufferedPosition);
-        args.putFloat(KEY_SPEED, speed);
-        args.putBundle(KEY_MEDIA_ITEM, currentMediaItem.toBundle());
-        mRemoteSession2.runCustomTestCommands(CUSTOM_METHOD_SET_MULTIPLE_VALUES, args);
+        Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
+                state, bufferingState, position, bufferedPosition, speed, null /* audioAttrs */);
+        Bundle agentConfig = RemoteMediaSession2.createMockPlaylistAgentConfig(
+                null /* playlist */, currentMediaItem, null /* metadata */);
+        mRemoteSession2.updatePlayerConnector(playerConfig, agentConfig);
 
         MediaController2 controller = createController(mRemoteSession2.getToken());
         controller.setTimeDiff(timeDiff);
@@ -273,9 +263,10 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .setContentType(CONTENT_TYPE_MUSIC)
                 .build();
 
-        Bundle args = new Bundle();
-        args.putBundle(KEY_AUDIO_ATTRIBUTES, attrs.toBundle());
-        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER, args);
+        Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
+                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
+                0f /* speed */, attrs);
+        mRemoteSession2.updatePlayerConnector(playerConfig, null);
 
         final MediaController2 controller = createController(mRemoteSession2.getToken());
         PlaybackInfo info = controller.getPlaybackInfo();

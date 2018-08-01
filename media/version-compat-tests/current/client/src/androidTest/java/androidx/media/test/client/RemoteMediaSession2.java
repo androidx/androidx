@@ -17,6 +17,18 @@
 package androidx.media.test.client;
 
 import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_SESSION2;
+import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
+import static androidx.media.test.lib.CommonConstants.KEY_BUFFERED_POSITION;
+import static androidx.media.test.lib.CommonConstants.KEY_BUFFERING_STATE;
+import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_POSITION;
+import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_VOLUME;
+import static androidx.media.test.lib.CommonConstants.KEY_MAX_VOLUME;
+import static androidx.media.test.lib.CommonConstants.KEY_MEDIA_ITEM;
+import static androidx.media.test.lib.CommonConstants.KEY_METADATA;
+import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
+import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
+import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
+import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media.test.lib.CommonConstants.REMOTE_MEDIA_SESSION2_SERVICE;
 import static androidx.media.test.lib.TestUtils.WAIT_TIME_MS;
 
@@ -36,9 +48,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media.AudioAttributesCompat;
 import androidx.media.test.lib.MediaSession2Constants;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayerConnector;
+import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
@@ -120,6 +135,69 @@ public class RemoteMediaSession2 {
         return mRemotePlaylistAgent;
     }
 
+    /**
+     * Create a {@link Bundle} which represents a configuration of local
+     * {@link MediaPlayerConnector} in order to create a new mock player in the service app.
+     * <p>
+     * The returned value can be used in {@link #updatePlayerConnector(Bundle, Bundle)}.
+     */
+    public static Bundle createMockPlayerConnectorConfig(
+            int state, int buffState, long pos, long buffPos, float speed,
+            @Nullable AudioAttributesCompat attr) {
+        Bundle playerBundle = new Bundle();
+        playerBundle.putInt(KEY_PLAYER_STATE, state);
+        playerBundle.putInt(KEY_BUFFERING_STATE, buffState);
+        playerBundle.putLong(KEY_CURRENT_POSITION, pos);
+        playerBundle.putLong(KEY_BUFFERED_POSITION, buffPos);
+        playerBundle.putFloat(KEY_SPEED, speed);
+        if (attr != null) {
+            playerBundle.putBundle(KEY_AUDIO_ATTRIBUTES, attr.toBundle());
+        }
+        return playerBundle;
+    }
+
+    /**
+     * Create a {@link Bundle} which represents a configuration of remote
+     * {@link MediaPlayerConnector} in order to create a new mock player in the service app.
+     * <p>
+     * The returned value can be used in {@link #updatePlayerConnector(Bundle, Bundle)}.
+     */
+    public static Bundle createMockPlayerConnectorConfig(
+            int volumeControlType, int maxVolume, int currentVolume,
+            @Nullable AudioAttributesCompat attr) {
+        Bundle playerBundle = new Bundle();
+        playerBundle.putInt(KEY_VOLUME_CONTROL_TYPE, volumeControlType);
+        playerBundle.putInt(KEY_MAX_VOLUME, maxVolume);
+        playerBundle.putInt(KEY_CURRENT_VOLUME, currentVolume);
+        if (attr != null) {
+            playerBundle.putBundle(KEY_AUDIO_ATTRIBUTES, attr.toBundle());
+        }
+        return playerBundle;
+    }
+
+    /**
+     * Create a {@link Bundle} which represents a configuration of {@link MediaPlaylistAgent}
+     * in order to create a new mock playlist agent in the service app.
+     * <p>
+     * The returned value can be used in {@link #updatePlayerConnector(Bundle, Bundle)}.
+     */
+    public static Bundle createMockPlaylistAgentConfig(
+            @Nullable List<MediaItem2> playlist, @Nullable MediaItem2 currentItem,
+            @Nullable MediaMetadata2 metadata) {
+        Bundle agentBundle = new Bundle();
+        if (playlist != null) {
+            agentBundle.putParcelableArrayList(KEY_PLAYLIST,
+                    MediaTestUtils.playlistToParcelableArrayList(playlist));
+        }
+        if (currentItem != null) {
+            agentBundle.putBundle(KEY_MEDIA_ITEM, currentItem.toBundle());
+        }
+        if (metadata != null) {
+            agentBundle.putBundle(KEY_METADATA, metadata.toBundle());
+        }
+        return agentBundle;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     // MediaSession2 methods
     ////////////////////////////////////////////////////////////////////////////////
@@ -162,6 +240,14 @@ public class RemoteMediaSession2 {
             Log.e(TAG, "Failed to get session compat token. sessionId=" + mSessionId);
         }
         return token;
+    }
+
+    public void updatePlayerConnector(@NonNull Bundle playerConfig, @Nullable Bundle agentConfig) {
+        try {
+            mBinder.updatePlayerConnector(mSessionId, playerConfig, agentConfig);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call updatePlayerConnector()");
+        }
     }
 
     public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
@@ -343,12 +429,12 @@ public class RemoteMediaSession2 {
             }
         }
 
-        public void setPlaylistNewDsd(List<MediaItem2> playlist) {
+        public void setPlaylistWithDummyDsd(List<MediaItem2> playlist) {
             try {
-                mBinder.setPlaylistWithNewDsd(
+                mBinder.setPlaylistWithDummyDsd(
                         mSessionId, MediaTestUtils.mediaItem2ListToBundleList(playlist));
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call setPlaylistNewDsd()");
+                Log.e(TAG, "Failed to call setPlaylistWithDummyDsd()");
             }
         }
 
