@@ -102,7 +102,7 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return PlatformTextClassifierWrapper.create(context, textClassificationContext);
         }
-        return LegacyTextClassifier.INSTANCE;
+        return LegacyTextClassifier.of(context);
     }
 
     private final class TextSelectionRequestProcessor

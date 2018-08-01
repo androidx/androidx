@@ -37,7 +37,7 @@ import androidx.core.util.Preconditions;
 public class PlatformTextClassifierWrapper extends TextClassifier {
     private final android.view.textclassifier.TextClassifier mPlatformTextClassifier;
     private final Context mContext;
-    private final TextClassifier mFallback = LegacyTextClassifier.INSTANCE;
+    private final TextClassifier mFallback;
 
     @VisibleForTesting
     PlatformTextClassifierWrapper(
@@ -47,6 +47,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
         super(sessionStrategy);
         mContext = Preconditions.checkNotNull(context);
         mPlatformTextClassifier = Preconditions.checkNotNull(platformTextClassifier);
+        mFallback = LegacyTextClassifier.of(context);
     }
 
     /**
