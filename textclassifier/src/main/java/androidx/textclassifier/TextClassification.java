@@ -273,7 +273,7 @@ public final class TextClassification {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
     @NonNull
-    android.view.textclassifier.TextClassification toPlatform() {
+    Object toPlatform() {
         android.view.textclassifier.TextClassification.Builder builder =
                 new android.view.textclassifier.TextClassification.Builder()
                         .setText(getText() == null ? null : getText().toString())
@@ -450,7 +450,7 @@ public final class TextClassification {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @NonNull
-        android.view.textclassifier.TextClassification.Request toPlatform() {
+        Object toPlatform() {
             return new android.view.textclassifier.TextClassification.Request.Builder(
                     mText, mStartIndex, mEndIndex)
                     .setDefaultLocales(ConvertUtils.unwrapLocalListCompat(getDefaultLocales()))

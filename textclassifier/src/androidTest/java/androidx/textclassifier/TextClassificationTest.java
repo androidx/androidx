@@ -120,7 +120,7 @@ public final class TextClassificationTest {
     public void testToPlatformRequest() {
         TextClassification.Request request = createTextClassificationRequest();
         android.view.textclassifier.TextClassification.Request platformRequest =
-                request.toPlatform();
+                (android.view.textclassifier.TextClassification.Request) request.toPlatform();
 
         assertThat(platformRequest.getStartIndex()).isEqualTo(START_INDEX);
         assertThat(platformRequest.getEndIndex()).isEqualTo(END_INDEX);
@@ -189,7 +189,7 @@ public final class TextClassificationTest {
         TextClassification reference = createExpectedBuilder().build();
 
         android.view.textclassifier.TextClassification platformTextClassification =
-                reference.toPlatform();
+                (android.view.textclassifier.TextClassification) reference.toPlatform();
 
         TextClassification textClassification =
                 TextClassification.fromPlatform(mContext, platformTextClassification);
