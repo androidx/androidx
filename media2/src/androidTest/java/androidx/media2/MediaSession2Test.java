@@ -75,6 +75,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     private MediaSession2 mSession;
     private MockPlayer mPlayer;
     private MockPlaylistAgent mMockAgent;
+    private ControllerInfo mTestControllerInfo;
 
     @Before
     @Override
@@ -102,7 +103,9 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-        mSession.close();
+        if (mSession != null) {
+            mSession.close();
+        }
     }
 
     @Test
@@ -966,46 +969,44 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testSetCustomLayout() throws InterruptedException {
         prepareLooper();
-        final List<CommandButton> buttons = new ArrayList<>();
-        buttons.add(new CommandButton.Builder()
+        final List<CommandButton> customLayout = new ArrayList<>();
+        customLayout.add(new CommandButton.Builder()
                 .setCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY))
-                .setDisplayName("button").build());
+                .setDisplayName("button")
+                .build());
         final CountDownLatch latch = new CountDownLatch(1);
-        final SessionCallback sessionCallback = new SessionCallback() {
-            @Override
-            public SessionCommandGroup2 onConnect(MediaSession2 session,
-                    ControllerInfo controller) {
-                if (mContext.getPackageName().equals(controller.getPackageName())) {
-                    mSession.setCustomLayout(controller, buttons);
-                }
-                return super.onConnect(session, controller);
-            }
-        };
 
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setId("testSetCustomLayout")
-                .setSessionCallback(sHandlerExecutor, sessionCallback)
+                .setSessionCallback(sHandlerExecutor, new SessionCallback() {
+                    @Override
+                    public SessionCommandGroup2 onConnect(MediaSession2 session,
+                            ControllerInfo controller) {
+                        if (mContext.getPackageName().equals(controller.getPackageName())) {
+                            mTestControllerInfo = controller;
+                            return super.onConnect(session, controller);
+                        }
+                        return null;
+                    }
+                })
                 .build()) {
-            if (mSession != null) {
-                mSession.close();
-                mSession = session;
-            }
+
             final ControllerCallback callback = new ControllerCallback() {
                 @Override
                 public void onCustomLayoutChanged(MediaController2 controller2,
                         List<CommandButton> layout) {
-                    assertEquals(layout.size(), buttons.size());
+                    assertEquals(customLayout.size(), layout.size());
                     for (int i = 0; i < layout.size(); i++) {
-                        assertEquals(layout.get(i).getCommand(), buttons.get(i).getCommand());
-                        assertEquals(layout.get(i).getDisplayName(),
-                                buttons.get(i).getDisplayName());
+                        assertEquals(customLayout.get(i).getCommand(), layout.get(i).getCommand());
+                        assertEquals(customLayout.get(i).getDisplayName(),
+                                layout.get(i).getDisplayName());
                     }
                     latch.countDown();
                 }
             };
-            final MediaController2 controller =
-                    createController(session.getToken(), true, callback);
+            MediaController2 controller = createController(session.getToken(), true, callback);
+            session.setCustomLayout(mTestControllerInfo, customLayout);
             assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         }
     }

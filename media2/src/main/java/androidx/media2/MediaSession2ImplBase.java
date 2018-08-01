@@ -378,6 +378,15 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
+    public boolean isConnected(ControllerInfo controller) {
+        if (controller.equals(mSessionLegacyStub.getControllersForAll())) {
+            return true;
+        }
+        return mSession2Stub.getConnectedControllersManager().isConnected(controller)
+                || mSessionLegacyStub.getConnectedControllersManager().isConnected(controller);
+    }
+
+    @Override
     public void setCustomLayout(@NonNull ControllerInfo controller,
             @NonNull final List<MediaSession2.CommandButton> layout) {
         if (controller == null) {
@@ -1221,6 +1230,11 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         if (controller == null) {
             return;
         }
+        if (!isConnected(controller)) {
+            // Do not send command to an unconnected controller.
+            return;
+        }
+
         try {
             runnable.run(controller.getControllerCb());
         } catch (DeadObjectException e) {
