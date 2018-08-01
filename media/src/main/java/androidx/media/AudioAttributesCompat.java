@@ -66,7 +66,7 @@ import java.lang.annotation.RetentionPolicy;
  * AudioAttributesCompat.Builder}. Also see {@link android.media.AudioAttributes} for the framework
  * implementation of this class.
  */
-@VersionedParcelize
+@VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesCompat")
 public class AudioAttributesCompat implements VersionedParcelable {
     private static final String TAG = "AudioAttributesCompat";
 
@@ -246,8 +246,12 @@ public class AudioAttributesCompat implements VersionedParcelable {
     static final String AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE =
             "androidx.media.audio_attrs.LEGACY_STREAM_TYPE";
 
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(1)
-    AudioAttributesImpl mImpl;
+    public AudioAttributesImpl mImpl;
 
     AudioAttributesCompat() {
     }
