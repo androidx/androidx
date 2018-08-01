@@ -436,7 +436,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
             }
             CharSequence text = FORMAT_LONG.equals(format)
                     ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
-                    : item.getText();
+                    : item.getSanitizedText();
             tv.setText(text);
             container.addView(tv);
             tv.setPadding(0, padding, 0, 0);

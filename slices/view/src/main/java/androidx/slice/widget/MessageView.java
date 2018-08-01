@@ -94,7 +94,7 @@ public class MessageView extends SliceChildView {
             if (builder.length() != 0) {
                 builder.append('\n');
             }
-            builder.append(text.getText());
+            builder.append(text.getSanitizedText());
         }
         mDetails.setText(builder.toString());
     }

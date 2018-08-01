@@ -165,7 +165,7 @@ public class GridContent {
     @Nullable
     public CharSequence getTitle() {
         if (mTitleItem != null) {
-            return mTitleItem.getText();
+            return mTitleItem.getSanitizedText();
         } else if (mPrimaryAction != null) {
             return new SliceActionImpl(mPrimaryAction).getTitle();
         }
