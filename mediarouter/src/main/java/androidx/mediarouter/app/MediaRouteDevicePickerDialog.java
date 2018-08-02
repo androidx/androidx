@@ -291,7 +291,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
      */
     private final class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private static final String TAG = "RecyclerAdapter";
-        ArrayList<Item> mItems;
+        private final ArrayList<Item> mItems;
 
         private final LayoutInflater mInflater;
         private final Drawable mDefaultIcon;
@@ -300,6 +300,8 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
         private final Drawable mSpeakerGroupIcon;
 
         RecyclerAdapter() {
+            mItems = new ArrayList<>();
+
             mInflater = LayoutInflater.from(mContext);
             mDefaultIcon = MediaRouterThemeHelper.getDefaultDrawableIcon(mContext);
             mTvIcon = MediaRouterThemeHelper.getTvDrawableIcon(mContext);
@@ -310,30 +312,13 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
         // Create a list of items with mRoutes and add them to mItems
         void setItems() {
-            mItems = new ArrayList<>();
-            ArrayList<MediaRouter.RouteInfo> routeGroups = new ArrayList<>();
+            mItems.clear();
 
-            // Find route consists of multiple devices and add them to routeGroups
-            for (int i = mRoutes.size() - 1; i >= 0; i--) {
-                MediaRouter.RouteInfo route = mRoutes.get(i);
-
-                if (route instanceof MediaRouter.RouteGroup) {
-                    routeGroups.add(route);
-                    mRoutes.remove(i);
-                }
-            }
-
-            // Add list items of single device section to mItems
-            mItems.add(new Item(mContext.getString(R.string.mr_dialog_device_header)));
+            mItems.add(new Item(mContext.getString(R.string.mr_chooser_title)));
             for (MediaRouter.RouteInfo route : mRoutes) {
                 mItems.add(new Item(route));
             }
 
-            // Add list items of group section to mItems
-            mItems.add(new Item(mContext.getString(R.string.mr_dialog_route_header)));
-            for (MediaRouter.RouteInfo routeGroup : routeGroups) {
-                mItems.add(new Item(routeGroup));
-            }
             notifyDataSetChanged();
         }
 

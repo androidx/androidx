@@ -610,18 +610,18 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 }
             }
 
+            // Add list items of available routes section to mItems
             if (mAvailableRoutes.size() > 0) {
-                // Add list items of single device section to mItems
-                mItems.add(new Item(mContext.getString(R.string.mr_dialog_device_header),
+                mItems.add(new Item(mContext.getString(R.string.mr_dialog_groupable_header),
                         ITEM_TYPE_HEADER));
                 for (MediaRouter.RouteInfo route : mAvailableRoutes) {
                     mItems.add(new Item(route, ITEM_TYPE_ROUTE));
                 }
             }
 
+            // Add list items of available groups section to mItems
             if (mAvailableGroups.size() > 0) {
-                // Add list items of group section to mItems
-                mItems.add(new Item(mContext.getString(R.string.mr_dialog_route_header),
+                mItems.add(new Item(mContext.getString(R.string.mr_dialog_transferable_header),
                         ITEM_TYPE_HEADER));
                 for (MediaRouter.RouteInfo route : mAvailableGroups) {
                     mItems.add(new Item(route, ITEM_TYPE_GROUP));
