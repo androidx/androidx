@@ -205,7 +205,11 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    void onWorkFinished(@NonNull Result result) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void onWorkFinished(@NonNull Result result) {
         try {
             mWorkDatabase.beginTransaction();
             if (!tryCheckForInterruptionAndNotify()) {
