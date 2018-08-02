@@ -36,10 +36,10 @@ object NavParserErrors {
             "doesn't allow default values other than @null"
 
     fun defaultNullButNotNullable(name: String?) = "android:defaultValue is @null, but '$name' " +
-            "is not nullable. Add app:allowsNullable=\"true\" to the argument to make it nullable."
+            "is not nullable. Add app:nullable=\"true\" to the argument to make it nullable."
 
     fun typeIsNotNullable(typeName: String?) = "'$typeName' is a simple type " +
-            "and cannot be nullable. Remove app:allowsNullable=\"true\" from the argument."
+            "and cannot be nullable. Remove app:nullable=\"true\" from the argument."
 
     fun sameSanitizedNameArguments(sanitizedName: String, args: List<Argument>) =
             "Multiple same name arguments. The named arguments: " +
