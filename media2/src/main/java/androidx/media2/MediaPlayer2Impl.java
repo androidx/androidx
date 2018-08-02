@@ -1283,12 +1283,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * provided to the DRM engine plugin using provideDrmKeyResponse. When the
      * response is for an offline key request, a key-set identifier is returned that
      * can be used to later restore the keys to a new session with the method
-     * {@ link # restoreDrmKeys}.
+     * {@link #restoreDrmKeys}.
      * When the response is for a streaming or release request, null is returned.
      *
      * @param keySetId When the response is for a release request, keySetId identifies
      * the saved key associated with the release request (i.e., the same keySetId
-     * passed to the earlier {@ link #getDrmKeyRequest} call. It MUST be null when the
+     * passed to the earlier {@link #getDrmKeyRequest} call. It MUST be null when the
      * response is for either streaming or offline key requests.
      *
      * @param response the byte array response from the server
