@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -50,6 +51,7 @@ public class FragmentNavigatorTest {
     private static final int INITIAL_FRAGMENT = 1;
     private static final int SECOND_FRAGMENT = 2;
     private static final int THIRD_FRAGMENT = 3;
+    private static final int FOURTH_FRAGMENT = 4;
 
     @Rule
     public ActivityTestRule<EmptyActivity> mActivityRule =
@@ -131,6 +133,120 @@ public class FragmentNavigatorTest {
                 is(CoreMatchers.<Fragment>instanceOf(EmptyFragment.class)));
         assertThat("Replacement Fragment should be the primary navigation Fragment",
                 mFragmentManager.getPrimaryNavigationFragment(), is(replacementFragment));
+
+        verifyNoMoreInteractions(listener);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testNavigateWithPopUpToThenPop() {
+        FragmentNavigator fragmentNavigator = new FragmentNavigator(mEmptyActivity,
+                mFragmentManager, R.id.container);
+        Navigator.OnNavigatorNavigatedListener listener =
+                mock(Navigator.OnNavigatorNavigatedListener.class);
+        fragmentNavigator.addOnNavigatorNavigatedListener(listener);
+        FragmentNavigator.Destination destination = fragmentNavigator.createDestination();
+        destination.setId(INITIAL_FRAGMENT);
+        destination.setFragmentClass(EmptyFragment.class);
+
+        // Push initial fragment
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+
+        // Push a second fragment
+        destination.setId(SECOND_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                SECOND_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+
+        // Pop and then push third fragment, simulating popUpTo to initial.
+        fragmentNavigator.popBackStack();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
+        destination.setId(THIRD_FRAGMENT);
+        fragmentNavigator.navigate(destination, null,
+                new NavOptions.Builder().setPopUpTo(INITIAL_FRAGMENT, false).build());
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                THIRD_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+
+        // Now pop the Fragment
+        boolean popped = fragmentNavigator.popBackStack();
+        assertThat("FragmentNavigator should return true when popping the third fragment", popped,
+                is(true));
+        // 2nd time we pop to initial fragment
+        verify(listener, times(2)).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
+
+        verifyNoMoreInteractions(listener);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testNavigateWithPopUpToThenPopWithFragmentManager() {
+        FragmentNavigator fragmentNavigator = new FragmentNavigator(mEmptyActivity,
+                mFragmentManager, R.id.container);
+        Navigator.OnNavigatorNavigatedListener listener =
+                mock(Navigator.OnNavigatorNavigatedListener.class);
+        fragmentNavigator.addOnNavigatorNavigatedListener(listener);
+        FragmentNavigator.Destination destination = fragmentNavigator.createDestination();
+        destination.setId(INITIAL_FRAGMENT);
+        destination.setFragmentClass(EmptyFragment.class);
+
+        // Push initial fragment
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+
+        // Push a second fragment
+        destination.setId(SECOND_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                SECOND_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+
+        // Pop and then push third fragment, simulating popUpTo to initial.
+        fragmentNavigator.popBackStack();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
+        destination.setId(THIRD_FRAGMENT);
+        fragmentNavigator.navigate(destination, null,
+                new NavOptions.Builder().setPopUpTo(INITIAL_FRAGMENT, false).build());
+        mFragmentManager.executePendingTransactions();
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                THIRD_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_ADDED);
+
+        // Now pop the Fragment
+        boolean popped = mFragmentManager.popBackStackImmediate();
+        assertThat("FragmentNavigator should return true when popping the third fragment", popped,
+                is(true));
+        // 2nd time we pop to initial fragment
+        verify(listener, times(2)).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
 
         verifyNoMoreInteractions(listener);
     }
@@ -518,5 +634,69 @@ public class FragmentNavigatorTest {
                 mFragmentManager.getPrimaryNavigationFragment(), is(fragment));
 
         verifyNoMoreInteractions(listener);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testMultipleNavigateFragmentTransactionsThenPopWithFragmentManager() {
+        FragmentNavigator fragmentNavigator = new FragmentNavigator(mEmptyActivity,
+                mFragmentManager, R.id.container);
+        Navigator.OnNavigatorNavigatedListener listener =
+                mock(Navigator.OnNavigatorNavigatedListener.class);
+        fragmentNavigator.addOnNavigatorNavigatedListener(listener);
+        FragmentNavigator.Destination destination = fragmentNavigator.createDestination();
+        destination.setFragmentClass(EmptyFragment.class);
+
+        // Push 4 fragments without executing pending transactions.
+        destination.setId(INITIAL_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        destination.setId(SECOND_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        destination.setId(THIRD_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+
+        // Now pop the Fragment
+        boolean popped = mFragmentManager.popBackStackImmediate();
+        assertThat("FragmentNavigator should return true when popping the third fragment", popped,
+                is(true));
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                SECOND_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testMultiplePopFragmentTransactionsThenPopWithFragmentManager() {
+        FragmentNavigator fragmentNavigator = new FragmentNavigator(mEmptyActivity,
+                mFragmentManager, R.id.container);
+        Navigator.OnNavigatorNavigatedListener listener =
+                mock(Navigator.OnNavigatorNavigatedListener.class);
+        fragmentNavigator.addOnNavigatorNavigatedListener(listener);
+        FragmentNavigator.Destination destination = fragmentNavigator.createDestination();
+        destination.setFragmentClass(EmptyFragment.class);
+
+        // Push 4 fragments
+        destination.setId(INITIAL_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        destination.setId(SECOND_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        destination.setId(THIRD_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        destination.setId(FOURTH_FRAGMENT);
+        fragmentNavigator.navigate(destination, null, null);
+        mFragmentManager.executePendingTransactions();
+
+        // Pop 2 fragments without executing pending transactions.
+        fragmentNavigator.popBackStack();
+        fragmentNavigator.popBackStack();
+
+        boolean popped = mFragmentManager.popBackStackImmediate();
+        assertThat("FragmentNavigator should return true when popping the third fragment", popped,
+                is(true));
+        verify(listener).onNavigatorNavigated(
+                fragmentNavigator,
+                INITIAL_FRAGMENT,
+                Navigator.BACK_STACK_DESTINATION_POPPED);
     }
 }
