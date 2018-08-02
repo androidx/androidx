@@ -286,7 +286,7 @@ public class MediaLibraryService2LegacyTest extends MediaSessionService2LegacyTe
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 int expectedSize = Math.max(Math.min(pageSize,
-                        MockMediaLibraryService2.SEARCH_RESULT_COUNT - pageSize * (page - 1)), 0);
+                        MockMediaLibraryService2.SEARCH_RESULT_COUNT - pageSize * page), 0);
                 assertEquals(expectedSize, items.size());
 
                 int fromIndex = page * pageSize;
