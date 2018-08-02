@@ -28,6 +28,14 @@
                 <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
             </intent-filter>
         </activity>
-    </application>
 
+        <activity android:name="androidx.media.widget.MediaControlView2TestActivity"
+                  android:theme="@style/Theme.AppCompat"
+                  android:configChanges="keyboardHidden|orientation|screenSize"
+                  android:label="MediaControlView2TestActivity">
+            <intent-filter>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>
