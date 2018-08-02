@@ -81,7 +81,7 @@ public class FragmentAdapterActivity extends BaseActivity {
     }
 
     @Override
-    public void updatePage(int pageIx, int newValue) {
+    public void updatePageContent(int pageIx, int newValue) {
         mFragments[pageIx].updateValue(newValue);
     }
 
