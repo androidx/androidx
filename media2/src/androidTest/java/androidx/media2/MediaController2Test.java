@@ -1418,6 +1418,37 @@ public class MediaController2Test extends MediaSession2TestBase {
         testCloseFromService(MockMediaLibraryService2.ID);
     }
 
+    @Test
+    public void testGetCurrentPosition() throws InterruptedException {
+        prepareLooper();
+        final int pausedState = MediaPlayerConnector.PLAYER_STATE_PAUSED;
+        final int playingState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
+        final long timeDiff = 5000L;
+        final long position = 0L;
+        final CountDownLatch latch = new CountDownLatch(2);
+
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onPlayerStateChanged(MediaController2 controller, int state) {
+                switch ((int) latch.getCount()) {
+                    case 2:
+                        assertEquals(state, pausedState);
+                        assertEquals(position, controller.getCurrentPosition());
+                        mPlayer.notifyPlaybackState(playingState);
+                        break;
+                    case 1:
+                        assertEquals(state, playingState);
+                        assertEquals(position + timeDiff, controller.getCurrentPosition());
+                }
+                latch.countDown();
+            }
+        };
+        MediaController2 controller = createController(mSession.getToken(), true, callback);
+        controller.setTimeDiff(timeDiff);
+        mPlayer.notifyPlaybackState(pausedState);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
     private void testCloseFromService(String id) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         TestServiceRegistry.getInstance().setSessionServiceCallback(new SessionServiceCallback() {
