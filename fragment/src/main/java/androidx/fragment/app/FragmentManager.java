@@ -42,7 +42,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -710,7 +709,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     boolean mStateSaved;
     boolean mStopped;
     boolean mDestroyed;
-    String mNoTransactionsBecause;
     boolean mHavePendingDeferredStart;
 
     // Temporary vars for removing redundant operations in BackStackRecords:
@@ -1071,7 +1069,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     BackStackRecord bs = mBackStack.get(i);
                     writer.print(prefix); writer.print("  #"); writer.print(i);
                             writer.print(": "); writer.println(bs.toString());
-                    bs.dump(innerPrefix, fd, writer, args);
+                    bs.dump(innerPrefix, writer);
                 }
             }
         }
@@ -1121,20 +1119,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             writer.print(prefix); writer.print("  mNeedMenuInvalidate=");
                     writer.println(mNeedMenuInvalidate);
         }
-        if (mNoTransactionsBecause != null) {
-            writer.print(prefix); writer.print("  mNoTransactionsBecause=");
-                    writer.println(mNoTransactionsBecause);
-        }
     }
 
     static final Interpolator DECELERATE_QUINT = new DecelerateInterpolator(2.5f);
     static final Interpolator DECELERATE_CUBIC = new DecelerateInterpolator(1.5f);
-    static final Interpolator ACCELERATE_QUINT = new AccelerateInterpolator(2.5f);
-    static final Interpolator ACCELERATE_CUBIC = new AccelerateInterpolator(1.5f);
 
     static final int ANIM_DUR = 220;
 
-    static AnimationOrAnimator makeOpenCloseAnimation(Context context, float startScale,
+    static AnimationOrAnimator makeOpenCloseAnimation(float startScale,
             float endScale, float startAlpha, float endAlpha) {
         AnimationSet set = new AnimationSet(false);
         ScaleAnimation scale = new ScaleAnimation(startScale, endScale, startScale, endScale,
@@ -1149,7 +1141,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return new AnimationOrAnimator(set);
     }
 
-    static AnimationOrAnimator makeFadeAnimation(Context context, float start, float end) {
+    static AnimationOrAnimator makeFadeAnimation(float start, float end) {
         AlphaAnimation anim = new AlphaAnimation(start, end);
         anim.setInterpolator(DECELERATE_CUBIC);
         anim.setDuration(ANIM_DUR);
@@ -1220,17 +1212,17 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
         switch (styleIndex) {
             case ANIM_STYLE_OPEN_ENTER:
-                return makeOpenCloseAnimation(mHost.getContext(), 1.125f, 1.0f, 0, 1);
+                return makeOpenCloseAnimation(1.125f, 1.0f, 0, 1);
             case ANIM_STYLE_OPEN_EXIT:
-                return makeOpenCloseAnimation(mHost.getContext(), 1.0f, .975f, 1, 0);
+                return makeOpenCloseAnimation(1.0f, .975f, 1, 0);
             case ANIM_STYLE_CLOSE_ENTER:
-                return makeOpenCloseAnimation(mHost.getContext(), .975f, 1.0f, 0, 1);
+                return makeOpenCloseAnimation(.975f, 1.0f, 0, 1);
             case ANIM_STYLE_CLOSE_EXIT:
-                return makeOpenCloseAnimation(mHost.getContext(), 1.0f, 1.075f, 1, 0);
+                return makeOpenCloseAnimation(1.0f, 1.075f, 1, 0);
             case ANIM_STYLE_FADE_ENTER:
-                return makeFadeAnimation(mHost.getContext(), 0, 1);
+                return makeFadeAnimation(0, 1);
             case ANIM_STYLE_FADE_EXIT:
-                return makeFadeAnimation(mHost.getContext(), 1, 0);
+                return makeFadeAnimation(1, 0);
         }
 
         // TODO: remove or fix transitionStyle -- it apparently never worked.
@@ -2080,10 +2072,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (isStateSaved()) {
             throw new IllegalStateException(
                     "Can not perform this action after onSaveInstanceState");
-        }
-        if (mNoTransactionsBecause != null) {
-            throw new IllegalStateException(
-                    "Can not perform this action inside of " + mNoTransactionsBecause);
         }
     }
 
