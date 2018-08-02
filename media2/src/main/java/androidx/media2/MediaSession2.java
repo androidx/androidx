@@ -1702,6 +1702,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         @NonNull MediaPlaylistAgent getPlaylistAgent();
         @NonNull SessionToken2 getToken();
         @NonNull List<ControllerInfo> getConnectedControllers();
+        boolean isConnected(@NonNull ControllerInfo controller);
 
         void setCustomLayout(@NonNull ControllerInfo controller,
                 @NonNull List<CommandButton> layout);

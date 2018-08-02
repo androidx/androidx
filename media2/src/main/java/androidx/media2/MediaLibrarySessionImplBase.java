@@ -81,6 +81,13 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     }
 
     @Override
+    public boolean isConnected(ControllerInfo controller) {
+        return super.isConnected(controller)
+                || getLegacyBrowserService().getConnectedControllersManager().isConnected(
+                        controller);
+    }
+
+    @Override
     public void notifyChildrenChanged(final String parentId, final int itemCount,
             final Bundle extras) {
         if (TextUtils.isEmpty(parentId)) {
