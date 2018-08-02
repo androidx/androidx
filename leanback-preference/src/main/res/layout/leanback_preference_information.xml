@@ -24,12 +24,13 @@
     android:focusable="false"
     android:descendantFocusability="blocksDescendants"
     android:orientation="horizontal"
-    android:paddingStart="@dimen/lb_preference_item_padding_start"
-    android:paddingEnd="@dimen/lb_preference_item_padding_end" >
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" >
 
     <LinearLayout android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:duplicateParentState="true"
         android:orientation="vertical">
         <Space android:layout_width="0dp" android:layout_height="@dimen/lb_preference_item_text_space_top" />
         <TextView
@@ -37,16 +38,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/lb_preference_item_primary_text_margin_bottom"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/lb_preference_item_primary_text_color"
-            android:textSize="@dimen/lb_preference_item_primary_text_size"/>
+            android:duplicateParentState="true"
+            android:textAppearance="?android:attr/textAppearanceListItem"/>
         <TextView
             android:id="@android:id/summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
-            android:textColor="@color/lb_preference_item_secondary_text_color"
-            android:textSize="@dimen/lb_preference_item_secondary_text_size"
+            android:duplicateParentState="true"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
             android:maxLines="4" />
         <Space android:layout_width="0dp" android:layout_height="@dimen/lb_preference_item_text_space_bottom" />
     </LinearLayout>
@@ -55,6 +54,7 @@
     <LinearLayout android:id="@android:id/widget_frame"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:duplicateParentState="true"
         android:gravity="center_vertical"
         android:orientation="vertical" />
 

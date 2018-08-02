@@ -24,13 +24,15 @@
     android:focusable="true"
     android:descendantFocusability="blocksDescendants"
     android:orientation="horizontal"
-    android:paddingStart="@dimen/lb_preference_item_padding_start"
-    android:paddingEnd="@dimen/lb_preference_item_padding_end" >
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" >
 
     <CheckBox
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        style="?android:attr/checkboxStyle"
+        android:background="@null"
         android:focusable="false"
         android:clickable="false"
         android:layout_marginEnd="@dimen/lb_preference_item_icon_margin_end"
@@ -38,6 +40,7 @@
 
     <LinearLayout android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:duplicateParentState="true"
         android:orientation="vertical">
         <Space android:layout_width="0dp" android:layout_height="@dimen/lb_preference_item_text_space_top" />
         <TextView
@@ -45,9 +48,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/lb_preference_item_primary_text_margin_bottom"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/lb_preference_item_primary_text_color"
-            android:textSize="@dimen/lb_preference_item_primary_text_size"/>
+            android:duplicateParentState="true"
+            android:textAppearance="?android:attr/textAppearanceListItem"/>
         <Space android:layout_width="0dp" android:layout_height="@dimen/lb_preference_item_text_space_bottom" />
     </LinearLayout>
 
