@@ -52,10 +52,11 @@ package androidx.preference {
     method public void setText(java.lang.String);
   }
 
-  public class EditTextPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
-    ctor public EditTextPreferenceDialogFragment();
-    method public static androidx.preference.EditTextPreferenceDialogFragment newInstance(java.lang.String);
-    method public void onDialogClosed(boolean);
+  public deprecated class EditTextPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
+    ctor public deprecated EditTextPreferenceDialogFragment();
+    method public static deprecated androidx.preference.EditTextPreferenceDialogFragment newInstance(java.lang.String);
+    method protected void onBindDialogView(android.view.View);
+    method public deprecated void onDialogClosed(boolean);
   }
 
   public class EditTextPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
@@ -82,10 +83,11 @@ package androidx.preference {
     method public void setValueIndex(int);
   }
 
-  public class ListPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
-    ctor public ListPreferenceDialogFragment();
-    method public static androidx.preference.ListPreferenceDialogFragment newInstance(java.lang.String);
-    method public void onDialogClosed(boolean);
+  public deprecated class ListPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
+    ctor public deprecated ListPreferenceDialogFragment();
+    method public static deprecated androidx.preference.ListPreferenceDialogFragment newInstance(java.lang.String);
+    method public deprecated void onDialogClosed(boolean);
+    method protected void onPrepareDialogBuilder(android.app.AlertDialog.Builder);
   }
 
   public class ListPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
@@ -111,10 +113,11 @@ package androidx.preference {
     method public void setValues(java.util.Set<java.lang.String>);
   }
 
-  public class MultiSelectListPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
-    ctor public MultiSelectListPreferenceDialogFragment();
-    method public static androidx.preference.MultiSelectListPreferenceDialogFragment newInstance(java.lang.String);
-    method public void onDialogClosed(boolean);
+  public deprecated class MultiSelectListPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
+    ctor public deprecated MultiSelectListPreferenceDialogFragment();
+    method public static deprecated androidx.preference.MultiSelectListPreferenceDialogFragment newInstance(java.lang.String);
+    method public deprecated void onDialogClosed(boolean);
+    method protected void onPrepareDialogBuilder(android.app.AlertDialog.Builder);
   }
 
   public class MultiSelectListPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
@@ -258,15 +261,15 @@ package androidx.preference {
     method public void putStringSet(java.lang.String, java.util.Set<java.lang.String>);
   }
 
-  public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
-    ctor public PreferenceDialogFragment();
-    method public androidx.preference.DialogPreference getPreference();
-    method protected void onBindDialogView(android.view.View);
-    method public void onClick(android.content.DialogInterface, int);
-    method protected android.view.View onCreateDialogView(android.content.Context);
-    method public abstract void onDialogClosed(boolean);
-    method protected void onPrepareDialogBuilder(android.app.AlertDialog.Builder);
-    field protected static final java.lang.String ARG_KEY = "key";
+  public abstract deprecated class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
+    ctor public deprecated PreferenceDialogFragment();
+    method public deprecated androidx.preference.DialogPreference getPreference();
+    method protected deprecated void onBindDialogView(android.view.View);
+    method public deprecated void onClick(android.content.DialogInterface, int);
+    method protected deprecated android.view.View onCreateDialogView(android.content.Context);
+    method public abstract deprecated void onDialogClosed(boolean);
+    method protected deprecated void onPrepareDialogBuilder(android.app.AlertDialog.Builder);
+    field protected static final deprecated java.lang.String ARG_KEY = "key";
   }
 
   public abstract class PreferenceDialogFragmentCompat extends androidx.fragment.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
@@ -280,27 +283,27 @@ package androidx.preference {
     field protected static final java.lang.String ARG_KEY = "key";
   }
 
-  public abstract class PreferenceFragment extends android.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
+  public abstract deprecated class PreferenceFragment extends android.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
     ctor public PreferenceFragment();
-    method public void addPreferencesFromResource(int);
-    method public androidx.preference.Preference findPreference(java.lang.CharSequence);
-    method public final androidx.recyclerview.widget.RecyclerView getListView();
-    method public androidx.preference.PreferenceManager getPreferenceManager();
-    method public androidx.preference.PreferenceScreen getPreferenceScreen();
-    method protected androidx.recyclerview.widget.RecyclerView.Adapter onCreateAdapter(androidx.preference.PreferenceScreen);
-    method public androidx.recyclerview.widget.RecyclerView.LayoutManager onCreateLayoutManager();
-    method public abstract void onCreatePreferences(android.os.Bundle, java.lang.String);
-    method public androidx.recyclerview.widget.RecyclerView onCreateRecyclerView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
-    method public void onDisplayPreferenceDialog(androidx.preference.Preference);
-    method public void onNavigateToScreen(androidx.preference.PreferenceScreen);
-    method public boolean onPreferenceTreeClick(androidx.preference.Preference);
-    method public void scrollToPreference(java.lang.String);
-    method public void scrollToPreference(androidx.preference.Preference);
-    method public void setDivider(android.graphics.drawable.Drawable);
-    method public void setDividerHeight(int);
-    method public void setPreferenceScreen(androidx.preference.PreferenceScreen);
-    method public void setPreferencesFromResource(int, java.lang.String);
-    field public static final java.lang.String ARG_PREFERENCE_ROOT = "androidx.preference.PreferenceFragmentCompat.PREFERENCE_ROOT";
+    method public deprecated void addPreferencesFromResource(int);
+    method public deprecated androidx.preference.Preference findPreference(java.lang.CharSequence);
+    method public final deprecated androidx.recyclerview.widget.RecyclerView getListView();
+    method public deprecated androidx.preference.PreferenceManager getPreferenceManager();
+    method public deprecated androidx.preference.PreferenceScreen getPreferenceScreen();
+    method protected deprecated androidx.recyclerview.widget.RecyclerView.Adapter onCreateAdapter(androidx.preference.PreferenceScreen);
+    method public deprecated androidx.recyclerview.widget.RecyclerView.LayoutManager onCreateLayoutManager();
+    method public abstract deprecated void onCreatePreferences(android.os.Bundle, java.lang.String);
+    method public deprecated androidx.recyclerview.widget.RecyclerView onCreateRecyclerView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public deprecated void onDisplayPreferenceDialog(androidx.preference.Preference);
+    method public deprecated void onNavigateToScreen(androidx.preference.PreferenceScreen);
+    method public deprecated boolean onPreferenceTreeClick(androidx.preference.Preference);
+    method public deprecated void scrollToPreference(java.lang.String);
+    method public deprecated void scrollToPreference(androidx.preference.Preference);
+    method public deprecated void setDivider(android.graphics.drawable.Drawable);
+    method public deprecated void setDividerHeight(int);
+    method public deprecated void setPreferenceScreen(androidx.preference.PreferenceScreen);
+    method public deprecated void setPreferencesFromResource(int, java.lang.String);
+    field public static final deprecated java.lang.String ARG_PREFERENCE_ROOT = "androidx.preference.PreferenceFragmentCompat.PREFERENCE_ROOT";
   }
 
   public static abstract interface PreferenceFragment.OnPreferenceDisplayDialogCallback {

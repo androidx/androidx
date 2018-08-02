@@ -27,6 +27,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @deprecated Use {@link MultiSelectListPreferenceDialogFragmentCompat} instead
+ */
+@Deprecated
 public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFragment {
 
     private static final String SAVE_STATE_VALUES =
@@ -43,6 +47,16 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
     CharSequence[] mEntries;
     CharSequence[] mEntryValues;
 
+    /**
+     * @deprecated Use {@link MultiSelectListPreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
+    public MultiSelectListPreferenceDialogFragment() {}
+
+    /**
+     * @deprecated Use {@link MultiSelectListPreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
     public static MultiSelectListPreferenceDialogFragment newInstance(String key) {
         final MultiSelectListPreferenceDialogFragment fragment =
                 new MultiSelectListPreferenceDialogFragment();
@@ -116,6 +130,10 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
                 });
     }
 
+    /**
+     * @deprecated Use {@link MultiSelectListPreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
     @Override
     public void onDialogClosed(boolean positiveResult) {
         final AbstractMultiSelectListPreference preference = getListPreference();
