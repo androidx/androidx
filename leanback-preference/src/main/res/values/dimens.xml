@@ -17,8 +17,6 @@
 <resources>
     <dimen name="lb_preference_decor_title_text_height">64dp</dimen>
     <dimen name="lb_preference_decor_title_margin_top">27dp</dimen>
-    <dimen name="lb_preference_decor_title_margin_start">24dp</dimen>
-    <dimen name="lb_preference_decor_title_margin_end">56dp</dimen>
     <dimen name="lb_preference_decor_title_text_size">20sp</dimen>
     <dimen name="lb_preference_decor_title_container_elevation">2dp</dimen>
     <dimen name="lb_preference_decor_elevation">6dp</dimen>
@@ -35,7 +33,8 @@
     <dimen name="lb_preference_item_text_space_bottom">13dp</dimen>
 
     <dimen name="lb_preference_category_text_size">12sp</dimen>
-    <dimen name="lb_preference_category_height">40dp</dimen>
+    <dimen name="lb_preference_category_padding_top">12dp</dimen>
+    <dimen name="lb_preference_category_padding_bottom">12dp</dimen>
 
     <dimen name="lb_settings_pane_width">360dp</dimen>
     <dimen name="lb_preference_seekbar_padding_start">0dp</dimen>
