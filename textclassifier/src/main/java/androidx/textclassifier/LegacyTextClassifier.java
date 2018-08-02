@@ -17,9 +17,9 @@
 package androidx.textclassifier;
 
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -67,7 +67,7 @@ final class LegacyTextClassifier extends TextClassifier {
 
     private static final int NOT_LINKIFY = 0;
 
-    public static LegacyTextClassifier sInstance;
+    private static LegacyTextClassifier sInstance;
 
     private final MatchMaker mMatchMaker;
 
@@ -164,43 +164,75 @@ final class LegacyTextClassifier extends TextClassifier {
     }
 
     /**
-     * Returns actions for a specified entity type.
-     */
-    @VisibleForTesting()
-    interface MatchMaker {
-        /**
-         * Returns an ordered list of actions for the specified entityType. Clients should expect
-         * that the actions will be ordered based on how important the matchmaker thinks the action
-         * is to the current task.
-         */
-        List<RemoteActionCompat> getActions(@EntityType String entityType, String text);
-    }
-
-    /**
      * Default MatchMaker implementation for the LegacyTextClassifier.
      */
     // TODO: Write unit tests for MatchMakerImpl.
     // Will involve faking/mocking out system internals such as context, package manager, etc.
-    private static final class MatchMakerImpl implements MatchMaker {
+    @VisibleForTesting
+    static final class MatchMakerImpl implements MatchMaker {
 
         // RemoteAction requires that there be an icon.
         // Use this when no icon is required. Use with RemoteAction.setShouldShowIcon(false).
         private static final IconCompat NO_ICON = IconCompat.createWithData(new byte[0], 0, 0);
-        private final Context mContext;
 
-        MatchMakerImpl(Context context) {
+        private final Context mContext;
+        private final PackageManager mPackageManager;
+        private final Bundle mUserRestrictions;
+        private final PermissionsChecker mPermissionsChecker;
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        MatchMakerImpl(final Context context) {
+            this(context,
+                    context.getPackageManager(),
+                    createUserRestrictions(context),
+                    createPermissionsChecker(context));
+        }
+
+        MatchMakerImpl(
+                Context context,
+                PackageManager packageManager,
+                Bundle userRestrictions,
+                PermissionsChecker permissionsChecker) {
             mContext = Preconditions.checkNotNull(context);
+            mPackageManager = Preconditions.checkNotNull(packageManager);
+            mUserRestrictions = Preconditions.checkNotNull(userRestrictions);
+            mPermissionsChecker = Preconditions.checkNotNull(permissionsChecker);
+        }
+
+        private static Bundle createUserRestrictions(Context context) {
+            final Object userManager = context.getSystemService(Context.USER_SERVICE);
+            return userManager instanceof UserManager
+                    ? ((UserManager) userManager).getUserRestrictions() : new Bundle();
+        }
+
+        private static PermissionsChecker createPermissionsChecker(final Context context) {
+            return new PermissionsChecker() {
+                @Override
+                public boolean hasPermission(ActivityInfo info) {
+                    if (context.getPackageName().equals(info.packageName)) {
+                        return true;
+                    }
+                    if (!info.exported) {
+                        return false;
+                    }
+                    if (info.permission == null) {
+                        return true;
+                    }
+                    return ContextCompat.checkSelfPermission(context, info.permission)
+                            == PackageManager.PERMISSION_GRANTED;
+                }
+            };
         }
 
         @Override
-        public List<RemoteActionCompat> getActions(String entityType, String text) {
+        public List<RemoteActionCompat> getActions(String entityType, CharSequence text) {
             switch (entityType) {
                 case TextClassifier.TYPE_URL:
-                    return createForUrl(text);
+                    return createForUrl(text.toString());
                 case TextClassifier.TYPE_EMAIL:
-                    return createForEmail(text);
+                    return createForEmail(text.toString());
                 case TextClassifier.TYPE_PHONE:
-                    return createForPhone(text);
+                    return createForPhone(text.toString());
                 default:
                     return Collections.emptyList();
             }
@@ -248,10 +280,7 @@ final class LegacyTextClassifier extends TextClassifier {
 
         private List<RemoteActionCompat> createForPhone(String text) {
             final List<RemoteActionCompat> actions = new ArrayList<>();
-            final Object userManager = mContext.getSystemService(Context.USER_SERVICE);
-            final Bundle userRestrictions = userManager instanceof UserManager
-                    ? ((UserManager) userManager).getUserRestrictions() : new Bundle();
-            if (!userRestrictions.getBoolean(UserManager.DISALLOW_OUTGOING_CALLS, false)) {
+            if (!mUserRestrictions.getBoolean(UserManager.DISALLOW_OUTGOING_CALLS, false)) {
                 final RemoteActionCompat dialAction = createRemoteAction(
                         new Intent(Intent.ACTION_DIAL)
                                 .setData(Uri.parse(String.format("tel:%s", text))),
@@ -272,7 +301,7 @@ final class LegacyTextClassifier extends TextClassifier {
             if (contactsAction != null) {
                 actions.add(contactsAction);
             }
-            if (!userRestrictions.getBoolean(UserManager.DISALLOW_SMS, false)) {
+            if (!mUserRestrictions.getBoolean(UserManager.DISALLOW_SMS, false)) {
                 final RemoteActionCompat smsAction = createRemoteAction(
                         new Intent(Intent.ACTION_SENDTO)
                                 .setData(Uri.parse(String.format("smsto:%s", text))),
@@ -298,20 +327,22 @@ final class LegacyTextClassifier extends TextClassifier {
 
         @Nullable
         private RemoteActionCompat createRemoteAction(
-                Intent mIntent, String title, String description, int requestCode) {
-            final PackageManager pm = mContext.getPackageManager();
-            final ResolveInfo resolveInfo = pm.resolveActivity(mIntent, 0);
-            final String packageName = resolveInfo != null && resolveInfo.activityInfo != null
-                    ? resolveInfo.activityInfo.packageName : null;
+                Intent intent, String title, String description, int requestCode) {
+            final ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0);
+            if (resolveInfo == null || resolveInfo.activityInfo == null) {
+                return null;
+            }
+
             IconCompat icon = NO_ICON;
             boolean shouldShowIcon = false;
-            if (packageName != null && !"android".equals(packageName)) {
-                // There is a default activity handling the intent.
-                mIntent.setComponent(new ComponentName(packageName, resolveInfo.activityInfo.name));
+            final String packageName = resolveInfo.activityInfo.packageName;
+            if (!"android".equals(packageName)) {
+                intent.setClassName(packageName, resolveInfo.activityInfo.name);
                 if (resolveInfo.activityInfo.getIconResource() != 0) {
                     try {
                         icon = IconCompat.createWithResource(
-                                pm.getResourcesForApplication(packageName), packageName,
+                                mPackageManager.getResourcesForApplication(packageName),
+                                packageName,
                                 resolveInfo.activityInfo.getIconResource());
                         shouldShowIcon = true;
                     } catch (PackageManager.NameNotFoundException e) {
@@ -319,7 +350,7 @@ final class LegacyTextClassifier extends TextClassifier {
                     }
                 }
             }
-            final PendingIntent pendingIntent = createPendingIntent(mIntent, requestCode);
+            final PendingIntent pendingIntent = createPendingIntent(intent, requestCode);
             if (pendingIntent == null) {
                 return null;
             }
@@ -331,24 +362,17 @@ final class LegacyTextClassifier extends TextClassifier {
 
         @Nullable
         private PendingIntent createPendingIntent(Intent intent, int requestCode) {
-            final ResolveInfo activityRI = mContext.getPackageManager().resolveActivity(intent, 0);
+            final ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0);
             final int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-            if (activityRI != null) {
-                if (mContext.getPackageName().equals(activityRI.activityInfo.packageName)) {
-                    return PendingIntent.getActivity(mContext, requestCode, intent, flags);
-                }
-                final boolean exported = activityRI.activityInfo.exported;
-                if (exported && hasPermission(activityRI.activityInfo.permission)) {
-                    return PendingIntent.getActivity(mContext, requestCode, intent, flags);
-                }
+            if (resolveInfo != null && resolveInfo.activityInfo != null
+                    && mPermissionsChecker.hasPermission(resolveInfo.activityInfo)) {
+                return PendingIntent.getActivity(mContext, requestCode, intent, flags);
             }
             return null;
         }
 
-        private boolean hasPermission(String permission) {
-            return permission == null
-                    || ContextCompat.checkSelfPermission(mContext, permission)
-                            == PackageManager.PERMISSION_GRANTED;
+        interface PermissionsChecker {
+            boolean hasPermission(ActivityInfo info);
         }
     }
 }
