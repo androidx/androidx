@@ -58,7 +58,7 @@ public class ViewAdapterActivity extends BaseActivity {
     }
 
     @Override
-    public void updatePage(int pageIx, int newValue) {
+    public void updatePageContent(int pageIx, int newValue) {
         throw new IllegalStateException("not implemented");
     }
 }

@@ -94,6 +94,7 @@ public class BasicTest {
         Bundle superState = createIntBundle(42);
         ViewPager2.SavedState state = new ViewPager2.SavedState(superState);
         state.mRecyclerViewId = 700;
+        state.mOrientation = 800;
         state.mAdapterState = new Parcelable[]{createIntBundle(1), createIntBundle(2),
                 createIntBundle(3)};
 
@@ -111,6 +112,7 @@ public class BasicTest {
                 equalTo(parcelSuffix));
         assertThat("All of the parcel should be read", parcel.dataAvail(), equalTo(0));
         assertThat(recreatedState.mRecyclerViewId, equalTo(700));
+        assertThat(recreatedState.mOrientation, equalTo(800));
         assertThat(recreatedState.mAdapterState, arrayWithSize(3));
         assertThat((int) ((Bundle) recreatedState.getSuperState()).get("key"), equalTo(42));
         assertThat((int) ((Bundle) recreatedState.mAdapterState[0]).get("key"), equalTo(1));
