@@ -49,14 +49,10 @@ import java.util.concurrent.TimeUnit;
  * }
  */
 public final class BenchmarkState {
+    private static final String TAG = "BenchmarkState";
+    private static final String CSV_TAG = "BenchmarkCsv";
     private static final boolean IS_DEBUGGABLE;
 
-    static {
-        ApplicationInfo appInfo = InstrumentationRegistry.getTargetContext().getApplicationInfo();
-        IS_DEBUGGABLE = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-    }
-
-    private static final String TAG = "BenchmarkState";
     private static final boolean ENABLE_PROFILING = false;
 
     private static final int NOT_STARTED = 0;  // The benchmark has not started yet.
@@ -64,15 +60,28 @@ public final class BenchmarkState {
     private static final int RUNNING = 2;  // The benchmark is running.
     private static final int FINISHED = 3;  // The benchmark has stopped.
 
-    private int mState = NOT_STARTED;  // Current benchmark state.
-
-    private WarmupManager mWarmupManager = new WarmupManager();
-
     // values determined emperically
     private static final long TARGET_TEST_DURATION_NS = TimeUnit.MILLISECONDS.toNanos(500);
     private static final int MAX_TEST_ITERATIONS = 1000000;
     private static final int MIN_TEST_ITERATIONS = 10;
     private static final int REPEAT_COUNT = 5;
+
+    static {
+        ApplicationInfo appInfo = InstrumentationRegistry.getTargetContext().getApplicationInfo();
+        IS_DEBUGGABLE = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Benchmark");
+        for (int i = 0; i < REPEAT_COUNT; i++) {
+            sb.append(", Result ").append(i);
+        }
+
+        Log.i(CSV_TAG, sb.toString());
+    }
+
+    private int mState = NOT_STARTED;  // Current benchmark state.
+
+    private WarmupManager mWarmupManager = new WarmupManager();
 
     private long mStartTimeNs = 0; // System.nanoTime() at start of last warmup iter / test repeat.
 
@@ -252,6 +261,14 @@ public final class BenchmarkState {
         return sb.toString();
     }
 
+    private String csvLine() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < mResults.size(); i++) {
+            sb.append(", ").append(mResults.get(i));
+        }
+        return sb.toString();
+    }
+
     /**
      * Submit status report bundle as a RESULT_OK to the passed Instrumentation
      *
@@ -265,6 +282,7 @@ public final class BenchmarkState {
             key = "DEBUGGABLE_" + key;
         }
         Log.i(TAG, key + summaryLine());
+        Log.i(CSV_TAG, key + csvLine());
         Bundle status = new Bundle();
         status.putLong(key + "_median", median());
         status.putLong(key + "_mean", mean());
