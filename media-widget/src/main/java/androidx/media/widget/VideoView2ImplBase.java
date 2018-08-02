@@ -794,6 +794,13 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mSubtitleController.selectTrack(track);
             mSelectedSubtitleTrackIndex = trackIndex;
             mSubtitleAnchorView.setVisibility(View.VISIBLE);
+
+            Bundle data = new Bundle();
+            data.putInt(MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
+                    mSubtitleTracks.indexOfKey(trackIndex));
+            mMediaSession.sendCustomCommand(
+                    new SessionCommand2(MediaControlView2.EVENT_UPDATE_SUBTITLE_SELECTED, null),
+                    data);
         }
     }
 
@@ -804,6 +811,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mMediaPlayer.deselectTrack(mSelectedSubtitleTrackIndex);
         mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
         mSubtitleAnchorView.setVisibility(View.GONE);
+
+        mMediaSession.sendCustomCommand(
+                new SessionCommand2(MediaControlView2.EVENT_UPDATE_SUBTITLE_DESELECTED, null),
+                null);
     }
 
     void extractTracks() {
