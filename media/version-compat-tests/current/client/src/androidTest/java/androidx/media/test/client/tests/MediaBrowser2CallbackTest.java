@@ -212,8 +212,9 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                 assertTrue(TestUtils.equals(extras, extrasOut));
                 assertNotNull(result);
 
-                int fromIndex = (page - 1) * pageSize;
-                int toIndex = Math.min(page * pageSize, MediaBrowser2Constants.CHILDREN_COUNT);
+                int fromIndex = page * pageSize;
+                int toIndex = Math.min((page + 1) * pageSize,
+                        MediaBrowser2Constants.CHILDREN_COUNT);
 
                 // Compare the given results with originals.
                 for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
@@ -305,9 +306,9 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                 assertTrue(TestUtils.equals(extras, extrasOut));
                 assertNotNull(result);
 
-                int fromIndex = (page - 1) * pageSize;
+                int fromIndex = page * pageSize;
                 int toIndex = Math.min(
-                        page * pageSize, MediaBrowser2Constants.SEARCH_RESULT_COUNT);
+                        (page + 1) * pageSize, MediaBrowser2Constants.SEARCH_RESULT_COUNT);
 
                 // Compare the given results with originals.
                 for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
