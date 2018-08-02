@@ -45,6 +45,7 @@ import androidx.media2.MediaPlayerConnector;
 import androidx.media2.UriDataSourceDesc2;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
@@ -185,6 +186,7 @@ public class MediaControlView2Test {
     }
 
     @Test
+    @FlakyTest
     public void testRewButtonClick() throws Throwable {
         // Don't run the test if the codec isn't supported.
         if (!hasCodec()) {
@@ -278,7 +280,7 @@ public class MediaControlView2Test {
     }
 
     private boolean hasCodec() {
-        return MediaUtils2.hasCodecsForResource(mActivity, R.raw.testvideo);
+        return MediaUtils2.hasCodecsForResource(mActivity, R.raw.testvideo_long);
     }
 
     private MediaController2 createController(MediaController2.ControllerCallback callback) {
