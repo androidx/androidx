@@ -455,10 +455,13 @@ class MediaController2ImplBase implements MediaController2Impl {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return UNKNOWN_TIME;
             }
-            long timeDiff = (mInstance.mTimeDiff != null) ? mInstance.mTimeDiff
-                    : SystemClock.elapsedRealtime() - mPositionEventTimeMs;
-            long expectedPosition = mPositionMs + (long) (mPlaybackSpeed * timeDiff);
-            return Math.max(0, expectedPosition);
+            if (mPlayerState == MediaPlayerConnector.PLAYER_STATE_PLAYING) {
+                long timeDiff = (mInstance.mTimeDiff != null) ? mInstance.mTimeDiff
+                        : SystemClock.elapsedRealtime() - mPositionEventTimeMs;
+                long expectedPosition = mPositionMs + (long) (mPlaybackSpeed * timeDiff);
+                return Math.max(0, expectedPosition);
+            }
+            return mPositionMs;
         }
     }
 
