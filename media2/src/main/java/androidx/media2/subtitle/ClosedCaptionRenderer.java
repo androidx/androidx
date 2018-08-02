@@ -30,6 +30,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 @RequiresApi(28)
 @RestrictTo(LIBRARY_GROUP)
 public class ClosedCaptionRenderer extends SubtitleController.Renderer {
+    private static final String TAG = "ClosedCaptionRenderer";
     private final Context mContext;
     private Cea608CCWidget mCCWidget;
 
@@ -208,8 +210,11 @@ public class ClosedCaptionRenderer extends SubtitleController.Renderer {
                 getPaint().getTextBounds(DUMMY_TEXT, 0, DUMMY_TEXT.length(), mTextBounds);
                 float actualTextWidth = mTextBounds.width();
                 float requiredTextWidth = MeasureSpec.getSize(widthMeasureSpec);
-                setScaleX(requiredTextWidth / actualTextWidth);
-
+                if (actualTextWidth != .0f) {
+                    setScaleX(requiredTextWidth / actualTextWidth);
+                } else {
+                    Log.w(TAG, "onMeasure(): Paint#getTextBounds() returned zero width. Ignored.");
+                }
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
 

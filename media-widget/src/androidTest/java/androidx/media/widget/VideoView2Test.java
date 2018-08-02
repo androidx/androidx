@@ -18,10 +18,20 @@ package androidx.media.widget;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 
+import static androidx.media.widget.MediaControlView2.COMMAND_HIDE_SUBTITLE;
+import static androidx.media.widget.MediaControlView2.COMMAND_SHOW_SUBTITLE;
+import static androidx.media.widget.MediaControlView2.EVENT_UPDATE_SUBTITLE_DESELECTED;
+import static androidx.media.widget.MediaControlView2.EVENT_UPDATE_SUBTITLE_SELECTED;
+import static androidx.media.widget.MediaControlView2.EVENT_UPDATE_TRACK_STATUS;
+import static androidx.media.widget.MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX;
+import static androidx.media.widget.MediaControlView2.KEY_SUBTITLE_TRACK_COUNT;
+
 import static junit.framework.TestCase.assertEquals;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -34,6 +44,8 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -44,6 +56,7 @@ import androidx.media2.FileDataSourceDesc2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayerConnector;
+import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.UriDataSourceDesc2;
 import androidx.test.InstrumentationRegistry;
@@ -59,6 +72,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 
 import java.util.concurrent.Executor;
 
@@ -76,8 +90,6 @@ public class VideoView2Test {
     private static final String TAG = "VideoView2Test";
     /** The maximum time to wait for an operation. */
     private static final long TIME_OUT = 15000L;
-    /** The full name of R.raw.testvideo. */
-    private static final String VIDEO_NAME = "testvideo.3gp";
 
     private Context mContext;
     private Executor mMainHandlerExecutor;
@@ -160,7 +172,8 @@ public class VideoView2Test {
             return;
         }
 
-        AssetFileDescriptor afd = mContext.getResources().openRawResourceFd(R.raw.testvideo);
+        AssetFileDescriptor afd = mContext.getResources()
+                .openRawResourceFd(R.raw.testvideo_with_2_subtitle_tracks);
         DataSourceDesc2 dsd = new FileDataSourceDesc2.Builder(
                 afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build();
         final MediaItem2 item = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
@@ -257,6 +270,88 @@ public class VideoView2Test {
         assertEquals(targetSpeed2, mController.getPlaybackSpeed(), 0.05f);
     }
 
+    @Test
+    public void testSubtitleSelection() throws Throwable {
+        if (!hasCodec()) {
+            Log.i(TAG, "SKIPPING testSubtitleSelection(): codec is not supported");
+            return;
+        }
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setMediaItem2(mMediaItem);
+            }
+        });
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
+                any(MediaController2.class), any(SessionCommandGroup2.class));
+        mController.play();
+
+        // Verify the subtitle track count
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
+                any(MediaController2.class),
+                argThat(new CommandMatcher(EVENT_UPDATE_TRACK_STATUS)),
+                argThat(new CommandArgumentMatcher(KEY_SUBTITLE_TRACK_COUNT, 2)),
+                nullable(ResultReceiver.class));
+
+        // Select the first subtitle track
+        Bundle extra = new Bundle();
+        extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 0);
+        mController.sendCustomCommand(
+                new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra, null);
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
+                any(MediaController2.class),
+                argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
+                argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 0)),
+                nullable(ResultReceiver.class));
+
+        // Select the second subtitle track
+        extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 1);
+        mController.sendCustomCommand(
+                new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra, null);
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
+                any(MediaController2.class),
+                argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
+                argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 1)),
+                nullable(ResultReceiver.class));
+
+        // Deselect subtitle track
+        mController.sendCustomCommand(
+                new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null, null);
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
+                any(MediaController2.class),
+                argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_DESELECTED)),
+                nullable(Bundle.class),
+                nullable(ResultReceiver.class));
+    }
+
+    class CommandMatcher implements ArgumentMatcher<SessionCommand2> {
+        final String mExpectedCommand;
+
+        CommandMatcher(String command) {
+            mExpectedCommand = command;
+        }
+
+        @Override
+        public boolean matches(SessionCommand2 command) {
+            return mExpectedCommand.equals(command.getCustomCommand());
+        }
+    }
+
+    class CommandArgumentMatcher implements ArgumentMatcher<Bundle> {
+        final String mKey;
+        final int mExpectedValue;
+
+        CommandArgumentMatcher(String key, int expectedValue) {
+            mKey = key;
+            mExpectedValue = expectedValue;
+        }
+
+        @Override
+        public boolean matches(Bundle argument) {
+            return argument.getInt(mKey, -1) == mExpectedValue;
+        }
+    }
+
     private void setKeepScreenOn() throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -289,12 +384,13 @@ public class VideoView2Test {
     }
 
     private boolean hasCodec() {
-        return MediaUtils2.hasCodecsForResource(mActivity, R.raw.testvideo);
+        return MediaUtils2.hasCodecsForResource(mActivity, R.raw.testvideo_with_2_subtitle_tracks);
     }
 
     private MediaItem2 createTestMediaItem2() {
         Uri testVideoUri = Uri.parse(
-                "android.resource://" + mContext.getPackageName() + "/" + R.raw.testvideo);
+                "android.resource://" + mContext.getPackageName() + "/"
+                        + R.raw.testvideo_with_2_subtitle_tracks);
         DataSourceDesc2 dsd = new UriDataSourceDesc2.Builder(
                 mVideoView.getContext(), testVideoUri).build();
         return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE).setDataSourceDesc(dsd).build();
