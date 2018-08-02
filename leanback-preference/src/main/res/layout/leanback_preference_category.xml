@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2015 The Android Open Source Project
+  ~ Copyright (C) 2016 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,17 +17,18 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/lb_preference_category_height"
+    android:layout_height="wrap_content"
     android:clipToPadding="false"
-    android:paddingStart="@dimen/lb_preference_item_padding_start"
-    android:paddingEnd="@dimen/lb_preference_item_padding_end">
+    android:paddingTop="@dimen/lb_preference_category_padding_top"
+    android:paddingBottom="@dimen/lb_preference_category_padding_bottom"
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd">
 
     <TextView
         android:id="@android:id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start|center_vertical"
-        android:fontFamily="sans-serif-medium"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="@dimen/lb_preference_category_text_size"/>
+        android:duplicateParentState="true"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
 </FrameLayout>

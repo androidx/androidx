@@ -16,8 +16,11 @@
 
 package androidx.leanback.preference;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,8 +146,17 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
     @Override
     public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.leanback_list_preference_fragment, container,
-                false);
+        final TypedValue tv = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
+        int theme = tv.resourceId;
+        if (theme == 0) {
+            // Fallback to default theme.
+            theme = R.style.PreferenceThemeOverlayLeanback;
+        }
+        Context styledContext = new ContextThemeWrapper(getActivity(), theme);
+        LayoutInflater styledInflater = inflater.cloneInContext(styledContext);
+        final View view = styledInflater.inflate(R.layout.leanback_list_preference_fragment,
+                container, false);
         final VerticalGridView verticalGridView =
                 (VerticalGridView) view.findViewById(android.R.id.list);
 

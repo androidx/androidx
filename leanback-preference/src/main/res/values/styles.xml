@@ -21,6 +21,16 @@
         <item name="android:layout">@layout/leanback_preference</item>
     </style>
 
+    <style name="LeanbackPreference.Title">
+        <item name="android:minHeight">@dimen/lb_preference_decor_title_text_height</item>
+        <item name="android:layout_marginTop">@dimen/lb_preference_decor_title_margin_top</item>
+        <item name="android:layout_marginStart">?android:attr/listPreferredItemPaddingStart</item>
+        <item name="android:layout_marginEnd">?android:attr/listPreferredItemPaddingEnd</item>
+        <item name="android:textAppearance">?android:attr/titleTextAppearance</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
     <style name="LeanbackPreference.Information">
         <item name="android:layout">@layout/leanback_preference_information</item>
         <item name="android:enabled">false</item>
@@ -35,17 +45,18 @@
     </style>
 
     <style name="LeanbackPreference.CheckBoxPreference">
-        <item name="android:widgetLayout">@layout/preference_widget_checkbox</item>
+        <item name="android:layout">@layout/leanback_preference</item>
+        <item name="android:widgetLayout">@layout/leanback_preference_widget_checkbox</item>
     </style>
 
     <style name="LeanbackPreference.SwitchPreferenceCompat">
-        <item name="android:widgetLayout">@layout/preference_widget_switch_compat</item>
+        <item name="android:widgetLayout">@layout/leanback_preference_widget_switch</item>
         <item name="android:switchTextOn">@string/v7_preference_on</item>
         <item name="android:switchTextOff">@string/v7_preference_off</item>
     </style>
 
     <style name="LeanbackPreference.SwitchPreference">
-        <item name="android:widgetLayout">@layout/preference_widget_switch</item>
+        <item name="android:widgetLayout">@layout/leanback_preference_widget_switch</item>
         <item name="android:switchTextOn">@string/v7_preference_on</item>
         <item name="android:switchTextOff">@string/v7_preference_off</item>
     </style>
@@ -77,6 +88,38 @@
         <item name="android:paddingEnd">0dp</item>
         <item name="android:paddingBottom">34dp</item>
         <item name="android:clipToPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.LeanbackPreference.Title" parent="android:TextAppearance">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/lb_preference_decor_title_text_size</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.LeanbackPreference.Title.V23" parent="android:TextAppearance">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/lb_preference_decor_title_text_size</item>
+        <item name="android:textColor">?android:attr/titleTextColor</item>
+    </style>
+
+    <style name="TextAppearance.LeanbackPreference.Category" parent="android:TextAppearance">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:textSize">@dimen/lb_preference_category_text_size</item>
+    </style>
+
+    <style name="TextAppearance.LeanbackPreference.ListItem" parent="android:TextAppearance">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">@dimen/lb_preference_item_primary_text_size</item>
+    </style>
+
+    <style name="TextAppearance.LeanbackPreference.ListItem.Secondary" parent="android:TextAppearance">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">@dimen/lb_preference_item_secondary_text_size</item>
     </style>
 
 </resources>
