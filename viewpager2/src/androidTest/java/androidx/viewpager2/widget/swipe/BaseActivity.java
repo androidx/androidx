@@ -46,7 +46,7 @@ public abstract class BaseActivity extends RecreatedActivity {
 
     public abstract void validateState();
 
-    public abstract void updatePage(int pageIx, int newValue);
+    public abstract void updatePageContent(int pageIx, int newValue);
 
     public static Intent createIntent(int totalPages) {
         Intent intent = new Intent();
