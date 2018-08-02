@@ -615,9 +615,6 @@ public class MediaControlView2 extends BaseLayout {
                 post(mShowMainBars);
             }
         }
-        // Update title bar parameters in order to avoid overlap between title view and the right
-        // side of the title bar.
-        updateTitleBarLayout();
     }
 
     @Override
@@ -1663,31 +1660,6 @@ public class MediaControlView2 extends BaseLayout {
     void updateTitle() {
         if (mController != null && mController.hasMetadata()) {
             mTitleView.setText(mController.getTitle());
-        }
-    }
-
-    // The title bar is made up of two separate LinearLayouts. If the sum of the two bars are
-    // greater than the length of the title bar, reduce the size of the left bar (which makes the
-    // TextView that contains the title of the media file shrink).
-    private void updateTitleBarLayout() {
-        if (mTitleBar != null) {
-            int titleBarWidth = mTitleBar.getWidth();
-
-            View leftBar = mTitleBar.findViewById(R.id.title_bar_left);
-            View rightBar = mTitleBar.findViewById(R.id.title_bar_right);
-            int leftBarWidth = leftBar.getWidth();
-            int rightBarWidth = rightBar.getWidth();
-
-            RelativeLayout.LayoutParams params =
-                    (RelativeLayout.LayoutParams) leftBar.getLayoutParams();
-            if (leftBarWidth + rightBarWidth > titleBarWidth) {
-                params.width = titleBarWidth - rightBarWidth;
-                mOriginalLeftBarWidth = leftBarWidth;
-            } else if (leftBarWidth + rightBarWidth < titleBarWidth && mOriginalLeftBarWidth != 0) {
-                params.width = mOriginalLeftBarWidth;
-                mOriginalLeftBarWidth = 0;
-            }
-            leftBar.setLayoutParams(params);
         }
     }
 
