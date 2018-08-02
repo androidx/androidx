@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="7548226170787476564">"Cast til"</string>
     <string name="mr_chooser_searching" msgid="5504553798429329689">"Finder enheder"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"Afbryd forbindelse"</string>
-    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"Stop med at caste"</string>
+    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"Stop cast"</string>
     <string name="mr_controller_close_description" msgid="5468775621814500662">"Luk"</string>
     <string name="mr_controller_play" msgid="4443315438268112801">"Afspil"</string>
     <string name="mr_controller_pause" msgid="4701315813294065305">"Sæt på pause"</string>

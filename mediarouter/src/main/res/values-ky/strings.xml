@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="7548226170787476564">"Түзмөккө чыгаруу"</string>
     <string name="mr_chooser_searching" msgid="5504553798429329689">"Түзмөктөр изделүүдө"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"Ажыратуу"</string>
-    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"Тышкы экранга чыгарууну токтотуу"</string>
+    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"Сыналгыга чыгарууну токтотуу"</string>
     <string name="mr_controller_close_description" msgid="5468775621814500662">"Жабуу"</string>
     <string name="mr_controller_play" msgid="4443315438268112801">"Ойнотуу"</string>
     <string name="mr_controller_pause" msgid="4701315813294065305">"Тындыруу"</string>
