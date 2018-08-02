@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="5501231066847739632">"Кнопка трансляции. Устройство отключено."</string>
     <string name="mr_cast_button_connecting" msgid="8959304318293841992">"Кнопка трансляции. Устройство подключается."</string>
     <string name="mr_cast_button_connected" msgid="1350095112462806159">"Кнопка трансляции. Устройство подключено."</string>
-    <string name="mr_chooser_title" msgid="7548226170787476564">"Транслировать на устройство"</string>
+    <string name="mr_chooser_title" msgid="7548226170787476564">"Транслировать на"</string>
     <string name="mr_chooser_searching" msgid="5504553798429329689">"Поиск устройств…"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"Отключить"</string>
     <string name="mr_controller_stop_casting" msgid="7617024847862349259">"Остановить трансляцию"</string>
