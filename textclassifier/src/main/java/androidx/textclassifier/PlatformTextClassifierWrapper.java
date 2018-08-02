@@ -137,17 +137,6 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
         return mFallback.generateLinks(request);
     }
 
-    /** @inheritDoc */
-    @Override
-    @WorkerThread
-    public int getMaxGenerateLinksTextLength() {
-        ensureNotOnMainThread();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return mPlatformTextClassifier.getMaxGenerateLinksTextLength();
-        }
-        return super.getMaxGenerateLinksTextLength();
-    }
-
     /**
      * Delegates session handling to {@link android.view.textclassifier.TextClassifier}.
      */
