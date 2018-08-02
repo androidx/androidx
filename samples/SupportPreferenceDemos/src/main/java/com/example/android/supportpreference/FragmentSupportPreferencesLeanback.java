@@ -16,44 +16,52 @@
 
 package com.example.android.supportpreference;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
 
 import androidx.annotation.RequiresApi;
-import androidx.leanback.preference.LeanbackPreferenceFragment;
-import androidx.leanback.preference.LeanbackSettingsFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.leanback.preference.LeanbackPreferenceFragmentCompat;
+import androidx.leanback.preference.LeanbackSettingsFragmentCompat;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceDialogFragment;
-import androidx.preference.PreferenceFragment;
+import androidx.preference.PreferenceDialogFragmentCompat;
+import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
-@RequiresApi(17)
-public class FragmentSupportPreferencesLeanback extends Activity {
+/**
+ * Demonstration of a Leanback Preference activity for AndroidTV.
+ */
+@RequiresApi(21)
+public class FragmentSupportPreferencesLeanback extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Display the fragment as the main content.
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().replace(android.R.id.content,
+            getSupportFragmentManager().beginTransaction().replace(android.R.id.content,
                     new SettingsFragment()).commit();
         }
     }
 
 //BEGIN_INCLUDE(support_fragment_leanback)
-    public static class SettingsFragment extends LeanbackSettingsFragment {
+
+    /**
+     * Entry of settings fragment.
+     */
+    public static class SettingsFragment extends LeanbackSettingsFragmentCompat {
         @Override
         public void onPreferenceStartInitialScreen() {
             startPreferenceFragment(new PrefsFragment());
         }
 
         @Override
-        public boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref) {
+        public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
             final Fragment f =
                     Fragment.instantiate(getActivity(), pref.getFragment(), pref.getExtras());
             f.setTargetFragment(caller, 0);
-            if (f instanceof PreferenceFragment || f instanceof PreferenceDialogFragment) {
+            if (f instanceof PreferenceFragmentCompat
+                    || f instanceof PreferenceDialogFragmentCompat) {
                 startPreferenceFragment(f);
             } else {
                 startImmersiveFragment(f);
@@ -62,17 +70,21 @@ public class FragmentSupportPreferencesLeanback extends Activity {
         }
 
         @Override
-        public boolean onPreferenceStartScreen(PreferenceFragment caller, PreferenceScreen pref) {
+        public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller,
+                PreferenceScreen pref) {
             final Fragment f = new PrefsFragment();
             final Bundle args = new Bundle(1);
-            args.putString(PreferenceFragment.ARG_PREFERENCE_ROOT, pref.getKey());
+            args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, pref.getKey());
             f.setArguments(args);
             startPreferenceFragment(f);
             return true;
         }
     }
 
-    public static class PrefsFragment extends LeanbackPreferenceFragment {
+    /**
+     * The fragment that is embedded in SettingsFragment.
+     */
+    public static class PrefsFragment extends LeanbackPreferenceFragmentCompat {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {

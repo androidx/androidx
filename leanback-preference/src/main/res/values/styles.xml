@@ -31,6 +31,20 @@
         <item name="android:singleLine">true</item>
     </style>
 
+    <style name="LeanbackPreference.SubTitle">
+        <item name="android:textAppearance">?android:attr/subtitleTextAppearance</item>
+        <item name="android:paddingStart">?android:attr/listPreferredItemPaddingStart</item>
+        <item name="android:paddingEnd">?android:attr/listPreferredItemPaddingEnd</item>
+        <item name="android:paddingTop">@dimen/lb_preference_item_text_space_top</item>
+        <item name="android:paddingBottom">@dimen/lb_preference_item_text_space_bottom</item>
+        <item name="android:maxLines">4</item>
+    </style>
+
+    <style name="LeanbackPreference.EditText" parent="android:Widget.Material.EditText">
+        <item name="android:layout_marginStart">?android:attr/listPreferredItemPaddingStart</item>
+        <item name="android:layout_marginEnd">?android:attr/listPreferredItemPaddingEnd</item>
+    </style>
+
     <style name="LeanbackPreference.Information">
         <item name="android:layout">@layout/leanback_preference_information</item>
         <item name="android:enabled">false</item>
@@ -104,9 +118,21 @@
         <item name="android:textColor">?android:attr/titleTextColor</item>
     </style>
 
+    <style name="TextAppearance.LeanbackPreference.SubTitle" parent="android:TextAppearance">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">@dimen/lb_preference_item_primary_text_size</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.LeanbackPreference.SubTitle.V23" parent="android:TextAppearance">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">@dimen/lb_preference_item_primary_text_size</item>
+        <item name="android:textColor">?android:attr/subtitleTextColor</item>
+    </style>
+
     <style name="TextAppearance.LeanbackPreference.Category" parent="android:TextAppearance">
         <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:textColor">?android:attr/textColorTertiary</item>
         <item name="android:textSize">@dimen/lb_preference_category_text_size</item>
     </style>
 
