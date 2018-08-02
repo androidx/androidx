@@ -76,9 +76,13 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     private CountDownLatch mLatch;
     private ExecutorService mExecutorService;
 
+    private OneTimeWorkRequest mWork;
+    private WorkerWrapper mWorkerWrapper;
+    private ConstraintTrackingWorker mWorker;
     private WorkManagerImpl mWorkManagerImpl;
     private Configuration mConfiguration;
     private Scheduler mScheduler;
+    private Extras.RuntimeExtras mRuntimeExtras;
     private Trackers mTracker;
     private BatteryChargingTracker mBatteryChargingTracker;
     private BatteryNotLowTracker mBatteryNotLowTracker;
@@ -92,6 +96,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         mExecutorService = Executors.newSingleThreadScheduledExecutor();
         mLatch = new CountDownLatch(1);
         mConfiguration = new Configuration.Builder().build();
+        mRuntimeExtras = new Extras.RuntimeExtras();
+        mRuntimeExtras.mExecutionListener = this;
 
         mWorkManagerImpl = mock(WorkManagerImpl.class);
         mScheduler = mock(Scheduler.class);
@@ -123,45 +129,18 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_onConstraintsMet() throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
-        Constraints constraints = new Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .build();
-
-        String delegateName = EchoingWorker.class.getName();
-
-        Data input = new Data.Builder()
-                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
-                .putBoolean(TEST_ARGUMENT_NAME, true)
-                .build();
-
-        final OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
-                    .setInputData(input)
-                    .setConstraints(constraints)
-                    .build();
-
-        insertWork(work);
-        String workSpecId = work.getStringId();
-
-        ConstraintTrackingWorker worker =
-                (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
-                        mContext,
-                        ConstraintTrackingWorker.class.getName(),
-                        work.getId(),
-                        new Extras(input, Collections.<String>emptyList(), null, 1));
-
-        ConstraintTrackingWorker spyWorker = spy(worker);
-        when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
+        setupDelegateForExecution(EchoingWorker.class.getName());
 
         WorkerWrapper.Builder builder =
-                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, workSpecId);
-        builder.withWorker(spyWorker)
-                .withListener(this)
+                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, mWork.getStringId());
+        builder.withWorker(mWorker)
+                .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
+        mWorkerWrapper = builder.build();
+        mExecutorService.submit(mWorkerWrapper);
 
-        mExecutorService.submit(builder.build());
         mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.SUCCEEDED));
         Data output = workSpec.output;
@@ -172,42 +151,17 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_onConstraintsNotMet() throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(false);
-        Constraints constraints = new Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .build();
-
-        String delegateName = TestWorker.class.getName();
-        Data input = new Data.Builder()
-                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
-                .build();
-
-        final OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
-                    .setConstraints(constraints)
-                    .build();
-
-        insertWork(work);
-        String workSpecId = work.getStringId();
-
-        ConstraintTrackingWorker worker =
-                (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
-                        mContext,
-                        ConstraintTrackingWorker.class.getName(),
-                        work.getId(),
-                        new Extras(input, Collections.<String>emptyList(), null, 1));
-
-        ConstraintTrackingWorker spyWorker = spy(worker);
-        when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
-
+        setupDelegateForExecution(TestWorker.class.getName());
         WorkerWrapper.Builder builder =
-                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, workSpecId);
-        builder.withWorker(spyWorker)
-                .withListener(this)
+                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, mWork.getStringId());
+        builder.withWorker(mWorker)
+                .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
 
-        mExecutorService.submit(builder.build());
+        mWorkerWrapper = builder.build();
+        mExecutorService.submit(mWorkerWrapper);
         mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.ENQUEUED));
     }
@@ -216,40 +170,15 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_onConstraintsChanged() throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
-        Constraints constraints = new Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .build();
-
-        String delegateName = SleepTestWorker.class.getName();
-        Data input = new Data.Builder()
-                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
-                .build();
-
-        final OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
-                    .setConstraints(constraints)
-                    .build();
-
-        insertWork(work);
-
-        String workSpecId = work.getStringId();
-
-        ConstraintTrackingWorker worker =
-                (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
-                        mContext,
-                        ConstraintTrackingWorker.class.getName(),
-                        work.getId(),
-                        new Extras(input, Collections.<String>emptyList(), null, 1));
-
-        ConstraintTrackingWorker spyWorker = spy(worker);
-        when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
+        setupDelegateForExecution(SleepTestWorker.class.getName());
         WorkerWrapper.Builder builder =
-                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, workSpecId);
-        builder.withWorker(spyWorker)
-                .withListener(this)
+                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, mWork.getStringId());
+        builder.withWorker(mWorker)
+                .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
 
-        mExecutorService.submit(builder.build());
+        mWorkerWrapper = builder.build();
+        mExecutorService.submit(mWorkerWrapper);
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -258,7 +187,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         }, DELAY_IN_MILLIS);
 
         mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.ENQUEUED));
     }
@@ -268,41 +197,16 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     public void testConstraintTrackingWorker_onConstraintsChangedTwice()
             throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
-        Constraints constraints = new Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .build();
-
-        String delegateName = SleepTestWorker.class.getName();
-        Data input = new Data.Builder()
-                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
-                .build();
-
-        final OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
-                    .setConstraints(constraints)
-                    .build();
-
-        insertWork(work);
-
-        String workSpecId = work.getStringId();
-
-        ConstraintTrackingWorker worker =
-                (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
-                        mContext,
-                        ConstraintTrackingWorker.class.getName(),
-                        work.getId(),
-                        new Extras(input, Collections.<String>emptyList(), null, 1));
-
-        ConstraintTrackingWorker spyWorker = spy(worker);
-        when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
+        setupDelegateForExecution(SleepTestWorker.class.getName());
 
         WorkerWrapper.Builder builder =
-                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, workSpecId);
-        builder.withWorker(spyWorker)
-                .withListener(this)
+                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, mWork.getStringId());
+        builder.withWorker(mWorker)
+                .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
 
-        mExecutorService.submit(builder.build());
+        mWorkerWrapper = builder.build();
+        mExecutorService.submit(mWorkerWrapper);
 
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -319,7 +223,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         }, DELAY_IN_MILLIS);
 
         mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.ENQUEUED));
     }
@@ -329,6 +233,40 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
             @NonNull String workSpecId,
             boolean isSuccessful,
             boolean needsReschedule) {
+
+        // Complete the execution of the ConstraintTrackingWorker like the real WorkerWrapper would.
+        // TODO (rahulrav@) Once we move to the world where NonBlockingWorker is public, this is
+        // no longer required.
+        mWorkerWrapper.onWorkFinished(mWorker.getResult());
         mLatch.countDown();
     }
+
+    private void setupDelegateForExecution(@NonNull String delegateName) {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        Data input = new Data.Builder()
+                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
+                .putBoolean(TEST_ARGUMENT_NAME, true)
+                .build();
+
+        mWork = new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
+                .setInputData(input)
+                .setConstraints(constraints)
+                .build();
+
+        insertWork(mWork);
+
+        ConstraintTrackingWorker worker =
+                (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
+                        mContext,
+                        ConstraintTrackingWorker.class.getName(),
+                        mWork.getId(),
+                        new Extras(input, Collections.<String>emptyList(), mRuntimeExtras, 1));
+
+        mWorker = spy(worker);
+        when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
+    }
+
 }
