@@ -587,7 +587,7 @@ package androidx.core.view {
     ctor public ViewKt();
     method public static void doOnLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static void doOnNextLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
-    method public static void doOnPreDraw(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+    method public static androidx.core.view.OneShotPreDrawListener doOnPreDraw(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static android.graphics.Bitmap drawToBitmap(android.view.View, android.graphics.Bitmap.Config config = "Bitmap.Config.ARGB_8888");
     method public static int getMarginBottom(android.view.View);
     method public static int getMarginEnd(android.view.View);
