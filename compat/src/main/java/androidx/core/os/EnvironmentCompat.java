@@ -20,6 +20,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -51,7 +53,7 @@ public final class EnvironmentCompat {
      *         {@link Environment#MEDIA_BAD_REMOVAL}, or
      *         {@link Environment#MEDIA_UNMOUNTABLE}.
      */
-    public static String getStorageState(File path) {
+    public static String getStorageState(@NonNull File path) {
         if (Build.VERSION.SDK_INT >= 19) {
             return Environment.getStorageState(path);
         }

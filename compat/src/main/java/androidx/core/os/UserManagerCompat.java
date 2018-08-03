@@ -20,6 +20,8 @@ import android.content.Context;
 import android.os.Build;
 import android.os.UserManager;
 
+import androidx.annotation.NonNull;
+
 /**
  * Helper for accessing features in {@link android.os.UserManager} in a backwards compatible
  * fashion.
@@ -35,7 +37,7 @@ public class UserManagerCompat {
      * pattern or PIN), and credential-encrypted private app data storage is
      * available.
      */
-    public static boolean isUserUnlocked(Context context) {
+    public static boolean isUserUnlocked(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
             return context.getSystemService(UserManager.class).isUserUnlocked();
         } else {

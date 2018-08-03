@@ -20,6 +20,8 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import android.content.res.Configuration;
 
+import androidx.annotation.NonNull;
+
 /**
  * Helper class which allows access to properties of {@link Configuration} in
  * a backward compatible fashion.
@@ -33,7 +35,8 @@ public final class ConfigurationCompat {
      *
      * @return The locale list.
      */
-    public static LocaleListCompat getLocales(Configuration configuration) {
+    @NonNull
+    public static LocaleListCompat getLocales(@NonNull Configuration configuration) {
         if (SDK_INT >= 24) {
             return LocaleListCompat.wrap(configuration.getLocales());
         } else {
