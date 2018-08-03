@@ -81,12 +81,13 @@ public final class LegacyTextClassifierTest {
 
     @Test
     public void classifyText_url() throws Exception {
+        final String text = String.format(TEMPLATE, URL);
         final List<RemoteActionCompat> actions = Collections.singletonList(
                 new RemoteActionCompat(ICON, "Browse", "Browse", mPendingIntent));
         when(mMatchMaker.getActions(eq(TextClassifier.TYPE_URL), any(CharSequence.class)))
                 .thenReturn(actions);
         final TextClassification.Request request =
-                new TextClassification.Request.Builder(URL, 0, URL.length())
+                new TextClassification.Request.Builder(text, START, text.length())
                         .build();
 
         final TextClassification classification = mLegacyTextClassifier.classifyText(request);
@@ -100,12 +101,13 @@ public final class LegacyTextClassifierTest {
 
     @Test
     public void classifyText_email() throws Exception {
+        final String text = String.format(TEMPLATE, EMAIL);
         final List<RemoteActionCompat> actions = Collections.singletonList(
                 new RemoteActionCompat(ICON, "Email", "Email", mPendingIntent));
         when(mMatchMaker.getActions(eq(TextClassifier.TYPE_EMAIL), any(CharSequence.class)))
                 .thenReturn(actions);
         final TextClassification.Request request =
-                new TextClassification.Request.Builder(EMAIL, 0, EMAIL.length())
+                new TextClassification.Request.Builder(text, START, text.length())
                         .build();
 
         final TextClassification classification = mLegacyTextClassifier.classifyText(request);
@@ -119,12 +121,13 @@ public final class LegacyTextClassifierTest {
 
     @Test
     public void classifyText_phone() throws Exception {
+        final String text = String.format(TEMPLATE, PHONE_NUMBER);
         final List<RemoteActionCompat> actions = Collections.singletonList(
                 new RemoteActionCompat(ICON, "Phone", "Phone", mPendingIntent));
         when(mMatchMaker.getActions(eq(TextClassifier.TYPE_PHONE), any(CharSequence.class)))
                 .thenReturn(actions);
         final TextClassification.Request request =
-                new TextClassification.Request.Builder(PHONE_NUMBER, 0, PHONE_NUMBER.length())
+                new TextClassification.Request.Builder(text, START, text.length())
                         .build();
 
         final TextClassification classification = mLegacyTextClassifier.classifyText(request);
