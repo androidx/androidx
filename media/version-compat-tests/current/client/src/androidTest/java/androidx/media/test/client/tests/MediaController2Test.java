@@ -107,7 +107,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         MediaController2 controller = createController(session2.getToken());
         PendingIntent sessionActivity = controller.getSessionActivity();
         assertEquals(SERVICE_PACKAGE_NAME, sessionActivity.getCreatorPackage());
-        // TODO: Add getPid/getUid in RemoteMediaController2Service and compare them.
+        // TODO: Add getPid/getUid in MediaController2ProviderService and compare them.
         // assertEquals(mRemoteSession2.getUid(), sessionActivity.getCreatorUid());
     }
 

@@ -28,15 +28,6 @@ public class MediaSession2Constants {
     public static final String TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST =
             "testOnPlaylistMetadataChanged_sessionSetPlaylist";
 
-    /**
-     * Constants for test-specific custom command which will be run in the service app.
-     */
-    public static class CustomCommands {
-
-        private CustomCommands() {
-        }
-    }
-
     private MediaSession2Constants() {
     }
 }

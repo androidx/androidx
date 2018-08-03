@@ -21,18 +21,22 @@ import android.support.mediacompat.testlib.util.IntentUtil;
 
 public class CommonConstants {
 
-    public static final ComponentName REMOTE_MEDIA_SESSION2_SERVICE = new ComponentName(
+    public static final ComponentName MEDIA_SESSION2_PROVIDER_SERVICE = new ComponentName(
             IntentUtil.SERVICE_PACKAGE_NAME,
-            "androidx.media.test.service.RemoteMediaSession2Service");
-    public static final ComponentName REMOTE_MEDIA_CONTROLLER2_SERVICE = new ComponentName(
+            "androidx.media.test.service.MediaSession2ProviderService");
+    public static final ComponentName MEDIA_CONTROLLER2_PROVIDER_SERVICE = new ComponentName(
             IntentUtil.CLIENT_PACKAGE_NAME,
-            "androidx.media.test.client.RemoteMediaController2Service");
-    public static final ComponentName REMOTE_MEDIA_SESSION_COMPAT_SERVICE = new ComponentName(
+            "androidx.media.test.client.MediaController2ProviderService");
+    public static final ComponentName MEDIA_SESSION_COMPAT_PROVIDER_SERVICE = new ComponentName(
             IntentUtil.SERVICE_PACKAGE_NAME,
-            "androidx.media.test.service.RemoteMediaSessionCompatService");
-    public static final ComponentName REMOTE_MEDIA_CONTROLLER_COMPAT_SERVICE = new ComponentName(
+            "androidx.media.test.service.MediaSessionCompatProviderService");
+    public static final ComponentName MEDIA_CONTROLLER_COMPAT_PROVIDER_SERVICE = new ComponentName(
             IntentUtil.CLIENT_PACKAGE_NAME,
-            "androidx.media.test.client.RemoteMediaControllerCompatService");
+            "androidx.media.test.client.MediaControllerCompatProviderService");
+    public static final ComponentName MEDIA_BROWSER_COMPAT_PROVIDER_SERVICE = new ComponentName(
+            IntentUtil.CLIENT_PACKAGE_NAME,
+            "androidx.media.test.client.MediaBrowserCompatProviderService");
+
     public static final ComponentName MOCK_MEDIA_LIBRARY_SERVICE = new ComponentName(
             IntentUtil.SERVICE_PACKAGE_NAME,
             "androidx.media.test.service.MockMediaLibraryService2");
@@ -44,6 +48,8 @@ public class CommonConstants {
             "androidx.media.test.action.MEDIA_SESSION_COMPAT";
     public static final String ACTION_MEDIA_CONTROLLER_COMPAT =
             "androidx.media.test.action.MEDIA_CONTROLLER_COMPAT";
+    public static final String ACTION_MEDIA_BROWSER_COMPAT =
+            "androidx.media.test.action.MEDIA_BROWSER_COMPAT";
 
     // Keys for arguments.
     public static final String KEY_STREAM = "stream";

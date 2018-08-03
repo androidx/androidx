@@ -27,7 +27,6 @@ import java.lang.CharSequence;
 interface IRemoteMediaSessionCompat {
 
     void create(String sessionTag);
-    void runCustomTestCommands(String sessionTag, int command, in Bundle args);
 
     // MediaSessionCompat Methods
     Bundle getSessionToken(String sessionTag);

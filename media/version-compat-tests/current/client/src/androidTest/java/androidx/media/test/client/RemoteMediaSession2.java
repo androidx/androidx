@@ -29,7 +29,7 @@ import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
 import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
-import static androidx.media.test.lib.CommonConstants.REMOTE_MEDIA_SESSION2_SERVICE;
+import static androidx.media.test.lib.CommonConstants.MEDIA_SESSION2_PROVIDER_SERVICE;
 import static androidx.media.test.lib.TestUtils.WAIT_TIME_MS;
 
 import static junit.framework.TestCase.fail;
@@ -49,7 +49,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
-import androidx.media.test.lib.MediaSession2Constants;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayerConnector;
@@ -67,7 +66,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents remote {@link MediaSession2} in the service app's RemoteMediaSession2Service.
+ * Represents remote {@link MediaSession2} in the service app's MediaSession2ProviderService.
  * Users can run {@link MediaSession2} methods remotely with this object.
  */
 public class RemoteMediaSession2 {
@@ -93,7 +92,7 @@ public class RemoteMediaSession2 {
         mServiceConnection = new MyServiceConnection();
 
         if (!connect()) {
-            fail("Failed to connect to the RemoteMediaSession2Service.");
+            fail("Failed to connect to the MediaSession2ProviderService.");
         }
         create();
     }
@@ -101,22 +100,6 @@ public class RemoteMediaSession2 {
     public void cleanUp() {
         close();
         disconnect();
-    }
-
-    /**
-     * Run a test-specific custom command in the service app.
-     *
-     * @param command Pre-defined command code.
-     *                One of the constants in {@link MediaSession2Constants}.
-     * @param args A {@link Bundle} which contains pre-defined arguments.
-     */
-    public void runCustomTestCommands(int command, @Nullable Bundle args) {
-        try {
-            mBinder.runCustomTestCommands(mSessionId, command, args);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call runCustomTestCommands(). command=" + command
-                    + " , args=" + args);
-        }
     }
 
     /**
@@ -508,20 +491,20 @@ public class RemoteMediaSession2 {
     ////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Connects to service app's RemoteMediaSession2Service.
+     * Connects to service app's MediaSession2ProviderService.
      * Should NOT be called in main thread.
      *
      * @return true if connected successfully, false if failed to connect.
      */
     private boolean connect() {
         final Intent intent = new Intent(ACTION_MEDIA_SESSION2);
-        intent.setComponent(REMOTE_MEDIA_SESSION2_SERVICE);
+        intent.setComponent(MEDIA_SESSION2_PROVIDER_SERVICE);
 
         boolean bound = false;
         try {
             bound = mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         } catch (Exception ex) {
-            Log.e(TAG, "Failed binding to the RemoteMediaSession2Service of the service app");
+            Log.e(TAG, "Failed binding to the MediaSession2ProviderService of the service app");
         }
 
         if (bound) {
@@ -535,7 +518,7 @@ public class RemoteMediaSession2 {
     }
 
     /**
-     * Disconnects from service app's RemoteMediaSession2Service.
+     * Disconnects from service app's MediaSession2ProviderService.
      */
     private void disconnect() {
         if (mServiceConnection != null) {
@@ -561,7 +544,7 @@ public class RemoteMediaSession2 {
     class MyServiceConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "Connected to service app's RemoteMediaSession2Service.");
+            Log.d(TAG, "Connected to service app's MediaSession2ProviderService.");
             mBinder = IRemoteMediaSession2.Stub.asInterface(service);
             mCountDownLatch.countDown();
         }
