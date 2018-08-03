@@ -3,12 +3,21 @@ package androidx.ui.widgets.framework
 import androidx.annotation.CallSuper
 import androidx.ui.Type
 import androidx.ui.assert
+import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.debugPrint
+import androidx.ui.foundation.diagnostics.DiagnosticLevel
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticableTree
+import androidx.ui.foundation.diagnostics.DiagnosticsNode
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
+import androidx.ui.foundation.diagnostics.FlagProperty
+import androidx.ui.foundation.diagnostics.ObjectFlagProperty
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.runtimeType
 import androidx.ui.widgets.debugPrintGlobalKeyedWidgetLifecycle
+import androidx.ui.widgets.debugPrintRebuildDirtyWidgets
 import androidx.ui.widgets.framework.key.GlobalKey
 
 /// An instantiation of a [Widget] at a particular location in the tree.
@@ -63,11 +72,22 @@ import androidx.ui.widgets.framework.key.GlobalKey
 ///    incorporated into the tree in the future.
 abstract class Element(override var widget: Widget) : DiagnosticableTree(), BuildContext {
 
+    val _cachedHash: Int = run {
+        _nextHashCode = (_nextHashCode + 1) % 0xffffff
+        _nextHashCode
+    }
+
     var _parent: Element? = null
         private set
 
-    companion object {
+    class ElementComparator : Comparator<Element> {
+        override fun compare(a: Element, b: Element): Int {
+            return _sort(a, b)
+        }
+    }
 
+    companion object {
+        private var _nextHashCode = 1
 
         fun _sort(a: Element, b: Element): Int {
             if (a.depth < b.depth)
@@ -85,33 +105,18 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
             assert(element._debugLifecycleState == _ElementLifecycle.inactive);
             element.activate();
             assert(element._debugLifecycleState == _ElementLifecycle.active);
-            element.visitChildren(_activateRecursively);
+            element.visitChildren(::_activateRecursively);
         }
     }
 
-//    // Custom implementation of `operator ==` optimized for the ".of" pattern
-//    // used with `InheritedWidgets`.
-//    @override
-//    bool operator ==(Object other) => identical(this, other);
-//
-//    // Custom implementation of hash code optimized for the ".of" pattern used
-//    // with `InheritedWidgets`.
-//    //
-//    // `Element.inheritFromWidgetOfExactType` relies heavily on hash-based
-//    // `Set` look-ups, putting this getter on the performance critical path.
-//    //
-//    // The value is designed to fit within the SMI representation. This makes
-//    // the cached value use less memory (one field and no extra heap objects) and
-//    // cheap to compare (no indirection).
-//    //
-//    // See also:
-//    //
-//    //  * https://www.dartlang.org/articles/dart-vm/numeric-computation, which
-//    //    explains how numbers are represented in Dart.
-//    @override
-//    int get hashCode => _cachedHash;
-//    final int _cachedHash = _nextHashCode = (_nextHashCode + 1) % 0xffffff;
-//    static int _nextHashCode = 1;
+    override fun equals(other: Any?): Boolean {
+        // TODO(Migration/Filip): Not super sure with this
+        return this == other// identical(this, other)
+    }
+
+    override fun hashCode(): Int {
+        return _cachedHash
+    }
 
     /// Information set by parent to define where this child fits in its parent's
     /// child list.
@@ -119,7 +124,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
     /// Subclasses of Element that only have one child should use null for
     /// the slot for that child.
     var slot: Any? = null
-        private set
+        internal set
 
     /// An integer that is guaranteed to be greater than the parent's, if any.
     /// The element at the root of the tree must have a depth greater than 0.
@@ -139,7 +144,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         };
     }
 
-    fun _debugIsInScope(target: Element): Boolean {
+    fun _debugIsInScope(target: Element?): Boolean {
         var current : Element? = this;
         while (current != null) {
             if (target == current)
@@ -213,7 +218,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
     /// Wrapper around [visitChildren] for [BuildContext].
     override fun visitChildElements(visitor: ElementVisitor) {
         assert{
-            if (owner == null || !owner._debugStateLocked)
+            if (owner == null || !owner!!._debugStateLocked)
                 true;
             throw FlutterError(
                     "visitChildElements() called during build.\n" +
@@ -282,7 +287,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
                 child.update(newWidget);
                 assert(child.widget == newWidget);
                 assert {
-                    child.owner._debugElementWasRebuilt(child);
+                    child.owner!!._debugElementWasRebuilt(child);
                     true;
                 };
                 return child;
@@ -303,7 +308,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
     /// This method transitions the element from the "initial" lifecycle state to
     /// the "active" lifecycle state.
     @CallSuper
-    open fun mount(parent: Element, newSlot: Any) {
+    open fun mount(parent: Element, newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.initial);
         assert(widget != null);
         assert(_parent == null);
@@ -318,7 +323,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         if (parent != null) // Only assign ownership if the parent is non-null
             owner = parent.owner;
         if (widget.key is GlobalKey<*>) {
-            val key = widget.key;
+            val key = widget.key as GlobalKey<*>;
             key._register(this);
         }
         _updateInheritance();
@@ -363,7 +368,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         visit(child);
     }
 
-    fun _updateSlot(newSlot: Any?) {
+    open fun _updateSlot(newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.active);
         assert(widget != null);
         assert(_parent != null);
@@ -403,7 +408,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
     /// [attachRenderObject] recursively on its child. The
     /// [RenderObjectElement.attachRenderObject] override does the actual work of
     /// adding [renderObject] to the render tree.
-    fun attachRenderObject(newSlot: Any) {
+    open fun attachRenderObject(newSlot: Any?) {
         assert(slot == null);
         visitChildren {
             child -> child.attachRenderObject(newSlot);
@@ -425,7 +430,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
             return null;
         assert {
             if (debugPrintGlobalKeyedWidgetLifecycle)
-                debugPrint('Attempting to take $element from ${element._parent ?? "inactive elements list"} to put in $this.');
+                debugPrint("Attempting to take $element from ${element._parent ?: "inactive elements list"} to put in $this.");
             true;
         };
         val parent = element._parent;
@@ -441,7 +446,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
                             "A GlobalKey can only be specified on one widget at a time in the widget tree."
                     );
                 }
-                parent.owner._debugTrackElementThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans(
+                parent.owner!!._debugTrackElementThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans(
                         parent,
                         key
                 );
@@ -451,7 +456,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
             parent.deactivateChild(element);
         }
         assert(element._parent == null);
-        owner._inactiveElements.remove(element);
+        owner!!._inactiveElements.remove(element);
         return element;
     }
 
@@ -520,7 +525,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         assert(child._parent == this);
         child._parent = null;
         child.detachRenderObject();
-        owner._inactiveElements.add(child); // this eventually calls child.deactivate()
+        owner!!._inactiveElements.add(child); // this eventually calls child.deactivate()
         assert {
             if (debugPrintGlobalKeyedWidgetLifecycle) {
                 if (child.widget.key is GlobalKey<*>)
@@ -540,7 +545,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
     /// is called, [deactivateChild] is called to sever the link to this object.
     protected abstract fun forgetChild(child: Element);
 
-    fun _activateWithParent(parent: Element, newSlot: Any) {
+    fun _activateWithParent(parent: Element, newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.inactive);
         _parent = parent;
         assert {
@@ -580,7 +585,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         _updateInheritance();
         assert{ _debugLifecycleState = _ElementLifecycle.active; true; };
         if (dirty)
-            owner.scheduleBuildFor(this);
+            owner!!.scheduleBuildFor(this);
         if (hadDependencies)
             didChangeDependencies();
     }
@@ -644,7 +649,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         assert(depth != null);
         assert(!_active);
         if (widget.key is GlobalKey<*>) {
-            val key = widget.key;
+            val key = widget.key as GlobalKey<*>;
             key._unregister(this);
         }
         assert { _debugLifecycleState = _ElementLifecycle.defunct; true; };
@@ -652,89 +657,90 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
 
     override fun findRenderObject(): RenderObject = getRenderObject();
 
-//    override val size: Size get() = {
-//        val renderObject = findRenderObject();
-//        assert {
-//            if (renderObject == null) {
-//                throw FlutterError(
-//                        "Cannot get size without a render object.\n" +
-//                        "In order for an element to have a valid size, the element must have " +
-//                        "an associated render object. This element does not have an associated " +
-//                        "render object, which typically means that the size getter was called " +
-//                        "too early in the pipeline (e.g., during the build phase) before the " +
-//                        "framework has created the render tree.\n" +
-//                        "The size getter was called for the following element:\n" +
-//                        "  $this\n"
-//                );
-//            }
-//            if (renderObject is RenderSliver) {
-//                throw FlutterError(
-//                        'Cannot get size from a RenderSliver.\n'
-//                'The render object associated with this element is a '
-//                '${renderObject.runtimeType}, which is a subtype of RenderSliver. '
-//                'Slivers do not have a size per se. They have a more elaborate '
-//                'geometry description, which can be accessed by calling '
-//                'findRenderObject and then using the "geometry" getter on the '
-//                'resulting object.\n'
-//                'The size getter was called for the following element:\n'
-//                '  $this\n'
-//                'The associated render sliver was:\n'
-//                '  ${renderObject.toStringShallow(joiner: "\n  ")}'
-//                );
-//            }
-//            if (renderObject !is RenderBox) {
-//                throw FlutterError(
-//                        'Cannot get size from a render object that is not a RenderBox.\n'
-//                'Instead of being a subtype of RenderBox, the render object associated '
-//                'with this element is a ${renderObject.runtimeType}. If this type of '
-//                'render object does have a size, consider calling findRenderObject '
-//                'and extracting its size manually.\n'
-//                'The size getter was called for the following element:\n'
-//                '  $this\n'
-//                'The associated render object was:\n'
-//                '  ${renderObject.toStringShallow(joiner: "\n  ")}'
-//                );
-//            }
-//            final RenderBox box = renderObject;
-//            if (!box.hasSize) {
-//                throw FlutterError(
-//                        'Cannot get size from a render object that has not been through layout.\n'
-//                'The size of this render object has not yet been determined because '
-//                'this render object has not yet been through layout, which typically '
-//                'means that the size getter was called too early in the pipeline '
-//                '(e.g., during the build phase) before the framework has determined '
-//                'the size and position of the render objects during layout.\n'
-//                'The size getter was called for the following element:\n'
-//                '  $this\n'
-//                'The render object from which the size was to be obtained was:\n'
-//                '  ${box.toStringShallow(joiner: "\n  ")}'
-//                );
-//            }
-//            if (box.debugNeedsLayout) {
-//                throw FlutterError(
-//                        'Cannot get size from a render object that has been marked dirty for layout.\n'
-//                'The size of this render object is ambiguous because this render object has '
-//                'been modified since it was last laid out, which typically means that the size '
-//                'getter was called too early in the pipeline (e.g., during the build phase) '
-//                'before the framework has determined the size and position of the render '
-//                'objects during layout.\n'
-//                'The size getter was called for the following element:\n'
-//                '  $this\n'
-//                'The render object from which the size was to be obtained was:\n'
-//                '  ${box.toStringShallow(joiner: "\n  ")}\n'
-//                'Consider using debugPrintMarkNeedsLayoutStacks to determine why the render '
-//                'object in question is dirty, if you did not expect this.'
-//                );
-//            }
-//            true;
-//        };
-//        if (renderObject is RenderBox)
-//            renderObject.size;
-//        null;
-//    }
+    override val size: Size?
+        get() = run {
+            val renderObject = findRenderObject();
+            assert {
+                if (renderObject == null) {
+                    throw FlutterError(
+                            "Cannot get size without a render object.\n" +
+                            "In order for an element to have a valid size, the element must have " +
+                            "an associated render object. This element does not have an associated " +
+                            "render object, which typically means that the size getter was called " +
+                            "too early in the pipeline (e.g., during the build phase) before the " +
+                            "framework has created the render tree.\n" +
+                            "The size getter was called for the following element:\n" +
+                            "  $this\n"
+                    );
+                }
+                if (renderObject is RenderSliver) {
+                    throw FlutterError(
+                            "Cannot get size from a RenderSliver.\n" +
+                            "The render object associated with this element is a " +
+                            "${renderObject.runtimeType()}, which is a subtype of RenderSliver. " +
+                            "Slivers do not have a size per se. They have a more elaborate " +
+                            "geometry description, which can be accessed by calling " +
+                            "findRenderObject and then using the 'geometry' getter on the " +
+                            "resulting object.\n" +
+                            "The size getter was called for the following element:\n" +
+                            "  $this\n" +
+                            "The associated render sliver was:\n" +
+                            "  ${renderObject.toStringShallow(joiner = "\n  ")}"
+                    );
+                }
+                if (renderObject !is RenderBox) {
+                    throw FlutterError(
+                            "Cannot get size from a render object that is not a RenderBox.\n" +
+                            "Instead of being a subtype of RenderBox, the render object associated " +
+                            "with this element is a ${renderObject.runtimeType()}. If this type of " +
+                            "render object does have a size, consider calling findRenderObject " +
+                            "and extracting its size manually.\n" +
+                            "The size getter was called for the following element:\n" +
+                            "  $this\n" +
+                            "The associated render object was:\n" +
+                            "  ${renderObject.toStringShallow(joiner = "\n  ")}"
+                    );
+                }
+                val box = renderObject as RenderBox;
+                if (!box.hasSize) {
+                    throw FlutterError(
+                            "Cannot get size from a render object that has not been through layout.\n" +
+                            "The size of this render object has not yet been determined because " +
+                            "this render object has not yet been through layout, which typically " +
+                            "means that the size getter was called too early in the pipeline " +
+                            "(e.g., during the build phase) before the framework has determined " +
+                            "the size and position of the render objects during layout.\n" +
+                            "The size getter was called for the following element:\n" +
+                            "  $this\n" +
+                            "The render object from which the size was to be obtained was:\n" +
+                            "  ${box.toStringShallow(joiner = "\n  ")}"
+                    );
+                }
+                if (box.debugNeedsLayout) {
+                    throw FlutterError(
+                            "Cannot get size from a render object that has been marked dirty for layout.\n" +
+                            "The size of this render object is ambiguous because this render object has " +
+                            "been modified since it was last laid out, which typically means that the size " +
+                            "getter was called too early in the pipeline (e.g., during the build phase) " +
+                            "before the framework has determined the size and position of the render " +
+                            "objects during layout.\n" +
+                            "The size getter was called for the following element:\n" +
+                            "  $this\n" +
+                            "The render object from which the size was to be obtained was:\n" +
+                            "  ${box.toStringShallow(joiner = "\n  ")}\n" +
+                            "Consider using debugPrintMarkNeedsLayoutStacks to determine why the render " +
+                            "object in question is dirty, if you did not expect this."
+                    );
+                }
+                true;
+            };
+            if (renderObject is RenderBox)
+                return renderObject.size;
+            return null;
+    }
 
     private var _inheritedWidgets: Map<Type, InheritedElement>? = null;
-    private var _dependencies: MutableSet<InheritedElement>? = null
+    internal var _dependencies: MutableSet<InheritedElement>? = null
     private var _hadUnsatisfiedDependencies = false;
 
     private fun _debugCheckStateIsActiveForAncestorLookup(): Boolean {
@@ -755,19 +761,19 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
 
     override fun inheritFromWidgetOfExactType(targetType: Type): InheritedWidget? {
         assert(_debugCheckStateIsActiveForAncestorLookup());
-        val  ancestor = if (_inheritedWidgets == null) null else _inheritedWidgets!![targetType];
+        val  ancestor: InheritedElement? = if (_inheritedWidgets == null) null else _inheritedWidgets!![targetType];
         if (ancestor != null) {
             assert(ancestor is InheritedElement);
             _dependencies = _dependencies ?: mutableSetOf<InheritedElement>();
             _dependencies!!.add(ancestor);
             ancestor._dependents.add(this);
-            return ancestor.widget;
+            return ancestor.widget as InheritedWidget?;
         }
         _hadUnsatisfiedDependencies = true;
         return null;
     }
 
-    override fun ancestorInheritedElementForWidgetOfExactType(targetType: Type): InheritedWidget {
+    override fun ancestorInheritedElementForWidgetOfExactType(targetType: Type): InheritedElement? {
         assert(_debugCheckStateIsActiveForAncestorLookup());
         val ancestor = if (_inheritedWidgets == null)  null else _inheritedWidgets!![targetType];
         return ancestor;
@@ -778,61 +784,57 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         _inheritedWidgets = _parent?._inheritedWidgets;
     }
 
-    override fun ancestorWidgetOfExactType(targetType: Type): Widget {
+    override fun ancestorWidgetOfExactType(targetType: Type): Widget? {
         assert(_debugCheckStateIsActiveForAncestorLookup());
         var ancestor = _parent;
         while (ancestor != null && ancestor.widget.runtimeType() != targetType)
             ancestor = ancestor._parent;
         return ancestor?.widget;
     }
-//
-//    @override
-//    State ancestorStateOfType(TypeMatcher matcher) {
-//        assert(_debugCheckStateIsActiveForAncestorLookup());
-//        Element ancestor = _parent;
-//        while (ancestor != null) {
-//            if (ancestor is StatefulElement && matcher.check(ancestor.state))
-//                break;
-//            ancestor = ancestor._parent;
-//        }
-//        final StatefulElement statefulAncestor = ancestor;
-//        return statefulAncestor?.state;
-//    }
-//
-//    @override
-//    State rootAncestorStateOfType(TypeMatcher matcher) {
-//        assert(_debugCheckStateIsActiveForAncestorLookup());
-//        Element ancestor = _parent;
-//        StatefulElement statefulAncestor;
-//        while (ancestor != null) {
-//            if (ancestor is StatefulElement && matcher.check(ancestor.state))
-//                statefulAncestor = ancestor;
-//            ancestor = ancestor._parent;
-//        }
-//        return statefulAncestor?.state;
-//    }
-//
-//    @override
-//    RenderObject ancestorRenderObjectOfType(TypeMatcher matcher) {
-//        assert(_debugCheckStateIsActiveForAncestorLookup());
-//        Element ancestor = _parent;
-//        while (ancestor != null) {
-//            if (ancestor is RenderObjectElement && matcher.check(ancestor.renderObject))
-//                break;
-//            ancestor = ancestor._parent;
-//        }
-//        final RenderObjectElement renderObjectAncestor = ancestor;
-//        return renderObjectAncestor?.renderObject;
-//    }
-//
-//    @override
-//    void visitAncestorElements(bool visitor(Element element)) {
-//        assert(_debugCheckStateIsActiveForAncestorLookup());
-//        Element ancestor = _parent;
-//        while (ancestor != null && visitor(ancestor))
-//            ancestor = ancestor._parent;
-//    }
-//
+
+    override fun ancestorStateOfType(matcher: TypeMatcher<*>): State<*>? {
+        assert(_debugCheckStateIsActiveForAncestorLookup());
+        var ancestor = _parent;
+        while (ancestor != null) {
+            if (ancestor is StatefulElement && matcher.check(ancestor.state))
+                break;
+            ancestor = ancestor._parent;
+        }
+        var statefulAncestor: StatefulElement? = ancestor as StatefulElement?;
+        return statefulAncestor?.state;
+    }
+
+    override fun rootAncestorStateOfType(matcher: TypeMatcher<*>): State<*>? {
+        assert(_debugCheckStateIsActiveForAncestorLookup());
+        var ancestor = _parent;
+        var statefulAncestor: StatefulElement? = null;
+        while (ancestor != null) {
+            if (ancestor is StatefulElement && matcher.check(ancestor.state))
+                statefulAncestor = ancestor;
+            ancestor = ancestor._parent;
+        }
+        return statefulAncestor?.state;
+    }
+
+    override fun ancestorRenderObjectOfType(matcher: TypeMatcher<*>): RenderObject? {
+        assert(_debugCheckStateIsActiveForAncestorLookup());
+        var ancestor = _parent;
+        while (ancestor != null) {
+            if (ancestor is RenderObjectElement && matcher.check(ancestor.renderObject))
+                break;
+            ancestor = ancestor._parent;
+        }
+        var renderObjectAncestor = ancestor as RenderObjectElement?;
+        return renderObjectAncestor?.renderObject;
+    }
+
+    override fun visitAncestorElements(visitor: (Element) -> Boolean) {
+        assert(_debugCheckStateIsActiveForAncestorLookup());
+        var ancestor = _parent;
+        while (ancestor != null && visitor(ancestor))
+            ancestor = ancestor._parent;
+    }
+
     /// Called when a dependency of this element changes.
     ///
     /// The [inheritFromWidgetOfExactType] registers this element as depending on
@@ -847,93 +849,91 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         assert(_debugCheckOwnerBuildTargetExists("didChangeDependencies"));
         markNeedsBuild();
     }
-//
-//    bool _debugCheckOwnerBuildTargetExists(String methodName) {
-//        assert(() {
-//            if (owner._debugCurrentBuildTarget == null) {
-//                throw new FlutterError(
-//                        '$methodName for ${widget.runtimeType} was called at an '
-//                'inappropriate time.\n'
-//                'It may only be called while the widgets are being built. A possible '
-//                'cause of this error is when $methodName is called during '
-//                'one of:\n'
-//                ' * network I/O event\n'
-//                ' * file I/O event\n'
-//                ' * timer\n'
-//                ' * microtask (caused by Future.then, async/await, scheduleMicrotask)'
-//                );
-//            }
-//            return true;
-//        }());
-//        return true;
-//    }
-//
-//    /// Returns a description of what caused this element to be created.
-//    ///
-//    /// Useful for debugging the source of an element.
-//    String debugGetCreatorChain(int limit) {
-//        final List<String> chain = <String>[];
-//        Element node = this;
-//        while (chain.length < limit && node != null) {
-//            chain.add(node.toStringShort());
-//            node = node._parent;
-//        }
-//        if (node != null)
-//            chain.add('\u22EF');
-//        return chain.join(' \u2190 ');
-//    }
-//
-//    /// Returns the parent chain from this element back to the root of the tree.
-//    ///
-//    /// Useful for debug display of a tree of Elements with only nodes in the path
-//    /// from the root to this Element expanded.
-//    List<Element> debugGetDiagnosticChain() {
-//        final List<Element> chain = <Element>[this];
-//        Element node = _parent;
-//        while (node != null) {
-//            chain.add(node);
-//            node = node._parent;
-//        }
-//        return chain;
-//    }
-//
-//    /// A short, textual description of this element.
-//    @override String toStringShort() {
-//        return widget != null ? '${widget.toStringShort()}' : '[$runtimeType]';
-//    }
-//
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//        super.debugFillProperties(properties);
-//        properties.defaultDiagnosticsTreeStyle= DiagnosticsTreeStyle.dense;
-//        properties.add(new ObjectFlagProperty<int>('depth', depth, ifNull: 'no depth'));
-//        properties.add(new ObjectFlagProperty<Widget>('widget', widget, ifNull: 'no widget'));
-//        if (widget != null) {
-//            properties.add(new DiagnosticsProperty<Key>('key', widget?.key, showName: false, defaultValue: null, level: DiagnosticLevel.hidden));
-//            widget.debugFillProperties(properties);
-//        }
-//        properties.add(new FlagProperty('dirty', value: dirty, ifTrue: 'dirty'));
-//    }
-//
-//    @override
-//    List<DiagnosticsNode> debugDescribeChildren() {
-//        final List<DiagnosticsNode> children = <DiagnosticsNode>[];
-//        visitChildren((Element child) {
-//            if (child != null) {
-//                children.add(child.toDiagnosticsNode());
-//            } else {
-//                children.add(new DiagnosticsNode.message('<null child>'));
-//            }
-//        });
-//        return children;
-//    }
-//
+
+    fun _debugCheckOwnerBuildTargetExists(methodName: String): Boolean {
+        assert {
+            if (owner!!._debugCurrentBuildTarget == null) {
+                throw FlutterError(
+                        "$methodName for ${widget.runtimeType()} was called at an " +
+                        "inappropriate time.\n" +
+                        "It may only be called while the widgets are being built. A possible " +
+                        "cause of this error is when $methodName is called during " +
+                        "one of:\n" +
+                        " * network I/O event\n" +
+                        " * file I/O event\n" +
+                        " * timer\n" +
+                        " * microtask (caused by Future.then, async/await, scheduleMicrotask)"
+                );
+            }
+            true;
+        };
+        return true;
+    }
+
+    /// Returns a description of what caused this element to be created.
+    ///
+    /// Useful for debugging the source of an element.
+    fun debugGetCreatorChain(limit: Int): String {
+        val chain = mutableListOf<String>()
+        var node: Element? = this;
+        while (chain.size < limit && node != null) {
+            chain.add(node.toStringShort());
+            node = node._parent;
+        }
+        if (node != null)
+            chain.add("\u22EF");
+        return chain.joinToString(" \u2190 ");
+    }
+
+    /// Returns the parent chain from this element back to the root of the tree.
+    ///
+    /// Useful for debug display of a tree of Elements with only nodes in the path
+    /// from the root to this Element expanded.
+    fun debugGetDiagnosticChain(): List<Element> {
+        val chain = mutableListOf<Element>(this)
+        var node: Element? = _parent;
+        while (node != null) {
+            chain.add(node);
+            node = node._parent;
+        }
+        return chain;
+    }
+
+    /// A short, textual description of this element.
+    override fun toStringShort(): String {
+        return if (widget != null) "${widget.toStringShort()}" else "[${runtimeType()}]";
+    }
+
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        super.debugFillProperties(properties);
+        properties.defaultDiagnosticsTreeStyle= DiagnosticsTreeStyle.dense;
+        properties.add(ObjectFlagProperty<Int>("depth", depth, ifNull = "no depth"));
+        properties.add(ObjectFlagProperty<Widget>("widget", widget, ifNull = "no widget"));
+        if (widget != null) {
+            properties.add(DiagnosticsProperty.create("key", widget?.key, showName = false, defaultValue = null, level = DiagnosticLevel.hidden));
+            widget.debugFillProperties(properties);
+        }
+        properties.add(FlagProperty("dirty", value = dirty, ifTrue = "dirty"));
+    }
+
+    override fun debugDescribeChildren(): List<DiagnosticsNode> {
+        val children = mutableListOf<DiagnosticsNode>()
+        visitChildren { child ->
+            if (child != null) {
+                children.add(child.toDiagnosticsNode());
+            } else {
+                children.add(DiagnosticsNode.message("<null child>"));
+            }
+        };
+        return children;
+    }
+
     /// Returns true if the element has been marked as needing rebuilding.
-    protected var dirty = true;
+    internal var dirty = true
 
     // Whether this is in owner._dirtyElements. This is used to know whether we
     // should be adding the element back into the list when it's reactivated.
-    private var _inDirtyList = false;
+    internal var _inDirtyList = false;
 
     // Whether we've already built or not. Set in [rebuild].
     private var _debugBuiltOnce = false;
@@ -963,35 +963,35 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         assert(owner != null);
         assert(_debugLifecycleState == _ElementLifecycle.active);
         assert {
-            if (owner._debugBuilding) {
-                assert(owner._debugCurrentBuildTarget != null);
-                assert(owner._debugStateLocked);
-                if (_debugIsInScope(owner._debugCurrentBuildTarget))
+            if (owner!!.debugBuilding) {
+                assert(owner!!._debugCurrentBuildTarget != null);
+                assert(owner!!._debugStateLocked);
+                if (_debugIsInScope(owner!!._debugCurrentBuildTarget))
                     true;
                 if (!_debugAllowIgnoredCallsToMarkNeedsBuild) {
                     throw FlutterError(
-                            'setState() or markNeedsBuild() called during build.\n'
-                    'This ${widget.runtimeType} widget cannot be marked as needing to build because the framework '
-                    'is already in the process of building widgets. A widget can be marked as '
-                    'needing to be built during the build phase only if one of its ancestors '
-                    'is currently building. This exception is allowed because the framework '
-                    'builds parent widgets before children, which means a dirty descendant '
-                    'will always be built. Otherwise, the framework might not visit this '
-                    'widget during this build phase.\n'
-                    'The widget on which setState() or markNeedsBuild() was called was:\n'
-                    '  $this\n'
-                    '${owner._debugCurrentBuildTarget == null ? "" : "The widget which was currently being built when the offending call was made was:\n  ${owner._debugCurrentBuildTarget}"}'
+                            "setState() or markNeedsBuild() called during build.\n" +
+                            "This ${widget.runtimeType()} widget cannot be marked as needing to build because the framework " +
+                            "is already in the process of building widgets. A widget can be marked as " +
+                            "needing to be built during the build phase only if one of its ancestors " +
+                            "is currently building. This exception is allowed because the framework " +
+                            "builds parent widgets before children, which means a dirty descendant " +
+                            "will always be built. Otherwise, the framework might not visit this " +
+                            "widget during this build phase.\n" +
+                            "The widget on which setState() or markNeedsBuild() was called was:\n" +
+                            "  $this\n" +
+                            if(owner!!._debugCurrentBuildTarget == null) "" else "The widget which was currently being built when the offending call was made was:\n  ${owner!!._debugCurrentBuildTarget}"
                     );
                 }
                 assert(dirty); // can only get here if we're not in scope, but ignored calls are allowed, and our call would somehow be ignored (since we're already dirty)
-            } else if (owner._debugStateLocked) {
+            } else if (owner!!._debugStateLocked) {
                 assert(!_debugAllowIgnoredCallsToMarkNeedsBuild);
                 throw FlutterError(
-                        'setState() or markNeedsBuild() called when widget tree was locked.\n'
-                'This ${widget.runtimeType} widget cannot be marked as needing to build '
-                'because the framework is locked.\n'
-                'The widget on which setState() or markNeedsBuild() was called was:\n'
-                '  $this\n'
+                        "setState() or markNeedsBuild() called when widget tree was locked.\n" +
+                        "This ${widget.runtimeType()} widget cannot be marked as needing to build " +
+                        "because the framework is locked.\n" +
+                        "The widget on which setState() or markNeedsBuild() was called was:\n" +
+                        "  $this\n"
                 );
             }
             true;
@@ -999,7 +999,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         if (dirty)
             return;
         dirty = true;
-        owner.scheduleBuildFor(this);
+        owner!!.scheduleBuildFor(this);
     }
 
     /// Called by the [BuildOwner] when [BuildOwner.scheduleBuildFor] has been
@@ -1012,26 +1012,26 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         assert {
             if (debugPrintRebuildDirtyWidgets) {
                 if (!_debugBuiltOnce) {
-                    debugPrint('Building $this');
+                    debugPrint("Building $this");
                     _debugBuiltOnce = true;
                 } else {
-                    debugPrint('Rebuilding $this');
+                    debugPrint("Rebuilding $this");
                 }
             }
             true;
         };
         assert(_debugLifecycleState == _ElementLifecycle.active);
-        assert(owner._debugStateLocked);
-        Element debugPreviousBuildTarget;
+        assert(owner!!._debugStateLocked);
+        var debugPreviousBuildTarget: Element? = null;
         assert{
-            debugPreviousBuildTarget = owner._debugCurrentBuildTarget;
-            owner._debugCurrentBuildTarget = this;
+            debugPreviousBuildTarget = owner!!._debugCurrentBuildTarget;
+            owner!!._debugCurrentBuildTarget = this;
             true;
         };
         performRebuild();
         assert {
-            assert(owner._debugCurrentBuildTarget == this);
-            owner._debugCurrentBuildTarget = debugPreviousBuildTarget;
+            assert(owner!!._debugCurrentBuildTarget == this);
+            owner!!._debugCurrentBuildTarget = debugPreviousBuildTarget;
             true;
         };
         assert(!dirty);

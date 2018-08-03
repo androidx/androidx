@@ -76,5 +76,5 @@ abstract class InheritedWidget(key: Key, child: Widget) : ProxyWidget(key, child
     /// The given widget is guaranteed to have the same [runtimeType] as this
     /// object.
     // TODO (Migration/Filip): Dropped covariance
-    protected abstract fun updateShouldNotify(oldWidget: InheritedWidget): Boolean;
+    internal abstract fun updateShouldNotify(oldWidget: InheritedWidget): Boolean;
 }

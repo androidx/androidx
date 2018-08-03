@@ -57,7 +57,7 @@ class FlutterErrorDetails(
         /// that function, however, does not always follow this format.
         ///
         /// This won't be called if [stack] is null.
-        val stackFilter: IterableFilter<String>,
+        val stackFilter: IterableFilter<String>? = null,
         /// A callback which, when called with a [StringBuffer] will write to that buffer
         /// information that could help with debugging the problem.
         ///
@@ -66,7 +66,7 @@ class FlutterErrorDetails(
         ///
         /// The text written to the information argument may contain newlines but should
         /// not end with a newline.
-        val informationCollector: InformationCollector,
+        val informationCollector: InformationCollector? = null,
         /// Whether this error should be ignored by the default error reporting
         /// behavior in release mode.
         ///
@@ -140,13 +140,13 @@ class FlutterErrorDetails(
         }
         buffer.appendln(exceptionAsString());
         if (informationCollector != null)
-            informationCollector(buffer);
+            informationCollector!!(buffer);
         if (stack != null) {
 
             var stackLines = stack.map { it.toString() }.asIterable();
 
             if (stackFilter != null) {
-                stackLines = stackFilter(stackLines);
+                stackLines = stackFilter!!(stackLines);
             } else {
                 // TODO(Migration/Filip): This will not be that easy as it expects Dart stack lines
                 //stackLines = FlutterError.defaultStackFilter(stackLines);

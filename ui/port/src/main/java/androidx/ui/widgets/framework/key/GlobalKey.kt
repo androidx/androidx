@@ -10,6 +10,7 @@ import androidx.ui.widgets.framework.State
 import androidx.ui.widgets.framework.StatefulElement
 import androidx.ui.widgets.framework.StatefulWidget
 import androidx.ui.widgets.framework.Widget
+import androidx.ui.widgets.framework._ElementLifecycle
 
 /// A key that is unique across the entire app.
 ///
@@ -51,45 +52,44 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
             return LabeledGlobalKey(debugLabel);
         }
 
-
-        val _registry: MutableMap<GlobalKey<out State<StatefulWidget>>, Element> = mutableMapOf()
-        val _removedKeys: MutableSet<GlobalKey<out State<StatefulWidget>>> = mutableSetOf()
+        val _registry: MutableMap<GlobalKey<*>, Element> = mutableMapOf()
+        val _removedKeys: MutableSet<GlobalKey<*>> = mutableSetOf()
         val _debugIllFatedElements: MutableSet<Element> = mutableSetOf()
-        val _debugReservations: MutableMap<GlobalKey<out State<StatefulWidget>>, Element> = mutableMapOf()
+        val _debugReservations: MutableMap<GlobalKey<*>, Element> = mutableMapOf()
 
-//        fun _debugVerifyIllFatedPopulation() {
-//            assert {
-//                val duplicates = mutableMapOf<out State<StatefulWidget>>, Set<Element>>()
-//                for (element in _debugIllFatedElements) {
-//                if (element._debugLifecycleState != _ElementLifecycle.defunct) {
-//                    assert(element != null);
-//                    assert(element.widget != null);
-//                    assert(element.widget.key != null);
-//                    val key = element.widget.key;
-//                    assert(_registry.containsKey(key));
-//                    duplicates ??= <GlobalKey, Set<Element>>{};
-//                    final Set<Element> elements = duplicates.putIfAbsent(key, () => new HashSet<Element>());
-//                    elements.add(element);
-//                    elements.add(_registry[key]);
-//                }
-//            }
-//                _debugIllFatedElements.clear();
-//                _debugReservations.clear();
-//                if (duplicates != null) {
-//                   val buffer = StringBuffer();
-//                    buffer.append("Multiple widgets used the same GlobalKey.\n");
-//                    for (key in duplicates.keys) {
-//                        val elements = duplicates[key];
-//                        buffer.append("The key $key was used by ${elements.size} widgets:");
-//                        for (element in elements)
-//                        buffer.append("- $element");
-//                    }
-//                    buffer.append("A GlobalKey can only be specified on one widget at a time in the widget tree.");
-//                    throw FlutterError(buffer.toString());
-//                }
-//                true;
-//            };
-//        }
+        fun _debugVerifyIllFatedPopulation() {
+            assert {
+                var duplicates: MutableMap<GlobalKey<*>, MutableSet<Element>>? = null
+                for (element in _debugIllFatedElements) {
+                if (element._debugLifecycleState != _ElementLifecycle.defunct) {
+                    assert(element != null);
+                    assert(element.widget != null);
+                    assert(element.widget.key != null);
+                    val key = element.widget.key;
+                    assert(_registry.containsKey(key));
+                    duplicates = duplicates ?: mutableMapOf();
+                    val elements = duplicates.putIfAbsent(key as GlobalKey<*>, mutableSetOf())
+                    elements!!.add(element);
+                    elements!!.add(_registry[key]!!);
+                }
+            }
+                _debugIllFatedElements.clear();
+                _debugReservations.clear();
+                if (duplicates != null) {
+                   val buffer = StringBuffer();
+                    buffer.append("Multiple widgets used the same GlobalKey.\n");
+                    for (key in duplicates.keys) {
+                        val elements = duplicates[key];
+                        buffer.append("The key $key was used by ${elements!!.size} widgets:");
+                        for (element in elements!!)
+                        buffer.append("- $element");
+                    }
+                    buffer.append("A GlobalKey can only be specified on one widget at a time in the widget tree.");
+                    throw FlutterError(buffer.toString());
+                }
+                true;
+            };
+        }
     }
 
     fun _register(element: Element) {

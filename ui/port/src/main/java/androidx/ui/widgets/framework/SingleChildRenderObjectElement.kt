@@ -26,7 +26,7 @@ class SingleChildRenderObjectElement(
         _child = null;
     }
 
-    override fun mount(parent: Element, newSlot: Any) {
+    override fun mount(parent: Element, newSlot: Any?) {
         super.mount(parent, newSlot);
         _child = updateChild(_child, widget.child, null);
     }
@@ -38,23 +38,23 @@ class SingleChildRenderObjectElement(
         _child = updateChild(_child, widget.child, null);
     }
 
-//    override fun insertChildRenderObject(child: RenderObject, slot: Any) {
-//        final RenderObjectWithChildMixin<RenderObject> renderObject = this.renderObject;
-//        assert(slot == null);
-//        assert(renderObject.debugValidateChild(child));
-//        renderObject.child = child;
-//        assert(renderObject == this.renderObject);
-//    }
+    override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
+        val renderObject = this.renderObject as RenderObjectWithChildMixin<RenderObject>
+        assert(slot == null);
+        assert(renderObject.debugValidateChild(child));
+        renderObject.child = child;
+        assert(renderObject == this.renderObject);
+    }
 
-    override fun moveChildRenderObject(child: RenderObject, slot: Any) {
+    override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
         assert(false);
     }
 
-//    override fun removeChildRenderObject(child: RenderObject) {
-//        final RenderObjectWithChildMixin<RenderObject> renderObject = this.renderObject;
-//        assert(renderObject.child == child);
-//        renderObject.child = null;
-//        assert(renderObject == this.renderObject);
-//    }
+    override fun removeChildRenderObject(child: RenderObject?) {
+        val renderObject = this.renderObject as RenderObjectWithChildMixin<RenderObject>
+        assert(renderObject.child == child);
+        renderObject.child = null;
+        assert(renderObject == this.renderObject);
+    }
 }
 

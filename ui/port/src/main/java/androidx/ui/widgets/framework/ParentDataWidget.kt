@@ -126,7 +126,7 @@ abstract class ParentDataWidget<T : RenderObjectWidget>(
     /// painting, this function is responsible for calling
     /// [RenderObject.markNeedsLayout] or [RenderObject.markNeedsPaint] on the
     /// parent, as appropriate.
-    protected abstract fun applyParentData(renderObject: RenderObject);
+    internal abstract fun applyParentData(renderObject: RenderObject?);
 
     /// Whether the [ParentDataElement.applyWidgetOutOfTurn] method is allowed
     /// with this widget.
