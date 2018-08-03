@@ -109,7 +109,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
-    final MediaRouter.RouteInfo mSelectedRoute;
+    MediaRouter.RouteInfo mSelectedRoute;
     final List<MediaRouter.RouteInfo> mRoutes = new ArrayList<>();
 
     Context mContext;
@@ -158,6 +158,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     MediaRouter.RouteInfo mRouteForClickedMuteButton;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mHasPendingUpdate;
+    boolean mIsSelectingRoute;
 
     private ImageButton mCloseButton;
     private Button mStopCastingButton;
@@ -385,7 +386,12 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     }
 
     void update() {
-        if (mRouteForTouchedVolumeSlider != null || mRouteForClickedMuteButton != null) {
+        // Defer dialog updates when user is adjusting volume or selecting route.
+        // Since onRouteUnselected is triggered before onRouteSelected when transferring to another
+        // route, pending update if mIsSelectingRoute is true to prevent dialog from being dismissed
+        // in the process of selecting route.
+        if (mRouteForTouchedVolumeSlider != null || mRouteForClickedMuteButton != null
+                || mIsSelectingRoute) {
             mHasPendingUpdate = true;
             return;
         }
@@ -953,18 +959,29 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         }
 
         private class GroupViewHolder extends RecyclerView.ViewHolder {
+            private final View mItemView;
             private final ImageView mImageView;
             private final TextView mTextView;
+            MediaRouter.RouteInfo mRoute;
 
             GroupViewHolder(View itemView) {
                 super(itemView);
+                mItemView = itemView;
                 mImageView = itemView.findViewById(R.id.mr_cast_group_icon);
                 mTextView = itemView.findViewById(R.id.mr_cast_group_name);
             }
 
             public void bindGroupViewHolder(Item item) {
-                MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
+                final MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
+                mRoute = route;
 
+                mItemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mIsSelectingRoute = true;
+                        mRoute.select();
+                    }
+                });
                 mImageView.setImageDrawable(getIconDrawable(route));
                 mTextView.setText(route.getName());
             }
@@ -987,6 +1004,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         @Override
         public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
+            mSelectedRoute = route;
+            mIsSelectingRoute = false;
             update();
         }
 
@@ -997,7 +1016,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         @Override
         public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo route) {
-            // Call refreshRoutes only when there's no volume update in progress.
+            // Call refreshRoutes only when there's no updating volume.
             if (mRouteForTouchedVolumeSlider == null && mRouteForClickedMuteButton == null) {
                 refreshRoutes();
             }
