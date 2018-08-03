@@ -28,6 +28,8 @@ import androidx.textclassifier.TextLinks.SpanFactory;
 import androidx.textclassifier.TextLinks.TextLink;
 import androidx.textclassifier.TextLinks.TextLinkSpan;
 
+import java.util.Calendar;
+
 /**
  * Parameters for generating and applying links.
  */
@@ -49,16 +51,19 @@ public final class TextLinksParams {
     private final SpanFactory mSpanFactory;
     @Nullable private final TextClassifier.EntityConfig mEntityConfig;
     @Nullable private final LocaleListCompat mDefaultLocales;
+    @Nullable private final Calendar mReferenceTime;
 
     TextLinksParams(
             @TextLinks.ApplyStrategy int applyStrategy,
             SpanFactory spanFactory,
             @Nullable TextClassifier.EntityConfig entityConfig,
-            @Nullable LocaleListCompat defaultLocales) {
+            @Nullable LocaleListCompat defaultLocales,
+            @Nullable Calendar referenceTime) {
         mApplyStrategy = applyStrategy;
         mSpanFactory = spanFactory;
         mEntityConfig = entityConfig;
         mDefaultLocales = defaultLocales;
+        mReferenceTime = referenceTime;
     }
 
     /**
@@ -76,6 +81,18 @@ public final class TextLinksParams {
     @Nullable
     LocaleListCompat getDefaultLocales() {
         return mDefaultLocales;
+    }
+
+    /**
+     * @return reference time based on which relative dates (e.g. "tomorrow") should be
+     *      interpreted.
+     * @hide
+     */
+    // TODO: Make public API.
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Nullable
+    public Calendar getReferenceTime() {
+        return mReferenceTime;
     }
 
     /**
@@ -132,7 +149,7 @@ public final class TextLinksParams {
      * Otherwise, returns false.
      */
     boolean canApply(@NonNull Spannable text, @NonNull TextLinks textLinks) {
-        return text.toString().startsWith(textLinks.getText());
+        return text.toString().startsWith(textLinks.getText().toString());
     }
 
     /**
@@ -145,6 +162,7 @@ public final class TextLinksParams {
         private SpanFactory mSpanFactory = DEFAULT_SPAN_FACTORY;
         @Nullable private TextClassifier.EntityConfig mEntityConfig;
         @Nullable private LocaleListCompat mDefaultLocales;
+        @Nullable private Calendar mReferenceTime;
 
         /**
          * Sets the apply strategy used to determine how to apply links to text.
@@ -198,11 +216,27 @@ public final class TextLinksParams {
         }
 
         /**
+         * @param referenceTime reference time based on which relative dates (e.g. "tomorrow"
+         *      should be interpreted. This should usually be the time when the text was
+         *      originally composed. If no reference time is set, now is used.
+         *
+         * @return this builder
+         * @hide
+         */
+        // TODO: Make public API.
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @NonNull
+        public Builder setReferenceTime(@Nullable Calendar referenceTime) {
+            mReferenceTime = referenceTime;
+            return this;
+        }
+
+        /**
          * Builds and returns a TextLinksParams object.
          */
         public TextLinksParams build() {
             return new TextLinksParams(
-                    mApplyStrategy, mSpanFactory, mEntityConfig, mDefaultLocales);
+                    mApplyStrategy, mSpanFactory, mEntityConfig, mDefaultLocales, mReferenceTime);
         }
     }
 

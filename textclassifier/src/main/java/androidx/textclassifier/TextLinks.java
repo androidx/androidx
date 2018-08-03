@@ -19,11 +19,16 @@ package androidx.textclassifier;
 import static androidx.textclassifier.ConvertUtils.toPlatformEntityConfig;
 import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
 
+import android.app.PendingIntent;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Spannable;
+import android.text.Spanned;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
@@ -31,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextClassifier.EntityConfig;
@@ -39,6 +45,7 @@ import androidx.textclassifier.TextClassifier.EntityType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -51,10 +58,12 @@ import java.util.Map;
  */
 public final class TextLinks {
 
+    private static final String LOG_TAG = "TextLinks";
+
     private static final String EXTRA_FULL_TEXT = "text";
     private static final String EXTRA_LINKS = "links";
 
-    private final String mFullText;
+    private final CharSequence mFullText;
     private final List<TextLink> mLinks;
 
     /** Status unknown. */
@@ -93,7 +102,7 @@ public final class TextLinks {
     @IntDef({APPLY_STRATEGY_IGNORE, APPLY_STRATEGY_REPLACE})
     public @interface ApplyStrategy {}
 
-    TextLinks(String fullText, List<TextLink> links) {
+    TextLinks(CharSequence fullText, List<TextLink> links) {
         mFullText = fullText;
         mLinks = Collections.unmodifiableList(links);
     }
@@ -104,7 +113,7 @@ public final class TextLinks {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
-    public String getText() {
+    public CharSequence getText() {
         return mFullText;
     }
 
@@ -137,7 +146,9 @@ public final class TextLinks {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Status
-    public int apply(
+    // TODO: Remove. Should use TextLinksParams.apply() directly.
+    // Move relevant tests in TextLinksTest to TextLinksParamsTest.
+    int apply(
             @NonNull Spannable text,
             @ApplyStrategy int applyStrategy,
             @Nullable SpanFactory spanFactory) {
@@ -155,7 +166,22 @@ public final class TextLinks {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     void setClassifierFactory(@Nullable TextClassifierFactory factory) {
-        // TODO: Pass the factory to the TextLink objects.
+        for (TextLink link : getLinks()) {
+            link.mClassifierFactory = factory;
+        }
+    }
+
+    /**
+     * @param referenceTime reference time based on which relative dates (e.g. "tomorrow"
+     *      should be interpreted. This should usually be the time when the text was
+     *      originally composed. If no reference time is set, now is used.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    void setReferenceTime(@Nullable Calendar referenceTime) {
+        for (TextLink link : getLinks()) {
+            link.mReferenceTime = referenceTime;
+        }
     }
 
     @Override
@@ -171,7 +197,7 @@ public final class TextLinks {
     @NonNull
     public Bundle toBundle() {
         final Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_FULL_TEXT, mFullText);
+        bundle.putString(EXTRA_FULL_TEXT, mFullText.toString());
         BundleUtils.putTextLinkList(bundle, EXTRA_LINKS, mLinks);
         return bundle;
     }
@@ -199,14 +225,32 @@ public final class TextLinks {
         private final int mStart;
         private final int mEnd;
         // Allows us to fallback to legacy Linkify if necessary. Not parcelled.
-        @Nullable
-        private final URLSpan mUrlSpan;
+        @Nullable private final URLSpan mUrlSpan;
+
+        /**
+         * The classifier factory used to generate this TextLink. Not parcelled.
+         * @hide
+         */
+        @VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Nullable TextClassifierFactory mClassifierFactory;
+
+        /**
+         * Reference time for resolving relative dates. e.g. "tomorrow". Not parcelled.
+         * @hide
+         */
+        @VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Nullable Calendar mReferenceTime;
 
         /**
          * Create a new TextLink.
          *
          * @throws IllegalArgumentException if entityScores is null or empty.
+         * @hide
          */
+        @VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         TextLink(
                 int start, int end,
                 @NonNull Map<String, Float> entityScores, @Nullable URLSpan urlSpan) {
@@ -316,7 +360,6 @@ public final class TextLinks {
         private static final String EXTRA_TEXT = "text";
         private static final String EXTRA_DEFAULT_LOCALES = "locales";
         private static final String EXTRA_ENTITY_CONFIG = "entity_config";
-        private static final String EXTRA_CALLING_PACKAGE_NAME = "calling_package";
 
         private final CharSequence mText;
         @Nullable private final LocaleListCompat mDefaultLocales;
@@ -417,9 +460,7 @@ public final class TextLinks {
         public Bundle toBundle() {
             final Bundle bundle = new Bundle();
             bundle.putCharSequence(EXTRA_TEXT, mText);
-            if (mEntityConfig != null) {
-                bundle.putBundle(EXTRA_ENTITY_CONFIG, mEntityConfig.toBundle());
-            }
+            bundle.putBundle(EXTRA_ENTITY_CONFIG, mEntityConfig.toBundle());
             BundleUtils.putLocaleList(bundle, EXTRA_DEFAULT_LOCALES, mDefaultLocales);
             return bundle;
         }
@@ -429,14 +470,11 @@ public final class TextLinks {
          */
         @NonNull
         public static Request createFromBundle(@NonNull Bundle bundle) {
-            Builder builder = new Builder(bundle.getCharSequence(EXTRA_TEXT))
-                    .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES));
-            if (bundle.getBundle(EXTRA_ENTITY_CONFIG) != null) {
-                builder.setEntityConfig(EntityConfig.createFromBundle(
-                        bundle.getBundle(EXTRA_ENTITY_CONFIG)));
-            }
-            Request request = builder.build();
-            return request;
+            return new Builder(bundle.getCharSequence(EXTRA_TEXT))
+                    .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES))
+                    .setEntityConfig(
+                            EntityConfig.createFromBundle(bundle.getBundle(EXTRA_ENTITY_CONFIG)))
+                    .build();
         }
 
         /** @hide */
@@ -478,7 +516,63 @@ public final class TextLinks {
 
         @Override
         public void onClick(View widget) {
-            // TODO(jalt): integrate with AppCompatTextView to show action mode.
+            if (!(widget instanceof TextView)) {
+                return;
+            }
+
+            final TextView textView = (TextView) widget;
+            final CharSequence text = textView.getText();
+
+            if (!(text instanceof Spanned)) {
+                return;
+            }
+
+            // TODO: Truncate the text.
+            final Spanned spanned = (Spanned) text;
+            final int start = spanned.getSpanStart(this);
+            final int end = spanned.getSpanEnd(this);
+            final TextClassification.Request request =
+                    new TextClassification.Request.Builder(text, start, end)
+                            .setReferenceTime(getReferenceTime())
+                            .setDefaultLocales(getLocales(textView))
+                            .build();
+            final TextClassifier classifier = getTextClassifier(widget.getContext());
+            final TextClassification classification = classifier.classifyText(request);
+            if (!classification.getActions().isEmpty()) {
+                // TODO: Show the toolbar instead.
+                try {
+                    classification.getActions().get(0).getActionIntent().send();
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(LOG_TAG, "Error handling TextLinkSpan click", e);
+                }
+            }
+            classifier.destroy();
+        }
+
+        @Nullable
+        private Calendar getReferenceTime() {
+            return mTextLink != null ? mTextLink.mReferenceTime : null;
+        }
+
+        private LocaleListCompat getLocales(TextView textView) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                return LocaleListCompat.wrap(textView.getTextLocales());
+            } else {
+                return LocaleListCompat.create(textView.getTextLocale());
+            }
+        }
+
+        private TextClassifier getTextClassifier(Context context) {
+            final TextClassificationContext tcc = new TextClassificationContext.Builder(
+                    context.getPackageName(),
+                    TextClassifier.WIDGET_TYPE_TEXTVIEW)
+                    .setWidgetVersion("androidx")
+                    .build();
+            if (mTextLink != null && mTextLink.mClassifierFactory != null) {
+                return mTextLink.mClassifierFactory.create(tcc);
+            } else {
+                return TextClassificationManager.of(context).createTextClassifier(tcc);
+            }
         }
 
         @Nullable
@@ -491,7 +585,7 @@ public final class TextLinks {
      * A builder to construct a TextLinks instance.
      */
     public static final class Builder {
-        private final String mFullText;
+        private final CharSequence mFullText;
         private final ArrayList<TextLink> mLinks;
 
         /**
@@ -499,6 +593,7 @@ public final class TextLinks {
          *
          * @param fullText The full text to annotate with links.
          */
+        // TODO: Change API to take a CharSequence instead.
         public Builder(@NonNull String fullText) {
             mFullText = Preconditions.checkNotNull(fullText);
             mLinks = new ArrayList<>();
@@ -538,6 +633,7 @@ public final class TextLinks {
         /**
          * Removes all {@link TextLink}s.
          */
+        // TODO: Hide.
         @NonNull
         public Builder clearTextLinks() {
             mLinks.clear();
