@@ -59,7 +59,7 @@ public final class SmartLinkify {
      * @param textView TextView whose text is to be marked-up with links
      * @param params optional parameters to specify how to generate the links
      */
-    public void addLinksAsync(
+    public static void addLinksAsync(
             @NonNull TextView textView,
             @Nullable TextLinksParams params) {
         addLinksAsync(textView, null /* classifierFactory */, params,
