@@ -20,7 +20,7 @@
 
 set -e
 
-ROOT_DIR=$(dirname $(readlink -f $0))
+ROOT_DIR="$(cd $(dirname $0) && pwd)"
 OUT_DIR="$ROOT_DIR/out"
 TEMP_LOG="$OUT_DIR/tempLog"
 
