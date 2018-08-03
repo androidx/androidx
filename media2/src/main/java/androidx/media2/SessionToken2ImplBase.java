@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
+import androidx.core.util.ObjectsCompat;
 import androidx.media2.SessionToken2.SessionToken2Impl;
 import androidx.media2.SessionToken2.TokenType;
 
@@ -86,12 +87,7 @@ final class SessionToken2ImplBase implements SessionToken2Impl {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        return mType
-                + prime * (mUid
-                + prime * (mPackageName.hashCode()
-                + prime * (mSessionId.hashCode()
-                + prime * (mServiceName != null ? mServiceName.hashCode() : 0))));
+        return ObjectsCompat.hash(mType, mUid, mPackageName, mSessionId, mServiceName);
     }
 
     @Override
