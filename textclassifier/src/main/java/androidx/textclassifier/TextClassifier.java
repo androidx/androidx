@@ -231,12 +231,8 @@ public abstract class TextClassifier {
     /**
      * Returns the maximal length of text that can be processed by generateLinks.
      *
-     * <strong>NOTE: </strong>If a TextClassifier has been destroyed, calls to this
-     * method should throw an {@link IllegalStateException}. See {@link #isDestroyed()}.
-     *
      * @see #generateLinks(TextLinks.Request)
      */
-    @WorkerThread
     public int getMaxGenerateLinksTextLength() {
         return GENERATE_LINKS_MAX_TEXT_LENGTH_DEFAULT;
     }
