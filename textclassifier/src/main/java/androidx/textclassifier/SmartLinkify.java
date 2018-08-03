@@ -109,7 +109,7 @@ public final class SmartLinkify {
             public void onLinkify(Spannable text, int status) {
                 if (status == TextLinks.STATUS_LINKS_APPLIED) {
                     final MovementMethod method = textView.getMovementMethod();
-                    if ((method == null) || !(method instanceof LinkMovementMethod)) {
+                    if (!(method instanceof LinkMovementMethod)) {
                         if (textView.getLinksClickable()) {
                             textView.setMovementMethod(LinkMovementMethod.getInstance());
                         }

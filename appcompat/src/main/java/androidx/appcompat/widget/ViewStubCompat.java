@@ -195,7 +195,7 @@ public final class ViewStubCompat extends View {
     public View inflate() {
         final ViewParent viewParent = getParent();
 
-        if (viewParent != null && viewParent instanceof ViewGroup) {
+        if (viewParent instanceof ViewGroup) {
             if (mLayoutResource != 0) {
                 final ViewGroup parent = (ViewGroup) viewParent;
                 final LayoutInflater factory;

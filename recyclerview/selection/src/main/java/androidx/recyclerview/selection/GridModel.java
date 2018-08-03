@@ -259,7 +259,7 @@ final class GridModel<K> {
     private void updateModel() {
         RelativePoint old = mRelPointer;
         mRelPointer = createRelativePoint(mPointer);
-        if (old != null && mRelPointer.equals(old)) {
+        if (mRelPointer.equals(old)) {
             return;
         }
 

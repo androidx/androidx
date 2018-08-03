@@ -74,7 +74,7 @@ class ItemTouchUIUtilImpl implements ItemTouchUIUtil {
     public void clearView(View view) {
         if (Build.VERSION.SDK_INT >= 21) {
             final Object tag = view.getTag(R.id.item_touch_helper_previous_elevation);
-            if (tag != null && tag instanceof Float) {
+            if (tag instanceof Float) {
                 ViewCompat.setElevation(view, (Float) tag);
             }
             view.setTag(R.id.item_touch_helper_previous_elevation, null);

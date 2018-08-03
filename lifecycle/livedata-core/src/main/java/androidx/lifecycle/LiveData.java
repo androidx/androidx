@@ -204,7 +204,7 @@ public abstract class LiveData<T> {
         assertMainThread("observeForever");
         AlwaysActiveObserver wrapper = new AlwaysActiveObserver(observer);
         ObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);
-        if (existing != null && existing instanceof LiveData.LifecycleBoundObserver) {
+        if (existing instanceof LiveData.LifecycleBoundObserver) {
             throw new IllegalArgumentException("Cannot add the same observer"
                     + " with different lifecycles");
         }
