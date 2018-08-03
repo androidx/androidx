@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.graphics.Path;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -133,7 +134,8 @@ public class PathParser {
      * @param nodesTo   The target path represented in an array of PathDataNode
      * @return whether the <code>nodesFrom</code> can morph into <code>nodesTo</code>
      */
-    public static boolean canMorph(PathDataNode[] nodesFrom, PathDataNode[] nodesTo) {
+    public static boolean canMorph(@Nullable PathDataNode[] nodesFrom,
+            @Nullable PathDataNode[] nodesTo) {
         if (nodesFrom == null || nodesTo == null) {
             return false;
         }

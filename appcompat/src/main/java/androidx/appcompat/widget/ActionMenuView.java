@@ -607,7 +607,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p != null && p instanceof LayoutParams;
+        return p instanceof LayoutParams;
     }
 
     /** @hide */

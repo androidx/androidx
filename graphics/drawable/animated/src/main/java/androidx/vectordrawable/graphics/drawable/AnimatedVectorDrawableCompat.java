@@ -907,7 +907,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
      * Otherwise, it is treated as AnimatedVectorDrawableCompat.
      */
     public static void clearAnimationCallbacks(Drawable dr) {
-        if (dr == null || !(dr instanceof Animatable)) {
+        if (!(dr instanceof Animatable)) {
             return;
         }
         if (Build.VERSION.SDK_INT >= 24) {

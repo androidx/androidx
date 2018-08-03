@@ -1383,7 +1383,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             st.decorView.setBackgroundResource(backgroundResId);
 
             ViewParent shownPanelParent = st.shownPanelView.getParent();
-            if (shownPanelParent != null && shownPanelParent instanceof ViewGroup) {
+            if (shownPanelParent instanceof ViewGroup) {
                 ((ViewGroup) shownPanelParent).removeView(st.shownPanelView);
             }
             st.decorView.addView(st.shownPanelView, lp);
