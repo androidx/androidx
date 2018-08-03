@@ -21,9 +21,6 @@ limitations under the License.
     <dimen name="car_padding_5">64dp</dimen>
     <dimen name="car_padding_6">96dp</dimen>
 
-    <!-- Type Sizings -->
-    <dimen name="car_headline2_size">36sp</dimen>
-
     <!-- Icons and Buttons -->
     <!-- Icons -->
     <dimen name="car_secondary_icon_size">36dp</dimen>

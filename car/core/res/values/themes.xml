@@ -122,7 +122,7 @@ limitations under the License.
         <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
         <item name="drawerBackgroundColor">@color/car_card_dark</item>
         <item name="drawerRippleColor">@color/car_card_ripple_background_light</item>
-        <item name="drawerHeaderColor">@color/car_title2_light</item>
+        <item name="drawerHeaderColor">@color/car_body1_light</item>
         <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
         <item name="drawerListTheme">@style/Theme.Car.Light.List.DarkItems</item>
@@ -135,7 +135,7 @@ limitations under the License.
         <item name="drawerBackButtonTint">@color/car_tint</item>
         <item name="drawerBackgroundColor">@color/car_card</item>
         <item name="drawerRippleColor">@color/car_card_ripple_background</item>
-        <item name="drawerHeaderColor">@color/car_title2</item>
+        <item name="drawerHeaderColor">@color/car_body1</item>
         <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
         <item name="drawerListTheme">@style/Theme.Car.List</item>
