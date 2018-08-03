@@ -17,6 +17,7 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@android:color/black"
     android:orientation="vertical"
     android:gravity="center"
     android:layout_width="match_parent"
