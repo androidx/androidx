@@ -53,6 +53,16 @@ public class DrawerDemoActivity extends CarDrawerActivity {
         protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
             holder.getTitleView().setText(
                     getString(R.string.drawer_demo_root_item_label, position));
+            if (holder.getBodyView() != null) {
+                holder.getBodyView().setText(getString(R.string.drawer_demo_root_item_body));
+            }
+            holder.getIconView().setImageResource(android.R.drawable.sym_def_app_icon);
+        }
+
+        @Override
+        protected boolean usesSmallLayout(int position) {
+            // Use a different layout for every other item.
+            return position % 2 == 0;
         }
 
         @Override
