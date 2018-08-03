@@ -21,6 +21,8 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.Message;
 
+import androidx.annotation.NonNull;
+
 /**
  * Helper for accessing features in {@link Message}.
  */
@@ -65,7 +67,7 @@ public final class MessageCompat {
      * @see Message#setAsynchronous(boolean)
      */
     @SuppressLint("NewApi")
-    public static void setAsynchronous(Message message, boolean async) {
+    public static void setAsynchronous(@NonNull Message message, boolean async) {
         if (Build.VERSION.SDK_INT >= 22) {
             message.setAsynchronous(async);
             return;
@@ -91,7 +93,7 @@ public final class MessageCompat {
      * @see Message#isAsynchronous()
      */
     @SuppressLint("NewApi")
-    public static boolean isAsynchronous(Message message) {
+    public static boolean isAsynchronous(@NonNull Message message) {
         if (Build.VERSION.SDK_INT >= 22) {
             return message.isAsynchronous();
         }

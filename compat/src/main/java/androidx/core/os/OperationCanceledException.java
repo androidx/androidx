@@ -17,6 +17,8 @@
 package androidx.core.os;
 
 
+import androidx.annotation.Nullable;
+
 /**
  * An exception type that is thrown when an operation in progress is canceled.
  */
@@ -25,7 +27,7 @@ public class OperationCanceledException extends RuntimeException {
         this(null);
     }
 
-    public OperationCanceledException(String message) {
+    public OperationCanceledException(@Nullable String message) {
         super(message != null ? message : "The operation has been canceled.");
     }
 }
