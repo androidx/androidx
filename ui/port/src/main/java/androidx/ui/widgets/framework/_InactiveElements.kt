@@ -30,17 +30,17 @@ class _InactiveElements {
         assert(element._debugLifecycleState == _ElementLifecycle.defunct);
     }
 
-//    fun _unmountAll() {
-//        _locked = true;
-//        final List<Element> elements = _elements.toList()..sort(Element._sort);
-//        _elements.clear();
-//        try {
-//            elements.reversed.forEach(_unmount);
-//        } finally {
-//            assert(_elements.isEmpty);
-//            _locked = false;
-//        }
-//    }
+    fun _unmountAll() {
+        _locked = true;
+        val elements = _elements.sortedWith(Element.ElementComparator())
+        _elements.clear();
+        try {
+            elements.reversed().forEach { _unmount(it) }
+        } finally {
+            assert(_elements.isEmpty());
+            _locked = false;
+        }
+    }
 
     fun _deactivateRecursively(element: Element) {
         assert(element._debugLifecycleState == _ElementLifecycle.active);

@@ -119,7 +119,7 @@ interface BuildContext {
     /// depth of the tree), but in practice is usually cheap because the tree
     /// usually has many render objects and therefore the distance to the nearest
     /// render object is usually short.
-    val size: Size;
+    val size: Size?;
 
     /// Obtains the nearest widget of the given type, which must be the type of a
     /// concrete [InheritedWidget] subclass, and registers this build context with
@@ -155,7 +155,7 @@ interface BuildContext {
     /// called, whenever changes occur relating to that widget until the next time
     /// the widget or one of its ancestors is moved (for example, because an
     /// ancestor is added or removed).
-    fun inheritFromWidgetOfExactType(targetType: Type): InheritedWidget;
+    fun inheritFromWidgetOfExactType(targetType: Type): InheritedWidget?
 
     /// Obtains the element corresponding to the nearest widget of the given type,
     /// which must be the type of a concrete [InheritedWidget] subclass.
@@ -171,7 +171,7 @@ interface BuildContext {
     /// [inheritFromWidgetOfExactType] in [State.didChangeDependencies]. It is
     /// safe to use this method from [State.deactivate], which is called whenever
     /// the widget is removed from the tree.
-    fun ancestorInheritedElementForWidgetOfExactType(targetType: Type): InheritedElement;
+    fun ancestorInheritedElementForWidgetOfExactType(targetType: Type): InheritedElement?
 
     /// Returns the nearest ancestor widget of the given type, which must be the
     /// type of a concrete [Widget] subclass.
@@ -190,7 +190,7 @@ interface BuildContext {
     /// because the widget tree is no longer stable at that time. To refer to
     /// an ancestor from one of those methods, save a reference to the ancestor
     /// by calling [ancestorWidgetOfExactType] in [State.didChangeDependencies].
-    fun ancestorWidgetOfExactType(targetType: Type): Widget;
+    fun ancestorWidgetOfExactType(targetType: Type): Widget?;
 
     /// Returns the [State] object of the nearest ancestor [StatefulWidget] widget
     /// that matches the given [TypeMatcher].
@@ -224,7 +224,7 @@ interface BuildContext {
     ///   const TypeMatcher<ScrollableState>(),
     /// );
     /// ```
-    fun ancestorStateOfType(matcher: TypeMatcher): State<out StatefulWidget>;
+    fun ancestorStateOfType(matcher: TypeMatcher<*>): State<*>?;
 
     /// Returns the [State] object of the furthest ancestor [StatefulWidget] widget
     /// that matches the given [TypeMatcher].
@@ -235,7 +235,7 @@ interface BuildContext {
     ///
     /// This operation is O(N) as well though N is the entire widget tree rather than
     /// a subtree.
-    fun rootAncestorStateOfType(matcher: TypeMatcher): State<out StatefulWidget>;
+    fun rootAncestorStateOfType(matcher: TypeMatcher<*>): State<*>?;
 
     /// Returns the [RenderObject] object of the nearest ancestor [RenderObjectWidget] widget
     /// that matches the given [TypeMatcher].
@@ -256,7 +256,7 @@ interface BuildContext {
     /// because the widget tree is no longer stable at that time. To refer to
     /// an ancestor from one of those methods, save a reference to the ancestor
     /// by calling [ancestorRenderObjectOfType] in [State.didChangeDependencies].
-    fun ancestorRenderObjectOfType(matcher: TypeMatcher): RenderObject;
+    fun ancestorRenderObjectOfType(matcher: TypeMatcher<*>): RenderObject?;
 
     /// Walks the ancestor chain, starting with the parent of this build context's
     /// widget, invoking the argument for each ancestor. The callback is given a
@@ -272,7 +272,7 @@ interface BuildContext {
     /// because the element tree is no longer stable at that time. To refer to
     /// an ancestor from one of those methods, save a reference to the ancestor
     /// by calling [visitAncestorElements] in [State.didChangeDependencies].
-    //TODO: void visitAncestorElements(bool visitor(Element element));
+    fun visitAncestorElements(visitor: (Element) -> Boolean);
 
     /// Walks the children of this widget.
     ///
@@ -293,5 +293,5 @@ interface BuildContext {
     /// significantly cheaper to use an [InheritedWidget] and have the descendants
     /// pull data down, than it is to use [visitChildElements] recursively to push
     /// data down to them.
-    //TODO: void visitChildElements(ElementVisitor visitor);
+    fun visitChildElements(visitor: ElementVisitor);
 }

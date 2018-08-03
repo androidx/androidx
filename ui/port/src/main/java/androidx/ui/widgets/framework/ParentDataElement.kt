@@ -4,17 +4,18 @@ import androidx.ui.assert
 import androidx.ui.foundation.assertions.FlutterError
 
 /// An [Element] that uses a [ParentDataWidget] as its configuration.
-class ParentDataElement<T : RenderObjectWidget>(override var widget: ParentDataWidget<T>) : ProxyElement(widget) {
+class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>) : ProxyElement(widget) {
 
     override fun mount(parent: Element, newSlot: Any) {
         assert{
+            val parentDataWidget = widget as ParentDataWidget<T>
             val badAncestors = mutableListOf<Widget>()
             var ancestor : Element? = parent;
             while (ancestor != null) {
                 if (ancestor is ParentDataElement<RenderObjectWidget>) {
                     badAncestors.add(ancestor.widget);
                 } else if (ancestor is RenderObjectElement) {
-                    if (widget.debugIsValidAncestor(ancestor.widget))
+                    if (parentDataWidget.debugIsValidAncestor(ancestor.widget as RenderObjectWidget))
                         break;
                     badAncestors.add(ancestor.widget);
                 }
@@ -24,7 +25,7 @@ class ParentDataElement<T : RenderObjectWidget>(override var widget: ParentDataW
                 true;
             throw FlutterError(
                     "Incorrect use of ParentDataWidget.\n" +
-                            widget.debugDescribeInvalidAncestorChain(
+                            parentDataWidget.debugDescribeInvalidAncestorChain(
                                     description = "$this",
                                     ownershipChain = parent.debugGetCreatorChain(10),
                                     foundValidAncestor = ancestor != null,
@@ -36,15 +37,17 @@ class ParentDataElement<T : RenderObjectWidget>(override var widget: ParentDataW
     }
 
     private fun _applyParentData(widget: ParentDataWidget<T> ) {
+        val parentDataWidget = widget as ParentDataWidget<RenderObjectWidget>
+
         fun applyParentDataToChild(child: Element) {
             if (child is RenderObjectElement) {
-                child._updateParentData(widget);
+                child._updateParentData(parentDataWidget);
             } else {
                 assert(child !is ParentDataElement<RenderObjectWidget>);
-                child.visitChildren(applyParentDataToChild);
+                child.visitChildren(::applyParentDataToChild);
             }
         }
-        visitChildren(applyParentDataToChild);
+        visitChildren(::applyParentDataToChild);
     }
 
     /// Calls [ParentDataWidget.applyParentData] on the given widget, passing it
@@ -87,7 +90,6 @@ class ParentDataElement<T : RenderObjectWidget>(override var widget: ParentDataW
     }
 
     override fun notifyClients(oldWidget: Widget) {
-        oldWidget as ParentDataWidget<T>
-        _applyParentData(widget);
+        _applyParentData(widget as ParentDataWidget<T>);
     }
 }

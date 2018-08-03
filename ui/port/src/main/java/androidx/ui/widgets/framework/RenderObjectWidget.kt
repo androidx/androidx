@@ -21,7 +21,7 @@ abstract class RenderObjectWidget(key: Key) : Widget(key) {
     /// [RenderObjectElement.mount] in the object rendered by this object's
     /// [createElement] method. See, for example,
     /// [SingleChildRenderObjectElement.mount].
-    protected abstract fun createRenderObject(context: BuildContext);
+    internal abstract fun createRenderObject(context: BuildContext): RenderObject?;
 
     /// Copies the configuration described by this [RenderObjectWidget] to the
     /// given [RenderObject], which will be of the same type as returned by this
@@ -33,11 +33,11 @@ abstract class RenderObjectWidget(key: Key) : Widget(key) {
     /// [createElement] method. See, for example,
     /// [SingleChildRenderObjectElement.update].
     // TODO(Migration/Filip): Removed covariant keyword for renderObject
-    protected fun updateRenderObject(context: BuildContext, renderObject: RenderObject) { }
+    internal fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) { }
 
     /// A render object previously associated with this widget has been removed
     /// from the tree. The given [RenderObject] will be of the same type as
     /// returned by this object's [createRenderObject].
     // TODO(Migration/Filip): Removed covariant keyword for renderObject
-    protected fun didUnmountRenderObject(renderObject: RenderObject) { }
+    internal fun didUnmountRenderObject(renderObject: RenderObject?) { }
 }

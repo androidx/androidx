@@ -15,7 +15,8 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
     /// There is a one-to-one relationship between [State] objects and the
     /// [StatefulElement] objects that hold them. The [State] objects are created
     /// by [StatefulElement] in [mount].
-    private var state: State<StatefulWidget>? = widget.createState()
+    var state: State<StatefulWidget>? = widget.createState()
+        private set
 
     init {
         assert {
@@ -46,10 +47,10 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
     }
 
     override fun _firstBuild() {
-        assert(state._debugLifecycleState == _StateLifecycle.created);
+        assert(state!!._debugLifecycleState == _StateLifecycle.created);
         try {
             _debugSetAllowIgnoredCallsToMarkNeedsBuild(true);
-            val debugCheckForReturnedFuture = state.initState() as Any;
+            val debugCheckForReturnedFuture = state!!.initState() as Any;
 // TODO(Migration/Filip): Fix Future
 //            assert(() {
 //                if (debugCheckForReturnedFuture is Future) {
@@ -76,7 +77,7 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
 
         super.update(newWidget);
         assert(widget == newWidget);
-        val  oldWidget = state.widget;
+        val  oldWidget = state!!.widget;
         // Notice that we mark ourselves as dirty before calling didUpdateWidget to
         // let authors call setState from within didUpdateWidget without triggering
         // asserts.

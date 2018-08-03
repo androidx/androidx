@@ -1,6 +1,7 @@
 package androidx.ui.widgets.framework
 
 import androidx.ui.rendering.obj.RenderObject
+import androidx.ui.widgets.debugChildrenHaveDuplicateKeys
 
 /// An [Element] that uses a [MultiChildRenderObjectWidget] as its configuration.
 ///
@@ -8,7 +9,7 @@ import androidx.ui.rendering.obj.RenderObject
 /// RenderObjects use the [ContainerRenderObjectMixin] mixin with a parent data
 /// type that implements [ContainerParentDataMixin<RenderObject>]. Such widgets
 /// are expected to inherit from [MultiChildRenderObjectWidget].
-class MultiChildRenderObjectElement(override val widget: MultiChildRenderObjectWidget) : RenderObjectElement(widget) {
+class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget) : RenderObjectElement(widget) {
 
     init {
         assert(!debugChildrenHaveDuplicateKeys(widget, widget.children))
@@ -25,22 +26,24 @@ class MultiChildRenderObjectElement(override val widget: MultiChildRenderObjectW
     // repeatedly to remove children.
     private val _forgottenChildren = mutableSetOf<Element>()
 
-    override fun insertChildRenderObject(child: RenderObject, slot: Element) {
-        final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
+    override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
+        val elementSlot = slot as Element?
+
+        val renderObject = this.renderObject as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>;
         assert(renderObject.debugValidateChild(child));
-        renderObject.insert(child, after: slot?.renderObject);
+        renderObject.insert(child, after = elementSlot?.renderObject);
         assert(renderObject == this.renderObject);
     }
 
-    override fun moveChildRenderObject(child: RenderObject, slot: Any) {
-        final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
+    override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
+        val renderObject = this.renderObject as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>;
         assert(child.parent == renderObject);
-        renderObject.move(child, after: slot?.renderObject);
+        renderObject.move(child, after = slot?.renderObject);
         assert(renderObject == this.renderObject);
     }
 
-    override fun removeChildRenderObject(child: RenderObject) {
-        final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
+    override fun removeChildRenderObject(child: RenderObject?) {
+        val renderObject = this.renderObject as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>
         assert(child.parent == renderObject);
         renderObject.remove(child);
         assert(renderObject == this.renderObject);
@@ -59,22 +62,26 @@ class MultiChildRenderObjectElement(override val widget: MultiChildRenderObjectW
         _forgottenChildren.add(child);
     }
 
-    override fun mount(parent: Element, newSlot: Any) {
+    override fun mount(parent: Element, newSlot: Any?) {
+        val multiChildWidget = widget as MultiChildRenderObjectWidget
+
         super.mount(parent, newSlot);
         var children = mutableListOf<Element>()
         var previousChild: Element? = null;
         for (i in 0.._children.size) {
-            val newChild = inflateWidget(widget.children[i], previousChild);
+            val newChild = inflateWidget(multiChildWidget.children[i], previousChild);
             children.add(newChild)
             previousChild = newChild;
         }
         _children = children.toList()
     }
 
-    override fun update(newWidget: MultiChildRenderObjectWidget) {
+    override fun update(newWidget: Widget) {
+        val newMultiChildWidget = newWidget as MultiChildRenderObjectWidget
+
         super.update(newWidget);
         assert(widget == newWidget);
-        _children = updateChildren(_children, widget.children, forgottenChildren = _forgottenChildren);
+        _children = updateChildren(_children, newMultiChildWidget.children, forgottenChildren = _forgottenChildren);
         _forgottenChildren.clear();
     }
 }

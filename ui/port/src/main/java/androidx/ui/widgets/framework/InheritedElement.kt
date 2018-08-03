@@ -41,21 +41,21 @@ class InheritedElement(widget: InheritedWidget) : ProxyElement(widget) {
     /// called automatically when an inherited widget is rebuilt, e.g. as a
     /// result of calling [State.setState] above the inherited widget.
     override fun notifyClients(oldWidget: Widget) {
-        oldWidget as InheritedWidget
-//        if (!widget.updateShouldNotify(oldWidget))
-//            return;
-//        assert(_debugCheckOwnerBuildTargetExists('notifyClients'));
-//        for (Element dependent in _dependents) {
-//        assert(() {
-//            // check that it really is our descendant
-//            Element ancestor = dependent._parent;
-//            while (ancestor != this && ancestor != null)
-//                ancestor = ancestor._parent;
-//            return ancestor == this;
-//        }());
-//        // check that it really depends on us
-//        assert(dependent._dependencies.contains(this));
-//        dependent.didChangeDependencies();
-//    }
+        val inheritedWidget = oldWidget as InheritedWidget
+        if (inheritedWidget.updateShouldNotify(oldWidget))
+            return;
+        assert(_debugCheckOwnerBuildTargetExists("notifyClients"));
+        for (dependent in _dependents) {
+            assert {
+                // check that it really is our descendant
+                var ancestor = dependent._parent;
+                while (ancestor != this && ancestor != null)
+                    ancestor = ancestor._parent;
+                return@assert ancestor == this;
+            };
+            // check that it really depends on us
+            assert(dependent._dependencies!!.contains(this));
+            dependent.didChangeDependencies();
+        }
     }
 }
