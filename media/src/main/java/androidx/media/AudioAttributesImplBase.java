@@ -16,6 +16,7 @@
 
 package androidx.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_CONTENT_TYPE;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_FLAGS;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE;
@@ -27,22 +28,33 @@ import static androidx.media.AudioAttributesCompat.USAGE_UNKNOWN;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat.AudioManagerHidden;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Arrays;
 
-@VersionedParcelize
-class AudioAttributesImplBase implements AudioAttributesImpl {
+/** @hide */
+@VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplBase")
+@RestrictTo(LIBRARY_GROUP)
+public class AudioAttributesImplBase implements AudioAttributesImpl {
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(1)
-    int mUsage = USAGE_UNKNOWN;
+    public int mUsage = USAGE_UNKNOWN;
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(2)
-    int mContentType = CONTENT_TYPE_UNKNOWN;
+    public int mContentType = CONTENT_TYPE_UNKNOWN;
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(3)
-    int mFlags = 0x0;
+    public int mFlags = 0x0;
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(4)
-    int mLegacyStream = INVALID_STREAM_TYPE;
+    public int mLegacyStream = INVALID_STREAM_TYPE;
 
     /**
      * Used for VersionedParcelable
