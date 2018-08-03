@@ -16,32 +16,41 @@
 
 package androidx.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_FRAMEWORKS;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 
-import android.annotation.TargetApi;
 import android.media.AudioAttributes;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-@VersionedParcelize
-@TargetApi(21)
-class AudioAttributesImplApi21 implements AudioAttributesImpl {
+/** @hide */
+@VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplApi21")
+@RestrictTo(LIBRARY_GROUP)
+@RequiresApi(21)
+public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     private static final String TAG = "AudioAttributesCompat21";
 
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(1)
-    AudioAttributes mAudioAttributes;
+    public AudioAttributes mAudioAttributes;
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(2)
-    int mLegacyStreamType = INVALID_STREAM_TYPE;
+    public int mLegacyStreamType = INVALID_STREAM_TYPE;
 
     /**
      * Used for VersionedParcelable
