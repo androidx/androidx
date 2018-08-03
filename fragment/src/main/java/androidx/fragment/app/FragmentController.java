@@ -25,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SimpleArrayMap;
 import androidx.loader.app.LoaderManager;
@@ -56,8 +57,9 @@ public class FragmentController {
     /**
      * Returns a {@link FragmentManager} for this controller.
      */
+    @NonNull
     public FragmentManager getSupportFragmentManager() {
-        return mHost.getFragmentManagerImpl();
+        return mHost.mFragmentManager;
     }
 
     /**
