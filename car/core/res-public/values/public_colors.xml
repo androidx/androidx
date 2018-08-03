@@ -18,24 +18,18 @@
 <!-- Definitions of colors to be exposed as public. -->
 <resources>
     <!-- Car text colors -->
-    <public type="color" name="car_title_dark" />
-    <public type="color" name="car_title_light" />
-    <public type="color" name="car_title" />
-    <public type="color" name="car_title2_dark" />
-    <public type="color" name="car_title2_light" />
-    <public type="color" name="car_title2" />
-    <public type="color" name="car_headline1_dark" />
-    <public type="color" name="car_headline1_light" />
-    <public type="color" name="car_headline1" />
-    <public type="color" name="car_headline2_dark" />
-    <public type="color" name="car_headline2_light" />
-    <public type="color" name="car_headline2" />
-    <public type="color" name="car_headline3_dark" />
-    <public type="color" name="car_headline3_light" />
-    <public type="color" name="car_headline3" />
-    <public type="color" name="car_headline4_dark" />
-    <public type="color" name="car_headline4_light" />
-    <public type="color" name="car_headline4" />
+    <public type="color" name="car_display1_dark" />
+    <public type="color" name="car_display1_light" />
+    <public type="color" name="car_display1" />
+    <public type="color" name="car_display2_dark" />
+    <public type="color" name="car_display2_light" />
+    <public type="color" name="car_display2" />
+    <public type="color" name="car_display3_dark" />
+    <public type="color" name="car_display3_light" />
+    <public type="color" name="car_display3" />
+    <public type="color" name="car_display4_dark" />
+    <public type="color" name="car_display4_light" />
+    <public type="color" name="car_display4" />
     <public type="color" name="car_body1_dark" />
     <public type="color" name="car_body1_light" />
     <public type="color" name="car_body1" />
@@ -48,12 +42,21 @@
     <public type="color" name="car_body4_dark" />
     <public type="color" name="car_body4_light" />
     <public type="color" name="car_body4" />
-    <public type="color" name="car_label1_dark" />
-    <public type="color" name="car_label1_light" />
-    <public type="color" name="car_label1" />
-    <public type="color" name="car_action1_dark" />
-    <public type="color" name="car_action1_light" />
-    <public type="color" name="car_action1" />
+    <public type="color" name="car_subtext1_dark" />
+    <public type="color" name="car_subtext1_light" />
+    <public type="color" name="car_subtext1" />
+    <public type="color" name="car_subtext2_dark" />
+    <public type="color" name="car_subtext2_light" />
+    <public type="color" name="car_subtext2" />
+    <public type="color" name="car_subtext3_dark" />
+    <public type="color" name="car_subtext3_light" />
+    <public type="color" name="car_subtext3" />
+    <public type="color" name="car_subtext4_dark" />
+    <public type="color" name="car_subtext4_light" />
+    <public type="color" name="car_subtext4" />
+    <public type="color" name="car_subtext5_dark" />
+    <public type="color" name="car_subtext5_light" />
+    <public type="color" name="car_subtext5" />
 
     <!-- Tint colors -->
     <public type="color" name="car_tint_dark" />

@@ -101,7 +101,7 @@ public class TextListItemActivity extends Activity {
         private View.OnClickListener mGetParentHeight = v -> {
             int parentHeight = ((View) v.getParent().getParent()).getHeight();
             Toast.makeText(v.getContext(),
-                    "card height is " + pixelToDip(mContext, parentHeight) + " dp",
+                    "Card Height is " + pixelToDip(mContext, parentHeight) + " dp",
                     Toast.LENGTH_SHORT).show();
         };
 
@@ -124,7 +124,7 @@ public class TextListItemActivity extends Activity {
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             item.setTitle("single line with large icon and one action");
-            item.setAction("card height", true, mGetParentHeight);
+            item.setAction("Card Height", true, mGetParentHeight);
             mItems.add(item);
 
             item = new TextListItem(mContext);
@@ -169,35 +169,35 @@ public class TextListItemActivity extends Activity {
             item = new TextListItem(mContext);
             item.setPrimaryActionNoIcon();
             item.setTitle("single line with two actions and no divider");
-            item.setActions("action 1", false,
+            item.setActions("Action 1", false,
                     v -> Toast.makeText(
-                            v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
-                    "action 2", false,
+                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
+                    "Action 2", false,
                     v -> Toast.makeText(
-                            v.getContext(), "action 2", Toast.LENGTH_SHORT).show());
+                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             mItems.add(item);
 
             item = new TextListItem(mContext);
             item.setPrimaryActionNoIcon();
-            item.setTitle("single line with two actions and action 2 divider");
-            item.setActions("action 1", false,
+            item.setTitle("single line with two actions and Action 2 divider");
+            item.setActions("Action 1", false,
                     v -> Toast.makeText(
-                            v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
-                    "action 2", true,
+                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
+                    "Action 2", true,
                     v -> Toast.makeText(
-                            v.getContext(), "action 2", Toast.LENGTH_SHORT).show());
+                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             mItems.add(item);
 
             item = new TextListItem(mContext);
             item.setPrimaryActionNoIcon();
             item.setTitle("single line with divider between actions. "
                     + mContext.getString(R.string.long_text));
-            item.setActions("action 1", true,
+            item.setActions("Action 1", true,
                     v -> Toast.makeText(
-                            v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
-                    "action 2", false,
+                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
+                    "Action 2", false,
                     v -> Toast.makeText(
-                            v.getContext(), "action 2", Toast.LENGTH_SHORT).show());
+                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             mItems.add(item);
 
             item = new TextListItem(mContext);
@@ -217,7 +217,7 @@ public class TextListItemActivity extends Activity {
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setTitle("double line with small icon and one action");
             item.setBody("one line text");
-            item.setAction("card height", true, mGetParentHeight);
+            item.setAction("Card Height", true, mGetParentHeight);
             mItems.add(item);
 
             String tenChars = "Ten Chars.";
@@ -241,7 +241,7 @@ public class TextListItemActivity extends Activity {
                 Toast.makeText(v.getContext(), String.format("%s x %s dp", pixelToDip(c, size.x),
                         pixelToDip(c, size.y)),
                         Toast.LENGTH_SHORT).show();
-            }, "card height", true, mGetParentHeight);
+            }, "Card Height", true, mGetParentHeight);
             mItems.add(item);
 
             item = new TextListItem(mContext);
@@ -255,14 +255,14 @@ public class TextListItemActivity extends Activity {
                 Toast.makeText(v.getContext(),
                         String.format("%s x %s dp", pixelToDip(c, size.x),
                                 pixelToDip(c, size.y)), Toast.LENGTH_SHORT).show();
-            }, "card height", true, mGetParentHeight);
+            }, "Card Height", true, mGetParentHeight);
             mItems.add(item);
 
             item = new TextListItem(mContext);
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             item.setBody("Only body - no title is set");
-            item.setAction("card height", true, mGetParentHeight);
+            item.setAction("Card Height", true, mGetParentHeight);
             mItems.add(item);
 
             item = new TextListItem(mContext);

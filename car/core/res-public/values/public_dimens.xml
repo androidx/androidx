@@ -50,21 +50,19 @@
 
     <!-- Car Component Dimensions -->
     <!-- Type Sizings -->
-    <public type="dimen" name="car_title_size" />
-    <public type="dimen" name="car_title2_size" />
-    <public type="dimen" name="car_headline1_size" />
-    <public type="dimen" name="car_headline2_size" />
-    <public type="dimen" name="car_headline3_size" />
-    <public type="dimen" name="car_headline4_size" />
+    <public type="dimen" name="car_display1_size" />
+    <public type="dimen" name="car_display2_size" />
+    <public type="dimen" name="car_display3_size" />
+    <public type="dimen" name="car_display4_size" />
     <public type="dimen" name="car_body1_size" />
     <public type="dimen" name="car_body2_size" />
     <public type="dimen" name="car_body3_size" />
     <public type="dimen" name="car_body4_size" />
-    <public type="dimen" name="car_body5_size" />
-    <public type="dimen" name="car_label1_size" />
-    <public type="dimen" name="car_label2_size" />
-    <public type="dimen" name="car_action1_size" />
-    <public type="dimen" name="car_action2_size" />
+    <public type="dimen" name="car_subtext1_size" />
+    <public type="dimen" name="car_subtext2_size" />
+    <public type="dimen" name="car_subtext3_size" />
+    <public type="dimen" name="car_subtext4_size" />
+    <public type="dimen" name="car_subtext5_size" />
 
     <!-- Icons and Buttons -->
     <!-- Icons -->

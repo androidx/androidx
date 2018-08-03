@@ -52,7 +52,7 @@ limitations under the License.
             android:gravity="center_vertical"
             android:includeFontPadding="false"
             android:textColor="?attr/drawerHeaderColor"
-            android:textAppearance="@style/TextAppearance.Car.Title2" />
+            android:textAppearance="@style/TextAppearance.Car.Body1" />
     </LinearLayout>
 
     <androidx.car.widget.PagedListView
