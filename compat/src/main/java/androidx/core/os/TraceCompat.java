@@ -16,6 +16,8 @@ package androidx.core.os;
 import android.os.Build;
 import android.os.Trace;
 
+import androidx.annotation.NonNull;
+
 /**
  * Writes trace events to the system trace buffer.  These trace events can be
  * collected and visualized using the Systrace tool.
@@ -40,7 +42,7 @@ public final class TraceCompat {
      * most 127 Unicode code units long.
      */
 
-    public static void beginSection(String sectionName) {
+    public static void beginSection(@NonNull String sectionName) {
         if (Build.VERSION.SDK_INT >= 18) {
             Trace.beginSection(sectionName);
         }

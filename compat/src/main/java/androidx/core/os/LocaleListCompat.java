@@ -50,7 +50,8 @@ public final class LocaleListCompat {
      * Creates a new instance of {@link LocaleListCompat} from the Locale list.
      */
     @RequiresApi(24)
-    public static LocaleListCompat wrap(LocaleList localeList) {
+    @NonNull
+    public static LocaleListCompat wrap(@NonNull LocaleList localeList) {
         return new LocaleListCompat(new LocaleListPlatformWrapper(localeList));
     }
 
@@ -67,6 +68,7 @@ public final class LocaleListCompat {
     /**
      * Creates a new instance of {@link LocaleListCompat} from the {@link Locale} array.
      */
+    @NonNull
     public static LocaleListCompat create(@NonNull Locale... localeList) {
         if (Build.VERSION.SDK_INT >= 24) {
             return wrap(new LocaleList(localeList));

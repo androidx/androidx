@@ -80,9 +80,6 @@ final class LocaleListPlatformWrapper implements LocaleListInterface {
     @Nullable
     @Override
     public Locale getFirstMatch(@NonNull String[] supportedLocales) {
-        if (mLocaleList != null) {
-            return mLocaleList.getFirstMatch(supportedLocales);
-        }
-        return null;
+        return mLocaleList.getFirstMatch(supportedLocales);
     }
 }
