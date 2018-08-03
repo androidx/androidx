@@ -187,7 +187,7 @@ public class AnimatorInflaterCompat {
                         + " two incompatible pathData");
             }
 
-            if (mNodeArray == null || !PathParser.canMorph(mNodeArray, startPathData)) {
+            if (!PathParser.canMorph(mNodeArray, startPathData)) {
                 mNodeArray = PathParser.deepCopyNodes(startPathData);
             }
 
@@ -541,7 +541,7 @@ public class AnimatorInflaterCompat {
             } else if (name.equals("propertyValuesHolder")) {
                 PropertyValuesHolder[] values = loadValues(context, res, theme, parser,
                         Xml.asAttributeSet(parser));
-                if (values != null && anim != null && (anim instanceof ValueAnimator)) {
+                if (values != null && anim instanceof ValueAnimator) {
                     ((ValueAnimator) anim).setValues(values);
                 }
                 gotValues = true;

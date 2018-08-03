@@ -184,7 +184,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     private Runnable mReleaseCursorRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mSuggestionsAdapter != null && mSuggestionsAdapter instanceof SuggestionsAdapter) {
+            if (mSuggestionsAdapter instanceof SuggestionsAdapter) {
                 mSuggestionsAdapter.changeCursor(null);
             }
         }
