@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
+import androidx.core.util.ObjectsCompat;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.SessionCallback;
 import androidx.versionedparcelable.ParcelField;
@@ -637,8 +638,7 @@ public final class SessionCommand2 implements VersionedParcelable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        return ((mCustomCommand != null) ? mCustomCommand.hashCode() : 0) * prime + mCommandCode;
+        return ObjectsCompat.hash(mCustomCommand, mCommandCode);
     }
 
     static final class Range {
