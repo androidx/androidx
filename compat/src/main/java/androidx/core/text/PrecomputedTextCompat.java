@@ -271,7 +271,7 @@ public class PrecomputedTextCompat implements Spannable {
             if (o == this) {
                 return true;
             }
-            if (o == null || !(o instanceof Params)) {
+            if (!(o instanceof Params)) {
                 return false;
             }
             Params other = (Params) o;
