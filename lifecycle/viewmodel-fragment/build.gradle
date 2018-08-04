@@ -23,6 +23,12 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
+android {
+    lintOptions {
+        fatal("UnknownNullness")
+    }
+}
+
 dependencies {
     api(SUPPORT_ANNOTATIONS)
     api(project(":lifecycle:lifecycle-savedstate-fragment"))

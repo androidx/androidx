@@ -94,6 +94,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
      *
      * @return {@link LifecycleOwner} for the whole application.
      */
+    @NonNull
     public static LifecycleOwner get() {
         return sInstance;
     }

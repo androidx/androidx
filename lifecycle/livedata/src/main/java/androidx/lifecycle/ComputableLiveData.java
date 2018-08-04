@@ -143,7 +143,8 @@ public abstract class ComputableLiveData<T> {
         ArchTaskExecutor.getInstance().executeOnMainThread(mInvalidationRunnable);
     }
 
-    @SuppressWarnings("WeakerAccess")
+    // TODO https://issuetracker.google.com/issues/112197238
+    @SuppressWarnings({"WeakerAccess", "UnknownNullness"})
     @WorkerThread
     protected abstract T compute();
 }

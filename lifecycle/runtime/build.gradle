@@ -11,6 +11,10 @@ android {
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
+
+    lintOptions {
+        fatal("UnknownNullness")
+    }
 }
 
 dependencies {
