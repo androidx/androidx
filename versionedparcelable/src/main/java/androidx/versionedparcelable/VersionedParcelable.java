@@ -16,14 +16,12 @@
 
 package androidx.versionedparcelable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import androidx.annotation.RestrictTo;
-
 /**
- * @hide
+ * Tags a class that can be used with {@link ParcelUtils}.
+ *
+ * Should not be implemented by developers.
+ * @see ParcelUtils
  */
-@RestrictTo(LIBRARY_GROUP)
 public interface VersionedParcelable {
 
 }

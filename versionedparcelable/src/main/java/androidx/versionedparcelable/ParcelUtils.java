@@ -18,31 +18,39 @@ package androidx.versionedparcelable;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.os.Bundle;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * @hide
+ * Utilities for managing {@link VersionedParcelable}s.
  */
-@RestrictTo(LIBRARY_GROUP)
 public class ParcelUtils {
+
+    private static final String INNER_BUNDLE_KEY = "a";
 
     private ParcelUtils() { }
 
     /**
      * Turn a VersionedParcelable into a Parcelable
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static Parcelable toParcelable(VersionedParcelable obj) {
         return new ParcelImpl(obj);
     }
 
     /**
      * Turn a Parcelable into a VersionedParcelable.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T extends VersionedParcelable> T fromParcelable(Parcelable p) {
         if (!(p instanceof ParcelImpl)) {
@@ -53,7 +61,9 @@ public class ParcelUtils {
 
     /**
      * Write a VersionedParcelable into an OutputStream.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static void toOutputStream(VersionedParcelable obj, OutputStream output) {
         VersionedParcelStream stream = new VersionedParcelStream(null, output);
         stream.writeVersionedParcelable(obj);
@@ -62,10 +72,40 @@ public class ParcelUtils {
 
     /**
      * Read a VersionedParcelable from an InputStream.
+     * @hide
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
+    @RestrictTo(LIBRARY_GROUP)
     public static <T extends VersionedParcelable> T fromInputStream(InputStream input) {
         VersionedParcelStream stream = new VersionedParcelStream(input, null);
         return stream.readVersionedParcelable();
+    }
+
+    /**
+     * Add a VersionedParcelable to an existing Bundle.
+     */
+    public static void putVersionedParcelable(@NonNull Bundle b, @NonNull String key,
+            @NonNull VersionedParcelable obj) {
+        Bundle innerBundle = new Bundle();
+        innerBundle.putParcelable(INNER_BUNDLE_KEY, toParcelable(obj));
+        b.putParcelable(key, innerBundle);
+    }
+
+
+    /**
+     * Get a VersionedParcelable from a Bundle.
+     *
+     * Returns null if the bundle isn't present or ClassLoader issues occur.
+     */
+    public static @Nullable <T extends VersionedParcelable> T getVersionedParcelable(Bundle bundle,
+            String key) {
+        try {
+            Bundle innerBundle = bundle.getParcelable(key);
+            innerBundle.setClassLoader(ParcelUtils.class.getClassLoader());
+            return fromParcelable(innerBundle.getParcelable(INNER_BUNDLE_KEY));
+        } catch (RuntimeException e) {
+            // There may be new classes or such in the bundle, make sure not to crash the caller.
+            return null;
+        }
     }
 }
