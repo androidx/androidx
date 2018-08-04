@@ -18,6 +18,7 @@ package androidx.textclassifier;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -33,7 +34,6 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
-import androidx.textclassifier.LegacyTextClassifier.MatchMaker;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +73,7 @@ public final class LegacyTextClassifierTest {
                 InstrumentationRegistry.getTargetContext(), 0, new Intent(), 0);
 
         mMatchMaker = mock(MatchMaker.class);
-        when(mMatchMaker.getActions(anyString(), anyString()))
+        when(mMatchMaker.getActions(anyString(), any(CharSequence.class)))
                 .thenReturn(Collections.<RemoteActionCompat>emptyList());
 
         mLegacyTextClassifier = new LegacyTextClassifier(mMatchMaker);
@@ -83,7 +83,7 @@ public final class LegacyTextClassifierTest {
     public void classifyText_url() throws Exception {
         final List<RemoteActionCompat> actions = Collections.singletonList(
                 new RemoteActionCompat(ICON, "Browse", "Browse", mPendingIntent));
-        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_URL), anyString()))
+        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_URL), any(CharSequence.class)))
                 .thenReturn(actions);
         final TextClassification.Request request =
                 new TextClassification.Request.Builder(URL, 0, URL.length())
@@ -102,7 +102,7 @@ public final class LegacyTextClassifierTest {
     public void classifyText_email() throws Exception {
         final List<RemoteActionCompat> actions = Collections.singletonList(
                 new RemoteActionCompat(ICON, "Email", "Email", mPendingIntent));
-        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_EMAIL), anyString()))
+        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_EMAIL), any(CharSequence.class)))
                 .thenReturn(actions);
         final TextClassification.Request request =
                 new TextClassification.Request.Builder(EMAIL, 0, EMAIL.length())
@@ -121,7 +121,7 @@ public final class LegacyTextClassifierTest {
     public void classifyText_phone() throws Exception {
         final List<RemoteActionCompat> actions = Collections.singletonList(
                 new RemoteActionCompat(ICON, "Phone", "Phone", mPendingIntent));
-        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_PHONE), anyString()))
+        when(mMatchMaker.getActions(eq(TextClassifier.TYPE_PHONE), any(CharSequence.class)))
                 .thenReturn(actions);
         final TextClassification.Request request =
                 new TextClassification.Request.Builder(PHONE_NUMBER, 0, PHONE_NUMBER.length())
