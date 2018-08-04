@@ -1373,7 +1373,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      */
     @CallSuper
-    public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+    public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs,
+            @Nullable Bundle savedInstanceState) {
         mCalled = true;
         final Activity hostActivity = mHost == null ? null : mHost.getActivity();
         if (hostActivity != null) {

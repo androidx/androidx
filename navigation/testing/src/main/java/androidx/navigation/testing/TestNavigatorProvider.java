@@ -17,6 +17,7 @@
 package androidx.navigation.testing;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import androidx.navigation.NavGraphNavigator;
 import androidx.navigation.SimpleNavigatorProvider;
@@ -27,7 +28,7 @@ import androidx.navigation.SimpleNavigatorProvider;
  */
 public class TestNavigatorProvider extends SimpleNavigatorProvider {
 
-    public TestNavigatorProvider(Context context) {
+    public TestNavigatorProvider(@NonNull Context context) {
         addNavigator(new NavGraphNavigator(context));
         addNavigator(new TestNavigator());
     }

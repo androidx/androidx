@@ -128,6 +128,7 @@ public class NavHostFragment extends Fragment implements NavHost {
      * @param graphResId resource id of the navigation graph to inflate
      * @return a new NavHostFragment instance
      */
+    @NonNull
     public static NavHostFragment create(@NavigationRes int graphResId) {
         Bundle b = null;
         if (graphResId != 0) {
@@ -179,7 +180,7 @@ public class NavHostFragment extends Fragment implements NavHost {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         // TODO This feature should probably be a first-class feature of the Fragment system,
         // but it can stay here until we can add the necessary attr resources to
@@ -264,7 +265,8 @@ public class NavHostFragment extends Fragment implements NavHost {
     }
 
     @Override
-    public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+    public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs,
+            @Nullable Bundle savedInstanceState) {
         super.onInflate(context, attrs, savedInstanceState);
 
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NavHostFragment);
