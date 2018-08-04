@@ -1578,6 +1578,7 @@ public class BrowseFragment extends BaseFragment {
         }
     }
 
+    @SuppressWarnings("ReferenceEquality")
     final void commitMainFragment() {
         FragmentManager fm = getChildFragmentManager();
         Fragment currentFragment = fm.findFragmentById(R.id.scale_frame);

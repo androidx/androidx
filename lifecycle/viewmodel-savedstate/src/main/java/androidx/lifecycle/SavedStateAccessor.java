@@ -104,7 +104,7 @@ public class SavedStateAccessor {
     /**
      * Returns a value associated with the given key.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
     @MainThread
     public <T> T get(@NonNull String key) {
         return (T) mRegular.get(key);
@@ -151,6 +151,7 @@ public class SavedStateAccessor {
      * @param key a key
      * @return a value that was previously associated with the given key.
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @MainThread
     public <T> T remove(@NonNull String key) {
         if (!mRegular.containsKey(key)) {

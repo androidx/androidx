@@ -128,6 +128,7 @@ public abstract class ViewModel {
      * Returns the tag associated with this viewmodel and the specified key.
      */
     @MainThread
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     <T> T getTag(String key) {
         //noinspection unchecked
         return mBagOfTags != null ? (T) mBagOfTags.get(key) : null;

@@ -2692,7 +2692,9 @@ public class MediaControlView2 extends BaseLayout {
                         }
                         break;
                     case EVENT_UPDATE_SUBTITLE_SELECTED:
-                        int selectedTrackIndex = args.getInt(KEY_SELECTED_SUBTITLE_INDEX, -1);
+                        int selectedTrackIndex = args != null
+                                ? args.getInt(KEY_SELECTED_SUBTITLE_INDEX, -1)
+                                : -1;
                         if (selectedTrackIndex < 0 || selectedTrackIndex >= mSubtitleTrackCount) {
                             Log.w(TAG, "Selected subtitle track index (" + selectedTrackIndex
                                     + ") is out of range.");
