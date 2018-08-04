@@ -232,7 +232,7 @@ public class AsyncPagedListDiffer<T> {
      * @param pagedList The new PagedList.
      */
     @SuppressWarnings("ReferenceEquality")
-    public void submitList(final PagedList<T> pagedList) {
+    public void submitList(@Nullable final PagedList<T> pagedList) {
         if (pagedList != null) {
             if (mPagedList == null && mSnapshot == null) {
                 mIsContiguous = pagedList.isContiguous();
