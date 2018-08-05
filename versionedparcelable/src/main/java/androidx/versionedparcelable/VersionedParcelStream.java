@@ -68,9 +68,9 @@ class VersionedParcelStream extends VersionedParcel {
     private FieldBuffer mFieldBuffer;
     private boolean mIgnoreParcelables;
 
-    private int mCount = 0;
+    int mCount = 0;
     private int mFieldId = -1;
-    private int mFieldSize = 0;
+    int mFieldSize = -1;
 
     public VersionedParcelStream(InputStream input, OutputStream output) {
         this(input, output, new ArrayMap<String, Method>(), new ArrayMap<String, Method>(),
@@ -85,6 +85,9 @@ class VersionedParcelStream extends VersionedParcel {
         mMasterInput = input != null ? new DataInputStream(new FilterInputStream(input) {
             @Override
             public int read() throws IOException {
+                if (mFieldSize != -1 && mCount >= mFieldSize) {
+                    throw new IOException();
+                }
                 int read = super.read();
                 mCount += 1;
                 return read;
@@ -92,6 +95,9 @@ class VersionedParcelStream extends VersionedParcel {
 
             @Override
             public int read(byte[] b, int off, int len) throws IOException {
+                if (mFieldSize != -1 && mCount >= mFieldSize) {
+                    throw new IOException();
+                }
                 int read = super.read(b, off, len);
                 if (read > 0) {
                     mCount += read;
@@ -101,6 +107,9 @@ class VersionedParcelStream extends VersionedParcel {
 
             @Override
             public long skip(long n) throws IOException {
+                if (mFieldSize != -1 && mCount >= mFieldSize) {
+                    throw new IOException();
+                }
                 long skip = super.skip(n);
                 if (skip > 0) {
                     mCount += skip;
@@ -161,6 +170,7 @@ class VersionedParcelStream extends VersionedParcel {
                 if (mCount < mFieldSize) {
                     mMasterInput.skip(mFieldSize - mCount);
                 }
+                mFieldSize = -1;
                 int fieldInfo = mMasterInput.readInt();
                 mCount = 0;
                 int size = fieldInfo & 0xffff;

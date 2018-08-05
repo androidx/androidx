@@ -45,6 +45,7 @@ class VersionedParcelParcel extends VersionedParcel {
     private final String mPrefix;
     private int mCurrentField = -1;
     private int mNextRead = 0;
+    private int mFieldId = -1;
 
     VersionedParcelParcel(Parcel p) {
         this(p, p.dataPosition(), p.dataSize(), "", new ArrayMap<String, Method>(),
@@ -64,28 +65,23 @@ class VersionedParcelParcel extends VersionedParcel {
         mPrefix = prefix;
     }
 
-    private int readUntilField(int fieldId) {
+    @Override
+    public boolean readField(int fieldId) {
         while (mNextRead < mEnd) {
+            if (mFieldId == fieldId) {
+                return true;
+            }
+            if (String.valueOf(mFieldId).compareTo(String.valueOf(fieldId)) > 0) {
+                return false;
+            }
             mParcel.setDataPosition(mNextRead);
             int size = mParcel.readInt();
-            int fid = mParcel.readInt();
+            mFieldId = mParcel.readInt();
             if (DEBUG) Log.d(TAG, mPrefix + "Found field " + fieldId + " : " + size);
 
             mNextRead = mNextRead + size;
-            if (fid == fieldId) return mParcel.dataPosition();
         }
-        return -1;
-    }
-
-    @Override
-    public boolean readField(int fieldId) {
-        int position = readUntilField(fieldId);
-        if (position == -1) {
-            return false;
-        }
-        if (DEBUG) Log.d(TAG, mPrefix + "Reading " + fieldId + " : " + position);
-        mParcel.setDataPosition(position);
-        return true;
+        return mFieldId == fieldId;
     }
 
     @Override
