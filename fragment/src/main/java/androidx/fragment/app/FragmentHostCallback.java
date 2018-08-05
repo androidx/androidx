@@ -200,10 +200,6 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
         return mHandler;
     }
 
-    FragmentManagerImpl getFragmentManagerImpl() {
-        return mFragmentManager;
-    }
-
     void onAttachFragment(Fragment fragment) {
     }
 }

@@ -725,6 +725,7 @@ public class FragmentActivity extends ComponentActivity implements
      * Return the FragmentManager for interacting with fragments associated
      * with this activity.
      */
+    @NonNull
     public FragmentManager getSupportFragmentManager() {
         return mFragments.getSupportFragmentManager();
     }
