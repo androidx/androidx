@@ -29,7 +29,7 @@ import java.io.File
 
 private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
-internal const val INTERMEDIATES_PATH = "intermediates/$PLUGIN_DIRNAME"
+internal const val INCREMENTAL_PATH = "intermediates/incremental"
 
 @Suppress("unused")
 class SafeArgsPlugin : Plugin<Project> {
@@ -58,10 +58,8 @@ class SafeArgsPlugin : Plugin<Project> {
                 task.applicationId = variant.applicationId
                 task.navigationFiles = navigationFiles(variant)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
-                task.incrementalFolder = File(project.buildDir,
-                        "$INTERMEDIATES_PATH/${variant.dirName}")
+                task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
                 task.useAndroidX = (project.findProperty("android.useAndroidX") == "true")
-                task.variantName = variant.name
             }
             variant.registerJavaGeneratingTask(task, task.outputDir)
         }

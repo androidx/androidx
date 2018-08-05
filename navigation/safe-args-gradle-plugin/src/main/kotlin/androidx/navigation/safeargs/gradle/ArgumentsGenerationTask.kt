@@ -18,19 +18,20 @@ package androidx.navigation.safeargs.gradle
 
 import androidx.navigation.safe.args.generator.ErrorMessage
 import androidx.navigation.safe.args.generator.generateSafeArgs
-import com.android.build.gradle.internal.tasks.IncrementalTask
-import com.android.ide.common.resources.FileStatus
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import java.io.File
 
 private const val MAPPING_FILE = "file_mappings.json"
 
-open class ArgumentsGenerationTask : IncrementalTask() {
+open class ArgumentsGenerationTask : DefaultTask() {
     @get:Input
     lateinit var rFilePackage: String
 
@@ -45,6 +46,9 @@ open class ArgumentsGenerationTask : IncrementalTask() {
 
     @get:InputFiles
     var navigationFiles: List<File> = emptyList()
+
+    @get:OutputDirectory
+    lateinit var incrementalFolder: File
 
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
         val output = generateSafeArgs(rFilePackage, applicationId, file, out, useAndroidX)
@@ -65,7 +69,18 @@ open class ArgumentsGenerationTask : IncrementalTask() {
         }
     }
 
-    override fun doFullTaskAction() {
+    @Suppress("unused")
+    @TaskAction
+    internal fun taskAction(inputs: IncrementalTaskInputs) {
+        if (inputs.isIncremental) {
+            doIncrementalTaskAction(inputs)
+        } else {
+            project.logger.info("Unable do incremental execution: full task run")
+            doFullTaskAction()
+        }
+    }
+
+    private fun doFullTaskAction() {
         if (outputDir.exists() && !outputDir.deleteRecursively()) {
             project.logger.warn("Failed to clear directory for navigation arguments")
         }
@@ -77,12 +92,16 @@ open class ArgumentsGenerationTask : IncrementalTask() {
         failIfErrors(errors)
     }
 
-    override fun doIncrementalTaskAction(changedInputs: MutableMap<File, FileStatus>) {
-        super.doIncrementalTaskAction(changedInputs)
+    private fun doIncrementalTaskAction(inputs: IncrementalTaskInputs) {
+        val modifiedFiles = mutableSetOf<File>()
+        val removedFiles = mutableSetOf<File>()
+        inputs.outOfDate { change -> modifiedFiles.add(change.file) }
+        inputs.removed { change -> removedFiles.add(change.file) }
+
         val oldMapping = readMappings()
-        val navFiles = changedInputs.filter { (_, status) -> status != FileStatus.REMOVED }.keys
-        val (newMapping, errors) = generateArgs(navFiles, outputDir)
+        val (newMapping, errors) = generateArgs(modifiedFiles, outputDir)
         val newJavaFiles = newMapping.flatMap { it.javaFiles }.toSet()
+        val changedInputs = removedFiles + modifiedFiles
         val (modified, unmodified) = oldMapping.partition {
             File(project.projectDir, it.navFile) in changedInputs
         }
@@ -107,8 +126,6 @@ open class ArgumentsGenerationTask : IncrementalTask() {
                             "Following errors found: \n$errString")
         }
     }
-
-    override fun isIncremental() = true
 }
 
 private fun ErrorMessage.toClickableText() = "$path:$line:$column " +
