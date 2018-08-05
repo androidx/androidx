@@ -1384,7 +1384,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         f.mHost = mHost;
                         f.mParentFragment = mParent;
                         f.mFragmentManager = mParent != null
-                                ? mParent.mChildFragmentManager : mHost.getFragmentManagerImpl();
+                                ? mParent.mChildFragmentManager : mHost.mFragmentManager;
 
                         // If we have a target fragment, push it along to at least CREATED
                         // so that this one can rely on it as an initialized dependency.
