@@ -52,18 +52,18 @@ public class SliceItemHolder implements VersionedParcelable {
     static HolderHandler sHandler;
 
     // VersionedParcelable fields for custom serialization.
-    @ParcelField(1)
-    VersionedParcelable mVersionedParcelable;
-    @ParcelField(2)
-    Parcelable mParcelable;
+    @ParcelField(value = 1, defaultValue = "null")
+    VersionedParcelable mVersionedParcelable = null;
+    @ParcelField(value = 2, defaultValue = "null")
+    Parcelable mParcelable = null;
     @NonParcelField
     Object mCallback;
-    @ParcelField(3)
-    String mStr;
-    @ParcelField(4)
-    int mInt;
-    @ParcelField(5)
-    long mLong;
+    @ParcelField(value = 3, defaultValue = "null")
+    String mStr = null;
+    @ParcelField(value = 4, defaultValue = "0")
+    int mInt = 0;
+    @ParcelField(value = 5, defaultValue = "0")
+    long mLong = 0;
 
     @NonParcelField
     private SliceItemPool mPool;

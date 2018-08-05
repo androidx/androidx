@@ -50,8 +50,8 @@ public final class SliceSpec implements VersionedParcelable {
 
     @ParcelField(1)
     String mType;
-    @ParcelField(2)
-    int mRevision;
+    @ParcelField(value = 2, defaultValue = "1")
+    int mRevision = 1;
 
     /**
      * Used for VersionedParcelable

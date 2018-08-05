@@ -71,10 +71,13 @@ public class SliceSerializeMetrics {
     public void testSerialization() throws Exception {
         final BenchmarkState state = mBenchmarkRule.getState();
         // Create a slice containing all the types in a hierarchy.
-        Slice before = createSlice(Uri.parse("context://pkg/slice"), 2, 2, 6);
+        Slice before = createSlice(Uri.parse("context://pkg/slice"), 3, 3, 6);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024 * 1024);
 
         if (WRITE_SAMPLE_FILE) {
+            if (!mContext.getDataDir().exists()) {
+                mContext.getDataDir().mkdir();
+            }
             FileOutputStream file = new FileOutputStream(mContext.getDataDir() + "/slice.vp");
             SliceUtils.serializeSlice(before, mContext, file,
                     new SliceUtils.SerializeOptions()
@@ -128,7 +131,7 @@ public class SliceSerializeMetrics {
             after = SliceUtils.parseSlice(mContext, inputStream, "UTF-8", listener);
         }
 
-        Slice before = createSlice(Uri.parse("context://pkg/slice"), 2, 2, 6);
+        Slice before = createSlice(Uri.parse("context://pkg/slice"), 3, 3, 6);
         assertEquivalentRoot(before, after);
     }
 

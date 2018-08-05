@@ -67,6 +67,7 @@ import androidx.core.util.Preconditions;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
@@ -84,13 +85,16 @@ import java.util.Set;
  */
 @VersionedParcelize(allowSerialization = true, isCustom = true)
 @RequiresApi(19)
-public final class Slice extends CustomVersionedParcelable {
+public final class Slice extends CustomVersionedParcelable implements VersionedParcelable {
 
     private static final String HINTS = "hints";
     private static final String ITEMS = "items";
     private static final String URI = "uri";
     private static final String SPEC_TYPE = "type";
     private static final String SPEC_REVISION = "revision";
+
+    static final String[] NO_HINTS = new String[0];
+    static final SliceItem[] NO_ITEMS = new SliceItem[0];
 
     /**
      * @hide
@@ -119,16 +123,16 @@ public final class Slice extends CustomVersionedParcelable {
     })
     public @interface SliceHint{ }
 
-    @ParcelField(1)
-    SliceSpec mSpec;
+    @ParcelField(value = 1, defaultValue = "null")
+    SliceSpec mSpec = null;
 
-    @ParcelField(2)
-    SliceItem[] mItems = new SliceItem[0];
-    @ParcelField(3)
+    @ParcelField(value = 2, defaultValue = "androidx.slice.Slice.NO_ITEMS")
+    SliceItem[] mItems = NO_ITEMS;
+    @ParcelField(value = 3, defaultValue = "androidx.slice.Slice.NO_HINTS")
     @SliceHint
-    String[] mHints = new String[0];
-    @ParcelField(4)
-    String mUri;
+    String[] mHints = NO_HINTS;
+    @ParcelField(value = 4, defaultValue = "null")
+    String mUri = null;
 
     /**
      * @hide
