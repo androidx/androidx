@@ -28,8 +28,8 @@
 
     <androidx.preference.internal.PreferenceImageView
         android:id="@android:id/icon"
-        android:layout_width="@dimen/car_drawer_list_item_icon_size"
-        android:layout_height="@dimen/car_drawer_list_item_icon_size"
+        android:layout_width="@dimen/car_primary_icon_size"
+        android:layout_height="@dimen/car_primary_icon_size"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"/>
 

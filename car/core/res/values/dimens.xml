@@ -189,20 +189,11 @@ limitations under the License.
     <dimen name="car_menu_bar_spacing">6dp</dimen>
     <dimen name="car_menu_bar_length">40dp</dimen>
 
-    <!-- The size of the starting icon. -->
-    <dimen name="car_drawer_list_item_icon_size">64dp</dimen>
-
     <!-- The margin after the starting icon. -->
     <dimen name="car_drawer_list_item_icon_end_margin">32dp</dimen>
 
     <!-- The ending margin on a list view. -->
     <dimen name="car_drawer_list_item_end_margin">32dp</dimen>
-
-    <!-- The size of the starting icon in a small list item.-->
-    <dimen name="car_drawer_list_item_small_icon_size">56dp</dimen>
-
-    <!-- The size of the ending icon in a list item. -->
-    <dimen name="car_drawer_list_item_end_icon_size">56dp</dimen>
 
     <!-- The margin between text is lies on top of each other. -->
     <dimen name="car_text_vertical_margin">2dp</dimen>
