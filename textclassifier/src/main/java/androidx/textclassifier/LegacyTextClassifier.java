@@ -90,7 +90,8 @@ final class LegacyTextClassifier extends TextClassifier {
     @NonNull
     /** @inheritDoc */
     public TextClassification classifyText(@NonNull TextClassification.Request request) {
-        final String requestText = request.getText().toString();
+        final String requestText = request.getText().toString()
+                .substring(request.getStartIndex(), request.getEndIndex());
         if (Patterns.WEB_URL.matcher(requestText).matches()) {
             return createTextClassification(requestText, TextClassifier.TYPE_URL);
         } else if (Patterns.EMAIL_ADDRESS.matcher(requestText).matches()) {

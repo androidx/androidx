@@ -51,6 +51,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * A collection of links, representing subsequences of text and the entity types (phone number,
@@ -65,6 +67,9 @@ public final class TextLinks {
 
     private final CharSequence mFullText;
     private final List<TextLink> mLinks;
+
+    static final Executor sWorkerExecutor = Executors.newFixedThreadPool(1);
+    static final MainThreadExecutor sMainThreadExecutor = new MainThreadExecutor();
 
     /** Status unknown. */
     public static final int STATUS_UNKNOWN = -1;
@@ -526,8 +531,6 @@ public final class TextLinks {
             if (!(text instanceof Spanned)) {
                 return;
             }
-
-            // TODO: Truncate the text.
             final Spanned spanned = (Spanned) text;
             final int start = spanned.getSpanStart(this);
             final int end = spanned.getSpanEnd(this);
@@ -537,16 +540,30 @@ public final class TextLinks {
                             .setDefaultLocales(getLocales(textView))
                             .build();
             final TextClassifier classifier = getTextClassifier(widget.getContext());
-            final TextClassification classification = classifier.classifyText(request);
-            if (!classification.getActions().isEmpty()) {
-                // TODO: Show the toolbar instead.
-                try {
-                    classification.getActions().get(0).getActionIntent().send();
-                } catch (PendingIntent.CanceledException e) {
-                    Log.e(LOG_TAG, "Error handling TextLinkSpan click", e);
+
+            // TODO: Truncate the text.
+            sWorkerExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+
+                    final TextClassification classification = classifier.classifyText(request);
+                    sMainThreadExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!classification.getActions().isEmpty()) {
+                                // TODO: Show the toolbar instead.
+                                try {
+                                    classification.getActions().get(0).getActionIntent().send();
+                                } catch (PendingIntent.CanceledException e) {
+                                    Log.e(LOG_TAG, "Error handling TextLinkSpan click", e);
+                                }
+                            }
+                            classifier.destroy();
+                        }
+                    });
                 }
-            }
-            classifier.destroy();
+            });
+
         }
 
         @Nullable
