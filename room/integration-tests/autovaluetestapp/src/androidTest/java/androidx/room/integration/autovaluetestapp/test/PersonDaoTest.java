@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.is;
 
 import androidx.room.integration.autovaluetestapp.vo.Person;
 import androidx.room.integration.autovaluetestapp.vo.PersonAndCat;
+import androidx.room.integration.autovaluetestapp.vo.PersonWithCats;
 import androidx.room.integration.autovaluetestapp.vo.Pet;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -66,5 +67,21 @@ public class PersonDaoTest extends TestDatabaseTest {
         PersonAndCat loaded = mPersonDao.getAllPersonAndCat().get(0);
         assertThat(person, is(loaded.getPerson()));
         assertThat(cat, is(loaded.getCat()));
+    }
+
+    @Test
+    public void readRelation() {
+        Person person = Person.create(1, "firstName", "lastName");
+        ArrayList<Pet.Cat> cats = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            Pet.Cat cat = Pet.Cat.create(i, 1, "Cat " + i);
+            cats.add(cat);
+        }
+        mPersonDao.insert(person);
+        mPetDao.insertAll(cats);
+
+        PersonWithCats loaded = mPersonDao.getAllPersonWithCats().get(0);
+        assertThat(person, is(loaded.getPerson()));
+        assertThat(cats, is(loaded.getCats()));
     }
 }

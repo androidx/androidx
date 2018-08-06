@@ -30,6 +30,9 @@ public interface PetDao {
     @Insert
     void insert(Pet.Cat cat);
 
+    @Insert
+    void insertAll(List<Pet.Cat> cats);
+
     @Query("SELECT petId, kittyName, ownerId FROM cat")
     List<Pet.Cat> getAllCats();
 

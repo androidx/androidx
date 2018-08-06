@@ -19,8 +19,10 @@ package androidx.room.integration.autovaluetestapp.dao;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.integration.autovaluetestapp.vo.Person;
 import androidx.room.integration.autovaluetestapp.vo.PersonAndCat;
+import androidx.room.integration.autovaluetestapp.vo.PersonWithCats;
 
 import java.util.List;
 
@@ -41,4 +43,8 @@ public interface PersonDao {
 
     @Query("SELECT * FROM person p LEFT JOIN cat c ON (p.id == c.ownerId)")
     List<PersonAndCat> getAllPersonAndCat();
+
+    @Transaction
+    @Query("SELECT * FROM person p")
+    List<PersonWithCats> getAllPersonWithCats();
 }
