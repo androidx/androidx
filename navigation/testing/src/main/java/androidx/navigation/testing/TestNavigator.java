@@ -33,6 +33,7 @@ import java.util.ArrayDeque;
 @Navigator.Name("test")
 public class TestNavigator extends Navigator<TestNavigator.Destination> {
 
+    @NonNull
     public final ArrayDeque<Pair<Destination, Bundle>> mBackStack = new ArrayDeque<>();
 
     @NonNull

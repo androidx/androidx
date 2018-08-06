@@ -175,6 +175,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * @param resid ID to locate
      * @return the node with ID resid
      */
+    @Nullable
     public NavDestination findNode(@IdRes int resid) {
         return findNode(resid, true);
     }
