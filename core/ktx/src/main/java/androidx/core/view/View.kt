@@ -22,7 +22,6 @@ import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.view.ViewTreeObserver
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
@@ -77,18 +76,8 @@ inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
  *
  * The action will only be invoked once prior to the next draw and then removed.
  */
-inline fun View.doOnPreDraw(crossinline action: (view: View) -> Unit) {
-    val vto = viewTreeObserver
-    vto.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-        override fun onPreDraw(): Boolean {
-            action(this@doOnPreDraw)
-            when {
-                vto.isAlive -> vto.removeOnPreDrawListener(this)
-                else -> viewTreeObserver.removeOnPreDrawListener(this)
-            }
-            return true
-        }
-    })
+inline fun View.doOnPreDraw(crossinline action: (view: View) -> Unit): OneShotPreDrawListener {
+    return OneShotPreDrawListener.add(this) { action(this) }
 }
 
 /**
