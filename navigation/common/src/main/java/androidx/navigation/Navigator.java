@@ -63,6 +63,7 @@ public abstract class Navigator<D extends NavDestination> {
      */
     @Retention(RUNTIME)
     @Target({TYPE})
+    @SuppressWarnings("UnknownNullness") // TODO https://issuetracker.google.com/issues/112185120
     public @interface Name {
         String value();
     }

@@ -65,6 +65,7 @@ public class NavDestination {
      */
     @Retention(SOURCE)
     @Target({TYPE})
+    @SuppressWarnings("UnknownNullness") // TODO https://issuetracker.google.com/issues/112185120
     public @interface ClassType {
         Class value();
     }

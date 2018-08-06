@@ -63,7 +63,7 @@ public class NavController {
     /**
      * The {@link Intent} that triggered a deep link to the current destination.
      */
-    public static final String KEY_DEEP_LINK_INTENT =
+    public static final @NonNull String KEY_DEEP_LINK_INTENT =
             "android-support-nav:controller:deepLinkIntent";
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -579,6 +579,7 @@ public class NavController {
      * @see #setGraph(NavGraph)
      * @see #setMetadataGraph()
      */
+    @SuppressWarnings("UnknownNullness") // TODO https://b.corp.google.com/issues/112243286
     public NavGraph getGraph() {
         return mGraph;
     }
@@ -586,6 +587,7 @@ public class NavController {
     /**
      * Gets the current destination.
      */
+    @Nullable
     public NavDestination getCurrentDestination() {
         return mBackStack.peekLast();
     }
