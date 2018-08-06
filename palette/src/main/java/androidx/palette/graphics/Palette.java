@@ -463,19 +463,6 @@ public final class Palette {
             mPopulation = population;
         }
 
-        Swatch(int red, int green, int blue, int population) {
-            mRed = red;
-            mGreen = green;
-            mBlue = blue;
-            mRgb = Color.rgb(red, green, blue);
-            mPopulation = population;
-        }
-
-        Swatch(float[] hsl, int population) {
-            this(ColorUtils.HSLToColor(hsl), population);
-            mHsl = hsl;
-        }
-
         /**
          * @return this swatch's RGB color value
          */
