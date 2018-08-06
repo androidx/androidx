@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.fragment.app;
+package androidx.core.view;
 
 
 import android.view.View;
 import android.view.ViewTreeObserver;
+
+import androidx.annotation.NonNull;
 
 /**
  * An OnPreDrawListener that will remove itself after one OnPreDraw call. Typical
@@ -32,7 +34,7 @@ import android.view.ViewTreeObserver;
  * is detached from the view hierarchy. In that case, the Runnable will never be
  * executed.
  */
-class OneShotPreDrawListener implements ViewTreeObserver.OnPreDrawListener,
+public final class OneShotPreDrawListener implements ViewTreeObserver.OnPreDrawListener,
         View.OnAttachStateChangeListener {
     private final View mView;
     private ViewTreeObserver mViewTreeObserver;
@@ -51,7 +53,12 @@ class OneShotPreDrawListener implements ViewTreeObserver.OnPreDrawListener,
      * @return The added OneShotPreDrawListener. It can be removed prior to
      * the onPreDraw by calling {@link #removeListener()}.
      */
-    public static OneShotPreDrawListener add(View view, Runnable runnable) {
+    @NonNull
+    @SuppressWarnings("ConstantConditions") // Validating nullability contracts.
+    public static OneShotPreDrawListener add(@NonNull View view, @NonNull Runnable runnable) {
+        if (view == null) throw new NullPointerException("view == null");
+        if (runnable == null) throw new NullPointerException("runnable == null");
+
         OneShotPreDrawListener listener = new OneShotPreDrawListener(view, runnable);
         view.getViewTreeObserver().addOnPreDrawListener(listener);
         view.addOnAttachStateChangeListener(listener);
