@@ -16,6 +16,7 @@
 
 package androidx.room.integration.testapp.test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -39,6 +40,7 @@ import androidx.room.integration.testapp.dao.MailDao;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.Mail;
 import androidx.room.integration.testapp.vo.Pet;
+import androidx.room.integration.testapp.vo.PetWithUser;
 import androidx.room.integration.testapp.vo.PetsToys;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
@@ -191,6 +193,30 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         mUserDao.insertOrReplace(user3);
 
         assertThat(observer.get(), is(new AvgWeightByAge(10, 50)));
+    }
+
+    @Test
+    public void liveDataWithView() throws ExecutionException, InterruptedException,
+            TimeoutException {
+        User user = TestUtil.createUser(1);
+        Pet pet = TestUtil.createPet(3);
+        pet.setUserId(user.getId());
+
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+
+        final TestObserver<PetWithUser> observer = new TestObserver<>();
+        LiveData<PetWithUser> liveData = mPetDao.petWithUserLiveData(3);
+
+        observe(liveData, lifecycleOwner, observer);
+        assertThat(observer.get(), is(nullValue()));
+
+        observer.reset();
+        mUserDao.insert(user);
+        mPetDao.insertOrReplace(pet);
+        PetWithUser petWithUser = observer.get();
+        assertThat(petWithUser.pet, is(equalTo(pet)));
+        assertThat(petWithUser.user, is(equalTo(user)));
     }
 
     @Test

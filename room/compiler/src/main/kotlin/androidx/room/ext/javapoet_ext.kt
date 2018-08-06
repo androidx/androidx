@@ -76,6 +76,8 @@ object RoomTypeNames {
             ClassName.get("androidx.room.util", "TableInfo.Index")
     val FTS_TABLE_INFO: ClassName =
             ClassName.get("androidx.room.util", "FtsTableInfo")
+    val VIEW_INFO: ClassName =
+            ClassName.get("androidx.room.util", "ViewInfo")
     val LIMIT_OFFSET_DATA_SOURCE: ClassName =
             ClassName.get("androidx.room.paging", "LimitOffsetDataSource")
     val DB_UTIL: ClassName =

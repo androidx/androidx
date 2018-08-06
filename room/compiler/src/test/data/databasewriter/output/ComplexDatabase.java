@@ -9,6 +9,7 @@ import androidx.room.util.TableInfo;
 import androidx.room.util.TableInfo.Column;
 import androidx.room.util.TableInfo.ForeignKey;
 import androidx.room.util.TableInfo.Index;
+import androidx.room.util.ViewInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Callback;
@@ -19,6 +20,7 @@ import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
@@ -32,13 +34,15 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
             @Override
             public void createAllTables(SupportSQLiteDatabase _db) {
                 _db.execSQL("CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");
+                _db.execSQL("CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
                 _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-                _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"cd8098a1e968898879c194cef2dff8f7\")");
+                _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"9d1c69203ac900800807b511b9e50c1e\")");
             }
 
             @Override
             public void dropAllTables(SupportSQLiteDatabase _db) {
                 _db.execSQL("DROP TABLE IF EXISTS `User`");
+                _db.execSQL("DROP VIEW IF EXISTS `UserSummary`")
             }
 
             @Override
@@ -86,8 +90,15 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                             + " Expected:\n" + _infoUser + "\n"
                             + " Found:\n" + _existingUser);
                 }
+                final ViewInfo _infoUserSummary = new ViewInfo("UserSummary", "CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
+                final ViewInfo _existingUserSummary = ViewInfo.read(_db, "UserSummary");
+                if (!_infoUserSummary.equals(_existingUserSummary)) {
+                    throw new IllegalStateException("Migration didn't properly handle UserSummary(foo.bar.UserSummary).\n"
+                            + " Expected:\n" + _infoUserSummary + "\n"
+                            + " Found:\n" + _existingUserSummary);
+                }
             }
-        }, "cd8098a1e968898879c194cef2dff8f7", "6773601c5bcf94c71ee4eb0de04f21a4");
+        }, "9d1c69203ac900800807b511b9e50c1e", "af09255f7569cc7b673ac26387ea5fa5");
         final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
                 .name(configuration.name)
                 .callback(_openCallback)
@@ -99,7 +110,11 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     protected InvalidationTracker createInvalidationTracker() {
         final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
-        return new InvalidationTracker(this, _shadowTablesMap, "User");
+        HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(1);
+        HashSet<String> _tables = new HashSet<String>(1);
+        _tables.add("User");
+        _viewTables.put("usersummary", _tables);
+        return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "User");
     }
 
     @Override

@@ -102,6 +102,9 @@ public class InvalidationTracker {
     final SparseArrayCompat<String> mShadowTableLookup;
 
     @NonNull
+    private Map<String, Set<String>> mViewTables;
+
+    @NonNull
     @VisibleForTesting
     long[] mTableVersions;
 
@@ -138,7 +141,8 @@ public class InvalidationTracker {
     @SuppressWarnings("WeakerAccess")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public InvalidationTracker(RoomDatabase database, String... tableNames) {
-        this(database, new HashMap<String, String>(), tableNames);
+        this(database, new HashMap<String, String>(), Collections.<String, Set<String>>emptyMap(),
+                tableNames);
     }
 
     /**
@@ -149,11 +153,12 @@ public class InvalidationTracker {
     @SuppressWarnings("WeakerAccess")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public InvalidationTracker(RoomDatabase database, Map<String, String> shadowTablesMap,
-            String... tableNames) {
+            Map<String, Set<String>> viewTables, String... tableNames) {
         mDatabase = database;
         mObservedTableTracker = new ObservedTableTracker(tableNames.length);
         mTableIdLookup = new ArrayMap<>();
         mShadowTableLookup = new SparseArrayCompat<>(shadowTablesMap.size());
+        mViewTables = viewTables;
         final int size = tableNames.length;
         mTableNames = new String[size];
         for (int id = 0; id < size; id++) {
@@ -265,7 +270,7 @@ public class InvalidationTracker {
      */
     @WorkerThread
     public void addObserver(@NonNull Observer observer) {
-        final String[] tableNames = observer.mTables;
+        final String[] tableNames = resolveViews(observer.mTables);
         int[] tableIds = new int[tableNames.length];
         final int size = tableNames.length;
         long[] versions = new long[tableNames.length];
@@ -287,6 +292,25 @@ public class InvalidationTracker {
         if (currentObserver == null && mObservedTableTracker.onAdded(tableIds)) {
             syncTriggers();
         }
+    }
+
+    /**
+     * Resolves the list of tables and views into a list of unique tables that are underlying them.
+     *
+     * @param names The names of tables or views.
+     * @return The names of the underlying tables.
+     */
+    private String[] resolveViews(String[] names) {
+        Set<String> tables = new ArraySet<>();
+        for (String name : names) {
+            final String lowercase = name.toLowerCase(Locale.US);
+            if (mViewTables.containsKey(lowercase)) {
+                tables.addAll(mViewTables.get(lowercase));
+            } else {
+                tables.add(name);
+            }
+        }
+        return tables.toArray(new String[tables.size()]);
     }
 
     /**
@@ -628,10 +652,10 @@ public class InvalidationTracker {
         final String[] mTables;
 
         /**
-         * Observes the given list of tables.
+         * Observes the given list of tables and views.
          *
-         * @param firstTable The table name
-         * @param rest       More table names
+         * @param firstTable The name of the table or view.
+         * @param rest       More names of tables or views.
          */
         @SuppressWarnings("unused")
         protected Observer(@NonNull String firstTable, String... rest) {
@@ -640,9 +664,9 @@ public class InvalidationTracker {
         }
 
         /**
-         * Observes the given list of tables.
+         * Observes the given list of tables and views.
          *
-         * @param tables The list of tables to observe for changes.
+         * @param tables The list of tables or views to observe for changes.
          */
         public Observer(@NonNull String[] tables) {
             // copy tables in case user modifies them afterwards
@@ -653,7 +677,8 @@ public class InvalidationTracker {
          * Called when one of the observed tables is invalidated in the database.
          *
          * @param tables A set of invalidated tables. This is useful when the observer targets
-         *               multiple tables and want to know which table is invalidated.
+         *               multiple tables and you want to know which table is invalidated. This will
+         *               be names of underlying tables when you are observing views.
          */
         public abstract void onInvalidated(@NonNull Set<String> tables);
 

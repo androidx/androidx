@@ -58,6 +58,7 @@ import org.mockito.stubbing.Answer;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -89,7 +90,12 @@ public class InvalidationTrackerTest {
         doReturn(mOpenHelper).when(mRoomDatabase).getOpenHelper();
         HashMap<String, String> shadowTables = new HashMap<>();
         shadowTables.put("C", "D");
-        mTracker = new InvalidationTracker(mRoomDatabase, shadowTables, "a", "B", "i", "C");
+        HashMap<String, Set<String>> viewTables = new HashMap<>();
+        HashSet<String> tableSet = new HashSet<>();
+        tableSet.add("a");
+        viewTables.put("e", tableSet);
+        mTracker = new InvalidationTracker(mRoomDatabase, shadowTables, viewTables,
+                "a", "B", "i", "C");
         mTracker.internalInit(mSqliteDb);
         reset(mSqliteDb);
     }
@@ -286,6 +292,28 @@ public class InvalidationTrackerTest {
                     is("DROP TRIGGER IF EXISTS `room_table_modification_trigger_d_"
                             + triggers[i] + "`"));
         }
+    }
+
+    @Test
+    public void observeView() throws InterruptedException {
+        LatchObserver observer = new LatchObserver(1, "E");
+        mTracker.addObserver(observer);
+        setVersions(1, 0, 2, 1);
+        refreshSync();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("a"));
+
+        setVersions(3, 1);
+        observer.reset(1);
+        refreshSync();
+        assertThat(observer.await(), is(false));
+
+        setVersions(4, 0);
+        refreshSync();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("a"));
     }
 
     // @Test - disabled due to flakiness b/65257997
