@@ -802,6 +802,15 @@ public class LiveDataTest {
         assertThat(mLiveData.hasObservers(), is(false));
     }
 
+    @Test
+    public void initialValue() {
+        MutableLiveData<String> mutableLiveData = new MutableLiveData<>("foo");
+        Observer<String> observer = mock(Observer.class);
+        mRegistry.handleLifecycleEvent(ON_START);
+        mutableLiveData.observe(mOwner, observer);
+        verify(observer).onChanged("foo");
+    }
+
     private GenericLifecycleObserver getGenericLifecycleObserver(Lifecycle lifecycle) {
         ArgumentCaptor<GenericLifecycleObserver> captor =
                 ArgumentCaptor.forClass(GenericLifecycleObserver.class);

@@ -69,12 +69,12 @@ public abstract class LiveData<T> {
     // how many observers are in active state
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mActiveCount = 0;
-    private volatile Object mData = NOT_SET;
+    private volatile Object mData;
     // when setData is called, we set the pending data and actual data swap happens on the main
     // thread
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     volatile Object mPendingData = NOT_SET;
-    private int mVersion = START_VERSION;
+    private int mVersion;
 
     private boolean mDispatchingValue;
     @SuppressWarnings("FieldCanBeLocal")
@@ -91,6 +91,24 @@ public abstract class LiveData<T> {
             setValue((T) newValue);
         }
     };
+
+    /**
+     * Creates a LiveData initialized with the given {@code value}.
+     *
+     * @param value initial value
+     */
+    public LiveData(T value) {
+        mData = value;
+        mVersion = START_VERSION + 1;
+    }
+
+    /**
+     * Creates a LiveData with no value assigned to it.
+     */
+    public LiveData() {
+        mData = NOT_SET;
+        mVersion = START_VERSION;
+    }
 
     private void considerNotify(ObserverWrapper observer) {
         if (!observer.mActive) {
@@ -438,7 +456,7 @@ public abstract class LiveData<T> {
         }
     }
 
-    private static void assertMainThread(String methodName) {
+    static void assertMainThread(String methodName) {
         if (!ArchTaskExecutor.getInstance().isMainThread()) {
             throw new IllegalStateException("Cannot invoke " + methodName + " on a background"
                     + " thread");
