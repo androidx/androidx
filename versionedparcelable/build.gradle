@@ -42,7 +42,7 @@ android {
 supportLibrary {
     name = "VersionedParcelable and friends"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.VERSIONED_PARCELABLE
     mavenGroup = LibraryGroups.VERSIONEDPARCELABLE
     inceptionYear = "2018"
     description = "Provides a stable but relatively compact binary serialization format that can be passed across processes or persisted safely."
