@@ -19,6 +19,7 @@ package androidx.room.checker
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 import androidx.room.ext.getAllAbstractMethodsIncludingSupers
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
@@ -71,7 +72,8 @@ class AutoValueTargetChecker(
         private val supportedAnnotations = arrayOf(
                 PrimaryKey::class.java,
                 ColumnInfo::class.java,
-                Embedded::class.java)
+                Embedded::class.java,
+                Relation::class.java)
 
         fun requestedAnnotations() = mutableSetOf(*supportedAnnotations, AutoValue::class.java)
     }
