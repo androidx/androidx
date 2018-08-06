@@ -41,11 +41,6 @@ limitations under the License.
     <!-- Scroll Bar Buttons -->
     <dimen name="car_scroll_bar_button_size">76dp</dimen>
 
-    <!-- Drawer Dimensions -->
-    <dimen name="car_drawer_list_item_icon_size">108dp</dimen>
-    <dimen name="car_drawer_list_item_small_icon_size">56dp</dimen>
-    <dimen name="car_drawer_list_item_end_icon_size">56dp</dimen>
-
     <!-- The height of a vertical line divider. -->
     <dimen name="car_vertical_line_divider_height">76dp</dimen>
 </resources>
