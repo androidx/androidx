@@ -57,6 +57,7 @@ public class DrawerDemoActivity extends CarDrawerActivity {
                 holder.getBodyView().setText(getString(R.string.drawer_demo_root_item_body));
             }
             holder.getIconView().setImageResource(android.R.drawable.sym_def_app_icon);
+            holder.itemView.setOnClickListener(v -> openSubDrawerLevel());
         }
 
         @Override
@@ -68,11 +69,6 @@ public class DrawerDemoActivity extends CarDrawerActivity {
         @Override
         protected int getActualItemCount() {
             return NUM_OF_ITEMS;
-        }
-
-        @Override
-        public void onItemClick(int position) {
-            openSubDrawerLevel();
         }
     }
 
@@ -97,9 +93,5 @@ public class DrawerDemoActivity extends CarDrawerActivity {
         protected int getActualItemCount() {
             return NUM_OF_ITEMS;
         }
-
-        @Override
-        public void onItemClick(int position) {}
-
     }
 }

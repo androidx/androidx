@@ -151,11 +151,6 @@ public final class CarDrawerTest {
         }
 
         @Override
-        public void onItemClick(int position) {
-            // Do nothing.
-        }
-
-        @Override
         protected boolean usesSmallLayout(int position) {
             return false;
         }

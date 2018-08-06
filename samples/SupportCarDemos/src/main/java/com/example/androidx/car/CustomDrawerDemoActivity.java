@@ -94,10 +94,5 @@ public class CustomDrawerDemoActivity extends AppCompatActivity {
         protected int getActualItemCount() {
             return NUM_OF_ITEMS;
         }
-
-        @Override
-        public void onItemClick(int position) {
-            // Do nothing.
-        }
     }
 }
