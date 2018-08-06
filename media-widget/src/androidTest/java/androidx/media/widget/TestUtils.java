@@ -20,13 +20,14 @@ import android.content.res.AssetFileDescriptor;
 import android.media.MediaCodecList;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.IOException;
 
-// Borrowed from com.android.compatibility.common.util.MediaUtils
-class MediaUtils2 {
-    private static final String TAG = "MediaUtils2";
+// Built on top of com.android.compatibility.common.util.MediaUtils
+class TestUtils {
+    private static final String TAG = "TestUtils";
     private static final MediaCodecList sMCL = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
 
     /**
@@ -47,6 +48,27 @@ class MediaUtils2 {
                 }
                 if (afd != null) {
                     afd.close();
+                }
+            }
+        } catch (IOException e) {
+            Log.i(TAG, "could not open resource");
+        }
+        return false;
+    }
+
+    /**
+     * Returns true iff all audio and video tracks are supported
+     */
+    static boolean hasCodecsForUri(Context context, Uri uri) {
+        try {
+            MediaExtractor ex = null;
+            try {
+                ex = new MediaExtractor();
+                ex.setDataSource(context, uri, null);
+                return hasCodecsForMedia(ex);
+            } finally {
+                if (ex != null) {
+                    ex.release();
                 }
             }
         } catch (IOException e) {

@@ -384,7 +384,7 @@ public class VideoView2Test {
     }
 
     private boolean hasCodec() {
-        return MediaUtils2.hasCodecsForResource(mActivity, R.raw.testvideo_with_2_subtitle_tracks);
+        return TestUtils.hasCodecsForResource(mActivity, R.raw.testvideo_with_2_subtitle_tracks);
     }
 
     private MediaItem2 createTestMediaItem2() {
