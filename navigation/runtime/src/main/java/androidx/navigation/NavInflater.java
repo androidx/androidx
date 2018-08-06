@@ -55,7 +55,7 @@ public class NavInflater {
      * if no navigation resource is otherwise supplied during host configuration.</p>
      */
     @SuppressWarnings("WeakerAccess")
-    public static final String METADATA_KEY_GRAPH = "android.nav.graph";
+    public static final @NonNull String METADATA_KEY_GRAPH = "android.nav.graph";
 
     private static final String TAG_ARGUMENT = "argument";
     private static final String TAG_DEEP_LINK = "deepLink";

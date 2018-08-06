@@ -318,9 +318,14 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
 
         /**
          * Gets the Fragment associated with this destination
-         * @return
+         *
+         * @throws IllegalStateException when no fragment class was set.
          */
+        @NonNull
         public Class<? extends Fragment> getFragmentClass() {
+            if (mFragmentClass == null) {
+                throw new IllegalStateException("fragment class not set");
+            }
             return mFragmentClass;
         }
 
@@ -334,9 +339,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         @NonNull
         public Fragment createFragment(@Nullable Bundle args) {
             Class<? extends Fragment> clazz = getFragmentClass();
-            if (clazz == null) {
-                throw new IllegalStateException("fragment class not set");
-            }
 
             Fragment f;
             try {
