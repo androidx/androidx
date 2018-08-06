@@ -23,6 +23,23 @@ package androidx.lifecycle;
  */
 @SuppressWarnings("WeakerAccess")
 public class MutableLiveData<T> extends LiveData<T> {
+
+    /**
+     * Creates a MutableLiveData initialized with the given {@code value}.
+     *
+     * @param value initial value
+     */
+    public MutableLiveData(T value) {
+        super(value);
+    }
+
+    /**
+     * Creates a MutableLiveData with no value assigned to it.
+     */
+    public MutableLiveData() {
+        super();
+    }
+
     @Override
     public void postValue(T value) {
         super.postValue(value);
