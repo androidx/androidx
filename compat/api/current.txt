@@ -1793,6 +1793,14 @@ package androidx.core.view {
     method public abstract androidx.core.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
   }
 
+  public final class OneShotPreDrawListener implements android.view.View.OnAttachStateChangeListener android.view.ViewTreeObserver.OnPreDrawListener {
+    method public static androidx.core.view.OneShotPreDrawListener add(android.view.View, java.lang.Runnable);
+    method public boolean onPreDraw();
+    method public void onViewAttachedToWindow(android.view.View);
+    method public void onViewDetachedFromWindow(android.view.View);
+    method public void removeListener();
+  }
+
   public final class PointerIconCompat {
     method public static androidx.core.view.PointerIconCompat create(android.graphics.Bitmap, float, float);
     method public static androidx.core.view.PointerIconCompat getSystemIcon(android.content.Context, int);
