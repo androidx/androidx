@@ -21,6 +21,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 
@@ -182,6 +183,16 @@ class VersionedParcelParcel extends VersionedParcel {
     @Override
     public void writeBundle(Bundle val) {
         mParcel.writeBundle(val);
+    }
+
+    @Override
+    protected void writeCharSequence(CharSequence charSequence) {
+        TextUtils.writeToParcel(charSequence, mParcel, 0);
+    }
+
+    @Override
+    protected CharSequence readCharSequence() {
+        return TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(mParcel);
     }
 
     @Override

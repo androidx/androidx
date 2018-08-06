@@ -34,6 +34,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
+import android.text.SpannableString;
+import android.text.TextUtils;
 import android.util.Size;
 import android.util.SizeF;
 import android.util.SparseBooleanArray;
@@ -432,6 +434,17 @@ public class VersionedParcelIntegTest {
         assertNull(other.mStringFloatMap);
     }
 
+    @Test
+    public void testCharSequence() {
+        if (mUseStream) {
+            return;
+        }
+        ParcelizableImpl obj = new ParcelizableImpl();
+        obj.mCharSequence = new SpannableString("xxxx");
+        ParcelizableImpl other = parcelCopy(obj);
+        assertTrue(TextUtils.equals(obj.mCharSequence, other.mCharSequence));
+    }
+
     @VersionedParcelize(allowSerialization = true,
             ignoreParcelables = true,
             isCustom = true,
@@ -502,6 +515,8 @@ public class VersionedParcelIntegTest {
         public List<Float> mFloatList;
         @ParcelField(31)
         public Map<String, Float> mStringFloatMap;
+        @ParcelField(32)
+        public CharSequence mCharSequence;
 
         @NonParcelField
         private boolean mPreParcelled;
