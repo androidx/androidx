@@ -84,6 +84,7 @@ public class ServiceLifecycleDispatcher {
     /**
      * @return {@link Lifecycle} for the given {@link LifecycleOwner}
      */
+    @NonNull
     public Lifecycle getLifecycle() {
         return mRegistry;
     }

@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
+@SuppressWarnings("UnknownNullness") // TODO https://issuetracker.google.com/issues/112197238
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ReportFragment extends Fragment {
     private static final String REPORT_FRAGMENT_TAG = "androidx.lifecycle"

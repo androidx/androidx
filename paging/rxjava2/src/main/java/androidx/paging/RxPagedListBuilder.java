@@ -153,6 +153,7 @@ public final class RxPagedListBuilder<Key, Value> {
      *                  UI/main thread.
      * @return this
      */
+    @NonNull
     public RxPagedListBuilder<Key, Value> setNotifyScheduler(
             final @NonNull Scheduler scheduler) {
         mNotifyScheduler = scheduler;
@@ -237,7 +238,8 @@ public final class RxPagedListBuilder<Key, Value> {
      * @return The Flowable of PagedLists
      */
     @NonNull
-    public Flowable<PagedList<Value>> buildFlowable(BackpressureStrategy backpressureStrategy) {
+    public Flowable<PagedList<Value>> buildFlowable(
+            @NonNull BackpressureStrategy backpressureStrategy) {
         return buildObservable()
                 .toFlowable(backpressureStrategy);
     }
