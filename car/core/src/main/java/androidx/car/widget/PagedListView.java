@@ -1367,13 +1367,22 @@ public class PagedListView extends FrameLayout {
                 } else {
                     nextVerticalContainer = parent.getChildAt(i + 1);
                 }
+
                 if (nextVerticalContainer == null) {
                     // Skip drawing divider for the last row in GridLayoutManager, or the last
                     // item (presumably in LinearLayoutManager).
                     continue;
                 }
+
                 int spacing = nextVerticalContainer.getTop() - container.getBottom();
-                drawDivider(c, container, spacing);
+
+                // Sometimes during refresh, the nextVerticalContainer can still exist, but is
+                // not positioned in its corresponding position in the list (i.e. it has been pushed
+                // off-screen). This will result in a negative value for spacing. Do not draw a
+                // divider in this case to avoid the divider appearing in the wrong position.
+                if (spacing >= 0) {
+                    drawDivider(c, container, spacing);
+                }
             }
         }
 
