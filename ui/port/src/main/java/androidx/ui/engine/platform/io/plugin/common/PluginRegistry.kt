@@ -97,7 +97,7 @@ interface PluginRegistry {
          * Returns a [TextureRegistry] which the plugin can use for
          * managing backend textures.
          */
-        //fun textures(): TextureRegistry
+        // fun textures(): TextureRegistry
 
         /**
          * Returns the application's [PlatformViewRegistry].
@@ -112,14 +112,13 @@ interface PluginRegistry {
          */
         fun view(): FlutterView
 
-
         /**
          * Returns the file name for the given asset.
          * The returned file name can be used to access the asset in the APK
          * through the [AssetManager] API.
          *
          * @param asset the name of the asset. The name can be hierarchical
-         * @return      the filename to be used with [AssetManager]
+         * @return the filename to be used with [AssetManager]
          */
         fun lookupKeyForAsset(asset: String): String
 
@@ -128,12 +127,11 @@ interface PluginRegistry {
          * specified packageName. The returned file name can be used to access
          * the asset in the APK through the [AssetManager] API.
          *
-         * @param asset       the name of the asset. The name can be hierarchical
+         * @param asset the name of the asset. The name can be hierarchical
          * @param packageName the name of the package from which the asset originates
-         * @return            the file name to be used with [AssetManager]
+         * @return the file name to be used with [AssetManager]
          */
         fun lookupKeyForAsset(asset: String, packageName: String): String
-
 
         /**
          * Publishes a value associated with the plugin being registered.
@@ -229,7 +227,11 @@ interface PluginRegistry {
         /**
          * @return true if the result has been handled.
          */
-        fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray): Boolean
+        fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<String>,
+            grantResults: IntArray
+        ): Boolean
     }
 
     /*

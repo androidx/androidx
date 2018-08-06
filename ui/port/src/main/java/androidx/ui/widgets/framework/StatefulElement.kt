@@ -7,14 +7,14 @@ import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.runtimeType
 
-/// An [Element] that uses a [StatefulWidget] as its configuration.
+// / An [Element] that uses a [StatefulWidget] as its configuration.
 class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
 
-    /// The [State] instance associated with this location in the tree.
-    ///
-    /// There is a one-to-one relationship between [State] objects and the
-    /// [StatefulElement] objects that hold them. The [State] objects are created
-    /// by [StatefulElement] in [mount].
+    // / The [State] instance associated with this location in the tree.
+    // /
+    // / There is a one-to-one relationship between [State] objects and the
+    // / [StatefulElement] objects that hold them. The [State] objects are created
+    // / by [StatefulElement] in [mount].
     var state: State<StatefulWidget>? = widget.createState()
         private set
 
@@ -26,31 +26,31 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
                         "The createState function for ${widget.runtimeType()} returned a state " +
                         "of type ${state!!.runtimeType()}, which is not a subtype of " +
                         "State<${widget.runtimeType()}>, violating the contract for createState."
-                );
+                )
             }
-            true;
-        };
+            true
+        }
 
         val s = state!!
-        assert(s._element == null);
-        s._element = this;
-        assert(s.widget == null);
-        s.widget = widget;
-        assert(s._debugLifecycleState == _StateLifecycle.created);
+        assert(s._element == null)
+        s._element = this
+        assert(s.widget == null)
+        s.widget = widget
+        assert(s._debugLifecycleState == _StateLifecycle.created)
     }
 //
-    override fun build(): Widget = state!!.build(this);
+    override fun build(): Widget = state!!.build(this)
 
     override fun _reassemble() {
-        state!!.reassemble();
-        super._reassemble();
+        state!!.reassemble()
+        super._reassemble()
     }
 
     override fun _firstBuild() {
-        assert(state!!._debugLifecycleState == _StateLifecycle.created);
+        assert(state!!._debugLifecycleState == _StateLifecycle.created)
         try {
-            _debugSetAllowIgnoredCallsToMarkNeedsBuild(true);
-            val debugCheckForReturnedFuture = state!!.initState() as Any;
+            _debugSetAllowIgnoredCallsToMarkNeedsBuild(true)
+            val debugCheckForReturnedFuture = state!!.initState() as Any
 // TODO(Migration/Filip): Fix Future
 //            assert(() {
 //                if (debugCheckForReturnedFuture is Future) {
@@ -64,28 +64,28 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
 //                return true;
 //            }());
         } finally {
-            _debugSetAllowIgnoredCallsToMarkNeedsBuild(false);
+            _debugSetAllowIgnoredCallsToMarkNeedsBuild(false)
         }
-        assert{ state!!._debugLifecycleState = _StateLifecycle.initialized; true; }
-        state!!.didChangeDependencies();
-        assert { state!!._debugLifecycleState = _StateLifecycle.ready; true; };
-        super._firstBuild();
+        assert { state!!._debugLifecycleState = _StateLifecycle.initialized; true; }
+        state!!.didChangeDependencies()
+        assert { state!!._debugLifecycleState = _StateLifecycle.ready; true; }
+        super._firstBuild()
     }
 
     override fun update(newWidget: Widget) {
         newWidget as StatefulWidget
 
-        super.update(newWidget);
-        assert(widget == newWidget);
-        val  oldWidget = state!!.widget;
+        super.update(newWidget)
+        assert(widget == newWidget)
+        val oldWidget = state!!.widget
         // Notice that we mark ourselves as dirty before calling didUpdateWidget to
         // let authors call setState from within didUpdateWidget without triggering
         // asserts.
-        dirty = true;
-        state!!.widget = widget as StatefulWidget;
+        dirty = true
+        state!!.widget = widget as StatefulWidget
         try {
-            _debugSetAllowIgnoredCallsToMarkNeedsBuild(true);
-            val debugCheckForReturnedFuture = state!!.didUpdateWidget(oldWidget) as Any;
+            _debugSetAllowIgnoredCallsToMarkNeedsBuild(true)
+            val debugCheckForReturnedFuture = state!!.didUpdateWidget(oldWidget) as Any
 // TODO(Migration/Filip): Fix Future
 //            assert(() {
 //                if (debugCheckForReturnedFuture is Future) {
@@ -99,39 +99,39 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
 //                return true;
 //            }());
         } finally {
-            _debugSetAllowIgnoredCallsToMarkNeedsBuild(false);
+            _debugSetAllowIgnoredCallsToMarkNeedsBuild(false)
         }
-        rebuild();
+        rebuild()
     }
 
     override fun activate() {
-        super.activate();
+        super.activate()
         // Since the State could have observed the deactivate() and thus disposed of
         // resources allocated in the build method, we have to rebuild the widget
         // so that its State can reallocate its resources.
         assert(_active); // otherwise markNeedsBuild is a no-op
-        markNeedsBuild();
+        markNeedsBuild()
     }
 
     override fun deactivate() {
-        state!!.deactivate();
-        super.deactivate();
+        state!!.deactivate()
+        super.deactivate()
     }
 
     override fun unmount() {
-        super.unmount();
-        state!!.dispose();
-        assert{
+        super.unmount()
+        state!!.dispose()
+        assert {
             if (state!!._debugLifecycleState == _StateLifecycle.defunct)
-                true;
+                true
             throw FlutterError(
                     "${state!!.runtimeType()}.dispose failed to call super.dispose.\n" +
                     "dispose() implementations must always call their superclass dispose() method, to ensure " +
                     "that all the resources used by the widget are fully released."
-            );
-        };
-        state!!._element = null;
-        state = null;
+            )
+        }
+        state!!._element = null
+        state = null
     }
 
     override fun inheritFromWidgetOfExactType(targetType: Type): InheritedWidget? {
@@ -147,7 +147,7 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
                 "Typically references to to inherited widgets should occur in widget build() methods. Alternatively, " +
                 "initialization based on inherited widgets can be placed in the didChangeDependencies method, which " +
                 "is called after initState and whenever the dependencies change thereafter."
-                );
+                )
             }
             if (state!!._debugLifecycleState == _StateLifecycle.defunct) {
                 throw FlutterError(
@@ -167,20 +167,20 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
                 "is retaining a reference to this State object after it has been " +
                 "removed from the tree. To avoid memory leaks, consider breaking the " +
                 "reference to this object during dispose()."
-                );
+                )
             }
-            true;
-        };
-        return super.inheritFromWidgetOfExactType(targetType);
+            true
+        }
+        return super.inheritFromWidgetOfExactType(targetType)
     }
 
     override fun didChangeDependencies() {
-        super.didChangeDependencies();
-        state!!.didChangeDependencies();
+        super.didChangeDependencies()
+        state!!.didChangeDependencies()
     }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        super.debugFillProperties(properties);
-        properties.add(DiagnosticsProperty.create<State<StatefulWidget>>("state", state, defaultValue = null));
+        super.debugFillProperties(properties)
+        properties.add(DiagnosticsProperty.create<State<StatefulWidget>>("state", state, defaultValue = null))
     }
 }

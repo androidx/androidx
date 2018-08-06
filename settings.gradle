@@ -243,7 +243,7 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 
 ///// CRANE START
 
-//includeProject(":ui:port", "ui/port")
+includeProject(":ui-port", "ui/port")
 
 ///// CRANE END
 

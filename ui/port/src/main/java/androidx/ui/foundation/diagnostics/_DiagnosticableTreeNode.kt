@@ -1,10 +1,10 @@
 package androidx.ui.foundation.diagnostics
 
-/// [DiagnosticsNode] for an instance of [DiagnosticableTree].
+// / [DiagnosticsNode] for an instance of [DiagnosticableTree].
 class _DiagnosticableTreeNode(
-        name: String?,
-        value: DiagnosticableTree,
-        style: DiagnosticsTreeStyle?
+    name: String?,
+    value: DiagnosticableTree,
+    style: DiagnosticsTreeStyle?
 ) : DiagnosticableNode<DiagnosticableTree>(
         name = name,
         value = value,
@@ -12,6 +12,6 @@ class _DiagnosticableTreeNode(
 
     override fun getChildren(): List<DiagnosticsNode> {
         value ?: return emptyList()
-        return value.debugDescribeChildren();
+        return value.debugDescribeChildren()
     }
 }
