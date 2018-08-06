@@ -1,10 +1,10 @@
 package androidx.ui.widgets.framework
 
-/// This class is a work-around for the "is" operator not accepting a variable value as its right operand
-class TypeMatcher<T> protected constructor(private val clazz: Class<*>)  {
+// / This class is a work-around for the "is" operator not accepting a variable value as its right operand
+class TypeMatcher<T> protected constructor(private val clazz: Class<*>) {
 
     companion object {
-        inline fun <reified T>create(): TypeMatcher<T> {
+        inline fun <reified T> create(): TypeMatcher<T> {
             return TypeMatcher(T::class.java)
         }
     }

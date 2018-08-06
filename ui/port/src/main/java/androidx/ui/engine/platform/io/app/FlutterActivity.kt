@@ -9,24 +9,21 @@ import androidx.ui.engine.platform.io.plugin.common.PluginRegistry
 import androidx.ui.engine.platform.io.view.FlutterNativeView
 import androidx.ui.engine.platform.io.view.FlutterView
 
-
 class FlutterActivity : Activity(), FlutterView.Provider, PluginRegistry, FlutterActivityDelegate.ViewFactory {
 
     private val delegate = FlutterActivityDelegate(this, this)
 
     // These aliases ensure that the methods we forward to the delegate adhere
     // to relevant interfaces versus just existing in FlutterActivityDelegate.
-    private val eventDelegate: FlutterActivityEvents = delegate
-    private val viewProvider: FlutterView.Provider = delegate
-    private val pluginRegistry: PluginRegistry = delegate
+    private val eventDelegate: FlutterActivityEvents = TODO() // delegate
+    private val viewProvider: FlutterView.Provider = TODO() // delegate
+    private val pluginRegistry: PluginRegistry = TODO() // delegate
 
     /**
      * Returns the Flutter view used by this activity; will be null before
      * [.onCreate] is called.
      */
-    override fun getFlutterView(): FlutterView {
-        return viewProvider.flutterView
-    }
+    override val flutterView get() = viewProvider.flutterView
 
     /**
      * Hook for subclasses to customize the creation of the
@@ -36,7 +33,7 @@ class FlutterActivity : Activity(), FlutterView.Provider, PluginRegistry, Flutte
      * The default implementation returns `null`, which will cause the
      * activity to use a newly instantiated full-screen view.
      */
-    fun createFlutterView(context: Context): FlutterView? {
+    override fun createFlutterView(context: Context): FlutterView? {
         return null
     }
 
@@ -110,7 +107,11 @@ class FlutterActivity : Activity(), FlutterView.Provider, PluginRegistry, Flutte
     }
 
     // @Override - added in API level 23
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         eventDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
@@ -140,5 +141,4 @@ class FlutterActivity : Activity(), FlutterView.Provider, PluginRegistry, Flutte
         super.onConfigurationChanged(newConfig)
         eventDelegate.onConfigurationChanged(newConfig)
     }
-
 }

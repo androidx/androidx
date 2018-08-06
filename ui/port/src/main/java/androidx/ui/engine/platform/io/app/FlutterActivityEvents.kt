@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.content.ComponentCallbacks2
 import androidx.ui.engine.platform.io.plugin.common.PluginRegistry
 
-
 interface FlutterActivityEvents : ComponentCallbacks2, PluginRegistry.ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
     /**
      * @see android.app.Activity.onCreate

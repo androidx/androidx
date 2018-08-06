@@ -5,10 +5,10 @@ import androidx.ui.foundation.assertions.FlutterErrorDetails
 import androidx.ui.foundation.assertions.InformationCollector
 
 fun _debugReportException(
-        context: String,
-        exception : Any,
-        stack: Array<StackTraceElement>,
-        informationCollector: InformationCollector? = null
+    context: String,
+    exception: Any,
+    stack: Array<StackTraceElement>,
+    informationCollector: InformationCollector? = null
 ): FlutterErrorDetails {
     val details = FlutterErrorDetails(
             exception = exception,
@@ -16,7 +16,7 @@ fun _debugReportException(
             library = "widgets library",
             context = context,
             informationCollector = informationCollector
-    );
-    FlutterError.reportError(details);
-    return details;
+    )
+    FlutterError.reportError(details)
+    return details
 }

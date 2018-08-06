@@ -1,12 +1,12 @@
 package androidx.ui.foundation.diagnostics
 
-/// [DiagnosticsNode] that lazily calls the associated [Diagnosticable] [value]
-/// to implement [getChildren] and [getProperties].
+// / [DiagnosticsNode] that lazily calls the associated [Diagnosticable] [value]
+// / to implement [getChildren] and [getProperties].
 open class DiagnosticableNode<T : Diagnosticable>(
     name: String?,
     val value: T,
     style: DiagnosticsTreeStyle?
-): DiagnosticsNode(name = name, style = style) {
+) : DiagnosticsNode(name = name, style = style) {
 
     override fun getValue(): Any? {
         return value
@@ -18,20 +18,20 @@ open class DiagnosticableNode<T : Diagnosticable>(
 
     private val builder by lazy {
         val b = DiagnosticPropertiesBuilder()
-        value?.debugFillProperties(b);
+        value?.debugFillProperties(b)
         return@lazy b
     }
 
     override fun getStyle(): DiagnosticsTreeStyle {
-        return super.getStyle() ?: builder.defaultDiagnosticsTreeStyle;
+        return super.getStyle() ?: builder.defaultDiagnosticsTreeStyle
     }
 
-    override fun getEmptyBodyDescription() = builder.emptyBodyDescription;
+    override fun getEmptyBodyDescription() = builder.emptyBodyDescription
 
-    override fun getProperties(): List<DiagnosticsNode> = builder.properties;
+    override fun getProperties(): List<DiagnosticsNode> = builder.properties
 
     override fun getChildren(): List<DiagnosticsNode> {
-        return emptyList();
+        return emptyList()
     }
 
     override fun toDescription(parentConfiguration: TextTreeConfiguration?): String {

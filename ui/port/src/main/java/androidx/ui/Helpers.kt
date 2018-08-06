@@ -32,7 +32,7 @@ data class Type(val clazz: Class<out Any>) {
 
 fun Any.runtimeType() = Type.fromObject(this)
 
-/// Signature of callbacks that have no arguments and return no data.
+// / Signature of callbacks that have no arguments and return no data.
 typealias VoidCallback = () -> Unit
 
 fun assert(conditionFunction: () -> Boolean) {

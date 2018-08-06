@@ -1,39 +1,39 @@
 package androidx.ui.foundation.assertions
 
-/// Error class used to report Flutter-specific assertion failures and
-/// contract violations.
-///
-/// Ctor comment
-/// Creates a [FlutterError].
-///
-/// See [message] for details on the format that the message should
-/// take.
-///
-/// Include as much detail as possible in the full error message,
-/// including specifics about the state of the app that might be
-/// relevant to debugging the error.
+// / Error class used to report Flutter-specific assertion failures and
+// / contract violations.
+// /
+// / Ctor comment
+// / Creates a [FlutterError].
+// /
+// / See [message] for details on the format that the message should
+// / take.
+// /
+// / Include as much detail as possible in the full error message,
+// / including specifics about the state of the app that might be
+// / relevant to debugging the error.
 class FlutterError(
-        /// The message associated with this error.
-        ///
-        /// The message may have newlines in it. The first line should be a terse
-        /// description of the error, e.g. "Incorrect GlobalKey usage" or "setState()
-        /// or markNeedsBuild() called during build". Subsequent lines should contain
-        /// substantial additional information, ideally sufficient to develop a
-        /// correct solution to the problem.
-        ///
-        /// In some cases, when a FlutterError is reported to the user, only the first
-        /// line is included. For example, Flutter will typically only fully report
-        /// the first exception at runtime, displaying only the first line of
-        /// subsequent errors.
-        ///
-        /// All sentences in the error should be correctly punctuated (i.e.,
-        /// do end the error message with a period).
-        message: String
+        // / The message associated with this error.
+        // /
+        // / The message may have newlines in it. The first line should be a terse
+        // / description of the error, e.g. "Incorrect GlobalKey usage" or "setState()
+        // / or markNeedsBuild() called during build". Subsequent lines should contain
+        // / substantial additional information, ideally sufficient to develop a
+        // / correct solution to the problem.
+        // /
+        // / In some cases, when a FlutterError is reported to the user, only the first
+        // / line is included. For example, Flutter will typically only fully report
+        // / the first exception at runtime, displaying only the first line of
+        // / subsequent errors.
+        // /
+        // / All sentences in the error should be correctly punctuated (i.e.,
+        // / do end the error message with a period).
+    message: String
 ) : AssertionError(message) {
 
-    override fun toString(): String = message.orEmpty();
+    override fun toString(): String = message.orEmpty()
 
-//    companion object {
+    companion object {
 //
 //        /// Called whenever the Flutter framework catches an error.
 //        ///
@@ -226,15 +226,14 @@ class FlutterError(
 //            }
 //            return result;
 //        }
-//
-//        /// Calls [onError] with the given details, unless it is null.
-//        fun reportError(details: FlutterErrorDetails) {
+
+        // / Calls [onError] with the given details, unless it is null.
+        fun reportError(details: FlutterErrorDetails) {
+            TODO("Uncomment once onError is migrated")
 //            assert(details != null);
 //            assert(details.exception != null);
 //            if (onError != null)
 //                onError(details);
-//        }
-//
-//    }
-
+        }
+    }
 }
