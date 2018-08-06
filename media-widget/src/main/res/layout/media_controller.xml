@@ -20,35 +20,34 @@
     android:orientation="vertical"
     android:layoutDirection="ltr">
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/title_bar"
         android:background="@layout/title_bar_gradient"
         style="@style/TitleBar">
 
         <LinearLayout
             android:id="@+id/title_bar_left"
-            android:gravity="center"
-            android:layout_width="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
             android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/back"
                 android:clickable="true"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
                 android:visibility="visible"
                 style="@style/TitleBarButton.Back"/>
 
             <TextView
                 android:id="@+id/title_text"
+                android:gravity="center_vertical"
                 android:ellipsize="end"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/back"
-                android:layout_centerVertical="true"
                 android:maxLines="1"
                 android:paddingStart="@dimen/mcv2_embedded_icon_padding"
                 android:textSize="15sp"
@@ -57,21 +56,17 @@
 
         <LinearLayout
             android:id="@+id/title_bar_right"
-            android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:id="@+id/ad_external_link"
                 android:clickable="true"
-                android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
                 android:paddingLeft="5dip"
                 android:paddingRight="10dip"
                 android:orientation="horizontal"
@@ -81,7 +76,6 @@
                     android:id="@+id/ad_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
                     android:paddingRight="5dip"
                     android:text="@string/MediaControlView2_ad_text"
                     android:textSize="10sp"
@@ -91,19 +85,17 @@
                     android:id="@+id/ad_launch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
                     style="@style/TitleBarButton.Launch" />
             </LinearLayout>
 
             <view class="androidx.mediarouter.app.MediaRouteButton"
                 android:id="@+id/cast"
-                android:layout_centerVertical="true"
                 android:visibility="gone"
                 android:contentDescription="@string/mr_button_content_description"
                 style="@style/TitleBarButton" />
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/center_view"
