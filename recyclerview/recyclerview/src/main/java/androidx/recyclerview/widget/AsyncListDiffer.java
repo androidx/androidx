@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
 /**
@@ -131,6 +132,23 @@ public class AsyncListDiffer<T> {
     private static final Executor sMainThreadExecutor = new MainThreadExecutor();
 
     /**
+     * Listener for when the current List is updated.
+     *
+     * @param <T> Type of items in List
+     */
+    public interface ListListener<T> {
+        /**
+         * Called after the current List has been updated.
+         *
+         * @param previousList The previous list.
+         * @param currentList The new current list.
+         */
+        void onCurrentListChanged(@NonNull List<T> previousList, @NonNull List<T> currentList);
+    }
+
+    private final List<ListListener<T>> mListeners = new CopyOnWriteArrayList<>();
+
+    /**
      * Convenience for
      * {@code AsyncListDiffer(new AdapterListUpdateCallback(adapter),
      * new AsyncDifferConfig.Builder().setDiffCallback(diffCallback).build());}
@@ -219,6 +237,8 @@ public class AsyncListDiffer<T> {
             return;
         }
 
+        final List<T> previousList = mReadOnlyList;
+
         // fast simple remove all
         if (newList == null) {
             //noinspection ConstantConditions
@@ -227,6 +247,7 @@ public class AsyncListDiffer<T> {
             mReadOnlyList = Collections.emptyList();
             // notify last, after list is updated
             mUpdateCallback.onRemoved(0, countRemoved);
+            onCurrentListChanged(previousList);
             return;
         }
 
@@ -236,6 +257,7 @@ public class AsyncListDiffer<T> {
             mReadOnlyList = Collections.unmodifiableList(newList);
             // notify last, after list is updated
             mUpdateCallback.onInserted(0, newList.size());
+            onCurrentListChanged(previousList);
             return;
         }
 
@@ -312,9 +334,41 @@ public class AsyncListDiffer<T> {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void latchList(@NonNull List<T> newList, @NonNull DiffUtil.DiffResult diffResult) {
+        final List<T> previousList = mReadOnlyList;
         mList = newList;
         // notify last, after list is updated
         mReadOnlyList = Collections.unmodifiableList(newList);
         diffResult.dispatchUpdatesTo(mUpdateCallback);
+        onCurrentListChanged(previousList);
+    }
+
+    private void onCurrentListChanged(@NonNull List<T> previousList) {
+        // current list is always mReadOnlyList
+        for (ListListener<T> listener : mListeners) {
+            listener.onCurrentListChanged(previousList, mReadOnlyList);
+        }
+    }
+
+    /**
+     * Add a ListListener to receive updates when the current List changes.
+     *
+     * @param listener Listener to receive updates.
+     *
+     * @see #getCurrentList()
+     * @see #removeListListener(ListListener)
+     */
+    public void addListListener(@NonNull ListListener<T> listener) {
+        mListeners.add(listener);
+    }
+
+    /**
+     * Remove a previously registered ListListener.
+     *
+     * @param listener Previously registered listener.
+     * @see #getCurrentList()
+     * @see #addListListener(ListListener)
+     */
+    public void removeListListener(@NonNull ListListener<T> listener) {
+        mListeners.remove(listener);
     }
 }

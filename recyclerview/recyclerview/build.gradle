@@ -39,7 +39,7 @@ android {
 supportLibrary {
     name = "Android Support RecyclerView v7"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.RECYCLERVIEW
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2014"
     description = "Android Support RecyclerView v7"
