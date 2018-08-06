@@ -396,6 +396,47 @@ class AutoValueTargetCheckerTest {
         ).compilesWithoutError()
     }
 
+    @Test
+    fun validRelationAnnotationInAutoValueAbstractMethod() {
+        val embeddedPojo = """
+            package foo.bar;
+
+            public class RelationPojo {
+                private final long parentId;
+                public RelationPojo(long parentId) { this.parentId = parentId; }
+                long getParentId() { return this.parentId; }
+            }
+            """
+        singleRun(
+                """
+                @AutoValue.CopyAnnotations
+                @PrimaryKey
+                abstract long getId();
+                @AutoValue.CopyAnnotations
+                @Relation(parentColumn = "id", entityColumn = "parentId")
+                abstract List<RelationPojo> getRelations();
+                static MyPojo create(long id, List<RelationPojo> relations) {
+                    return new AutoValue_MyPojo(id, relations);
+                }
+                """,
+                """
+                @PrimaryKey
+                private final long id;
+                @Relation(parentColumn = "id", entityColumn = "parentId")
+                private final List<RelationPojo> relations;
+                AutoValue_MyPojo(long id, List<RelationPojo> relations) {
+                    this.id = id;
+                    this.relations = relations;
+                }
+                @PrimaryKey
+                long getId() { return this.id; }
+                @Relation(parentColumn = "id", entityColumn = "parentId")
+                List<RelationPojo> getRelations() { return this.relations; }
+                """,
+                embeddedPojo.toJFO("foo.bar.RelationPojo")
+        ).compilesWithoutError()
+    }
+
     private fun singleRun(vararg jfos: JavaFileObject) =
             Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                     .that(jfos.toList())
