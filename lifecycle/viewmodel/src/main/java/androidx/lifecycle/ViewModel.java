@@ -129,6 +129,7 @@ public abstract class ViewModel {
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @MainThread
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     <T> T getTag(String key) {
         //noinspection unchecked
         return mBagOfTags != null ? (T) mBagOfTags.get(key) : null;

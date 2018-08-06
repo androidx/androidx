@@ -280,7 +280,7 @@ public final class SmartLinkify {
             final TextClassificationContext classificationContext =
                     new TextClassificationContext.Builder(context.getPackageName(), widgetType)
                             .build();
-            if (mClassifierFactory != null) {
+            if (classifierFactory != null) {
                 mClassifier = classifierFactory.create(classificationContext);
             } else {
                 mClassifier = TextClassificationManager.of(context)
