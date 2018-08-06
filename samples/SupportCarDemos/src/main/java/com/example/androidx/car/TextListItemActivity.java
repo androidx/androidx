@@ -86,6 +86,14 @@ public class TextListItemActivity extends Activity {
         });
         provider.mItems.add(1, update);
 
+        TextListItem testItem = new TextListItem(this);
+        testItem.setTitle("Switch - refresh self");
+        testItem.setSwitch(false, true, (button, isChecked) -> {
+            testItem.setBody(isChecked ? "checked" : "unchecked");
+            adapter.notifyItemChanged(provider.mItems.indexOf(testItem));
+        });
+        provider.mItems.add(5, testItem);
+
         mPagedListView.setAdapter(adapter);
         mPagedListView.setMaxPages(PagedListView.UNLIMITED_PAGES);
         mPagedListView.setDividerVisibilityManager(adapter);
