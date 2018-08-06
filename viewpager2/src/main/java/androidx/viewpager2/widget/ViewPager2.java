@@ -32,7 +32,6 @@ import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -41,22 +40,15 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import androidx.viewpager2.R;
-import androidx.viewpager2.widget.impl.ScrollEventAdapter;
+import androidx.viewpager2.ScrollEventAdapter;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import java.lang.annotation.Retention;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Work in progress: go/viewpager2
@@ -107,10 +99,38 @@ public class ViewPager2 extends ViewGroup {
         mRecyclerView.setLayoutParams(
                 new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
+        mRecyclerView.addOnChildAttachStateChangeListener(enforceChildFillListener());
+
         mPagerSnapHelper = new PagerSnapHelper();
         mPagerSnapHelper.attachToRecyclerView(mRecyclerView);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
+    }
+
+    /**
+     * A lot of places in code rely on an assumption that the page fills the whole ViewPager2.
+     *
+     * TODO(b/70666617) Allow page width different than width/height 100%/100%
+     * TODO(b/70666614) Revisit the way we enforce width/height restriction of 100%/100%
+     */
+    private RecyclerView.OnChildAttachStateChangeListener enforceChildFillListener() {
+        return new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(@NonNull View view) {
+                RecyclerView.LayoutParams layoutParams =
+                        (RecyclerView.LayoutParams) view.getLayoutParams();
+                if (layoutParams.width != LayoutParams.MATCH_PARENT
+                        || layoutParams.height != LayoutParams.MATCH_PARENT) {
+                    throw new IllegalStateException(
+                            "Pages must fill the whole ViewPager2 (use match_parent)");
+                }
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(@NonNull View view) {
+                // nothing
+            }
+        };
     }
 
     private void setOrientation(Context context, AttributeSet attrs) {
@@ -228,245 +248,17 @@ public class ViewPager2 extends ViewGroup {
     }
 
     /**
-     * TODO(b/70663708): decide on an Adapter class. Here supporting RecyclerView.Adapter.
+     * TODO(b/70663708): decide on an Adapter class. Here supporting subclasses of {@link Adapter}.
      *
+     * @see androidx.viewpager2.adapter.FragmentStateAdapter
      * @see RecyclerView#setAdapter(Adapter)
      */
-    public <VH extends ViewHolder> void setAdapter(final Adapter<VH> adapter) {
-        mRecyclerView.setAdapter(new Adapter<VH>() {
-            private final Adapter<VH> mAdapter = adapter;
-
-            @NonNull
-            @Override
-            public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                VH viewHolder = mAdapter.onCreateViewHolder(parent, viewType);
-
-                LayoutParams layoutParams = viewHolder.itemView.getLayoutParams();
-                if (layoutParams.width != LayoutParams.MATCH_PARENT
-                        || layoutParams.height != LayoutParams.MATCH_PARENT) {
-                    // TODO(b/70666614): decide if throw an exception or wrap in FrameLayout
-                    // ourselves; consider accepting exact size equal to parent's exact size
-                    throw new IllegalStateException(String.format(
-                            "Item's root view must fill the whole %s (use match_parent)",
-                            ViewPager2.this.getClass().getSimpleName()));
-                }
-
-                return viewHolder;
-            }
-
-            @Override
-            public void onBindViewHolder(@NonNull VH holder, int position) {
-                mAdapter.onBindViewHolder(holder, position);
-            }
-
-            @Override
-            public int getItemCount() {
-                return mAdapter.getItemCount();
-            }
-        });
+    public void setAdapter(Adapter adapter) {
+        mRecyclerView.setAdapter(adapter);
     }
 
-    /**
-     * TODO(b/70663708): decide on an Adapter class. Here supporting {@link Fragment}s.
-     *
-     * @param fragmentRetentionPolicy allows for future parameterization of Fragment memory
-     *                                strategy, similar to what {@link FragmentPagerAdapter} and
-     *                                {@link FragmentStatePagerAdapter} provide.
-     */
-    public void setAdapter(FragmentManager fragmentManager, FragmentProvider fragmentProvider,
-            @FragmentRetentionPolicy int fragmentRetentionPolicy) {
-        if (fragmentRetentionPolicy != FragmentRetentionPolicy.SAVE_STATE) {
-            throw new IllegalArgumentException("Currently only SAVE_STATE policy is supported");
-        }
-
-        mRecyclerView.setAdapter(new FragmentStateAdapter(fragmentManager, fragmentProvider));
-    }
-
-    /**
-     * Similar in behavior to {@link FragmentStatePagerAdapter}
-     * <p>
-     * Lifecycle within {@link RecyclerView}:
-     * <ul>
-     * <li>{@link RecyclerView.ViewHolder} initially an empty {@link FrameLayout}, serves as a
-     * re-usable container for a {@link Fragment} in later stages.
-     * <li>{@link RecyclerView.Adapter#onBindViewHolder} we ask for a {@link Fragment} for the
-     * position. If we already have the fragment, or have previously saved its state, we use those.
-     * <li>{@link RecyclerView.Adapter#onAttachedToWindow} we attach the {@link Fragment} to a
-     * container.
-     * <li>{@link RecyclerView.Adapter#onViewRecycled} and
-     * {@link RecyclerView.Adapter#onFailedToRecycleView} we remove, save state, destroy the
-     * {@link Fragment}.
-     * </ul>
-     */
-    private static class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
-        private final List<Fragment> mFragments = new ArrayList<>();
-
-        private final List<Fragment.SavedState> mSavedStates = new ArrayList<>();
-        // TODO: handle current item's menuVisibility userVisibleHint as FragmentStatePagerAdapter
-
-        private final FragmentManager mFragmentManager;
-        private final FragmentProvider mFragmentProvider;
-
-        FragmentStateAdapter(FragmentManager fragmentManager, FragmentProvider fragmentProvider) {
-            this.mFragmentManager = fragmentManager;
-            this.mFragmentProvider = fragmentProvider;
-        }
-
-        @NonNull
-        @Override
-        public FragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return FragmentViewHolder.create(parent);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull FragmentViewHolder holder, int position) {
-            if (ViewCompat.isAttachedToWindow(holder.getContainer())) {
-                // this should never happen; if it does, it breaks our assumption that attaching
-                // a Fragment can reliably happen inside onViewAttachedToWindow
-                throw new IllegalStateException(
-                        String.format("View %s unexpectedly attached to a window.",
-                                holder.getContainer()));
-            }
-
-            holder.mFragment = getFragment(position);
-        }
-
-        private Fragment getFragment(int position) {
-            Fragment fragment = mFragmentProvider.getItem(position);
-            if (mSavedStates.size() > position) {
-                Fragment.SavedState savedState = mSavedStates.get(position);
-                if (savedState != null) {
-                    fragment.setInitialSavedState(savedState);
-                }
-            }
-            while (mFragments.size() <= position) {
-                mFragments.add(null);
-            }
-            mFragments.set(position, fragment);
-            return fragment;
-        }
-
-        @Override
-        public void onViewAttachedToWindow(@NonNull FragmentViewHolder holder) {
-            if (holder.mFragment.isAdded()) {
-                return;
-            }
-            mFragmentManager.beginTransaction().add(holder.getContainer().getId(),
-                    holder.mFragment).commitNowAllowingStateLoss();
-        }
-
-        @Override
-        public int getItemCount() {
-            return mFragmentProvider.getCount();
-        }
-
-        @Override
-        public void onViewRecycled(@NonNull FragmentViewHolder holder) {
-            removeFragment(holder);
-        }
-
-        @Override
-        public boolean onFailedToRecycleView(@NonNull FragmentViewHolder holder) {
-            // This happens when a ViewHolder is in a transient state (e.g. during custom
-            // animation). We don't have sufficient information on how to clear up what lead to
-            // the transient state, so we are throwing away the ViewHolder to stay on the
-            // conservative side.
-            removeFragment(holder);
-            return false; // don't recycle the view
-        }
-
-        private void removeFragment(@NonNull FragmentViewHolder holder) {
-            removeFragment(holder.mFragment, holder.getAdapterPosition());
-            holder.mFragment = null;
-        }
-
-        /**
-         * Removes a Fragment and commits the operation.
-         */
-        private void removeFragment(Fragment fragment, int position) {
-            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-            removeFragment(fragment, position, fragmentTransaction);
-            fragmentTransaction.commitNowAllowingStateLoss();
-        }
-
-        /**
-         * Adds a remove operation to the transaction, but does not commit.
-         */
-        private void removeFragment(Fragment fragment, int position,
-                @NonNull FragmentTransaction fragmentTransaction) {
-            if (fragment == null) {
-                return;
-            }
-
-            if (fragment.isAdded()) {
-                while (mSavedStates.size() <= position) {
-                    mSavedStates.add(null);
-                }
-                mSavedStates.set(position, mFragmentManager.saveFragmentInstanceState(fragment));
-            }
-
-            mFragments.set(position, null);
-            fragmentTransaction.remove(fragment);
-        }
-
-        @Nullable
-        Parcelable[] saveState() {
-            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-            for (int i = 0; i < mFragments.size(); i++) {
-                removeFragment(mFragments.get(i), i, fragmentTransaction);
-            }
-            fragmentTransaction.commitNowAllowingStateLoss();
-            return mSavedStates.toArray(new Fragment.SavedState[mSavedStates.size()]);
-        }
-
-        void restoreState(@NonNull Parcelable[] savedStates) {
-            for (Parcelable savedState : savedStates) {
-                mSavedStates.add((Fragment.SavedState) savedState);
-            }
-        }
-    }
-
-    private static class FragmentViewHolder extends RecyclerView.ViewHolder {
-        Fragment mFragment;
-
-        private FragmentViewHolder(FrameLayout container) {
-            super(container);
-        }
-
-        static FragmentViewHolder create(ViewGroup parent) {
-            FrameLayout container = new FrameLayout(parent.getContext());
-            container.setLayoutParams(
-                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT));
-            container.setId(ViewCompat.generateViewId());
-            return new FragmentViewHolder(container);
-        }
-
-        FrameLayout getContainer() {
-            return (FrameLayout) itemView;
-        }
-    }
-
-    /**
-     * Provides {@link Fragment}s for pages
-     */
-    public interface FragmentProvider {
-        /**
-         * Return the Fragment associated with a specified position.
-         */
-        Fragment getItem(int position);
-
-        /**
-         * Return the number of pages available.
-         */
-        int getCount();
-    }
-
-    @Retention(CLASS)
-    @IntDef({FragmentRetentionPolicy.SAVE_STATE})
-    public @interface FragmentRetentionPolicy {
-        /** Approach similar to {@link FragmentStatePagerAdapter} */
-        int SAVE_STATE = 0;
+    public Adapter getAdapter() {
+        return mRecyclerView.getAdapter();
     }
 
     @Override
