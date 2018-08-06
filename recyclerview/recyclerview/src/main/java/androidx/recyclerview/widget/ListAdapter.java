@@ -93,17 +93,27 @@ import java.util.List;
  */
 public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> {
-    private final AsyncListDiffer<T> mHelper;
+    private final AsyncListDiffer<T> mDiffer;
+    private final AsyncListDiffer.ListListener<T> mListener =
+            new AsyncListDiffer.ListListener<T>() {
+        @Override
+        public void onCurrentListChanged(
+                @NonNull List<T> previousList, @NonNull List<T> currentList) {
+            ListAdapter.this.onCurrentListChanged(previousList, currentList);
+        }
+    };
 
     @SuppressWarnings("unused")
     protected ListAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
-        mHelper = new AsyncListDiffer<>(new AdapterListUpdateCallback(this),
+        mDiffer = new AsyncListDiffer<>(new AdapterListUpdateCallback(this),
                 new AsyncDifferConfig.Builder<>(diffCallback).build());
+        mDiffer.addListListener(mListener);
     }
 
     @SuppressWarnings("unused")
     protected ListAdapter(@NonNull AsyncDifferConfig<T> config) {
-        mHelper = new AsyncListDiffer<>(new AdapterListUpdateCallback(this), config);
+        mDiffer = new AsyncListDiffer<>(new AdapterListUpdateCallback(this), config);
+        mDiffer.addListListener(mListener);
     }
 
     /**
@@ -114,18 +124,53 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @param list The new list to be displayed.
      */
-    @SuppressWarnings("WeakerAccess")
+    @SuppressWarnings({"WeakerAccess", "unused"})
     public void submitList(@Nullable List<T> list) {
-        mHelper.submitList(list);
+        mDiffer.submitList(list);
     }
 
     @SuppressWarnings("unused")
     protected T getItem(int position) {
-        return mHelper.getCurrentList().get(position);
+        return mDiffer.getCurrentList().get(position);
     }
 
     @Override
     public int getItemCount() {
-        return mHelper.getCurrentList().size();
+        return mDiffer.getCurrentList().size();
+    }
+
+    /**
+     * Get the current List - any diffing to present this list has already been computed and
+     * dispatched via the ListUpdateCallback.
+     * <p>
+     * If a <code>null</code> List, or no List has been submitted, an empty list will be returned.
+     * <p>
+     * The returned list may not be mutated - mutations to content must be done through
+     * {@link #submitList(List)}.
+     *
+     * @return The list currently being displayed.
+     *
+     * @see #onCurrentListChanged(List, List)
+     */
+    @SuppressWarnings({"WeakerAccess", "unused"})
+    @NonNull
+    public List<T> getCurrentList() {
+        return mDiffer.getCurrentList();
+    }
+
+    /**
+     * Called when the current List is updated.
+     * <p>
+     * If a <code>null</code> List is passed to {@link #submitList(List)}, or no List has been
+     * submitted, the current List is represented as an empty List.
+     *
+     * @param previousList List that was displayed previously.
+     * @param currentList new List being displayed, will be empty if {@code null} was passed to
+     *          {@link #submitList(List)}.
+     *
+     * @see #getCurrentList()
+     */
+    @SuppressWarnings("WeakerAccess")
+    public void onCurrentListChanged(@NonNull List<T> previousList, @NonNull List<T> currentList) {
     }
 }

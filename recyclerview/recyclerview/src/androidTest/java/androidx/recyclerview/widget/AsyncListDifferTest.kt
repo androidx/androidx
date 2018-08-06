@@ -307,6 +307,42 @@ class AsyncListDifferTest {
         assertEquals(0, differ.currentList.size)
     }
 
+    @Test
+    fun listListener() {
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+
+        @Suppress("UNCHECKED_CAST")
+        val listener = mock(AsyncListDiffer.ListListener::class.java)
+                as AsyncListDiffer.ListListener<String>
+        differ.addListListener(listener)
+
+        // first - simple insert
+        val first = listOf("a", "b")
+        verifyZeroInteractions(listener)
+        differ.submitList(first)
+        verify(listener).onCurrentListChanged(emptyList(), first)
+        verifyNoMoreInteractions(listener)
+
+        // second - async update
+        val second = listOf("c", "d")
+        differ.submitList(second)
+        verifyNoMoreInteractions(listener)
+        drain()
+        verify(listener).onCurrentListChanged(first, second)
+        verifyNoMoreInteractions(listener)
+
+        // third - null
+        differ.submitList(null)
+        verify(listener).onCurrentListChanged(second, emptyList())
+        verifyNoMoreInteractions(listener)
+
+        // remove listener, see nothing
+        differ.removeListListener(listener)
+        differ.submitList(first)
+        drain()
+        verifyNoMoreInteractions(listener)
+    }
+
     private fun drain() {
         var executed: Boolean
         do {

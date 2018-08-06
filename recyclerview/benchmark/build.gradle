@@ -35,7 +35,7 @@ dependencies {
 supportLibrary {
     name = "RecyclerView Benchmarks"
     publish = false
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.RECYCLERVIEW
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2018"
     description = "RecyclerView Benchmarks"
