@@ -111,6 +111,11 @@ public abstract class VersionedParcel {
     protected abstract void writeByteArray(byte[] b, int offset, int len);
 
     /**
+     * Write a CharSequence into the parcel.
+     */
+    protected abstract void writeCharSequence(CharSequence charSequence);
+
+    /**
      * Write an integer value into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
@@ -211,6 +216,11 @@ public abstract class VersionedParcel {
     protected abstract byte[] readByteArray();
 
     /**
+     * Read a CharSequence from the parcel
+     */
+    protected abstract CharSequence readCharSequence();
+
+    /**
      */
     @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
     protected abstract <T extends Parcelable> T readParcelable();
@@ -293,6 +303,15 @@ public abstract class VersionedParcel {
     public void writeByteArray(byte[] b, int offset, int len, int fieldId) {
         setOutputField(fieldId);
         writeByteArray(b, offset, len);
+    }
+
+    /**
+     * Write a CharSequence into the parcel at the current dataPosition(),
+     * growing dataCapacity() if needed.
+     */
+    public void writeCharSequence(CharSequence val, int fieldId) {
+        setOutputField(fieldId);
+        writeCharSequence(val);
     }
 
     /**
@@ -577,6 +596,15 @@ public abstract class VersionedParcel {
         } else {
             writeInt(-1);
         }
+    }
+
+    /**
+     */
+    public CharSequence readCharSequence(CharSequence def, int fieldId) {
+        if (!readField(fieldId)) {
+            return def;
+        }
+        return readCharSequence();
     }
 
     /**

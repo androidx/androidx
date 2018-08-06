@@ -84,6 +84,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         mMethodLookup.put(Pattern.compile("^long$"), "Long");
         mMethodLookup.put(Pattern.compile("^float$"), "Float");
         mMethodLookup.put(Pattern.compile("^double$"), "Double");
+        mMethodLookup.put(Pattern.compile("^java.lang.CharSequence$"), "CharSequence");
         mMethodLookup.put(Pattern.compile("^java.lang.String$"), "String");
         mMethodLookup.put(Pattern.compile("^android.os.IBinder$"), "StrongBinder");
         mMethodLookup.put(Pattern.compile("^byte\\[\\]$"), "ByteArray");
