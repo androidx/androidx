@@ -103,7 +103,7 @@ public class SavedStateAccessor {
     /**
      * Returns a value associated with the given key.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
     @MainThread
     @Nullable
     public <T> T get(@NonNull String key) {
@@ -151,6 +151,7 @@ public class SavedStateAccessor {
      * @param key a key
      * @return a value that was previously associated with the given key.
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @MainThread
     @Nullable
     public <T> T remove(@NonNull String key) {
