@@ -79,15 +79,14 @@ public class SavedStateAccessor {
      */
     @SuppressWarnings("unchecked")
     @MainThread
+    @NonNull
     public <T> MutableLiveData<T> getLiveData(@Nullable String key) {
-        if (mLiveDatas.containsKey(key)) {
-            //noinspection unchecked
-            return (MutableLiveData<T>) mLiveDatas.get(key);
+        MutableLiveData<T> liveData = (MutableLiveData<T>) mLiveDatas.get(key);
+        if (liveData != null) {
+            return liveData;
         }
-        SavingStateLiveData<T> mutableLd = new SavingStateLiveData<>(this, key);
-        if (mRegular.containsKey(key)) {
-            mutableLd.setValue((T) mRegular.get(key));
-        }
+        T value = (T) mRegular.get(key);
+        SavingStateLiveData<T> mutableLd = new SavingStateLiveData<>(this, key, value);
         mLiveDatas.put(key, mutableLd);
         return mutableLd;
     }
@@ -106,6 +105,7 @@ public class SavedStateAccessor {
      */
     @SuppressWarnings("unchecked")
     @MainThread
+    @Nullable
     public <T> T get(@NonNull String key) {
         return (T) mRegular.get(key);
     }
@@ -119,9 +119,9 @@ public class SavedStateAccessor {
     @MainThread
     public <T> void set(@NonNull String key, T value) {
         validateValue(value);
-        if (mLiveDatas.containsKey(key)) {
-            @SuppressWarnings("unchecked")
-            MutableLiveData<T> mutableLiveData = (MutableLiveData<T>) mLiveDatas.get(key);
+        @SuppressWarnings("unchecked")
+        MutableLiveData<T> mutableLiveData = (MutableLiveData<T>) mLiveDatas.get(key);
+        if (mutableLiveData != null) {
             // it will set value;
             mutableLiveData.setValue(value);
         } else {
@@ -152,16 +152,14 @@ public class SavedStateAccessor {
      * @return a value that was previously associated with the given key.
      */
     @MainThread
+    @Nullable
     public <T> T remove(@NonNull String key) {
-        if (!mRegular.containsKey(key)) {
-            return null;
+        @SuppressWarnings("unchecked")
+        T latestValue = (T) mRegular.remove(key);
+        SavingStateLiveData<?> liveData = mLiveDatas.remove(key);
+        if (liveData != null) {
+            liveData.detach();
         }
-        T latestValue = get(key);
-        if (mLiveDatas.containsKey(key)) {
-            mLiveDatas.remove(key).detach();
-        }
-        mRegular.remove(key);
-        //noinspection unchecked
         return latestValue;
     }
 
@@ -169,9 +167,14 @@ public class SavedStateAccessor {
         private String mKey;
         private SavedStateAccessor mAccessor;
 
-        SavingStateLiveData(SavedStateAccessor accessor, String key) {
+        SavingStateLiveData(SavedStateAccessor accessor, String key, T value) {
             mKey = key;
             mAccessor = accessor;
+
+            if (value != null) {
+                // Bypass our override which would re-put the same value.
+                super.setValue(value);
+            }
         }
 
         @Override
