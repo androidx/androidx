@@ -147,7 +147,7 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @param pagedList The new list to be displayed.
      */
-    public void submitList(PagedList<T> pagedList) {
+    public void submitList(@Nullable PagedList<T> pagedList) {
         mDiffer.submitList(pagedList);
     }
 

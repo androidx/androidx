@@ -66,6 +66,7 @@ public class ViewModelsWithStateFactories {
      * @param activity an activity to use for state saving.
      * @param factory  a factory responsible for {@code ViewModel} creation.
      */
+    @NonNull
     public static KeyedFactory of(@NonNull FragmentActivity activity,
             @Nullable ViewModelWithStateFactory factory) {
         Application app = checkApplication(activity);

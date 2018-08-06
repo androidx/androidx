@@ -69,7 +69,7 @@ public class ViewModelProvider {
          * @return a newly created ViewModel
          */
         @NonNull
-        <T extends ViewModel> T create(String key, @NonNull Class<T> modelClass);
+        <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass);
     }
 
     private final KeyedFactory mFactory;

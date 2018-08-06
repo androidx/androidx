@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
@@ -40,7 +41,7 @@ public class LifecycleService extends Service implements LifecycleOwner {
     @CallSuper
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(@NonNull Intent intent) {
         mDispatcher.onServicePreSuperOnBind();
         return null;
     }
@@ -48,7 +49,7 @@ public class LifecycleService extends Service implements LifecycleOwner {
     @SuppressWarnings("deprecation")
     @CallSuper
     @Override
-    public void onStart(Intent intent, int startId) {
+    public void onStart(@NonNull Intent intent, int startId) {
         mDispatcher.onServicePreSuperOnStart();
         super.onStart(intent, startId);
     }
@@ -59,7 +60,7 @@ public class LifecycleService extends Service implements LifecycleOwner {
     // super.onStartCommand calls onStart().
     @CallSuper
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -71,6 +72,7 @@ public class LifecycleService extends Service implements LifecycleOwner {
     }
 
     @Override
+    @NonNull
     public Lifecycle getLifecycle() {
         return mDispatcher.getLifecycle();
     }

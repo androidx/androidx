@@ -29,6 +29,7 @@ import androidx.annotation.RestrictTo;
  * Internal class to initialize Lifecycles.
  * @hide
  */
+@SuppressWarnings("UnknownNullness") // TODO https://issuetracker.google.com/issues/112197238
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ProcessLifecycleOwnerInitializer extends ContentProvider {
     @Override
