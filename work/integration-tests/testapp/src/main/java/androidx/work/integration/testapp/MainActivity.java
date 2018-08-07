@@ -35,10 +35,13 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -169,5 +172,30 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        findViewById(R.id.exploding_work).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WorkManager wm = WorkManager.getInstance();
+                List<WorkContinuation> leaves = new ArrayList<>();
+                for (int i = 0; i < 10; ++i) {
+                    OneTimeWorkRequest workRequest = createTestWorker();
+                    WorkContinuation continuation = wm.beginWith(workRequest);
+                    for (int j = 0; j < 10; ++j) {
+                        OneTimeWorkRequest primaryDependent = createTestWorker();
+                        WorkContinuation primaryContinuation = continuation.then(primaryDependent);
+                        for (int k = 0; k < 10; ++k) {
+                            OneTimeWorkRequest secondaryDependent = createTestWorker();
+                            leaves.add(primaryContinuation.then(secondaryDependent));
+                        }
+                    }
+                }
+                WorkContinuation.combine(leaves).then(createTestWorker()).enqueue();
+            }
+
+            private OneTimeWorkRequest createTestWorker() {
+                return new OneTimeWorkRequest.Builder(TestWorker.class).build();
+            }
+        });
     }
 }

@@ -25,8 +25,6 @@ import androidx.work.Worker;
 public class TestWorker extends Worker {
     @Override
     public @NonNull Result doWork() {
-        int x = 0;
-        x++;
         return Result.SUCCESS;
     }
 }

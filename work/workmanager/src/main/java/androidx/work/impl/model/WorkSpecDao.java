@@ -279,12 +279,12 @@ public interface WorkSpecDao {
     /**
      * @return The List of {@link WorkSpec}s that are eligible to be scheduled.
      */
-    @Query("SELECT * from workspec WHERE "
+    @Query("SELECT * FROM workspec WHERE "
             + "state=" + WorkTypeConverters.StateIds.ENQUEUED
             // We only want WorkSpecs which have not been previously scheduled.
             + " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
             + " LIMIT "
-                + "(SELECT :schedulerLimit" + "-COUNT(*) FROM workspec WHERE"
+                + "(SELECT MAX(:schedulerLimit" + "-COUNT(*), 0) FROM workspec WHERE"
                     + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
                     + " AND state NOT IN " + COMPLETED_STATES
                 + ")"
