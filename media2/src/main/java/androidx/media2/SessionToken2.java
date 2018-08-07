@@ -62,6 +62,9 @@ import java.util.concurrent.Executor;
 //   - Stop implementing Parcelable for updatable support
 //   - Represent session and library service (formerly browser service) in one class.
 //     Previously MediaSession.Token was for session and ComponentName was for service.
+//     This helps controller apps to keep target of dispatching media key events in uniform way.
+//     For details about the reason, see following. (Android O+)
+//         android.media.session.MediaSessionManager.Callback#onAddressedPlayerChanged
 @VersionedParcelize
 public final class SessionToken2 implements VersionedParcelable {
     private static final String TAG = "SessionToken2";
@@ -118,36 +121,25 @@ public final class SessionToken2 implements VersionedParcelable {
         final PackageManager manager = context.getPackageManager();
         final int uid = getUid(manager, serviceComponent.getPackageName());
 
-        final String sessionId;
         final int type;
-        String id = getSessionIdFromService(manager, MediaLibraryService2.SERVICE_INTERFACE,
-                serviceComponent);
-        if (id != null) {
-            sessionId = id;
+        if (isInterfaceDeclared(manager, MediaLibraryService2.SERVICE_INTERFACE,
+                serviceComponent)) {
             type = TYPE_LIBRARY_SERVICE;
+        } else if (isInterfaceDeclared(manager, MediaSessionService2.SERVICE_INTERFACE,
+                    serviceComponent)) {
+            type = TYPE_SESSION_SERVICE;
+        } else if (isInterfaceDeclared(manager,
+                        MediaBrowserServiceCompat.SERVICE_INTERFACE, serviceComponent)) {
+            type = TYPE_BROWSER_SERVICE_LEGACY;
         } else {
-            // retry with session service
-            id = getSessionIdFromService(manager, MediaSessionService2.SERVICE_INTERFACE,
-                    serviceComponent);
-            if (id != null) {
-                sessionId = id;
-                type = TYPE_SESSION_SERVICE;
-            } else {
-                // Last retry with media browser service (compat)
-                sessionId = getSessionIdFromService(manager,
-                        MediaBrowserServiceCompat.SERVICE_INTERFACE, serviceComponent);
-                type = TYPE_BROWSER_SERVICE_LEGACY;
-            }
-        }
-        if (sessionId == null) {
             throw new IllegalArgumentException(serviceComponent + " doesn't implement none of"
                     + " MediaSessionService2, MediaLibraryService2, MediaBrowserService nor"
                     + " MediaBrowserServiceCompat. Use service's full name.");
         }
         if (type != TYPE_BROWSER_SERVICE_LEGACY) {
-            mImpl = new SessionToken2ImplBase(serviceComponent, uid, sessionId, type);
+            mImpl = new SessionToken2ImplBase(serviceComponent, uid, type);
         } else {
-            mImpl = new SessionToken2ImplLegacy(serviceComponent, uid, sessionId);
+            mImpl = new SessionToken2ImplLegacy(serviceComponent, uid);
         }
     }
 
@@ -215,13 +207,6 @@ public final class SessionToken2 implements VersionedParcelable {
     @RestrictTo(LIBRARY_GROUP)
     public ComponentName getComponentName() {
         return mImpl.getComponentName();
-    }
-
-    /**
-     * @return id
-     */
-    public String getId() {
-        return mImpl.getSessionId();
     }
 
     /**
@@ -335,21 +320,6 @@ public final class SessionToken2 implements VersionedParcelable {
         }
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static String getSessionId(ResolveInfo resolveInfo) {
-        if (resolveInfo == null || resolveInfo.serviceInfo == null) {
-            return null;
-        } else if (resolveInfo.serviceInfo.metaData == null) {
-            return "";
-        } else {
-            return resolveInfo.serviceInfo.metaData.getString(
-                    MediaSessionService2.SERVICE_META_DATA_SESSION_ID, "");
-        }
-    }
-
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static void notifySessionToken2Created(final Executor executor,
             final OnSessionToken2CreatedListener listener, final MediaSessionCompat.Token token,
@@ -362,7 +332,7 @@ public final class SessionToken2 implements VersionedParcelable {
         });
     }
 
-    private static String getSessionIdFromService(PackageManager manager, String serviceInterface,
+    private static boolean isInterfaceDeclared(PackageManager manager, String serviceInterface,
             ComponentName serviceComponent) {
         Intent serviceIntent = new Intent(serviceInterface);
         // Use queryIntentServices to find services with MediaLibraryService2.SERVICE_INTERFACE.
@@ -380,11 +350,11 @@ public final class SessionToken2 implements VersionedParcelable {
                 }
                 if (TextUtils.equals(
                         resolveInfo.serviceInfo.name, serviceComponent.getClassName())) {
-                    return SessionToken2.getSessionId(resolveInfo);
+                    return true;
                 }
             }
         }
-        return null;
+        return false;
     }
 
     private static int getUid(PackageManager manager, String packageName) {
@@ -419,7 +389,6 @@ public final class SessionToken2 implements VersionedParcelable {
         @NonNull String getPackageName();
         @Nullable String getServiceName();
         @Nullable ComponentName getComponentName();
-        String getSessionId();
         @TokenType int getType();
         Object getBinder();
     }

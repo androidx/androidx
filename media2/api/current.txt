@@ -180,7 +180,7 @@ package androidx.media2 {
 
   public abstract class MediaLibraryService2 extends androidx.media2.MediaSessionService2 {
     ctor public MediaLibraryService2();
-    method public abstract androidx.media2.MediaLibraryService2.MediaLibrarySession onCreateSession(java.lang.String);
+    method public abstract androidx.media2.MediaLibraryService2.MediaLibrarySession onCreateSession();
     field public static final java.lang.String SERVICE_INTERFACE = "android.media.MediaLibraryService2";
   }
 
@@ -696,10 +696,9 @@ package androidx.media2 {
     ctor public MediaSessionService2();
     method public final androidx.media2.MediaSession2 getSession();
     method public android.os.IBinder onBind(android.content.Intent);
-    method public abstract androidx.media2.MediaSession2 onCreateSession(java.lang.String);
+    method public abstract androidx.media2.MediaSession2 onCreateSession();
     method public androidx.media2.MediaSessionService2.MediaNotification onUpdateNotification();
     field public static final java.lang.String SERVICE_INTERFACE = "android.media.MediaSessionService2";
-    field public static final java.lang.String SERVICE_META_DATA_SESSION_ID = "android.media.session2.SESSION_ID";
   }
 
   public static class MediaSessionService2.MediaNotification {
@@ -814,7 +813,6 @@ package androidx.media2 {
 
   public final class SessionToken2 implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionToken2(android.content.Context, android.content.ComponentName);
-    method public java.lang.String getId();
     method public java.lang.String getPackageName();
     method public java.lang.String getServiceName();
     method public int getType();

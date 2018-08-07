@@ -136,12 +136,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
     }
 
     @Test
-    public void testDefaultId() {
-        prepareLooper();
-        assertEquals("", mSession.getToken().getId());
-    }
-
-    @Test
     public void testPlayerStateChange() throws Exception {
         prepareLooper();
         final int targetState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
