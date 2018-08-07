@@ -94,6 +94,7 @@ import androidx.work.impl.utils.Preferences;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.worker.InfiniteTestWorker;
+import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
 
 import org.junit.After;
@@ -1499,7 +1500,7 @@ public class WorkManagerImplTest {
         // Initialization of WM enables SystemJobService which needs to be discounted.
         reset(packageManager);
         OneTimeWorkRequest infiniteWorkerRequest =
-                new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
+                new OneTimeWorkRequest.Builder(StopAwareWorker.class)
                         .build();
 
         mWorkManagerImpl.enqueueSync(infiniteWorkerRequest);
