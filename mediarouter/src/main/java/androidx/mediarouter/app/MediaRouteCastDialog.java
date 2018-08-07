@@ -774,6 +774,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 mGroupVolumeSlider = itemView.findViewById(R.id.mr_cast_group_volume_slider);
             }
 
+            @Override
             public MediaRouteVolumeSlider getVolumeSlider() {
                 return mGroupVolumeSlider;
             }
@@ -846,6 +847,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 mCheckBox = itemView.findViewById(R.id.mr_cast_checkbox);
             }
 
+            @Override
             public MediaRouteVolumeSlider getVolumeSlider() {
                 return mVolumeSlider;
             }
