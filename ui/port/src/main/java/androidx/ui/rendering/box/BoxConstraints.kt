@@ -80,13 +80,13 @@ data class BoxConstraints(
     val maxHeight: Double = Double.POSITIVE_INFINITY
 ) : Constraints() {
 
-//    /// Creates box constraints that is respected only by the given size.
-//    BoxConstraints.tight(Size size)
-//    : minWidth = size.width,
-//    maxWidth = size.width,
-//    minHeight = size.height,
-//    maxHeight = size.height;
-//
+    companion object {
+        // Creates box constraints that is respected only by the given size.
+        fun tight(size: Size): BoxConstraints {
+            return BoxConstraints(size.width, size.width, size.height, size.height)
+        }
+    }
+
 //    /// Creates box constraints that require the given width or height.
 //    ///
 //    /// See also:

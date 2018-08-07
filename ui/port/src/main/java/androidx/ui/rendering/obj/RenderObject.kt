@@ -1,10 +1,15 @@
 package androidx.ui.rendering.obj
 
 import androidx.ui.assert
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.AbstractNode
 import androidx.ui.foundation.assertions.debugPrintStack
 import androidx.ui.foundation.debugPrint
+import androidx.ui.rendering.layer.OffsetLayer
+import androidx.ui.semantics.SemanticsConfiguration
+import androidx.ui.semantics.SemanticsNode
+import androidx.ui.vectormath64.Matrix4
 import androidx.ui.widgets.framework._debugReportException
 
 /**
@@ -237,7 +242,7 @@ abstract class RenderObject : AbstractNode() {
      *
      * Override in subclasses with children and call the visitor for each child.
      */
-    fun visitChildren(visitor: RenderObjectVisitor) {}
+    open fun visitChildren(visitor: RenderObjectVisitor) {}
 
     /**
      * The object responsible for creating this render object.
@@ -359,34 +364,34 @@ abstract class RenderObject : AbstractNode() {
 //    @override
 //    PipelineOwner get owner => super.owner;
 //
-//    @override
-//    void attach(PipelineOwner owner) {
-//        super.attach(owner);
-//        // If the node was dirtied in some way while unattached, make sure to add
-//        // it to the appropriate dirty list now that an owner is available
-//        if (_needsLayout && _relayoutBoundary != null) {
-//            // Don't enter this block if we've never laid out at all;
-//            // scheduleInitialLayout() will handle it
-//            _needsLayout = false;
-//            markNeedsLayout();
-//        }
-//        if (_needsCompositingBitsUpdate) {
-//            _needsCompositingBitsUpdate = false;
-//            markNeedsCompositingBitsUpdate();
-//        }
-//        if (_needsPaint && _layer != null) {
-//            // Don't enter this block if we've never painted at all;
-//            // scheduleInitialPaint() will handle it
-//            _needsPaint = false;
-//            markNeedsPaint();
-//        }
-//        if (_needsSemanticsUpdate && _semanticsConfiguration.isSemanticBoundary) {
-//            // Don't enter this block if we've never updated semantics at all;
-//            // scheduleInitialSemantics() will handle it
-//            _needsSemanticsUpdate = false;
-//            markNeedsSemanticsUpdate();
-//        }
-//    }
+
+    override fun attach(owner: Any) {
+        super.attach(owner)
+        // If the node was dirtied in some way while unattached, make sure to add
+        // it to the appropriate dirty list now that an owner is available
+        if (_needsLayout && _relayoutBoundary != null) {
+            // Don't enter this block if we've never laid out at all;
+            // scheduleInitialLayout() will handle it
+            _needsLayout = false
+            markNeedsLayout()
+        }
+        if (_needsCompositingBitsUpdate) {
+            _needsCompositingBitsUpdate = false
+            markNeedsCompositingBitsUpdate()
+        }
+        if (_needsPaint && _layer != null) {
+            // Don't enter this block if we've never painted at all;
+            // scheduleInitialPaint() will handle it
+            _needsPaint = false
+            markNeedsPaint()
+        }
+        if (_needsSemanticsUpdate && _semanticsConfiguration._isSemanticBoundary) {
+            // Don't enter this block if we've never updated semantics at all;
+            // scheduleInitialSemantics() will handle it
+            _needsSemanticsUpdate = false
+            markNeedsSemanticsUpdate()
+        }
+    }
 
     /**
      * Whether this render object's layout information is dirty.
@@ -438,7 +443,7 @@ abstract class RenderObject : AbstractNode() {
      */
     fun _debugSubtreeRelayoutRootAlreadyMarkedNeedsLayout(): Boolean {
         if (_relayoutBoundary == null)
-            return true; // we haven't yet done layout even once, so there's nothing for us to do
+            return true // we haven't yet done layout even once, so there's nothing for us to do
         var node: RenderObject = this
         while (node != _relayoutBoundary) {
             assert(node._relayoutBoundary == _relayoutBoundary)
@@ -559,26 +564,28 @@ abstract class RenderObject : AbstractNode() {
         }
     }
 
-    //
-//    /// Bootstrap the rendering pipeline by scheduling the very first layout.
-//    ///
-//    /// Requires this render object to be attached and that this render object
-//    /// is the root of the render tree.
-//    ///
-//    /// See [RenderView] for an example of how this function is used.
-//    void scheduleInitialLayout() {
-//        assert(attached);
-//        assert(parent is! RenderObject);
-//        assert(!owner._debugDoingLayout);
-//        assert(_relayoutBoundary == null);
-//        _relayoutBoundary = this;
-//        assert(() {
-//            _debugCanParentUseSize = false;
-//            return true;
-//        }());
-//        owner._nodesNeedingLayout.add(this);
-//    }
-//
+    /**
+     * Bootstrap the rendering pipeline by scheduling the very first layout.
+     *
+     * Requires this render object to be attached and that this render object
+     * is the root of the render tree.
+     *
+     * See [RenderView] for an example of how this function is used.
+     */
+    fun scheduleInitialLayout() {
+        assert(attached)
+        assert(parent !is RenderObject)
+        assert(pipelineOwner != null)
+        assert(!pipelineOwner!!.debugDoingLayout)
+        assert(_relayoutBoundary == null)
+        _relayoutBoundary = this
+        assert {
+            debugCanParentUseSize = false
+            true
+        }
+        pipelineOwner!!._nodesNeedingLayout.add(this)
+    }
+
     fun _layoutWithoutResize() {
         assert(_relayoutBoundary == this)
         var debugPreviousActiveLayout: RenderObject? = null
@@ -609,31 +616,35 @@ abstract class RenderObject : AbstractNode() {
         _needsLayout = false
         markNeedsPaint()
     }
-//
-//    /// Compute the layout for this render object.
-//    ///
-//    /// This method is the main entry point for parents to ask their children to
-//    /// update their layout information. The parent passes a constraints object,
-//    /// which informs the child as which layouts are permissible. The child is
-//    /// required to obey the given constraints.
-//    ///
-//    /// If the parent reads information computed during the child's layout, the
-//    /// parent must pass true for parentUsesSize. In that case, the parent will be
-//    /// marked as needing layout whenever the child is marked as needing layout
-//    /// because the parent's layout information depends on the child's layout
-//    /// information. If the parent uses the default value (false) for
-//    /// parentUsesSize, the child can change its layout information (subject to
-//    /// the given constraints) without informing the parent.
-//    ///
-//    /// Subclasses should not override [layout] directly. Instead, they should
-//    /// override [performResize] and/or [performLayout]. The [layout] method
-//    /// delegates the actual work to [performResize] and [performLayout].
-//    ///
-//    /// The parent's performLayout method should call the [layout] of all its
-//    /// children unconditionally. It is the [layout] method's responsibility (as
-//    /// implemented here) to return early if the child does not need to do any
-//    /// work to update its layout information.
-//    void layout(Constraints constraints, { bool parentUsesSize: false }) {
+
+    /**
+     *
+     * Compute the layout for this render object.
+     *
+     * This method is the main entry point for parents to ask their children to
+     * update their layout information. The parent passes a constraints object,
+     * which informs the child as which layouts are permissible. The child is
+     * required to obey the given constraints.
+     *
+     * If the parent reads information computed during the child's layout, the
+     * parent must pass true for parentUsesSize. In that case, the parent will be
+     * marked as needing layout whenever the child is marked as needing layout
+     * because the parent's layout information depends on the child's layout
+     * information. If the parent uses the default value (false) for
+     * parentUsesSize, the child can change its layout information (subject to
+     * the given constraints) without informing the parent.
+     *
+     * Subclasses should not override [layout] directly. Instead, they should
+     * override [performResize] and/or [performLayout]. The [layout] method
+     * delegates the actual work to [performResize] and [performLayout].
+     *
+     * The parent's performLayout method should call the [layout] of all its
+     * children unconditionally. It is the [layout] method's responsibility (as
+     * implemented here) to return early if the child does not need to do any
+     * work to update its layout information.
+     */
+    fun layout(constraints: Constraints, parentUsesSize: Boolean = false) {
+        TODO()
 //        assert(constraints != null);
 //        assert(constraints.debugAssertIsValid(
 //                isAppliedConstraint: true,
@@ -734,7 +745,7 @@ abstract class RenderObject : AbstractNode() {
 //        }());
 //        _needsLayout = false;
 //        markNeedsPaint();
-//    }
+    }
 
     /**
      * If a subclass has a "size" (the state controlled by `parentUsesSize`,
@@ -874,14 +885,17 @@ abstract class RenderObject : AbstractNode() {
      * Warning: This getter must not change value over the lifetime of this object.
      */
     var isRepaintBoundary: Boolean = false
-        private set
+        protected set
 
-//    /// Called, in checked mode, if [isRepaintBoundary] is true, when either the
-//    /// this render object or its parent attempt to paint.
-//    ///
-//    /// This can be used to record metrics about whether the node should actually
-//    /// be a repaint boundary.
-//    void debugRegisterRepaintBoundaryPaint({ bool includedParent: true, bool includedChild: false }) { }
+    // / Called, in checked mode, if [isRepaintBoundary] is true, when either the
+    // / this render object or its parent attempt to paint.
+    // /
+    // / This can be used to record metrics about whether the node should actually
+    // / be a repaint boundary.
+    open fun debugRegisterRepaintBoundaryPaint(
+        includedParent: Boolean = true,
+        includedChild: Boolean = false
+    ) { }
 
     /**
      * Whether this render object always needs compositing.
@@ -894,20 +908,24 @@ abstract class RenderObject : AbstractNode() {
      * changes. (This is implied when [adoptChild] or [dropChild] are called.)
      */
     protected val alwaysNeedsCompositing = false
-//
-//    OffsetLayer _layer;
-//    /// The compositing layer that this render object uses to repaint.
-//    ///
-//    /// Call only when [isRepaintBoundary] is true and the render object has
-//    /// already painted.
-//    ///
-//    /// To access the layer in debug code, even when it might be inappropriate to
-//    /// access it (e.g. because it is dirty), consider [debugLayer].
-//    OffsetLayer get layer {
-//        assert(isRepaintBoundary, 'You can only access RenderObject.layer for render objects that are repaint boundaries.');
-//        assert(!_needsPaint);
-//        return _layer;
-//    }
+
+    // TODO(Migration/andrey): supposted to be private, but used from PaintingContext
+    var _layer: OffsetLayer? = null
+    /**
+     * The compositing layer that this render object uses to repaint.
+     *
+     * Call only when [isRepaintBoundary] is true and the render object has
+     * already painted.
+     *
+     * To access the layer in debug code, even when it might be inappropriate to
+     * access it (e.g. because it is dirty), consider [debugLayer].
+     */
+    get() {
+        assert(isRepaintBoundary, { "You can only access RenderObject.layer for render " +
+                "objects that are repaint boundaries." })
+        assert(!_needsPaint)
+        return field
+    }
 //    /// In debug mode, the compositing layer that this render object uses to repaint.
 //    ///
 //    /// This getter is intended for debugging purposes only. In release builds, it
@@ -924,7 +942,7 @@ abstract class RenderObject : AbstractNode() {
 //        return result;
 //    }
 
-    var _needsCompositingBitsUpdate = false; // set to true when a child is added
+    var _needsCompositingBitsUpdate = false // set to true when a child is added
     /**
      * Mark the compositing state for this render object as dirty.
      *
@@ -994,7 +1012,6 @@ abstract class RenderObject : AbstractNode() {
         _needsCompositingBitsUpdate = false
     }
 
-    //
 //    /// Whether this render object's paint information is dirty.
 //    ///
 //    /// This is only set in debug mode. In general, render objects should not need
@@ -1102,43 +1119,51 @@ abstract class RenderObject : AbstractNode() {
 //            ancestor = node.parent;
 //        }
 //    }
-//
-//    /// Bootstrap the rendering pipeline by scheduling the very first paint.
-//    ///
-//    /// Requires that this render object is attached, is the root of the render
-//    /// tree, and has a composited layer.
-//    ///
-//    /// See [RenderView] for an example of how this function is used.
-//    void scheduleInitialPaint(ContainerLayer rootLayer) {
-//        assert(rootLayer.attached);
-//        assert(attached);
-//        assert(parent is! RenderObject);
-//        assert(!owner._debugDoingPaint);
-//        assert(isRepaintBoundary);
-//        assert(_layer == null);
-//        _layer = rootLayer;
-//        assert(_needsPaint);
-//        owner._nodesNeedingPaint.add(this);
-//    }
-//
-//    /// Replace the layer. This is only valid for the root of a render
-//    /// object subtree (whatever object [scheduleInitialPaint] was
-//    /// called on).
-//    ///
-//    /// This might be called if, e.g., the device pixel ratio changed.
-//    void replaceRootLayer(OffsetLayer rootLayer) {
-//        assert(rootLayer.attached);
-//        assert(attached);
-//        assert(parent is! RenderObject);
-//        assert(!owner._debugDoingPaint);
-//        assert(isRepaintBoundary);
-//        assert(_layer != null); // use scheduleInitialPaint the first time
-//        _layer.detach();
-//        _layer = rootLayer;
-//        markNeedsPaint();
-//    }
-//
-//    void _paintWithContext(PaintingContext context, Offset offset) {
+
+    /**
+     * Bootstrap the rendering pipeline by scheduling the very first paint.
+     *
+     * Requires that this render object is attached, is the root of the render
+     * tree, and has a composited layer.
+     *
+     * See [RenderView] for an example of how this function is used.
+     */
+    // TODO(Migration/Andrey): changed param type from ContainerLayer as it's later not safely casted to OffsetLayer
+    fun scheduleInitialPaint(rootLayer: OffsetLayer) {
+        assert(rootLayer.attached)
+        assert(attached)
+        assert(parent !is RenderObject)
+        assert(pipelineOwner != null)
+        assert(!pipelineOwner!!.debugDoingPaint)
+        assert(isRepaintBoundary)
+        assert(_layer == null)
+        _layer = rootLayer
+        assert(_needsPaint)
+        pipelineOwner!!._nodesNeedingPaint.add(this)
+    }
+
+    /**
+     * Replace the layer. This is only valid for the root of a render
+     * object subtree (whatever object [scheduleInitialPaint] was
+     * called on).
+     *
+     * This might be called if, e.g., the device pixel ratio changed.
+     */
+    fun replaceRootLayer(rootLayer: OffsetLayer) {
+        assert(rootLayer.attached)
+        assert(attached)
+        assert(parent !is RenderObject)
+        assert(pipelineOwner != null)
+        assert(!pipelineOwner!!.debugDoingPaint)
+        assert(isRepaintBoundary)
+        assert(_layer != null) // use scheduleInitialPaint the first time
+        _layer?.detach()
+        _layer = rootLayer
+        markNeedsPaint()
+    }
+
+    fun _paintWithContext(context: PaintingContext, offset: Offset) {
+        TODO()
 //        assert(() {
 //            if (_debugDoingThisPaint) {
 //                throw new FlutterError(
@@ -1199,45 +1224,52 @@ abstract class RenderObject : AbstractNode() {
 //            _debugDoingThisPaint = false;
 //            return true;
 //        }());
-//    }
-//
-    // An estimate of the bounds within which this render object will paint.
-    // Useful for debugging flags such as [debugPaintLayerBordersEnabled].
-    abstract val paintBounds: Rect
-//
-//    /// Override this method to paint debugging information.
-//    @protected
-//    void debugPaint(PaintingContext context, Offset offset) { }
-//
-//    /// Paint this render object into the given context at the given offset.
-//    ///
-//    /// Subclasses should override this method to provide a visual appearance
-//    /// for themselves. The render object's local coordinate system is
-//    /// axis-aligned with the coordinate system of the context's canvas and the
-//    /// render object's local origin (i.e, x=0 and y=0) is placed at the given
-//    /// offset in the context's canvas.
-//    ///
-//    /// Do not call this function directly. If you wish to paint yourself, call
-//    /// [markNeedsPaint] instead to schedule a call to this function. If you wish
-//    /// to paint one of your children, call [PaintingContext.paintChild] on the
-//    /// given `context`.
-//    ///
-//    /// When painting one of your children (via a paint child function on the
-//    /// given context), the current canvas held by the context might change
-//    /// because draw operations before and after painting children might need to
-//    /// be recorded on separate compositing layers.
-//    void paint(PaintingContext context, Offset offset) { }
-//
-//    /// Applies the transform that would be applied when painting the given child
-//    /// to the given matrix.
-//    ///
-//    /// Used by coordinate conversion functions to translate coordinates local to
-//    /// one render object into coordinates local to another render object.
+    }
+
+    // / An estimate of the bounds within which this render object will paint.
+    // / Useful for debugging flags such as [debugPaintLayerBordersEnabled].
+    open val paintBounds: Rect? = null
+
+    /**
+     * Override this method to paint debugging information.
+     */
+    protected open fun debugPaint(context: PaintingContext, offset: Offset) { }
+
+    /**
+     * Paint this render object into the given context at the given offset.
+     *
+     * Subclasses should override this method to provide a visual appearance
+     * for themselves. The render object's local coordinate system is
+     * axis-aligned with the coordinate system of the context's canvas and the
+     * render object's local origin (i.e, x=0 and y=0) is placed at the given
+     * offset in the context's canvas.
+     *
+     * Do not call this function directly. If you wish to paint yourself, call
+     * [markNeedsPaint] instead to schedule a call to this function. If you wish
+     * to paint one of your children, call [PaintingContext.paintChild] on the
+     * given `context`.
+     *
+     * When painting one of your children (via a paint child function on the
+     * given context), the current canvas held by the context might change
+     * because draw operations before and after painting children might need to
+     * be recorded on separate compositing layers.
+     */
+    open fun paint(context: PaintingContext, offset: Offset) { }
+
+    /**
+     * Applies the transform that would be applied when painting the given child
+     * to the given matrix.
+     *
+     * Used by coordinate conversion functions to translate coordinates local to
+     * one render object into coordinates local to another render object.
+     */
+    // TODO(Migration/Andrey): Dropped covariant
+    open fun applyPaintTransform(child: RenderObject, transform: Matrix4) {
 //    void applyPaintTransform(covariant RenderObject child, Matrix4 transform) {
-//        assert(child.parent == this);
-//    }
-//
-//    /// Applies the paint transform up the tree to `ancestor`.
+        assert(child.parent == this)
+    }
+
+    //    /// Applies the paint transform up the tree to `ancestor`.
 //    ///
 //    /// Returns a matrix that maps the local paint coordinate system to the
 //    /// coordinate system of `ancestor`.
@@ -1319,45 +1351,46 @@ abstract class RenderObject : AbstractNode() {
 //        owner._nodesNeedingSemantics.add(this);
 //        owner.requestVisualUpdate();
 //    }
-//
-//    /// Report the semantics of this node, for example for accessibility purposes.
-//    ///
-//    /// This method should be overridden by subclasses that have interesting
-//    /// semantic information.
-//    ///
-//    /// The given [SemanticsConfiguration] object is mutable and should be
-//    /// annotated in a manner that describes the current state. No reference
-//    /// should be kept to that object; mutating it outside of the context of the
-//    /// [describeSemanticsConfiguration] call (for example as a result of
-//    /// asynchronous computation) will at best have no useful effect and at worse
-//    /// will cause crashes as the data will be in an inconsistent state.
-//    ///
-//    /// ## Sample code
-//    ///
-//    /// The following snippet will describe the node as a button that responds to
-//    /// tap actions.
-//    ///
-//    /// ```dart
-//    /// abstract class SemanticButtonRenderObject extends RenderObject {
-//    ///   @override
-//    ///   void describeSemanticsConfiguration(SemanticsConfiguration config) {
-//    ///     super.describeSemanticsConfiguration(config);
-//    ///     config
-//    ///       ..onTap = _handleTap
-//    ///       ..label = 'I am a button'
-//    ///       ..isButton = true;
-//    ///   }
-//    ///
-//    ///   void _handleTap() {
-//    ///     // Do something.
-//    ///   }
-//    /// }
-//    /// ```
-//    @protected
-//    void describeSemanticsConfiguration(SemanticsConfiguration config) {
-//        // Nothing to do by default.
-//    }
-//
+
+    /**
+     * Report the semantics of this node, for example for accessibility purposes.
+     *
+     * This method should be overridden by subclasses that have interesting
+     * semantic information.
+     *
+     * The given [SemanticsConfiguration] object is mutable and should be
+     * annotated in a manner that describes the current state. No reference
+     * should be kept to that object; mutating it outside of the context of the
+     * [describeSemanticsConfiguration] call (for example as a result of
+     * asynchronous computation) will at best have no useful effect and at worse
+     * will cause crashes as the data will be in an inconsistent state.
+     *
+     * ## Sample code
+     *
+     * The following snippet will describe the node as a button that responds to
+     * tap actions.
+     *
+     * ```dart
+     * abstract class SemanticButtonRenderObject extends RenderObject {
+     *   @override
+     *   void describeSemanticsConfiguration(SemanticsConfiguration config) {
+     *     super.describeSemanticsConfiguration(config);
+     *     config
+     *       ..onTap = _handleTap
+     *       ..label = 'I am a button'
+     *       ..isButton = true;
+     *   }
+     *
+     *   void _handleTap() {
+     *     // Do something.
+     *   }
+     * }
+     * ```
+     */
+    protected open fun describeSemanticsConfiguration(config: SemanticsConfiguration) {
+        // Nothing to do by default.
+    }
+
 //    /// Sends a [SemanticsEvent] associated with this render object's [SemanticsNode].
 //    ///
 //    /// If this render object has no semantics information, the first parent
@@ -1377,24 +1410,26 @@ abstract class RenderObject : AbstractNode() {
 //        }
 //    }
 //
-//    // Use [_semanticsConfiguration] to access.
-//    SemanticsConfiguration _cachedSemanticsConfiguration;
-//
-//    SemanticsConfiguration get _semanticsConfiguration {
-//        if (_cachedSemanticsConfiguration == null) {
-//            _cachedSemanticsConfiguration = new SemanticsConfiguration();
-//            describeSemanticsConfiguration(_cachedSemanticsConfiguration);
-//        }
-//        return _cachedSemanticsConfiguration;
-//    }
-//
+    // Use [_semanticsConfiguration] to access.
+    private var _cachedSemanticsConfiguration: SemanticsConfiguration? = null
+
+    private val _semanticsConfiguration: SemanticsConfiguration
+        get() {
+            val result = _cachedSemanticsConfiguration ?: SemanticsConfiguration()
+            if (_cachedSemanticsConfiguration == null) {
+                _cachedSemanticsConfiguration = result
+                describeSemanticsConfiguration(result)
+            }
+            return result
+        }
+
     // The bounding box, in the local coordinate system, of this
     // object, for accessibility purposes.
-    abstract val semanticBounds: Rect
-//
-//    bool _needsSemanticsUpdate = true;
-//    SemanticsNode _semantics;
-//
+    open val semanticBounds: Rect? = null
+
+    private var _needsSemanticsUpdate: Boolean = true
+    private var _semantics: SemanticsNode? = null
+
 //    /// The semantics of this render object.
 //    ///
 //    /// Exposed only for testing and debugging. To learn about the semantics of

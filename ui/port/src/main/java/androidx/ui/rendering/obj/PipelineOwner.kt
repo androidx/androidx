@@ -170,7 +170,7 @@ class PipelineOwner(
     // / Called as part of the rendering pipeline after [flushLayout] and before
     // / [flushPaint].
     fun flushCompositingBits() {
-       // TODO: profile( { Timeline.startSync('Compositing bits'); });
+        // TODO: profile( { Timeline.startSync('Compositing bits'); });
         _nodesNeedingCompositingBitsUpdate.sort()
         for (node in _nodesNeedingCompositingBitsUpdate) {
             if (node._needsCompositingBitsUpdate && node.owner == this)
@@ -180,7 +180,7 @@ class PipelineOwner(
         // TODO: profile(() { Timeline.finishSync(); });
     }
 
-    var _nodesNeedingPaint: List<RenderObject> = mutableListOf()
+    var _nodesNeedingPaint: MutableList<RenderObject> = mutableListOf()
 
     // / Whether this pipeline is currently in the paint phase.
     // /

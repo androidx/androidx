@@ -63,7 +63,7 @@ abstract class AbstractNode : Comparable<AbstractNode> {
     // /
     // / Override this method in subclasses with child nodes to call [redepthChild]
     // / for each child. Do not call this method directly.
-    fun redepthChildren() { }
+    open fun redepthChildren() { }
 
     // / The owner for this node (null if unattached).
     // /
@@ -87,7 +87,7 @@ abstract class AbstractNode : Comparable<AbstractNode> {
     // / inherited [attach] method, and then [attach] all their children to the
     // / same [owner].
     @CallSuper
-    fun attach(owner: Any) { // TODO(Migration/Filip): Removed covariant
+    open fun attach(owner: Any) { // TODO(Migration/Filip): Removed covariant
         assert(owner != null)
         assert(this.owner == null)
         this.owner = owner
@@ -101,7 +101,7 @@ abstract class AbstractNode : Comparable<AbstractNode> {
     // / Subclasses with children should override this method to first call their
     // / inherited [detach] method, and then [detach] all their children.
     @CallSuper
-    fun detach() {
+    open fun detach() {
         assert(owner != null)
         owner = null
         assert(parent == null || attached == parent!!.attached)
@@ -115,14 +115,14 @@ abstract class AbstractNode : Comparable<AbstractNode> {
     // /
     // / Subclasses should call this function when they acquire a new child.
     @CallSuper
-    protected open fun adoptChild(child: AbstractNode) { // TODO(Migration/Filip): Removed covariant
+    open fun adoptChild(child: AbstractNode) { // TODO(Migration/Filip): Removed covariant
         assert(child != null)
         assert(child.parent == null)
         assert {
             var node: AbstractNode? = this
             while (node!!.parent != null)
                 node = node.parent
-            assert(node != child); // indicates we are about to create a cycle
+            assert(node != child) // indicates we are about to create a cycle
             true
         }
         child.parent = this
