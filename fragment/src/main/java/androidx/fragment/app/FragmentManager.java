@@ -235,8 +235,7 @@ public abstract class FragmentManager {
     public static final int POP_BACK_STACK_INCLUSIVE = 1<<0;
 
     /**
-     * Pop the top state off the back stack.  Returns true if there was one
-     * to pop, else false.  This function is asynchronous -- it enqueues the
+     * Pop the top state off the back stack. This function is asynchronous -- it enqueues the
      * request to pop, but the action will not be performed until the application
      * returns to its event loop.
      */
@@ -252,7 +251,7 @@ public abstract class FragmentManager {
 
     /**
      * Pop the last fragment transition from the manager's fragment
-     * back stack.  If there is nothing to pop, false is returned.
+     * back stack.
      * This function is asynchronous -- it enqueues the
      * request to pop, but the action will not be performed until the application
      * returns to its event loop.
