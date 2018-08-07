@@ -31,6 +31,7 @@ import android.support.v4.net.ConnectivityManagerCompat;
 
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 /**
  * A {@link ConstraintTracker} for monitoring network state.
@@ -133,13 +134,22 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
             // The Network parameter is unreliable when a VPN app is running - use active network.
             Logger.debug(TAG, String.format("Network capabilities changed: %s", capabilities));
-            setState(getActiveNetworkState());
+            setStateOnMainThread(getActiveNetworkState());
         }
 
         @Override
         public void onLost(Network network) {
             Logger.debug(TAG, "Network connection lost");
             setState(getActiveNetworkState());
+        }
+
+        private void setStateOnMainThread(final NetworkState networkState) {
+            WorkManagerTaskExecutor.getInstance().postToMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    setState(networkState);
+                }
+            });
         }
     }
 
