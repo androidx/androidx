@@ -333,7 +333,7 @@ public class WearableDrawerLayout extends FrameLayout
     /**
      * Closes drawer after {@code delayMs} milliseconds.
      */
-    private void closeDrawerDelayed(final int gravity, long delayMs) {
+    void closeDrawerDelayed(final int gravity, long delayMs) {
         switch (gravity) {
             case Gravity.TOP:
                 mMainThreadHandler.removeCallbacks(mCloseTopPeekRunnable);
@@ -1077,10 +1077,13 @@ public class WearableDrawerLayout extends FrameLayout
                     // Drawer was being flung open or drawer is mostly open, so finish opening.
                     finalTop = 0;
                 } else {
-                    // Drawer should be closed to its peek state.
+                    // Drawer animates to its peek state and fully closes after a delay.
                     animatePeekVisibleAfterBeingClosed(mTopDrawerView);
                     finalTop = mTopDrawerView.getPeekContainer().getHeight() - releasedChild
                             .getHeight();
+                    if (mTopDrawerView.isAutoPeekEnabled()) {
+                        closeDrawerDelayed(Gravity.TOP, PEEK_AUTO_CLOSE_DELAY_MS);
+                    }
                 }
 
                 mTopDrawerDragger.settleCapturedViewAt(0 /* finalLeft */, finalTop);
