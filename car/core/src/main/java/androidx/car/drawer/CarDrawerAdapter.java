@@ -50,7 +50,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * {@link Activity#onStop()}.
  */
 public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemViewHolder>
-        implements PagedListView.ItemCap, DrawerItemClickListener {
+        implements PagedListView.ItemCap {
     private final boolean mShowDisabledListOnEmpty;
     private final Drawable mEmptyListDrawable;
     private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
@@ -194,9 +194,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         if (shouldShowDisabledListItem()) {
             holder.getTitleView().setText(null);
             holder.getIconView().setImageDrawable(mEmptyListDrawable);
-            holder.setItemClickListener(null);
         } else {
-            holder.setItemClickListener(this);
             populateViewHolder(holder, position);
         }
     }
