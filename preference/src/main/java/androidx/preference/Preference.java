@@ -919,8 +919,7 @@ public class Preference implements Comparable<Preference>, View.OnCreateContextM
      * call {@link #callChangeListener(Object)} to make sure the client wants to
      * update the preference's state with the new value.
      */
-    protected void onClick() {
-    }
+    protected void onClick() {}
 
     /**
      * Sets the key for this preference, which is used as a key to the {@link SharedPreferences} or
@@ -1599,8 +1598,7 @@ public class Preference implements Comparable<Preference>, View.OnCreateContextM
      *
      * @param defaultValue The default value for the preference if set, otherwise {@code null}.
      */
-    protected void onSetInitialValue(@Nullable Object defaultValue) {
-    }
+    protected void onSetInitialValue(@Nullable Object defaultValue) {}
 
     private void tryCommit(@NonNull SharedPreferences.Editor editor) {
         if (mPreferenceManager.shouldCommit()) {
@@ -2068,8 +2066,7 @@ public class Preference implements Comparable<Preference>, View.OnCreateContextM
      * about the View for this preference.
      */
     @CallSuper
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
-    }
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {}
 
     /**
      * Interface definition for a callback to be invoked when the value of this

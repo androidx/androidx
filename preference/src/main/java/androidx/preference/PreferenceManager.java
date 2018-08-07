@@ -32,10 +32,8 @@ import androidx.core.content.ContextCompat;
  * Used to help create {@link Preference} hierarchies from activities or XML.
  *
  * <p>In most cases, clients should use
- * {@link PreferenceFragment#addPreferencesFromResource(int)}, or
  * {@link PreferenceFragmentCompat#addPreferencesFromResource(int)}.
  *
- * @see PreferenceFragment
  * @see PreferenceFragmentCompat
  */
 public class PreferenceManager {
