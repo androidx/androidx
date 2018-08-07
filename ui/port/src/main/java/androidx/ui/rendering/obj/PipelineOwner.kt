@@ -124,7 +124,7 @@ class PipelineOwner(
                 dirtyNodes.sort()
                 for (node in dirtyNodes) {
                     if (node._needsLayout && node.owner == this)
-                        node._layoutWithoutResize()
+                        node.layoutWithoutResize()
                 }
             }
         } finally {
@@ -173,14 +173,14 @@ class PipelineOwner(
         // TODO: profile( { Timeline.startSync('Compositing bits'); });
         _nodesNeedingCompositingBitsUpdate.sort()
         for (node in _nodesNeedingCompositingBitsUpdate) {
-            if (node._needsCompositingBitsUpdate && node.owner == this)
-                node._updateCompositingBits()
+            if (node.needsCompositingBitsUpdate && node.owner == this)
+                node.updateCompositingBits()
         }
         _nodesNeedingCompositingBitsUpdate.clear()
         // TODO: profile(() { Timeline.finishSync(); });
     }
 
-    var _nodesNeedingPaint: MutableList<RenderObject> = mutableListOf()
+    internal var _nodesNeedingPaint = mutableListOf<RenderObject>()
 
     // / Whether this pipeline is currently in the paint phase.
     // /
@@ -244,8 +244,8 @@ class PipelineOwner(
 //    ///
 //    /// When [semanticsOwner] is null, the [PipelineOwner] skips all steps
 //    /// relating to semantics.
-//    var semanticsOwner: SemanticsOwner? = null
-//        private set
+    var semanticsOwner: SemanticsOwner? = null
+        private set
 
     var _outstandingSemanticsHandle = 0
 
@@ -285,7 +285,7 @@ class PipelineOwner(
 //        }
     }
 
-    private var _debugDoingSemantics = false
+    internal var _debugDoingSemantics = false
     val _nodesNeedingSemantics: MutableSet<RenderObject> = mutableSetOf()
 
     // / Update the semantics for render objects marked as needing a semantics

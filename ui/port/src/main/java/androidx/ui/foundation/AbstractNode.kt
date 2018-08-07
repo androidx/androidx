@@ -65,11 +65,12 @@ abstract class AbstractNode : Comparable<AbstractNode> {
     // / for each child. Do not call this method directly.
     open fun redepthChildren() { }
 
+    internal var _owner: Any? = null
+
     // / The owner for this node (null if unattached).
     // /
     // / The entire subtree that this node belongs to will have the same owner.
-    var owner: Any? = null
-        private set
+    open val owner: Any? = _owner
 
     // / Whether this node is in a tree whose root is attached to something.
     // /
@@ -88,9 +89,8 @@ abstract class AbstractNode : Comparable<AbstractNode> {
     // / same [owner].
     @CallSuper
     open fun attach(owner: Any) { // TODO(Migration/Filip): Removed covariant
-        assert(owner != null)
         assert(this.owner == null)
-        this.owner = owner
+        this._owner = owner
     }
 
     // / Mark this node as detached.
@@ -103,7 +103,7 @@ abstract class AbstractNode : Comparable<AbstractNode> {
     @CallSuper
     open fun detach() {
         assert(owner != null)
-        owner = null
+        _owner = null
         assert(parent == null || attached == parent!!.attached)
     }
 

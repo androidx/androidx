@@ -11,7 +11,7 @@ typealias ComputePropertyValueCallback<T> = () -> T
 // /
 // / The [showSeparator] property indicates whether a separator should be placed
 // / between the property [name] and its [value].
-open class DiagnosticsProperty<T : Any> protected constructor(
+open class DiagnosticsProperty<T : Any> internal constructor(
     name: String,
     value: T? = null,
     private val computeValue: ComputePropertyValueCallback<T>? = null,

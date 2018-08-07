@@ -56,10 +56,10 @@ abstract class Constraints {
     constructor()
 
     // / Whether there is exactly one size possible given these constraints
-    protected abstract val isTight: Boolean
+    abstract val isTight: Boolean
 
     // / Whether the constraint is expressed in a consistent manner.
-    protected abstract val isNormalized: Boolean
+    abstract val isNormalized: Boolean
 
     // / Asserts that the constraints are valid.
     // /

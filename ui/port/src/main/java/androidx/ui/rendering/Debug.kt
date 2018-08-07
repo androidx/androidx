@@ -70,7 +70,7 @@ package androidx.ui.rendering
 // bool debugPrintMarkNeedsLayoutStacks = false;
 //
 // /// Log the call stacks that mark render objects as needing paint.
-// bool debugPrintMarkNeedsPaintStacks = false;
+var debugPrintMarkNeedsPaintStacks = false
 //
 // /// Log the dirty render objects that are laid out each frame.
 // ///

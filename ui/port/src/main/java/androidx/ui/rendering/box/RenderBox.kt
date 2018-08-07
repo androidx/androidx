@@ -906,7 +906,7 @@ abstract class RenderBox : RenderObject() {
                     violation = "The size setter was called from outside layout " +
                             "(neither performResize() nor performLayout() " +
                             "were being run for this object)."
-                    if (pipelineOwner != null && pipelineOwner!!.debugDoingLayout)
+                    if (owner != null && owner!!.debugDoingLayout)
                         hint = "Only the object itself can set its size. " +
                                 "It is a contract violation for other objects to set it."
                     else

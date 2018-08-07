@@ -52,12 +52,12 @@ class RenderView(
     // / [configuration]. It is typically called immediately after calling the
     // / constructor.
     fun scheduleInitialFrame() {
-        assert(pipelineOwner != null)
+        assert(owner != null)
         assert(_rootTransform == null)
         scheduleInitialLayout()
         scheduleInitialPaint(_updateMatricesAndCreateNewRootLayer())
         assert(_rootTransform != null)
-        pipelineOwner!!.requestVisualUpdate()
+        owner!!.requestVisualUpdate()
     }
 
     private var _rootTransform: Matrix4? = null

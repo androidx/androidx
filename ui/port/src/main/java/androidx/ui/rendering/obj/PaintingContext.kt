@@ -73,7 +73,7 @@ class PaintingContext(
                 true
             }
             val childContext = PaintingContext(child._layer!!, child.paintBounds)
-            child._paintWithContext(childContext, Offset.zero)
+            child.paintWithContext(childContext, Offset.zero)
             childContext._stopRecordingIfNeeded()
         }
 
@@ -98,7 +98,7 @@ class PaintingContext(
             _stopRecordingIfNeeded()
             _compositeChild(child, offset)
         } else {
-            child._paintWithContext(this, offset)
+            child.paintWithContext(this, offset)
         }
 
         assert {

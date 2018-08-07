@@ -5,4 +5,7 @@ class SemanticsConfiguration {
     val _isSemanticBoundary: Boolean get() {
         TODO()
     }
+    val isBlockingSemanticsOfPreviouslyPaintedNodes: Boolean get() {
+        TODO()
+    }
 }
