@@ -18,6 +18,8 @@ package androidx.loader.content;
 
 import static org.junit.Assert.fail;
 
+import android.os.AsyncTask;
+
 import androidx.annotation.NonNull;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
@@ -51,7 +53,7 @@ public class ModernAsyncTaskTest {
             public void run() {
                 mModernAsyncTask = new ModernAsyncTask() {
                     @Override
-                    protected Object doInBackground(Object[] params) {
+                    protected Object doInBackground() {
                         readyToCancel.countDown();
                         try {
                             readyToThrow.await();
@@ -68,7 +70,7 @@ public class ModernAsyncTaskTest {
             }
         });
 
-        mModernAsyncTask.execute();
+        mModernAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         if (!readyToCancel.await(5, TimeUnit.SECONDS)) {
             fail("Test failure: doInBackground did not run in time.");
         }
@@ -94,7 +96,7 @@ public class ModernAsyncTaskTest {
             public void run() {
                 mModernAsyncTask = new ModernAsyncTask() {
                     @Override
-                    protected Object doInBackground(Object[] params) {
+                    protected Object doInBackground() {
                         throw new RuntimeException();
                     }
 
