@@ -16,11 +16,14 @@
 package androidx.work.impl.constraints.trackers;
 
 import android.content.Context;
+import android.support.annotation.MainThread;
 import android.support.annotation.RestrictTo;
 
 import androidx.work.Logger;
 import androidx.work.impl.constraints.ConstraintListener;
+import androidx.work.impl.utils.ThreadUtils;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -50,6 +53,7 @@ public abstract class ConstraintTracker<T> {
      *
      * @param listener The target listener to start notifying
      */
+    @MainThread
     public void addListener(ConstraintListener<T> listener) {
         if (mListeners.add(listener)) {
             if (mListeners.size() == 1) {
@@ -68,6 +72,7 @@ public abstract class ConstraintTracker<T> {
      *
      * @param listener The listener to stop notifying.
      */
+    @MainThread
     public void removeListener(ConstraintListener<T> listener) {
         if (mListeners.remove(listener) && mListeners.isEmpty()) {
             stopTracking();
@@ -80,13 +85,18 @@ public abstract class ConstraintTracker<T> {
      *
      * @param newState new state of constraint
      */
+    @MainThread
     public void setState(T newState) {
+        ThreadUtils.assertMainThread();
         if (mCurrentState == newState
                 || (mCurrentState != null && mCurrentState.equals(newState))) {
             return;
         }
         mCurrentState = newState;
-        for (ConstraintListener<T> listener : mListeners) {
+        // Create a copy of the listeners.  #addListener and #removeListener can be called on
+        // background threads, but #setState is always called on the main thread.
+        Set<ConstraintListener<T>> listeners = Collections.unmodifiableSet(mListeners);
+        for (ConstraintListener<T> listener : listeners) {
             listener.onConstraintChanged(mCurrentState);
         }
     }
@@ -94,15 +104,15 @@ public abstract class ConstraintTracker<T> {
     /**
      * Determines the initial state of the constraint being tracked.
      */
-    public abstract T getInitialState();
+    abstract T getInitialState();
 
     /**
      * Start tracking for constraint state changes.
      */
-    public abstract void startTracking();
+    abstract void startTracking();
 
     /**
      * Stop tracking for constraint state changes.
      */
-    public abstract void stopTracking();
+    abstract void stopTracking();
 }
