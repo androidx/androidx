@@ -59,7 +59,7 @@ package androidx.car.drawer {
     method public void setToolbarElevationWithAnimation(float);
   }
 
-  public abstract class CarDrawerAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter implements androidx.car.drawer.DrawerItemClickListener androidx.car.widget.PagedListView.ItemCap {
+  public abstract class CarDrawerAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter implements androidx.car.widget.PagedListView.ItemCap {
     ctor protected CarDrawerAdapter(android.content.Context, boolean);
     method public void cleanup();
     method protected abstract int getActualItemCount();
@@ -89,10 +89,6 @@ package androidx.car.drawer {
     method public void setRootAdapter(androidx.car.drawer.CarDrawerAdapter);
     method public void showLoadingProgressBar(boolean);
     method public void syncState();
-  }
-
-  public abstract interface DrawerItemClickListener {
-    method public abstract void onItemClick(int);
   }
 
   public class DrawerItemViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {

@@ -82,16 +82,6 @@ public class DrawerItemViewHolder extends RecyclerView.ViewHolder {
     }
 
     /**
-     * Sets the listener that will be notified when the view held by this ViewHolder has been
-     * clicked. Passing {@code null} will clear any previously set listeners.
-     */
-    void setItemClickListener(@Nullable DrawerItemClickListener listener) {
-        itemView.setOnClickListener(listener != null
-                ? v -> listener.onItemClick(getAdapterPosition())
-                : null);
-    }
-
-    /**
      * Applies car UX restrictions to children views.
      *
      * <p>{@code Text} might be truncated to meet length limit required by regulation.
