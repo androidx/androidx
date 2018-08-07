@@ -319,8 +319,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * remote player. See RouteMediaPlayer for a remote player.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
-     *
-     * @see androidx.mediarouter.media.RouteMediaPlayer#setPlayerVolume()
      */
 
     public static final int COMMAND_CODE_VOLUME_SET_VOLUME = 30000;
@@ -334,8 +332,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * remote player. See RouteMediaPlayer for a remote player.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
-     *
-     * @see androidx.mediarouter.media.RouteMediaPlayer#adjustPlayerVolume()
      */
 
     public static final int COMMAND_CODE_VOLUME_ADJUST_VOLUME = 30001;
