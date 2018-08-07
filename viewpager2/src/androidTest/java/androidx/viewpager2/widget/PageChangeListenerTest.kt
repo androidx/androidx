@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.LargeTest
 import androidx.test.runner.AndroidJUnit4
+import androidx.testutils.PollingCheck
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrolledEvent
@@ -477,28 +478,13 @@ class PageChangeListenerTest : BaseTest() {
 
                 // poll the viewpager on the ui thread
                 val targetReached = AtomicBoolean(false)
-                val checkFunctionExecuted = AtomicBoolean(false)
-
-                // this function will be called on the ui thread
-                fun checkTargetReached() {
-                    targetReached.set(targetPage == viewPager.currentCompletelyVisibleItem)
-                    checkFunctionExecuted.set(true)
-                }
-
-                // poll for up to 2 seconds
-                val end = System.currentTimeMillis() + 2000
-                runOnUiThread(::checkTargetReached)
-                while (System.currentTimeMillis() < end) {
-                    if (checkFunctionExecuted.get()) {
-                        if (targetReached.get()) {
-                            break
-                        } else {
-                            checkFunctionExecuted.set(false)
-                            runOnUiThread(::checkTargetReached)
-                        }
+                PollingCheck.waitFor(2000) {
+                    runOnUiThread {
+                        targetReached.set(targetPage == viewPager.currentCompletelyVisibleItem)
                     }
-                    sleep(10)
+                    targetReached.get()
                 }
+
                 // wait until scroll events have propagated in the system
                 sleep(100)
 
