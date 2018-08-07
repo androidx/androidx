@@ -508,7 +508,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      *
      * @param inflater           The LayoutInflater object that can be used to inflate the
      *                           {@link RecyclerView}.
-     * @param parent             The parent {@link View} that the RecyclerView will be attached
+     * @param parent             The parent {@link ViewGroup} that the RecyclerView will be attached
      *                           to. This method should not add the view itself, but this can be
      *                           used to generate the layout params of the view.
      * @param savedInstanceState If non-null, this view is being re-constructed from a previous

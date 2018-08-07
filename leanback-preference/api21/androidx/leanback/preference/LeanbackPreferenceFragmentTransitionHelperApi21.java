@@ -43,6 +43,19 @@ public class LeanbackPreferenceFragmentTransitionHelperApi21 {
         f.setReturnTransition(transitionEndEdge);
     }
 
+    /**
+     * Setup preference fragment transition.
+     * @param f The preference fragment.
+     */
+    static void addTransitions(androidx.fragment.app.Fragment f) {
+        final Transition transitionStartEdge = new FadeAndShortSlide(Gravity.START);
+        final Transition transitionEndEdge = new FadeAndShortSlide(Gravity.END);
+
+        f.setEnterTransition(transitionEndEdge);
+        f.setExitTransition(transitionStartEdge);
+        f.setReenterTransition(transitionStartEdge);
+        f.setReturnTransition(transitionEndEdge);
+    }
 
     private LeanbackPreferenceFragmentTransitionHelperApi21() {
     }
