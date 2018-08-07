@@ -14,6 +14,9 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="activity_sample_code">ViewPager2 Demos</string>
+    <string name="label_jump_to">Jump to:</string>
+    <string name="button_jump">Jump</string>
+    <string name="checkbox_smoothscroll">Smooth</string>
 </resources>
