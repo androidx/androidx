@@ -26,11 +26,11 @@ android {
 }
 
 supportLibrary {
-    name = "Android Support Leanback Preference v17"
+    name = "AndroidX Leanback Preference"
     publish = true
     mavenVersion = LibraryVersions.LEANBACK_PREFERENCE
     mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2015"
-    description = "Android Support Leanback Preference v17"
+    description = "AndroidX Leanback Preference"
     failOnDeprecationWarnings = false
 }

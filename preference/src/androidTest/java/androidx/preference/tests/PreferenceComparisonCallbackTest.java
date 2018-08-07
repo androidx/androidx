@@ -273,16 +273,13 @@ public class PreferenceComparisonCallbackTest {
         }
 
         @Override
-        public void draw(@NonNull Canvas canvas) {
-        }
+        public void draw(@NonNull Canvas canvas) {}
 
         @Override
-        public void setAlpha(int alpha) {
-        }
+        public void setAlpha(int alpha) {}
 
         @Override
-        public void setColorFilter(ColorFilter colorFilter) {
-        }
+        public void setColorFilter(ColorFilter colorFilter) {}
 
         @Override
         public int getOpacity() {

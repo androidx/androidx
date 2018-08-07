@@ -46,10 +46,17 @@ import androidx.annotation.RestrictTo;
  * information for displaying the dialog is read once during the initial call to
  * {@link #onCreate(Bundle)} and saved/restored in the saved instance state. Custom subclasses
  * should also follow this pattern.
+ *
+ * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
  */
+@Deprecated
 public abstract class PreferenceDialogFragment extends DialogFragment implements
         DialogInterface.OnClickListener {
 
+    /**
+     * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
     protected static final String ARG_KEY = "key";
 
     private static final String SAVE_STATE_TITLE = "PreferenceDialogFragment.title";
@@ -71,6 +78,12 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
 
     /** Which button was clicked. */
     private int mWhichButtonClicked;
+
+    /**
+     * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
+    public PreferenceDialogFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -168,7 +181,10 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
      * been called on the {@link PreferenceFragment} which launched this dialog.
      *
      * @return The {@link DialogPreference} associated with this dialog
+     *
+     * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
      */
+    @Deprecated
     public DialogPreference getPreference() {
         if (mPreference == null) {
             final String key = getArguments().getString(ARG_KEY);
@@ -184,9 +200,11 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
      * Use this to set custom properties on the dialog.
      *
      * <p>Do not {@link AlertDialog.Builder#create()} or {@link AlertDialog.Builder#show()}.
+     *
+     * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
      */
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
-    }
+    @Deprecated
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {}
 
     /**
      * Returns whether the preference needs to display a soft input method when the dialog is
@@ -218,7 +236,10 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
      *
      * @return The content view for the dialog
      * @see DialogPreference#setLayoutResource(int)
+     *
+     * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
      */
+    @Deprecated
     protected View onCreateDialogView(Context context) {
         final int resId = mDialogLayoutRes;
         if (resId == 0) {
@@ -235,7 +256,10 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
      * <p>Make sure to call through to the superclass implementation.
      *
      * @param view The content view of the dialog, if it is custom
+     *
+     * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
      */
+    @Deprecated
     protected void onBindDialogView(View view) {
         View dialogMessageView = view.findViewById(android.R.id.message);
 
@@ -257,6 +281,10 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
         }
     }
 
+    /**
+     * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
     @Override
     public void onClick(DialogInterface dialog, int which) {
         mWhichButtonClicked = which;
@@ -268,5 +296,9 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
         onDialogClosed(mWhichButtonClicked == DialogInterface.BUTTON_POSITIVE);
     }
 
+    /**
+     * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
     public abstract void onDialogClosed(boolean positiveResult);
 }
