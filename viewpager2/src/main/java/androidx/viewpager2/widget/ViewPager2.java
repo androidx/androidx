@@ -542,17 +542,22 @@ public class ViewPager2 extends ViewGroup {
      */
     public void setCurrentItem(int item, boolean smoothScroll) {
         // TODO: handle scroll-in-progress case better; could lead to subtle bugs otherwise (WIP)
-        if (getCurrentItem() == item || !getScrollEventAdapter().isIdle()) {
+        final int currentItem = getCurrentItem();
+        if (currentItem == item || !getScrollEventAdapter().isIdle()) {
             return;
         }
 
         getScrollEventAdapter().notifyProgrammaticScroll(item, smoothScroll);
-        if (smoothScroll) {
-            // too slow when a lot of distance to travel; fix: http://b/72640299
-            mRecyclerView.smoothScrollToPosition(item);
-        } else {
+        if (!smoothScroll) {
             mRecyclerView.scrollToPosition(item);
+            return;
         }
+
+        // For smooth scroll, pre-jump to nearby item for long jumps.
+        if (Math.abs(item - currentItem) > 3) {
+            mRecyclerView.scrollToPosition(item > currentItem ? item - 2 : item + 2);
+        }
+        mRecyclerView.smoothScrollToPosition(item);
     }
 
     /**

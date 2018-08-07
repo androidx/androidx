@@ -16,9 +16,6 @@
 
 package com.example.androidx.viewpager2;
 
-import static java.util.Collections.unmodifiableList;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.ViewGroup;
 
@@ -29,22 +26,18 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.androidx.viewpager2.cards.Card;
 import com.example.androidx.viewpager2.cards.CardView;
 
-import java.util.List;
-
 /**
  * Shows how to use {@link ViewPager2#setAdapter(RecyclerView.Adapter)}
  *
  * @see CardFragmentActivity
  */
-public class CardActivity extends Activity {
-    private static final List<Card> sCards = unmodifiableList(Card.createDeck52());
+public class CardActivity extends BaseCardActivity {
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView(R.layout.activity_card_layout);
 
-        this.<ViewPager2>findViewById(R.id.view_pager).setAdapter(
+        mViewPager.setAdapter(
                 new RecyclerView.Adapter<CardViewHolder>() {
                     @NonNull
                     @Override
