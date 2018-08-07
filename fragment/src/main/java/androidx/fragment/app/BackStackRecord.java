@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.core.util.LogWriter;
 import androidx.core.view.ViewCompat;
 
-import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -247,7 +246,7 @@ final class BackStackRecord extends FragmentTransaction implements
         return sb.toString();
     }
 
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dump(String prefix, PrintWriter writer) {
         dump(prefix, writer, true);
     }
 
@@ -290,7 +289,6 @@ final class BackStackRecord extends FragmentTransaction implements
 
         if (!mOps.isEmpty()) {
             writer.print(prefix); writer.println("Operations:");
-            String innerPrefix = prefix + "    ";
             final int numOps = mOps.size();
             for (int opNum = 0; opNum < numOps; opNum++) {
                 final Op op = mOps.get(opNum);
@@ -671,7 +669,7 @@ final class BackStackRecord extends FragmentTransaction implements
             Log.v(TAG, "Commit: " + this);
             LogWriter logw = new LogWriter(TAG);
             PrintWriter pw = new PrintWriter(logw);
-            dump("  ", null, pw, null);
+            dump("  ", pw);
             pw.close();
         }
         mCommitted = true;
@@ -1015,14 +1013,6 @@ final class BackStackRecord extends FragmentTransaction implements
     @Nullable
     public String getName() {
         return mName;
-    }
-
-    public int getTransition() {
-        return mTransition;
-    }
-
-    public int getTransitionStyle() {
-        return mTransitionStyle;
     }
 
     @Override
