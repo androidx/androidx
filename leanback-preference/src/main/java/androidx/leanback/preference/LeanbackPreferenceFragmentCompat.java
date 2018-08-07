@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package androidx.leanback.preference;
@@ -30,19 +30,20 @@ import android.widget.TextView;
  * <p>The following sample code shows a simple leanback preference fragment that is
  * populated from a resource.  The resource it loads is:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml
+ * preferences}
  *
  * <p>The fragment needs only to implement {@link #onCreatePreferences(Bundle, String)} to populate
  * the list of preference objects:</p>
  *
  * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/android/supportpreference/FragmentSupportPreferencesLeanback.java
  *      support_fragment_leanback}
- * @deprecated Use {@link LeanbackPreferenceFragmentCompat}
+ * support_fragment_leanback}
  */
-@Deprecated
-public abstract class LeanbackPreferenceFragment extends BaseLeanbackPreferenceFragment {
+public abstract class LeanbackPreferenceFragmentCompat extends
+        BaseLeanbackPreferenceFragmentCompat {
 
-    public LeanbackPreferenceFragment() {
+    public LeanbackPreferenceFragmentCompat() {
         if (Build.VERSION.SDK_INT >= 21) {
             LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
         }
@@ -71,6 +72,7 @@ public abstract class LeanbackPreferenceFragment extends BaseLeanbackPreferenceF
 
     /**
      * Set the title to be shown above the preference list
+     *
      * @param title Title text to be shown
      */
     public void setTitle(CharSequence title) {

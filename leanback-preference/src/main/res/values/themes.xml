@@ -29,13 +29,16 @@
         <!-- text appearance for Settings panel main title, it by default reference titleTextColor for text color -->
         <item name="android:titleTextAppearance">@style/TextAppearance.LeanbackPreference.Title</item>
 
+        <!-- text appearance for Settings panel 2nd title below main title, it by default reference subtitleTextColor for text color -->
+        <item name="android:subtitleTextAppearance">@style/TextAppearance.LeanbackPreference.SubTitle</item>
+
         <!-- text appearance for item text, it by default reference textColorPrimary for text color -->
         <item name="android:textAppearanceListItem">@style/TextAppearance.LeanbackPreference.ListItem</item>
 
         <!-- text appearance for item second text, it by default reference textColorSecondary for text color -->
         <item name="android:textAppearanceListItemSecondary">@style/TextAppearance.LeanbackPreference.ListItem.Secondary</item>
 
-        <!-- text appearance for category, it by default reference colorAccent for text color -->
+        <!-- text appearance for category, it by default reference textColorTertiary text color -->
         <item name="android:textAppearanceListItemSmall">@style/TextAppearance.LeanbackPreference.Category</item>
 
         <!-- padding start for each item -->
@@ -50,8 +53,17 @@
         <!-- color for item second text -->
         <item name="android:textColorSecondary">@color/lb_preference_item_secondary_text_color</item>
 
+        <!-- color for category text by default is colorAccent -->
+        <item name="android:textColorTertiary">?android:attr/colorAccent</item>
+
         <!-- style of window title TextView, customize margin, minHeight can be done here -->
         <item name="android:titleTextStyle">@style/LeanbackPreference.Title</item>
+
+        <!-- style of subtitle for Dialog -->
+        <item name="android:subtitleTextStyle">@style/LeanbackPreference.SubTitle</item>
+
+        <!-- style of EditText for EditTextPreference -->
+        <item name="android:editTextStyle">@style/LeanbackPreference.EditText</item>
 
         <!-- android:colorControlNormal is color of unchecked checkbox and radio, seekbar's track it is by default same as textColorPrimary -->
         <item name="android:colorControlNormal">@color/lb_preference_item_primary_text_color_default</item>

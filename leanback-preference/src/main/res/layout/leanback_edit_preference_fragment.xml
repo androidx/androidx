@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2015 The Android Open Source Project
+  ~ Copyright 2018 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
   ~ distributed under the License is distributed on an "AS IS" BASIS,
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
-  ~ limitations under the License
+  ~ limitations under the License.
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -47,10 +47,10 @@
         style="?android:attr/subtitleTextStyle"
         android:visibility="gone" />
 
-    <androidx.leanback.widget.VerticalGridView
-        android:id="@android:id/list"
+    <EditText
+        android:id="@android:id/edit"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:transitionGroup="true"/>
+        android:layout_height="wrap_content"
+        style="?android:attr/editTextStyle" />
 
 </LinearLayout>
