@@ -116,6 +116,13 @@
     <!-- The ripple color for a light colored card. -->
     <color name="car_card_ripple_background">@color/car_card_ripple_background_dark</color>
 
+    <!-- A light and dark-colored background for the action bar on a card.. -->
+    <color name="car_card_action_bar_light">@color/car_grey_200</color>
+    <color name="car_card_action_bar_dark">@color/car_grey_900</color>
+
+    <!-- The default color of the action bar in a card. -->
+    <color name="car_card_action_bar">@color/car_card_action_bar_light</color>
+
     <!-- The lighter and darker color for the scrollbar thumb. -->
     <color name="car_scrollbar_thumb_light">#99ffffff</color>
     <color name="car_scrollbar_thumb_dark">#7f0b0f12</color>
