@@ -181,6 +181,8 @@
 
     <style name="Widget.AppCompat.EditText" parent="Base.Widget.AppCompat.EditText"/>
 
+    <style name="Widget.AppCompat.TextView" parent="Base.Widget.AppCompat.TextView"/>
+
     <style name="Widget.AppCompat.CompoundButton.Switch" parent="Base.Widget.AppCompat.CompoundButton.Switch" />
 
     <style name="Widget.AppCompat.CompoundButton.CheckBox" parent="Base.Widget.AppCompat.CompoundButton.CheckBox" />
