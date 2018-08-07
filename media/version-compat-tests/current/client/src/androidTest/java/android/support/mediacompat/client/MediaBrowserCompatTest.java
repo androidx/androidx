@@ -444,6 +444,7 @@ public class MediaBrowserCompatTest {
                 metadataOut.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING));
     }
 
+    @FlakyTest(bugId = 112290465)
     @Test
     @MediumTest
     public void testSubscribeDelayedItems() throws Exception {

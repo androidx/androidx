@@ -44,6 +44,7 @@ import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaUtils2;
 import androidx.media2.SessionToken2;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -275,6 +276,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    @FlakyTest(bugId = 111433579)
     @Test
     public void testControllerCallbackBufferingStarved() throws Exception {
         prepareLooper();
