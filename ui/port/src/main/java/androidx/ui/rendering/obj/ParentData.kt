@@ -7,7 +7,7 @@ import androidx.annotation.CallSuper
 // / Some render objects wish to store data on their children, such as their
 // / input parameters to the parent's layout algorithm or their position relative
 // / to other children.
-class ParentData {
+open class ParentData {
     // / Called when the RenderObject is removed from the tree.
     @CallSuper
     internal fun detach() { }
