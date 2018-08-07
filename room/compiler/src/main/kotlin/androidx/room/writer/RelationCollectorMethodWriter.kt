@@ -41,7 +41,8 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector)
         "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
                 "As${collector.relation.pojoTypeName.toString().stripNonJava()}") {
     companion object {
-        val KEY_SET_VARIABLE = "__mapKeySet"
+        const val PARAM_MAP_VARIABLE = "_map"
+        const val KEY_SET_VARIABLE = "__mapKeySet"
     }
     override fun getUniqueKey(): String {
         val relation = collector.relation
@@ -57,22 +58,25 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector)
         val scope = CodeGenScope(writer)
         val relation = collector.relation
 
-        val param = ParameterSpec.builder(collector.mapTypeName, "_map")
+        val param = ParameterSpec.builder(collector.mapTypeName, PARAM_MAP_VARIABLE)
                 .addModifiers(Modifier.FINAL)
                 .build()
         val sqlQueryVar = scope.getTmpVar("_sql")
-        val keySetVar = KEY_SET_VARIABLE
 
         val cursorVar = "_cursor"
         val itemKeyIndexVar = "_itemKeyIndex"
         val stmtVar = scope.getTmpVar("_stmt")
         scope.builder().apply {
-
-            val keySetType = ParameterizedTypeName.get(
-                    ClassName.get(Set::class.java), collector.keyTypeName
-            )
-            addStatement("final $T $L = $N.keySet()", keySetType, keySetVar, param)
-            beginControlFlow("if ($L.isEmpty())", keySetVar).apply {
+            val usingLongSparseArray =
+                    collector.mapTypeName.rawType == AndroidTypeNames.LONG_SPARSE_ARRAY
+            if (usingLongSparseArray) {
+                beginControlFlow("if ($N.isEmpty())", param)
+            } else {
+                val keySetType = ParameterizedTypeName.get(
+                        ClassName.get(Set::class.java), collector.keyTypeName)
+                addStatement("final $T $L = $N.keySet()", keySetType, KEY_SET_VARIABLE, param)
+                beginControlFlow("if ($L.isEmpty())", KEY_SET_VARIABLE)
+            }.apply {
                 addStatement("return")
             }
             endControlFlow()
