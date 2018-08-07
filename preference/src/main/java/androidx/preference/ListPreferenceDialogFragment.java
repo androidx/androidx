@@ -22,6 +22,10 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
+/**
+ * @deprecated Use {@link ListPreferenceDialogFragmentCompat} instead
+ */
+@Deprecated
 public class ListPreferenceDialogFragment extends PreferenceDialogFragment {
 
     private static final String SAVE_STATE_INDEX = "ListPreferenceDialogFragment.index";
@@ -33,6 +37,16 @@ public class ListPreferenceDialogFragment extends PreferenceDialogFragment {
     private CharSequence[] mEntries;
     private CharSequence[] mEntryValues;
 
+    /**
+     * @deprecated Use {@link ListPreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
+    public ListPreferenceDialogFragment() {}
+
+    /**
+     * @deprecated Use {@link ListPreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
     public static ListPreferenceDialogFragment newInstance(String key) {
         final ListPreferenceDialogFragment fragment = new ListPreferenceDialogFragment();
         final Bundle b = new Bundle(1);
@@ -97,6 +111,10 @@ public class ListPreferenceDialogFragment extends PreferenceDialogFragment {
         builder.setPositiveButton(null, null);
     }
 
+    /**
+     * @deprecated Use {@link ListPreferenceDialogFragmentCompat} instead
+     */
+    @Deprecated
     @Override
     public void onDialogClosed(boolean positiveResult) {
         final ListPreference preference = getListPreference();

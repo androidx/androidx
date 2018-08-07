@@ -376,8 +376,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         int mWidgetResId;
         String mName;
 
-        PreferenceLayout() {
-        }
+        PreferenceLayout() {}
 
         PreferenceLayout(PreferenceLayout other) {
             mResId = other.mResId;

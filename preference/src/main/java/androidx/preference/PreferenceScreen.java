@@ -60,11 +60,10 @@ import androidx.core.content.res.TypedArrayUtils;
  * <p>
  *
  * In this example, the "first_preferencescreen" will be used as the root of the hierarchy and
- * given to a {@link PreferenceFragment} or {@link PreferenceFragmentCompat}. The first screen
- * will show preferences "WiFi" (which can be used to quickly enable/disable WiFi) and "WiFi
- * settings". The "WiFi settings" is the "second_preferencescreen" and when clicked will show
- * another screen of preferences such as "Prefer WiFi" (and the other preferences that are
- * children of the "second_preferencescreen" tag).
+ * given to a {@link PreferenceFragmentCompat}. The first screen will show preferences "WiFi"
+ * (which can be used to quickly enable/disable WiFi) and "WiFi settings". The "WiFi settings" is
+ * the "second_preferencescreen" and when clicked will show another screen of preferences such as
+ * "Prefer WiFi" (and the other preferences that are children of the "second_preferencescreen" tag).
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>

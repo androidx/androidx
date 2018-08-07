@@ -104,7 +104,10 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @see Preference
  * @see PreferenceScreen
+ *
+ * @deprecated Use {@link PreferenceFragmentCompat} instead
  */
+@Deprecated
 public abstract class PreferenceFragment extends Fragment implements
         PreferenceManager.OnPreferenceTreeClickListener,
         PreferenceManager.OnDisplayPreferenceDialogListener,
@@ -114,7 +117,10 @@ public abstract class PreferenceFragment extends Fragment implements
     /**
      * Fragment argument used to specify the tag of the desired root {@link PreferenceScreen}
      * object.
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public static final String ARG_PREFERENCE_ROOT =
             "androidx.preference.PreferenceFragmentCompat.PREFERENCE_ROOT";
 
@@ -185,7 +191,10 @@ public abstract class PreferenceFragment extends Fragment implements
      *                           this is the state.
      * @param rootKey            If non-null, this preference fragment should be rooted at the
      *                           {@link PreferenceScreen} with this key.
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public abstract void onCreatePreferences(Bundle savedInstanceState, String rootKey);
 
     @Override
@@ -251,7 +260,10 @@ public abstract class PreferenceFragment extends Fragment implements
      *
      * @param divider The drawable to use
      * @attr ref R.styleable#PreferenceFragment_android_divider
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public void setDivider(Drawable divider) {
         mDividerDecoration.setDivider(divider);
     }
@@ -262,7 +274,10 @@ public abstract class PreferenceFragment extends Fragment implements
      *
      * @param height The new height of the divider in pixels
      * @attr ref R.styleable#PreferenceFragment_android_dividerHeight
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public void setDividerHeight(int height) {
         mDividerDecoration.setDividerHeight(height);
     }
@@ -333,7 +348,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * Returns the {@link PreferenceManager} used by this fragment.
      *
      * @return The {@link PreferenceManager} used by this fragment
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public PreferenceManager getPreferenceManager() {
         return mPreferenceManager;
     }
@@ -342,7 +360,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * Sets the root of the preference hierarchy that this fragment is showing.
      *
      * @param preferenceScreen The root {@link PreferenceScreen} of the preference hierarchy
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public void setPreferenceScreen(PreferenceScreen preferenceScreen) {
         if (mPreferenceManager.setPreferences(preferenceScreen) && preferenceScreen != null) {
             onUnbindPreferences();
@@ -357,7 +378,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * Gets the root of the preference hierarchy that this fragment is showing.
      *
      * @return The {@link PreferenceScreen} that is the root of the preference hierarchy
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public PreferenceScreen getPreferenceScreen() {
         return mPreferenceManager.getPreferenceScreen();
     }
@@ -367,7 +391,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * preference hierarchy.
      *
      * @param preferencesResId The XML resource ID to inflate
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public void addPreferencesFromResource(@XmlRes int preferencesResId) {
         requirePreferenceManager();
 
@@ -383,7 +410,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * @param key              The preference key of the {@link PreferenceScreen} to use as the
      *                         root of the preference hierarchy, or {@code null} to use the root
      *                         {@link PreferenceScreen}.
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public void setPreferencesFromResource(@XmlRes int preferencesResId, @Nullable String key) {
         requirePreferenceManager();
 
@@ -406,7 +436,9 @@ public abstract class PreferenceFragment extends Fragment implements
 
     /**
      * {@inheritDoc}
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
         if (preference.getFragment() != null) {
@@ -432,7 +464,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * {@link PreferenceFragment.OnPreferenceStartScreenCallback}.
      *
      * @param preferenceScreen The {@link PreferenceScreen} to navigate to
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     @Override
     public void onNavigateToScreen(PreferenceScreen preferenceScreen) {
         boolean handled = false;
@@ -446,7 +481,16 @@ public abstract class PreferenceFragment extends Fragment implements
         }
     }
 
-    @Override
+    /**
+     * Finds a {@link Preference} based on its key.
+     *
+     * @param key The key of the preference to retrieve
+     * @return The {@link Preference} with the key, or null
+     * @see PreferenceGroup#findPreference(CharSequence)
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
+     */
+    @Deprecated
     public Preference findPreference(CharSequence key) {
         if (mPreferenceManager == null) {
             return null;
@@ -484,14 +528,16 @@ public abstract class PreferenceFragment extends Fragment implements
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    protected void onBindPreferences() {
-    }
+    protected void onBindPreferences() {}
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    protected void onUnbindPreferences() {
-    }
+    protected void onUnbindPreferences() {}
 
+    /**
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
+     */
+    @Deprecated
     public final RecyclerView getListView() {
         return mList;
     }
@@ -508,7 +554,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * @param savedInstanceState If non-null, this view is being re-constructed from a previous
      *                           saved state as given here.
      * @return A new {@link RecyclerView} object to be placed into the view hierarchy
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
         // If device detected is Auto, use Auto's custom layout that contains a custom ViewGroup
@@ -535,7 +584,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * for the created {@link RecyclerView}.
      *
      * @return A new {@link RecyclerView.LayoutManager} instance
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     public RecyclerView.LayoutManager onCreateLayoutManager() {
         return new LinearLayoutManager(getActivity());
     }
@@ -545,7 +597,10 @@ public abstract class PreferenceFragment extends Fragment implements
      *
      * @param preferenceScreen The {@link PreferenceScreen} object to create the adapter for
      * @return An adapter that contains the preferences contained in this {@link PreferenceScreen}
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     protected RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
         return new PreferenceGroupAdapter(preferenceScreen);
     }
@@ -556,7 +611,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * classes.
      *
      * @param preference The {@link Preference} object requesting the dialog
+     *
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
+    @Deprecated
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
 
@@ -605,10 +663,18 @@ public abstract class PreferenceFragment extends Fragment implements
         return null;
     }
 
+    /**
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
+     */
+    @Deprecated
     public void scrollToPreference(final String key) {
         scrollToPreferenceInternal(null, key);
     }
 
+    /**
+     * @deprecated Use {@link PreferenceFragmentCompat} instead
+     */
+    @Deprecated
     public void scrollToPreference(final Preference preference) {
         scrollToPreferenceInternal(preference, null);
     }
@@ -763,8 +829,7 @@ public abstract class PreferenceFragment extends Fragment implements
         private int mDividerHeight;
         private boolean mAllowDividerAfterLastItem = true;
 
-        DividerDecoration() {
-        }
+        DividerDecoration() {}
 
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {

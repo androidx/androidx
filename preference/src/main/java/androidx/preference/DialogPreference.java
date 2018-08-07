@@ -256,8 +256,8 @@ public abstract class DialogPreference extends Preference {
     }
 
     /**
-     * Interface for {@link PreferenceFragment}s to implement to allow {@link DialogPreference}s
-     * to find the preference that launched the dialog.
+     * Interface for {@link PreferenceFragmentCompat}s to implement to allow
+     * {@link DialogPreference}s to find the preference that launched the dialog.
      */
     public interface TargetFragment {
         /**

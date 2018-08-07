@@ -185,8 +185,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      *
      * <p>Do not {@link AlertDialog.Builder#create()} or {@link AlertDialog.Builder#show()}.
      */
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
-    }
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {}
 
     /**
      * Returns whether the preference needs to display a soft input method when the dialog is

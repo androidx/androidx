@@ -501,8 +501,6 @@ public abstract class PreferenceGroup extends Preference {
 
     /**
      * Interface for PreferenceGroup adapters to implement so that
-     * {@link androidx.preference.PreferenceFragment#scrollToPreference(String)} and
-     * {@link androidx.preference.PreferenceFragment#scrollToPreference(Preference)} or
      * {@link PreferenceFragmentCompat#scrollToPreference(String)} and
      * {@link PreferenceFragmentCompat#scrollToPreference(Preference)}
      * can determine the correct scroll position to request.
