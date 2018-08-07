@@ -714,7 +714,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable {
 
     @Override
     public ConstantState getConstantState() {
-        return mState;
+        return null;
     }
 
     @Override

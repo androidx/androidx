@@ -17,8 +17,6 @@
 package androidx.appcompat.graphics.drawable;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -63,16 +61,14 @@ public class AnimatedStateListDrawableCompatTest {
     public void testStateListDrawable() {
         new AnimatedStateListDrawableCompat();
 
-        // Check the values set in the constructor
-        assertNotNull(new AnimatedStateListDrawableCompat().getConstantState());
+        // Constant state is disabled due to a bug
+        assertNull(new AnimatedStateListDrawableCompat().getConstantState());
     }
 
     @Test
     public void testAddState() {
         AnimatedStateListDrawableCompat asld = new AnimatedStateListDrawableCompat();
-        DrawableContainer.DrawableContainerState cs =
-                (DrawableContainer.DrawableContainerState) asld.getConstantState();
-        assertEquals(0, cs.getChildCount());
+        assertEquals(0, asld.getStateCount());
 
         try {
             asld.addState(StateSet.WILD_CARD, null, R.id.focused);
@@ -83,18 +79,16 @@ public class AnimatedStateListDrawableCompatTest {
 
         Drawable unfocused = mock(Drawable.class);
         asld.addState(StateSet.WILD_CARD, unfocused, R.id.focused);
-        assertEquals(1, cs.getChildCount());
+        assertEquals(1, asld.getStateCount());
 
         Drawable focused = mock(Drawable.class);
         asld.addState(STATE_FOCUSED, focused, R.id.unfocused);
-        assertEquals(2, cs.getChildCount());
+        assertEquals(2, asld.getStateCount());
     }
 
     @Test
     public void testAddTransition() {
         AnimatedStateListDrawableCompat asld = new AnimatedStateListDrawableCompat();
-        DrawableContainer.DrawableContainerState cs =
-                (DrawableContainer.DrawableContainerState) asld.getConstantState();
 
         Drawable focused = mock(Drawable.class);
         Drawable unfocused = mock(Drawable.class);
@@ -110,15 +104,15 @@ public class AnimatedStateListDrawableCompatTest {
 
         MockTransition focusedToUnfocused = mock(MockTransition.class);
         asld.addTransition(R.id.focused, R.id.unfocused, focusedToUnfocused, false);
-        assertEquals(3, cs.getChildCount());
+        assertEquals(3, asld.getStateCount());
 
         MockTransition unfocusedToFocused = mock(MockTransition.class);
         asld.addTransition(R.id.unfocused, R.id.focused, unfocusedToFocused, false);
-        assertEquals(4, cs.getChildCount());
+        assertEquals(4, asld.getStateCount());
 
         MockTransition reversible = mock(MockTransition.class);
         asld.addTransition(R.id.focused, R.id.unfocused, reversible, true);
-        assertEquals(5, cs.getChildCount());
+        assertEquals(5, asld.getStateCount());
     }
 
     @Test
@@ -154,43 +148,36 @@ public class AnimatedStateListDrawableCompatTest {
     public void testAnimationDrawableTransition() throws XmlPullParserException, IOException {
         AnimatedStateListDrawableCompat asld = AnimatedStateListDrawableCompat.create(mContext,
                 R.drawable.animated_state_list_density, mContext.getTheme());
-        DrawableContainer.DrawableContainerState asldState =
-                (DrawableContainer.DrawableContainerState) asld.getConstantState();
         assertTrue(asld.isVisible());
-        assertFalse(asldState.isConstantSize());
-        assertNull(asldState.getConstantPadding());
+        // Missing public API to verify these.
+        //assertFalse(asld.isConstantSize());
+        //assertNull(asld.getConstantPadding());
         // Check that 4 drawables were parsed
-        assertEquals(4, asldState.getChildCount());
+        assertEquals(4, asld.getStateCount());
     }
 
     @Test
     public void testAnimatedVectorTransition() {
         AnimatedStateListDrawableCompat asld = AnimatedStateListDrawableCompat.create(mContext,
                 R.drawable.asl_heart, mContext.getTheme());
-        DrawableContainer.DrawableContainerState asldState =
-                (DrawableContainer.DrawableContainerState) asld.getConstantState();
         // Check that 4 drawables were parsed
-        assertEquals(4, asldState.getChildCount());
+        assertEquals(4, asld.getStateCount());
     }
 
     @Test
     public void testChildAnimatedVectorTransition() {
         AnimatedStateListDrawableCompat asld = AnimatedStateListDrawableCompat.create(mContext,
                 R.drawable.animated_state_list_with_avd, mContext.getTheme());
-        DrawableContainer.DrawableContainerState asldState =
-                (DrawableContainer.DrawableContainerState) asld.getConstantState();
         // Check that 6 drawables were parsed
-        assertEquals(6, asldState.getChildCount());
+        assertEquals(6, asld.getStateCount());
     }
 
     @Test
     public void testChildVectorItem() {
         AnimatedStateListDrawableCompat asld = AnimatedStateListDrawableCompat.create(mContext,
                 R.drawable.asl_heart_embedded, mContext.getTheme());
-        DrawableContainer.DrawableContainerState asldState =
-                (DrawableContainer.DrawableContainerState) asld.getConstantState();
         // Check that 4 drawables were parsed
-        assertEquals(4, asldState.getChildCount());
+        assertEquals(4, asld.getStateCount());
     }
 
     public abstract class MockTransition extends MockDrawable implements Animatable,
