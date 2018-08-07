@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package androidx.leanback.preference;
@@ -28,7 +28,6 @@ import android.widget.Checkable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.preference.DialogPreference;
@@ -41,10 +40,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @deprecated Use {@link LeanbackListPreferenceDialogFragmentCompat}
+ * Implemented a dialog to show {@link ListPreference} or {@link MultiSelectListPreference}.
  */
-@Deprecated
-public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDialogFragment {
+public class LeanbackListPreferenceDialogFragmentCompat extends
+        LeanbackPreferenceDialogFragmentCompat {
 
     private static final String SAVE_STATE_IS_MULTI =
             "LeanbackListPreferenceDialogFragment.isMulti";
@@ -66,23 +65,33 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
     Set<String> mInitialSelections;
     private String mInitialSelection;
 
-    public static LeanbackListPreferenceDialogFragment newInstanceSingle(String key) {
+    /**
+     * Create a new LeanbackListPreferenceDialogFragmentCompat.
+     * @param key The key of {@link ListPreference} it will be created from.
+     * @return A new LeanbackListPreferenceDialogFragmentCompat to display.
+     */
+    public static LeanbackListPreferenceDialogFragmentCompat newInstanceSingle(String key) {
         final Bundle args = new Bundle(1);
         args.putString(ARG_KEY, key);
 
-        final LeanbackListPreferenceDialogFragment
-                fragment = new LeanbackListPreferenceDialogFragment();
+        final LeanbackListPreferenceDialogFragmentCompat
+                fragment = new LeanbackListPreferenceDialogFragmentCompat();
         fragment.setArguments(args);
 
         return fragment;
     }
 
-    public static LeanbackListPreferenceDialogFragment newInstanceMulti(String key) {
+    /**
+     * Create a new LeanbackListPreferenceDialogFragmentCompat.
+     * @param key The key of {@link MultiSelectListPreference} it will be created from.
+     * @return A new LeanbackListPreferenceDialogFragmentCompat to display.
+     */
+    public static LeanbackListPreferenceDialogFragmentCompat newInstanceMulti(String key) {
         final Bundle args = new Bundle(1);
         args.putString(ARG_KEY, key);
 
-        final LeanbackListPreferenceDialogFragment
-                fragment = new LeanbackListPreferenceDialogFragment();
+        final LeanbackListPreferenceDialogFragmentCompat
+                fragment = new LeanbackListPreferenceDialogFragmentCompat();
         fragment.setArguments(args);
 
         return fragment;
@@ -148,7 +157,7 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
     }
 
     @Override
-    public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final TypedValue tv = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
@@ -185,7 +194,7 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         return view;
     }
 
-    public RecyclerView.Adapter onCreateAdapter() {
+    RecyclerView.Adapter onCreateAdapter() {
         //final DialogPreference preference = getPreference();
         if (mMulti) {
             return new AdapterMulti(mEntries, mEntryValues, mInitialSelections);
@@ -194,20 +203,14 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         }
     }
 
-    /**
-     * Adapter for single choice.
-     *
-     * @deprecated Use LeanbackListPreferenceDialogFragmentCompat.
-     */
-    @Deprecated
-    public class AdapterSingle extends RecyclerView.Adapter<ViewHolder>
-            implements ViewHolder.OnItemClickListener {
+    final class AdapterSingle extends RecyclerView.Adapter<ViewHolder>
+            implements OnItemClickListener {
 
         private final CharSequence[] mEntries;
         private final CharSequence[] mEntryValues;
         private CharSequence mSelectedValue;
 
-        public AdapterSingle(CharSequence[] entries, CharSequence[] entryValues,
+        AdapterSingle(CharSequence[] entries, CharSequence[] entryValues,
                 CharSequence selectedValue) {
             mEntries = entries;
             mEntryValues = entryValues;
@@ -254,20 +257,14 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         }
     }
 
-    /**
-     * Adapter for multiple choices.
-     *
-     * @deprecated Ue LeanbackListPreferenceDialogFragmentCompat.
-     */
-    @Deprecated
-    public class AdapterMulti extends RecyclerView.Adapter<ViewHolder>
-            implements ViewHolder.OnItemClickListener {
+    final class AdapterMulti extends RecyclerView.Adapter<ViewHolder>
+            implements OnItemClickListener {
 
         private final CharSequence[] mEntries;
         private final CharSequence[] mEntryValues;
         private final Set<String> mSelections;
 
-        public AdapterMulti(CharSequence[] entries, CharSequence[] entryValues,
+        AdapterMulti(CharSequence[] entries, CharSequence[] entryValues,
                 Set<String> initialSelections) {
             mEntries = entries;
             mEntryValues = entryValues;
@@ -306,8 +303,8 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
             } else {
                 mSelections.add(entry);
             }
-            final MultiSelectListPreference multiSelectListPreference
-                    = (MultiSelectListPreference) getPreference();
+            final MultiSelectListPreference multiSelectListPreference =
+                    (MultiSelectListPreference) getPreference();
             // Pass copies of the set to callChangeListener and setValues to avoid mutations
             if (multiSelectListPreference.callChangeListener(new HashSet<>(mSelections))) {
                 multiSelectListPreference.setValues(new HashSet<>(mSelections));
@@ -325,24 +322,22 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         }
     }
 
-    /**
-     * ViewHolder of the List.
-     *
-     * @deprecated Ue LeanbackListPreferenceDialogFragmentCompat.
-     */
-    @Deprecated
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private interface OnItemClickListener {
+        void onItemClick(ViewHolder viewHolder);
+    }
 
-        public interface OnItemClickListener {
-            void onItemClick(ViewHolder viewHolder);
-        }
+    /**
+     * ViewHolder for each Item in the List.
+     */
+    public static final class ViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
 
         private final Checkable mWidgetView;
         private final TextView mTitleView;
         private final ViewGroup mContainer;
         private final OnItemClickListener mListener;
 
-        public ViewHolder(@NonNull View view, @NonNull OnItemClickListener listener) {
+        ViewHolder(@NonNull View view, @NonNull OnItemClickListener listener) {
             super(view);
             mWidgetView = (Checkable) view.findViewById(R.id.button);
             mContainer = (ViewGroup) view.findViewById(R.id.container);

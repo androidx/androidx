@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,28 +11,28 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package androidx.leanback.preference;
 
-import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.fragment.app.Fragment;
 import androidx.preference.DialogPreference;
 
 /**
- * @deprecated Use {@link LeanbackPreferenceDialogFragmentCompat}
+ * A fragment that shows {@link DialogPreference}, for example {@link
+ * androidx.preference.ListPreference} or {@link androidx.preference.MultiSelectListPreference}.
  */
-@Deprecated
-public class LeanbackPreferenceDialogFragment extends Fragment {
+public class LeanbackPreferenceDialogFragmentCompat extends Fragment {
 
     public static final String ARG_KEY = "key";
 
     private DialogPreference mPreference;
 
-    public LeanbackPreferenceDialogFragment() {
+    public LeanbackPreferenceDialogFragmentCompat() {
         if (Build.VERSION.SDK_INT >= 21) {
             LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
         }
@@ -49,6 +49,10 @@ public class LeanbackPreferenceDialogFragment extends Fragment {
         }
     }
 
+    /**
+     * The {@link DialogPreference} that this dialog is showing.
+     * @return The {@link DialogPreference} that this dialog is showing.
+     */
     public DialogPreference getPreference() {
         if (mPreference == null) {
             final String key = getArguments().getString(ARG_KEY);

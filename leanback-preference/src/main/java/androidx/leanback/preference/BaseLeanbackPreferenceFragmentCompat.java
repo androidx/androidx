@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,31 +11,29 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package androidx.leanback.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.RestrictTo;
+import androidx.fragment.app.Fragment;
 import androidx.leanback.widget.VerticalGridView;
-import androidx.preference.PreferenceFragment;
+import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceRecyclerViewAccessibilityDelegate;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * This fragment provides a preference fragment with leanback-style behavior, suitable for
  * embedding into broader UI elements.
- * @deprecated Use {@link BaseLeanbackPreferenceFragmentCompat}
  */
-@Deprecated
-public abstract class BaseLeanbackPreferenceFragment extends PreferenceFragment {
+public abstract class BaseLeanbackPreferenceFragmentCompat extends PreferenceFragmentCompat {
 
     @Override
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
