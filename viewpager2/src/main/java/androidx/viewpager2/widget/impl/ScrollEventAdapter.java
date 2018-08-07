@@ -114,10 +114,6 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
      */
     @Override
     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-        if (mListeners.isEmpty()) {
-            return;
-        }
-
         mScrollHappened = true;
 
         int position = getPosition();

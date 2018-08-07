@@ -16,8 +16,6 @@
 
 package com.example.androidx.viewpager2;
 
-import static java.util.Collections.unmodifiableList;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +24,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.viewpager2.widget.ViewPager2.FragmentProvider;
@@ -34,22 +31,18 @@ import androidx.viewpager2.widget.ViewPager2.FragmentProvider;
 import com.example.androidx.viewpager2.cards.Card;
 import com.example.androidx.viewpager2.cards.CardView;
 
-import java.util.List;
-
 /**
  * Shows how to use {@link ViewPager2#setAdapter(FragmentManager, FragmentProvider, int)}
  *
  * @see CardActivity
  */
-public class CardFragmentActivity extends FragmentActivity {
-    private static final List<Card> sCards = unmodifiableList(Card.createDeck52());
+public class CardFragmentActivity extends BaseCardActivity {
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView(R.layout.activity_card_layout);
 
-        this.<ViewPager2>findViewById(R.id.view_pager).setAdapter(getSupportFragmentManager(),
+        mViewPager.setAdapter(getSupportFragmentManager(),
                 new FragmentProvider() {
                     @Override
                     public Fragment getItem(int position) {
@@ -64,7 +57,7 @@ public class CardFragmentActivity extends FragmentActivity {
                 ViewPager2.FragmentRetentionPolicy.SAVE_STATE);
     }
 
-        /** {@inheritDoc} */
+    /** {@inheritDoc} */
     public static class CardFragment extends Fragment {
         @Nullable
         @Override
