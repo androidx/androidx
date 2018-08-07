@@ -412,15 +412,17 @@ abstract class RenderObject : AbstractNode() {
     private var _relayoutBoundary: RenderObject? = null
     private var _doingThisLayoutWithCallback = false
 
-    // / The layout constraints most recently supplied by the parent.
+    // The layout constraints most recently supplied by the parent.
     protected open val constraints: Constraints? get() = _constraints
     var _constraints: Constraints? = null
 
-    // / Verify that the object's constraints are being met. Override
-    // / this function in a subclass to verify that your state matches
-    // / the constraints object. This function is only called in checked
-    // / mode and only when needsLayout is false. If the constraints are
-    // / not met, it should assert or throw an exception.
+    /**
+     * Verify that the object's constraints are being met. Override
+     * this function in a subclass to verify that your state matches
+     * the constraints object. This function is only called in checked
+     * mode and only when needsLayout is false. If the constraints are
+     * not met, it should assert or throw an exception.
+     */
     protected abstract fun debugAssertDoesMeetConstraints()
 
     /**
@@ -734,37 +736,43 @@ abstract class RenderObject : AbstractNode() {
 //        markNeedsPaint();
 //    }
 
-    // / If a subclass has a "size" (the state controlled by `parentUsesSize`,
-    // / whatever it is in the subclass, e.g. the actual `size` property of
-    // / [RenderBox]), and the subclass verifies that in checked mode this "size"
-    // / property isn't used when [debugCanParentUseSize] isn't set, then that
-    // / subclass should override [debugResetSize] to reapply the current values of
-    // / [debugCanParentUseSize] to that state.
+    /**
+     * If a subclass has a "size" (the state controlled by `parentUsesSize`,
+     * whatever it is in the subclass, e.g. the actual `size` property of
+     * [RenderBox]), and the subclass verifies that in checked mode this "size"
+     * property isn't used when [debugCanParentUseSize] isn't set, then that
+     * subclass should override [debugResetSize] to reapply the current values of
+     * [debugCanParentUseSize] to that state.
+     */
     protected open fun debugResetSize() {}
 
-    // / Whether the constraints are the only input to the sizing algorithm (in
-    // / particular, child nodes have no impact).
-    // /
-    // / Returning false is always correct, but returning true can be more
-    // / efficient when computing the size of this render object because we don't
-    // / need to recompute the size if the constraints don't change.
-    // /
-    // / Typically, subclasses will always return the same value. If the value can
-    // / change, then, when it does change, the subclass should make sure to call
-    // / [markNeedsLayoutForSizedByParentChange].
+    /**
+     * Whether the constraints are the only input to the sizing algorithm (in
+     * particular, child nodes have no impact).
+     *
+     * Returning false is always correct, but returning true can be more
+     * efficient when computing the size of this render object because we don't
+     * need to recompute the size if the constraints don't change.
+     *
+     * Typically, subclasses will always return the same value. If the value can
+     * change, then, when it does change, the subclass should make sure to call
+     * [markNeedsLayoutForSizedByParentChange].
+     */
     protected val sizedByParent get() = false
 
-    // / Updates the render objects size using only the constraints.
-    // /
-    // / Do not call this function directly: call [layout] instead. This function
-    // / is called by [layout] when there is actually work to be done by this
-    // / render object during layout. The layout constraints provided by your
-    // / parent are available via the [constraints] getter.
-    // /
-    // / Subclasses that set [sizedByParent] to true should override this method
-    // / to compute their size.
-    // /
-    // / This function is called only if [sizedByParent] is true.
+    /**
+     * Updates the render objects size using only the constraints.
+     *
+     * Do not call this function directly: call [layout] instead. This function
+     * is called by [layout] when there is actually work to be done by this
+     * render object during layout. The layout constraints provided by your
+     * parent are available via the [constraints] getter.
+     *
+     * Subclasses that set [sizedByParent] to true should override this method
+     * to compute their size.
+     *
+     * This function is called only if [sizedByParent] is true.
+     */
     protected abstract fun performResize()
 
     /**
@@ -1193,8 +1201,8 @@ abstract class RenderObject : AbstractNode() {
 //        }());
 //    }
 //
-    // / An estimate of the bounds within which this render object will paint.
-    // / Useful for debugging flags such as [debugPaintLayerBordersEnabled].
+    // An estimate of the bounds within which this render object will paint.
+    // Useful for debugging flags such as [debugPaintLayerBordersEnabled].
     abstract val paintBounds: Rect
 //
 //    /// Override this method to paint debugging information.
@@ -1380,8 +1388,8 @@ abstract class RenderObject : AbstractNode() {
 //        return _cachedSemanticsConfiguration;
 //    }
 //
-    // / The bounding box, in the local coordinate system, of this
-    // / object, for accessibility purposes.
+    // The bounding box, in the local coordinate system, of this
+    // object, for accessibility purposes.
     abstract val semanticBounds: Rect
 //
 //    bool _needsSemanticsUpdate = true;

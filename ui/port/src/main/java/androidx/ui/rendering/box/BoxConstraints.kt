@@ -4,95 +4,81 @@ import androidx.ui.clamp
 import androidx.ui.engine.geometry.Size
 import androidx.ui.rendering.obj.Constraints
 
-// / Immutable layout constraints for [RenderBox] layout.
-// /
-// / A [Size] respects a [BoxConstraints] if, and only if, all of the following
-// / relations hold:
-// /
-// / * [minWidth] <= [Size.width] <= [maxWidth]
-// / * [minHeight] <= [Size.height] <= [maxHeight]
-// /
-// / The constraints themselves must satisfy these relations:
-// /
-// / * 0.0 <= [minWidth] <= [maxWidth] <= [double.infinity]
-// / * 0.0 <= [minHeight] <= [maxHeight] <= [double.infinity]
-// /
-// / [double.infinity] is a legal value for each constraint.
-// /
-// / ## The box layout model
-// /
-// / Render objects in the Flutter framework are laid out by a one-pass layout
-// / model which walks down the render tree passing constraints, then walks back
-// / up the render tree passing concrete geometry.
-// /
-// / For boxes, the constraints are [BoxConstraints], which, as described herein,
-// / consist of four numbers: a minimum width [minWidth], a maximum width
-// / [maxWidth], a minimum height [minHeight], and a maximum height [maxHeight].
-// /
-// / The geometry for boxes consists of a [Size], which must satisfy the
-// / constraints described above.
-// /
-// / Each [RenderBox] (the objects that provide the layout models for box
-// / widgets) receives [BoxConstraints] from its parent, then lays out each of
-// / its children, then picks a [Size] that satisfies the [BoxConstraints].
-// /
-// / Render objects position their children independently of laying them out.
-// / Frequently, the parent will use the children's sizes to determine their
-// / position. A child does not know its position and will not necessarily be
-// / laid out again, or repainted, if its position changes.
-// /
-// / ## Terminology
-// /
-// / When the minimum constraints and the maximum constraint in an axis are the
-// / same, that axis is _tightly_ constrained. See: [new
-// / BoxConstraints.tightFor], [new BoxConstraints.tightForFinite], [tighten],
-// / [hasTightWidth], [hasTightHeight], [isTight].
-// /
-// / An axis with a minimum constraint of 0.0 is _loose_ (regardless of the
-// / maximum constraint; if it is also 0.0, then the axis is simultaneously tight
-// / and loose!). See: [new BoxConstraints.loose], [loosen].
-// /
-// / An axis whose maximum constraint is not infinite is _bounded_. See:
-// / [hasBoundedWidth], [hasBoundedHeight].
-// /
-// / An axis whose maximum constraint is infinite is _unbounded_. An axis is
-// / _expanding_ if it is tightly infinite (its minimum and maximum constraints
-// / are both infinite). See: [new BoxConstraints.expand].
-// /
-// / A size is _constrained_ when it satisfies a [BoxConstraints] description.
-// / See: [constrain], [constrainWidth], [constrainHeight],
-// / [constrainDimensions], [constrainSizeAndAttemptToPreserveAspectRatio],
-// / [isSatisfiedBy].
-class BoxConstraints : Constraints {
-    // / Creates box constraints with the given constraints.
-    // TODO(Migration/xbhatnag): const constructor
-    constructor(
-        minWidth: Double = 0.0,
-        maxWidth: Double = Double.POSITIVE_INFINITY,
-        minHeight: Double = 0.0,
-        maxHeight: Double = Double.POSITIVE_INFINITY
-    ) : super() {
-        this.minWidth = minWidth
-        this.maxWidth = maxWidth
-        this.minHeight = minHeight
-        this.maxHeight = maxHeight
-    }
+/** Immutable layout constraints for [RenderBox] layout.
+ *
+ * A [Size] respects a [BoxConstraints] if, and only if, all of the following
+ * relations hold:
+ *
+ * * [minWidth] <= [Size.width] <= [maxWidth]
+ * * [minHeight] <= [Size.height] <= [maxHeight]
+ *
+ * The constraints themselves must satisfy these relations:
+ *
+ * * 0.0 <= [minWidth] <= [maxWidth] <= [double.infinity]
+ * * 0.0 <= [minHeight] <= [maxHeight] <= [double.infinity]
+ *
+ * [double.infinity] is a legal value for each constraint.
+ *
+ * ## The box layout model
+ *
+ * Render objects in the Flutter framework are laid out by a one-pass layout
+ * model which walks down the render tree passing constraints, then walks back
+ * up the render tree passing concrete geometry.
+ *
+ * For boxes, the constraints are [BoxConstraints], which, as described herein,
+ * consist of four numbers: a minimum width [minWidth], a maximum width
+ * [maxWidth], a minimum height [minHeight], and a maximum height [maxHeight].
+ *
+ * The geometry for boxes consists of a [Size], which must satisfy the
+ * constraints described above.
+ *
+ * Each [RenderBox] (the objects that provide the layout models for box
+ * widgets) receives [BoxConstraints] from its parent, then lays out each of
+ * its children, then picks a [Size] that satisfies the [BoxConstraints].
+ *
+ * Render objects position their children independently of laying them out.
+ * Frequently, the parent will use the children's sizes to determine their
+ * position. A child does not know its position and will not necessarily be
+ * laid out again, or repainted, if its position changes.
+ *
+ * ## Terminology
+ *
+ * When the minimum constraints and the maximum constraint in an axis are the
+ * same, that axis is _tightly_ constrained. See: [new
+ * BoxConstraints.tightFor], [new BoxConstraints.tightForFinite], [tighten],
+ * [hasTightWidth], [hasTightHeight], [isTight].
+ *
+ * An axis with a minimum constraint of 0.0 is _loose_ (regardless of the
+ * maximum constraint; if it is also 0.0, then the axis is simultaneously tight
+ * and loose!). See: [new BoxConstraints.loose], [loosen].
+ *
+ * An axis whose maximum constraint is not infinite is _bounded_. See:
+ * [hasBoundedWidth], [hasBoundedHeight].
+ *
+ * An axis whose maximum constraint is infinite is _unbounded_. An axis is
+ * _expanding_ if it is tightly infinite (its minimum and maximum constraints
+ * are both infinite). See: [new BoxConstraints.expand].
+ *
+ * A size is _constrained_ when it satisfies a [BoxConstraints] description.
+ * See: [constrain], [constrainWidth], [constrainHeight],
+ * [constrainDimensions], [constrainSizeAndAttemptToPreserveAspectRatio],
+ * [isSatisfiedBy].
+ */
 
-    // / The minimum width that satisfies the constraints.
-    val minWidth: Double
-
-    // / The maximum width that satisfies the constraints.
-    // /
-    // / Might be [double.infinity].
-    val maxWidth: Double
-
-    // / The minimum height that satisfies the constraints.
-    val minHeight: Double
-
-    // / The maximum height that satisfies the constraints.
-    // /
-    // / Might be [double.infinity].
-    val maxHeight: Double
+// Creates box constraints with the given constraints.
+// TODO(Migration/xbhatnag): const constructor
+data class BoxConstraints(
+    // The minimum width that satisfies the constraints.
+    val minWidth: Double = 0.0,
+    // The maximum width that satisfies the constraints.
+    // Might be [double.infinity].
+    val maxWidth: Double = Double.POSITIVE_INFINITY,
+    // The minimum height that satisfies the constraints.
+    val minHeight: Double = 0.0,
+    // The maximum height that satisfies the constraints.
+    // Might be [double.infinity].
+    val maxHeight: Double = Double.POSITIVE_INFINITY
+) : Constraints() {
 
 //    /// Creates box constraints that is respected only by the given size.
 //    BoxConstraints.tight(Size size)
@@ -231,15 +217,19 @@ class BoxConstraints : Constraints {
 //    /// unconstrained width
 //    BoxConstraints heightConstraints() => new BoxConstraints(minHeight: minHeight, maxHeight: maxHeight);
 //
-    // / Returns the width that both satisfies the constraints and is as close as
-    // / possible to the given width.
+    /**
+     * Returns the width that both satisfies the constraints and is as close as
+     * possible to the given width.
+     */
     fun constrainWidth(width: Double = Double.POSITIVE_INFINITY): Double {
         assert(debugAssertIsValid())
         return width.clamp(minWidth, maxWidth)
     }
 
-    // / Returns the height that both satisfies the constraints and is as close as
-    // / possible to the given height.
+    /**
+     * Returns the height that both satisfies the constraints and is as close as
+     * possible to the given height.
+     */
     fun constrainHeight(height: Double = Double.POSITIVE_INFINITY): Double {
         assert(debugAssertIsValid())
         return height.clamp(minHeight, maxHeight)
@@ -322,26 +312,26 @@ class BoxConstraints : Constraints {
 //    /// The biggest size that satisfies the constraints.
 //    Size get biggest => new Size(constrainWidth(), constrainHeight());
 //
-    // / The smallest size that satisfies the constraints.
+    // The smallest size that satisfies the constraints.
     val smallest get() = Size(constrainWidth(0.0), constrainHeight(0.0))
 
-    // / Whether there is exactly one width value that satisfies the constraints.
+    // Whether there is exactly one width value that satisfies the constraints.
     val hasTightWidth get() = minWidth >= maxWidth
 
-    // / Whether there is exactly one height value that satisfies the constraints.
+    // Whether there is exactly one height value that satisfies the constraints.
     val hasTightHeight get() = minHeight >= maxHeight
 
-    // / Whether there is exactly one size that satisfies the constraints.
+    // Whether there is exactly one size that satisfies the constraints.
     override val isTight: Boolean
         get() = hasTightWidth && hasTightHeight
 
-    // / Whether there is an upper bound on the maximum width.
+    // Whether there is an upper bound on the maximum width.
     val hasBoundedWidth get() = maxWidth < Double.POSITIVE_INFINITY
 
-    // / Whether there is an upper bound on the maximum height.
+    // Whether there is an upper bound on the maximum height.
     val hasBoundedHeight get() = maxHeight < Double.POSITIVE_INFINITY
 
-    // / Whether the given size satisfies the constraints.
+    // Whether the given size satisfies the constraints.
     fun isSatisfiedBy(size: Size): Boolean {
         assert(debugAssertIsValid())
         return (minWidth <= size.width) && (size.width <= maxWidth) &&
@@ -426,17 +416,19 @@ class BoxConstraints : Constraints {
 //        );
 //    }
 
-    // / Returns whether the object's constraints are normalized.
-    // / Constraints are normalized if the minimums are less than or
-    // / equal to the corresponding maximums.
-    // /
-    // / For example, a BoxConstraints object with a minWidth of 100.0
-    // / and a maxWidth of 90.0 is not normalized.
-    // /
-    // / Most of the APIs on BoxConstraints expect the constraints to be
-    // / normalized and have undefined behavior when they are not. In
-    // / checked mode, many of these APIs will assert if the constraints
-    // / are not normalized.
+    /**
+     * Returns whether the object's constraints are normalized.
+     * Constraints are normalized if the minimums are less than or
+     * equal to the corresponding maximums.
+     *
+     * For example, a BoxConstraints object with a minWidth of 100.0
+     * and a maxWidth of 90.0 is not normalized.
+     *
+     * Most of the APIs on BoxConstraints expect the constraints to be
+     * normalized and have undefined behavior when they are not. In
+     * checked mode, many of these APIs will assert if the constraints
+     * are not normalized.
+     */
     override val isNormalized: Boolean
         get() = minWidth >= 0.0 &&
                 minWidth <= maxWidth &&
