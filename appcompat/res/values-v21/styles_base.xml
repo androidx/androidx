@@ -176,6 +176,8 @@
         <item name="android:background">?attr/editTextBackground</item>
     </style>
 
+    <style name="Base.Widget.AppCompat.TextView" parent="android:Widget.Material.TextView"/>
+
     <style name="Base.Widget.AppCompat.RatingBar" parent="android:Widget.Material.RatingBar" />
 
     <style name="Base.Widget.AppCompat.SeekBar" parent="android:Widget.Material.SeekBar" />

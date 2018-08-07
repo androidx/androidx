@@ -16,11 +16,15 @@
 
 package androidx.appcompat.widget;
 
+import static org.junit.Assert.assertEquals;
+
 import android.content.Context;
 import android.text.Editable;
+import android.text.Layout;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.test.R;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -36,8 +40,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class AppCompatEditTextTest {
     @Rule
-    public final ActivityTestRule<AppCompatActivity> mActivityTestRule =
-            new ActivityTestRule<>(AppCompatActivity.class);
+    public final ActivityTestRule<AppCompatEditTextActivity> mActivityTestRule =
+            new ActivityTestRule<>(AppCompatEditTextActivity.class);
 
     @Test
     @UiThreadTest
@@ -80,5 +84,51 @@ public class AppCompatEditTextTest {
             // constructors.
             Editable text = getText();
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testHyphenationFrequencyDefaultValue_withDefaultConstructor() {
+        final AppCompatEditText editText = new AppCompatEditText(mActivityTestRule.getActivity());
+        assertEquals(Layout.HYPHENATION_FREQUENCY_NONE, editText.getHyphenationFrequency());
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testHyphenationFrequencyDefaultValue_withInflator() {
+        final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
+                R.id.edit_text_default_values);
+        assertEquals(Layout.HYPHENATION_FREQUENCY_NONE, editText.getHyphenationFrequency());
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testHyphenationFrequencyOverride_withInflator() {
+        final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
+                R.id.text_view_hyphen_break_override);
+        assertEquals(Layout.HYPHENATION_FREQUENCY_FULL, editText.getHyphenationFrequency());
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBreakStrategyDefaultValue_withDefaultConstructor() {
+        final AppCompatEditText editText = new AppCompatEditText(mActivityTestRule.getActivity());
+        assertEquals(Layout.BREAK_STRATEGY_SIMPLE, editText.getBreakStrategy());
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBreakStrategyDefaultValue_withInflator() {
+        final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
+                R.id.edit_text_default_values);
+        assertEquals(Layout.BREAK_STRATEGY_SIMPLE, editText.getBreakStrategy());
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBreakStrategyOverride_withInflator() {
+        final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
+                R.id.text_view_hyphen_break_override);
+        assertEquals(Layout.BREAK_STRATEGY_BALANCED, editText.getBreakStrategy());
     }
 }

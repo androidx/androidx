@@ -114,6 +114,7 @@
     <public type="style" name="Widget.AppCompat.DrawerArrowToggle"/>
     <public type="style" name="Widget.AppCompat.DropDownItem.Spinner"/>
     <public type="style" name="Widget.AppCompat.EditText"/>
+    <public type="style" name="Widget.AppCompat.TextView"/>
     <public type="style" name="Widget.AppCompat.ImageButton"/>
     <public type="style" name="Widget.AppCompat.Light.ActionBar"/>
     <public type="style" name="Widget.AppCompat.Light.ActionBar.Solid"/>
