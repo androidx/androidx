@@ -10,6 +10,7 @@ plugins {
 dependencies {
     api(project(":annotation"))
     api(KOTLIN_STDLIB)
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.20"
     testImplementation(JUNIT)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TEST_RUNNER)
