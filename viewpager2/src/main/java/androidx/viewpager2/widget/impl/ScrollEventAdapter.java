@@ -37,8 +37,7 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 
 /**
- * Translates {@link RecyclerView.OnScrollListener} events to
- * {@link androidx.viewpager.widget.ViewPager.OnPageChangeListener} events.
+ * Translates {@link RecyclerView.OnScrollListener} events to {@link OnPageChangeListener} events.
  *
  * @hide
  */
