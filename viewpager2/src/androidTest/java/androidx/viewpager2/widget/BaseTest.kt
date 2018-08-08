@@ -31,7 +31,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.FragmentActivityUtils
 import androidx.viewpager2.test.R
@@ -49,7 +48,6 @@ import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertThat
 import java.util.concurrent.CountDownLatch
 
-@LargeTest
 open class BaseTest {
     fun setUpTest(
         totalPages: Int,
