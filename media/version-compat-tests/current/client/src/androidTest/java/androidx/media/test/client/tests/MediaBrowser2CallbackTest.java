@@ -17,9 +17,9 @@
 package androidx.media.test.client.tests;
 
 import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
-import static androidx.media.test.lib.MediaBrowser2Constants.EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
+import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants
         .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
@@ -137,7 +137,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                 assertEquals(ROOT_ID, rootMediaId);
                 // Note that TestUtils#equals() cannot be used for this because
                 // MediaBrowserServiceCompat adds extra_client_version to the rootHints.
-                assertTrue(TestUtils.contains(rootExtra, EXTRAS));
+                assertTrue(TestUtils.contains(rootExtra, ROOT_EXTRAS));
                 latch.countDown();
             }
         };

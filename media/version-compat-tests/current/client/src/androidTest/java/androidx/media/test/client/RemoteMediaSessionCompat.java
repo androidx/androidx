@@ -21,7 +21,7 @@ import static androidx.media.test.lib.CommonConstants.KEY_METADATA_COMPAT;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYBACK_STATE_COMPAT;
 import static androidx.media.test.lib.CommonConstants.KEY_QUEUE;
 import static androidx.media.test.lib.CommonConstants.KEY_SESSION_COMPAT_TOKEN;
-import static androidx.media.test.lib.CommonConstants.REMOTE_MEDIA_SESSION_COMPAT_SERVICE;
+import static androidx.media.test.lib.CommonConstants.MEDIA_SESSION_COMPAT_PROVIDER_SERVICE;
 import static androidx.media.test.lib.TestUtils.WAIT_TIME_MS;
 
 import static junit.framework.TestCase.fail;
@@ -43,8 +43,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.media.test.lib.MediaSessionCompatConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Represents remote {@link MediaSessionCompat} in the service app's
- * RemoteMediaSessionCompatService.
+ * MediaSessionCompatProviderService.
  * Users can run {@link MediaSessionCompat} methods remotely with this object.
  */
 public class RemoteMediaSessionCompat {
@@ -77,7 +75,7 @@ public class RemoteMediaSessionCompat {
         mServiceConnection = new MyServiceConnection();
 
         if (!connect()) {
-            fail("Failed to connect to the RemoteMediaSessionCompatService.");
+            fail("Failed to connect to the MediaSessionCompatProviderService.");
         }
         create();
     }
@@ -85,22 +83,6 @@ public class RemoteMediaSessionCompat {
     public void cleanUp() {
         release();
         disconnect();
-    }
-
-    /**
-     * Run a test-specific custom command in the service app.
-     *
-     * @param command Pre-defined command code.
-     *                One of the constants in {@link MediaSessionCompatConstants}.
-     * @param args A {@link Bundle} which contains pre-defined arguments.
-     */
-    public void runCustomTestCommands(int command, @Nullable Bundle args) {
-        try {
-            mBinder.runCustomTestCommands(mSessionTag, command, args);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call runCustomTestCommands(). command=" + command
-                    + " , args=" + args);
-        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -225,20 +207,21 @@ public class RemoteMediaSessionCompat {
     ////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Connects to service app's RemoteMediaSessionCompatService.
+     * Connects to service app's MediaSessionCompatProviderService.
      * Should NOT be called in main thread.
      *
      * @return true if connected successfully, false if failed to connect.
      */
     private boolean connect() {
         final Intent intent = new Intent(ACTION_MEDIA_SESSION_COMPAT);
-        intent.setComponent(REMOTE_MEDIA_SESSION_COMPAT_SERVICE);
+        intent.setComponent(MEDIA_SESSION_COMPAT_PROVIDER_SERVICE);
 
         boolean bound = false;
         try {
             bound = mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         } catch (Exception ex) {
-            Log.e(TAG, "Failed binding to the RemoteMediaSessionCompatService of the service app");
+            Log.e(TAG, "Failed binding to the MediaSessionCompatProviderService of the "
+                    + "service app");
         }
 
         if (bound) {
@@ -252,7 +235,7 @@ public class RemoteMediaSessionCompat {
     }
 
     /**
-     * Disconnects from service app's RemoteMediaSessionCompatService.
+     * Disconnects from service app's MediaSessionCompatProviderService.
      */
     private void disconnect() {
         if (mServiceConnection != null) {
@@ -282,7 +265,7 @@ public class RemoteMediaSessionCompat {
     class MyServiceConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "Connected to service app's RemoteMediaSessionCompatService.");
+            Log.d(TAG, "Connected to service app's MediaSessionCompatProviderService.");
             mBinder = IRemoteMediaSessionCompat.Stub.asInterface(service);
             mCountDownLatch.countDown();
         }

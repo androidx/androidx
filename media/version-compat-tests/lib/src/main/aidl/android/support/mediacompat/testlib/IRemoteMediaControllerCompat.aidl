@@ -22,7 +22,6 @@ import android.os.ResultReceiver;
 interface IRemoteMediaControllerCompat {
 
     void create(String controllerId, in Bundle token, boolean waitForConnection);
-    void runCustomTestCommands(String controllerId, int command, in Bundle args);
 
     // MediaControllerCompat Methods
     void addQueueItem(String controllerId, in Bundle description);
