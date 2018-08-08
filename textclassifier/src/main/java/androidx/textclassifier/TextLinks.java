@@ -22,7 +22,6 @@ import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Spannable;
 import android.text.Spanned;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
@@ -128,41 +127,6 @@ public final class TextLinks {
     @NonNull
     public Collection<TextLink> getLinks() {
         return mLinks;
-    }
-
-    /**
-     * Annotates the given text with the generated links. It will fail if the provided text doesn't
-     * match the original text used to create the TextLinks.
-     *
-     * <p><strong>NOTE: </strong>It may be necessary to set a LinkMovementMethod on the TextView
-     * widget to properly handle links. See
-     * {@link android.widget.TextView#setMovementMethod(android.text.method.MovementMethod)}
-     *
-     * @param text the text to apply the links to. Must match the original text
-     * @param applyStrategy the apply strategy used to determine how to apply links to text.
-     *      e.g {@link TextLinks#APPLY_STRATEGY_IGNORE}
-     * @param spanFactory a custom span factory for converting TextLinks to TextLinkSpans.
-     *      Set to {@code null} to use the default span factory.
-     *
-     * @return a status code indicating whether or not the links were successfully applied
-     *      e.g. {@link #STATUS_LINKS_APPLIED}
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Status
-    // TODO: Remove. Should use TextLinksParams.apply() directly.
-    // Move relevant tests in TextLinksTest to TextLinksParamsTest.
-    int apply(
-            @NonNull Spannable text,
-            @ApplyStrategy int applyStrategy,
-            @Nullable SpanFactory spanFactory) {
-        Preconditions.checkNotNull(text);
-        return new TextLinksParams.Builder()
-                .setApplyStrategy(applyStrategy)
-                .setSpanFactory(spanFactory)
-                .build()
-                .apply(text, this);
     }
 
     /**
@@ -505,7 +469,7 @@ public final class TextLinks {
     public interface SpanFactory {
 
         /** Creates a span from a text link. */
-        TextLinkSpan createSpan(TextLink textLink);
+        TextLinkSpan createSpan(@NonNull TextLink textLink);
     }
 
     /**
@@ -513,10 +477,10 @@ public final class TextLinks {
      */
     public static class TextLinkSpan extends ClickableSpan {
 
-        @Nullable private final TextLink mTextLink;
+        @NonNull private final TextLink mTextLink;
 
-        public TextLinkSpan(@Nullable TextLink textLink) {
-            mTextLink = textLink;
+        public TextLinkSpan(@NonNull TextLink textLink) {
+            mTextLink = Preconditions.checkNotNull(textLink);
         }
 
         @Override
