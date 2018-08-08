@@ -107,7 +107,6 @@ public class ViewPager2 extends ViewGroup {
         mRecyclerView.setLayoutParams(
                 new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        // TODO(b/70666992): add automated test for orientation change
         mPagerSnapHelper = new PagerSnapHelper();
         mPagerSnapHelper.attachToRecyclerView(mRecyclerView);
 
