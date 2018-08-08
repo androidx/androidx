@@ -78,6 +78,7 @@ package androidx.media2 {
     method public void fastForward();
     method public long getBufferedPosition();
     method public int getBufferingState();
+    method public androidx.media2.SessionToken2 getConnectedSessionToken();
     method public androidx.media2.MediaItem2 getCurrentMediaItem();
     method public long getCurrentPosition();
     method public long getDuration();
@@ -88,7 +89,6 @@ package androidx.media2 {
     method public androidx.media2.MediaMetadata2 getPlaylistMetadata();
     method public int getRepeatMode();
     method public android.app.PendingIntent getSessionActivity();
-    method public androidx.media2.SessionToken2 getSessionToken();
     method public int getShuffleMode();
     method public boolean isConnected();
     method public void pause();
@@ -174,7 +174,7 @@ package androidx.media2 {
 
   public abstract class MediaLibraryService2 extends androidx.media2.MediaSessionService2 {
     ctor public MediaLibraryService2();
-    method public abstract androidx.media2.MediaLibraryService2.MediaLibrarySession onCreateSession();
+    method public abstract androidx.media2.MediaLibraryService2.MediaLibrarySession onGetSession();
     field public static final java.lang.String SERVICE_INTERFACE = "android.media.MediaLibraryService2";
   }
 
@@ -567,6 +567,7 @@ package androidx.media2 {
     method public androidx.media2.MediaItem2 getCurrentMediaItem();
     method public long getCurrentPosition();
     method public long getDuration();
+    method public java.lang.String getId();
     method public float getPlaybackSpeed();
     method public androidx.media2.MediaPlayerConnector getPlayerConnector();
     method public int getPlayerState();
@@ -688,10 +689,12 @@ package androidx.media2 {
 
   public abstract class MediaSessionService2 extends android.app.Service {
     ctor public MediaSessionService2();
-    method public final androidx.media2.MediaSession2 getSession();
+    method public final void addSession(androidx.media2.MediaSession2);
+    method public final java.util.List<androidx.media2.MediaSession2> getSessions();
     method public android.os.IBinder onBind(android.content.Intent);
-    method public abstract androidx.media2.MediaSession2 onCreateSession();
-    method public androidx.media2.MediaSessionService2.MediaNotification onUpdateNotification();
+    method public abstract androidx.media2.MediaSession2 onGetSession();
+    method public androidx.media2.MediaSessionService2.MediaNotification onUpdateNotification(androidx.media2.MediaSession2);
+    method public final void removeSession(androidx.media2.MediaSession2);
     field public static final java.lang.String SERVICE_INTERFACE = "android.media.MediaSessionService2";
   }
 

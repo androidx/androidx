@@ -75,16 +75,22 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     @Override
     public List<ControllerInfo> getConnectedControllers() {
         List<ControllerInfo> list = super.getConnectedControllers();
-        list.addAll(getLegacyBrowserService().getConnectedControllersManager()
-                .getConnectedControllers());
+        MediaLibraryService2LegacyStub legacyStub = getLegacyBrowserService();
+        if (legacyStub != null) {
+            list.addAll(legacyStub.getConnectedControllersManager()
+                    .getConnectedControllers());
+        }
         return list;
     }
 
     @Override
     public boolean isConnected(ControllerInfo controller) {
-        return super.isConnected(controller)
-                || getLegacyBrowserService().getConnectedControllersManager().isConnected(
-                        controller);
+        if (super.isConnected(controller)) {
+            return true;
+        }
+        MediaLibraryService2LegacyStub legacyStub = getLegacyBrowserService();
+        return legacyStub != null
+                ? legacyStub.getConnectedControllersManager().isConnected(controller) : false;
     }
 
     @Override
@@ -256,7 +262,10 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     @Override
     void notifyToAllControllers(NotifyRunnable runnable) {
         super.notifyToAllControllers(runnable);
-        notifyToController(getLegacyBrowserService().getControllersForAll(), runnable);
+        MediaLibraryService2LegacyStub legacyStub = getLegacyBrowserService();
+        if (legacyStub != null) {
+            notifyToController(legacyStub.getControllersForAll(), runnable);
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */

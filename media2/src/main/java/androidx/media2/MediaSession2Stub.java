@@ -38,7 +38,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaSessionManager;
-import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionImpl;
@@ -179,15 +178,10 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         onSessionCommandInternal(caller, null, commandCode, runnable);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // AIDL methods for session overrides
-    //////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void connect(final IMediaController2 caller, final String callingPackage)
-            throws RuntimeException {
-        RemoteUserInfo remoteUserInfo = new RemoteUserInfo(
-                callingPackage, Binder.getCallingPid(), Binder.getCallingUid());
+    void connect(final IMediaController2 caller, final String callingPackage, final int pid,
+            final int uid) {
+        MediaSessionManager.RemoteUserInfo
+                remoteUserInfo = new MediaSessionManager.RemoteUserInfo(callingPackage, pid, uid);
         final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
                 mSessionManager.isTrustedForMediaControl(remoteUserInfo),
                 new Controller2Cb(caller));
@@ -248,7 +242,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     final List<MediaItem2> playlist =
                             allowedCommands.hasCommand(
                                     SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
-                                            ? mSessionImpl.getPlaylist() : null;
+                                    ? mSessionImpl.getPlaylist() : null;
                     final List<ParcelImpl> playlistParcel =
                             MediaUtils2.convertMediaItem2ListToParcelImplList(playlist);
 
@@ -282,6 +276,16 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 }
             }
         });
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // AIDL methods for session overrides
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void connect(final IMediaController2 caller, final String callingPackage)
+            throws RuntimeException {
+        connect(caller, callingPackage, Binder.getCallingPid(), Binder.getCallingUid());
     }
 
     @Override

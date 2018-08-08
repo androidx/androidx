@@ -39,16 +39,25 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
     }
 
     @Override
-    public MediaSession2 onCreateSession() {
+    public MediaSession2 onGetSession() {
+        TestServiceRegistry registry = TestServiceRegistry.getInstance();
+        TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
+                registry.getOnGetSessionHandler();
+        if (onGetSessionHandler != null) {
+            return onGetSessionHandler.onGetSession();
+        }
+        if (getSessions().size() > 0) {
+            return getSessions().get(0);
+        }
         final MockPlayer player = new MockPlayer(1);
-        final SyncHandler handler = (SyncHandler) TestServiceRegistry.getInstance().getHandler();
+        final SyncHandler handler = (SyncHandler) registry.getHandler();
         final Executor executor = new Executor() {
             @Override
             public void execute(Runnable runnable) {
                 handler.post(runnable);
             }
         };
-        SessionCallback sessionCallback = TestServiceRegistry.getInstance().getSessionCallback();
+        SessionCallback sessionCallback = registry.getSessionCallback();
         if (sessionCallback == null) {
             // Ensures non-null
             sessionCallback = new SessionCallback() {};

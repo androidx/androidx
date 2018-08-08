@@ -156,7 +156,7 @@ public class MediaBrowserCompatProviderService extends Service {
         }
 
         @Override
-        public Bundle getSessionToken(String browserId) throws RemoteException {
+        public Bundle getConnectedSessionToken(String browserId) throws RemoteException {
             MediaBrowserCompat browser = mMediaBrowserCompatMap.get(browserId);
             Bundle tokenBundle = new Bundle();
             tokenBundle.putParcelable(KEY_SESSION_COMPAT_TOKEN, browser.getSessionToken());
