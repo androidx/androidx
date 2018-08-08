@@ -22,7 +22,6 @@ import android.os.ResultReceiver;
 interface IRemoteMediaSession2 {
 
     void create(String sessionId);
-    void runCustomTestCommands(String sessionId, int command, in Bundle args);
 
     // MediaSession2 Methods
     Bundle getToken(String sessionId);

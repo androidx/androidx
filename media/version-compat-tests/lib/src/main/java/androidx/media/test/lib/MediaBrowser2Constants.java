@@ -27,7 +27,7 @@ import java.util.List;
 public class MediaBrowser2Constants {
 
     public static final String ROOT_ID = "rootId";
-    public static final Bundle EXTRAS = new Bundle();
+    public static final Bundle ROOT_EXTRAS = new Bundle();
 
     public static final String MEDIA_ID_GET_ITEM = "media_id_get_item";
 
@@ -42,6 +42,7 @@ public class MediaBrowser2Constants {
     public static final String SEARCH_QUERY_TAKES_TIME = "search_query_takes_time";
     public static final int SEARCH_TIME_IN_MS = 5000;
     public static final String SEARCH_QUERY_EMPTY_RESULT = "search_query_empty_result";
+    public static final String SEARCH_QUERY_ERROR = "search_query_error";
 
     public static final List<String> SEARCH_RESULT = new ArrayList<>();
     public static final int SEARCH_RESULT_COUNT = 50;
@@ -57,8 +58,12 @@ public class MediaBrowser2Constants {
     public static final int NOTIFY_CHILDREN_CHANGED_ITEM_COUNT = 101;
     public static final Bundle NOTIFY_CHILDREN_CHANGED_EXTRAS = TestUtils.createTestBundle();
 
+    public static final String CUSTOM_ACTION = "customAction";
+    public static final Bundle CUSTOM_ACTION_EXTRAS = new Bundle();
+
     static {
-        EXTRAS.putString(ROOT_ID, ROOT_ID);
+        ROOT_EXTRAS.putString(ROOT_ID, ROOT_ID);
+        CUSTOM_ACTION_EXTRAS.putString(CUSTOM_ACTION, CUSTOM_ACTION);
 
         GET_CHILDREN_RESULT.clear();
         String getChildrenMediaIdPrefix = "get_children_media_id_";

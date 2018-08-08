@@ -42,14 +42,14 @@
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media.test.service.RemoteMediaSession2Service">
+        <service android:name="androidx.media.test.service.MediaSession2ProviderService">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_SESSION2" />
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media.test.service.RemoteMediaSessionCompatService">
+        <service android:name="androidx.media.test.service.MediaSessionCompatProviderService">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_SESSION_COMPAT" />

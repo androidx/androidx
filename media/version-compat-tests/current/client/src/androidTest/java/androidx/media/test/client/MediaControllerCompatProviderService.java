@@ -47,8 +47,8 @@ import java.util.concurrent.TimeUnit;
  * A Service that creates {@link MediaControllerCompat} and calls its methods
  * according to the service app's requests.
  */
-public class RemoteMediaControllerCompatService extends Service {
-    private static final String TAG = "RemoteMediaControllerCompatService";
+public class MediaControllerCompatProviderService extends Service {
+    private static final String TAG = "MediaControllerCompatProviderService";
 
     Map<String, MediaControllerCompat> mMediaControllerCompatMap = new HashMap<>();
     RemoteMediaControllerCompatStub mBinder;
@@ -85,7 +85,7 @@ public class RemoteMediaControllerCompatService extends Service {
                 throws RemoteException {
             MediaSessionCompat.Token token = (MediaSessionCompat.Token) getParcelable(tokenBundle);
             MediaControllerCompat controller = new MediaControllerCompat(
-                    RemoteMediaControllerCompatService.this, token);
+                    MediaControllerCompatProviderService.this, token);
 
             final TestControllerCallback callback = new TestControllerCallback();
             controller.registerCallback(callback, mHandler);
@@ -106,12 +106,6 @@ public class RemoteMediaControllerCompatService extends Service {
             if (!connected) {
                 Log.e(TAG, "Could not connect to the given session.");
             }
-        }
-
-        @Override
-        public void runCustomTestCommands(String controllerId, int command, Bundle args)
-                throws RemoteException {
-            MediaControllerCompat controller = mMediaControllerCompatMap.get(controllerId);
         }
 
         ////////////////////////////////////////////////////////////////////////////////

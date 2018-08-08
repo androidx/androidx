@@ -18,7 +18,7 @@ package androidx.media.test.service;
 
 import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_CONTROLLER_COMPAT;
 import static androidx.media.test.lib.CommonConstants.KEY_ARGUMENTS;
-import static androidx.media.test.lib.CommonConstants.REMOTE_MEDIA_CONTROLLER_COMPAT_SERVICE;
+import static androidx.media.test.lib.CommonConstants.MEDIA_CONTROLLER_COMPAT_PROVIDER_SERVICE;
 import static androidx.media.test.lib.TestUtils.WAIT_TIME_MS;
 
 import static junit.framework.TestCase.fail;
@@ -41,15 +41,14 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-import androidx.media.test.lib.MediaControllerCompatConstants;
-
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents remote {@link MediaControllerCompat} the client app's MediaControllerCompatService.
+ * Represents remote {@link MediaControllerCompat} the client app's
+ * MediaControllerCompatProviderService.
+ * <p>
  * Users can run {@link MediaControllerCompat} methods remotely with this object.
  */
 public class RemoteMediaControllerCompat {
@@ -77,29 +76,13 @@ public class RemoteMediaControllerCompat {
         mCountDownLatch = new CountDownLatch(1);
         mServiceConnection = new MyServiceConnection();
         if (!connect()) {
-            fail("Failed to connect to the RemoteMediaControllerCompatService.");
+            fail("Failed to connect to the MediaControllerCompatProviderService.");
         }
         create(token, waitForConnection);
     }
 
     public void cleanUp() {
         disconnect();
-    }
-
-    /**
-     * Run a test-specific custom command the service app.
-     *
-     * @param command Pre-defined command code.
-     *                One of the constants {@link MediaControllerCompatConstants}.
-     * @param args A {@link Bundle} which contains pre-defined arguments.
-     */
-    public void runCustomTestCommands(int command, @Nullable Bundle args) {
-        try {
-            mBinder.runCustomTestCommands(mControllerId, command, args);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call runCustomTestCommands(). command=" + command
-                    + " , args=" + args);
-        }
     }
 
     /**
@@ -360,20 +343,20 @@ public class RemoteMediaControllerCompat {
     ////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Connects to client app's RemoteMediaControllerCompatService.
+     * Connects to client app's MediaControllerCompatProviderService.
      * Should NOT be called main thread.
      *
      * @return true if connected successfully, false if failed to connect.
      */
     private boolean connect() {
         final Intent intent = new Intent(ACTION_MEDIA_CONTROLLER_COMPAT);
-        intent.setComponent(REMOTE_MEDIA_CONTROLLER_COMPAT_SERVICE);
+        intent.setComponent(MEDIA_CONTROLLER_COMPAT_PROVIDER_SERVICE);
 
         boolean bound = false;
         try {
             bound = mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         } catch (Exception ex) {
-            Log.e(TAG, "Failed to bind to the RemoteMediaControllerCompatService.");
+            Log.e(TAG, "Failed to bind to the MediaControllerCompatProviderService.");
         }
 
         if (bound) {
@@ -387,7 +370,7 @@ public class RemoteMediaControllerCompat {
     }
 
     /**
-     * Disconnects from client app's RemoteMediaControllerCompatService.
+     * Disconnects from client app's MediaControllerCompatProviderService.
      */
     private void disconnect() {
         if (mServiceConnection != null) {
@@ -421,14 +404,14 @@ public class RemoteMediaControllerCompat {
     class MyServiceConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "Connected to client app's RemoteMediaControllerCompatService.");
+            Log.d(TAG, "Connected to client app's MediaControllerCompatProviderService.");
             mBinder = IRemoteMediaControllerCompat.Stub.asInterface(service);
             mCountDownLatch.countDown();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "Disconnected from client app's RemoteMediaControllerCompatService.");
+            Log.d(TAG, "Disconnected from client app's MediaControllerCompatProviderService.");
         }
     }
 }

@@ -24,17 +24,24 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="androidx.media.test.client.RemoteMediaController2Service">
+        <service android:name="androidx.media.test.client.MediaController2ProviderService">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_CONTROLLER2" />
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media.test.client.RemoteMediaControllerCompatService">
+        <service android:name="androidx.media.test.client.MediaControllerCompatProviderService">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_CONTROLLER_COMPAT" />
+            </intent-filter>
+        </service>
+
+        <service android:name="androidx.media.test.client.MediaBrowserCompatProviderService">
+            <intent-filter>
+                <!-- Keep sync with CommonConstants.java -->
+                <action android:name="androidx.media.test.action.MEDIA_BROWSER_COMPAT" />
             </intent-filter>
         </service>
     </application>
