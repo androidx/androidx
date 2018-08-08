@@ -52,7 +52,6 @@ import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.widget.ListContent;
-import androidx.slice.widget.ShortcutContent;
 import androidx.slice.widget.SliceView;
 import androidx.slice.widget.SliceView.SliceMode;
 import androidx.versionedparcelable.ParcelUtils;
@@ -92,24 +91,31 @@ public class SliceUtils {
      */
     @NonNull
     public static Slice stripSlice(@NonNull Slice s, @SliceMode int mode, boolean isScrollable) {
-        ListContent listContent = new ListContent(null, s, null, 0, 0);
-        if (listContent != null && listContent.isValid()) {
-            Slice.Builder slice = copyMetadata(s);
+        ListContent listContent = new ListContent(null, s);
+        if (listContent.isValid()) {
+            Slice.Builder builder = copyMetadata(s);
             switch (mode) {
                 case SliceView.MODE_SHORTCUT:
-                    return new ShortcutContent(listContent).buildSlice(slice);
+                    // TODO -- passing context in here will ensure we always have shortcut / can
+                    // fall back to appInfo
+                    SliceAction shortcutAction = listContent.getShortcut(null);
+                    if (shortcutAction != null) {
+                        return ((SliceActionImpl) shortcutAction).buildSlice(builder);
+                    } else {
+                        return s;
+                    }
                 case SliceView.MODE_SMALL:
-                    slice.addItem(listContent.getHeaderItem());
+                    builder.addItem(listContent.getHeader().getSliceItem());
                     List<SliceAction> actions = listContent.getSliceActions();
                     if (actions != null && actions.size() > 0) {
-                        Slice.Builder sb = new Slice.Builder(slice);
+                        Slice.Builder sb = new Slice.Builder(builder);
                         for (SliceAction action : actions) {
                             Slice.Builder b = new Slice.Builder(sb).addHints(HINT_ACTIONS);
                             sb.addSubSlice(((SliceActionImpl) action).buildSlice(b));
                         }
-                        slice.addSubSlice(sb.addHints(HINT_ACTIONS).build());
+                        builder.addSubSlice(sb.addHints(HINT_ACTIONS).build());
                     }
-                    return slice.build();
+                    return builder.build();
                 case SliceView.MODE_LARGE:
                     // TODO: Implement stripping for large mode
                 default:

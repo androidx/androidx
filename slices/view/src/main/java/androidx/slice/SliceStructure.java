@@ -26,6 +26,9 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import android.net.Uri;
+
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -39,6 +42,7 @@ import androidx.annotation.RestrictTo;
 public class SliceStructure {
 
     private final String mStructure;
+    private final Uri mUri;
 
     /**
      * Create a SliceStructure.
@@ -47,6 +51,7 @@ public class SliceStructure {
         StringBuilder str = new StringBuilder();
         getStructure(s, str);
         mStructure = str.toString();
+        mUri = s.getUri();
     }
 
     /**
@@ -58,6 +63,21 @@ public class SliceStructure {
         StringBuilder str = new StringBuilder();
         getStructure(s, str);
         mStructure = str.toString();
+        if (FORMAT_ACTION.equals(s.getFormat()) || FORMAT_SLICE.equals(s.getFormat())) {
+            mUri = s.getSlice().getUri();
+        } else {
+            mUri = null;
+        }
+    }
+
+    /**
+     * @return the Uri associated with this content item if one exists.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Nullable
+    public Uri getUri() {
+        return mUri;
     }
 
     @Override

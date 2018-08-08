@@ -128,23 +128,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         mViewContainer.setPadding(l, t + getExtraTopPadding(), r, b + getExtraBottomPadding());
     }
 
-    @Override
-    public int getSmallHeight() {
-        // GridRow is small if its the first element in a list without a header presented in small
-        if (mGridContent == null) {
-            return 0;
-        }
-        return mGridContent.getSmallHeight() + getExtraTopPadding() + getExtraBottomPadding();
-    }
-
-    @Override
-    public int getActualHeight() {
-        if (mGridContent == null) {
-            return 0;
-        }
-        return mGridContent.getActualHeight() + getExtraTopPadding() + getExtraBottomPadding();
-    }
-
     private int getExtraTopPadding() {
         if (mGridContent != null && mGridContent.isAllImages()) {
             // Might need to add padding if in first or last position
@@ -166,7 +149,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = getMode() == MODE_SMALL ? getSmallHeight() : getActualHeight();
+        int height = mGridContent.getHeight(mSliceStyle, mViewPolicy);
         heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
         mViewContainer.getLayoutParams().height = height;
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -186,13 +169,13 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
      * This is called when GridView is being used as a component in a larger template.
      */
     @Override
-    public void setSliceItem(SliceItem slice, boolean isHeader, int rowIndex,
+    public void setSliceItem(SliceContent slice, boolean isHeader, int rowIndex,
             int rowCount, SliceView.OnSliceActionListener observer) {
         resetView();
         setSliceActionListener(observer);
         mRowIndex = rowIndex;
         mRowCount = rowCount;
-        mGridContent = new GridContent(getContext(), slice);
+        mGridContent = (GridContent) slice;
 
         if (!scheduleMaxCellsUpdate()) {
             populateViews();
@@ -244,8 +227,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         if (scheduleMaxCellsUpdate()) {
             return;
         }
-        if (mGridContent.getLayoutDirItem() != null) {
-            setLayoutDirection(mGridContent.getLayoutDirItem().getInt());
+        if (mGridContent.getLayoutDir() != -1) {
+            setLayoutDirection(mGridContent.getLayoutDir());
         }
         if (mGridContent.getContentIntent() != null) {
             EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
