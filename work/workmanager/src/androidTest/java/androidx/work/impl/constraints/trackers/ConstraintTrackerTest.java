@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.constraints.ConstraintListener;
@@ -122,7 +121,6 @@ public class ConstraintTrackerTest {
     }
 
     @Test
-    @UiThreadTest
     public void testSetState_newState_notifiesAllListeners() {
         ConstraintListener<Boolean> constraintListener1 = mock(ConstraintListener.class);
         ConstraintListener<Boolean> constraintListener2 = mock(ConstraintListener.class);
@@ -138,7 +136,6 @@ public class ConstraintTrackerTest {
     }
 
     @Test
-    @UiThreadTest
     public void testSetState_sameState_doesNotNotify() {
         ConstraintListener<Boolean> constraintListener1 = mock(ConstraintListener.class);
         ConstraintListener<Boolean> constraintListener2 = mock(ConstraintListener.class);

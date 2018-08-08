@@ -32,7 +32,6 @@ import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.utils.ThreadUtils;
 import androidx.work.impl.utils.WakeLocks;
 
 import java.util.ArrayList;
@@ -128,7 +127,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
      */
     @MainThread
     public boolean add(@NonNull final Intent intent, final int startId) {
-        ThreadUtils.assertMainThread();
+        assertMainThread();
         String action = intent.getAction();
         if (TextUtils.isEmpty(action)) {
             Logger.warning(TAG, "Unknown command. Ignoring");
@@ -178,7 +177,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void checkForCommandsCompleted() {
-        ThreadUtils.assertMainThread();
+        assertMainThread();
         // if there are no more intents to process, and the command handler
         // has no more pending commands, stop the service.
         synchronized (mIntents) {
@@ -194,7 +193,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @MainThread
     @SuppressWarnings("FutureReturnValueIgnored")
     private void processCommand() {
-        ThreadUtils.assertMainThread();
+        assertMainThread();
         PowerManager.WakeLock processCommandLock =
                 WakeLocks.newWakeLock(mContext, PROCESS_COMMAND_TAG);
         try {
@@ -268,7 +267,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     @MainThread
     private boolean hasIntentWithAction(@NonNull String action) {
-        ThreadUtils.assertMainThread();
+        assertMainThread();
         synchronized (mIntents) {
             for (Intent intent : mIntents) {
                 if (action.equals(intent.getAction())) {
@@ -276,6 +275,12 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                 }
             }
             return false;
+        }
+    }
+
+    private void assertMainThread() {
+        if (mMainHandler.getLooper().getThread() != Thread.currentThread()) {
+            throw new IllegalStateException("Needs to be invoked on the main thread.");
         }
     }
 
