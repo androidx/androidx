@@ -37,7 +37,6 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 
 import androidx.test.InstrumentationRegistry;
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -135,7 +134,6 @@ public class BatteryChargingTrackerTest {
 
     @Test
     @SmallTest
-    @UiThreadTest
     public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
         mockContextReturns(createBatteryChangedIntent(true));
         mTracker.addListener(mListener);
@@ -150,7 +148,6 @@ public class BatteryChargingTrackerTest {
     @Test
     @SmallTest
     @SdkSuppress(maxSdkVersion = 22)
-    @UiThreadTest
     public void testOnBroadcastReceive_notifiesListeners_beforeApi23() {
         mockContextReturns(createBatteryChangedIntent(false));
         mTracker.addListener(mListener);
@@ -165,7 +162,6 @@ public class BatteryChargingTrackerTest {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 23)
-    @UiThreadTest
     public void testOnBroadcastReceive_notifiesListeners_afterApi23() {
         mockContextReturns(null);
         mTracker.addListener(mListener);
