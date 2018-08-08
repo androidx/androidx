@@ -82,7 +82,7 @@ public final class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
      */
-    public @NonNull boolean[] getBooleanArray(@NonNull String key) {
+    public @Nullable boolean[] getBooleanArray(@NonNull String key) {
         Object value = mValues.get(key);
         if (value instanceof Boolean[]) {
             Boolean[] array = (Boolean[]) value;
@@ -119,7 +119,7 @@ public final class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
      */
-    public @NonNull int[] getIntArray(@NonNull String key) {
+    public @Nullable int[] getIntArray(@NonNull String key) {
         Object value = mValues.get(key);
         if (value instanceof Integer[]) {
             Integer[] array = (Integer[]) value;
