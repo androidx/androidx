@@ -245,6 +245,13 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                 notifyAgentUpdatedNotLocked(oldPlaylistAgent);
             }
             if (player != oldPlayer) {
+                final int state = getPlayerState();
+                mCallbackExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onHandleForegroundService(state);
+                    }
+                });
                 notifyPlayerUpdatedNotLocked(oldPlayer);
             }
             if (isPlaybackInfoChanged) {
@@ -1388,6 +1395,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                     // Order is important here. AudioFocusHandler should be called at the first
                     // for testing purpose.
                     session.mAudioFocusHandler.onPlayerStateChanged(state);
+                    session.getCallback().onHandleForegroundService(state);
                     session.getCallback().onPlayerStateChanged(
                             session.getInstance(), player, state);
                     session.notifyToAllControllers(new NotifyRunnable() {
