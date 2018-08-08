@@ -21,7 +21,9 @@ import android.support.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.ConstraintListener;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,6 +38,7 @@ public abstract class ConstraintTracker<T> {
     private static final String TAG = "ConstraintTracker";
 
     protected final Context mAppContext;
+    private final Object mLock = new Object();
     private final Set<ConstraintListener<T>> mListeners = new LinkedHashSet<>();
     private T mCurrentState;
 
@@ -51,15 +54,17 @@ public abstract class ConstraintTracker<T> {
      * @param listener The target listener to start notifying
      */
     public void addListener(ConstraintListener<T> listener) {
-        if (mListeners.add(listener)) {
-            if (mListeners.size() == 1) {
-                mCurrentState = getInitialState();
-                Logger.debug(TAG, String.format("%s: initial state = %s",
-                        getClass().getSimpleName(),
-                        mCurrentState));
-                startTracking();
+        synchronized (mLock) {
+            if (mListeners.add(listener)) {
+                if (mListeners.size() == 1) {
+                    mCurrentState = getInitialState();
+                    Logger.debug(TAG, String.format("%s: initial state = %s",
+                            getClass().getSimpleName(),
+                            mCurrentState));
+                    startTracking();
+                }
+                listener.onConstraintChanged(mCurrentState);
             }
-            listener.onConstraintChanged(mCurrentState);
         }
     }
 
@@ -69,8 +74,10 @@ public abstract class ConstraintTracker<T> {
      * @param listener The listener to stop notifying.
      */
     public void removeListener(ConstraintListener<T> listener) {
-        if (mListeners.remove(listener) && mListeners.isEmpty()) {
-            stopTracking();
+        synchronized (mLock) {
+            if (mListeners.remove(listener) && mListeners.isEmpty()) {
+                stopTracking();
+            }
         }
     }
 
@@ -81,13 +88,20 @@ public abstract class ConstraintTracker<T> {
      * @param newState new state of constraint
      */
     public void setState(T newState) {
-        if (mCurrentState == newState
-                || (mCurrentState != null && mCurrentState.equals(newState))) {
-            return;
-        }
-        mCurrentState = newState;
-        for (ConstraintListener<T> listener : mListeners) {
-            listener.onConstraintChanged(mCurrentState);
+        synchronized (mLock) {
+            if (mCurrentState == newState
+                    || (mCurrentState != null && mCurrentState.equals(newState))) {
+                return;
+            }
+            mCurrentState = newState;
+
+            // onConstraintChanged may lead to calls to addListener or removeListener.  This can
+            // potentially result in a modification to the set while it is being iterated over, so
+            // we handle this by creating a copy and using that for iteration.
+            List<ConstraintListener<T>> listenersList = new ArrayList<>(mListeners);
+            for (ConstraintListener<T> listener : listenersList) {
+                listener.onConstraintChanged(mCurrentState);
+            }
         }
     }
 
