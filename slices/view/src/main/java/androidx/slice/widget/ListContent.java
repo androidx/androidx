@@ -25,21 +25,13 @@ import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.HINT_TTL;
-import static android.app.slice.Slice.SUBTYPE_COLOR;
-import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.slice.widget.SliceView.MODE_LARGE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
-import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,6 +46,7 @@ import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,97 +55,45 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(19)
-public class ListContent {
+public class ListContent extends SliceContent {
 
-    private Slice mSlice;
-    private SliceItem mColorItem;
-    private SliceItem mLayoutDirItem;
-    private SliceItem mHeaderItem;
-    private SliceItem mSeeMoreItem;
-    private ArrayList<SliceItem> mRowItems = new ArrayList<>();
+    private SliceAction mPrimaryAction;
+    private RowContent mHeaderContent;
+    private RowContent mSeeMoreContent;
+    private ArrayList<SliceContent> mRowItems = new ArrayList<>();
     private List<SliceAction> mSliceActions;
-    private Context mContext;
     private int mMinScrollHeight;
     private int mLargeHeight;
-    private int mMaxSmallHeight;
+    private Context mContext;
 
-    private int mGridTopPadding;
-    private int mGridBottomPadding;
-
-    public ListContent(Context context, Slice slice) {
-        this(context, slice, null, 0, 0);
-    }
-
-    public ListContent(Context context, Slice slice, SliceStyle styles) {
-        init(context, slice, styles);
-        populate(slice);
-    }
-
-    public ListContent(Context context, Slice slice, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        init(context, slice, null);
-
-        if (context != null) {
-            Resources.Theme theme = context.getTheme();
-            if (theme != null) {
-                TypedArray a = theme.obtainStyledAttributes(attrs, R.styleable.SliceView,
-                        defStyleAttr, defStyleRes);
-                try {
-                    mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
-                    mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding,
-                            0);
-                } finally {
-                    a.recycle();
-                }
-            }
-        }
-
-        populate(slice);
-    }
-
-    private void init(Context context, Slice slice, SliceStyle styles) {
-        mSlice = slice;
-        if (mSlice == null) {
+    public ListContent(Context context, @NonNull Slice slice) {
+        super(slice);
+        if (mSliceItem == null) {
             return;
         }
         mContext = context;
-        mGridTopPadding = styles != null ? styles.getGridTopPadding() : 0;
-        mGridBottomPadding = styles != null ? styles.getGridBottomPadding() : 0;
         if (context != null) {
             mMinScrollHeight = context.getResources()
                     .getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
             mLargeHeight = context.getResources()
                     .getDimensionPixelSize(R.dimen.abc_slice_large_height);
         }
+        populate(slice);
     }
 
-    public void setMaxSmallHeight(int maxSmallHeight) {
-        mMaxSmallHeight = maxSmallHeight;
-    }
-
-    /**
-     * @return whether this row has content that is valid to display.
-     */
-    private boolean populate(Slice slice) {
-        if (slice == null) return false;
-        mColorItem = SliceQuery.findTopLevelItem(slice, FORMAT_INT, SUBTYPE_COLOR, null, null);
-        mLayoutDirItem = SliceQuery.findTopLevelItem(slice, FORMAT_INT, SUBTYPE_LAYOUT_DIRECTION,
-                null, null);
-        if (mLayoutDirItem != null) {
-            // Make sure it's valid
-            mLayoutDirItem = resolveLayoutDirection(mLayoutDirItem.getInt()) != -1
-                    ? mLayoutDirItem
-                    : null;
-        }
-
-        // Find slice actions
+    private void populate(Slice slice) {
+        if (slice == null) return;
         mSliceActions = SliceMetadata.getSliceActions(slice);
-        // Find header
-        mHeaderItem = findHeaderItem(slice);
-        if (mHeaderItem != null) {
-            mRowItems.add(mHeaderItem);
+        final SliceItem headerItem = findHeaderItem(slice);
+        if (headerItem != null) {
+            mHeaderContent = new RowContent(mContext, headerItem, 0);
+            mRowItems.add(mHeaderContent);
         }
-        mSeeMoreItem = getSeeMoreItem(slice);
+        final SliceItem seeMoreItem = getSeeMoreItem(slice);
+        if (seeMoreItem != null) {
+            mSeeMoreContent = new RowContent(mContext, seeMoreItem, -1);
+        }
+
         // Filter + create row items
         List<SliceItem> children = slice.getItems();
         for (int i = 0; i < children.size(); i++) {
@@ -161,39 +102,45 @@ public class ListContent {
             boolean isNonRowContent = child.hasAnyHints(HINT_ACTIONS, HINT_SEE_MORE, HINT_KEYWORDS,
                     HINT_TTL, HINT_LAST_UPDATED);
             if (!isNonRowContent && (FORMAT_ACTION.equals(format) || FORMAT_SLICE.equals(format))) {
-                if (mHeaderItem == null && !child.hasHint(HINT_LIST_ITEM)) {
-                    mHeaderItem = child;
-                    mRowItems.add(0, child);
+                if (mHeaderContent == null && !child.hasHint(HINT_LIST_ITEM)) {
+                    mHeaderContent = new RowContent(mContext, child, 0);
+                    mRowItems.add(0, mHeaderContent);
                 } else if (child.hasHint(HINT_LIST_ITEM)) {
-                    mRowItems.add(child);
+                    if (child.hasHint(HINT_HORIZONTAL)) {
+                        mRowItems.add(new GridContent(mContext, child, i));
+                    } else {
+                        mRowItems.add(new RowContent(mContext, child, i));
+                    }
                 }
             }
         }
         // Ensure we have something for the header -- use first row
-        if (mHeaderItem == null && mRowItems.size() >= 1) {
-            mHeaderItem = mRowItems.get(0);
+        if (mHeaderContent == null && mRowItems.size() >= 1) {
+            // We enforce RowContent has first item on builder side; if that changes this
+            // could be an issue
+            mHeaderContent = (RowContent) mRowItems.get(0);
+            mHeaderContent.setIsHeader(true);
         }
-        return isValid();
+        if (mRowItems.size() > 0 && mRowItems.get(mRowItems.size() - 1) instanceof GridContent) {
+            // Grid item is the last item, note that.
+            ((GridContent) mRowItems.get(mRowItems.size() - 1)).setIsLastIndex(true);
+        }
+        mPrimaryAction = findPrimaryAction();
     }
 
-    /**
-     * @return height of this list when displayed in small mode.
-     */
-    public int getSmallHeight() {
-        return getHeight(mHeaderItem, true /* isHeader */,
-                0 /* rowIndex */, 1 /* rowCount */, MODE_SMALL);
-    }
+    @Override
+    public int getHeight(SliceStyle style, SliceViewPolicy policy) {
+        if (policy.getMode() == MODE_SMALL) {
+            return mHeaderContent.getHeight(style, policy);
+        }
+        int maxHeight = policy.getMaxHeight();
+        boolean scrollable = policy.isScrollable();
 
-    /**
-     * @param maxHeight max height we can be, -1 if no max.
-     * @param scrollable whether scrolling is allowed.
-     * @return height of the list when displayed in large mode.
-     */
-    public int getLargeHeight(int maxHeight, boolean scrollable) {
-        int desiredHeight = getListHeight(mRowItems);
+        int desiredHeight = getListHeight(mRowItems, style, policy);
         if (maxHeight > 0) {
             // Always ensure we're at least the height of our small version.
-            maxHeight = Math.max(getSmallHeight(), maxHeight);
+            int smallHeight = mHeaderContent.getHeight(style, policy);
+            maxHeight = Math.max(smallHeight, maxHeight);
         }
         int maxLargeHeight = maxHeight > 0
                 ? maxHeight
@@ -206,79 +153,68 @@ public class ListContent {
                 : maxHeight <= 0 ? desiredHeight
                 : Math.min(maxLargeHeight, desiredHeight);
         if (!scrollable) {
-            height = getListHeight(getItemsForNonScrollingList(height));
+            height = getListHeight(getItemsForNonScrollingList(height, style, policy),
+                    style, policy);
         }
         return height;
     }
 
     /**
-     * Expects the provided list of items to be filtered (i.e. only things that can be turned into
-     * GridContent or RowContent) and in order (i.e. first item could be a header).
+     * Gets the row items to display in this list.
      *
-     * @return the total height of all the rows contained in the provided list.
+     * @param availableHeight the available height for displaying the list.
+     * @param style the style info to use when determining row items to return.
+     * @param policy the policy info (scrolling, mode) to use when determining row items to return.
+     *
+     * @return the row items that should be shown based on the provided configuration.
      */
-    public int getListHeight(List<SliceItem> listItems) {
-        if (listItems == null || mContext == null) {
-            return 0;
+    public ArrayList<SliceContent> getRowItems(int availableHeight, SliceStyle style,
+            SliceViewPolicy policy) {
+        if (policy.getMode() == MODE_SMALL) {
+            return new ArrayList(Arrays.asList(getHeader()));
+        } else if (!policy.isScrollable() && availableHeight > 0) {
+            return getItemsForNonScrollingList(availableHeight, style, policy);
         }
-        int height = 0;
-        boolean hasRealHeader = false;
-        SliceItem maybeHeader = null;
-        if (!listItems.isEmpty()) {
-            maybeHeader = listItems.get(0);
-            hasRealHeader = !maybeHeader.hasAnyHints(HINT_LIST_ITEM, HINT_HORIZONTAL);
-        }
-        if (listItems.size() == 1 && !maybeHeader.hasHint(HINT_HORIZONTAL)) {
-            return getHeight(maybeHeader, true /* isHeader */, 0, 1, MODE_LARGE);
-        }
-        int rowCount = listItems.size();
-        for (int i = 0; i < listItems.size(); i++) {
-            height += getHeight(listItems.get(i), i == 0 && hasRealHeader /* isHeader */,
-                    i, rowCount, MODE_LARGE);
-        }
-        return height;
+        return getRowItems();
     }
 
     /**
-     * Returns a list of items that can be displayed in the provided height. If this list
-     * has a {@link #getSeeMoreItem()} this will be displayed in the list if appropriate.
+     * Returns a list of items that can fit in the provided height. If this list
+     * has a see more item this will be displayed in the list if appropriate.
      *
-     * @param height to use to determine the row items to return.
+     * @param availableHeight to use to determine the row items to return.
+     * @param style the style info to use when determining row items to return.
+     * @param policy the policy info (scrolling, mode) to use when determining row items to return.
      *
      * @return the list of items that can be displayed in the provided height.
      */
     @NonNull
-    public ArrayList<SliceItem> getItemsForNonScrollingList(int height) {
-        ArrayList<SliceItem> visibleItems = new ArrayList<>();
+    private ArrayList<SliceContent> getItemsForNonScrollingList(int availableHeight,
+            SliceStyle style, SliceViewPolicy policy) {
+        ArrayList<SliceContent> visibleItems = new ArrayList<>();
         if (mRowItems == null || mRowItems.size() == 0) {
             return visibleItems;
         }
-        final int minItemCount = hasHeader() ? 2 : 1;
+        final int minItemCountForSeeMore = mHeaderContent != null ? 2 : 1;
         int visibleHeight = 0;
         // Need to show see more
-        if (mSeeMoreItem != null) {
-            RowContent rc = new RowContent(mContext, mSeeMoreItem, false /* isHeader */);
-            visibleHeight += rc.getActualHeight(mMaxSmallHeight);
+        if (mSeeMoreContent != null) {
+            visibleHeight += mSeeMoreContent.getHeight(style, policy);
         }
         int rowCount = mRowItems.size();
         for (int i = 0; i < rowCount; i++) {
-            boolean hasRealHeader = false;
-            if (i == 0) {
-                hasRealHeader = !mRowItems.get(i).hasAnyHints(HINT_LIST_ITEM, HINT_HORIZONTAL);
-            }
-            int itemHeight = getHeight(mRowItems.get(i), i == 0 && hasRealHeader,
-                    i, rowCount, MODE_LARGE);
-            if (height > 0 && visibleHeight + itemHeight > height) {
+            int itemHeight = mRowItems.get(i).getHeight(style, policy);
+            if (availableHeight > 0 && visibleHeight + itemHeight > availableHeight) {
                 break;
             } else {
                 visibleHeight += itemHeight;
                 visibleItems.add(mRowItems.get(i));
             }
         }
-        if (mSeeMoreItem != null && visibleItems.size() >= minItemCount
+        if (mSeeMoreContent != null && visibleItems.size() >= minItemCountForSeeMore
                 && visibleItems.size() != rowCount) {
             // Only add see more if we're at least showing one item and it's not the header
-            visibleItems.add(mSeeMoreItem);
+            visibleItems.add(mSeeMoreContent);
         }
         if (visibleItems.size() == 0) {
             // Didn't have enough space to show anything; should still show something
@@ -288,50 +224,15 @@ public class ListContent {
     }
 
     /**
-     * Determines the height of the provided {@link SliceItem}.
-     */
-    private int getHeight(SliceItem item, boolean isHeader, int index, int count, int mode) {
-        if (mContext == null || item == null) {
-            return 0;
-        }
-        if (item.hasHint(HINT_HORIZONTAL)) {
-            GridContent gc = new GridContent(mContext, item);
-            int topPadding = gc.isAllImages() && index == 0 ? mGridTopPadding : 0;
-            int bottomPadding = gc.isAllImages() && index == count - 1 ? mGridBottomPadding : 0;
-            int height = mode == MODE_SMALL ? gc.getSmallHeight() : gc.getActualHeight();
-            return height + topPadding + bottomPadding;
-        } else {
-            RowContent rc = new RowContent(mContext, item, isHeader);
-            return mode == MODE_SMALL ? rc.getSmallHeight(mMaxSmallHeight)
-                    : rc.getActualHeight(mMaxSmallHeight);
-        }
-    }
-
-    /**
      * @return whether this list has content that is valid to display.
      */
     public boolean isValid() {
-        return mSlice != null && mRowItems.size() > 0;
+        return super.isValid() && mRowItems.size() > 0;
     }
 
     @Nullable
-    public Slice getSlice() {
-        return mSlice;
-    }
-
-    @Nullable
-    public SliceItem getLayoutDirItem() {
-        return mLayoutDirItem;
-    }
-
-    @Nullable
-    public SliceItem getColorItem() {
-        return mColorItem;
-    }
-
-    @Nullable
-    public SliceItem getHeaderItem() {
-        return mHeaderItem;
+    public RowContent getHeader() {
+        return mHeaderContent;
     }
 
     @Nullable
@@ -339,46 +240,58 @@ public class ListContent {
         return mSliceActions;
     }
 
-    @Nullable
-    public SliceItem getSeeMoreItem() {
-        return mSeeMoreItem;
-    }
-
     @NonNull
-    public ArrayList<SliceItem> getRowItems() {
+    public ArrayList<SliceContent> getRowItems() {
         return mRowItems;
-    }
-
-    /**
-     * @return whether this list has an explicit header (i.e. row item without HINT_LIST_ITEM)
-     */
-    public boolean hasHeader() {
-        return mHeaderItem != null && isValidHeader(mHeaderItem);
     }
 
     /**
      * @return the type of template that the header represents.
      */
     public int getHeaderTemplateType() {
-        return getRowType(mContext, mHeaderItem, true, mSliceActions);
+        return getRowType(mHeaderContent, true, mSliceActions);
+    }
+
+    @Override
+    @Nullable
+    public SliceAction getShortcut(@Nullable Context context) {
+        return mPrimaryAction != null ? mPrimaryAction : super.getShortcut(context);
+    }
+
+    /**
+     * @return suitable action to use for a tap on the slice template or for the shortcut.
+     */
+    @Nullable
+    private SliceAction findPrimaryAction() {
+        SliceItem action = null;
+        if (mHeaderContent != null) {
+            action = mHeaderContent.getPrimaryAction();
+        }
+        if (action == null) {
+            String[] hints = new String[]{HINT_SHORTCUT, HINT_TITLE};
+            action = SliceQuery.find(mSliceItem, FORMAT_ACTION, hints, null);
+        }
+        if (action == null) {
+            action = SliceQuery.find(mSliceItem, FORMAT_ACTION, (String) null, null);
+        }
+        return action != null ? new SliceActionImpl(action) : null;
     }
 
     /**
      * The type of template that the provided row item represents.
      *
-     * @param context context used for this slice.
-     * @param rowItem the row item to determine the template type of.
+     * @param content the content to determine the template type of.
      * @param isHeader whether this row item is used as a header.
      * @param actions the actions associated with this slice, only matter if this row is the header.
      * @return the type of template the provided row item represents.
      */
-    public static int getRowType(Context context, SliceItem rowItem, boolean isHeader,
+    public static int getRowType(SliceContent content, boolean isHeader,
                                  List<SliceAction> actions) {
-        if (rowItem != null) {
-            if (rowItem.hasHint(HINT_HORIZONTAL)) {
+        if (content != null) {
+            if (content instanceof GridContent) {
                 return EventInfo.ROW_TYPE_GRID;
             } else {
-                RowContent rc = new RowContent(context, rowItem, isHeader);
+                RowContent rc = (RowContent) content;
                 SliceItem actionItem = rc.getPrimaryAction();
                 SliceAction primaryAction = null;
                 if (actionItem != null) {
@@ -408,28 +321,25 @@ public class ListContent {
     }
 
     /**
-     * @return the primary action for this list; i.e. action on the header or first row.
+     * @return the total height of all the rows contained in the provided list.
      */
-    @Nullable
-    public SliceItem getPrimaryAction() {
-        SliceItem action = null;
-        if (mHeaderItem != null) {
-            if (mHeaderItem.hasHint(HINT_HORIZONTAL)) {
-                GridContent gc = new GridContent(mContext, mHeaderItem);
-                action = gc.getContentIntent();
-            } else {
-                RowContent rc = new RowContent(mContext, mHeaderItem, false);
-                action = rc.getPrimaryAction();
-            }
+    public static int getListHeight(List<SliceContent> listItems, SliceStyle style,
+            SliceViewPolicy policy) {
+        if (listItems == null) {
+            return 0;
         }
-        if (action == null) {
-            String[] hints = new String[]{HINT_SHORTCUT, HINT_TITLE};
-            action = SliceQuery.find(mSlice, FORMAT_ACTION, hints, null);
+        int height = 0;
+        SliceContent maybeHeader = null;
+        if (!listItems.isEmpty()) {
+            maybeHeader = listItems.get(0);
         }
-        if (action == null) {
-            action = SliceQuery.find(mSlice, FORMAT_ACTION, (String) null, null);
+        if (listItems.size() == 1 && !maybeHeader.getSliceItem().hasHint(HINT_HORIZONTAL)) {
+            return maybeHeader.getHeight(style, policy);
         }
-        return action;
+        for (int i = 0; i < listItems.size(); i++) {
+            height += listItems.get(i).getHeight(style, policy);
+        }
+        return height;
     }
 
     @Nullable
@@ -463,9 +373,9 @@ public class ListContent {
     /**
      * @return whether the provided slice item is a valid header.
      */
-    public static boolean isValidHeader(SliceItem sliceItem) {
-        if (FORMAT_SLICE.equals(sliceItem.getFormat()) && !sliceItem.hasAnyHints(HINT_LIST_ITEM,
-                HINT_ACTIONS, HINT_KEYWORDS, HINT_SEE_MORE)) {
+    private static boolean isValidHeader(SliceItem sliceItem) {
+        if (FORMAT_SLICE.equals(sliceItem.getFormat())
+                && !sliceItem.hasAnyHints(HINT_ACTIONS, HINT_KEYWORDS, HINT_SEE_MORE)) {
              // Minimum valid header is a slice with text
             SliceItem item = SliceQuery.find(sliceItem, FORMAT_TEXT, (String) null, null);
             return item != null;

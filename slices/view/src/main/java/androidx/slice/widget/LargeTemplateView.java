@@ -16,8 +16,6 @@
 
 package androidx.slice.widget;
 
-import static androidx.slice.widget.SliceView.MODE_SMALL;
-
 import android.content.Context;
 import android.os.Build;
 import android.view.MotionEvent;
@@ -32,7 +30,6 @@ import androidx.slice.SliceItem;
 import androidx.slice.core.SliceAction;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -41,19 +38,17 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
-public class LargeTemplateView extends SliceChildView {
+public class LargeTemplateView extends SliceChildView implements
+        SliceViewPolicy.PolicyChangeListener {
 
     private SliceView mParent;
     private final View mForeground;
     private final LargeSliceAdapter mAdapter;
     private final RecyclerView mRecyclerView;
-    private boolean mScrollingEnabled;
     private ListContent mListContent;
-    private ArrayList<SliceItem> mDisplayedItems = new ArrayList<>();
+    private ArrayList<SliceContent> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
     private int[] mLoc = new int[2];
-    private int mMaxSmallHeight;
-    private boolean mShowActionSpinner;
 
     public LargeTemplateView(Context context) {
         super(context);
@@ -84,7 +79,8 @@ public class LargeTemplateView extends SliceChildView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int height = MeasureSpec.getSize(heightMeasureSpec);
-        if (!mScrollingEnabled && mDisplayedItems.size() > 0 && mDisplayedItemsHeight != height) {
+        if (!mViewPolicy.isScrollable() && mDisplayedItems.size() > 0
+                && mDisplayedItemsHeight != height) {
             updateDisplayedItems(height);
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -123,33 +119,10 @@ public class LargeTemplateView extends SliceChildView {
     }
 
     @Override
-    public void setMode(int newMode) {
-        if (mMode != newMode) {
-            mMode = newMode;
-            if (mListContent != null && mListContent.isValid()) {
-                int sliceHeight = mListContent.getLargeHeight(-1, mScrollingEnabled);
-                updateDisplayedItems(sliceHeight);
-            }
-        }
-    }
-
-    @Override
-    public int getActualHeight() {
-        return mDisplayedItemsHeight;
-    }
-
-    @Override
-    public int getSmallHeight() {
-        if (mListContent == null || !mListContent.isValid()) {
-            return 0;
-        }
-        return mListContent.getSmallHeight();
-    }
-
-    @Override
-    public void setMaxSmallHeight(int maxSmallHeight) {
-        mMaxSmallHeight = maxSmallHeight;
-        mAdapter.setMaxSmallHeight(mMaxSmallHeight);
+    public void setPolicy(SliceViewPolicy policy) {
+        super.setPolicy(policy);
+        mAdapter.setPolicy(policy);
+        policy.setListener(this);
     }
 
     @Override
@@ -189,7 +162,7 @@ public class LargeTemplateView extends SliceChildView {
     @Override
     public void setSliceContent(ListContent sliceContent) {
         mListContent = sliceContent;
-        int sliceHeight = mListContent.getLargeHeight(-1, mScrollingEnabled);
+        int sliceHeight = mListContent.getHeight(mSliceStyle, mViewPolicy);
         updateDisplayedItems(sliceHeight);
     }
 
@@ -216,40 +189,21 @@ public class LargeTemplateView extends SliceChildView {
         mAdapter.setAllowTwoLines(allowTwoLines);
     }
 
-    /**
-     * Whether or not the content in this template should be scrollable.
-     */
-    public void setScrollable(boolean scrollingEnabled) {
-        if (mScrollingEnabled != scrollingEnabled) {
-            mScrollingEnabled = scrollingEnabled;
-            if (mListContent != null && mListContent.isValid()) {
-                int sliceHeight = mListContent.getLargeHeight(-1, mScrollingEnabled);
-                updateDisplayedItems(sliceHeight);
-            }
-        }
-    }
-
     private void updateDisplayedItems(int height) {
         if (mListContent == null || !mListContent.isValid()) {
             resetView();
             return;
         }
-        int mode = getMode();
-        if (mode == MODE_SMALL) {
-            mDisplayedItems = new ArrayList(Arrays.asList(mListContent.getRowItems().get(0)));
-        } else if (!mScrollingEnabled && height != 0) {
-            mDisplayedItems = mListContent.getItemsForNonScrollingList(height);
-        } else {
-            mDisplayedItems = mListContent.getRowItems();
-        }
-        mDisplayedItemsHeight = mListContent.getListHeight(mDisplayedItems);
-        mAdapter.setSliceItems(mDisplayedItems, mTintColor, mode);
+        mDisplayedItems = mListContent.getRowItems(height, mSliceStyle, mViewPolicy);
+        mDisplayedItemsHeight = mListContent.getListHeight(mDisplayedItems, mSliceStyle,
+                mViewPolicy);
+        mAdapter.setSliceItems(mDisplayedItems, mTintColor, mViewPolicy.getMode());
         updateOverscroll();
     }
 
     private void updateOverscroll() {
         boolean scrollable = mDisplayedItemsHeight > getMeasuredHeight();
-        mRecyclerView.setOverScrollMode(mScrollingEnabled && scrollable
+        mRecyclerView.setOverScrollMode(mViewPolicy.isScrollable() && scrollable
                 ? View.OVER_SCROLL_IF_CONTENT_SCROLLS
                 : View.OVER_SCROLL_NEVER);
     }
@@ -260,5 +214,33 @@ public class LargeTemplateView extends SliceChildView {
         mDisplayedItems.clear();
         mAdapter.setSliceItems(null, -1, getMode());
         mListContent = null;
+    }
+
+    @Override
+    public void onScrollingChanged(boolean newScrolling) {
+        if (mListContent != null) {
+            updateDisplayedItems(mListContent.getHeight(mSliceStyle, mViewPolicy));
+        }
+    }
+
+    @Override
+    public void onMaxHeightChanged(int newNewHeight) {
+        if (mListContent != null) {
+            updateDisplayedItems(mListContent.getHeight(mSliceStyle, mViewPolicy));
+        }
+    }
+
+    @Override
+    public void onMaxSmallChanged(int newMaxSmallHeight) {
+        if (mAdapter != null) {
+            mAdapter.notifyHeaderChanged();
+        }
+    }
+
+    @Override
+    public void onModeChanged(int newMode) {
+        if (mListContent != null) {
+            updateDisplayedItems(mListContent.getHeight(mSliceStyle, mViewPolicy));
+        }
     }
 }

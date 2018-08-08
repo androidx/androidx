@@ -16,6 +16,8 @@
 
 package androidx.slice.widget;
 
+import static androidx.slice.widget.SliceView.MODE_LARGE;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
@@ -49,6 +51,7 @@ public abstract class SliceChildView extends FrameLayout {
     protected int mInsetBottom;
     protected SliceActionView.SliceActionLoadingListener mLoadingListener;
     protected SliceStyle mSliceStyle;
+    protected SliceViewPolicy mViewPolicy;
 
     public SliceChildView(@NonNull Context context) {
         super(context);
@@ -83,7 +86,7 @@ public abstract class SliceChildView extends FrameLayout {
     /**
      * Called when the slice being displayed in this view is an element of a larger list.
      */
-    public void setSliceItem(SliceItem slice, boolean isHeader, int rowIndex,
+    public void setSliceItem(SliceContent slice, boolean isHeader, int rowIndex,
             int rowCount, SliceView.OnSliceActionListener observer) {
         // Do nothing
     }
@@ -96,38 +99,11 @@ public abstract class SliceChildView extends FrameLayout {
     }
 
     /**
-     * @return the height of the view when displayed in {@link SliceView#MODE_SMALL}.
-     */
-    public int getSmallHeight() {
-        return 0;
-    }
-
-    /**
-     * @return the height of the view when displayed in {@link SliceView#MODE_LARGE}.
-     */
-    public int getActualHeight() {
-        return 0;
-    }
-
-    /**
-     * Overrides the normal maximum height for a slice displayed in {@link SliceView#MODE_SMALL}.
-     */
-    public void setMaxSmallHeight(int maxSmallHeight) {
-    }
-
-    /**
-     * Set the mode of the slice being presented.
-     */
-    public void setMode(int mode) {
-        mMode = mode;
-    }
-
-    /**
      * @return the mode of the slice being presented.
      */
     @SliceView.SliceMode
     public int getMode() {
-        return mMode;
+        return mViewPolicy != null ? mViewPolicy.getMode() : MODE_LARGE;
     }
 
     /**
@@ -190,8 +166,17 @@ public abstract class SliceChildView extends FrameLayout {
         return null;
     }
 
+    /**
+     * Sets the style information for this view.
+     */
     public void setStyle(SliceStyle styles) {
         mSliceStyle = styles;
     }
 
+    /**
+     * Sets the policy information for this view.
+     */
+    public void setPolicy(SliceViewPolicy policy) {
+        mViewPolicy = policy;
+    }
 }
