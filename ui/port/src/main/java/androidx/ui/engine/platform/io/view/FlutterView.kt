@@ -19,6 +19,7 @@ import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.services.raw_keyboard.RawKeyboard
 import java.nio.ByteBuffer
 
 /**
@@ -78,7 +79,6 @@ class FlutterView(
             getContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 //    private val mFlutterLocalizationChannel: MethodChannel? = null
 //    private val mFlutterNavigationChannel: MethodChannel? = null
-//    private val mFlutterKeyEventChannel: BasicMessageChannel<Any>? = null
 //    private val mFlutterLifecycleChannel: BasicMessageChannel<String>? = null
 //    private val mFlutterSystemChannel: BasicMessageChannel<Any>? = null
 //    private val mFlutterSettingsChannel: BasicMessageChannel<Any>? = null
@@ -166,24 +166,12 @@ class FlutterView(
 //        }
     }
 
-    private fun encodeKeyEvent(event: KeyEvent, message: MutableMap<String, Any>) {
-        message["flags"] = event.getFlags()
-        message["codePoint"] = event.getUnicodeChar()
-        message["keyCode"] = event.getKeyCode()
-        message["scanCode"] = event.getScanCode()
-        message["metaState"] = event.getMetaState()
-    }
-
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (!isAttached()) {
             return super.onKeyUp(keyCode, event)
         }
 
-        val message = mutableMapOf<String, Any>()
-        message.put("type", "keyup")
-        message.put("keymap", "android")
-        encodeKeyEvent(event, message)
-        // TODO: /mFlutterKeyEventChannel.send(message)
+        RawKeyboard._handleKeyEvent("keyUp", event)
         return super.onKeyUp(keyCode, event)
     }
 
@@ -198,11 +186,7 @@ class FlutterView(
             }
         }
 
-        val message = mutableMapOf<String, Any>()
-        message.put("type", "keydown")
-        message.put("keymap", "android")
-        encodeKeyEvent(event, message)
-        // TODO: mFlutterKeyEventChannel.send(message)
+        RawKeyboard._handleKeyEvent("keyDown", event)
         return super.onKeyDown(keyCode, event)
     }
 
