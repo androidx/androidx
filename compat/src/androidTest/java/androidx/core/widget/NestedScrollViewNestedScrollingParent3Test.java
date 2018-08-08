@@ -44,10 +44,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * So far these tests only cover {@code NestedScrollView}'s implementation of
- * {@link NestedScrollingParent3#onNestedScroll(View, int, int, int, int, int, int[])}.
+ * Small integration tests that verify that {@link NestedScrollView} implements
+ * {@link NestedScrollingParent3} correctly.
  */
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class NestedScrollViewNestedScrollingParent3Test {
