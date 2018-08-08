@@ -42,9 +42,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @VisibleForTesting
     PlatformTextClassifierWrapper(
             @NonNull Context context,
-            @NonNull android.view.textclassifier.TextClassifier platformTextClassifier,
-            @NonNull SessionStrategy sessionStrategy) {
-        super(sessionStrategy);
+            @NonNull android.view.textclassifier.TextClassifier platformTextClassifier) {
         mContext = Preconditions.checkNotNull(context);
         mPlatformTextClassifier = Preconditions.checkNotNull(platformTextClassifier);
         mFallback = LegacyTextClassifier.of(context);
@@ -54,30 +52,14 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
      * Returns a newly create instance of PlatformTextClassifierWrapper.
      */
     @NonNull
-    public static PlatformTextClassifierWrapper create(
-            @NonNull Context context,
-            @NonNull TextClassificationContext textClassificationContext) {
-
+    public static PlatformTextClassifierWrapper create(@NonNull Context context) {
         android.view.textclassifier.TextClassificationManager textClassificationManager =
                 (android.view.textclassifier.TextClassificationManager)
                         context.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE);
+        android.view.textclassifier.TextClassifier platformTextClassifier =
+                textClassificationManager.getTextClassifier();
 
-        android.view.textclassifier.TextClassifier platformTextClassifier;
-        SessionStrategy sessionStrategy;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            platformTextClassifier =
-                    textClassificationManager.createTextClassificationSession(
-                            (android.view.textclassifier.TextClassificationContext)
-                                    textClassificationContext.toPlatform());
-            sessionStrategy = new ProxySessionStrategy(platformTextClassifier);
-        } else {
-            // No session handling before P.
-            platformTextClassifier = textClassificationManager.getTextClassifier();
-            sessionStrategy = SessionStrategy.NO_OP;
-        }
-
-        return new PlatformTextClassifierWrapper(
-                context, platformTextClassifier, sessionStrategy);
+        return new PlatformTextClassifierWrapper(context, platformTextClassifier);
     }
 
     /** @inheritDoc */
@@ -135,36 +117,5 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
                     request.toPlatform()), request.getText());
         }
         return mFallback.generateLinks(request);
-    }
-
-    /**
-     * Delegates session handling to {@link android.view.textclassifier.TextClassifier}.
-     */
-    @RequiresApi(Build.VERSION_CODES.P)
-    private static class ProxySessionStrategy implements SessionStrategy {
-        private final android.view.textclassifier.TextClassifier mPlatformTextClassifier;
-
-        ProxySessionStrategy(
-                @NonNull android.view.textclassifier.TextClassifier textClassifier) {
-            Preconditions.checkNotNull(textClassifier);
-            mPlatformTextClassifier = textClassifier;
-        }
-
-        @Override
-        public void destroy() {
-            mPlatformTextClassifier.destroy();
-        }
-
-        @Override
-        public void reportSelectionEvent(@NonNull SelectionEvent event) {
-            Preconditions.checkNotNull(event);
-            mPlatformTextClassifier.onSelectionEvent(
-                    (android.view.textclassifier.SelectionEvent) event.toPlatform());
-        }
-
-        @Override
-        public boolean isDestroyed() {
-            return mPlatformTextClassifier.isDestroyed();
-        }
     }
 }

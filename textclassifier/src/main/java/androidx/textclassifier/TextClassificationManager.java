@@ -32,7 +32,7 @@ public final class TextClassificationManager {
     private final Context mContext;
     @Nullable
     private static TextClassificationManager sInstance;
-    private TextClassifierFactory mTextClassifierFactory;
+    private TextClassifier mTextClassifier;
 
     /** @hide **/
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -53,39 +53,32 @@ public final class TextClassificationManager {
     }
 
     /**
-     * Returns a newly created text classifier.
-     * <p>
-     * If a factory is set through {@link #setTextClassifierFactory(TextClassifierFactory)},
-     * an instance created by the factory will be returned. Otherwise, a default text classifier
-     * will be returned.
+     * Returns the text classifier set through {@link #setTextClassifier(TextClassifier)},
+     * a default text classifier is returned if it is not ever set, or a {@code null} is set.
      */
     @NonNull
-    public TextClassifier createTextClassifier(
-            @NonNull TextClassificationContext textClassificationContext) {
-        Preconditions.checkNotNull(textClassificationContext);
-        if (mTextClassifierFactory != null) {
-            return mTextClassifierFactory.create(textClassificationContext);
+    public TextClassifier getTextClassifier() {
+        if (mTextClassifier != null) {
+            return mTextClassifier;
         }
-        return defaultTextClassifier(textClassificationContext);
+        return defaultTextClassifier();
     }
 
     /**
-     * Sets a factory that can create a preferred text classifier.
+     * Sets a preferred text classifier.
      * <p>
-     * To turn off the feature completely, you can set a factory that returns
-     * {@link TextClassifier#NO_OP}.
+     * To turn off the feature completely, you can set a {@link TextClassifier#NO_OP}.
      */
-    public void setTextClassifierFactory(@Nullable TextClassifierFactory factory) {
-        mTextClassifierFactory = factory;
+    public void setTextClassifier(@Nullable TextClassifier textClassifier) {
+        mTextClassifier = textClassifier;
     }
 
     /**
      * Returns the default text classifier.
      */
-    private TextClassifier defaultTextClassifier(
-            @Nullable TextClassificationContext textClassificationContext) {
+    private TextClassifier defaultTextClassifier() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return PlatformTextClassifierWrapper.create(mContext, textClassificationContext);
+            return PlatformTextClassifierWrapper.create(mContext);
         }
         return LegacyTextClassifier.of(mContext);
     }
