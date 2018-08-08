@@ -1010,6 +1010,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): size: " + width + "/" + height);
                     }
+                    if (mp != mMediaPlayer) {
+                        if (DEBUG) {
+                            Log.w(TAG, "onVideoSizeChanged() is ignored. mp is already gone.");
+                        }
+                        return;
+                    }
                     mVideoWidth = width;
                     mVideoHeight = height;
                     if (DEBUG) {
@@ -1027,6 +1033,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     if (DEBUG) {
                         Log.d(TAG, "onInfo()");
                     }
+                    if (mp != mMediaPlayer) {
+                        if (DEBUG) {
+                            Log.w(TAG, "onInfo() is ignored. mp is already gone.");
+                        }
+                        return;
+                    }
                     if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
                         extractTracks();
                     } else if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
@@ -1041,6 +1053,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         MediaPlayer2 mp, DataSourceDesc2 dsd, int frameworkErr, int implErr) {
                     if (DEBUG) {
                         Log.d(TAG, "Error: " + frameworkErr + "," + implErr);
+                    }
+                    if (mp != mMediaPlayer) {
+                        if (DEBUG) {
+                            Log.w(TAG, "onError() is ignored. mp is already gone.");
+                        }
+                        return;
                     }
                     mCurrentState = STATE_ERROR;
                     mTargetState = STATE_ERROR;
@@ -1061,10 +1079,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                                 + (data.getStartTimeUs() / 1000 - mp.getCurrentPosition())
                                 + "ms, getDurationUs(): " + data.getDurationUs());
                     }
+                    if (mp != mMediaPlayer) {
+                        if (DEBUG) {
+                            Log.w(TAG, "onSubtitleData() is ignored. mp is already gone.");
+                        }
+                        return;
+                    }
                     final int index = data.getTrackIndex();
                     if (index != mSelectedSubtitleTrackIndex) {
-                        Log.w(TAG, "onSubtitleData(): getTrackIndex: " + data.getTrackIndex()
-                                + ", selected track index: " + mSelectedSubtitleTrackIndex);
                         return;
                     }
                     SubtitleTrack track = mSubtitleTracks.get(index);
@@ -1133,6 +1155,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         public SessionCommandGroup2 onConnect(
                 @NonNull MediaSession2 session,
                 @NonNull MediaSession2.ControllerInfo controller) {
+            if (session != mMediaSession) {
+                if (DEBUG) {
+                    Log.w(TAG, "onConnect() is ignored. session is already gone.");
+                }
+            }
             SessionCommandGroup2.Builder commandsBuilder = new SessionCommandGroup2.Builder()
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY)
@@ -1165,6 +1192,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 @NonNull MediaSession2.ControllerInfo controller,
                 @NonNull SessionCommand2 customCommand,
                 @Nullable Bundle args, @Nullable ResultReceiver cb) {
+            if (session != mMediaSession) {
+                if (DEBUG) {
+                    Log.w(TAG, "onCustomCommand() is ignored. session is already gone.");
+                }
+            }
             if (isRemotePlayback()) {
                 // TODO: call mRoutePlayer.onCommand()
                 return;
@@ -1203,6 +1235,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         public boolean onCommandRequest(@NonNull MediaSession2 session,
                 @NonNull MediaSession2.ControllerInfo controller,
                 @NonNull SessionCommand2 command) {
+            if (session != mMediaSession) {
+                if (DEBUG) {
+                    Log.w(TAG, "onCommandRequest() is ignored. session is already gone.");
+                }
+            }
             switch(command.getCommandCode()) {
                 case SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY:
                     mTargetState = STATE_PLAYING;
@@ -1224,6 +1261,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         @Override
         public void onPlayerStateChanged(@NonNull MediaSession2 session,
                 @NonNull MediaPlayerConnector player, @MediaPlayerConnector.PlayerState int state) {
+            if (session != mMediaSession) {
+                if (DEBUG) {
+                    Log.w(TAG, "onPlayerStateChanged() is ignored. session is already gone.");
+                }
+            }
             switch(state) {
                 case MediaPlayerConnector.PLAYER_STATE_IDLE:
                     mCurrentState = STATE_IDLE;
@@ -1243,6 +1285,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         @Override
         public void onMediaPrepared(@NonNull MediaSession2 session,
                 @NonNull MediaPlayerConnector player, @NonNull MediaItem2 item) {
+            if (session != mMediaSession) {
+                if (DEBUG) {
+                    Log.w(TAG, "onMediaPrepared() is ignored. session is already gone.");
+                }
+            }
             if (DEBUG) {
                 Log.d(TAG, "onMediaPrepared() is called.");
             }
@@ -1251,6 +1298,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         @Override
         public void onPlaybackSpeedChanged(@NonNull MediaSession2 session,
                  @NonNull MediaPlayerConnector player, float speed) {
+            if (session != mMediaSession) {
+                if (DEBUG) {
+                    Log.w(TAG, "onPlaybackSpeedChanged() is ignored. session is already gone.");
+                }
+            }
             if (DEBUG) {
                 Log.d(TAG, "onPlaybackSpeedChanged is called. Speed: " + speed);
             }
