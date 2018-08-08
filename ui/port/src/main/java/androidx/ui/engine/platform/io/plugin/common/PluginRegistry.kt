@@ -161,7 +161,9 @@ interface PluginRegistry {
          * @param listener a [RequestPermissionsResultListener] callback.
          * @return this [Registrar].
          */
-        fun addRequestPermissionsResultListener(listener: RequestPermissionsResultListener): Registrar
+        fun addRequestPermissionsResultListener(
+            listener: RequestPermissionsResultListener
+        ): Registrar
 
         /*
          * Method addRequestPermissionResultListener(RequestPermissionResultListener listener)

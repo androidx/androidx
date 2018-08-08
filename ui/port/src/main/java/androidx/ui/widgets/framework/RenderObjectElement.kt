@@ -263,7 +263,11 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
         assert(newWidgets != null)
 
         fun replaceWithNullIfForgotten(child: Element): Element? {
-            return if (forgottenChildren != null && forgottenChildren.contains(child)) null else child
+            return if (forgottenChildren != null && forgottenChildren.contains(child)) {
+                null
+            } else {
+                child
+            }
         }
 
         // This attempts to diff the new child list (newWidgets) with
@@ -340,7 +344,8 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
             oldKeyedChildren = mutableMapOf()
             while (oldChildrenTop <= oldChildrenBottom) {
                 val oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop])
-                assert(oldChild == null || oldChild._debugLifecycleState == _ElementLifecycle.active)
+                assert(oldChild == null ||
+                        oldChild._debugLifecycleState == _ElementLifecycle.active)
                 if (oldChild != null) {
                     if (oldChild.widget.key != null)
                         oldKeyedChildren[oldChild.widget.key] = oldChild
@@ -374,7 +379,8 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
             assert(oldChild == null || Widget.canUpdate(oldChild.widget, newWidget))
             val newChild = updateChild(oldChild, newWidget, previousChild)
             assert(newChild._debugLifecycleState == _ElementLifecycle.active)
-            assert(oldChild == newChild || oldChild == null || oldChild._debugLifecycleState != _ElementLifecycle.active)
+            assert(oldChild == newChild || oldChild == null ||
+                    oldChild._debugLifecycleState != _ElementLifecycle.active)
             newChildren[newChildrenTop] = newChild
             previousChild = newChild
             newChildrenTop += 1
@@ -396,7 +402,8 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
             assert(Widget.canUpdate(oldChild.widget, newWidget))
             val newChild = updateChild(oldChild, newWidget, previousChild)
             assert(newChild._debugLifecycleState == _ElementLifecycle.active)
-            assert(oldChild == newChild || oldChild == null || oldChild._debugLifecycleState != _ElementLifecycle.active)
+            assert(oldChild == newChild || oldChild == null ||
+                    oldChild._debugLifecycleState != _ElementLifecycle.active)
             newChildren[newChildrenTop] = newChild
             previousChild = newChild
             newChildrenTop += 1
@@ -483,6 +490,10 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DiagnosticsProperty.create("renderObject", renderObject, defaultValue = null))
+        properties.add(DiagnosticsProperty.create(
+                "renderObject",
+                renderObject,
+                defaultValue = null
+        ))
     }
 }

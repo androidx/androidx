@@ -97,14 +97,16 @@ abstract class ParentDataWidget<T : RenderObjectWidget>(
                     "$description has a T ancestor, but there are other widgets between them:\n"
             for (ancestor in badAncestors) {
                 if (ancestor.runtimeType() == runtimeType()) {
-                    result += "- $ancestor (this is a different ${runtimeType()} than the one with the problem)\n"
+                    result += "- $ancestor (this is a different ${runtimeType()} than the one " +
+                            "with the problem)\n"
                 } else {
                     result += "- $ancestor\n"
                 }
             }
             result += "These widgets cannot come between a ${runtimeType()} and its T.\n"
         }
-        result += "The ownership chain for the parent of the offending ${runtimeType()} was:\n  $ownershipChain"
+        result += "The ownership chain for the parent of the offending ${runtimeType()} was:\n" +
+                "  $ownershipChain"
         return result
     }
 

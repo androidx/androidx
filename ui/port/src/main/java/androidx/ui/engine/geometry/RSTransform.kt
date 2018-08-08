@@ -33,34 +33,34 @@ package androidx.ui.engine.geometry
 // / reused over multiple calls to this constructor, it may be more efficient
 // / to directly use this constructor instead.
 data class RSTransform(
-        // / The cosine of the rotation multiplied by the scale factor.
+    // The cosine of the rotation multiplied by the scale factor.
     val scos: Double,
-        // / The sine of the rotation multiplied by that same scale factor.
+    // / The sine of the rotation multiplied by that same scale factor.
     val ssin: Double,
-        // / The x coordinate of the translation, minus [scos] multiplied by the
-        // / x-coordinate of the rotation point, plus [ssin] multiplied by the
-        // / y-coordinate of the rotation point.
+    // / The x coordinate of the translation, minus [scos] multiplied by the
+    // / x-coordinate of the rotation point, plus [ssin] multiplied by the
+    // / y-coordinate of the rotation point.
     val tx: Double,
-        // / The y coordinate of the translation, minus [ssin] multiplied by the
-        // / x-coordinate of the rotation point, minus [scos] multiplied by the
-        // / y-coordinate of the rotation point.
+    // / The y coordinate of the translation, minus [ssin] multiplied by the
+    // / x-coordinate of the rotation point, minus [scos] multiplied by the
+    // / y-coordinate of the rotation point.
     val ty: Double
 ) {
 
-   companion object {
-       fun fromComponents(
-           rotation: Double,
-           scale: Double,
-           anchorX: Double,
-           anchorY: Double,
-           translateX: Double,
-           translateY: Double
-       ): RSTransform {
-           val scos = Math.cos(rotation) * scale
-           val ssin = Math.sin(rotation) * scale
-           val tx = translateX + -scos * anchorX + ssin * anchorY
-           val ty = translateY + -ssin * anchorX - scos * anchorY
-           return RSTransform(scos, ssin, tx, ty)
-       }
-   }
+    companion object {
+        fun fromComponents(
+            rotation: Double,
+            scale: Double,
+            anchorX: Double,
+            anchorY: Double,
+            translateX: Double,
+            translateY: Double
+        ): RSTransform {
+            val scos = Math.cos(rotation) * scale
+            val ssin = Math.sin(rotation) * scale
+            val tx = translateX + -scos * anchorX + ssin * anchorY
+            val ty = translateY + -ssin * anchorX - scos * anchorY
+            return RSTransform(scos, ssin, tx, ty)
+        }
+    }
 }

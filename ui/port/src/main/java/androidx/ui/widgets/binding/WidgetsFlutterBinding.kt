@@ -2,7 +2,8 @@ package androidx.ui.widgets.binding
 
 // / A concrete binding for applications based on the Widgets framework.
 // / This is the glue that binds the framework to the Flutter engine.
-class WidgetsFlutterBinding /* extends BindingBase with GestureBinding, ServicesBinding, SchedulerBinding, PaintingBinding, RendererBinding, WidgetsBinding */ {
+class WidgetsFlutterBinding {
+// TODO(Migration/Filip): extends BindingBase with GestureBinding, ServicesBinding, SchedulerBinding, PaintingBinding, RendererBinding, WidgetsBinding
 
     companion object {
 

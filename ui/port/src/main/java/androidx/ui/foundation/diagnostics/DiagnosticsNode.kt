@@ -60,7 +60,9 @@ abstract class DiagnosticsNode(
         // A name ending with ':' indicates that the user forgot that the ':' will
         // be automatically added for them when generating descriptions of the
         // property.
-        assert(name == null || !name.endsWith(':')) { "Names of diagnostic nodes must not end with colons." }
+        assert(name == null || !name.endsWith(':')) {
+            "Names of diagnostic nodes must not end with colons."
+        }
     }
 
     // / Returns a description with a short summary of the node itself not
@@ -165,7 +167,11 @@ abstract class DiagnosticsNode(
         if (name == null || name.isEmpty() || !showName)
             return description
 
-        return if (description.contains("\n")) "$name$separator\n$description" else "$name$separator $description"
+        return if (description.contains("\n")) {
+            "$name$separator\n$description"
+        } else {
+            "$name$separator $description"
+        }
     }
 
     override fun toString(): String {
@@ -297,15 +303,21 @@ abstract class DiagnosticsNode(
                 val propertyStyle = property.getTextTreeConfiguration()
                 builder.writeRaw(
                         property.toStringDeep(
-                                prefixLineOne = "${builder.prefixOtherLines}${propertyStyle!!.prefixLineOne}",
-                                prefixOtherLines = "${builder.prefixOtherLines}${propertyStyle.linkCharacter}${propertyStyle.prefixOtherLines}",
+                                prefixLineOne = builder.prefixOtherLines +
+                                        propertyStyle!!.prefixLineOne,
+                                prefixOtherLines = builder.prefixOtherLines +
+                                        propertyStyle.linkCharacter +
+                                        propertyStyle.prefixOtherLines,
                                 parentConfiguration = config,
                                 minLevel = minLevel
                 ))
                 continue
             }
             assert(property.style == DiagnosticsTreeStyle.singleLine)
-            val message = property.toStringParametrized(parentConfiguration = config, minLevel = minLevel)
+            val message = property.toStringParametrized(
+                    parentConfiguration = config,
+                    minLevel = minLevel
+            )
             if (!config.lineBreakProperties || message.length < kWrapWidth) {
                 builder.write(message)
             } else {
@@ -316,14 +328,16 @@ abstract class DiagnosticsNode(
                     val line = lines[j]
                     if (j > 0)
                         builder.write(config.lineBreak)
-                    builder.write(debugWordWrap(line, kWrapWidth, wrapIndent = "  ").joinToString(separator = "\n"))
+                    builder.write(debugWordWrap(line, kWrapWidth, wrapIndent = "  ")
+                            .joinToString(separator = "\n"))
                 }
 
                 for (j in 0..lines.size) {
                     val line = lines[j]
                     if (j > 0)
                         builder.write(config.lineBreak)
-                    builder.write(debugWordWrap(line, kWrapWidth, wrapIndent = "  ").joinToString(separator = "\n"))
+                    builder.write(debugWordWrap(line, kWrapWidth, wrapIndent = "  ")
+                            .joinToString(separator = "\n"))
                 }
             }
             if (config.lineBreakProperties)
@@ -348,7 +362,8 @@ abstract class DiagnosticsNode(
         if (children.isNotEmpty() && config.showChildren) {
             if (config.isBlankLineBetweenPropertiesAndChildren &&
                     properties.isNotEmpty() &&
-                    children.first().getTextTreeConfiguration()!!.isBlankLineBetweenPropertiesAndChildren) {
+                    children.first()
+                            .getTextTreeConfiguration()!!.isBlankLineBetweenPropertiesAndChildren) {
                 builder.write(config.lineBreak)
             }
 
@@ -357,19 +372,23 @@ abstract class DiagnosticsNode(
                 assert(child != null)
                 val childConfig = _childTextConfiguration(child, config)!!
                 if (i == children.size - 1) {
-                    val lastChildPrefixLineOne = "$prefixChildren${childConfig.prefixLastChildLineOne}"
+                    val lastChildPrefixLineOne = "$prefixChildren" +
+                            childConfig.prefixLastChildLineOne
                     builder.writeRawLine(child.toStringDeep(
                             prefixLineOne = lastChildPrefixLineOne,
-                            prefixOtherLines = "$prefixChildren${childConfig.childLinkSpace}${childConfig.prefixOtherLines}",
+                            prefixOtherLines = "$prefixChildren${childConfig.childLinkSpace}" +
+                                    childConfig.prefixOtherLines,
                             parentConfiguration = config,
                             minLevel = minLevel
                     ))
                     if (childConfig.footer.isNotEmpty())
-                        builder.writeRaw("$prefixChildren${childConfig.childLinkSpace}${childConfig.footer}")
+                        builder.writeRaw("$prefixChildren${childConfig.childLinkSpace}" +
+                                childConfig.footer)
                 } else {
                     val nextChildStyle = _childTextConfiguration(children[i + 1], config)!!
                     val childPrefixLineOne = "$prefixChildren${childConfig.prefixLineOne}"
-                    val childPrefixOtherLines = "$prefixChildren${nextChildStyle.linkCharacter}${childConfig.prefixOtherLines}"
+                    val childPrefixOtherLines = "$prefixChildren${nextChildStyle.linkCharacter}" +
+                            childConfig.prefixOtherLines
                     builder.writeRawLine(child.toStringDeep(
                             prefixLineOne = childPrefixLineOne,
                             prefixOtherLines = childPrefixOtherLines,
@@ -377,7 +396,8 @@ abstract class DiagnosticsNode(
                             minLevel = minLevel
                     ))
                     if (childConfig.footer.isNotEmpty())
-                        builder.writeRaw("$prefixChildren${nextChildStyle.linkCharacter}${childConfig.footer}")
+                        builder.writeRaw("$prefixChildren${nextChildStyle.linkCharacter}" +
+                                childConfig.footer)
                 }
             }
         }

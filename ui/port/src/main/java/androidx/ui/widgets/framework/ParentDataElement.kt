@@ -4,7 +4,8 @@ import androidx.ui.assert
 import androidx.ui.foundation.assertions.FlutterError
 
 // / An [Element] that uses a [ParentDataWidget] as its configuration.
-class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>) : ProxyElement(widget) {
+class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>)
+    : ProxyElement(widget) {
 
     // Replacement for original overriden getter
     val parentDataWidget get() = widget as ParentDataWidget<RenderObjectWidget>
@@ -20,7 +21,8 @@ class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>) : P
                 if (ancestor is ParentDataElement<*>) {
                     badAncestors.add(ancestor.widget)
                 } else if (ancestor is RenderObjectElement) {
-                    if (parentDataWidget.debugIsValidAncestor(ancestor.widget as RenderObjectWidget))
+                    if (parentDataWidget
+                                    .debugIsValidAncestor(ancestor.widget as RenderObjectWidget))
                         break
                     badAncestors.add(ancestor.widget)
                 }
@@ -35,7 +37,7 @@ class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>) : P
                                     ownershipChain = parent.debugGetCreatorChain(10),
                                     foundValidAncestor = ancestor != null,
                                     badAncestors = badAncestors
-                             )
+                            )
                 )
         }
         super.mount(parent, newSlot)

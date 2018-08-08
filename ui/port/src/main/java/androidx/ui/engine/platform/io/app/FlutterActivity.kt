@@ -9,7 +9,8 @@ import androidx.ui.engine.platform.io.plugin.common.PluginRegistry
 import androidx.ui.engine.platform.io.view.FlutterNativeView
 import androidx.ui.engine.platform.io.view.FlutterView
 
-class FlutterActivity : Activity(), FlutterView.Provider, PluginRegistry, FlutterActivityDelegate.ViewFactory {
+class FlutterActivity
+    : Activity(), FlutterView.Provider, PluginRegistry, FlutterActivityDelegate.ViewFactory {
 
     private val delegate = FlutterActivityDelegate(this, this)
 

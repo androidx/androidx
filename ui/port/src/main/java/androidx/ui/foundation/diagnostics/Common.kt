@@ -23,4 +23,3 @@ fun shortHash(obj: Any): String {
 // /    possible, but rare enough that its use in debug output is useful).
 // /  * [Object.runtimeType], the [Type] of an object.
 fun describeIdentity(obj: Any): String = "${obj::class.java.simpleName}#${shortHash(obj)}"
-

@@ -20,5 +20,6 @@ abstract class MultiChildRenderObjectWidget(
         assert(!children.any { it == null }) // https://github.com/dart-lang/sdk/issues/29276
     }
 
-    override fun createElement(): MultiChildRenderObjectElement = MultiChildRenderObjectElement(this)
+    override fun createElement(): MultiChildRenderObjectElement =
+            MultiChildRenderObjectElement(this)
 }

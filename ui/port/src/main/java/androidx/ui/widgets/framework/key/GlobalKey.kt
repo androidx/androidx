@@ -75,7 +75,7 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
                 _debugIllFatedElements.clear()
                 _debugReservations.clear()
                 if (duplicates != null) {
-                   val buffer = StringBuffer()
+                    val buffer = StringBuffer()
                     buffer.append("Multiple widgets used the same GlobalKey.\n")
                     for (key in duplicates.keys) {
                         val elements = duplicates[key]
@@ -83,7 +83,8 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
                         for (element in elements!!)
                         buffer.append("- $element")
                     }
-                    buffer.append("A GlobalKey can only be specified on one widget at a time in the widget tree.")
+                    buffer.append("A GlobalKey can only be specified on one widget at a time" +
+                            " in the widget tree.")
                     throw FlutterError(buffer.toString())
                 }
                 true
@@ -133,18 +134,22 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
                 if (older != newer) {
                     throw FlutterError(
                             "Multiple widgets used the same GlobalKey.\n" +
-                            "The key $this was used by multiple widgets. The parents of those widgets were:\n" +
+                            "The key $this was used by multiple widgets. " +
+                            "The parents of those widgets were:\n" +
                             "- $older\n" +
                             "- $newer\n" +
-                            "A GlobalKey can only be specified on one widget at a time in the widget tree."
+                            "A GlobalKey can only be specified on one widget at a time in" +
+                            " the widget tree."
                     )
                 }
                 throw FlutterError(
                         "Multiple widgets used the same GlobalKey.\n" +
-                        "The key $this was used by multiple widgets. The parents of those widgets were " +
+                        "The key $this was used by multiple widgets." +
+                        " The parents of those widgets were " +
                         "different widgets that both had the following description:\n" +
                         "  $newer\n" +
-                        "A GlobalKey can only be specified on one widget at a time in the widget tree."
+                        "A GlobalKey can only be specified on one widget at a time in" +
+                        " the widget tree."
                 )
             }
             _debugReservations[this] = parent

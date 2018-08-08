@@ -72,7 +72,8 @@ data class Radius(
     // / Returns a radius whose coordinates are the coordinates of the
     // / left-hand-side operand (a radius) divided by the scalar right-hand-side
     // / operand (a double), rounded towards zero.
-    fun truncDiv(operand: Double): Radius = elliptical((x.truncDiv(operand)).toDouble(), y.truncDiv(operand).toDouble())
+    fun truncDiv(operand: Double): Radius =
+            elliptical((x.truncDiv(operand)).toDouble(), y.truncDiv(operand).toDouble())
 
     // / Modulo (remainder) operator.
     // /

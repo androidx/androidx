@@ -12,5 +12,6 @@ abstract class SingleChildRenderObjectWidget(
     child: Widget
 ) : RenderObjectWidget(key) {
 
-    override fun createElement(): SingleChildRenderObjectElement = SingleChildRenderObjectElement(this)
+    override fun createElement(): SingleChildRenderObjectElement =
+            SingleChildRenderObjectElement(this)
 }

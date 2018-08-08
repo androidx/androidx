@@ -490,8 +490,16 @@ abstract class State<T : StatefulWidget>(
         super.debugFillProperties(properties)
 
         // TODO(Migration/Filip): This used to be in assert block
-        properties.add(EnumProperty<_StateLifecycle>("lifecycle state", _debugLifecycleState, defaultValue = _StateLifecycle.ready))
-        properties.add(ObjectFlagProperty<T>("_widget", widget, ifNull = "no widget"))
-        properties.add(ObjectFlagProperty<StatefulElement>("_element", _element, ifNull = "not mounted"))
+        properties.add(EnumProperty(
+                "lifecycle state",
+                _debugLifecycleState,
+                defaultValue = _StateLifecycle.ready
+        ))
+        properties.add(ObjectFlagProperty("_widget", widget, ifNull = "no widget"))
+        properties.add(ObjectFlagProperty(
+                "_element",
+                _element,
+                ifNull = "not mounted"
+        ))
     }
 }

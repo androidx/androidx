@@ -147,7 +147,8 @@ data class Size(val width: Double, val height: Double) : OffsetBase {
     // / Returns a [Size] whose dimensions are the dimensions of the left-hand-side
     // / operand (a [Size]) divided by the scalar right-hand-side operand (a
     // / [double]), rounded towards zero.
-    fun truncDiv(operand: Double) = Size((width.truncDiv(operand)).toDouble(), (height.truncDiv(operand)).toDouble())
+    fun truncDiv(operand: Double) =
+            Size((width.truncDiv(operand)).toDouble(), (height.truncDiv(operand)).toDouble())
 
     // / Modulo (remainder) operator.
     // /

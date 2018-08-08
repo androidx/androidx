@@ -43,13 +43,23 @@ data class Rect(
         // /
         // / The `center` argument is assumed to be an offset from the origin.
         fun fromCircle(center: Offset, radius: Double): Rect {
-            return Rect(center.dx - radius, center.dy - radius, center.dx + radius, center.dy + radius)
+            return Rect(
+                    center.dx - radius,
+                    center.dy - radius,
+                    center.dx + radius,
+                    center.dy + radius
+            )
         }
 
         // / Construct the smallest rectangle that encloses the given offsets, treating
         // / them as vectors from the origin.
         fun fromPoints(a: Offset, b: Offset): Rect {
-            return Rect(Math.min(a.dx, b.dx), Math.min(a.dy, b.dy), Math.max(a.dx, b.dx), Math.max(a.dy, b.dy))
+            return Rect(
+                    Math.min(a.dx, b.dx),
+                    Math.min(a.dy, b.dy),
+                    Math.max(a.dx, b.dx),
+                    Math.max(a.dy, b.dy)
+            )
         }
 
         // / A rectangle with left, top, right, and bottom edges all at zero.
@@ -75,7 +85,7 @@ data class Rect(
     // double get left => _value[0];
     // double get top => _value[1];
     //
-   // double get right => _value[2];
+    // double get right => _value[2];
     // / The offset of the bottom edge of this rectangle from the y axis.
     // double get bottom => _value[3];
 
@@ -93,7 +103,11 @@ data class Rect(
     }
 
     // / Whether all coordinates of this rectangle are finite.
-    fun isFinite(): Boolean = left.isFinite() && top.isFinite() && right.isFinite() && bottom.isFinite()
+    fun isFinite(): Boolean =
+            left.isFinite() &&
+            top.isFinite() &&
+            right.isFinite() &&
+            bottom.isFinite()
 
     // / Whether this rectangle encloses a non-zero area. Negative areas are
     // / considered empty.
@@ -113,7 +127,12 @@ data class Rect(
     // / To translate a rectangle by an [Offset] rather than by separate x and y
     // / components, consider [shift].
     fun translate(translateX: Double, translateY: Double): Rect {
-        return fromLTRB(left + translateX, top + translateY, right + translateX, bottom + translateY)
+        return fromLTRB(
+                left + translateX,
+                top + translateY,
+                right + translateX,
+                bottom + translateY
+        )
     }
 
     // / Returns a new rectangle with edges moved outwards by the given delta.
@@ -272,5 +291,9 @@ data class Rect(
 //    @override
 //    int get hashCode => hashList(_value);
 
-    override fun toString() = "Rect.fromLTRB(${left.toStringAsFixed(1)}, ${top.toStringAsFixed(1)}, ${right.toStringAsFixed(1)}, ${bottom.toStringAsFixed(1)})"
+    override fun toString() = "Rect.fromLTRB(" +
+            "${left.toStringAsFixed(1)}, " +
+            "${top.toStringAsFixed(1)}, " +
+            "${right.toStringAsFixed(1)}, " +
+            "${bottom.toStringAsFixed(1)})"
 }

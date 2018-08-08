@@ -224,7 +224,7 @@ interface BuildContext {
     // /   const TypeMatcher<ScrollableState>(),
     // / );
     // / ```
-    fun ancestorStateOfType(matcher: TypeMatcher<*>): State<*>?
+    fun ancestorStateOfType(matcher: TypeMatcher): State<*>?
 
     // / Returns the [State] object of the furthest ancestor [StatefulWidget] widget
     // / that matches the given [TypeMatcher].
@@ -235,7 +235,7 @@ interface BuildContext {
     // /
     // / This operation is O(N) as well though N is the entire widget tree rather than
     // / a subtree.
-    fun rootAncestorStateOfType(matcher: TypeMatcher<*>): State<*>?
+    fun rootAncestorStateOfType(matcher: TypeMatcher): State<*>?
 
     // / Returns the [RenderObject] object of the nearest ancestor [RenderObjectWidget] widget
     // / that matches the given [TypeMatcher].
@@ -256,7 +256,7 @@ interface BuildContext {
     // / because the widget tree is no longer stable at that time. To refer to
     // / an ancestor from one of those methods, save a reference to the ancestor
     // / by calling [ancestorRenderObjectOfType] in [State.didChangeDependencies].
-    fun ancestorRenderObjectOfType(matcher: TypeMatcher<*>): RenderObject?
+    fun ancestorRenderObjectOfType(matcher: TypeMatcher): RenderObject?
 
     // / Walks the ancestor chain, starting with the parent of this build context's
     // / widget, invoking the argument for each ancestor. The callback is given a

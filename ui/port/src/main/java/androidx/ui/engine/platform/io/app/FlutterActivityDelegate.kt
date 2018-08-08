@@ -53,12 +53,15 @@ import androidx.ui.engine.platform.io.view.FlutterView
  * {@link PluginRegistry} and/or {@link io.flutter.view.FlutterView.Provider}
  * and forward those methods to this class as well.</p>
  */
-class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFactory) /* TODO: : FlutterActivityEvents, FlutterView.Provider, PluginRegistry */ {
+class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFactory) {
+    // TODO: : FlutterActivityEvents, FlutterView.Provider, PluginRegistry
 
     companion object {
-        private val SPLASH_SCREEN_META_DATA_KEY: String = "io.flutter.app.android.SplashScreenUntilFirstFrame"
+        private val SPLASH_SCREEN_META_DATA_KEY: String =
+                "io.flutter.app.android.SplashScreenUntilFirstFrame"
         private val TAG: String = "FlutterActivityDelegate"
-        private val matchParent: LayoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        private val matchParent: LayoutParams =
+                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     }
 
     /**
@@ -344,7 +347,8 @@ class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFacto
     @SuppressWarnings("deprecation")
     private fun getLaunchScreenDrawableFromActivityTheme(): Drawable? {
         val typedValue = TypedValue()
-        if (!activity.getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true)) {
+        if (!activity.getTheme()
+                        .resolveAttribute(android.R.attr.windowBackground, typedValue, true)) {
             return null
         }
         if (typedValue.resourceId == 0) {
@@ -375,15 +379,15 @@ class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFacto
         }
     }
 
-     /**
-     * Show and then automatically animate out the launch view.
-     *
-     * If a launch screen is defined in the user application's AndroidManifest.xml as the
-     * activity's {@code windowBackground}, display it on top of the {@link FlutterView} and
-     * remove the activity's {@code windowBackground}.
-     *
-     * Fade it out and remove it when the {@link FlutterView} renders its first frame.
-     */
+    /**
+    * Show and then automatically animate out the launch view.
+    *
+    * If a launch screen is defined in the user application's AndroidManifest.xml as the
+    * activity's {@code windowBackground}, display it on top of the {@link FlutterView} and
+    * remove the activity's {@code windowBackground}.
+    *
+    * Fade it out and remove it when the {@link FlutterView} renders its first frame.
+    */
 //    private fun addLaunchView() {
 //        if (launchView == null) {
 //            return

@@ -230,7 +230,8 @@ open class DiagnosticsProperty<T : Any> protected constructor(
     // / tool might display a null [Color] value as an empty rectangle instead of
     // / the word "null".
     // TODO(Migration/Filip): We can't do T::class.java in Kotlin. Need to revisit this.
-    fun propertyType() = Type.fromObject(if (getValue() == null) Any::class.java else getValue()!!::class.java)
+    fun propertyType() =
+            Type.fromObject(if (getValue() == null) Any::class.java else getValue()!!::class.java)
 
     // / Returns the value of the property either from cache or by invoking a
     // / [ComputePropertyValueCallback].

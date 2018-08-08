@@ -99,7 +99,8 @@ fun debugChildrenHaveDuplicateKeys(parent: Widget, children: Iterable<Widget>): 
         if (nonUniqueKey != null) {
             throw FlutterError(
                     "Duplicate keys found.\n" +
-                    "If multiple keyed nodes exist as children of another node, they must have unique keys.\n" +
+                    "If multiple keyed nodes exist as children of another node, they must have" +
+                    " unique keys.\n" +
                     "$parent has multiple children with key $nonUniqueKey."
             )
         }

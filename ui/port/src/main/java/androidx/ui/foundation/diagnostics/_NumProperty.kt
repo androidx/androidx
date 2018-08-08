@@ -24,7 +24,7 @@ abstract class _NumProperty<T : Number>(
         defaultValue = defaultValue,
         tooltip = tooltip,
         level = level
- ) {
+) {
 
     override fun toJsonMap(): Map<String, Any> {
         var json = super.toJsonMap().toMutableMap()

@@ -574,7 +574,8 @@ data class RRect(
                 brRadius == blRadius) {
             if (tlRadius.x == tlRadius.y)
                 return "RRect.fromLTRBR($rect, ${tlRadius.x.toStringAsFixed(1)})"
-            return "RRect.fromLTRBXY($rect, ${tlRadius.x.toStringAsFixed(1)}, ${tlRadius.y.toStringAsFixed(1)})"
+            return "RRect.fromLTRBXY($rect, ${tlRadius.x.toStringAsFixed(1)}, " +
+                    "${tlRadius.y.toStringAsFixed(1)})"
         }
         return "RRect.fromLTRBAndCorners(" +
                 "$rect, " +

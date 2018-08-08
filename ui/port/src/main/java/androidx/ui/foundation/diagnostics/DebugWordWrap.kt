@@ -47,7 +47,8 @@ fun debugWordWrap(message: String, width: Int, wrapIndent: String = ""): Iterabl
             var lastWordEnd: Int? = 0
             while (true) {
                 when (mode) {
-                    _WordWrapParseMode.inSpace -> { // at start of break point (or start of line); can't break until next break
+                    _WordWrapParseMode.inSpace -> {
+                        // at start of break point (or start of line); can't break until next break
                         while ((index < message.length) && (message[index] == ' '))
                             index += 1
                         lastWordStart = index
@@ -59,10 +60,14 @@ fun debugWordWrap(message: String, width: Int, wrapIndent: String = ""): Iterabl
                         mode = _WordWrapParseMode.atBreak
                     }
                     _WordWrapParseMode.atBreak -> { // looking for a good break point
-                        if ((index - startForLengthCalculations > width) || (index == message.length)) {
+                        if ((index - startForLengthCalculations > width) ||
+                                (index == message.length)) {
                             // we are over the width line, so break
-                            if ((index - startForLengthCalculations <= width) || (lastWordEnd == null)) {
-                                // we should use this point, before either it doesn't actually go over the end (last line), or it does, but there was no earlier break point
+                            if ((index - startForLengthCalculations <= width) ||
+                                    (lastWordEnd == null)) {
+                                // we should use this point, before either it doesn't actually go
+                                // over the end (last line), or it does, but there was no earlier
+                                // break point
                                 lastWordEnd = index
                             }
                             if (addPrefix) {
@@ -82,7 +87,8 @@ fun debugWordWrap(message: String, width: Int, wrapIndent: String = ""): Iterabl
                                 start = index
                                 mode = _WordWrapParseMode.inWord
                             } else {
-                                // we broke at the previous break point, and we're at the start of a new one
+                                // we broke at the previous break point, and we're at the start of
+                                // a new one
                                 assert(lastWordStart > lastWordEnd)
                                 start = lastWordStart
                                 mode = _WordWrapParseMode.atBreak

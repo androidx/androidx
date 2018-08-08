@@ -104,7 +104,8 @@ class FlutterErrorDetails(
                     if (position == fullMessage.length - message.length &&
                             position > 2 &&
                             fullMessage.substring(position - 2, position) == ": ") {
-                        longMessage = "${message.trimEnd()}\n${fullMessage.substring(0, position - 2)}"
+                        longMessage = "${message.trimEnd()}\n" +
+                                fullMessage.substring(0, position - 2)
                     }
                 }
             }

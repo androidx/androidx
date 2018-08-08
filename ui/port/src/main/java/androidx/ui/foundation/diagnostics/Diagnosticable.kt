@@ -39,7 +39,8 @@ abstract class Diagnosticable {
     }
 
     open fun toStringParametrized(minLevel: DiagnosticLevel = DiagnosticLevel.debug): String {
-        return toDiagnosticsNode(style = DiagnosticsTreeStyle.singleLine).toStringParametrized(minLevel = minLevel)
+        return toDiagnosticsNode(style = DiagnosticsTreeStyle.singleLine)
+                .toStringParametrized(minLevel = minLevel)
     }
 
     // / Returns a debug representation of the object that is used by debugging

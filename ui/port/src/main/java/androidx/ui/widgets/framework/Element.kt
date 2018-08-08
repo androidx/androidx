@@ -430,7 +430,8 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
             return null
         assert {
             if (debugPrintGlobalKeyedWidgetLifecycle)
-                debugPrint("Attempting to take $element from ${element._parent ?: "inactive elements list"} to put in $this.")
+                debugPrint("Attempting to take $element from " +
+                        "${element._parent ?: "inactive elements list"} to put in $this.")
             true
         }
         val parent = element._parent
@@ -438,12 +439,16 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
             assert {
                 if (parent == this) {
                     throw FlutterError(
-                            "A GlobalKey was used multiple times inside one widget\"s child list.\n" +
+                            "A GlobalKey was used multiple times inside one widget's child list." +
+                            "\n" +
                             "The offending GlobalKey was: $key\n" +
                             "The parent of the widgets with that key was:\n  $parent\n" +
-                            "The first child to get instantiated with that key became:\n  $element\n" +
-                            "The second child that was to be instantiated with that key was:\n  $widget\n" +
-                            "A GlobalKey can only be specified on one widget at a time in the widget tree."
+                            "The first child to get instantiated with that key became:\n  " +
+                            "$element\n" +
+                            "The second child that was to be instantiated with that key was:\n  " +
+                            "$widget\n" +
+                            "A GlobalKey can only be specified on one widget at a time in" +
+                            " the widget tree."
                     )
                 }
                 parent.owner!!._debugTrackElementThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans(
@@ -574,7 +579,8 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         assert(owner != null)
         assert(depth != null)
         assert(!_active)
-        val hadDependencies = (_dependencies != null && _dependencies!!.isNotEmpty()) || _hadUnsatisfiedDependencies
+        val hadDependencies = (_dependencies != null && _dependencies!!.isNotEmpty()) ||
+                _hadUnsatisfiedDependencies
         _active = true
         // We unregistered our dependencies in deactivate, but never cleared the list.
         // Since we're going to be reused, let's clear our list now.
@@ -746,11 +752,12 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         assert {
             if (_debugLifecycleState != _ElementLifecycle.active) {
                 throw FlutterError(
-                        "Looking up a deactivated widget\"s ancestor is unsafe.\n" +
-                        "At this point the state of the widget\"s element tree is no longer " +
-                        "stable. To safely refer to a widget\"s ancestor in its dispose() method, " +
-                        "save a reference to the ancestor by calling inheritFromWidgetOfExactType() " +
-                        "in the widget\"s didChangeDependencies() method.\n"
+                        "Looking up a deactivated widget's ancestor is unsafe.\n" +
+                        "At this point the state of the widget's element tree is no longer " +
+                        "stable. To safely refer to a widget's ancestor in its dispose() " +
+                        "method, save a reference to the ancestor by calling " +
+                        "inheritFromWidgetOfExactType() in the widget's didChangeDependencies()" +
+                        " method.\n"
                 )
             }
             true
@@ -760,7 +767,8 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
 
     override fun inheritFromWidgetOfExactType(targetType: Type): InheritedWidget? {
         assert(_debugCheckStateIsActiveForAncestorLookup())
-        val ancestor: InheritedElement? = if (_inheritedWidgets == null) null else _inheritedWidgets!![targetType]
+        val ancestor: InheritedElement? =
+                if (_inheritedWidgets == null) null else _inheritedWidgets!![targetType]
         if (ancestor != null) {
             assert(ancestor is InheritedElement)
             _dependencies = _dependencies ?: mutableSetOf<InheritedElement>()
@@ -791,7 +799,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         return ancestor?.widget
     }
 
-    override fun ancestorStateOfType(matcher: TypeMatcher<*>): State<*>? {
+    override fun ancestorStateOfType(matcher: TypeMatcher): State<*>? {
         assert(_debugCheckStateIsActiveForAncestorLookup())
         var ancestor = _parent
         while (ancestor != null) {
@@ -803,7 +811,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         return statefulAncestor?.state
     }
 
-    override fun rootAncestorStateOfType(matcher: TypeMatcher<*>): State<*>? {
+    override fun rootAncestorStateOfType(matcher: TypeMatcher): State<*>? {
         assert(_debugCheckStateIsActiveForAncestorLookup())
         var ancestor = _parent
         var statefulAncestor: StatefulElement? = null
@@ -815,7 +823,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         return statefulAncestor?.state
     }
 
-    override fun ancestorRenderObjectOfType(matcher: TypeMatcher<*>): RenderObject? {
+    override fun ancestorRenderObjectOfType(matcher: TypeMatcher): RenderObject? {
         assert(_debugCheckStateIsActiveForAncestorLookup())
         var ancestor = _parent
         while (ancestor != null) {
@@ -909,7 +917,13 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
         properties.add(ObjectFlagProperty<Int>("depth", depth, ifNull = "no depth"))
         properties.add(ObjectFlagProperty<Widget>("widget", widget, ifNull = "no widget"))
         if (widget != null) {
-            properties.add(DiagnosticsProperty.create("key", widget?.key, showName = false, defaultValue = null, level = DiagnosticLevel.hidden))
+            properties.add(DiagnosticsProperty.create(
+                    "key",
+                    widget?.key,
+                    showName = false,
+                    defaultValue = null,
+                    level = DiagnosticLevel.hidden
+            ))
             widget.debugFillProperties(properties)
         }
         properties.add(FlagProperty("dirty", value = dirty, ifTrue = "dirty"))
@@ -970,25 +984,33 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
                 if (!_debugAllowIgnoredCallsToMarkNeedsBuild) {
                     throw FlutterError(
                             "setState() or markNeedsBuild() called during build.\n" +
-                            "This ${widget.runtimeType()} widget cannot be marked as needing to build because the framework " +
-                            "is already in the process of building widgets. A widget can be marked as " +
-                            "needing to be built during the build phase only if one of its ancestors " +
-                            "is currently building. This exception is allowed because the framework " +
-                            "builds parent widgets before children, which means a dirty descendant " +
+                            "This ${widget.runtimeType()} widget cannot be marked as needing to" +
+                            " build because the framework is already in the process of building " +
+                            "widgets. A widget can be marked as needing to be built during " +
+                            "the build phase only if one of its ancestors is currently building. " +
+                            "This exception is allowed because the framework builds parent " +
+                            "widgets before children, which means a dirty descendant " +
                             "will always be built. Otherwise, the framework might not visit this " +
                             "widget during this build phase.\n" +
                             "The widget on which setState() or markNeedsBuild() was called was:\n" +
                             "  $this\n" +
-                            if (owner!!._debugCurrentBuildTarget == null) "" else "The widget which was currently being built when the offending call was made was:\n  ${owner!!._debugCurrentBuildTarget}"
+                            if (owner!!._debugCurrentBuildTarget == null) {
+                                ""
+                            } else {
+                                "The widget which was currently being built when the offending" +
+                                " call was made was:\n  ${owner!!._debugCurrentBuildTarget}"
+                            }
                     )
                 }
-                assert(dirty); // can only get here if we're not in scope, but ignored calls are allowed, and our call would somehow be ignored (since we're already dirty)
+                // can only get here if we're not in scope, but ignored calls are allowed, and our
+                // call would somehow be ignored (since we're already dirty)
+                assert(dirty)
             } else if (owner!!._debugStateLocked) {
                 assert(!_debugAllowIgnoredCallsToMarkNeedsBuild)
                 throw FlutterError(
                         "setState() or markNeedsBuild() called when widget tree was locked.\n" +
-                        "This ${widget.runtimeType()} widget cannot be marked as needing to build " +
-                        "because the framework is locked.\n" +
+                        "This ${widget.runtimeType()} widget cannot be marked as needing to " +
+                        "build because the framework is locked.\n" +
                         "The widget on which setState() or markNeedsBuild() was called was:\n" +
                         "  $this\n"
                 )

@@ -9,7 +9,8 @@ import androidx.ui.widgets.debugChildrenHaveDuplicateKeys
 // / RenderObjects use the [ContainerRenderObjectMixin] mixin with a parent data
 // / type that implements [ContainerParentDataMixin<RenderObject>]. Such widgets
 // / are expected to inherit from [MultiChildRenderObjectWidget].
-class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget) : RenderObjectElement(widget) {
+class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
+    : RenderObjectElement(widget) {
 
     init {
         assert(!debugChildrenHaveDuplicateKeys(widget, widget.children))
@@ -84,7 +85,11 @@ class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget) : Rend
 
         super.update(newWidget)
         assert(widget == newWidget)
-        _children = updateChildren(_children, newMultiChildWidget.children, forgottenChildren = _forgottenChildren)
+        _children = updateChildren(
+                _children,
+                newMultiChildWidget.children,
+                forgottenChildren = _forgottenChildren
+        )
         _forgottenChildren.clear()
     }
 }

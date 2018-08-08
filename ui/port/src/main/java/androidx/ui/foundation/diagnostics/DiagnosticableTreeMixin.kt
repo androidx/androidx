@@ -12,7 +12,8 @@ abstract class DiagnosticableTreeMixin : DiagnosticableTree() {
     }
 
     override fun toStringParametrized(minLevel: DiagnosticLevel): String {
-        return toDiagnosticsNode(style = DiagnosticsTreeStyle.singleLine).toStringParametrized(minLevel = minLevel)
+        return toDiagnosticsNode(style = DiagnosticsTreeStyle.singleLine)
+                .toStringParametrized(minLevel = minLevel)
     }
 
     override fun toStringShallow(
@@ -25,7 +26,9 @@ abstract class DiagnosticableTreeMixin : DiagnosticableTree() {
         val builder = DiagnosticPropertiesBuilder()
         debugFillProperties(builder)
         result.append(
-                builder.properties.filter { !it.isFiltered(minLevel) }.joinToString(separator = joiner)
+                builder.properties
+                        .filter { !it.isFiltered(minLevel) }
+                        .joinToString(separator = joiner)
         )
         return result.toString()
     }
@@ -35,7 +38,11 @@ abstract class DiagnosticableTreeMixin : DiagnosticableTree() {
         prefixOtherLines: String,
         minLevel: DiagnosticLevel
     ): String {
-        return toDiagnosticsNode().toStringDeep(prefixLineOne = prefixLineOne, prefixOtherLines = prefixOtherLines, minLevel = minLevel)
+        return toDiagnosticsNode().toStringDeep(
+                prefixLineOne = prefixLineOne,
+                prefixOtherLines = prefixOtherLines,
+                minLevel = minLevel
+        )
     }
 
     override fun toStringShort() = describeIdentity(this)

@@ -22,7 +22,8 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
         assert {
             if (!state!!._debugTypesAreRight(widget)) {
                 throw FlutterError(
-                        "StatefulWidget.createState must return a subtype of State<${widget.runtimeType()}>\n" +
+                        "StatefulWidget.createState must return a subtype of " +
+                        "State<${widget.runtimeType()}>\n" +
                         "The createState function for ${widget.runtimeType()} returned a state " +
                         "of type ${state!!.runtimeType()}, which is not a subtype of " +
                         "State<${widget.runtimeType()}>, violating the contract for createState."
@@ -126,8 +127,9 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
                 true
             throw FlutterError(
                     "${state!!.runtimeType()}.dispose failed to call super.dispose.\n" +
-                    "dispose() implementations must always call their superclass dispose() method, to ensure " +
-                    "that all the resources used by the widget are fully released."
+                    "dispose() implementations must always call their superclass dispose()" +
+                    " method, to ensure that all the resources used by the widget are fully" +
+                    " released."
             )
         }
         state!!._element = null
@@ -138,35 +140,38 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
         assert {
             if (state!!._debugLifecycleState == _StateLifecycle.created) {
                 throw FlutterError(
-                        "inheritFromWidgetOfExactType($targetType) was called before ${state!!.runtimeType()}.initState() completed.\n" +
-                        "When an inherited widget changes, for example if the value of Theme.of() changes, " +
-                "its dependent widgets are rebuilt. If the dependent widget\"s reference to " +
-                "the inherited widget is in a constructor or an initState() method, " +
-                "then the rebuilt dependent widget will not reflect the changes in the " +
-                "inherited widget.\n" +
-                "Typically references to to inherited widgets should occur in widget build() methods. Alternatively, " +
-                "initialization based on inherited widgets can be placed in the didChangeDependencies method, which " +
-                "is called after initState and whenever the dependencies change thereafter."
+                        "inheritFromWidgetOfExactType($targetType) was called before " +
+                        "${state!!.runtimeType()}.initState() completed.\n" +
+                        "When an inherited widget changes, for example if the value of Theme.of()" +
+                        " changes, its dependent widgets are rebuilt. If the dependent widget's" +
+                        " reference to the inherited widget is in a constructor or an initState()" +
+                        " method, then the rebuilt dependent widget will not reflect the changes" +
+                        " in the inherited widget.\n" +
+                        "Typically references to to inherited widgets should occur in widget" +
+                        " build() methods. Alternatively, initialization based on inherited " +
+                        "widgets can be placed in the didChangeDependencies method, which is" +
+                        " called after initState and whenever the dependencies change thereafter."
                 )
             }
             if (state!!._debugLifecycleState == _StateLifecycle.defunct) {
                 throw FlutterError(
-                        "inheritFromWidgetOfExactType($targetType) called after dispose(): $this\n" +
+                        "inheritFromWidgetOfExactType($targetType) called after dispose(): " +
+                        "$this\n" +
                         "This error happens if you call inheritFromWidgetOfExactType() on the " +
-                "BuildContext for a widget that no longer appears in the widget tree " +
-                "(e.g., whose parent widget no longer includes the widget in its " +
-                "build). This error can occur when code calls " +
-                "inheritFromWidgetOfExactType() from a timer or an animation callback. " +
-                "The preferred solution is to cancel the timer or stop listening to the " +
-                "animation in the dispose() callback. Another solution is to check the " +
-                "'mounted' property of this object before calling " +
-                "inheritFromWidgetOfExactType() to ensure the object is still in the " +
-                "tree.\n" +
-                "This error might indicate a memory leak if " +
-                "inheritFromWidgetOfExactType() is being called because another object " +
-                "is retaining a reference to this State object after it has been " +
-                "removed from the tree. To avoid memory leaks, consider breaking the " +
-                "reference to this object during dispose()."
+                        "BuildContext for a widget that no longer appears in the widget tree " +
+                        "(e.g., whose parent widget no longer includes the widget in its " +
+                        "build). This error can occur when code calls " +
+                        "inheritFromWidgetOfExactType() from a timer or an animation callback. " +
+                        "The preferred solution is to cancel the timer or stop listening to the " +
+                        "animation in the dispose() callback. Another solution is to check the " +
+                        "'mounted' property of this object before calling " +
+                        "inheritFromWidgetOfExactType() to ensure the object is still in the " +
+                        "tree.\n" +
+                        "This error might indicate a memory leak if " +
+                        "inheritFromWidgetOfExactType() is being called because another object " +
+                        "is retaining a reference to this State object after it has been " +
+                        "removed from the tree. To avoid memory leaks, consider breaking the " +
+                        "reference to this object during dispose()."
                 )
             }
             true
@@ -181,6 +186,6 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DiagnosticsProperty.create<State<StatefulWidget>>("state", state, defaultValue = null))
+        properties.add(DiagnosticsProperty.create("state", state, defaultValue = null))
     }
 }

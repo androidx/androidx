@@ -144,7 +144,8 @@ data class Offset(override val dx: Double, override val dy: Double) : OffsetBase
     // / Offset c = a + b; // same as: a.translate(b.dx, b.dy)
     // / Offset d = a - b; // same as: a.translate(-b.dx, -b.dy)
     // / ```
-    fun translate(translateX: Double, translateY: Double): Offset = Offset(dx + translateX, dy + translateY)
+    fun translate(translateX: Double, translateY: Double): Offset =
+            Offset(dx + translateX, dy + translateY)
 
     // / Unary negation operator.
     // /
@@ -196,7 +197,8 @@ data class Offset(override val dx: Double, override val dy: Double) : OffsetBase
     // / left-hand-side operand (an Offset) divided by the scalar right-hand-side
     // / operand (a double), rounded towards zero.
     // TODO(Migration/Filip): Original operator ~/ could not be overriden in Kotlin
-    fun truncDiv(operand: Double) = Offset((dx.truncDiv(operand)).toDouble(), (dy.truncDiv(operand)).toDouble())
+    fun truncDiv(operand: Double) =
+            Offset((dx.truncDiv(operand)).toDouble(), (dy.truncDiv(operand)).toDouble())
 
     // / Modulo (remainder) operator.
     // /

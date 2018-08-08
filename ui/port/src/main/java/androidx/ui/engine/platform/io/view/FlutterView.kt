@@ -74,7 +74,8 @@ class FlutterView(
 //    private val mTextInputPlugin: TextInputPlugin? = null
     private var mSurfaceCallback: SurfaceHolder.Callback? = null
     private val mMetrics: ViewportMetrics = ViewportMetrics()
-    private val mAccessibilityManager: AccessibilityManager = getContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    private val mAccessibilityManager: AccessibilityManager =
+            getContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 //    private val mFlutterLocalizationChannel: MethodChannel? = null
 //    private val mFlutterNavigationChannel: MethodChannel? = null
 //    private val mFlutterKeyEventChannel: BasicMessageChannel<Any>? = null
@@ -111,7 +112,8 @@ class FlutterView(
         var color = -0x1000000
         val typedValue = TypedValue()
         context.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-        if (typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT && typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+        if (typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT &&
+                typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
             color = typedValue.data
         }
         // TODO(abarth): Consider letting the developer override this color.
