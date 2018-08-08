@@ -49,15 +49,15 @@ class FlutterError(
 //        /// recommended.
 //        static FlutterExceptionHandler onError = dumpErrorToConsole;
 //
-//        var _errorCount = 0;
+        var _errorCount = 0
 //
-//        /// Resets the count of errors used by [dumpErrorToConsole] to decide whether
-//        /// to show a complete error message or an abbreviated one.
-//        ///
-//        /// After this is called, the next error message will be shown in full.
-//        static void resetErrorCount() {
-//            _errorCount = 0;
-//        }
+        // / Resets the count of errors used by [dumpErrorToConsole] to decide whether
+        // / to show a complete error message or an abbreviated one.
+        // /
+        // / After this is called, the next error message will be shown in full.
+        fun resetErrorCount() {
+            _errorCount = 0
+        }
 //
 //        /// The width to which [dumpErrorToConsole] will wrap lines.
 //        ///

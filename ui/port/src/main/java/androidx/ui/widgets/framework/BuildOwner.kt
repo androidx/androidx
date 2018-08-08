@@ -7,6 +7,7 @@ import androidx.ui.foundation.assertions.debugPrintStack
 import androidx.ui.foundation.debugPrint
 import androidx.ui.widgets.debugPrintBuildScope
 import androidx.ui.widgets.debugPrintScheduleBuildForStacks
+import androidx.ui.widgets.focusmanager.FocusManager
 import androidx.ui.widgets.framework.key.GlobalKey
 
 // / Manager class for the widgets framework.
@@ -28,14 +29,14 @@ import androidx.ui.widgets.framework.key.GlobalKey
 class BuildOwner(
         // / Called on each build pass when the first buildable element is marked
         // / dirty.
-    val onBuildScheduled: VoidCallback
+    var onBuildScheduled: VoidCallback = {}
 ) {
 
     internal val _inactiveElements: _InactiveElements = _InactiveElements()
 
     internal val _dirtyElements = mutableListOf<Element>()
     private var _scheduledFlushDirtyElements = false
-    private var _dirtyElementsNeedsResorting: Boolean? = false; // null means we're not in a buildScope
+    private var _dirtyElementsNeedsResorting: Boolean? = false; // null if we're not in a buildScope
 
 //    /// The object in charge of the focus tree.
 //    ///
@@ -43,7 +44,7 @@ class BuildOwner(
 //    /// the [FocusScopeNode] for a given [BuildContext].
 //    ///
 //    /// See [FocusManager] for more details.
-//    final FocusManager focusManager = new FocusManager();
+    val focusManager = FocusManager()
 //
     // / Adds an element to the dirty elements list so that it will be rebuilt
     // / when [WidgetsBinding.drawFrame] calls [buildScope].
@@ -52,15 +53,19 @@ class BuildOwner(
         assert(element.owner == this)
         assert {
             if (debugPrintScheduleBuildForStacks)
-                debugPrintStack(label = "scheduleBuildFor() called for $element${if (_dirtyElements.contains(element)) " (ALREADY IN LIST)" else ""}")
+                debugPrintStack(label = "scheduleBuildFor() called for" +
+                        "$element" +
+                        "${if (_dirtyElements.contains(element)) " (ALREADY IN LIST)" else ""}")
             if (!element.dirty) {
                 throw FlutterError(
                         "scheduleBuildFor() called for a widget that is not marked as dirty.\n" +
                         "The method was called for the following element:\n" +
                         "  $element\n" +
-                        "This element is not current marked as dirty. Make sure to set the dirty flag before " +
+                        "This element is not current marked as dirty. Make sure to set the dirty" +
+                                "flag before " +
                         "calling scheduleBuildFor().\n" +
-                        "If you did not attempt to call scheduleBuildFor() yourself, then this probably " +
+                        "If you did not attempt to call scheduleBuildFor() yourself, then this" +
+                                "probably " +
                         "indicates a bug in the widgets framework. Please report it: " +
                         "https://github.com/flutter/flutter/issues/new"
                 )
@@ -70,12 +75,15 @@ class BuildOwner(
         if (element._inDirtyList) {
             assert {
                 if (debugPrintScheduleBuildForStacks)
-                    debugPrintStack(label = "markNeedsToResortDirtyElements() called; _dirtyElementsNeedsResorting was $_dirtyElementsNeedsResorting (now true); dirty list is: $_dirtyElements")
+                    debugPrintStack(label = "markNeedsToResortDirtyElements() called;" +
+                            "_dirtyElementsNeedsResorting was" +
+                            "$_dirtyElementsNeedsResorting (now true);" +
+                            "dirty list is: $_dirtyElements")
                 if (_dirtyElementsNeedsResorting == null) {
                     throw FlutterError(
                             "markNeedsToResortDirtyElements() called inappropriately.\n" +
-                            "The markNeedsToResortDirtyElements() method should only be called while the " +
-                            "buildScope() method is actively rebuilding the widget tree."
+                            "The markNeedsToResortDirtyElements() method should only be called" +
+                            "while the buildScope() method is actively rebuilding the widget tree."
                     )
                 }
                 true
@@ -163,7 +171,8 @@ class BuildOwner(
         assert(!debugBuilding)
         assert {
             if (debugPrintBuildScope)
-                debugPrint("buildScope called with context $context; dirty list is: $_dirtyElements")
+                debugPrint("buildScope called with context $context; " +
+                        "dirty list is: $_dirtyElements")
             _debugStateLockLevel += 1
             debugBuilding = true
             true
@@ -202,7 +211,8 @@ class BuildOwner(
             while (index < dirtyCount) {
                 assert(_dirtyElements[index] != null)
                 assert(_dirtyElements[index]._inDirtyList)
-                assert(!_dirtyElements[index]._active || _dirtyElements[index]._debugIsInScope(context))
+                assert(!_dirtyElements[index]._active ||
+                        _dirtyElements[index]._debugIsInScope(context))
                 try {
                     _dirtyElements[index].rebuild()
                 } catch (e: Exception) {
@@ -210,7 +220,8 @@ class BuildOwner(
                             "while rebuilding dirty elements", e, e.stackTrace,
                             informationCollector = {
                                 information: StringBuffer ->
-                                    information.appendln("The element being rebuilt at the time was index $index of $dirtyCount:")
+                                    information.appendln("The element being rebuilt at the" +
+                                            "time was index $index of $dirtyCount:")
                                     information.append("  ${_dirtyElements[index]}")
                             }
                     )
@@ -236,7 +247,8 @@ class BuildOwner(
                 if (_dirtyElements.any { it._active && it.dirty }) {
                 throw FlutterError(
                         "buildScope missed some dirty elements.\n" +
-                        "This probably indicates that the dirty list should have been resorted but was not.\n" +
+                        "This probably indicates that the dirty list should have been resorted" +
+                                "but was not.\n" +
                         "The list of dirty elements at the end of the buildScope call was:\n" +
                         "  $_dirtyElements"
                 )
@@ -265,20 +277,22 @@ class BuildOwner(
         assert(_debugStateLockLevel >= 0)
     }
 
-    var _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans: MutableMap<Element, MutableSet<GlobalKey<*>>>? = null
+    var _debugElementsToBeRebuiltDueToGlobalKeyShenanigans:
+            MutableMap<Element, MutableSet<GlobalKey<*>>>? = null
 
     fun _debugTrackElementThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans(
         node: Element,
         key: GlobalKey<*>
     ) {
-        _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans =
-                _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans ?: mutableMapOf()
-        val keys = _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans!!.getOrPut(node, { mutableSetOf() })
+        _debugElementsToBeRebuiltDueToGlobalKeyShenanigans =
+                _debugElementsToBeRebuiltDueToGlobalKeyShenanigans ?: mutableMapOf()
+        val keys = _debugElementsToBeRebuiltDueToGlobalKeyShenanigans!!
+                .getOrPut(node, { mutableSetOf() })
         keys.add(key)
     }
 
     fun _debugElementWasRebuilt(node: Element) {
-        _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans?.remove(node)
+        _debugElementsToBeRebuiltDueToGlobalKeyShenanigans?.remove(node)
     }
 
     // / Complete the element build pass by unmounting any elements that are no
@@ -301,12 +315,15 @@ class BuildOwner(
             assert {
                 try {
                     GlobalKey._debugVerifyIllFatedPopulation()
-                    if (_debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans != null &&
-                            _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans!!.isNotEmpty()) {
+                    if (_debugElementsToBeRebuiltDueToGlobalKeyShenanigans != null &&
+                            _debugElementsToBeRebuiltDueToGlobalKeyShenanigans!!
+                                    .isNotEmpty()) {
                         val keys = mutableSetOf<GlobalKey<*>>()
-                        for (element in _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans!!.keys) {
+                        for (element in
+                        _debugElementsToBeRebuiltDueToGlobalKeyShenanigans!!.keys) {
                             if (element._debugLifecycleState != _ElementLifecycle.defunct)
-                                keys.addAll(_debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans!![element]!!.asIterable())
+                                keys.addAll(_debugElementsToBeRebuiltDueToGlobalKeyShenanigans
+                                    !![element]!!.asIterable())
                         }
                         if (keys.isNotEmpty()) {
                             val keyStringCount = mutableMapOf<String, Int>()
@@ -322,11 +339,12 @@ class BuildOwner(
                                 if (count == 1) {
                                     keyLabels.add(key)
                                 } else {
-                                    keyLabels.add("$key ($count different affected keys had this toString representation)")
+                                    keyLabels.add("$key ($count different affected keys had" +
+                                            "this toString representation)")
                                 }
                             }
 
-                            val elements = _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans!!.keys
+                            val elements = _debugElementsToBeRebuiltDueToGlobalKeyShenanigans!!.keys
                             val elementStringCount = mutableMapOf<String, Int>()
                             for (element in elements.map { it.toString() }) {
                                 if (elementStringCount.containsKey(element)) {
@@ -340,7 +358,8 @@ class BuildOwner(
                                 if (count == 1) {
                                     elementLabels.add(element)
                                 } else {
-                                    elementLabels.add("$element ($count different affected elements had this toString representation)")
+                                    elementLabels.add("$element ($count different affected" +
+                                            "elements had this toString representation)")
                                 }
                             }
 
@@ -358,23 +377,33 @@ class BuildOwner(
                             val are = if (elementLabels.size == 1) "is" else "are"
                             throw FlutterError(
                                     "Duplicate GlobalKey$s detected in widget tree.\n" +
-                                    "The following GlobalKey$s $were specified multiple times in the widget tree. This will lead to " +
-                                    "parts of the widget tree being truncated unexpectedly, because the second time a key is seen, " +
-                                    "the previous instance is moved to the new location. The key$s $were:\n" +
+                                    "The following GlobalKey$s $were specified multiple times in" +
+                                            "the widget tree. This will lead to " +
+                                    "parts of the widget tree being truncated unexpectedly," +
+                                            "because the second time a key is seen, " +
+                                    "the previous instance is moved to the new location. The" +
+                                            "key$s $were:\n" +
                                     "- ${keyLabels.joinToString(separator = "\n  ")}\n" +
-                                    "This was determined by noticing that after$the widget$s with the above global key$s $were moved " +
-                                    "out of $their$respective previous parent$s2, $those2 previous parent$s2 never updated during this frame, meaning " +
-                                    "that $they either did not update at all or updated before the widget$s $were moved, in either case " +
-                                    "implying that $they still $think that $they should have a child with $those global key$s.\n" +
-                                    "The specific parent$s2 that did not update after having one or more children forcibly removed " +
+                                    "This was determined by noticing that after$the widget$s with" +
+                                            "the above global key$s $were moved " +
+                                    "out of $their$respective previous parent$s2, " +
+                                            "$those2 previous" +
+                                            "parent$s2 never updated during this frame, meaning " +
+                                    "that $they either did not update at all or updated before" +
+                                            "the widget$s $were moved, in either case " +
+                                    "implying that $they still $think that $they should have a" +
+                                            "child with $those global key$s.\n" +
+                                    "The specific parent$s2 that did not update after having one" +
+                                            "or more children forcibly removed " +
                                     "due to GlobalKey reparenting $are:\n" +
                                     "- ${elementLabels.joinToString(separator = "\n  ")}\n" +
-                                    "A GlobalKey can only be specified on one widget at a time in the widget tree."
+                                    "A GlobalKey can only be specified on one widget at a time" +
+                                            "in the widget tree."
                             )
                         }
                     }
                 } finally {
-                    _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans?.clear()
+                    _debugElementsToBeRebuiltDueToGlobalKeyShenanigans?.clear()
                 }
                 true
             }
