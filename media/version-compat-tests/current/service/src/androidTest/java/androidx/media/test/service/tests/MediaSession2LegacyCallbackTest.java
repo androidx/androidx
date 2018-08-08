@@ -64,6 +64,7 @@ import androidx.media2.MediaUtils2;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -862,6 +863,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
     /**
      * Test potential deadlock for calls between controller and session.
      */
+    @FlakyTest(bugId = 112290836)
     @Test
     public void testDeadlock() throws InterruptedException {
         prepareLooper();
