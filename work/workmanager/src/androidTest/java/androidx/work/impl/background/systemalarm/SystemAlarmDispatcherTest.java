@@ -49,12 +49,14 @@ import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
 
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -74,6 +76,9 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class SystemAlarmDispatcherTest extends DatabaseTest {
+
+    @Rule
+    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
     private static final int START_ID = 0;
     // Test timeout in seconds - this needs to be longer than SleepTestWorker.SLEEP_DURATION
