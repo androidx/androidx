@@ -316,7 +316,8 @@ public class SmartLinkifyTest {
                 .thenReturn(testObject.getTextLinks());
         when(mClassifier.getMaxGenerateLinksTextLength()).thenReturn(text.length());
 
-        final TextLinks.TextLinkSpan span = new TextLinks.TextLinkSpan(null);
+        final TextLinks.TextLinkSpan span = new TextLinks.TextLinkSpan(
+                testObject.getTextLinks().getLinks().iterator().next());
         final TextLinksParams params = new TextLinksParams.Builder()
                 .setEntityConfig(new TextClassifier.EntityConfig.Builder().build())
                 .setDefaultLocales(LocaleListCompat.create(Locale.CANADA_FRENCH))
