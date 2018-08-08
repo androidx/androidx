@@ -17,18 +17,10 @@
 package androidx.preference;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.os.Parcelable;
 
 import androidx.test.InstrumentationRegistry;
@@ -40,8 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -226,46 +216,6 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         final Preference expandButton = preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT);
         expandButton.performClick();
         verify(listener).onExpandButtonClick();
-    }
-
-    /**
-     * Verifies that when preference visibility changes, it will sync the preferences only if some
-     * preferences are collapsed.
-     */
-    @Test
-    @UiThreadTest
-    public void onPreferenceVisibilityChange_shouldSyncPreferencesIfCollapsed() {
-        // Execute the handler task immediately
-        final Handler handler = spy(new Handler());
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) {
-                Object[] args = invocation.getArguments();
-                Message message = (Message) args[0];
-                handler.dispatchMessage(message);
-                return null;
-            }
-        }).when(handler).sendMessageDelayed(any(Message.class), anyLong());
-
-        // No limit set, should not sync preference
-        PreferenceGroupAdapter preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, handler);
-        preferenceGroupAdapter.onPreferenceVisibilityChange(mPreferenceList.get(3));
-        verify(handler, never()).sendMessageDelayed(any(Message.class), anyLong());
-
-        // Has limit set, should sync preference
-        mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
-        preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, handler);
-        preferenceGroupAdapter.onPreferenceVisibilityChange(mPreferenceList.get(3));
-        verify(handler).sendMessageDelayed(any(Message.class), anyLong());
-
-        // Preferences expanded already, should not sync preference
-        final Preference expandButton = preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT);
-        expandButton.performClick();
-        reset(handler);
-        preferenceGroupAdapter.onPreferenceVisibilityChange(mPreferenceList.get(3));
-        verify(handler, never()).sendMessageDelayed(any(Message.class), anyLong());
     }
 
     /**
