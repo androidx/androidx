@@ -884,7 +884,7 @@ abstract class RenderObject : AbstractNode() {
      *
      * Warning: This getter must not change value over the lifetime of this object.
      */
-    var isRepaintBoundary: Boolean = false
+    open var isRepaintBoundary: Boolean = false
         protected set
 
     // / Called, in checked mode, if [isRepaintBoundary] is true, when either the
