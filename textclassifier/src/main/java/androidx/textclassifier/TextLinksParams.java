@@ -41,7 +41,7 @@ public final class TextLinksParams {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final SpanFactory DEFAULT_SPAN_FACTORY = new SpanFactory() {
         @Override
-        public TextLinkSpan createSpan(TextLink textLink) {
+        public TextLinkSpan createSpan(@NonNull TextLink textLink) {
             return new TextLinkSpan(textLink);
         }
     };

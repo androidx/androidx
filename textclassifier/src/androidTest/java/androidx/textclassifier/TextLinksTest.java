@@ -24,18 +24,13 @@ import static androidx.textclassifier.TextClassifier.TYPE_PHONE;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-import androidx.test.filters.SdkSuppress;
-import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
-import android.view.View;
 
-import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -58,26 +53,6 @@ public final class TextLinksTest {
     private static final String LANGUAGE_TAGS = "en-US,de-DE";
     private static final LocaleListCompat LOCALE_LIST =
             LocaleListCompat.forLanguageTags(LANGUAGE_TAGS);
-
-    private static class NoOpSpan extends ClickableSpan {
-        @Override
-        public void onClick(View v) {
-            // Do nothing.
-        }
-    }
-
-    private static class CustomTextLinkSpan extends TextLinks.TextLinkSpan {
-        CustomTextLinkSpan(@Nullable TextLinks.TextLink textLink) {
-            super(textLink);
-        }
-    }
-
-    private static class CustomSpanFactory implements TextLinks.SpanFactory {
-        @Override
-        public TextLinks.TextLinkSpan createSpan(TextLinks.TextLink textLink) {
-            return new CustomTextLinkSpan(textLink);
-        }
-    }
 
     private Map<String, Float> mDummyEntityScores;
 
@@ -129,69 +104,6 @@ public final class TextLinksTest {
         assertThat(result.getEntityConfig().resolveEntityTypes(
                 Arrays.asList("default", "excluded")))
                 .containsExactly("included", "default");
-    }
-
-    @Test
-    public void testApplyDifferentText() {
-        SpannableString text = new SpannableString("foo");
-        TextLinks links = new TextLinks.Builder("bar").build();
-        assertEquals(links.apply(text, TextLinks.APPLY_STRATEGY_REPLACE, null),
-                TextLinks.STATUS_DIFFERENT_TEXT);
-    }
-
-    @Test
-    public void testApplyNoLinks() {
-        SpannableString text = new SpannableString("foo");
-        TextLinks links = new TextLinks.Builder(text.toString()).build();
-        assertEquals(links.apply(text, TextLinks.APPLY_STRATEGY_REPLACE, null),
-                TextLinks.STATUS_NO_LINKS_FOUND);
-    }
-
-    @Test
-    public void testApplyNoApplied() {
-        SpannableString text = new SpannableString("foo");
-        text.setSpan(new NoOpSpan(), 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        TextLinks links = new TextLinks.Builder(text.toString()).addLink(
-                0, 3, mDummyEntityScores).build();
-        assertEquals(links.apply(text, TextLinks.APPLY_STRATEGY_IGNORE, null),
-                TextLinks.STATUS_NO_LINKS_APPLIED);
-    }
-
-    @Test
-    public void testApplyAppliedDefaultSpanFactory() {
-        SpannableString text = new SpannableString("foo");
-        TextLinks links = new TextLinks.Builder(text.toString()).addLink(
-                0, 3, mDummyEntityScores).build();
-        assertEquals(links.apply(text, TextLinks.APPLY_STRATEGY_IGNORE, null),
-                TextLinks.STATUS_LINKS_APPLIED);
-        TextLinks.TextLinkSpan[] spans = text.getSpans(0, 3, TextLinks.TextLinkSpan.class);
-        assertEquals(spans.length, 1);
-        assertTrue(links.getLinks().contains(spans[0].getTextLink()));
-    }
-
-    @Test
-    public void testApplyAppliedDefaultSpanFactoryReplace() {
-        SpannableString text = new SpannableString("foo");
-        text.setSpan(new NoOpSpan(), 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        TextLinks links = new TextLinks.Builder(text.toString()).addLink(
-                0, 3, mDummyEntityScores).build();
-        assertEquals(links.apply(text, TextLinks.APPLY_STRATEGY_REPLACE, null),
-                TextLinks.STATUS_LINKS_APPLIED);
-        TextLinks.TextLinkSpan[] spans = text.getSpans(0, 3, TextLinks.TextLinkSpan.class);
-        assertEquals(spans.length, 1);
-        assertTrue(links.getLinks().contains(spans[0].getTextLink()));
-    }
-
-    @Test
-    public void testApplyAppliedCustomSpanFactory() {
-        SpannableString text = new SpannableString("foo");
-        TextLinks links = new TextLinks.Builder(text.toString()).addLink(
-                0, 3, mDummyEntityScores).build();
-        assertEquals(links.apply(text, TextLinks.APPLY_STRATEGY_IGNORE, new CustomSpanFactory()),
-                TextLinks.STATUS_LINKS_APPLIED);
-        CustomTextLinkSpan[] spans = text.getSpans(0, 3, CustomTextLinkSpan.class);
-        assertEquals(spans.length, 1);
-        assertTrue(links.getLinks().contains(spans[0].getTextLink()));
     }
 
     @Test
