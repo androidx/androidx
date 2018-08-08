@@ -77,6 +77,8 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
 
     @Override
     public MediaNotification onUpdateNotification() {
+        // TODO: Branch this logic according to the build version, since the APIs for using
+        // Notification differs. (e.g. NotificationChannel is introduced from Android O).
         if (mDefaultNotificationChannel == null) {
             mDefaultNotificationChannel = new NotificationChannel(
                     DEFAULT_MEDIA_NOTIFICATION_CHANNEL_ID,

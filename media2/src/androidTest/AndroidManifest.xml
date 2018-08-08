@@ -18,6 +18,7 @@
           package="androidx.media2.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 

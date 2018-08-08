@@ -92,7 +92,9 @@ import androidx.media2.MediaSession2.ControllerInfo;
  * When playback is started for this session service, {@link #onUpdateNotification()}
  * is called and service would become a foreground service. It's needed to keep playback after the
  * controller is destroyed. The session service becomes background service when the playback is
- * stopped.
+ * stopped. Apps targeting API {@link android.os.Build.VERSION_CODES#P} or later must request
+ * the permission {@link android.Manifest.permission#FOREGROUND_SERVICE} in order to make the
+ * service as foreground.
  * <p>
  * The service is destroyed when the session is closed, or no media controller is bounded to the
  * session while the service is not running as a foreground service.
@@ -162,10 +164,12 @@ public abstract class MediaSessionService2 extends Service {
      * Called when notification UI needs update. Override this method to show or cancel your own
      * notification UI.
      * <p>
-     * This would be called when player state changed,
+     * This would be called when player state is changed.
      * <p>
-     * With the notification returned here, the service become foreground service when the playback
-     * is started. It becomes background service after the playback is stopped.
+     * With the notification returned here, the service becomes foreground service when the playback
+     * is started. Apps targeting API {@link android.os.Build.VERSION_CODES#P} or later must request
+     * the permission {@link android.Manifest.permission#FOREGROUND_SERVICE} in order to use
+     * this API. It becomes background service after the playback is stopped.
      *
      * @return a {@link MediaNotification}. If it's {@code null}, notification wouldn't be shown.
      */

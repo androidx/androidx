@@ -906,6 +906,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      * default.
      */
     public abstract static class SessionCallback {
+        OnHandleForegroundServiceListener mOnHandleForegroundServiceListener;
+
         /**
          * Called when a controller is created for this session. Return allowed commands for
          * controller. By default it allows all connection requests and commands.
@@ -1301,6 +1303,24 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         public void onRepeatModeChanged(@NonNull MediaSession2 session,
                 @NonNull MediaPlaylistAgent playlistAgent,
                 @MediaPlaylistAgent.RepeatMode int repeatMode) { }
+
+        /**
+         * Called when the player state is changed. Used internally for setting the
+         * {@link MediaSessionService2} as foreground/background.
+         */
+        final void onHandleForegroundService(@PlayerState int state) {
+            if (mOnHandleForegroundServiceListener != null) {
+                mOnHandleForegroundServiceListener.onHandleForegroundService(state);
+            }
+        }
+
+        void setOnHandleForegroundServiceListener(OnHandleForegroundServiceListener listener) {
+            mOnHandleForegroundServiceListener = listener;
+        }
+
+        interface OnHandleForegroundServiceListener {
+            void onHandleForegroundService(@PlayerState int state);
+        }
     }
 
     /**
