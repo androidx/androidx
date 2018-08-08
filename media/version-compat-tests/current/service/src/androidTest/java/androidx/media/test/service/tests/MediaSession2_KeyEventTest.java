@@ -33,6 +33,7 @@ import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.SessionCommandGroup2;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -148,6 +149,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
         assertTrue(mMockAgent.mSkipToPreviousItemCalled);
     }
 
+    @FlakyTest(bugId = 112291143)
     @Test
     public void testStop() throws Exception {
         prepareLooper();
