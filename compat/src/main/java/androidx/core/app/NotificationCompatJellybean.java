@@ -60,7 +60,6 @@ class NotificationCompatJellybean {
     private static boolean sExtrasFieldAccessFailed;
 
     private static final Object sActionsLock = new Object();
-    private static Class<?> sActionClass;
     private static Field sActionsField;
     private static Field sActionIconField;
     private static Field sActionTitleField;
@@ -210,7 +209,7 @@ class NotificationCompatJellybean {
         }
         try {
             if (sActionsField == null) {
-                sActionClass = Class.forName("android.app.Notification$Action");
+                Class<?> sActionClass = Class.forName("android.app.Notification$Action");
                 sActionIconField = sActionClass.getDeclaredField("icon");
                 sActionTitleField = sActionClass.getDeclaredField("title");
                 sActionIntentField = sActionClass.getDeclaredField("actionIntent");
