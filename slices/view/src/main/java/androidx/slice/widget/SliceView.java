@@ -43,7 +43,6 @@ import androidx.slice.SliceItem;
 import androidx.slice.SliceMetadata;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
-import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -141,17 +140,22 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     private static final int REFRESH_LAST_UPDATED_IN_MILLIS = 60000;
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     ListContent mListContent;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceChildView mCurrentView;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     View.OnLongClickListener mLongClickListener;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     Handler mHandler;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    SliceMetadata mSliceMetadata;
 
     private int mMode = MODE_LARGE;
     private Slice mCurrentSlice;
     private SliceMetrics mCurrentSliceMetrics;
     private List<SliceAction> mActions;
     private ActionRow mActionRow;
-    private SliceMetadata mSliceMetadata;
 
     private boolean mShowActions = false;
     private boolean mIsScrollable = true;
@@ -468,9 +472,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         // Check if the slice content is expired and show when it was last updated
         mSliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
         mActions = mSliceMetadata.getSliceActions();
-        long lastUpdated = mSliceMetadata.getLastUpdatedTime();
-        mCurrentView.setLastUpdated(lastUpdated);
-        mCurrentView.setShowLastUpdated(mShowLastUpdated && isExpired());
+        mCurrentView.setLastUpdated(mSliceMetadata.getLastUpdatedTime());
+        mCurrentView.setShowLastUpdated(mShowLastUpdated && mSliceMetadata.isExpired());
         mCurrentView.setAllowTwoLines(mSliceMetadata.isPermissionSlice());
 
         // Tint color can come with the slice, so may need to update it
@@ -491,32 +494,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
         // Automatically refresh the last updated label when the slice TTL isn't infinity.
         refreshLastUpdatedLabel(true /* visible */);
-    }
-
-    private boolean isNeverExpired() {
-        if (mSliceMetadata == null) {
-            return true;
-        }
-        long expiry = mSliceMetadata.getExpiry();
-        return expiry == SliceHints.INFINITY;
-    }
-
-    boolean isExpired() {
-        if (mSliceMetadata == null) {
-            return false;
-        }
-        long expiry = mSliceMetadata.getExpiry();
-        long now = System.currentTimeMillis();
-        return expiry != 0 && expiry != SliceHints.INFINITY && now > expiry;
-    }
-
-    private long getTimeToExpiry() {
-        if (mSliceMetadata == null) {
-            return 0;
-        }
-        long expiry = mSliceMetadata.getExpiry();
-        long now = System.currentTimeMillis();
-        return (expiry == 0 || expiry == SliceHints.INFINITY || now > expiry) ? 0 : expiry - now;
     }
 
     /**
@@ -860,11 +837,11 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     private void refreshLastUpdatedLabel(boolean visibility) {
-        if (mShowLastUpdated && !isNeverExpired()) {
+        if (mShowLastUpdated && mSliceMetadata != null && !mSliceMetadata.neverExpires()) {
             if (visibility) {
-                mHandler.postDelayed(mRefreshLastUpdated, isExpired()
+                mHandler.postDelayed(mRefreshLastUpdated, mSliceMetadata.isExpired()
                         ? REFRESH_LAST_UPDATED_IN_MILLIS
-                        : getTimeToExpiry() + REFRESH_LAST_UPDATED_IN_MILLIS);
+                        : mSliceMetadata.getTimeToExpiry() + REFRESH_LAST_UPDATED_IN_MILLIS);
             } else {
                 mHandler.removeCallbacks(mRefreshLastUpdated);
             }
@@ -874,7 +851,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     Runnable mRefreshLastUpdated = new Runnable() {
         @Override
         public void run() {
-            if (isExpired()) {
+            if (mSliceMetadata != null && mSliceMetadata.isExpired()) {
                 mCurrentView.setShowLastUpdated(true);
                 mCurrentView.setSliceContent(mListContent);
             }

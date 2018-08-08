@@ -55,6 +55,7 @@ import androidx.core.math.MathUtils;
 import androidx.core.util.Pair;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
+import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.GridContent;
@@ -491,5 +492,32 @@ public class SliceMetadata {
             return actions;
         }
         return null;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public boolean isExpired() {
+        long now = System.currentTimeMillis();
+        return mExpiry != 0 && mExpiry != SliceHints.INFINITY && now > mExpiry;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public boolean neverExpires() {
+        return mExpiry == SliceHints.INFINITY;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public long getTimeToExpiry() {
+        long now = System.currentTimeMillis();
+        return (mExpiry == 0 || mExpiry == SliceHints.INFINITY || now > mExpiry)
+                ? 0 : mExpiry - now;
     }
 }
