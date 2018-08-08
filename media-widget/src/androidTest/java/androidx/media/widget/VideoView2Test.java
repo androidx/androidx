@@ -26,13 +26,13 @@ import static androidx.media.widget.MediaControlView2.EVENT_UPDATE_TRACK_STATUS;
 import static androidx.media.widget.MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX;
 import static androidx.media.widget.MediaControlView2.KEY_SUBTITLE_TRACK_COUNT;
 
-import static junit.framework.TestCase.assertEquals;
-
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -89,7 +89,7 @@ public class VideoView2Test {
     /** Debug TAG. **/
     private static final String TAG = "VideoView2Test";
     /** The maximum time to wait for an operation. */
-    private static final long TIME_OUT = 15000L;
+    private static final long TIME_OUT = 1000L;
 
     private Context mContext;
     private Executor mMainHandlerExecutor;
@@ -164,6 +164,28 @@ public class VideoView2Test {
     }
 
     @Test
+    public void testSetMediaItem2() throws Throwable {
+        // Don't run the test if the codec isn't supported.
+        if (!hasCodec()) {
+            Log.i(TAG, "SKIPPING testPlayVideo(): codec is not supported");
+            return;
+        }
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setMediaItem2(mMediaItem);
+            }
+        });
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
+                any(MediaController2.class), any(SessionCommandGroup2.class));
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PAUSED));
+        verify(mControllerCallback, after(TIME_OUT).never()).onPlayerStateChanged(
+                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PLAYING));
+        assertEquals(MediaPlayerConnector.PLAYER_STATE_PAUSED, mController.getPlayerState());
+    }
+
+    @Test
     public void testPlayVideoWithMediaItemFromFileDescriptor() throws Throwable {
         // Don't run the test if the codec isn't supported.
         if (!hasCodec()) {
@@ -220,6 +242,8 @@ public class VideoView2Test {
         });
         verify(mockViewTypeListener, timeout(TIME_OUT))
                 .onViewTypeChanged(mVideoView, VideoView2.VIEW_TYPE_TEXTUREVIEW);
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
+                any(MediaController2.class), any(SessionCommandGroup2.class));
 
         mController.play();
         verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
