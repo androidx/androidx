@@ -51,9 +51,6 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
     public static final String ARGUMENT_CLASS_NAME =
             "androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME";
 
-    @Nullable
-    private Worker mDelegate;
-
     private final Object mLock;
     private boolean mAreConstraintsUnmet;
 
@@ -71,13 +68,13 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
         }
         // Instantiate the delegated worker. Use the same workSpecId, and the same Data
         // as this Worker's Data are a superset of the delegate's Worker's Data.
-        mDelegate = WorkerWrapper.workerFromClassName(
+        Worker delegate = WorkerWrapper.workerFromClassName(
                 getApplicationContext(),
                 className,
                 getId(),
                 getExtras());
 
-        if (mDelegate == null) {
+        if (delegate == null) {
             Logger.debug(TAG, "No worker to delegate to.");
             return Result.FAILURE;
         }
@@ -102,12 +99,12 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
             // that should cause a retry.
             try {
-                Result result = mDelegate.doWork();
+                Result result = delegate.doWork();
                 synchronized (mLock) {
                     if (mAreConstraintsUnmet) {
                         return Result.RETRY;
                     } else {
-                        setOutputData(mDelegate.getOutputData());
+                        setOutputData(delegate.getOutputData());
                         return result;
                     }
                 }
