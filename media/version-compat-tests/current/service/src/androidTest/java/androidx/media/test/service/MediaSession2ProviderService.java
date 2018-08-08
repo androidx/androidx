@@ -74,8 +74,8 @@ import java.util.concurrent.Executor;
  * A Service that creates {@link MediaSession2} and calls its methods according to the client app's
  * requests.
  */
-public class RemoteMediaSession2Service extends Service {
-    private static final String TAG = "RemoteMediaSession2Service";
+public class MediaSession2ProviderService extends Service {
+    private static final String TAG = "MediaSession2ProviderService";
 
     Map<String, MediaSession2> mSession2Map = new HashMap<>();
     RemoteMediaSession2Stub mSession2Binder;
@@ -115,17 +115,17 @@ public class RemoteMediaSession2Service extends Service {
         @Override
         public void create(final String sessionId) throws RemoteException {
             final MediaSession2.Builder builder =
-                    new MediaSession2.Builder(RemoteMediaSession2Service.this)
+                    new MediaSession2.Builder(MediaSession2ProviderService.this)
                             .setId(sessionId)
                             .setPlayer(new MockPlayerConnector(0))
                             .setPlaylistAgent(new MockPlaylistAgent());
 
             switch (sessionId) {
                 case TEST_GET_SESSION_ACTIVITY: {
-                    final Intent sessionActivity = new Intent(RemoteMediaSession2Service.this,
+                    final Intent sessionActivity = new Intent(MediaSession2ProviderService.this,
                             MockActivity.class);
                     PendingIntent pendingIntent = PendingIntent.getActivity(
-                            RemoteMediaSession2Service.this,
+                            MediaSession2ProviderService.this,
                             0 /* requestCode */,
                             sessionActivity, 0 /* flags */);
                     builder.setSessionActivity(pendingIntent);
@@ -169,13 +169,6 @@ public class RemoteMediaSession2Service extends Service {
             } catch (InterruptedException ex) {
                 Log.e(TAG, "InterruptedException occurred while creating MediaSession2", ex);
             }
-        }
-
-        @Override
-        public void runCustomTestCommands(String sessionId, int command, Bundle args)
-                throws RemoteException {
-            MediaSession2 session2 = mSession2Map.get(sessionId);
-            args.setClassLoader(MediaSession2.class.getClassLoader());
         }
 
         ////////////////////////////////////////////////////////////////////////////////

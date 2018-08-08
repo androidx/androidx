@@ -52,8 +52,8 @@ import java.util.concurrent.TimeUnit;
  * A Service that creates {@link MediaController2} and calls its methods
  * according to the service app's requests.
  */
-public class RemoteMediaController2Service extends Service {
-    private static final String TAG = "RemoteMediaController2Service";
+public class MediaController2ProviderService extends Service {
+    private static final String TAG = "MediaController2ProviderService";
 
     Map<String, MediaController2> mMediaController2Map = new HashMap<>();
     RemoteMediaController2Stub mBinder;
@@ -104,11 +104,11 @@ public class RemoteMediaController2Service extends Service {
                     public void run() {
                         MediaController2 controller2;
                         if (isBrowser) {
-                            controller2 = new MediaBrowser2(
-                                    RemoteMediaController2Service.this, token, mExecutor, callback);
+                            controller2 = new MediaBrowser2(MediaController2ProviderService.this,
+                                    token, mExecutor, callback);
                         } else {
-                            controller2 = new MediaController2(
-                                    RemoteMediaController2Service.this, token, mExecutor, callback);
+                            controller2 = new MediaController2(MediaController2ProviderService.this,
+                                    token, mExecutor, callback);
                         }
                         mMediaController2Map.put(controllerId, controller2);
                     }
@@ -131,13 +131,6 @@ public class RemoteMediaController2Service extends Service {
             if (!connected) {
                 Log.e(TAG, "Could not connect to the given session2.");
             }
-        }
-
-        @Override
-        public void runCustomTestCommands(String controllerId, int command, Bundle args)
-                throws RemoteException {
-            MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            // If needed, define some commands in MediaController2Constants.
         }
 
         ////////////////////////////////////////////////////////////////////////////////

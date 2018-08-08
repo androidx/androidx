@@ -46,8 +46,8 @@ import java.util.concurrent.Executor;
  * A Service that creates {@link MediaSessionCompat} and calls its methods according to the
  * client app's requests.
  */
-public class RemoteMediaSessionCompatService extends Service {
-    private static final String TAG = "RemoteMediaSessionCompatService";
+public class MediaSessionCompatProviderService extends Service {
+    private static final String TAG = "MediaSessionCompatProviderService";
 
     Map<String, MediaSessionCompat> mSessionMap = new HashMap<>();
     RemoteMediaSessionCompatStub mSessionBinder;
@@ -91,21 +91,13 @@ public class RemoteMediaSessionCompatService extends Service {
                     @Override
                     public void run() {
                         final MediaSessionCompat session = new MediaSessionCompat(
-                                RemoteMediaSessionCompatService.this, sessionTag);
+                                MediaSessionCompatProviderService.this, sessionTag);
                         mSessionMap.put(sessionTag, session);
                     }
                 });
             } catch (InterruptedException ex) {
                 Log.e(TAG, "InterruptedException occurred while creating MediaSessionCompat", ex);
             }
-        }
-
-        @Override
-        public void runCustomTestCommands(String sessionId, int command, Bundle args)
-                throws RemoteException {
-            MediaSessionCompat session = mSessionMap.get(sessionId);
-            args.setClassLoader(MediaSessionCompat.class.getClassLoader());
-            // If needed, define some commands.
         }
 
         ////////////////////////////////////////////////////////////////////////////////

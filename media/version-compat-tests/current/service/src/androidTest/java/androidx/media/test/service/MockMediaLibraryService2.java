@@ -16,13 +16,17 @@
 
 package androidx.media.test.service;
 
-import static androidx.media.test.lib.MediaBrowser2Constants.EXTRAS;
+import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
+
+import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION;
+import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.GET_CHILDREN_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.MEDIA_ID_GET_ITEM;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID_ERROR;
+import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY_EMPTY_RESULT;
@@ -44,6 +48,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
+import android.os.ResultReceiver;
 import android.util.Log;
 
 import androidx.media.test.lib.TestUtils.SyncHandler;
@@ -51,7 +56,10 @@ import androidx.media2.MediaItem2;
 import androidx.media2.MediaLibraryService2;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.SessionCommand2;
+import androidx.media2.SessionCommandGroup2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,10 +121,22 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     }
 
     private class TestLibrarySessionCallback extends MediaLibrarySessionCallback {
+
+        @Override
+        public SessionCommandGroup2 onConnect(MediaSession2 session,
+                ControllerInfo controller) {
+            if (!CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
+                return null;
+            }
+            SessionCommandGroup2 group = super.onConnect(session, controller);
+            group.addCommand(new SessionCommand2(CUSTOM_ACTION, null));
+            return group;
+        }
+
         @Override
         public LibraryRoot onGetLibraryRoot(MediaLibrarySession session, ControllerInfo controller,
                 Bundle rootHints) {
-            return new LibraryRoot(ROOT_ID, EXTRAS);
+            return new LibraryRoot(ROOT_ID, ROOT_EXTRAS);
         }
 
         @Override
@@ -156,10 +176,9 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                                 controllerInfo, query, SEARCH_RESULT_COUNT, extras);
                     }
                 }, SEARCH_TIME_IN_MS, TimeUnit.MILLISECONDS);
-            } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
-                mSession.notifySearchResultChanged(controllerInfo, query, 0, extras);
             } else {
-                // TODO: For the error case, how should we notify the browser?
+                // SEARCH_QUERY_EMPTY_RESULT and SEARCH_QUERY_ERROR will be handled here.
+                mSession.notifySearchResultChanged(controllerInfo, query, 0, extras);
             }
         }
 
@@ -169,7 +188,10 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                 Bundle extras) {
             if (SEARCH_QUERY.equals(query)) {
                 return getPaginatedResult(SEARCH_RESULT, page, pageSize);
+            } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
+                return new ArrayList<>();
             } else {
+                // SEARCH_QUERY_ERROR will be handled here.
                 return null;
             }
         }
@@ -205,6 +227,14 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
                             NOTIFY_CHILDREN_CHANGED_EXTRAS);
                     break;
+            }
+        }
+
+        @Override
+        public void onCustomCommand(MediaSession2 session, ControllerInfo controller,
+                SessionCommand2 customCommand, Bundle args, ResultReceiver cb) {
+            if (CUSTOM_ACTION.equals(customCommand.getCustomCommand())) {
+                cb.send(0, CUSTOM_ACTION_EXTRAS);
             }
         }
     }
