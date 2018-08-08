@@ -16,18 +16,11 @@
 
 package androidx.slice.widget;
 
-import static android.app.slice.Slice.HINT_LARGE;
-import static android.app.slice.Slice.HINT_NO_TINT;
-import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_SLICE;
+import static androidx.slice.core.SliceHints.ICON_IMAGE;
 
-import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -40,8 +33,9 @@ import android.widget.ImageView;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.slice.Slice;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.view.R;
 
 import java.util.Set;
@@ -58,8 +52,8 @@ public class ShortcutView extends SliceChildView {
     private ListContent mListContent;
     private Uri mUri;
     private SliceItem mActionItem;
-    private SliceItem mLabel;
-    private SliceItem mIcon;
+    private CharSequence mLabel;
+    private IconCompat mIcon;
     private Set<SliceItem> mLoadingActions;
 
     private int mLargeIconSize;
@@ -79,31 +73,26 @@ public class ShortcutView extends SliceChildView {
         if (mListContent == null) {
             return;
         }
-        ShortcutContent shortcutContent = new ShortcutContent(sliceContent);
-        mActionItem = shortcutContent.getActionItem();
-        mIcon = shortcutContent.getIcon();
-        mLabel = shortcutContent.getLabel();
-        if (mIcon == null || mIcon.getIcon() == null || mLabel == null || mActionItem == null) {
-            useAppDataAsFallbackItems(getContext());
-        }
-        SliceItem colorItem = shortcutContent.getColorItem();
-        final int color = colorItem != null
-                ? colorItem.getInt()
-                : SliceViewUtil.getColorAccent(getContext());
+        SliceActionImpl shortcutAction = (SliceActionImpl) mListContent.getShortcut(getContext());
+        mActionItem = shortcutAction.getActionItem();
+        mIcon = shortcutAction.getIcon();
+        mLabel = shortcutAction.getTitle();
+        boolean tintable = shortcutAction.getImageMode() == ICON_IMAGE;
+        int color = mListContent.getAccentColor();
+        final int accentColor = color != -1 ? color : SliceViewUtil.getColorAccent(getContext());
         Drawable circle = DrawableCompat.wrap(new ShapeDrawable(new OvalShape()));
-        DrawableCompat.setTint(circle, color);
+        DrawableCompat.setTint(circle, accentColor);
         ImageView iv = new ImageView(getContext());
-        if (mIcon != null && !mIcon.hasHint(HINT_NO_TINT)) {
+        if (mIcon != null && tintable) {
             // Only set the background if we're tintable
             iv.setBackground(circle);
         }
         addView(iv);
         if (mIcon != null) {
-            boolean isImage = mIcon.hasHint(HINT_NO_TINT);
-            final int iconSize = isImage ? mLargeIconSize : mSmallIconSize;
-            SliceViewUtil.createCircledIcon(getContext(), iconSize, mIcon.getIcon(),
-                    isImage, this /* parent */);
-            mUri = sliceContent.getSlice().getUri();
+            final int iconSize = tintable ? mSmallIconSize : mLargeIconSize;
+            SliceViewUtil.createCircledIcon(getContext(), iconSize, mIcon,
+                    !tintable, this /* parent */);
+            mUri = sliceContent.getSliceItem().getSlice().getUri();
             setClickable(true);
         } else {
             setClickable(false);
@@ -140,8 +129,7 @@ public class ShortcutView extends SliceChildView {
                             EventInfo.ROW_TYPE_SHORTCUT, 0 /* rowIndex */);
                     SliceItem interactedItem = mActionItem != null
                             ? mActionItem
-                            : new SliceItem(mListContent.getSlice(), FORMAT_SLICE,
-                                    null /* subtype */, mListContent.getSlice().getHints());
+                            : mListContent.getSliceItem();
                     mObserver.onSliceAction(ei, interactedItem);
                 }
             } catch (CanceledException e) {
@@ -149,36 +137,6 @@ public class ShortcutView extends SliceChildView {
             }
         }
         return true;
-    }
-
-    /**
-     * Uses app data as the last fallback items for shortcut view.
-     */
-    private void useAppDataAsFallbackItems(Context context) {
-        Slice slice = mListContent.getSlice();
-        PackageManager pm = context.getPackageManager();
-        ProviderInfo providerInfo = pm.resolveContentProvider(
-                slice.getUri().getAuthority(), 0);
-        ApplicationInfo appInfo = providerInfo.applicationInfo;
-        if (appInfo != null) {
-            if (mIcon == null || mIcon.getIcon() == null) {
-                Slice.Builder sb = new Slice.Builder(slice.getUri());
-                Drawable icon = pm.getApplicationIcon(appInfo);
-                sb.addIcon(SliceViewUtil.createIconFromDrawable(icon), HINT_LARGE);
-                mIcon = sb.build().getItems().get(0);
-            }
-            if (mLabel == null) {
-                Slice.Builder sb = new Slice.Builder(slice.getUri());
-                sb.addText(pm.getApplicationLabel(appInfo), null);
-                mLabel = sb.build().getItems().get(0);
-            }
-            if (mActionItem == null) {
-                mActionItem = new SliceItem(PendingIntent.getActivity(context, 0,
-                        pm.getLaunchIntentForPackage(appInfo.packageName), 0),
-                        new Slice.Builder(slice.getUri()).build(), FORMAT_ACTION,
-                        null /* subtype */, null);
-            }
-        }
     }
 
     @Override
