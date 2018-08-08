@@ -5,9 +5,12 @@ import androidx.ui.assert
 import androidx.ui.compositing.SceneBuilder
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.AbstractNode
+import androidx.ui.foundation.diagnostics.DiagnosticLevel
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.foundation.diagnostics.DiagnosticableTree
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 
-// TODO(Migration/Andrey): with DiagnosticableTreeMixin
-abstract class Layer : AbstractNode() /*with DiagnosticableTreeMixin*/ {
+abstract class Layer : AbstractNode(), DiagnosticableTree {
 
     // / This layer's parent in the layer tree.
     // /
@@ -73,14 +76,18 @@ abstract class Layer : AbstractNode() /*with DiagnosticableTreeMixin*/ {
     // / that created this layer. Used in debug messages.
     var debugCreator: Any? = null
 
-    // TODO(Migration/andrey): class should implement DiagnosticableTreeMixin first for this two methods
-//    @override
-//    String toStringShort() => '${super.toStringShort()}${ owner == null ? " DETACHED" : ""}';
-//
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//        super.debugFillProperties(properties);
-//        properties.add(new DiagnosticsProperty<Object>('owner', owner, level: parent != null ? DiagnosticLevel.hidden : DiagnosticLevel.info, defaultValue: null));
-//        properties.add(new DiagnosticsProperty<dynamic>('creator', debugCreator, defaultValue: null, level: DiagnosticLevel.debug));
-//    }
+    override fun toString() = toStringDiagnostic()
+
+    override fun toStringShort() = super.toStringShort() + (if (owner == null) " DETACHED" else "")
+
+    @CallSuper
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        super.debugFillProperties(properties)
+        properties.add(DiagnosticsProperty(name = "owner", value = owner,
+                level = (if (parent != null) DiagnosticLevel.hidden else DiagnosticLevel.info),
+                defaultValue = null))
+        properties.add(
+                DiagnosticsProperty(name = "creator", value = debugCreator, defaultValue = null,
+                        level = DiagnosticLevel.debug))
+    }
 }

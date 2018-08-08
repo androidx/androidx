@@ -3,7 +3,7 @@ package androidx.ui.rendering.view
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
-import androidx.ui.painting.transformRect
+import androidx.ui.painting.matrixutils.transformRect
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.layer.OffsetLayer

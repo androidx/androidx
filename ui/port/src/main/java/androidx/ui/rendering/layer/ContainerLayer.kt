@@ -1,8 +1,10 @@
 package androidx.ui.rendering.layer
 
+import androidx.annotation.CallSuper
 import androidx.ui.assert
 import androidx.ui.compositing.SceneBuilder
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.vectormath64.Matrix4
 
 // / A composited layer that has a list of children.
@@ -82,8 +84,7 @@ open class ContainerLayer : Layer() {
     }
 
     // Implementation of [Layer.remove].
-    // TODO(Migration/Andrey): can't be private as Layer class is using it
-    fun _removeChild(child: Layer) {
+    internal fun _removeChild(child: Layer) {
         assert(child.parent == this)
         assert(child.attached == attached)
         assert(_debugUltimatePreviousSiblingOf(child, equals = firstChild))
@@ -183,21 +184,21 @@ open class ContainerLayer : Layer() {
         assert(transform != null)
     }
 
-    // TODO(Migration/andrey): Layer class should implement DiagnosticableTreeMixin first
-//    @override
-//    List<DiagnosticsNode> debugDescribeChildren() {
-//        final List<DiagnosticsNode> children = <DiagnosticsNode>[];
-//        if (firstChild == null)
-//            return children;
-//        Layer child = firstChild;
-//        int count = 1;
-//        while (true) {
-//            children.add(child.toDiagnosticsNode(name: 'child $count'));
-//            if (child == lastChild)
-//                break;
-//            count += 1;
-//            child = child.nextSibling;
-//        }
-//        return children;
-//    }
+    @CallSuper
+    override fun debugDescribeChildren(): List<DiagnosticsNode> {
+        val children = mutableListOf<DiagnosticsNode>()
+        if (firstChild == null)
+            return children
+        var child: Layer = firstChild!!
+        var count = 1
+        while (true) {
+            children.add(child.toDiagnosticsNode(name = "child $count"))
+            if (child == lastChild) {
+                break
+            }
+            count += 1
+            child = child.nextSibling!!
+        }
+        return children
+    }
 }

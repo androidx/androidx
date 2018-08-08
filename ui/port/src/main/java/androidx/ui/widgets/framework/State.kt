@@ -106,7 +106,7 @@ abstract class State<T : StatefulWidget>(
         // / widget and then call [didUpdateWidget], passing the old configuration as
         // / an argument.
     internal var widget: T
-) : Diagnosticable() {
+) : Diagnosticable {
 
     // / The current stage in the lifecycle for this state object.
     // /
@@ -502,4 +502,6 @@ abstract class State<T : StatefulWidget>(
                 ifNull = "not mounted"
         ))
     }
+
+    override fun toString() = toStringDiagnostic()
 }

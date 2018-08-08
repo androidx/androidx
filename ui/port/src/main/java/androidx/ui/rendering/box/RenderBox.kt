@@ -6,6 +6,8 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.assertions.FlutterError
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.rendering.debugCheckIntrinsicSizes
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.runtimeType
@@ -1606,10 +1608,8 @@ abstract class RenderBox : RenderObject() {
 //        }());
 //    }
 
-    // TODO(Migration/xbhatnag): RenderObject does not implement DiagnosticableTreeMixin
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//        super.debugFillProperties(properties);
-//        properties.add(new DiagnosticsProperty<Size>('size', _size, missingIfNull: true));
-//    }
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        super.debugFillProperties(properties)
+        properties.add(DiagnosticsProperty("size", _size, missingIfNull = true))
+    }
 }

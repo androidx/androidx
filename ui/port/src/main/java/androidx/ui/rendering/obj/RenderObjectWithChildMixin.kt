@@ -1,5 +1,7 @@
 package androidx.ui.rendering.obj
 
+import androidx.ui.foundation.diagnostics.DiagnosticsNode
+
 // / Generic mixin for render objects with one child.
 // /
 // / Provides a child model for a render object subclass that has a unique child.
@@ -66,9 +68,7 @@ abstract class RenderObjectWithChildMixin<ChildType : RenderObject> : RenderObje
         child?.let { visitor(it) }
     }
 
-    // TODO(Migration/andrey): RenderObject should implement DiagnosticableTreeMixin first
-//    @override
-//    List<DiagnosticsNode> debugDescribeChildren() {
-//        return child != null ? <DiagnosticsNode>[child.toDiagnosticsNode(name: 'child')] : <DiagnosticsNode>[];
-//    }
+    override fun debugDescribeChildren(): List<DiagnosticsNode> {
+        return if (child != null) listOf(child!!.toDiagnosticsNode(name = "child")) else emptyList()
+    }
 }

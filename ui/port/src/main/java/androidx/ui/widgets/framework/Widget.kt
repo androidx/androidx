@@ -70,7 +70,7 @@ abstract class Widget(
         // / widget that is incorporated into the tree multiple times will be inflated
         // / multiple times.
     val key: Key
-) : DiagnosticableTree() {
+) : DiagnosticableTree {
 
     companion object {
         // / Whether the `newWidget` can be used to update an [Element] that currently
@@ -90,6 +90,8 @@ abstract class Widget(
     }
 
     internal abstract fun createElement(): Element
+
+    override fun toString() = toStringDiagnostic()
 
     // / A short, textual description of this widget.
     override fun toStringShort(): String {

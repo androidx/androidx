@@ -70,7 +70,7 @@ import androidx.ui.widgets.framework.key.GlobalKey
 // /    element.
 // /  * At this point, the element is considered "defunct" and will not be
 // /    incorporated into the tree in the future.
-abstract class Element(override var widget: Widget) : DiagnosticableTree(), BuildContext {
+abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildContext {
 
     val _cachedHash: Int = run {
         _nextHashCode = (_nextHashCode + 1) % 0xffffff
@@ -117,6 +117,8 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree(), Buil
     override fun hashCode(): Int {
         return _cachedHash
     }
+
+    override fun toString() = toStringDiagnostic()
 
     // / Information set by parent to define where this child fits in its parent's
     // / child list.

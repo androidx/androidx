@@ -10,6 +10,8 @@ import androidx.ui.foundation.assertions.debugPrintStack
 import androidx.ui.foundation.debugPrint
 import androidx.ui.foundation.diagnostics.DiagnosticLevel
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.foundation.diagnostics.DiagnosticableTree
+import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.describeIdentity
@@ -134,8 +136,8 @@ import androidx.ui.widgets.framework._debugReportException
  * or baseline information, it gets marked dirty whenever the child's geometry
  * changes.
  */
-// TODO(Migration/xbhatnag): with DiagnosticableTreeMixin implements HitTestTarget
-abstract class RenderObject : AbstractNode() {
+// TODO(Migration/xbhatnag): implements HitTestTarget
+abstract class RenderObject : AbstractNode(), DiagnosticableTree {
 
 //    init {
 //        needsCompositing = isRepaintBoundary || alwaysNeedsCompositing;
@@ -369,7 +371,7 @@ abstract class RenderObject : AbstractNode() {
             _needsPaint = false
             markNeedsPaint()
         }
-        if (_needsSemanticsUpdate && _semanticsConfiguration._isSemanticBoundary) {
+        if (_needsSemanticsUpdate && _semanticsConfiguration.isSemanticBoundary) {
             // Don't enter this block if we've never updated semantics at all;
             // scheduleInitialSemantics() will handle it
             _needsSemanticsUpdate = false
@@ -893,7 +895,6 @@ abstract class RenderObject : AbstractNode() {
     protected val alwaysNeedsCompositing = false
 
     internal var _layer: OffsetLayer? = null
-
     /**
      * The compositing layer that this render object uses to repaint.
      *
@@ -1493,9 +1494,9 @@ abstract class RenderObject : AbstractNode() {
         // the semantics subtree starting at the identified semantics boundary.
 
         val wasSemanticsBoundary = _semantics != null &&
-                _cachedSemanticsConfiguration?._isSemanticBoundary == true
+                _cachedSemanticsConfiguration?.isSemanticBoundary == true
         _cachedSemanticsConfiguration = null
-        var isEffectiveSemanticsBoundary = _semanticsConfiguration._isSemanticBoundary &&
+        var isEffectiveSemanticsBoundary = _semanticsConfiguration.isSemanticBoundary &&
                 wasSemanticsBoundary
         var node = this
 
@@ -1505,7 +1506,7 @@ abstract class RenderObject : AbstractNode() {
             node._needsSemanticsUpdate = true
 
             node = node.parent as RenderObject
-            isEffectiveSemanticsBoundary = node._semanticsConfiguration._isSemanticBoundary
+            isEffectiveSemanticsBoundary = node._semanticsConfiguration.isSemanticBoundary
             if (isEffectiveSemanticsBoundary && node._semantics == null) {
                 // We have reached a semantics boundary that doesn't own a semantics node.
                 // That means the semantics of this branch are currently blocked and will
@@ -1526,7 +1527,7 @@ abstract class RenderObject : AbstractNode() {
         if (!node._needsSemanticsUpdate) {
             node._needsSemanticsUpdate = true
             if (owner != null) {
-                assert(node._semanticsConfiguration._isSemanticBoundary ||
+                assert(node._semanticsConfiguration.isSemanticBoundary ||
                         node.parent !is RenderObject)
                 owner?._nodesNeedingSemantics?.add(node)
                 owner?.requestVisualUpdate()
@@ -1693,12 +1694,13 @@ abstract class RenderObject : AbstractNode() {
     // If you add yourself to /result/ and still return false, then that means you
     // will see events but so will objects below you.
 
+    override fun toString() = toStringDiagnostic()
+
     /**
      * Returns a human understandable name.
      */
-    // override
-    open fun toStringShort(): String {
-        var header = describeIdentity(this)
+    override fun toStringShort(): String {
+        val header = StringBuffer(describeIdentity(this))
         if (_relayoutBoundary != null && _relayoutBoundary != this) {
             var count = 1
             var target = parent
@@ -1706,44 +1708,42 @@ abstract class RenderObject : AbstractNode() {
                 target = target.parent
                 count += 1
             }
-            header += " relayoutBoundary=up$count"
+            header.append(" relayoutBoundary=up$count")
         }
         if (_needsLayout)
-            header += " NEEDS-LAYOUT"
+            header.append(" NEEDS-LAYOUT")
         if (_needsPaint)
-            header += " NEEDS-PAINT"
+            header.append(" NEEDS-PAINT")
         if (!attached)
-            header += " DETACHED"
-        return header
+            header.append(" DETACHED")
+        return header.toString()
     }
 
-    open fun toString(minLevel: DiagnosticLevel): String = toStringShort()
+    override fun toStringParametrized(minLevel: DiagnosticLevel) = toStringShort()
 
     /**
      * Returns a description of the tree rooted at this node.
      * If the prefix argument is provided, then every line in the output
      * will be prefixed by that string.
      */
-//    override fun toStringDeep(
-//            prefixLineOne: String = "",
-//            prefixOtherLines: String = "",
-//            minLevel: DiagnosticLevel = DiagnosticLevel.debug): String {
-//        var debugPreviousActiveLayout: RenderObject? = null
-//        assert({
-//            debugPreviousActiveLayout = debugActiveLayout;
-//            debugActiveLayout = null;
-//            true;
-//        }());
-//        val result = super.toStringDeep(
-//                prefixLineOne = prefixLineOne,
-//                prefixOtherLines = prefixOtherLines,
-//                minLevel = minLevel);
-//        assert({
-//            debugActiveLayout = debugPreviousActiveLayout;
-//            true;
-//        }());
-//        return result;
-//    }
+    override fun toStringDeep(
+        prefixLineOne: String,
+        prefixOtherLines: String,
+        minLevel: DiagnosticLevel
+    ): String {
+        var debugPreviousActiveLayout: RenderObject? = null
+        assert {
+            debugPreviousActiveLayout = debugActiveLayout
+            debugActiveLayout = null
+            true
+        }
+        val result = super.toStringDeep(prefixLineOne, prefixOtherLines, minLevel)
+        assert {
+            debugActiveLayout = debugPreviousActiveLayout
+            true
+        }
+        return result
+    }
 
     /**
      * Returns a one-line detailed description of the render object.
@@ -1752,48 +1752,41 @@ abstract class RenderObject : AbstractNode() {
      * This includes the same information for this RenderObject as given by
      * [toStringDeep], but does not recurse to any children.
      */
-//    override
-    fun toStringShallow(
-        joiner: String = "; ",
-        minLevel: DiagnosticLevel = DiagnosticLevel.debug
-    ): String {
+    override fun toStringShallow(joiner: String, minLevel: DiagnosticLevel): String {
         var debugPreviousActiveLayout: RenderObject? = null
-        assert({
+        assert {
             debugPreviousActiveLayout = debugActiveLayout
             debugActiveLayout = null
             true
-        }())
-        // TODO: Have this override something and call super.toStringShallow()
-        val result = "" // super.toStringShallow(joiner = joiner, minLevel = minLevel);
-        assert({
+        }
+        val result = super.toStringShallow(joiner, minLevel)
+        assert {
             debugActiveLayout = debugPreviousActiveLayout
             true
-        }())
+        }
         return result
     }
 
-    // override
-    protected fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         properties.add(DiagnosticsProperty("creator", debugCreator, defaultValue = null,
                 level = DiagnosticLevel.debug))
         properties.add(DiagnosticsProperty("parentData", parentData,
                 tooltip = if (debugCanParentUseSize) "can use size" else null,
                 missingIfNull = true))
         properties.add(DiagnosticsProperty("constraints", constraints, missingIfNull = true))
-        // don"t access it via the "layer" getter since that"s only valid when we don"t need paint
+        // don't access it via the "layer" getter since that's only valid when we don't need paint
         properties.add(DiagnosticsProperty("layer", _layer, defaultValue = null))
         properties.add(DiagnosticsProperty("semantics node", _semantics, defaultValue = null))
         properties.add(FlagProperty(
-                "isBlockingSemanticsOfPreviouslyPaintedNodes",
+                name = "isBlockingSemanticsOfPreviouslyPaintedNodes",
                 value = _semanticsConfiguration.isBlockingSemanticsOfPreviouslyPaintedNodes,
                 ifTrue = "blocks semantics of earlier render objects below the common boundary"
         ))
-        properties.add(FlagProperty("isSemanticBoundary",
-                value = _semanticsConfiguration._isSemanticBoundary, ifTrue = "semantic boundary"))
+        properties.add(FlagProperty(name = "isSemanticBoundary",
+                value = _semanticsConfiguration.isSemanticBoundary, ifTrue = "semantic boundary"))
     }
 
-    // override
-//    fun debugDescribeChildren(): List<DiagnosticsNode> = listOf();
+    override fun debugDescribeChildren(): List<DiagnosticsNode> = listOf()
 
     /**
      * Attempt to make this or a descendant RenderObject visible on screen.

@@ -165,9 +165,8 @@ open class DiagnosticsProperty<T : Any> internal constructor(
         json["propertyType"] = propertyType().toString()
         json["valueToString"] = valueToString()
         json["defaultLevel"] = _defaultLevel.toString()
-        // TODO(Migration/Filip): Cannot do this
-        // if (T is Diagnosticable)
-        //    json["isDiagnosticableValue"] = true;
+        if (getValue() is Diagnosticable)
+            json["isDiagnosticableValue"] = true
         return json
     }
 
@@ -189,7 +188,11 @@ open class DiagnosticsProperty<T : Any> internal constructor(
         // DiagnosticableTree values are shown using the shorter toStringShort()
         // instead of the longer toString() because the toString() for a
         // DiagnosticableTree value is likely too large to be useful.
-        return if (v is DiagnosticableTree) v.toStringShort() else v.toString()
+        return when (v) {
+            is DiagnosticableTree -> v.toStringShort()
+            is Diagnosticable -> v.toStringDiagnostic()
+            else -> v.toString()
+        }
     }
 
     override fun toDescription(parentConfiguration: TextTreeConfiguration?): String {
