@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.InstrumentationRegistry
+import androidx.test.filters.LargeTest
 import androidx.test.runner.AndroidJUnit4
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrollStateChangedEvent
@@ -44,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.roundToInt
 
 @RunWith(AndroidJUnit4::class)
+@LargeTest
 class PageChangeListenerTest : BaseTest() {
 
     /*
