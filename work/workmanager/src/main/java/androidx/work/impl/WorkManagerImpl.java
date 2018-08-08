@@ -22,6 +22,7 @@ import android.arch.lifecycle.LiveData;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Build;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -50,7 +51,6 @@ import androidx.work.impl.utils.Preferences;
 import androidx.work.impl.utils.PruneWorkRunnable;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
-import androidx.work.impl.utils.ThreadUtils;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
@@ -270,7 +270,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public void enqueueSync(@NonNull List<? extends WorkRequest> workRequest) {
-        ThreadUtils.assertBackgroundThread("Cannot enqueueSync on main thread!");
+        assertBackgroundThread("Cannot enqueueSync on main thread!");
         new WorkContinuationImpl(this, workRequest).enqueueSync();
     }
 
@@ -304,7 +304,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {
-        ThreadUtils.assertBackgroundThread("Cannot enqueueUniquePeriodicWorkSync on main thread!");
+        assertBackgroundThread("Cannot enqueueUniquePeriodicWorkSync on main thread!");
         createWorkContinuationForUniquePeriodicWork(
                 uniqueWorkName,
                 existingPeriodicWorkPolicy,
@@ -337,7 +337,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     @Override
     @WorkerThread
     public void cancelWorkByIdSync(@NonNull UUID id) {
-        ThreadUtils.assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
+        assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
         CancelWorkRunnable.forId(id, this).run();
     }
 
@@ -350,7 +350,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     @Override
     @WorkerThread
     public void cancelAllWorkByTagSync(@NonNull String tag) {
-        ThreadUtils.assertBackgroundThread("Cannot cancelAllWorkByTagSync on main thread!");
+        assertBackgroundThread("Cannot cancelAllWorkByTagSync on main thread!");
         CancelWorkRunnable.forTag(tag, this).run();
     }
 
@@ -363,7 +363,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     @Override
     @WorkerThread
     public void cancelUniqueWorkSync(@NonNull String uniqueWorkName) {
-        ThreadUtils.assertBackgroundThread("Cannot cancelAllWorkByNameBlocking on main thread!");
+        assertBackgroundThread("Cannot cancelAllWorkByNameBlocking on main thread!");
         CancelWorkRunnable.forName(uniqueWorkName, this, true).run();
     }
 
@@ -375,7 +375,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     @Override
     @WorkerThread
     public void cancelAllWorkSync() {
-        ThreadUtils.assertBackgroundThread("Cannot cancelAllWorkSync on main thread!");
+        assertBackgroundThread("Cannot cancelAllWorkSync on main thread!");
         CancelWorkRunnable.forAll(this).run();
     }
 
@@ -397,7 +397,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     @Override
     @WorkerThread
     public void pruneWorkSync() {
-        ThreadUtils.assertBackgroundThread("Cannot pruneWork on main thread!");
+        assertBackgroundThread("Cannot pruneWork on main thread!");
         new PruneWorkRunnable(this).run();
     }
 
@@ -422,7 +422,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     @Override
     @WorkerThread
     public @Nullable WorkStatus getStatusByIdSync(@NonNull UUID id) {
-        ThreadUtils.assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
+        assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
         WorkSpec.WorkStatusPojo workStatusPojo =
                 mWorkDatabase.workSpecDao().getWorkStatusPojoForId(id.toString());
         if (workStatusPojo != null) {
@@ -442,7 +442,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public @NonNull List<WorkStatus> getStatusesByTagSync(@NonNull String tag) {
-        ThreadUtils.assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
+        assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForTag(tag);
         return WorkSpec.WORK_STATUS_MAPPER.apply(input);
@@ -459,8 +459,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public @NonNull List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName) {
-        ThreadUtils.assertBackgroundThread(
-                "Cannot call getStatusesByNameBlocking on main thread!");
+        assertBackgroundThread("Cannot call getStatusesByNameBlocking on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForName(uniqueWorkName);
         return WorkSpec.WORK_STATUS_MAPPER.apply(input);
@@ -573,5 +572,9 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         }
     }
 
-
+    private void assertBackgroundThread(String errorMessage) {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            throw new IllegalStateException(errorMessage);
+        }
+    }
 }

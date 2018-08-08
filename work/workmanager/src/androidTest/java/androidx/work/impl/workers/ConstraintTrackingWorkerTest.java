@@ -72,7 +72,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     private static final String TEST_ARGUMENT_NAME = "test";
 
     private Context mContext;
-    private Handler mMainHandler;
+    private Handler mHandler;
     private CountDownLatch mLatch;
     private ExecutorService mExecutorService;
 
@@ -92,7 +92,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     @Before
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
-        mMainHandler = new Handler(Looper.getMainLooper());
+        mHandler = new Handler(Looper.getMainLooper());
         mExecutorService = Executors.newSingleThreadScheduledExecutor();
         mLatch = new CountDownLatch(1);
         mConfiguration = new Configuration.Builder().build();
@@ -179,7 +179,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);
-        mMainHandler.postDelayed(new Runnable() {
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 mBatteryNotLowTracker.setState(false);
@@ -208,14 +208,14 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);
 
-        mMainHandler.postDelayed(new Runnable() {
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 mBatteryNotLowTracker.setState(false);
             }
         }, DELAY_IN_MILLIS);
 
-        mMainHandler.postDelayed(new Runnable() {
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 mBatteryNotLowTracker.setState(true);

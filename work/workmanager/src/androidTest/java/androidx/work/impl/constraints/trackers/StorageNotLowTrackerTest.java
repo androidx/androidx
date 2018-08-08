@@ -31,7 +31,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.constraints.ConstraintListener;
@@ -93,7 +92,6 @@ public class StorageNotLowTrackerTest {
 
     @Test
     @SmallTest
-    @UiThreadTest
     public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
         mockContextReturns(null);
         mTracker.addListener(mListener);
@@ -105,7 +103,6 @@ public class StorageNotLowTrackerTest {
 
     @Test
     @SmallTest
-    @UiThreadTest
     public void testOnBroadcastReceive_notifiesListeners() {
         mockContextReturns(new Intent("INVALID"));
         mTracker.addListener(mListener);

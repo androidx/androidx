@@ -33,7 +33,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.constraints.ConstraintListener;
@@ -155,7 +154,6 @@ public class BatteryNotLowTrackerTest {
 
     @Test
     @SmallTest
-    @UiThreadTest
     public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
         mockContextReturns(
                 createBatteryChangedIntent(PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE));
@@ -168,7 +166,6 @@ public class BatteryNotLowTrackerTest {
 
     @Test
     @SmallTest
-    @UiThreadTest
     public void testOnBroadcastReceive_notifiesListeners() {
         mockContextReturns(
                 createBatteryChangedIntent(NOT_PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE));
