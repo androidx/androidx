@@ -19,6 +19,8 @@ package androidx.core.widget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -46,12 +48,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * So far these tests only cover {@code NestedScrollView}'s implementation of
- * {@link NestedScrollingParent2} and the backwards compatibility of {@code NestedScrollView}'s
- * implementation of {@link androidx.core.view.NestedScrollingParent} for the methods that
- * {@link NestedScrollingParent2} overloads.
+ * Small integration tests that verify that {@link NestedScrollView} implements
+ * {@link androidx.core.view.NestedScrollingParent} and {@link NestedScrollingParent2} correctly.
  */
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class NestedScrollViewNestedScrollingParent2Test {
@@ -467,6 +466,33 @@ public class NestedScrollViewNestedScrollingParent2Test {
                 any(int[].class), eq(ViewCompat.TYPE_TOUCH));
         verify(mParent, times(1)).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
                 any(int[].class), anyInt());
+    }
+
+    @Test
+    public void onNestedFling_consumedTrue_nothingCalledReturnsFalse() {
+        setupNestedScrollViewWithParentAndChild();
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
+
+        mNestedScrollView.onNestedFling(mChild, 0, 100, true);
+
+        verify(mParent, never())
+                .onNestedFling(any(View.class), anyFloat(), anyFloat(), anyBoolean());
+    }
+
+    @Test
+    public void onNestedFling_consumedFalse_nestedScrollingParentOnDispatchNestedFlingCalled() {
+        setupNestedScrollViewWithParentAndChild();
+        doReturn(true)
+                .when(mParent)
+                .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
+        mNestedScrollView.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
+
+        mNestedScrollView.onNestedFling(mChild, 0, 100, false);
+
+        verify(mParent).onNestedFling(mNestedScrollView, 0, 100, true);
     }
 
     private void onStartNestedScrollV1(int iScrollAxis, boolean oRetValue) {

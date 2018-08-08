@@ -41,7 +41,8 @@ import androidx.core.view.ViewCompat.ScrollAxis;
  * 5.0 Lollipop and newer.</p>
  */
 public class NestedScrollingParentHelper {
-    private int mNestedScrollAxes;
+    private int mNestedScrollAxesTouch;
+    private int mNestedScrollAxesNonTouch;
 
     /**
      * Construct a new helper for a given ViewGroup
@@ -72,7 +73,11 @@ public class NestedScrollingParentHelper {
      */
     public void onNestedScrollAccepted(@NonNull View child, @NonNull View target,
             @ScrollAxis int axes, @NestedScrollType int type) {
-        mNestedScrollAxes = axes;
+        if (type == ViewCompat.TYPE_NON_TOUCH) {
+            mNestedScrollAxesNonTouch = axes;
+        } else {
+            mNestedScrollAxesTouch = axes;
+        }
     }
 
     /**
@@ -84,7 +89,7 @@ public class NestedScrollingParentHelper {
      */
     @ScrollAxis
     public int getNestedScrollAxes() {
-        return mNestedScrollAxes;
+        return mNestedScrollAxesTouch | mNestedScrollAxesNonTouch;
     }
 
     /**
@@ -106,6 +111,10 @@ public class NestedScrollingParentHelper {
      * the same signature to implement the standard policy.</p>
      */
     public void onStopNestedScroll(@NonNull View target, @NestedScrollType int type) {
-        mNestedScrollAxes = 0;
+        if (type == ViewCompat.TYPE_NON_TOUCH) {
+            mNestedScrollAxesNonTouch = ViewGroup.SCROLL_AXIS_NONE;
+        } else {
+            mNestedScrollAxesTouch = ViewGroup.SCROLL_AXIS_NONE;
+        }
     }
 }

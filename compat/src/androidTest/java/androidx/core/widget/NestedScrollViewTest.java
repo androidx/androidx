@@ -19,35 +19,26 @@ package androidx.core.widget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
-import android.support.v4.BaseInstrumentationTestCase;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.core.test.R;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class NestedScrollViewTest extends
-        BaseInstrumentationTestCase<TestContentViewActivity> {
+public class NestedScrollViewTest {
 
     private NestedScrollView mNestedScrollView;
     private View mChild;
-
-    public NestedScrollViewTest() {
-        super(TestContentViewActivity.class);
-    }
 
     @Test
     public void getBottomFadingEdgeStrength_childBottomIsBelowParentWithoutMargins_isCorrect() {
@@ -237,39 +228,6 @@ public class NestedScrollViewTest extends
         assertThat(actualResult, is(false));
     }
 
-    //SmoothScrollBy
-
-    @Test
-    public void smoothScrollBy_scrollsEntireDistanceIncludingMargins() throws Throwable {
-        setup(200);
-        setChildMargins(20, 30);
-        attachToActivity(100);
-
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        final int expectedTarget = 150;
-        final int scrollDistance = 150;
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mNestedScrollView.setOnScrollChangeListener(
-                        new NestedScrollView.OnScrollChangeListener() {
-
-                            @Override
-                            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY,
-                                    int oldScrollX, int oldScrollY) {
-                                if (scrollY == expectedTarget) {
-                                    countDownLatch.countDown();
-                                }
-                            }
-                        });
-                mNestedScrollView.smoothScrollBy(0, scrollDistance);
-            }
-        });
-        assertThat(countDownLatch.await(2000, TimeUnit.SECONDS), is(true));
-
-        assertThat(mNestedScrollView.getScrollY(), is(expectedTarget));
-    }
-
     @Test
     public void computeVerticalScrollRange_takesAccountOfMargin() {
         setup(200);
@@ -346,14 +304,16 @@ public class NestedScrollViewTest extends
     }
 
     private void setup(int childHeight) {
-        mChild = new View(mActivityTestRule.getActivity());
+        Context context = InstrumentationRegistry.getContext();
+
+        mChild = new View(context);
         mChild.setMinimumWidth(100);
         mChild.setMinimumHeight(childHeight);
         mChild.setBackgroundDrawable(
                 new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                         new int[]{0xFFFF0000, 0xFF00FF00}));
 
-        mNestedScrollView = new NestedScrollView(mActivityTestRule.getActivity());
+        mNestedScrollView = new NestedScrollView(context);
         mNestedScrollView.setBackgroundColor(0xFF0000FF);
         mNestedScrollView.addView(mChild);
     }
@@ -366,21 +326,6 @@ public class NestedScrollViewTest extends
         mChild.setLayoutParams(childLayoutParams);
     }
 
-    private void attachToActivity(int nestedScrollViewHeight) throws Throwable {
-        mNestedScrollView.setLayoutParams(new ViewGroup.LayoutParams(100, nestedScrollViewHeight));
-
-        final TestContentView testContentView =
-                mActivityTestRule.getActivity().findViewById(R.id.testContentView);
-        testContentView.expectLayouts(1);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                testContentView.addView(mNestedScrollView);
-            }
-        });
-        testContentView.awaitLayouts(2);
-    }
-
     private void measure(int height) {
         int measureSpecWidth =
                 View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.EXACTLY);
@@ -389,6 +334,7 @@ public class NestedScrollViewTest extends
         mNestedScrollView.measure(measureSpecWidth, measureSpecHeight);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void measureAndLayout(int height) {
         measure(height);
         mNestedScrollView.layout(0, 0, 100, height);
