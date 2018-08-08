@@ -47,7 +47,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     private static final String TAG = "FragmentNavigator";
     private static final String KEY_BACK_STACK_IDS = "androidx-nav-fragment:navigator:backStackIds";
 
-    private Context mContext;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     FragmentManager mFragmentManager;
     private int mContainerId;
@@ -100,7 +99,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
 
     public FragmentNavigator(@NonNull Context context, @NonNull FragmentManager manager,
             int containerId) {
-        mContext = context;
         mFragmentManager = manager;
         mContainerId = containerId;
     }
