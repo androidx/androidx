@@ -58,16 +58,19 @@ class TiledPagedListTest {
     private fun createTiledPagedList(
         loadPosition: Int,
         initPageCount: Int,
-        prefetchDistance: Int = PAGE_SIZE,
+        pageSize: Int = PAGE_SIZE,
+        prefetchDistance: Int = pageSize,
         listData: List<Item> = ITEMS,
-        boundaryCallback: PagedList.BoundaryCallback<Item>? = null
+        boundaryCallback: PagedList.BoundaryCallback<Item>? = null,
+        maxSize: Int = PagedList.Config.MAX_SIZE_UNBOUNDED
     ): TiledPagedList<Item> {
         return TiledPagedList(
                 ListDataSource(listData), mMainThread, mBackgroundThread, boundaryCallback,
                 PagedList.Config.Builder()
-                        .setPageSize(PAGE_SIZE)
-                        .setInitialLoadSizeHint(PAGE_SIZE * initPageCount)
+                        .setPageSize(pageSize)
+                        .setInitialLoadSizeHint(pageSize * initPageCount)
                         .setPrefetchDistance(prefetchDistance)
+                        .setMaxSize(maxSize)
                         .build(),
                 loadPosition)
     }
@@ -254,6 +257,138 @@ class TiledPagedListTest {
         verifyLoadedPages(pagedList, 0, 1, 3, 4)
         verify(callback).onChanged(40, 5)
         verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun pageDropEnd() {
+        val pagedList = createTiledPagedList(
+                loadPosition = 0,
+                initPageCount = 2,
+                prefetchDistance = 1,
+                maxSize = 40)
+        val callback = mock(PagedList.Callback::class.java)
+        pagedList.addWeakCallback(null, callback)
+        verifyLoadedPages(pagedList, 0, 1)
+        verifyZeroInteractions(callback)
+
+        // load 3rd page
+        pagedList.loadAround(19)
+        drain()
+        verifyLoadedPages(pagedList, 0, 1, 2)
+        verify(callback).onChanged(20, 10)
+        verifyNoMoreInteractions(callback)
+
+        // load 4th page
+        pagedList.loadAround(29)
+        drain()
+        verifyLoadedPages(pagedList, 0, 1, 2, 3)
+        verify(callback).onChanged(30, 10)
+        verifyNoMoreInteractions(callback)
+
+        // load 5th page
+        pagedList.loadAround(39)
+        drain()
+        verifyLoadedPages(pagedList, 1, 2, 3, 4)
+        verify(callback).onChanged(40, 5)
+        verify(callback).onChanged(0, 10)
+        verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun pageDropFront() {
+        val pagedList = createTiledPagedList(
+                loadPosition = 40,
+                initPageCount = 2,
+                prefetchDistance = 1,
+                maxSize = 40)
+        val callback = mock(PagedList.Callback::class.java)
+        pagedList.addWeakCallback(null, callback)
+        verifyLoadedPages(pagedList, 3, 4)
+        verifyZeroInteractions(callback)
+
+        // load 3rd page
+        pagedList.loadAround(30)
+        drain()
+        verifyLoadedPages(pagedList, 2, 3, 4)
+        verify(callback).onChanged(20, 10)
+        verifyNoMoreInteractions(callback)
+
+        // load 2nd page
+        pagedList.loadAround(20)
+        drain()
+        verifyLoadedPages(pagedList, 1, 2, 3, 4)
+        verify(callback).onChanged(10, 10)
+        verifyNoMoreInteractions(callback)
+
+        // load 1st page
+        pagedList.loadAround(10)
+        drain()
+        verifyLoadedPages(pagedList, 0, 1, 2, 3)
+        verify(callback).onChanged(0, 10)
+        verify(callback).onChanged(40, 5)
+        verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun pageDropCancelPrepend() {
+        val pagedList = createTiledPagedList(
+                loadPosition = 25,
+                initPageCount = 3,
+                prefetchDistance = 1,
+                maxSize = 30)
+        verifyLoadedPages(pagedList, 1, 2, 3)
+
+        val callback = mock(PagedList.Callback::class.java)
+        pagedList.addWeakCallback(null, callback)
+
+        // start a load at the beginning...
+        pagedList.loadAround(10)
+
+        mBackgroundThread.executeAll()
+
+        // but before page received, access near end of list
+        pagedList.loadAround(39)
+        verifyZeroInteractions(callback)
+        mMainThread.executeAll()
+        // and the load at the end is dropped without signaling callback
+        verifyNoMoreInteractions(callback)
+        verifyLoadedPages(pagedList, 1, 2, 3)
+
+        drain()
+        verifyLoadedPages(pagedList, 2, 3, 4)
+        verify(callback).onChanged(40, 5)
+        verify(callback).onChanged(10, 10)
+    }
+
+    @Test
+    fun pageDropCancelAppend() {
+        val pagedList = createTiledPagedList(
+                loadPosition = 25,
+                initPageCount = 3,
+                prefetchDistance = 1,
+                maxSize = 30)
+        verifyLoadedPages(pagedList, 1, 2, 3)
+
+        val callback = mock(PagedList.Callback::class.java)
+        pagedList.addWeakCallback(null, callback)
+
+        // start a load at the end...
+        pagedList.loadAround(39)
+
+        mBackgroundThread.executeAll()
+
+        // but before page received, access near front of list
+        pagedList.loadAround(10)
+        verifyZeroInteractions(callback)
+        mMainThread.executeAll()
+        // and the load at the end is dropped without signaling callback
+        verifyNoMoreInteractions(callback)
+        verifyLoadedPages(pagedList, 1, 2, 3)
+
+        drain()
+        verifyLoadedPages(pagedList, 0, 1, 2)
+        verify(callback).onChanged(0, 10)
+        verify(callback).onChanged(30, 10)
     }
 
     @Test
