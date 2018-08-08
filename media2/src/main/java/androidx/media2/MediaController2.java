@@ -17,6 +17,11 @@
 package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media2.MediaPlayer2.PLAYER_STATE_IDLE;
+import static androidx.media2.MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
+import static androidx.media2.MediaPlayerConnector.UNKNOWN_TIME;
+import static androidx.media2.MediaPlaylistAgent.REPEAT_MODE_NONE;
+import static androidx.media2.MediaPlaylistAgent.SHUFFLE_MODE_NONE;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -27,8 +32,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -92,7 +99,12 @@ public class MediaController2 implements AutoCloseable {
     @Retention(RetentionPolicy.SOURCE)
     public @interface VolumeFlags {}
 
-    private final MediaController2Impl mImpl;
+    final Object mLock = new Object();
+    @GuardedBy("mLock")
+    MediaController2Impl mImpl;
+    @GuardedBy("mLock")
+    boolean mClosed;
+
     // For testing.
     Long mTimeDiff;
 
@@ -105,8 +117,8 @@ public class MediaController2 implements AutoCloseable {
      * @param executor executor to run callbacks on.
      * @param callback controller callback to receive changes in
      */
-    public MediaController2(@NonNull Context context, @NonNull SessionToken2 token,
-            @NonNull Executor executor, @NonNull ControllerCallback callback) {
+    public MediaController2(@NonNull final Context context, @NonNull final SessionToken2 token,
+            @NonNull final Executor executor, @NonNull final ControllerCallback callback) {
         if (context == null) {
             throw new IllegalArgumentException("context shouldn't be null");
         }
@@ -119,7 +131,54 @@ public class MediaController2 implements AutoCloseable {
         if (executor == null) {
             throw new IllegalArgumentException("executor shouldn't be null");
         }
-        mImpl = createImpl(context, token, executor, callback);
+        synchronized (mLock) {
+            mImpl = createImpl(context, token, executor, callback);
+        }
+    }
+
+    /**
+     * Create a {@link MediaController2} from the {@link MediaSessionCompat.Token}.
+     * This connects to the session and may wake up the service if it's not available.
+     *
+     * @param context Context
+     * @param token token to connect to
+     * @param executor executor to run callbacks on.
+     * @param callback controller callback to receive changes in
+     */
+    public MediaController2(@NonNull final Context context,
+            @NonNull final MediaSessionCompat.Token token,
+            @NonNull final Executor executor, @NonNull final ControllerCallback callback) {
+        if (context == null) {
+            throw new IllegalArgumentException("context shouldn't be null");
+        }
+        if (token == null) {
+            throw new IllegalArgumentException("token shouldn't be null");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("callback shouldn't be null");
+        }
+        if (executor == null) {
+            throw new IllegalArgumentException("executor shouldn't be null");
+        }
+        SessionToken2.createSessionToken2(context, token, executor,
+                new SessionToken2.OnSessionToken2CreatedListener() {
+                    @Override
+                    public void onSessionToken2Created(MediaSessionCompat.Token token,
+                            SessionToken2 token2) {
+                        synchronized (mLock) {
+                            if (!mClosed) {
+                                mImpl = createImpl(context, token2, executor, callback);
+                            } else {
+                                executor.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        callback.onDisconnected(MediaController2.this);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
     }
 
     MediaController2Impl createImpl(@NonNull Context context, @NonNull SessionToken2 token,
@@ -132,7 +191,9 @@ public class MediaController2 implements AutoCloseable {
     }
 
     MediaController2Impl getImpl() {
-        return mImpl;
+        synchronized (mLock) {
+            return mImpl;
+        }
     }
 
     /**
@@ -142,45 +203,65 @@ public class MediaController2 implements AutoCloseable {
     @Override
     public void close() {
         try {
-            mImpl.close();
+            MediaController2Impl impl;
+            synchronized (mLock) {
+                if (mClosed) {
+                    return;
+                }
+                mClosed = true;
+                impl = mImpl;
+            }
+            if (impl != null) {
+                impl.close();
+            }
         } catch (Exception e) {
             // Should not be here.
         }
     }
 
     /**
-     * @return token
+     * Returns SessionToken2 of the connected session.
+     * If it is not connected yet, it returns {@code null}.
+     *
+     * @return SessionToken2 of the connected session, or {@code null} if not connected
      */
-    public @NonNull SessionToken2 getSessionToken() {
-        return mImpl.getSessionToken();
+    public @Nullable SessionToken2 getSessionToken() {
+        return isConnected() ? getImpl().getSessionToken() : null;
     }
 
     /**
      * Returns whether this class is connected to active {@link MediaSession2} or not.
      */
     public boolean isConnected() {
-        return mImpl.isConnected();
+        MediaController2Impl impl = getImpl();
+        return impl != null && impl.isConnected();
     }
 
     /**
      * Requests that the player starts or resumes playback.
      */
     public void play() {
-        mImpl.play();
+        if (isConnected()) {
+            getImpl().play();
+        }
     }
 
     /**
      * Requests that the player pauses playback.
      */
     public void pause() {
-        mImpl.pause();
+        if (isConnected()) {
+            getImpl().pause();
+        }
     }
 
     /**
      * Requests that the player be reset to its uninitialized state.
      */
     public void reset() {
-        mImpl.reset();
+        if (isConnected()) {
+            getImpl().reset();
+        }
     }
 
     /**
@@ -191,7 +272,9 @@ public class MediaController2 implements AutoCloseable {
      * called to start playback.
      */
     public void prepare() {
-        mImpl.prepare();
+        if (isConnected()) {
+            getImpl().prepare();
+        }
     }
 
     /**
@@ -199,7 +282,9 @@ public class MediaController2 implements AutoCloseable {
      * may increase the rate.
      */
     public void fastForward() {
-        mImpl.fastForward();
+        if (isConnected()) {
+            getImpl().fastForward();
+        }
     }
 
     /**
@@ -207,7 +292,9 @@ public class MediaController2 implements AutoCloseable {
      * the rate.
      */
     public void rewind() {
-        mImpl.rewind();
+        if (isConnected()) {
+            getImpl().rewind();
+        }
     }
 
     /**
@@ -216,7 +303,9 @@ public class MediaController2 implements AutoCloseable {
      * @param pos Position to move to, in milliseconds.
      */
     public void seekTo(long pos) {
-        mImpl.seekTo(pos);
+        if (isConnected()) {
+            getImpl().seekTo(pos);
+        }
     }
 
     /**
@@ -225,7 +314,9 @@ public class MediaController2 implements AutoCloseable {
     @RestrictTo(LIBRARY_GROUP)
     public void skipForward() {
         // To match with KEYCODE_MEDIA_SKIP_FORWARD
-        mImpl.skipForward();
+        if (isConnected()) {
+            getImpl().skipForward();
+        }
     }
 
     /**
@@ -234,7 +325,9 @@ public class MediaController2 implements AutoCloseable {
     @RestrictTo(LIBRARY_GROUP)
     public void skipBackward() {
         // To match with KEYCODE_MEDIA_SKIP_BACKWARD
-        mImpl.skipBackward();
+        if (isConnected()) {
+            getImpl().skipBackward();
+        }
     }
 
     /**
@@ -248,7 +341,9 @@ public class MediaController2 implements AutoCloseable {
         if (mediaId == null) {
             throw new IllegalArgumentException("mediaId shouldn't be null");
         }
-        mImpl.playFromMediaId(mediaId, extras);
+        if (isConnected()) {
+            getImpl().playFromMediaId(mediaId, extras);
+        }
     }
 
     /**
@@ -261,7 +356,9 @@ public class MediaController2 implements AutoCloseable {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
         }
-        mImpl.playFromSearch(query, extras);
+        if (isConnected()) {
+            getImpl().playFromSearch(query, extras);
+        }
     }
 
     /**
@@ -275,7 +372,9 @@ public class MediaController2 implements AutoCloseable {
         if (uri == null) {
             throw new IllegalArgumentException("uri shouldn't be null");
         }
-        mImpl.playFromUri(uri, extras);
+        if (isConnected()) {
+            getImpl().playFromUri(uri, extras);
+        }
     }
 
     /**
@@ -294,7 +393,9 @@ public class MediaController2 implements AutoCloseable {
         if (mediaId == null) {
             throw new IllegalArgumentException("mediaId shouldn't be null");
         }
-        mImpl.prepareFromMediaId(mediaId, extras);
+        if (isConnected()) {
+            getImpl().prepareFromMediaId(mediaId, extras);
+        }
     }
 
     /**
@@ -313,7 +414,9 @@ public class MediaController2 implements AutoCloseable {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
         }
-        mImpl.prepareFromSearch(query, extras);
+        if (isConnected()) {
+            getImpl().prepareFromSearch(query, extras);
+        }
     }
 
     /**
@@ -332,7 +435,9 @@ public class MediaController2 implements AutoCloseable {
         if (uri == null) {
             throw new IllegalArgumentException("uri shouldn't be null");
         }
-        mImpl.prepareFromUri(uri, extras);
+        if (isConnected()) {
+            getImpl().prepareFromUri(uri, extras);
+        }
     }
 
     /**
@@ -351,7 +456,9 @@ public class MediaController2 implements AutoCloseable {
      *              playback
      */
     public void setVolumeTo(int value, @VolumeFlags int flags) {
-        mImpl.setVolumeTo(value, flags);
+        if (isConnected()) {
+            getImpl().setVolumeTo(value, flags);
+        }
     }
 
     /**
@@ -375,35 +482,40 @@ public class MediaController2 implements AutoCloseable {
      *              playback
      */
     public void adjustVolume(@VolumeDirection int direction, @VolumeFlags int flags) {
-        mImpl.adjustVolume(direction, flags);
+        if (isConnected()) {
+            getImpl().adjustVolume(direction, flags);
+        }
     }
 
     /**
      * Get an intent for launching UI associated with this session if one exists.
+     * If it is not connected yet, it returns {@code null}.
      *
-     * @return A {@link PendingIntent} to launch UI or null.
+     * @return A {@link PendingIntent} to launch UI or null
      */
     public @Nullable PendingIntent getSessionActivity() {
-        return mImpl.getSessionActivity();
+        return isConnected() ? getImpl().getSessionActivity() : null;
     }
 
     /**
      * Get the lastly cached player state from
      * {@link ControllerCallback#onPlayerStateChanged(MediaController2, int)}.
+     * If it is not connected yet, it returns {@link MediaPlayerConnector#PLAYER_STATE_IDLE}.
      *
      * @return player state
      */
     public int getPlayerState() {
-        return mImpl.getPlayerState();
+        return isConnected() ? getImpl().getPlayerState() : PLAYER_STATE_IDLE;
     }
 
     /**
      * Gets the duration of the current media item, or {@link MediaPlayerConnector#UNKNOWN_TIME} if
-     * unknown.
-     * @return the duration in ms, or {@link MediaPlayerConnector#UNKNOWN_TIME}.
+     * unknown or not connected.
+     *
+     * @return the duration in ms, or {@link MediaPlayerConnector#UNKNOWN_TIME}
      */
     public long getDuration() {
-        return mImpl.getDuration();
+        return isConnected() ? getImpl().getDuration() : UNKNOWN_TIME;
     }
 
     /**
@@ -412,37 +524,42 @@ public class MediaController2 implements AutoCloseable {
      * This returns the calculated value of the position, based on the difference between the
      * update time and current time.
      *
-     * @return position
+     * @return the current playback position in ms, or {@link MediaPlayerConnector#UNKNOWN_TIME}
+     *         if unknown or not connected
      */
     public long getCurrentPosition() {
-        return mImpl.getCurrentPosition();
+        return isConnected() ? getImpl().getCurrentPosition() : UNKNOWN_TIME;
     }
 
     /**
      * Get the lastly cached playback speed from
      * {@link ControllerCallback#onPlaybackSpeedChanged(MediaController2, float)}.
      *
-     * @return speed the lastly cached playback speed, or 0.0f if unknown.
+     * @return speed the lastly cached playback speed, or 0f if unknown or not connected
      */
     public float getPlaybackSpeed() {
-        return mImpl.getPlaybackSpeed();
+        return isConnected() ? getImpl().getPlaybackSpeed() : 0f;
     }
 
     /**
      * Set the playback speed.
      */
     public void setPlaybackSpeed(float speed) {
-        mImpl.setPlaybackSpeed(speed);
+        if (isConnected()) {
+            getImpl().setPlaybackSpeed(speed);
+        }
     }
 
     /**
      * Gets the current buffering state of the player.
      * During buffering, see {@link #getBufferedPosition()} for the quantifying the amount already
      * buffered.
-     * @return the buffering state.
+     *
+     * @return the buffering state, or {@link MediaPlayerConnector#BUFFERING_STATE_UNKNOWN}
+     *         if unknown or not connected
      */
     public @MediaPlayerConnector.BuffState int getBufferingState() {
-        return mImpl.getBufferingState();
+        return isConnected() ? getImpl().getBufferingState() : BUFFERING_STATE_UNKNOWN;
     }
 
     /**
@@ -451,19 +568,20 @@ public class MediaController2 implements AutoCloseable {
      * called.
      *
      * @return buffering position in millis, or {@link MediaPlayerConnector#UNKNOWN_TIME} if
-     * unknown.
+     *         unknown or not connected
      */
     public long getBufferedPosition() {
-        return mImpl.getBufferedPosition();
+        return isConnected() ? getImpl().getBufferedPosition() : UNKNOWN_TIME;
     }
 
     /**
      * Get the current playback info for this session.
+     * If it is not connected yet, it returns {@code null}.
      *
-     * @return The current playback info or null.
+     * @return The current playback info or null
      */
     public @Nullable PlaybackInfo getPlaybackInfo() {
-        return mImpl.getPlaybackInfo();
+        return isConnected() ? getImpl().getPlaybackInfo() : null;
     }
 
     /**
@@ -485,7 +603,9 @@ public class MediaController2 implements AutoCloseable {
         if (rating == null) {
             throw new IllegalArgumentException("rating shouldn't be null");
         }
-        mImpl.setRating(mediaId, rating);
+        if (isConnected()) {
+            getImpl().setRating(mediaId, rating);
+        }
     }
 
     /**
@@ -503,7 +623,9 @@ public class MediaController2 implements AutoCloseable {
         if (command.getCommandCode() != SessionCommand2.COMMAND_CODE_CUSTOM) {
             throw new IllegalArgumentException("command should be a custom command");
         }
-        mImpl.sendCustomCommand(command, args, cb);
+        if (isConnected()) {
+            getImpl().sendCustomCommand(command, args, cb);
+        }
     }
 
     /**
@@ -514,12 +636,12 @@ public class MediaController2 implements AutoCloseable {
      * implementation. Use media items returned here for other playlist agent APIs such as
      * {@link MediaPlaylistAgent#skipToPlaylistItem(MediaItem2)}.
      *
-     * @return playlist. Can be {@code null} if the playlist hasn't set nor controller doesn't have
-     *      enough permission.
+     * @return playlist, or {@code null} if the playlist hasn't set, controller isn't connected,
+     *         or it doesn't have enough permission
      * @see SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST
      */
     public @Nullable List<MediaItem2> getPlaylist() {
-        return mImpl.getPlaylist();
+        return isConnected() ? getImpl().getPlaylist() : null;
     }
 
     /**
@@ -538,7 +660,9 @@ public class MediaController2 implements AutoCloseable {
         if (list == null) {
             throw new IllegalArgumentException("list shouldn't be null");
         }
-        mImpl.setPlaylist(list, metadata);
+        if (isConnected()) {
+            getImpl().setPlaylist(list, metadata);
+        }
     }
 
     /**
@@ -547,7 +671,9 @@ public class MediaController2 implements AutoCloseable {
      * @param metadata metadata of the playlist
      */
     public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        mImpl.updatePlaylistMetadata(metadata);
+        if (isConnected()) {
+            getImpl().updatePlaylistMetadata(metadata);
+        }
     }
 
     /**
@@ -555,10 +681,11 @@ public class MediaController2 implements AutoCloseable {
      * {@link ControllerCallback#onPlaylistMetadataChanged or
      * {@link ControllerCallback#onPlaylistChanged}.
      *
-     * @return metadata metadata of the playlist, or null if none is set
+     * @return metadata metadata of the playlist, or null if none is set or the controller is not
+     *         connected
      */
     public @Nullable MediaMetadata2 getPlaylistMetadata() {
-        return mImpl.getPlaylistMetadata();
+        return isConnected() ? getImpl().getPlaylistMetadata() : null;
     }
 
     /**
@@ -580,7 +707,9 @@ public class MediaController2 implements AutoCloseable {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
-        mImpl.addPlaylistItem(index, item);
+        if (isConnected()) {
+            getImpl().addPlaylistItem(index, item);
+        }
     }
 
     /**
@@ -595,7 +724,9 @@ public class MediaController2 implements AutoCloseable {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
-        mImpl.removePlaylistItem(item);
+        if (isConnected()) {
+            getImpl().removePlaylistItem(item);
+        }
     }
 
     /**
@@ -612,17 +743,19 @@ public class MediaController2 implements AutoCloseable {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
-        mImpl.replacePlaylistItem(index, item);
+        if (isConnected()) {
+            getImpl().replacePlaylistItem(index, item);
+        }
     }
 
     /**
      * Get the lastly cached current item from
      * {@link ControllerCallback#onCurrentMediaItemChanged(MediaController2, MediaItem2)}.
      *
-     * @return the currently playing item, or null if unknown.
+     * @return the currently playing item, or null if unknown or not connected
      */
     public MediaItem2 getCurrentMediaItem() {
-        return mImpl.getCurrentMediaItem();
+        return isConnected() ? getImpl().getCurrentMediaItem() : null;
     }
 
     /**
@@ -631,7 +764,9 @@ public class MediaController2 implements AutoCloseable {
      * This calls {@link MediaPlaylistAgent#skipToPreviousItem()}.
      */
     public void skipToPreviousItem() {
-        mImpl.skipToPreviousItem();
+        if (isConnected()) {
+            getImpl().skipToPreviousItem();
+        }
     }
 
     /**
@@ -640,7 +775,9 @@ public class MediaController2 implements AutoCloseable {
      * This calls {@link MediaPlaylistAgent#skipToNextItem()}.
      */
     public void skipToNextItem() {
-        mImpl.skipToNextItem();
+        if (isConnected()) {
+            getImpl().skipToNextItem();
+        }
     }
 
     /**
@@ -654,11 +791,14 @@ public class MediaController2 implements AutoCloseable {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
-        mImpl.skipToPlaylistItem(item);
+        if (isConnected()) {
+            getImpl().skipToPlaylistItem(item);
+        }
     }
 
     /**
      * Gets the cached repeat mode from the {@link ControllerCallback#onRepeatModeChanged}.
+     * If it is not connected yet, it returns {@link MediaPlaylistAgent#REPEAT_MODE_NONE}.
      *
      * @return repeat mode
      * @see MediaPlaylistAgent#REPEAT_MODE_NONE
@@ -667,7 +807,7 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
      */
     public @RepeatMode int getRepeatMode() {
-        return mImpl.getRepeatMode();
+        return isConnected() ? getImpl().getRepeatMode() : REPEAT_MODE_NONE;
     }
 
     /**
@@ -680,11 +820,14 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
      */
     public void setRepeatMode(@RepeatMode int repeatMode) {
-        mImpl.setRepeatMode(repeatMode);
+        if (isConnected()) {
+            getImpl().setRepeatMode(repeatMode);
+        }
     }
 
     /**
      * Gets the cached shuffle mode from the {@link ControllerCallback#onShuffleModeChanged}.
+     * If it is not connected yet, it returns {@link MediaPlaylistAgent#SHUFFLE_MODE_NONE}.
      *
      * @return The shuffle mode
      * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
@@ -692,7 +835,7 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
      */
     public @ShuffleMode int getShuffleMode() {
-        return mImpl.getShuffleMode();
+        return isConnected() ? getImpl().getShuffleMode() : SHUFFLE_MODE_NONE;
     }
 
     /**
@@ -704,14 +847,18 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
      */
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
-        mImpl.setShuffleMode(shuffleMode);
+        if (isConnected()) {
+            getImpl().setShuffleMode(shuffleMode);
+        }
     }
 
     /**
      * Queries for information about the routes currently known.
      */
     public void subscribeRoutesInfo() {
-        mImpl.subscribeRoutesInfo();
+        if (isConnected()) {
+            getImpl().subscribeRoutesInfo();
+        }
     }
 
     /**
@@ -722,7 +869,9 @@ public class MediaController2 implements AutoCloseable {
      * </p>
      */
     public void unsubscribeRoutesInfo() {
-        mImpl.unsubscribeRoutesInfo();
+        if (isConnected()) {
+            getImpl().unsubscribeRoutesInfo();
+        }
     }
 
     /**
@@ -734,7 +883,9 @@ public class MediaController2 implements AutoCloseable {
         if (route == null) {
             throw new IllegalArgumentException("route shouldn't be null");
         }
-        mImpl.selectRoute(route);
+        if (isConnected()) {
+            getImpl().selectRoute(route);
+        }
     }
 
     /**
@@ -748,20 +899,12 @@ public class MediaController2 implements AutoCloseable {
         mTimeDiff = timeDiff;
     }
 
-    @NonNull Context getContext() {
-        return mImpl.getContext();
-    }
-
     @NonNull ControllerCallback getCallback() {
-        return mImpl.getCallback();
+        return isConnected() ? getImpl().getCallback() : null;
     }
 
     @NonNull Executor getCallbackExecutor() {
-        return mImpl.getCallbackExecutor();
-    }
-
-    @Nullable MediaBrowserCompat getBrowserCompat() {
-        return mImpl.getBrowserCompat();
+        return isConnected() ? getImpl().getCallbackExecutor() : null;
     }
 
     interface MediaController2Impl extends AutoCloseable {
@@ -1080,7 +1223,7 @@ public class MediaController2 implements AutoCloseable {
          * <li>{@link #PLAYBACK_TYPE_REMOTE}</li>
          * </ul>
          *
-         * @return The type of playback this session is using.
+         * @return The type of playback this session is using
          */
         public int getPlaybackType() {
             return mPlaybackType;
@@ -1092,7 +1235,7 @@ public class MediaController2 implements AutoCloseable {
          * {@link #PLAYBACK_TYPE_REMOTE} these may be ignored by the
          * remote volume handler.
          *
-         * @return The attributes for this session.
+         * @return The attributes for this session
          */
         public AudioAttributesCompat getAudioAttributes() {
             return mAudioAttrsCompat;
@@ -1106,7 +1249,7 @@ public class MediaController2 implements AutoCloseable {
          * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_FIXED}</li>
          * </ul>
          *
-         * @return The type of volume control that may be used with this session.
+         * @return The type of volume control that may be used with this session
          */
         public int getControlType() {
             return mControlType;
@@ -1117,7 +1260,7 @@ public class MediaController2 implements AutoCloseable {
          * <p>
          * This is only meaningful when the playback type is {@link #PLAYBACK_TYPE_REMOTE}.
          *
-         * @return The maximum allowed volume where this session is playing.
+         * @return The maximum allowed volume where this session is playing
          */
         public int getMaxVolume() {
             return mMaxVolume;
@@ -1128,7 +1271,7 @@ public class MediaController2 implements AutoCloseable {
          * <p>
          * This is only meaningful when the playback type is {@link #PLAYBACK_TYPE_REMOTE}.
          *
-         * @return The current volume where this session is playing.
+         * @return The current volume where this session is playing
          */
         public int getCurrentVolume() {
             return mCurrentVolume;

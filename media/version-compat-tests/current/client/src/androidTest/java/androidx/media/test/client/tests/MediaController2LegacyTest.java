@@ -43,7 +43,6 @@ import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaUtils2;
-import androidx.media2.SessionToken2;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
@@ -57,7 +56,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-
 /**
  * Tests {@link MediaController2} interacting with {@link MediaSessionCompat}.
  */
@@ -66,8 +64,6 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
 
     AudioManager mAudioManager;
     RemoteMediaSessionCompat mSession;
-
-    SessionToken2 mToken2;
     MediaController2 mController;
 
     @Before
@@ -76,22 +72,6 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         super.setUp();
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mSession = new RemoteMediaSessionCompat(DEFAULT_TEST_NAME, mContext);
-        createMediaSessionToken2();
-    }
-
-    private void createMediaSessionToken2() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        SessionToken2.createSessionToken2(mContext, mSession.getSessionToken(),
-                sHandlerExecutor, new SessionToken2.OnSessionToken2CreatedListener() {
-                    @Override
-                    public void onSessionToken2Created(
-                            MediaSessionCompat.Token token, SessionToken2 token2) {
-                        assertTrue(token2.isLegacySession());
-                        mToken2 = token2;
-                        latch.countDown();
-                    }
-                });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     @After
@@ -120,7 +100,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
                 .build());
         mSession.setMetadata(metadata);
 
-        mController = createController(mToken2);
+        mController = createController(mSession.getSessionToken());
         mController.setTimeDiff(timeDiff);
 
         assertEquals(MediaPlayerConnector.PLAYER_STATE_PLAYING, mController.getPlayerState());
@@ -137,7 +117,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testGetPackageName() throws Exception {
         prepareLooper();
-        mController = createController(mToken2);
+        mController = createController(mSession.getSessionToken());
         assertEquals(SERVICE_PACKAGE_NAME, mController.getSessionToken().getPackageName());
     }
 
@@ -148,7 +128,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         PendingIntent pi = PendingIntent.getActivity(mContext, 0, sessionActivity, 0);
         mSession.setSessionActivity(pi);
 
-        mController = createController(mToken2);
+        mController = createController(mSession.getSessionToken());
         PendingIntent sessionActivityOut = mController.getSessionActivity();
         assertEquals(mContext.getPackageName(), sessionActivityOut.getCreatorPackage());
     }
@@ -178,7 +158,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        mController = createController(mToken2, true, callback);
+        mController = createController(mSession.getSessionToken(), true, callback);
 
         mSession.setQueue(testQueue);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -201,7 +181,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        mController = createController(mToken2, true, callback);
+        mController = createController(mSession.getSessionToken(), true, callback);
 
         mSession.setQueueTitle(queueTitle);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -226,7 +206,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
                 .setState(PlaybackStateCompat.STATE_PLAYING, testPosition /* position */,
                         1f /* playbackSpeed */)
                 .build());
-        mController = createController(mToken2, true, callback);
+        mController = createController(mSession.getSessionToken(), true, callback);
         mController.setTimeDiff(Long.valueOf(0));
 
         mSession.setPlaybackState(new PlaybackStateCompat.Builder()
@@ -265,7 +245,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
                         1f /* playbackSpeed */)
                 .setBufferedPosition(0)
                 .build());
-        mController = createController(mToken2, true, callback);
+        mController = createController(mSession.getSessionToken(), true, callback);
         mController.setTimeDiff(Long.valueOf(0));
 
         mSession.setPlaybackState(new PlaybackStateCompat.Builder()
@@ -305,7 +285,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
                         1f /* playbackSpeed */)
                 .setBufferedPosition(500)
                 .build());
-        mController = createController(mToken2, true, callback);
+        mController = createController(mSession.getSessionToken(), true, callback);
         mController.setTimeDiff(0L);
 
         mSession.setPlaybackState(new PlaybackStateCompat.Builder()
@@ -336,7 +316,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
                 .setState(PlaybackStateCompat.STATE_NONE, 0 /* position */,
                         1f /* playbackSpeed */)
                 .build());
-        mController = createController(mToken2, true, callback);
+        mController = createController(mSession.getSessionToken(), true, callback);
         mController.setTimeDiff(Long.valueOf(0));
         mSession.setPlaybackState(new PlaybackStateCompat.Builder()
                 .setState(PlaybackStateCompat.STATE_PLAYING, testPosition /* position */,
@@ -348,13 +328,13 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_onConnected() throws Exception {
         prepareLooper();
-        mController = createController(mToken2);
+        mController = createController(mSession.getSessionToken());
     }
 
     @Test
     public void testControllerCallback_releaseSession() throws Exception {
         prepareLooper();
-        mController = createController(mToken2);
+        mController = createController(mSession.getSessionToken());
         mSession.release();
         waitForDisconnect(mController, true);
     }
@@ -362,7 +342,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_close() throws Exception {
         prepareLooper();
-        mController = createController(mToken2);
+        mController = createController(mSession.getSessionToken());
         mController.close();
         waitForDisconnect(mController, true);
     }
@@ -370,7 +350,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testClose_twice() throws Exception {
         prepareLooper();
-        mController = createController(mToken2);
+        mController = createController(mSession.getSessionToken());
         mController.close();
         mController.close();
     }
@@ -378,7 +358,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testIsConnected() throws Exception {
         prepareLooper();
-        mController = createController(mToken2);
+        mController = createController(mSession.getSessionToken());
         assertTrue(mController.isConnected());
 
         mSession.release();
@@ -389,7 +369,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testClose_beforeConnected() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mToken2, false, null);
+        MediaController2 controller = createController(mSession.getSessionToken(), false, null);
 
         // Should not crash.
         controller.close();

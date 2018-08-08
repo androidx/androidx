@@ -167,7 +167,9 @@ public class MediaBrowser2 extends MediaController2 {
      * @see BrowserCallback#onGetLibraryRootDone(MediaBrowser2, Bundle, String, Bundle)
      */
     public void getLibraryRoot(@Nullable final Bundle extras) {
-        getImpl().getLibraryRoot(extras);
+        if (isConnected()) {
+            getImpl().getLibraryRoot(extras);
+        }
     }
 
     /**
@@ -180,7 +182,9 @@ public class MediaBrowser2 extends MediaController2 {
      * @param extras extra bundle
      */
     public void subscribe(@NonNull String parentId, @Nullable Bundle extras) {
-        getImpl().subscribe(parentId, extras);
+        if (isConnected()) {
+            getImpl().subscribe(parentId, extras);
+        }
     }
 
     /**
@@ -193,7 +197,9 @@ public class MediaBrowser2 extends MediaController2 {
      * @param parentId parent id
      */
     public void unsubscribe(@NonNull String parentId) {
-        getImpl().unsubscribe(parentId);
+        if (isConnected()) {
+            getImpl().unsubscribe(parentId);
+        }
     }
 
     /**
@@ -207,7 +213,9 @@ public class MediaBrowser2 extends MediaController2 {
      */
     public void getChildren(@NonNull String parentId, int page, int pageSize,
             @Nullable Bundle extras) {
-        getImpl().getChildren(parentId, page, pageSize, extras);
+        if (isConnected()) {
+            getImpl().getChildren(parentId, page, pageSize, extras);
+        }
     }
 
     /**
@@ -217,7 +225,9 @@ public class MediaBrowser2 extends MediaController2 {
      * @param mediaId media id for specifying the item
      */
     public void getItem(@NonNull final String mediaId) {
-        getImpl().getItem(mediaId);
+        if (isConnected()) {
+            getImpl().getItem(mediaId);
+        }
     }
 
     /**
@@ -230,7 +240,9 @@ public class MediaBrowser2 extends MediaController2 {
      * @param extras extra bundle
      */
     public void search(@NonNull String query, @Nullable Bundle extras) {
-        getImpl().search(query, extras);
+        if (isConnected()) {
+            getImpl().search(query, extras);
+        }
     }
 
     /**
@@ -245,7 +257,9 @@ public class MediaBrowser2 extends MediaController2 {
      */
     public void getSearchResult(final @NonNull String query, final int page, final int pageSize,
             final @Nullable Bundle extras) {
-        getImpl().getSearchResult(query, page, pageSize, extras);
+        if (isConnected()) {
+            getImpl().getSearchResult(query, page, pageSize, extras);
+        }
     }
 
     interface MediaBrowser2Impl extends MediaController2Impl {
