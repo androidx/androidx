@@ -39,14 +39,12 @@ import java.util.Set;
 class SliceManagerWrapper extends SliceManager {
 
     private final android.app.slice.SliceManager mManager;
-    private final Context mContext;
 
     SliceManagerWrapper(Context context) {
-        this(context, context.getSystemService(android.app.slice.SliceManager.class));
+        this(context.getSystemService(android.app.slice.SliceManager.class));
     }
 
-    SliceManagerWrapper(Context context, android.app.slice.SliceManager manager) {
-        mContext = context;
+    SliceManagerWrapper(android.app.slice.SliceManager manager) {
         mManager = manager;
     }
 
