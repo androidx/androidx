@@ -25,10 +25,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -45,38 +42,6 @@ import java.util.UUID;
 public class BasicTest {
     @Rule
     public ExpectedException mExpectedException = ExpectedException.none();
-
-    @Test
-    public void test_recyclerViewAdapter_pageFillEnforced() {
-        mExpectedException.expect(IllegalStateException.class);
-        mExpectedException.expectMessage(
-                "Item's root view must fill the whole ViewPager2 (use match_parent)");
-
-        ViewPager2 viewPager = new ViewPager2(InstrumentationRegistry.getContext());
-        viewPager.setAdapter(new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-            @NonNull
-            @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                    int viewType) {
-                View view = new View(parent.getContext());
-                view.setLayoutParams(new ViewGroup.LayoutParams(50, 50)); // arbitrary fixed size
-                return new RecyclerView.ViewHolder(view) {
-                };
-            }
-
-            @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-                // do nothing
-            }
-
-            @Override
-            public int getItemCount() {
-                return 1;
-            }
-        });
-
-        viewPager.measure(0, 0); // equivalent of unspecified
-    }
 
     @Test
     public void test_childrenNotAllowed() {

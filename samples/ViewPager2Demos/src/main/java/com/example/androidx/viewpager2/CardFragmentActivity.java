@@ -24,15 +24,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.viewpager2.widget.ViewPager2;
-import androidx.viewpager2.widget.ViewPager2.FragmentProvider;
+import androidx.viewpager2.adapter.FragmentProvider;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.androidx.viewpager2.cards.Card;
 import com.example.androidx.viewpager2.cards.CardView;
 
 /**
- * Shows how to use {@link ViewPager2#setAdapter(FragmentManager, FragmentProvider, int)}
+ * Shows how to use {@link androidx.viewpager2.adapter.FragmentStateAdapter}
  *
  * @see CardActivity
  */
@@ -42,19 +41,19 @@ public class CardFragmentActivity extends BaseCardActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        mViewPager.setAdapter(getSupportFragmentManager(),
-                new FragmentProvider() {
-                    @Override
-                    public Fragment getItem(int position) {
-                        return CardFragment.create(sCards.get(position));
-                    }
+        mViewPager.setAdapter(
+                new FragmentStateAdapter(getSupportFragmentManager(),
+                        new FragmentProvider() {
+                            @Override
+                            public Fragment getItem(int position) {
+                                return CardFragment.create(sCards.get(position));
+                            }
 
-                    @Override
-                    public int getCount() {
-                        return sCards.size();
-                    }
-                },
-                ViewPager2.FragmentRetentionPolicy.SAVE_STATE);
+                            @Override
+                            public int getCount() {
+                                return sCards.size();
+                            }
+                        }));
     }
 
     /** {@inheritDoc} */

@@ -537,7 +537,7 @@ class PageChangeListenerTest : BaseTest() {
             override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
             override fun getItemCount(): Int = 5
         }
-        viewPager.setAdapter<RecyclerView.ViewHolder>(noOpAdapter)
+        viewPager.adapter = noOpAdapter
 
         // when
         viewPager.addOnPageChangeListener(object : ViewPager2.OnPageChangeListener {
