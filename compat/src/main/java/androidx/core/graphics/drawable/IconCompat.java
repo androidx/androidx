@@ -123,8 +123,9 @@ public class IconCompat extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @ParcelField(1)
-    public int mType;
+    @ParcelField(value = 1,
+            defaultValue = "androidx.core.graphics.drawable.IconCompat.TYPE_UNKNOWN")
+    public int mType = TYPE_UNKNOWN;
 
     // To avoid adding unnecessary overhead, we have a few basic objects that get repurposed
     // based on the value of mType.
@@ -140,14 +141,14 @@ public class IconCompat extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @ParcelField(2)
-    public byte[]          mData;
+    @ParcelField(value = 2, defaultValue = "null")
+    public byte[]          mData = null;
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @ParcelField(3)
-    public Parcelable      mParcelable;
+    @ParcelField(value = 3, defaultValue = "null")
+    public Parcelable      mParcelable = null;
 
     // TYPE_RESOURCE: resId
     // TYPE_DATA: data offset
@@ -155,22 +156,22 @@ public class IconCompat extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @ParcelField(4)
-    public int             mInt1;
+    @ParcelField(value = 4, defaultValue = "0")
+    public int             mInt1 = 0;
 
     // TYPE_DATA: data length
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @ParcelField(5)
-    public int             mInt2;
+    @ParcelField(value = 5, defaultValue = "0")
+    public int             mInt2 = 0;
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @ParcelField(6)
+    @ParcelField(value = 6, defaultValue = "null")
     public ColorStateList  mTintList = null;
 
     static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN; // SRC_IN
@@ -180,8 +181,8 @@ public class IconCompat extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @ParcelField(7)
-    public String mTintModeStr;
+    @ParcelField(value = 7, defaultValue = "null")
+    public String mTintModeStr = null;
 
     /**
      * Create an Icon pointing to a drawable resource.
