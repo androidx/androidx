@@ -35,8 +35,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
-import android.text.SpannableString;
-import android.text.TextUtils;
 import android.util.Size;
 import android.util.SizeF;
 import android.util.SparseBooleanArray;
@@ -58,7 +56,7 @@ import java.util.Set;
 
 @RunWith(Parameterized.class)
 @SmallTest
-public class VersionedParcelIntegTest {
+public class VersionedParcelDefaultsTest {
 
     @Parameterized.Parameters
     public static Iterable<? extends Object[]> data() {
@@ -67,11 +65,11 @@ public class VersionedParcelIntegTest {
 
     private boolean mUseStream;
 
-    public VersionedParcelIntegTest(boolean useStream) {
+    public VersionedParcelDefaultsTest(boolean useStream) {
         mUseStream = useStream;
     }
 
-    private ParcelizableImpl parcelCopy(ParcelizableImpl obj) {
+    private DefaultParcelImpl parcelCopy(DefaultParcelImpl obj) {
         if (mUseStream) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             toOutputStream(obj, outputStream);
@@ -88,33 +86,32 @@ public class VersionedParcelIntegTest {
 
     @Test
     public void testCustomParcelCallbacks() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         assertFalse(obj.mPreParcelled);
         assertFalse(obj.mPostParcelled);
 
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertTrue(obj.mPreParcelled);
         assertTrue(other.mPostParcelled);
     }
 
     @Test
     public void testInts() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mInt = 42;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mInt, other.mInt);
     }
 
-
     @Test
     public void testMultipleFields() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mBoolean = true;
         obj.mFloat = 42;
         obj.mDouble = 15;
         obj.mLong = 68;
         obj.mString = "my_string_123";
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mBoolean, other.mBoolean);
         assertEquals(obj.mFloat, other.mFloat, .01f);
         assertEquals(obj.mDouble, other.mDouble, .01f);
@@ -124,41 +121,41 @@ public class VersionedParcelIntegTest {
 
     @Test
     public void testBoolean() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mBoolean = true;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mBoolean, other.mBoolean);
     }
 
     @Test
     public void testFloat() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mFloat = 42;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mFloat, other.mFloat, .01f);
     }
 
     @Test
     public void testDouble() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mDouble = 42;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mDouble, other.mDouble, .01f);
     }
 
     @Test
     public void testLong() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mLong = 42;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mLong, other.mLong);
     }
 
     @Test
     public void testString() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mString = "42";
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mString, other.mString);
     }
 
@@ -167,84 +164,84 @@ public class VersionedParcelIntegTest {
         if (mUseStream) {
             return;
         }
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mBinder = new Binder();
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mBinder, other.mBinder);
     }
 
     @Test
     public void testByteArray() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mByteArray = new byte[]{4, 2};
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertArrayEquals(obj.mByteArray, other.mByteArray);
     }
 
     @Test
     public void testByte() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mByte = (byte) 42;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mByte, other.mByte);
     }
 
     @Test
     public void testBundle() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mBundle = new Bundle();
         obj.mBundle.putInt("my_string", 42);
         obj.mBundle.putString("my_int", "42");
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(42, other.mBundle.getInt("my_string"));
         assertEquals("42", other.mBundle.getString("my_int"));
     }
 
     @Test
     public void testBooleanArray() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mBoolArray = new boolean[]{true, false, true};
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertArrayEquals(obj.mBoolArray, other.mBoolArray);
     }
 
     @Test
     public void testCharArray() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mCharArray = new char[]{'a', 'Z'};
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertArrayEquals(obj.mCharArray, other.mCharArray);
     }
 
     @Test
     public void testIntArray() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mIntArray = new int[]{42, 24, 16};
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertArrayEquals(obj.mIntArray, other.mIntArray);
     }
 
     @Test
     public void testLongArray() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mLongArray = new long[]{1000L, 1312};
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertArrayEquals(obj.mLongArray, other.mLongArray);
     }
 
     @Test
     public void testFloatArray() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mFloatArray = new float[]{1.5f, 2.5f};
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertArrayEquals(obj.mFloatArray, other.mFloatArray, .01f);
     }
 
     @Test
     public void testDoubleArray() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mDoubleArray = new double[]{1.5, 2.5, 3.5};
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertArrayEquals(obj.mDoubleArray, other.mDoubleArray, .01);
     }
 
@@ -253,17 +250,17 @@ public class VersionedParcelIntegTest {
         if (mUseStream) {
             return;
         }
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mBinderArray = new IBinder[]{new Binder(), new Binder()};
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertArrayEquals(obj.mBinderArray, other.mBinderArray);
     }
 
     @Test
     public void testException() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mException = new IllegalArgumentException();
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertNotNull(other.mException);
         assertEquals(obj.mException.getClass(), other.mException.getClass());
     }
@@ -272,9 +269,9 @@ public class VersionedParcelIntegTest {
     public void testSize() {
         // No Size until Lollipop.
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) return;
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mSize = new Size(4, 2);
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mSize, other.mSize);
     }
 
@@ -282,20 +279,20 @@ public class VersionedParcelIntegTest {
     public void testSizeF() {
         // No Size until Lollipop.
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) return;
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mSizeF = new SizeF(4.2f, 5);
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mSizeF, other.mSizeF);
     }
 
     @Test
     public void testSparseBooleanArray() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mSparseBooleanArray = new SparseBooleanArray();
         obj.mSparseBooleanArray.put(42, true);
         obj.mSparseBooleanArray.put(15, true);
         obj.mSparseBooleanArray.put(23, false);
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquivalent(obj.mSparseBooleanArray, other.mSparseBooleanArray);
     }
 
@@ -312,27 +309,27 @@ public class VersionedParcelIntegTest {
         if (mUseStream) {
             return;
         }
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mParcelable = new Intent("my.action.ACTION")
                 .addCategory("has.a.CATEGORY")
                 .setData(Uri.parse("something://authority/with/some/stuff"));
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mParcelable.toString(), other.mParcelable.toString());
     }
 
     @Test
     public void testStringList() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mStringList = Arrays.asList("string_1", "42");
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mStringList, other.mStringList);
     }
 
     @Test
     public void testStringSet() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mStringSet = new ArraySet<>(Arrays.asList("string_1", "42"));
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mStringSet, other.mStringSet);
     }
 
@@ -341,15 +338,15 @@ public class VersionedParcelIntegTest {
         if (mUseStream) {
             return;
         }
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mBinderList = Arrays.asList((IBinder) new Binder(), new Binder());
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mBinderList, other.mBinderList);
     }
 
     @Test
     public void testBundleTypes() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mBundle = new Bundle();
         Bundle subBundle = new Bundle();
         subBundle.putString("sub_bundle_string", "a_string");
@@ -365,7 +362,7 @@ public class VersionedParcelIntegTest {
         obj.mBundle.putFloat("float", 1.234f);
         obj.mBundle.putFloatArray("float_array", new float[]{1.2f, 3.4f, 5.6f});
 
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
 
         assertEquals("a_string",
                 other.mBundle.getBundle("sub_bundle").getString("sub_bundle_string"));
@@ -391,96 +388,85 @@ public class VersionedParcelIntegTest {
 
     @Test
     public void testIntList() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mIntList = Arrays.asList(1, 2);
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mIntList, other.mIntList);
     }
 
     @Test
     public void testFloatList() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mFloatList = Arrays.asList(1.f, 2.f);
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mFloatList, other.mFloatList);
     }
 
     @Test
     public void testStringFloatMap() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         Map<String, Float> arrayMap = new ArrayMap<>();
         arrayMap.put("one", 1f);
         arrayMap.put("two", 1f);
         arrayMap.put("three", 3f);
 
         obj.mStringFloatMap = arrayMap;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mStringFloatMap, other.mStringFloatMap);
     }
 
     @Test
     public void testStringFloatMap_empty() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         Map<String, Float> arrayMap = new ArrayMap<>();
         obj.mStringFloatMap = arrayMap;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertEquals(obj.mStringFloatMap, other.mStringFloatMap);
         assertTrue(other.mStringFloatMap.isEmpty());
     }
 
     @Test
     public void testStringFloatMap_null() {
-        ParcelizableImpl obj = new ParcelizableImpl();
+        DefaultParcelImpl obj = new DefaultParcelImpl();
         obj.mStringFloatMap = null;
-        ParcelizableImpl other = parcelCopy(obj);
+        DefaultParcelImpl other = parcelCopy(obj);
         assertNull(other.mStringFloatMap);
-    }
-
-    @Test
-    public void testCharSequence() {
-        if (mUseStream) {
-            return;
-        }
-        ParcelizableImpl obj = new ParcelizableImpl();
-        obj.mCharSequence = new SpannableString("xxxx");
-        ParcelizableImpl other = parcelCopy(obj);
-        assertTrue(TextUtils.equals(obj.mCharSequence, other.mCharSequence));
     }
 
     @VersionedParcelize(allowSerialization = true,
             ignoreParcelables = true,
             isCustom = true,
             deprecatedIds = {5, 14})
-    public static class ParcelizableImpl extends CustomVersionedParcelable {
+    public static class DefaultParcelImpl extends CustomVersionedParcelable {
 
-        @ParcelField(1)
-        public int mIntField;
+        @ParcelField(value = 1, defaultValue = "5")
+        public int mIntField = 5;
 
         @NonParcelField
         public int mNonSerializedField;
 
-        @ParcelField(2)
-        public boolean mBoolean;
-        @ParcelField(3)
-        public int mInt;
-        @ParcelField(4)
-        public long mLong;
-        @ParcelField(50)
-        public float mFloat;
-        @ParcelField(6)
-        public double mDouble;
-        @ParcelField(7)
-        public String mString;
+        @ParcelField(value = 2, defaultValue = "false")
+        public boolean mBoolean = false;
+        @ParcelField(value = 3, defaultValue = "3")
+        public int mInt = 3;
+        @ParcelField(value = 4, defaultValue = "4")
+        public long mLong = 4;
+        @ParcelField(value = 50, defaultValue = "1.2f")
+        public float mFloat = 1.2f;
+        @ParcelField(value = 6, defaultValue = "1.2")
+        public double mDouble = 1.2;
+        @ParcelField(value = 7, defaultValue = "Some string")
+        public String mString = "Some string";
         @ParcelField(8)
         public IBinder mBinder;
         @ParcelField(9)
         public byte[] mByteArray;
         @ParcelField(10)
         public Bundle mBundle;
-        @ParcelField(12)
-        public boolean[] mBoolArray;
-        @ParcelField(13)
-        public char[] mCharArray;
+        @ParcelField(value = 12, defaultValue = "new boolean[0]")
+        public boolean[] mBoolArray = new boolean[0];
+        @ParcelField(value = 13, defaultValue = "new char[]{2, 5}")
+        public char[] mCharArray = new char[]{2, 5};
         @ParcelField(140)
         public int[] mIntArray;
         @ParcelField(15)
@@ -495,7 +481,7 @@ public class VersionedParcelIntegTest {
         public Exception mException;
         @ParcelField(20)
         public byte mByte;
-        @ParcelField(21)
+        @ParcelField(value = 21)
         public Size mSize;
         @ParcelField(22)
         public SizeF mSizeF;
@@ -517,8 +503,6 @@ public class VersionedParcelIntegTest {
         public List<Float> mFloatList;
         @ParcelField(31)
         public Map<String, Float> mStringFloatMap;
-        @ParcelField(32)
-        public CharSequence mCharSequence;
 
         @NonParcelField
         private boolean mPreParcelled;

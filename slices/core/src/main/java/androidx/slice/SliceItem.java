@@ -100,12 +100,12 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    @ParcelField(1)
-    protected @Slice.SliceHint String[] mHints = new String[0];
-    @ParcelField(2)
-    String mFormat;
-    @ParcelField(3)
-    String mSubType;
+    @ParcelField(value = 1, defaultValue = "androidx.slice.Slice.NO_HINTS")
+    protected @Slice.SliceHint String[] mHints = Slice.NO_HINTS;
+    @ParcelField(value = 2, defaultValue = FORMAT_TEXT)
+    String mFormat = FORMAT_TEXT;
+    @ParcelField(value = 3, defaultValue = "null")
+    String mSubType = null;
     @NonParcelField
     Object mObj;
     @NonParcelField
@@ -531,7 +531,12 @@ public final class SliceItem extends CustomVersionedParcelable {
 
     @Override
     public void onPostParceling() {
-        mObj = mHolder.getObj(mFormat);
+        if (mHolder != null) {
+            mObj = mHolder.getObj(mFormat);
+            mHolder.release();
+        } else {
+            mObj = null;
+        }
         mHolder = null;
     }
 

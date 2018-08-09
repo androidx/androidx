@@ -20,17 +20,18 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcelable;
-import android.util.SparseArray;
 
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Set;
 
@@ -61,15 +62,61 @@ class VersionedParcelStream extends VersionedParcel {
 
     private final DataInputStream mMasterInput;
     private final DataOutputStream mMasterOutput;
-    private final SparseArray<InputBuffer> mCachedFields = new SparseArray<>();
 
     private DataInputStream mCurrentInput;
     private DataOutputStream mCurrentOutput;
     private FieldBuffer mFieldBuffer;
     private boolean mIgnoreParcelables;
 
+    int mCount = 0;
+    private int mFieldId = -1;
+    int mFieldSize = -1;
+
     public VersionedParcelStream(InputStream input, OutputStream output) {
-        mMasterInput = input != null ? new DataInputStream(input) : null;
+        this(input, output, new ArrayMap<String, Method>(), new ArrayMap<String, Method>(),
+                new ArrayMap<String, Class>());
+    }
+
+    private VersionedParcelStream(InputStream input, OutputStream output,
+            ArrayMap<String, Method> readCache,
+            ArrayMap<String, Method> writeCache,
+            ArrayMap<String, Class> parcelizerCache) {
+        super(readCache, writeCache, parcelizerCache);
+        mMasterInput = input != null ? new DataInputStream(new FilterInputStream(input) {
+            @Override
+            public int read() throws IOException {
+                if (mFieldSize != -1 && mCount >= mFieldSize) {
+                    throw new IOException();
+                }
+                int read = super.read();
+                mCount += 1;
+                return read;
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                if (mFieldSize != -1 && mCount >= mFieldSize) {
+                    throw new IOException();
+                }
+                int read = super.read(b, off, len);
+                if (read > 0) {
+                    mCount += read;
+                }
+                return read;
+            }
+
+            @Override
+            public long skip(long n) throws IOException {
+                if (mFieldSize != -1 && mCount >= mFieldSize) {
+                    throw new IOException();
+                }
+                long skip = super.skip(n);
+                if (skip > 0) {
+                    mCount += skip;
+                }
+                return skip;
+            }
+        }) : null;
         mMasterOutput = output != null ? new DataOutputStream(output) : null;
         mCurrentInput = mMasterInput;
         mCurrentOutput = mMasterOutput;
@@ -106,30 +153,33 @@ class VersionedParcelStream extends VersionedParcel {
 
     @Override
     protected VersionedParcel createSubParcel() {
-        return new VersionedParcelStream(mCurrentInput, mCurrentOutput);
+        return new VersionedParcelStream(mCurrentInput, mCurrentOutput, mReadCache, mWriteCache,
+                mParcelizerCache);
     }
 
     @Override
     public boolean readField(int fieldId) {
-        InputBuffer buffer = mCachedFields.get(fieldId);
-        if (buffer != null) {
-            mCachedFields.remove(fieldId);
-            mCurrentInput = buffer.mInputStream;
-            return true;
-        }
         try {
             while (true) {
+                if (mFieldId == fieldId) {
+                    return true;
+                }
+                if (String.valueOf(mFieldId).compareTo(String.valueOf(fieldId)) > 0) {
+                    return false;
+                }
+                if (mCount < mFieldSize) {
+                    mMasterInput.skip(mFieldSize - mCount);
+                }
+                mFieldSize = -1;
                 int fieldInfo = mMasterInput.readInt();
+                mCount = 0;
                 int size = fieldInfo & 0xffff;
                 if (size == 0xffff) {
                     size = mMasterInput.readInt();
                 }
-                buffer = new InputBuffer((fieldInfo >> 16) & 0xffff, size, mMasterInput);
-                if (buffer.mFieldId == fieldId) {
-                    mCurrentInput = buffer.mInputStream;
-                    return true;
-                }
-                mCachedFields.put(buffer.mFieldId, buffer);
+                int id = (fieldInfo >> 16) & 0xffff;
+                mFieldId = id;
+                mFieldSize = size;
             }
         } catch (IOException e) {
         }
@@ -510,20 +560,6 @@ class VersionedParcelStream extends VersionedParcel {
                 mTarget.writeInt(size);
             }
             mOutput.writeTo(mTarget);
-        }
-    }
-
-    private static class InputBuffer {
-        final DataInputStream mInputStream;
-        private final int mSize;
-        final int mFieldId;
-
-        InputBuffer(int fieldId, int size, DataInputStream inputStream) throws IOException {
-            mSize = size;
-            mFieldId = fieldId;
-            byte[] data = new byte[mSize];
-            inputStream.readFully(data);
-            mInputStream = new DataInputStream(new ByteArrayInputStream(data));
         }
     }
 
