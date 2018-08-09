@@ -265,16 +265,20 @@ final class PagedStorage<T> extends AbstractList<T> {
     // single page, trimming while the user can see a page boundary is dangerous. To be safe, we
     // just avoid trimming in these cases entirely.
 
-    boolean needsTrimFromFront(int maxSize, int requiredRemaining) {
-        return (mLoadedCount > maxSize
+    private boolean needsTrim(int maxSize, int requiredRemaining, int localPageIndex) {
+        List<T> page = mPages.get(localPageIndex);
+        return page == null || (mLoadedCount > maxSize
                 && mPages.size() > 2
-                && mLoadedCount - mPages.get(0).size() >= requiredRemaining);
+                && page != PLACEHOLDER_LIST
+                && mLoadedCount - page.size() >= requiredRemaining);
+    }
+
+    boolean needsTrimFromFront(int maxSize, int requiredRemaining) {
+        return needsTrim(maxSize, requiredRemaining, 0);
     }
 
     boolean needsTrimFromEnd(int maxSize, int requiredRemaining) {
-        return (mLoadedCount > maxSize
-                && mPages.size() > 2
-                && mLoadedCount - mPages.get(mPages.size() - 1).size() >= requiredRemaining);
+        return needsTrim(maxSize, requiredRemaining, mPages.size() - 1);
     }
 
     boolean shouldPreTrimNewPage(int maxSize, int requiredRemaining, int countToBeAdded) {
@@ -286,13 +290,12 @@ final class PagedStorage<T> extends AbstractList<T> {
     boolean trimFromFront(boolean insertNulls, int maxSize, int requiredRemaining,
             @NonNull Callback callback) {
         int totalRemoved = 0;
-        while (needsTrimFromFront(maxSize, requiredRemaining)
-                || mPages.get(0) == PLACEHOLDER_LIST) {
+        while (needsTrimFromFront(maxSize, requiredRemaining)) {
             List page = mPages.remove(0);
-            int removed = (page == PLACEHOLDER_LIST) ? mPageSize : page.size();
+            int removed = (page == null) ? mPageSize : page.size();
             totalRemoved += removed;
             mStorageCount -= removed;
-            mLoadedCount -= page.size();
+            mLoadedCount -= (page == null) ? 0 : page.size();
         }
 
         if (totalRemoved > 0) {
@@ -313,13 +316,12 @@ final class PagedStorage<T> extends AbstractList<T> {
     boolean trimFromEnd(boolean insertNulls, int maxSize, int requiredRemaining,
             @NonNull Callback callback) {
         int totalRemoved = 0;
-        while (needsTrimFromEnd(maxSize, requiredRemaining)
-                || mPages.get(mPages.size() - 1) == PLACEHOLDER_LIST) {
+        while (needsTrimFromEnd(maxSize, requiredRemaining)) {
             List page = mPages.remove(mPages.size() - 1);
-            int removed = (page == PLACEHOLDER_LIST) ? mPageSize : page.size();
+            int removed = (page == null) ? mPageSize : page.size();
             totalRemoved += removed;
             mStorageCount -= removed;
-            mLoadedCount -= page.size();
+            mLoadedCount -= (page == null) ? 0 : page.size();
         }
 
         if (totalRemoved > 0) {
@@ -418,6 +420,46 @@ final class PagedStorage<T> extends AbstractList<T> {
 
     // ------------------ Non-Contiguous API (tiling required) ----------------------
 
+    /**
+     * Return true if the page at the passed position would be the first (if trimFromFront) or last
+     * page that's currently loading.
+     */
+    boolean pageWouldBeBoundary(int positionOfPage, boolean trimFromFront) {
+        if (mPageSize < 1 || mPages.size() < 2) {
+            throw new IllegalStateException("Trimming attempt before sufficient load");
+        }
+
+        if (positionOfPage < mLeadingNullCount) {
+            // position represent page in leading nulls
+            return trimFromFront;
+        }
+
+        if (positionOfPage >= mLeadingNullCount + mStorageCount) {
+            // position represent page in trailing nulls
+            return !trimFromFront;
+        }
+
+        int localPageIndex = (positionOfPage - mLeadingNullCount) / mPageSize;
+
+        // walk outside in, return false if we find non-placeholder page before localPageIndex
+        if (trimFromFront) {
+            for (int i = 0; i < localPageIndex; i++) {
+                if (mPages.get(i) != null) {
+                    return false;
+                }
+            }
+        } else {
+            for (int i = mPages.size() - 1; i > localPageIndex; i--) {
+                if (mPages.get(i) != null) {
+                    return false;
+                }
+            }
+        }
+
+        // didn't find another page, so this one would be a boundary
+        return true;
+    }
+
     void initAndSplit(int leadingNulls, @NonNull List<T> multiPageList,
             int trailingNulls, int positionOffset, int pageSize, @NonNull Callback callback) {
 
@@ -438,6 +480,47 @@ final class PagedStorage<T> extends AbstractList<T> {
             }
         }
         callback.onInitialized(size());
+    }
+
+    void tryInsertPageAndTrim(
+            int position,
+            @NonNull List<T> page,
+            int lastLoad,
+            int maxSize,
+            int requiredRemaining,
+            @NonNull Callback callback) {
+        boolean trim = maxSize != PagedList.Config.MAX_SIZE_UNBOUNDED;
+        boolean trimFromFront = lastLoad > getMiddleOfLoadedRange();
+
+        boolean pageInserted = !trim
+                || !shouldPreTrimNewPage(maxSize, requiredRemaining, page.size())
+                || !pageWouldBeBoundary(position, trimFromFront);
+
+        if (pageInserted) {
+            insertPage(position, page, callback);
+        } else {
+            // trim would have us drop the page we just loaded - swap it to null
+            int localPageIndex = (position - mLeadingNullCount) / mPageSize;
+            mPages.set(localPageIndex, null);
+
+            // note: we also remove it, so we don't have to guess how large a 'null' page is later
+            mStorageCount -= page.size();
+            if (trimFromFront) {
+                mPages.remove(0);
+                mLeadingNullCount += page.size();
+            } else {
+                mPages.remove(mPages.size() - 1);
+                mTrailingNullCount += page.size();
+            }
+        }
+
+        if (trim) {
+            if (trimFromFront) {
+                trimFromFront(true, maxSize, requiredRemaining, callback);
+            } else {
+                trimFromEnd(true, maxSize, requiredRemaining, callback);
+            }
+        }
     }
 
     public void insertPage(int position, @NonNull List<T> page, @Nullable Callback callback) {
@@ -480,7 +563,7 @@ final class PagedStorage<T> extends AbstractList<T> {
         }
     }
 
-    private void allocatePageRange(final int minimumPage, final int maximumPage) {
+    void allocatePageRange(final int minimumPage, final int maximumPage) {
         int leadingNullPages = mLeadingNullCount / mPageSize;
 
         if (minimumPage < leadingNullPages) {

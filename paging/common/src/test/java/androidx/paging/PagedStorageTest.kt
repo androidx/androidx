@@ -406,6 +406,57 @@ class PagedStorageTest {
     }
 
     @Test
+    fun pageWouldBeBoundary_unallocated() {
+        val storage = PagedStorage<String>()
+        storage.initAndSplit(2, listOf("c", "d", "e", "f"), 1, 0, 2, IGNORED_CALLBACK)
+
+        assertTrue(storage.pageWouldBeBoundary(0, true))
+        assertFalse(storage.pageWouldBeBoundary(0, false))
+        assertTrue(storage.pageWouldBeBoundary(6, false))
+        assertFalse(storage.pageWouldBeBoundary(6, true))
+    }
+
+    @Test
+    fun pageWouldBeBoundary_front() {
+        val storage = PagedStorage<String>()
+        storage.initAndSplit(8, listOf("i", "j", "k", "l", "m", "n"), 0, 0, 2, IGNORED_CALLBACK)
+
+        for (i in 0..6 step 2) {
+            // any position in leading nulls would be front boundary
+            assertTrue(storage.pageWouldBeBoundary(i, true))
+            assertFalse(storage.pageWouldBeBoundary(i, false))
+        }
+
+        storage.allocatePlaceholders(8, 6, 2, IGNORED_CALLBACK)
+
+        for (i in 0..6 step 2) {
+            // 4 / 6 have a placeholder ahead, so they return false
+            assertEquals(i < 4, storage.pageWouldBeBoundary(i, true))
+            assertFalse(storage.pageWouldBeBoundary(i, false))
+        }
+    }
+
+    @Test
+    fun pageWouldBeBoundary_end() {
+        val storage = PagedStorage<String>()
+        storage.initAndSplit(0, listOf("a", "b", "c", "d", "e", "f"), 8, 0, 2, IGNORED_CALLBACK)
+
+        for (i in 6..12 step 2) {
+            // any position in leading nulls would be front boundary
+            assertFalse(storage.pageWouldBeBoundary(i, true))
+            assertTrue(storage.pageWouldBeBoundary(i, false))
+        }
+
+        storage.allocatePlaceholders(6, 6, 2, IGNORED_CALLBACK)
+
+        for (i in 6..12 step 2) {
+            // any position in leading nulls would be front boundary
+            assertFalse(storage.pageWouldBeBoundary(i, true))
+            assertEquals(i > 10, storage.pageWouldBeBoundary(i, false))
+        }
+    }
+
+    @Test
     fun trim_noOp() {
         val callback = mock(PagedStorage.Callback::class.java)
         val storage = PagedStorage<String>()
@@ -484,12 +535,11 @@ class PagedStorageTest {
     }
 
     @Test
-    fun trimFromFront_complexPlaceholders() {
+    fun trimFromFront_complexWithGaps() {
         val callback = mock(PagedStorage.Callback::class.java)
         val storage = PagedStorage<String>()
 
         storage.initAndSplit(4, listOf("e"), 3, 0, 1, callback)
-        storage.allocatePlaceholders(4, 3, 1, callback)
         storage.insertPage(1, listOf("b"), callback)
         storage.insertPage(3, listOf("d"), callback)
         storage.insertPage(6, listOf("g"), callback)
@@ -537,12 +587,11 @@ class PagedStorageTest {
     }
 
     @Test
-    fun trimFromEnd_complexPlaceholders() {
+    fun trimFromEnd_complexWithGaps() {
         val callback = mock(PagedStorage.Callback::class.java)
         val storage = PagedStorage<String>()
 
         storage.initAndSplit(3, listOf("d"), 4, 0, 1, callback)
-        storage.allocatePlaceholders(3, 3, 1, callback)
         storage.insertPage(0, listOf("a"), callback)
         storage.insertPage(1, listOf("b"), callback)
         storage.insertPage(5, listOf("f"), callback)
@@ -559,5 +608,19 @@ class PagedStorageTest {
         verify(callback).onPagesSwappedToPlaceholder(4, 3)
         assertEquals(4, storage.pageCount)
         assertEquals(listOf("a", "b", null, "d", null, null, null, null), storage)
+    }
+
+    companion object {
+        private val IGNORED_CALLBACK = object : PagedStorage.Callback {
+            override fun onInitialized(count: Int) {}
+            override fun onPagePrepended(leadingNulls: Int, changed: Int, added: Int) {}
+            override fun onPageAppended(endPosition: Int, changed: Int, added: Int) {}
+            override fun onPagePlaceholderInserted(pageIndex: Int) {}
+            override fun onPageInserted(start: Int, count: Int) {}
+            override fun onPagesRemoved(startOfDrops: Int, count: Int) {}
+            override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) {}
+            override fun onEmptyPrepend() {}
+            override fun onEmptyAppend() {}
+        }
     }
 }
