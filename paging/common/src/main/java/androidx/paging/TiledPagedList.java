@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 class TiledPagedList<T> extends PagedList<T>
@@ -50,12 +51,18 @@ class TiledPagedList<T> extends PagedList<T>
                 throw new IllegalArgumentException("unexpected resultType" + type);
             }
 
+            List<T> page = pageResult.page;
             if (mStorage.getPageCount() == 0) {
                 mStorage.initAndSplit(
-                        pageResult.leadingNulls, pageResult.page, pageResult.trailingNulls,
+                        pageResult.leadingNulls, page, pageResult.trailingNulls,
                         pageResult.positionOffset, mConfig.pageSize, TiledPagedList.this);
             } else {
-                mStorage.insertPage(pageResult.positionOffset, pageResult.page,
+                mStorage.tryInsertPageAndTrim(
+                        pageResult.positionOffset,
+                        page,
+                        mLastLoad,
+                        mConfig.maxSize,
+                        mRequiredRemainder,
                         TiledPagedList.this);
             }
 

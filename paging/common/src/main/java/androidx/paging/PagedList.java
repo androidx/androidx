@@ -146,6 +146,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
     int mLastLoad = 0;
     T mLastItem = null;
 
+    final int mRequiredRemainder;
+
     // if set to true, mBoundaryCallback is non-null, and should
     // be dispatched when nearby load has occurred
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -172,6 +174,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
         mBackgroundThreadExecutor = backgroundThreadExecutor;
         mBoundaryCallback = boundaryCallback;
         mConfig = config;
+        mRequiredRemainder = mConfig.prefetchDistance * 2 + mConfig.pageSize;
     }
 
     /**

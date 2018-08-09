@@ -57,8 +57,6 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final boolean mShouldTrim;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final int mRequiredRemainder = mConfig.prefetchDistance * 2 + mConfig.pageSize;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     PageResult.Receiver<V> mReceiver = new PageResult.Receiver<V>() {
@@ -91,6 +89,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             } else {
                 // if we end up trimming, we trim from side that's furthest from most recent access
                 boolean trimFromFront = mLastLoad > mStorage.getMiddleOfLoadedRange();
+
                 // is the new page big enough to warrant pre-trimming (i.e. dropping) it?
                 boolean skipNewPage = mShouldTrim
                         && mStorage.shouldPreTrimNewPage(
