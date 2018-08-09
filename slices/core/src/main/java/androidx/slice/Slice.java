@@ -248,6 +248,9 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
         for (int i = mItems.length - 1; i >= 0; i--) {
             if (mItems[i].mObj == null) {
                 mItems = ArrayUtils.removeElement(SliceItem.class, mItems, mItems[i]);
+                if (mItems == null) {
+                    mItems = new SliceItem[0];
+                }
             }
         }
     }
