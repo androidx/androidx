@@ -2,6 +2,8 @@ package androidx.ui.rendering.layer
 
 import androidx.ui.compositing.SceneBuilder
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.painting.matrixutils.TransformProperty
 import androidx.ui.vectormath64.Matrix4
 
 // / A composited layer that applies a given transformation matrix to its
@@ -50,10 +52,8 @@ class TransformLayer(
         transform.multiply(_lastEffectiveTransform)
     }
 
-    // TODO(Migration/andrey): Layer class should implement DiagnosticableTreeMixin first
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//        super.debugFillProperties(properties);
-//        properties.add(new TransformProperty('transform', transform));
-//    }
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        super.debugFillProperties(properties)
+        properties.add(TransformProperty(name = "transform", value = transform))
+    }
 }

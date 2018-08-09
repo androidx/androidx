@@ -2,6 +2,8 @@ package androidx.ui.rendering.layer
 
 import androidx.ui.compositing.SceneBuilder
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 
 // / A layer that is displayed at an offset from its parent layer.
 // /
@@ -32,12 +34,10 @@ open class OffsetLayer(
         addChildrenToScene(builder, offset + layerOffset)
     }
 
-    // TODO(Migration/andrey): Layer class should implement DiagnosticableTreeMixin first
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//        super.debugFillProperties(properties);
-//        properties.add(new DiagnosticsProperty<Offset>('offset', offset));
-//    }
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        super.debugFillProperties(properties)
+        properties.add(DiagnosticsProperty(name = "offset", value = offset))
+    }
 
     // TODO(Migration/andrey): Requires Image class
 //    /// Capture an image of the current state of this layer and its children.

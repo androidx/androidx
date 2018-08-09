@@ -24,21 +24,21 @@ package androidx.ui.foundation.diagnostics
 // /  * [DiagnosticsProperty], which should be used to create leaf diagnostic
 // /    nodes without properties or children. There are many [DiagnosticProperty]
 // /    subclasses to handle common use cases.
-abstract class Diagnosticable {
+interface Diagnosticable {
 
     // / A brief description of this object, usually just the [runtimeType] and the
     // / [hashCode].
     // /
     // / See also:
     // /
-    // /  * [toString], for a detailed description of the object.
-    open fun toStringShort() = describeIdentity(this)
+    // /  * [toStringDiagnostic], for a detailed description of the object.
+    fun toStringShort() = describeIdentity(this)
 
-    override fun toString(): String {
+    fun toStringDiagnostic(): String {
         return toStringParametrized(DiagnosticLevel.debug)
     }
 
-    open fun toStringParametrized(minLevel: DiagnosticLevel = DiagnosticLevel.debug): String {
+    fun toStringParametrized(minLevel: DiagnosticLevel = DiagnosticLevel.debug): String {
         return toDiagnosticsNode(style = DiagnosticsTreeStyle.singleLine)
                 .toStringParametrized(minLevel = minLevel)
     }
@@ -52,11 +52,11 @@ abstract class Diagnosticable {
     // / Typically the [style] argument is only specified to indicate an atypical
     // / relationship between the parent and the node. For example, pass
     // / [DiagnosticsTreeStyle.offstage] to indicate that a node is offstage.
-    open fun toDiagnosticsNode(
+    fun toDiagnosticsNode(
         name: String? = null,
         style: DiagnosticsTreeStyle? = null
     ): DiagnosticsNode {
-        return DiagnosticableNode<Diagnosticable>(
+        return DiagnosticableNode(
                 name = name,
                 value = this,
                 style = style
@@ -265,5 +265,5 @@ abstract class Diagnosticable {
     // / ```
     // /
     // / Used by [toDiagnosticsNode] and [toString].
-    open fun debugFillProperties(properties: DiagnosticPropertiesBuilder) { }
+    fun debugFillProperties(properties: DiagnosticPropertiesBuilder) { }
 }

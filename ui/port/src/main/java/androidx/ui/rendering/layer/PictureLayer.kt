@@ -3,6 +3,8 @@ package androidx.ui.rendering.layer
 import androidx.ui.compositing.SceneBuilder
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.painting.Picture
 
 // / A composited layer containing a [Picture].
@@ -52,10 +54,8 @@ class PictureLayer(
         builder.addPicture(layerOffset, picture, isComplexHint, willChangeHint)
     }
 
-    // TODO(Migration/andrey): Layer class should implement DiagnosticableTreeMixin first
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//        super.debugFillProperties(properties);
-//        properties.add(new DiagnosticsProperty<Rect>('paint bounds', canvasBounds));
-//    }
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        super.debugFillProperties(properties)
+        properties.add(DiagnosticsProperty(name = "paint bounds", value = canvasBounds))
+    }
 }

@@ -10,11 +10,9 @@ package androidx.ui.foundation.diagnostics
 // /
 // / See also:
 // /
-// /  * [DiagnosticableTreeMixin], which provides a mixin that implements this
-// /    class.
 // /  * [Diagnosticable], which should be used instead of this class to provide
 // /    diagnostics for objects without children.
-abstract class DiagnosticableTree : Diagnosticable() {
+interface DiagnosticableTree : Diagnosticable {
 
     // / Returns a one-line detailed description of the object.
     // /
@@ -31,14 +29,14 @@ abstract class DiagnosticableTree : Diagnosticable() {
     // /
     // / See also:
     // /
-    // /  * [toString], for a brief description of the object.
+    // /  * [toStringDiagnostic], for a brief description of the object.
     // /  * [toStringDeep], for a description of the subtree rooted at this object.
-    open fun toStringShallow(
+    fun toStringShallow(
         joiner: String = ", ",
         minLevel: DiagnosticLevel = DiagnosticLevel.debug
     ): String {
-        val result = StringBuffer()
-        result.append(toString())
+        val result = StringBuilder()
+        result.append(toStringDiagnostic())
         result.append(joiner)
         val builder = DiagnosticPropertiesBuilder()
         debugFillProperties(builder)
@@ -66,9 +64,9 @@ abstract class DiagnosticableTree : Diagnosticable() {
     // /  * [toString], for a brief description of the object but not its children.
     // /  * [toStringShallow], for a detailed description of the object but not its
     // /    children.
-    open fun toStringDeep(
+    fun toStringDeep(
         prefixLineOne: String = "",
-        prefixOtherLines: String,
+        prefixOtherLines: String = "",
         minLevel: DiagnosticLevel = DiagnosticLevel.debug
     ): String {
         return toDiagnosticsNode().toStringDeep(
@@ -107,5 +105,5 @@ abstract class DiagnosticableTree : Diagnosticable() {
     // /    descriptions for its child nodes.
     // /
     // / Used by [toStringDeep], [toDiagnosticsNode] and [toStringShallow].
-    open fun debugDescribeChildren(): List<DiagnosticsNode> = emptyList()
+    fun debugDescribeChildren(): List<DiagnosticsNode> = emptyList()
 }

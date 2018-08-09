@@ -1,4 +1,4 @@
-package androidx.ui.painting
+package androidx.ui.painting.matrixutils
 
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.vectormath64.Matrix4
