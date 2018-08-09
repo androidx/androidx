@@ -210,9 +210,10 @@ public class WorkerWrapper implements Runnable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void onWorkFinished(@NonNull Result result) {
-        try {
-            mWorkDatabase.beginTransaction();
-            if (!tryCheckForInterruptionAndNotify()) {
+        if (!tryCheckForInterruptionAndNotify()) {
+            try {
+                mWorkDatabase.beginTransaction();
+
                 State state = mWorkSpecDao.getState(mWorkSpecId);
                 if (state == null) {
                     // state can be null here with a REPLACE on beginUniqueWork().
@@ -226,11 +227,11 @@ public class WorkerWrapper implements Runnable {
                     rescheduleAndNotify();
                 }
                 mWorkDatabase.setTransactionSuccessful();
-            }
-        } finally {
-            mWorkDatabase.endTransaction();
-        }
 
+            } finally {
+                mWorkDatabase.endTransaction();
+            }
+        }
         // Try to schedule any newly-unblocked workers, and workers requiring rescheduling (such as
         // periodic work using AlarmManager).  This code runs after runWorker() because it should
         // happen in its own transaction.
