@@ -16,7 +16,7 @@
 
 package androidx.car.utils;
 
-import android.car.drivingstate.CarUxRestrictions;
+import androidx.car.uxrestrictions.CarUxRestrictions;
 
 /**
  * Utility handy for testing functionality regarding

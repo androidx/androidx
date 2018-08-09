@@ -20,14 +20,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
 import androidx.car.test.R;
+import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -220,7 +219,7 @@ public final class ListItemAdapterTest {
             }
 
             @Override
-            protected void applyUxRestrictions(@NonNull CarUxRestrictions restrictions) {
+            public void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo) {
                 // No-op
             }
         }
