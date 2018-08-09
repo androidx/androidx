@@ -42,6 +42,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -1435,11 +1436,11 @@ public class WorkManagerImplTest {
         mDatabase = mWorkManagerImpl.getWorkDatabase();
         // Initialization of WM enables SystemJobService which needs to be discounted.
         reset(packageManager);
-        OneTimeWorkRequest infiniteWorkerRequest =
+        OneTimeWorkRequest stopAwareWorkRequest =
                 new OneTimeWorkRequest.Builder(StopAwareWorker.class)
                         .build();
 
-        mWorkManagerImpl.enqueueSync(infiniteWorkerRequest);
+        mWorkManagerImpl.enqueueSync(stopAwareWorkRequest);
         ComponentName componentName = new ComponentName(mContext, RescheduleReceiver.class);
         verify(packageManager, times(1))
                 .setComponentEnabledSetting(eq(componentName),
@@ -1447,13 +1448,17 @@ public class WorkManagerImplTest {
                         eq(PackageManager.DONT_KILL_APP));
 
         reset(packageManager);
-        mWorkManagerImpl.cancelAllWorkSync();
+        mWorkManagerImpl.cancelWorkByIdSync(stopAwareWorkRequest.getId());
         // Sleeping for a little bit, to give the listeners a chance to catch up.
         Thread.sleep(SLEEP_DURATION_SMALL_MILLIS);
-        verify(packageManager)
+        // There is a small chance that we will call this method twice. Once when the Worker was
+        // cancelled, and once after the StopAwareWorker realizes that it has been stopped
+        // and returns a Result.SUCCESS
+        verify(packageManager, atLeastOnce())
                 .setComponentEnabledSetting(eq(componentName),
                         eq(PackageManager.COMPONENT_ENABLED_STATE_DISABLED),
                         eq(PackageManager.DONT_KILL_APP));
+
     }
 
     @Test

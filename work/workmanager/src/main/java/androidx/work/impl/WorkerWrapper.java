@@ -238,7 +238,18 @@ public class WorkerWrapper implements Runnable {
         //
         // Further investigation: This could also happen as part of the Processor's
         // ExecutionListener callback.  Does that make more sense?
-        Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
+
+        // Avoiding synthetic accessors
+        // All calls to Schedulers.schedule() should always happen on the TaskExecutor thread.
+        final Configuration configuration = mConfiguration;
+        final WorkDatabase workDatabase = mWorkDatabase;
+        final List<Scheduler> schedulers = mSchedulers;
+        WorkManagerTaskExecutor.getInstance().executeOnBackgroundThread(new Runnable() {
+            @Override
+            public void run() {
+                Schedulers.schedule(configuration, workDatabase, schedulers);
+            }
+        });
     }
 
     /**
