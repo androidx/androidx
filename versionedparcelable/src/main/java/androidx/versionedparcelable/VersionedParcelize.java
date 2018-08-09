@@ -81,4 +81,11 @@ public @interface VersionedParcelize {
      * migration.
      */
     String jetifyAs() default "";
+
+    /**
+     * Specifies a class to use to get objects for instantiation rather than creating them
+     * directly. The class must have an accessible empty constructor, and a get() method that
+     * returns an instance of the class this annotation is on.
+     */
+    Class factory() default void.class;
 }

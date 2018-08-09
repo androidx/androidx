@@ -48,6 +48,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 import androidx.slice.Slice;
+import androidx.slice.SliceItemHolder;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
 import androidx.versionedparcelable.ParcelUtils;
@@ -143,7 +144,9 @@ public class SliceProviderCompat {
             Slice s = handleBindSlice(uri, specs, getCallingPackage());
             Bundle b = new Bundle();
             if (ARG_SUPPORTS_VERSIONED_PARCELABLE.equals(arg)) {
-                b.putParcelable(EXTRA_SLICE, s != null ? ParcelUtils.toParcelable(s) : null);
+                synchronized (SliceItemHolder.sSerializeLock) {
+                    b.putParcelable(EXTRA_SLICE, s != null ? ParcelUtils.toParcelable(s) : null);
+                }
             } else {
                 b.putParcelable(EXTRA_SLICE, s != null ? s.toBundle() : null);
             }
@@ -156,7 +159,10 @@ public class SliceProviderCompat {
                 Set<SliceSpec> specs = getSpecs(extras);
                 Slice s = handleBindSlice(uri, specs, getCallingPackage());
                 if (ARG_SUPPORTS_VERSIONED_PARCELABLE.equals(arg)) {
-                    b.putParcelable(EXTRA_SLICE, s != null ? ParcelUtils.toParcelable(s) : null);
+                    synchronized (SliceItemHolder.sSerializeLock) {
+                        b.putParcelable(EXTRA_SLICE,
+                                s != null ? ParcelUtils.toParcelable(s) : null);
+                    }
                 } else {
                     b.putParcelable(EXTRA_SLICE, s != null ? s.toBundle() : null);
                 }
@@ -324,7 +330,9 @@ public class SliceProviderCompat {
             if (parcel instanceof Bundle) {
                 return new Slice((Bundle) parcel);
             }
-            return ParcelUtils.fromParcelable(parcel);
+            synchronized (SliceItemHolder.sSerializeLock) {
+                return ParcelUtils.fromParcelable(parcel);
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to bind slice", e);
             return null;
@@ -421,7 +429,9 @@ public class SliceProviderCompat {
             if (parcel instanceof Bundle) {
                 return new Slice((Bundle) parcel);
             }
-            return ParcelUtils.fromParcelable(parcel);
+            synchronized (SliceItemHolder.sSerializeLock) {
+                return ParcelUtils.fromParcelable(parcel);
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to bind slice", e);
             return null;

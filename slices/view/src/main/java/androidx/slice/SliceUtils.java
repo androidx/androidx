@@ -27,14 +27,11 @@ import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
-import static android.app.slice.SliceItem.FORMAT_SLICE;
-import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -46,7 +43,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.util.Pair;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceHints;
@@ -62,7 +58,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -81,13 +76,13 @@ public class SliceUtils {
      * the size of a slice by only including data for the slice to be displayed
      * in a specific mode.
      *
-     * @param s The slice to strip.
-     * @param mode The mode that will be used with {@link SliceView#setMode} to
-     *             display the slice.
+     * @param s            The slice to strip.
+     * @param mode         The mode that will be used with {@link SliceView#setMode} to
+     *                     display the slice.
      * @param isScrollable The value that will be used with {@link SliceView#setScrollable} to
-     *             display the slice.
+     *                     display the slice.
      * @return returns A new smaller slice if stripping can be done, or the
-     *                 original slice if no content can be removed.
+     * original slice if no content can be removed.
      */
     @NonNull
     public static Slice stripSlice(@NonNull Slice s, @SliceMode int mode, boolean isScrollable) {
@@ -183,84 +178,64 @@ public class SliceUtils {
      * Some slice types cannot be serialized, their handling is controlled by
      * {@link SerializeOptions}.
      *
-     * @param s The slice to serialize.
+     * @param s       The slice to serialize.
      * @param context Context used to load any resources in the slice.
-     * @param output The output of the serialization.
+     * @param output  The output of the serialization.
      * @param options Options defining how to handle non-serializable items.
      * @throws IllegalArgumentException if the slice cannot be serialized using the given options.
      */
-    public static void serializeSlice(@NonNull Slice s, @NonNull Context context,
+    public static void serializeSlice(@NonNull Slice s, @NonNull final Context context,
             @NonNull OutputStream output,
-            @NonNull SerializeOptions options) throws IllegalArgumentException {
-        Slice converted = convert(context, s, options);
-        ParcelUtils.toOutputStream(converted, output);
+            @NonNull final SerializeOptions options) throws IllegalArgumentException {
+        synchronized (SliceItemHolder.sSerializeLock) {
+            SliceItemHolder.sHandler = new SliceItemHolder.HolderHandler() {
+                @Override
+                public void handle(SliceItemHolder holder, String format) {
+                    handleOptions(context, holder, format, options);
+                }
+            };
+            ParcelUtils.toOutputStream(s, output);
+            SliceItemHolder.sHandler = null;
+        }
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @SuppressLint("NewApi")
-    public static Slice convert(Context context, Slice slice, SerializeOptions options) {
-        Slice.Builder builder = new Slice.Builder(slice.getUri());
-        builder.setSpec(slice.getSpec());
-        builder.addHints(slice.getHints());
-        for (androidx.slice.SliceItem item : slice.getItems()) {
-            switch (item.getFormat()) {
-                case FORMAT_SLICE:
-                    builder.addSubSlice(convert(context, item.getSlice(), options),
-                            item.getSubType());
-                    break;
-                case FORMAT_IMAGE:
-                    switch (options.getImageMode()) {
-                        case SerializeOptions.MODE_THROW:
-                            throw new IllegalArgumentException("Cannot serialize icon");
-                        case SerializeOptions.MODE_REMOVE:
-                            // Just ignore it.
-                            break;
-                        case SerializeOptions.MODE_CONVERT:
-                            builder.addIcon(convert(context, item.getIcon(), options),
-                                    item.getSubType(), item.getHints());
-                            break;
-                    }
-                    break;
-                case FORMAT_REMOTE_INPUT:
-                    if (options.getActionMode() == SerializeOptions.MODE_THROW) {
-                        builder.addRemoteInput(item.getRemoteInput(), item.getSubType(),
-                                item.getHints());
-                    }
-                    break;
-                case FORMAT_ACTION:
-                    switch (options.getActionMode()) {
-                        case SerializeOptions.MODE_THROW:
-                            throw new IllegalArgumentException("Cannot serialize action");
-                        case SerializeOptions.MODE_REMOVE:
-                            // Just ignore it.
-                            break;
-                        case SerializeOptions.MODE_CONVERT:
-                            SliceItem.ActionHandler action = new SliceItem.ActionHandler() {
-                                @Override
-                                public void onAction(SliceItem item, Context context,
-                                        Intent intent) {
-                                }
-                            };
-                            builder.addAction(action, convert(context, item.getSlice(), options),
-                                    item.getSubType());
-                            break;
-                    }
-                    break;
-                case FORMAT_TEXT:
-                    builder.addText(item.getText(), item.getSubType(), item.getHints());
-                    break;
-                case FORMAT_INT:
-                    builder.addInt(item.getInt(), item.getSubType(), item.getHints());
-                    break;
-                case FORMAT_LONG:
-                    builder.addLong(item.getLong(), item.getSubType(), item.getHints());
-                    break;
-            }
+    static void handleOptions(Context context, SliceItemHolder holder, String format,
+            SerializeOptions options) {
+        switch (format) {
+            case FORMAT_IMAGE:
+                switch (options.getImageMode()) {
+                    case SerializeOptions.MODE_THROW:
+                        throw new IllegalArgumentException("Cannot serialize icon");
+                    case SerializeOptions.MODE_REMOVE:
+                        // Remove the icon.
+                        holder.mVersionedParcelable = null;
+                        break;
+                    case SerializeOptions.MODE_CONVERT:
+                        holder.mVersionedParcelable = convert(context,
+                                (IconCompat) holder.mVersionedParcelable, options);
+                        break;
+                }
+                break;
+            case FORMAT_REMOTE_INPUT:
+                if (options.getActionMode() == SerializeOptions.MODE_THROW) {
+                    throw new IllegalArgumentException("Cannot serialize action");
+                } else {
+                    holder.mParcelable = null;
+                }
+                break;
+            case FORMAT_ACTION:
+                switch (options.getActionMode()) {
+                    case SerializeOptions.MODE_THROW:
+                        throw new IllegalArgumentException("Cannot serialize action");
+                    case SerializeOptions.MODE_REMOVE:
+                        holder.mVersionedParcelable = null;
+                        break;
+                    case SerializeOptions.MODE_CONVERT:
+                        holder.mParcelable = null;
+                        break;
+                }
+                break;
         }
-        return builder.build();
     }
 
     /**
@@ -284,14 +259,14 @@ public class SliceUtils {
      * <p>
      * Note: Slices returned by this cannot be passed to {@link SliceConvert#unwrap(Slice)}.
      *
-     * @param input The input stream to read from.
+     * @param input    The input stream to read from.
      * @param encoding The encoding to read as.
      * @param listener Listener used to handle actions when reconstructing the slice.
      * @throws SliceParseException if the InputStream cannot be parsed.
      */
-    public static @NonNull Slice parseSlice(@NonNull Context context, @NonNull InputStream input,
-            @NonNull String encoding, @NonNull final SliceActionListener listener)
-            throws IOException, SliceParseException {
+    public static @NonNull Slice parseSlice(@NonNull final Context context,
+            @NonNull InputStream input, @NonNull String encoding,
+            @NonNull final SliceActionListener listener) throws IOException, SliceParseException {
         BufferedInputStream bufferedInputStream = new BufferedInputStream(input);
         String parcelName = Slice.class.getName();
 
@@ -299,15 +274,25 @@ public class SliceUtils {
         boolean usesParcel = doesStreamStartWith(parcelName, bufferedInputStream);
         bufferedInputStream.reset();
         if (usesParcel) {
-            Slice slice = ParcelUtils.fromInputStream(bufferedInputStream);
-            slice.mHints = ArrayUtils.appendElement(String.class, slice.mHints,
-                    SliceHints.HINT_CACHED);
-            setActionsAndUpdateIcons(slice, new SliceItem.ActionHandler() {
+            Slice slice;
+            final SliceItem.ActionHandler handler = new SliceItem.ActionHandler() {
                 @Override
                 public void onAction(SliceItem item, Context context, Intent intent) {
                     listener.onSliceAction(item.getSlice().getUri(), context, intent);
                 }
-            }, context);
+            };
+            synchronized (SliceItemHolder.sSerializeLock) {
+                SliceItemHolder.sHandler = new SliceItemHolder.HolderHandler() {
+                    @Override
+                    public void handle(SliceItemHolder holder, String format) {
+                        setActionsAndUpdateIcons(holder, handler, context, format);
+                    }
+                };
+                slice = ParcelUtils.fromInputStream(bufferedInputStream);
+                slice.mHints = ArrayUtils.appendElement(String.class, slice.mHints,
+                        SliceHints.HINT_CACHED);
+                SliceItemHolder.sHandler = null;
+            }
             return slice;
         }
         Slice s = SliceXml.parseSlice(context, bufferedInputStream, encoding, listener);
@@ -315,22 +300,18 @@ public class SliceUtils {
         return s;
     }
 
-    private static void setActionsAndUpdateIcons(Slice slice, SliceItem.ActionHandler listener,
-            Context context) {
-        for (SliceItem sliceItem : slice.getItems()) {
-            switch (sliceItem.getFormat()) {
-                case FORMAT_IMAGE:
-                    sliceItem.getIcon().checkResource(context);
-                    break;
-                case FORMAT_ACTION:
-                    sliceItem.mObj = new Pair<Object, Slice>(listener,
-                            ((Pair<Object, Slice>) sliceItem.mObj).second);
-                    setActionsAndUpdateIcons(sliceItem.getSlice(), listener, context);
-                    break;
-                case FORMAT_SLICE:
-                    setActionsAndUpdateIcons(sliceItem.getSlice(), listener, context);
-                    break;
-            }
+    static void setActionsAndUpdateIcons(SliceItemHolder holder,
+            SliceItem.ActionHandler listener,
+            Context context, String format) {
+        switch (format) {
+            case FORMAT_IMAGE:
+                if (holder.mVersionedParcelable instanceof IconCompat) {
+                    ((IconCompat) holder.mVersionedParcelable).checkResource(context);
+                }
+                break;
+            case FORMAT_ACTION:
+                holder.mCallback = listener;
+                break;
         }
     }
 
@@ -345,7 +326,7 @@ public class SliceUtils {
             if (inputStream.read(buf, 0, buf.length) < 0) {
                 return false;
             }
-            return Arrays.equals(buf, data);
+            return parcelName.equals(new String(buf, "UTF-16"));
         } catch (IOException e) {
             return false;
         }
@@ -458,6 +439,7 @@ public class SliceUtils {
          * Sets how {@link android.app.slice.SliceItem#FORMAT_ACTION} items should be handled.
          *
          * The default mode is {@link #MODE_THROW}.
+         *
          * @param mode The desired mode.
          */
         public SerializeOptions setActionMode(@FormatMode int mode) {
@@ -469,6 +451,7 @@ public class SliceUtils {
          * Sets how {@link android.app.slice.SliceItem#FORMAT_IMAGE} items should be handled.
          *
          * The default mode is {@link #MODE_THROW}.
+         *
          * @param mode The desired mode.
          */
         public SerializeOptions setImageMode(@FormatMode int mode) {
@@ -504,8 +487,8 @@ public class SliceUtils {
          * Sets the options to use when converting icons to be serialized. Only used if
          * the image mode is set to {@link #MODE_CONVERT}.
          *
-         * @param format The format to encode images with, default is
-         *               {@link android.graphics.Bitmap.CompressFormat#PNG}.
+         * @param format  The format to encode images with, default is
+         *                {@link android.graphics.Bitmap.CompressFormat#PNG}.
          * @param quality The quality to use when encoding images.
          */
         public SerializeOptions setImageConversionFormat(Bitmap.CompressFormat format,
@@ -524,9 +507,10 @@ public class SliceUtils {
         /**
          * Called when an action is triggered on a slice parsed with
          * {@link #parseSlice(Context, InputStream, String, SliceActionListener)}.
+         *
          * @param actionUri The uri of the action selected.
-         * @param context The context passed to {@link SliceItem#fireAction(Context, Intent)}
-         * @param intent The intent passed to {@link SliceItem#fireAction(Context, Intent)}
+         * @param context   The context passed to {@link SliceItem#fireAction(Context, Intent)}
+         * @param intent    The intent passed to {@link SliceItem#fireAction(Context, Intent)}
          */
         void onSliceAction(Uri actionUri, Context context, Intent intent);
     }
