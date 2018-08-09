@@ -361,14 +361,35 @@ public class RecyclerViewBasicTest {
     }
 
     @Test
-    public void smoothScrollWithCustomInterpolator() {
+    public void smoothScrollBy_withCustomInterpolator_usesCustomInterpolator() {
         mRecyclerView.setLayoutManager(new MockLayoutManager());
         mRecyclerView.setAdapter(new MockAdapter(20));
         Interpolator interpolator = new LinearInterpolator();
         mRecyclerView.smoothScrollBy(0, 100, interpolator);
         assertSame(interpolator, mRecyclerView.mViewFlinger.mInterpolator);
+    }
+
+    @Test
+    public void smoothScrollBy_withoutCustomInterpolator_resetsToDefaultInterpolator() {
+        mRecyclerView.setLayoutManager(new MockLayoutManager());
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        Interpolator interpolator = new LinearInterpolator();
+        mRecyclerView.smoothScrollBy(0, 100, interpolator);
 
         mRecyclerView.smoothScrollBy(0, -100);
+
+        assertSame(RecyclerView.sQuinticInterpolator, mRecyclerView.mViewFlinger.mInterpolator);
+    }
+
+    @Test
+    public void fling_resetsInterpolatorToDefault() {
+        mRecyclerView.setLayoutManager(new MockLayoutManager());
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        Interpolator interpolator = new LinearInterpolator();
+        mRecyclerView.smoothScrollBy(0, 100, interpolator);
+
+        mRecyclerView.fling(0, -1000);
+
         assertSame(RecyclerView.sQuinticInterpolator, mRecyclerView.mViewFlinger.mInterpolator);
     }
 
