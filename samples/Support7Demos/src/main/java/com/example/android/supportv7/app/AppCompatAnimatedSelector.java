@@ -35,10 +35,17 @@ public class AppCompatAnimatedSelector extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.appcompat_animated_selector);
-        final CheckBox checkbox = findViewById(R.id.checkbox);
-        if (checkbox != null) {
+
+        final CheckBox checkbox1 = findViewById(R.id.checkbox1);
+        if (checkbox1 != null) {
             final Drawable asl = AppCompatResources.getDrawable(this, R.drawable.asl_heart_checked);
-            checkbox.setButtonDrawable(asl);
+            checkbox1.setButtonDrawable(asl);
+        }
+
+        final CheckBox checkbox2 = findViewById(R.id.checkbox2);
+        if (checkbox2 != null) {
+            final Drawable asl = AppCompatResources.getDrawable(this, R.drawable.asl_heart_checked);
+            checkbox2.setButtonDrawable(asl);
         }
     }
 }

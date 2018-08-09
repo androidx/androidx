@@ -17,6 +17,7 @@
 package androidx.appcompat.graphics.drawable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -39,6 +40,7 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -61,8 +63,8 @@ public class AnimatedStateListDrawableCompatTest {
     public void testStateListDrawable() {
         new AnimatedStateListDrawableCompat();
 
-        // Constant state is disabled due to a bug
-        assertNull(new AnimatedStateListDrawableCompat().getConstantState());
+        // Check the values set in the constructor
+        assertNotNull(new AnimatedStateListDrawableCompat().getConstantState());
     }
 
     @Test
@@ -178,6 +180,21 @@ public class AnimatedStateListDrawableCompatTest {
                 R.drawable.asl_heart_embedded, mContext.getTheme());
         // Check that 4 drawables were parsed
         assertEquals(4, asld.getStateCount());
+    }
+
+    @Test
+    public void testConstantStateWhenChildHasNullConstantState() {
+        // Given an empty ASLD which returns a constant state
+        AnimatedStateListDrawableCompat asld = new AnimatedStateListDrawableCompat();
+        assertNotNull(asld.getConstantState());
+
+        // When a drawable who returns a null constant state is added
+        Drawable noConstantStateDrawable = mock(Drawable.class);
+        Mockito.when(noConstantStateDrawable.getConstantState()).thenReturn(null);
+        asld.addState(StateSet.WILD_CARD, noConstantStateDrawable, R.id.focused);
+
+        // Then the ASLD should also return a null constant state
+        assertNull(asld.getConstantState());
     }
 
     public abstract class MockTransition extends MockDrawable implements Animatable,
