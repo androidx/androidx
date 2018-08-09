@@ -605,7 +605,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    public ConstantState getConstantState() {
+    public final ConstantState getConstantState() {
         if (mDrawableContainerState.canConstantState()) {
             mDrawableContainerState.mChangingConfigurations = getChangingConfigurations();
             return mDrawableContainerState;
