@@ -58,7 +58,7 @@ class ErrorWidget(exception: Any) : LeafRenderObjectWidget(key = UniqueKey()) {
         // /    reported.
         val builder: ErrorWidgetBuilder = { details -> ErrorWidget(details.exception) }
 
-        private fun _stringify(exception: Any): String {
+        internal fun _stringify(exception: Any): String {
             try {
                 return exception.toString()
             } catch (e: Throwable) { } // ignore: empty_catches

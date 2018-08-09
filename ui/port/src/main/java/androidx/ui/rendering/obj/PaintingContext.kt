@@ -183,7 +183,7 @@ class PaintingContext(
         _containerLayer.append(_currentLayer!!)
     }
 
-    private fun _stopRecordingIfNeeded() {
+    internal fun _stopRecordingIfNeeded() {
         if (!_isRecording)
             return
         assert {
