@@ -197,6 +197,18 @@ limitations under the License.
         <item name="navigationIcon">@drawable/ic_nav_arrow_back</item>
     </style>
 
+    <!-- ================ -->
+    <!-- CarToolbar Style -->
+    <!-- ================ -->
+    <eat-comment />
+    <!-- The styling for CarToolbar. -->
+    <style name="Widget.Car.CarToolbar" parent="android:Widget">
+        <item name="android:background">@color/car_card</item>
+        <item name="navigationIcon">@drawable/ic_nav_arrow_back</item>
+        <item name="navigationIconContainerWidth">@dimen/car_margin</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Car.Body1.Medium</item>
+    </style>
+
     <!-- The styling of a Toolbar that is fixed to light-colored text. -->
     <style name="Widget.Car.Toolbar.Light">
         <item name="subtitleTextAppearance">@style/TextAppearance.Car.Body2.Light</item>

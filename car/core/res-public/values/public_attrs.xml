@@ -90,4 +90,11 @@
     <public type="attr" name="drawerListId" />
     <public type="attr" name="drawerTitleId" />
     <public type="attr" name="drawerProgressId" />
+
+    <!-- CarToolbar attributes -->
+    <public type="attr" name="navigationIcon" />
+    <public type="attr" name="navigationIconBackground" />
+    <public type="attr" name="navigationIconContainerWidth" />
+    <public type="attr" name="title" />
+    <public type="attr" name="titleTextAppearance" />
 </resources>

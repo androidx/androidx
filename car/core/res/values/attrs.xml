@@ -171,6 +171,15 @@ limitations under the License.
         <attr name="columns" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="CarToolbar">
+        <!-- Drawable to use for the navigation button located at the start of the toolbar. -->
+        <attr name="navigationIcon" format="reference" />
+        <!-- The width of space in which navigation icon will be centered. -->
+        <attr name="navigationIconContainerWidth" format="dimension" />
+        <attr name="title" formant="string" />
+        <attr name="titleTextAppearance" format="reference" />
+    </declare-styleable>
+
     <!-- Attributes specifically related to modifying car themes. -->
     <declare-styleable name="CarTheme">
         <!-- ================== -->
@@ -188,6 +197,10 @@ limitations under the License.
 
         <!-- An attribute for specifying a style that modifies the look of PagedScrollBarViews. -->
         <attr name="pagedScrollBarViewStyle" format="reference"/>
+
+        <!-- An attribute for specifying a style that modifies the look of CarToolbar. -->
+        <attr name="carToolbarStyle" format="reference"/>
+
 
         <!-- ================= -->
         <!-- Dialog Attributes -->
