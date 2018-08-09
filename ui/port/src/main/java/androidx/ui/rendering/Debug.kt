@@ -30,10 +30,10 @@ package androidx.ui.rendering
 // ///
 // /// Padding is filled in solid `const Color(0x900090FF)`, with the inner edge
 // /// outlined in `const Color(0xFF0090FF)`, using [debugPaintPadding].
-// bool debugPaintSizeEnabled = false;
+val debugPaintSizeEnabled = false
 //
 // /// Causes each RenderBox to paint a line at each of its baselines.
-// bool debugPaintBaselinesEnabled = false;
+val debugPaintBaselinesEnabled = false
 //
 // /// Causes each Layer to paint a box around its bounds.
 // bool debugPaintLayerBordersEnabled = false;
@@ -44,7 +44,7 @@ package androidx.ui.rendering
 // ///
 // /// For details on how to support this in your [RenderBox] subclass, see
 // /// [RenderBox.debugHandleEvent].
-// bool debugPaintPointersEnabled = false;
+val debugPaintPointersEnabled = false
 //
 // /// Overlay a rotating set of colors when repainting layers in checked mode.
 // bool debugRepaintRainbowEnabled = false;

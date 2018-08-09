@@ -8,7 +8,13 @@ import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.painting.Paint
+import androidx.ui.painting.PaintingStyle
 import androidx.ui.rendering.debugCheckIntrinsicSizes
+import androidx.ui.rendering.debugPaintBaselinesEnabled
+import androidx.ui.rendering.debugPaintPointersEnabled
+import androidx.ui.rendering.debugPaintSizeEnabled
+import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.runtimeType
 
@@ -1023,6 +1029,7 @@ abstract class RenderBox : RenderObject() {
         }
     }
 
+    // TODO(Migration/andrey): Needs TextBaseline
 //    /// Returns the distance from the y-coordinate of the position of the box to
 //    /// the y-coordinate of the first given baseline in the box's contents.
 //    ///
@@ -1525,88 +1532,92 @@ abstract class RenderBox : RenderObject() {
 //        return true;
 //    }
 
-    // TODO(Migration/xbhatnag): Needs PaintingContext
-//    @override
-//    void debugPaint(PaintingContext context, Offset offset) {
-//        assert(() {
-//            if (debugPaintSizeEnabled)
-//                debugPaintSize(context, offset);
-//            if (debugPaintBaselinesEnabled)
-//                debugPaintBaselines(context, offset);
-//            if (debugPaintPointersEnabled)
-//                debugPaintPointers(context, offset);
-//            return true;
-//        }());
-//    }
+    override fun debugPaint(context: PaintingContext, offset: Offset) {
+        assert {
+            if (debugPaintSizeEnabled)
+                debugPaintSize(context, offset)
+            if (debugPaintBaselinesEnabled)
+                debugPaintBaselines(context, offset)
+            if (debugPaintPointersEnabled)
+                debugPaintPointers(context, offset)
+            true
+        }
+    }
 
-    // TODO(Migration/xbhatnag): Needs PaintingContext
-//    /// In debug mode, paints a border around this render box.
-//    ///
-//    /// Called for every [RenderBox] when [debugPaintSizeEnabled] is true.
-//    @protected
-//    void debugPaintSize(PaintingContext context, Offset offset) {
-//        assert(() {
-//            final Paint paint = new Paint()
-//            ..style = PaintingStyle.stroke
-//            ..strokeWidth = 1.0
-//            ..color = const Color(0xFF00FFFF);
-//            context.canvas.drawRect((offset & size).deflate(0.5), paint);
-//            return true;
-//        }());
-//    }
+    /**
+     * In debug mode, paints a border around this render box.
+     *
+     * Called for every [RenderBox] when [debugPaintSizeEnabled] is true.
+     */
+    protected fun debugPaintSize(context: PaintingContext, offset: Offset) {
+        assert {
+            val paint = Paint().apply {
+                style = PaintingStyle.stroke
+                strokeWidth = 1.0
+                color = 0xFF00FFFF.toInt()
+            }
+            context.canvas.drawRect((offset.and(size!!)).deflate(0.5), paint)
+            true
+        }
+    }
 
-    // TODO(Migration/xbhatnag): Needs PaintingContext
-//    /// In debug mode, paints a line for each baseline.
-//    ///
-//    /// Called for every [RenderBox] when [debugPaintBaselinesEnabled] is true.
-//    @protected
-//    void debugPaintBaselines(PaintingContext context, Offset offset) {
-//        assert(() {
-//            final Paint paint = new Paint()
-//            ..style = PaintingStyle.stroke
-//            ..strokeWidth = 0.25;
-//            Path path;
+    /**
+     * In debug mode, paints a line for each baseline.
+     *
+     * Called for every [RenderBox] when [debugPaintBaselinesEnabled] is true.
+     */
+    protected fun debugPaintBaselines(context: PaintingContext, offset: Offset) {
+        // TODO(Migration/andrey): Needs TextBaseline
+        TODO()
+//        assert {
+//            val paint = Paint().apply {
+//                style = PaintingStyle.stroke
+//                strokeWidth = 0.25
+//            }
+//            var path : Path? = null
 //            // ideographic baseline
-//            final double baselineI = getDistanceToBaseline(TextBaseline.ideographic, onlyReal: true);
+//            val baselineI : Double? = getDistanceToBaseline(TextBaseline.ideographic, onlyReal: true);
 //            if (baselineI != null) {
-//                paint.color = const Color(0xFFFFD000);
-//                path = new Path();
-//                path.moveTo(offset.dx, offset.dy + baselineI);
-//                path.lineTo(offset.dx + size.width, offset.dy + baselineI);
+//                paint.color = 0xFFFFD000.toInt()
+//                path = Path()
+//                path.moveTo(offset.dx, offset.dy + baselineI)
+//                path.lineTo(offset.dx + size!!.width, offset.dy + baselineI)
 //                context.canvas.drawPath(path, paint);
 //            }
 //            // alphabetic baseline
-//            final double baselineA = getDistanceToBaseline(TextBaseline.alphabetic, onlyReal: true);
+//            val baselineA : Double? = getDistanceToBaseline(TextBaseline.alphabetic, onlyReal: true);
 //            if (baselineA != null) {
-//                paint.color = const Color(0xFF00FF00);
-//                path = new Path();
+//                paint.color = 0xFF00FF00.toInt()
+//                path = Path();
 //                path.moveTo(offset.dx, offset.dy + baselineA);
-//                path.lineTo(offset.dx + size.width, offset.dy + baselineA);
+//                path.lineTo(offset.dx + size!!.width, offset.dy + baselineA);
 //                context.canvas.drawPath(path, paint);
 //            }
-//            return true;
-//        }());
-//    }
+//            true
+//        }
+    }
 
-    // TODO(Migration/xbhatnag): Needs PaintingContext
-//    /// In debug mode, paints a rectangle if this render box has counted more
-//    /// pointer downs than pointer up events.
-//    ///
-//    /// Called for every [RenderBox] when [debugPaintPointersEnabled] is true.
-//    ///
-//    /// By default, events are not counted. For details on how to ensure that
-//    /// events are counted for your class, see [debugHandleEvent].
-//    @protected
-//    void debugPaintPointers(PaintingContext context, Offset offset) {
-//        assert(() {
-//            if (_debugActivePointers > 0) {
-//                final Paint paint = new Paint()
-//                ..color = new Color(0x00BBBB | ((0x04000000 * depth) & 0xFF000000));
-//                context.canvas.drawRect(offset & size, paint);
-//            }
-//            return true;
-//        }());
-//    }
+    /**
+     * In debug mode, paints a rectangle if this render box has counted more
+     * pointer downs than pointer up events.
+     *
+     * Called for every [RenderBox] when [debugPaintPointersEnabled] is true.
+     *
+     * By default, events are not counted. For details on how to ensure that
+     * events are counted for your class, see [debugHandleEvent].
+     */
+    protected fun debugPaintPointers(context: PaintingContext, offset: Offset) {
+        assert {
+            if (_debugActivePointers > 0) {
+                val paint = Paint().apply {
+                    // new Color(0x00BBBB | ((0x04000000 * depth) & 0xFF000000));
+                    color = (0x00BBBB or ((0x04000000 * depth) and 0xFF000000.toInt()))
+                }
+                context.canvas.drawRect(offset.and(size!!), paint)
+            }
+            true
+        }
+    }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
