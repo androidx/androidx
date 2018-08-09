@@ -22,7 +22,8 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
+import androidx.viewpager2.adapter.FragmentProvider;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,7 +39,7 @@ public class FragmentAdapterActivity extends BaseActivity {
     protected void setAdapter() {
         mFragments = new PageFragment[mTotalPages];
 
-        ViewPager2.FragmentProvider fragmentProvider = new ViewPager2.FragmentProvider() {
+        FragmentProvider fragmentProvider = new FragmentProvider() {
             final boolean[] mWasEverAttached = new boolean[mTotalPages];
 
             @Override
@@ -76,8 +77,8 @@ public class FragmentAdapterActivity extends BaseActivity {
             }
         };
 
-        mViewPager.setAdapter(getSupportFragmentManager(), fragmentProvider,
-                ViewPager2.FragmentRetentionPolicy.SAVE_STATE);
+        mViewPager.setAdapter(
+                new FragmentStateAdapter(getSupportFragmentManager(), fragmentProvider));
     }
 
     @Override
