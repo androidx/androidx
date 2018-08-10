@@ -173,6 +173,13 @@ public class SliceTest {
     }
 
     @Test
+    public void testForceZeroIcon() {
+        Uri uri = BASE_URI.buildUpon().appendPath("icon_zero").build();
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
+        assertTrue(s.getItems().isEmpty());
+    }
+
+    @Test
     public void testInvalidResIdIcon() {
         Uri uri = BASE_URI.buildUpon().appendPath("icon_invalid").build();
         Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());

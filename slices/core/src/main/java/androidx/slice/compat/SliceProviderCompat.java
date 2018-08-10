@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -46,6 +47,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.collection.ArraySet;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Preconditions;
 import androidx.slice.Slice;
 import androidx.slice.SliceItemHolder;
@@ -319,20 +321,7 @@ public class SliceProviderCompat {
             addSpecs(extras, supportedSpecs);
             final Bundle res = holder.mProvider.call(METHOD_SLICE,
                     ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
-            if (res == null) {
-                return null;
-            }
-            res.setClassLoader(SliceProviderCompat.class.getClassLoader());
-            Parcelable parcel = res.getParcelable(EXTRA_SLICE);
-            if (parcel == null) {
-                return null;
-            }
-            if (parcel instanceof Bundle) {
-                return new Slice((Bundle) parcel);
-            }
-            synchronized (SliceItemHolder.sSerializeLock) {
-                return ParcelUtils.fromParcelable(parcel);
-            }
+            return parseSlice(context, res);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to bind slice", e);
             return null;
@@ -418,23 +407,43 @@ public class SliceProviderCompat {
             addSpecs(extras, supportedSpecs);
             final Bundle res = holder.mProvider.call(METHOD_MAP_INTENT,
                     ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
-            if (res == null) {
-                return null;
-            }
-            res.setClassLoader(SliceProviderCompat.class.getClassLoader());
-            Parcelable parcel = res.getParcelable(EXTRA_SLICE);
-            if (parcel == null) {
-                return null;
-            }
-            if (parcel instanceof Bundle) {
-                return new Slice((Bundle) parcel);
-            }
-            synchronized (SliceItemHolder.sSerializeLock) {
-                return ParcelUtils.fromParcelable(parcel);
-            }
+            return parseSlice(context, res);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to bind slice", e);
             return null;
+        }
+    }
+
+    private static Slice parseSlice(final Context context, Bundle res) {
+        if (res == null) {
+            return null;
+        }
+        synchronized (SliceItemHolder.sSerializeLock) {
+            try {
+                SliceItemHolder.sHandler = new SliceItemHolder.HolderHandler() {
+                    @Override
+                    public void handle(SliceItemHolder holder, String format) {
+                        if (holder.mVersionedParcelable instanceof IconCompat) {
+                            IconCompat icon = (IconCompat) holder.mVersionedParcelable;
+                            icon.checkResource(context);
+                            if (icon.getType() == Icon.TYPE_RESOURCE && icon.getResId() == 0) {
+                                holder.mVersionedParcelable = null;
+                            }
+                        }
+                    }
+                };
+                res.setClassLoader(SliceProviderCompat.class.getClassLoader());
+                Parcelable parcel = res.getParcelable(EXTRA_SLICE);
+                if (parcel == null) {
+                    return null;
+                }
+                if (parcel instanceof Bundle) {
+                    return new Slice((Bundle) parcel);
+                }
+                return ParcelUtils.fromParcelable(parcel);
+            } finally {
+                SliceItemHolder.sHandler = null;
+            }
         }
     }
 
