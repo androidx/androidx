@@ -17,7 +17,6 @@
 package androidx.room.integration.testapp.database;
 
 import androidx.lifecycle.LiveData;
-import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -45,19 +44,6 @@ public interface CustomerDao {
     void insertAll(Customer[] customers);
 
     /**
-     * Delete all customers
-     */
-    @Query("DELETE FROM customer")
-    void removeAll();
-
-    /**
-     * @return DataSource.Factory of customers, ordered by last name. Use
-     * {@link androidx.paging.LivePagedListBuilder} to get a LiveData of PagedLists.
-     */
-    @Query("SELECT * FROM customer ORDER BY mLastName ASC")
-    DataSource.Factory<Integer, Customer> loadPagedAgeOrder();
-
-    /**
      * @return number of customers
      */
     @Query("SELECT COUNT(*) FROM customer")
@@ -68,21 +54,4 @@ public interface CustomerDao {
      */
     @Query("SELECT * FROM customer")
     LiveData<List<Customer>> all();
-
-    // Keyed
-
-    @Query("SELECT * from customer ORDER BY mLastName DESC LIMIT :limit")
-    List<Customer> customerNameInitial(int limit);
-
-    @Query("SELECT * from customer WHERE mLastName < :key ORDER BY mLastName DESC LIMIT :limit")
-    List<Customer> customerNameLoadAfter(String key, int limit);
-
-    @Query("SELECT COUNT(*) from customer WHERE mLastName < :key ORDER BY mLastName DESC")
-    int customerNameCountAfter(String key);
-
-    @Query("SELECT * from customer WHERE mLastName > :key ORDER BY mLastName ASC LIMIT :limit")
-    List<Customer> customerNameLoadBefore(String key, int limit);
-
-    @Query("SELECT COUNT(*) from customer WHERE mLastName > :key ORDER BY mLastName ASC")
-    int customerNameCountBefore(String key);
 }

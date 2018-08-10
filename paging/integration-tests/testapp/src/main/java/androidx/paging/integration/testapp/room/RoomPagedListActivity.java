@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.integration.testapp;
+package androidx.paging.integration.testapp.room;
 
 import android.os.Bundle;
 import android.widget.Button;
@@ -23,10 +23,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
+import androidx.paging.integration.testapp.R;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.integration.testapp.database.Customer;
-import androidx.room.integration.testapp.database.LastNameAscCustomerDataSource;
 
 /**
  * Sample PagedList activity which uses Room.
@@ -42,7 +41,7 @@ public class RoomPagedListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recycler_view);
+        setContentView(R.layout.activity_room_recycler_view);
         final CustomerViewModel viewModel = ViewModelProviders.of(this)
                 .get(CustomerViewModel.class);
 
@@ -67,8 +66,12 @@ public class RoomPagedListActivity extends AppCompatActivity {
             livePagedList = viewModel.getLivePagedList(position);
         }
         livePagedList.observe(this, items -> mAdapter.submitList(items));
-        final Button button = findViewById(R.id.addButton);
-        button.setOnClickListener(v -> viewModel.insertCustomer());
+
+        final Button addButton = findViewById(R.id.addButton);
+        addButton.setOnClickListener(v -> viewModel.insertCustomer());
+
+        final Button clearButton = findViewById(R.id.clearButton);
+        clearButton.setOnClickListener(v -> viewModel.clearAllCustomers());
     }
 
     @Override
