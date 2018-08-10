@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.room.integration.testapp;
+package androidx.paging.integration.testapp.room;
 
 import android.os.Bundle;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.integration.testapp.R;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.reactivex.disposables.CompositeDisposable;

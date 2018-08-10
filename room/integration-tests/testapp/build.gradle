@@ -36,18 +36,13 @@ android {
 
 dependencies {
     implementation(project(":room:room-common"))
+    implementation(project(":room:room-runtime"))
     implementation(project(":sqlite:sqlite"))
     implementation(project(":sqlite:sqlite-framework"))
-    implementation(project(":room:room-runtime"))
     implementation(project(":arch:core-runtime"))
-    implementation(project(":arch:core-common"))
     implementation(project(":lifecycle:lifecycle-extensions"))
     implementation(project(":lifecycle:lifecycle-runtime"))
     implementation(project(":lifecycle:lifecycle-common"))
-    implementation(project(":room:room-rxjava2"))
-    implementation(project(":room:room-guava"))
-    implementation(project(":paging:paging-runtime"))
-    implementation(project(":paging:paging-rxjava2"))
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     implementation(FINDBUGS)
@@ -64,6 +59,8 @@ dependencies {
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":arch:core-testing"))
+    androidTestImplementation(project(":paging:paging-runtime"))
+
     // FINDBUGS dependency resolves an app/testapp version conflict.
     androidTestImplementation(FINDBUGS)
     androidTestImplementation(GUAVA_ANDROID)

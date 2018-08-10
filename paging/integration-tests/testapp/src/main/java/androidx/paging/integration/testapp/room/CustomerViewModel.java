@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.integration.testapp;
+package androidx.paging.integration.testapp.room;
 
 import android.app.Application;
 
@@ -27,9 +27,6 @@ import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.paging.RxPagedListBuilder;
 import androidx.room.Room;
-import androidx.room.integration.testapp.database.Customer;
-import androidx.room.integration.testapp.database.LastNameAscCustomerDataSource;
-import androidx.room.integration.testapp.database.SampleDatabase;
 
 import java.util.UUID;
 
