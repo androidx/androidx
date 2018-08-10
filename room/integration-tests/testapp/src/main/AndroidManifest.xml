@@ -19,33 +19,6 @@
     <application
         android:allowBackup="true"
         android:supportsRtl="true">
-        <activity
-            android:name="androidx.room.integration.testapp.RoomPagedListActivity"
-            android:label="Room Live PagedList"
-            android:theme="@style/Theme.AppCompat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="androidx.room.integration.testapp.RoomKeyedPagedListActivity"
-            android:label="Keyed Live PagedList"
-            android:theme="@style/Theme.AppCompat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".RoomPagedListRxActivity"
-            android:label="PagedList Observable"
-            android:theme="@style/Theme.AppCompat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <service
             android:name=".SampleDatabaseService"
             android:label="Multi-process SampleDatabase"

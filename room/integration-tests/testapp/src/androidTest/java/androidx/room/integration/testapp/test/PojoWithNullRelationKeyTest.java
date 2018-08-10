@@ -92,7 +92,7 @@ public class PojoWithNullRelationKeyTest {
         return item;
     }
 
-    @Database(entities = {ParentEntity.class, ChildEntity.class}, version = 1)
+    @Database(entities = {ParentEntity.class, ChildEntity.class}, version = 1, exportSchema = false)
     abstract static class NullRelationDatabase extends RoomDatabase {
         abstract NullRelationDao getDao();
     }
