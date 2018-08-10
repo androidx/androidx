@@ -25,6 +25,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -117,6 +118,8 @@ public class SliceConvert {
                         builder.addIcon(IconCompat.createFromIcon(context, item.getIcon()),
                                 item.getSubType(), item.getHints());
                     } catch (IllegalArgumentException e) {
+                        Log.w(TAG, "The icon resource isn't available.", e);
+                    } catch (Resources.NotFoundException e) {
                         Log.w(TAG, "The icon resource isn't available.", e);
                     }
                     break;

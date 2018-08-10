@@ -49,11 +49,11 @@ import java.util.ArrayList;
 public class SliceItemHolder implements VersionedParcelable {
 
     public static final Object sSerializeLock = new Object();
-    static HolderHandler sHandler;
+    public static HolderHandler sHandler;
 
     // VersionedParcelable fields for custom serialization.
     @ParcelField(value = 1, defaultValue = "null")
-    VersionedParcelable mVersionedParcelable = null;
+    public VersionedParcelable mVersionedParcelable = null;
     @ParcelField(value = 2, defaultValue = "null")
     Parcelable mParcelable = null;
     @NonParcelField
@@ -145,7 +145,10 @@ public class SliceItemHolder implements VersionedParcelable {
         }
     }
 
-    interface HolderHandler {
+    /**
+     * Callback that gets to participate in the serialization process for SliceItems.
+     */
+    public interface HolderHandler {
         void handle(SliceItemHolder holder, String format);
     }
 
