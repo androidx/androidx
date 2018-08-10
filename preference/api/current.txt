@@ -360,6 +360,7 @@ package androidx.preference {
     method public boolean addPreference(androidx.preference.Preference);
     method protected void dispatchRestoreInstanceState(android.os.Bundle);
     method protected void dispatchSaveInstanceState(android.os.Bundle);
+    method public boolean findAndRemovePreference(java.lang.CharSequence);
     method public androidx.preference.Preference findPreference(java.lang.CharSequence);
     method public int getInitialExpandedChildrenCount();
     method public androidx.preference.Preference getPreference(int);
