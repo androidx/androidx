@@ -19,12 +19,11 @@ import androidx.ui.foundation.assertions.FlutterError
  */
 // TODO(Migration/xbhatnag): Possibly Private Constructor
 abstract class RawKeyEvent(
-    // Platform-specific information about the key event.
     val data: RawKeyEventData
 ) {
     companion object {
         fun fromKeyEvent(type: String, event: KeyEvent): RawKeyEvent {
-            val data = RawKeyEventDataAndroid(
+            val data = RawKeyEventData(
                 flags = event.flags,
                 codePoint = event.unicodeChar,
                 keyCode = event.keyCode,

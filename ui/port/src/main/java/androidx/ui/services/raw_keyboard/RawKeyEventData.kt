@@ -1,22 +1,26 @@
 package androidx.ui.services.raw_keyboard
 
 /**
- * Base class for platform specific key event data.
+ * Platform-specific key event data for Android.
  *
- * This base class exists to have a common type to use for each of the
- * target platform's key event data structures.
+ * This object contains information about key events obtained from Android's
+ * `KeyEvent` interface.
  *
  * See also:
  *
- *  * [RawKeyEventDataAndroid], a specialization for Android.
- *  * [RawKeyEventDataFuchsia], a specialization for Fuchsia.
  *  * [RawKeyDownEvent] and [RawKeyUpEvent], the classes that hold the
  *    reference to [RawKeyEventData] subclasses.
  *  * [RawKeyboard], which uses these interfaces to expose key data.
  */
-// TODO(Migration/xbhatnag): @immutable
-abstract class RawKeyEventData {
-    // Abstract const constructor. This constructor enables subclasses to provide
-    // const constructors so that they can be used in const expressions.
-    // const RawKeyEventData();
-}
+data class RawKeyEventData(
+    // See <https://developer.android.com/reference/android/view/KeyEvent.html#getFlags()>
+    val flags: Int = 0,
+    // See <https://developer.android.com/reference/android/view/KeyEvent.html#getUnicodeChar()>
+    val codePoint: Int = 0,
+    // See <https://developer.android.com/reference/android/view/KeyEvent.html#getKeyCode()>
+    val keyCode: Int = 0,
+    // See <https://developer.android.com/reference/android/view/KeyEvent.html#getScanCode()>
+    val scanCode: Int = 0,
+    // See <https://developer.android.com/reference/android/view/KeyEvent.html#getMetaState()>
+    val metaState: Int = 0
+)
