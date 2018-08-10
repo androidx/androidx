@@ -51,5 +51,4 @@ supportLibrary {
     inceptionYear = "2018"
     description = "Android Paging RXJava2"
     url = SupportLibraryExtension.ARCHITECTURE_URL
-    failOnUncheckedWarnings = false
 }

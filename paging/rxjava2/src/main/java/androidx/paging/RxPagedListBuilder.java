@@ -313,10 +313,10 @@ public final class RxPagedListBuilder<Key, Value> {
             }
         }
 
+        @SuppressWarnings("unchecked") // for casting getLastKey to Key
         private PagedList<Value> createPagedList() {
             @Nullable Key initializeKey = mInitialLoadKey;
             if (mList != null) {
-                //noinspection unchecked
                 initializeKey = (Key) mList.getLastKey();
             }
 
