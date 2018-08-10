@@ -99,6 +99,7 @@ public class ListItemAdapter extends
     static final int LIST_ITEM_TYPE_TEXT = 1;
     static final int LIST_ITEM_TYPE_SEEKBAR = 2;
     static final int LIST_ITEM_TYPE_SUBHEADER = 3;
+    static final int LIST_ITEM_TYPE_ACTION = 4;
 
     private final SparseIntArray mViewHolderLayoutResIds = new SparseIntArray();
 
@@ -138,6 +139,8 @@ public class ListItemAdapter extends
                 R.layout.car_list_item_seekbar_content, SeekbarListItem::createViewHolder);
         registerListItemViewTypeInternal(LIST_ITEM_TYPE_SUBHEADER,
                 R.layout.car_list_item_subheader_content, SubheaderListItem::createViewHolder);
+        registerListItemViewTypeInternal(LIST_ITEM_TYPE_ACTION,
+                R.layout.car_list_item_action_content, ActionListItem::createViewHolder);
 
         mUxRestrictionsHelper =
                 new CarUxRestrictionsHelper(context, carUxRestrictions -> {
