@@ -226,6 +226,7 @@ public class ListContent extends SliceContent {
     /**
      * @return whether this list has content that is valid to display.
      */
+    @Override
     public boolean isValid() {
         return super.isValid() && mRowItems.size() > 0;
     }
