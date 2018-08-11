@@ -97,6 +97,7 @@ public class ParcelUtils {
      *
      * Returns null if the bundle isn't present or ClassLoader issues occur.
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     public static @Nullable <T extends VersionedParcelable> T getVersionedParcelable(Bundle bundle,
             String key) {
         try {

@@ -491,6 +491,7 @@ public abstract class PreferenceFragment extends Fragment implements
      * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
     @Deprecated
+    @Override
     public Preference findPreference(CharSequence key) {
         if (mPreferenceManager == null) {
             return null;

@@ -112,7 +112,7 @@ class VersionedParcelStream extends VersionedParcel {
                 }
                 long skip = super.skip(n);
                 if (skip > 0) {
-                    mCount += skip;
+                    mCount += (int) skip;
                 }
                 return skip;
             }
