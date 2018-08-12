@@ -52,8 +52,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.util.ObjectsCompat;
@@ -93,17 +93,23 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     // Do not update the route list immediately to avoid unnatural dialog change.
     private static final int UPDATE_ROUTES_DELAY_MS = 300;
     private static final int CONNECTION_TIMEOUT_MS = 30000;
-    private static final int VOLUME_UPDATE_DELAY_MS = 500;
+    private static final int UPDATE_VOLUME_DELAY_MS = 500;
     private static final int PROGRESS_BAR_DISPLAY_MS = 400;
 
     static final int MSG_UPDATE_ROUTES = 1;
+    static final int MSG_STOP_TRACKING_TOUCH = 2;
+    static final int MSG_CLICK_MUTE_BUTTON = 3;
+
     // TODO (b/111731099): Remove this once dark theme is implemented inside MediaRouterThemeHelper.
     static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
+
+    static final int MUTED_VOLUME = 0;
+    static final int MIN_UNMUTED_VOLUME = 1;
 
     final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
-    final MediaRouter.RouteInfo mRoute;
+    final MediaRouter.RouteInfo mSelectedRoute;
     final List<MediaRouter.RouteInfo> mRoutes = new ArrayList<>();
 
     Context mContext;
@@ -118,6 +124,22 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 case MSG_UPDATE_ROUTES:
                     updateRoutes((List<MediaRouter.RouteInfo>) message.obj);
                     break;
+                case MSG_STOP_TRACKING_TOUCH:
+                    if (mRouteForTouchedVolumeSlider != null) {
+                        mRouteForTouchedVolumeSlider = null;
+                        if (mHasPendingUpdate) {
+                            update();
+                        }
+                    }
+                    break;
+                case MSG_CLICK_MUTE_BUTTON:
+                    if (mRouteForClickedMuteButton != null) {
+                        mRouteForClickedMuteButton = null;
+                        if (mHasPendingUpdate) {
+                            update();
+                        }
+                    }
+                    break;
             }
         }
     };
@@ -127,9 +149,13 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     int mVolumeSliderColor;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Map<String, MediaRouteVolumeSliderHolder> mViewHolderMap;
+    Map<String, MediaRouteVolumeSliderHolder> mVolumeSliderHolderMap;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Map<String, Integer> mBeforeMuteVolumeMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaRouter.RouteInfo mRouteForTouchedVolumeSlider;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaRouter.RouteInfo mRouteForClickedMuteButton;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mHasPendingUpdate;
 
@@ -164,7 +190,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         mRouter = MediaRouter.getInstance(mContext);
         mCallback = new MediaRouterCallback();
-        mRoute = mRouter.getSelectedRoute();
+        mSelectedRoute = mRouter.getSelectedRoute();
         mControllerCallback = new MediaControllerCallback();
         setMediaSession(mRouter.getMediaSessionToken());
     }
@@ -294,7 +320,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         mStopCastingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mRoute.isSelected()) {
+                if (mSelectedRoute.isSelected()) {
                     mRouter.unselect(MediaRouter.UNSELECT_REASON_STOPPED);
                 }
                 dismiss();
@@ -307,7 +333,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mVolumeChangeListener = new VolumeChangeListener();
         mVolumeSliderColor = MediaRouterThemeHelper.getControllerColor(mContext, 0);
-        mViewHolderMap = new HashMap<>();
+        mVolumeSliderHolderMap = new HashMap<>();
+        mBeforeMuteVolumeMap = new HashMap<>();
 
         mMetadataLayout = findViewById(R.id.mr_cast_meta);
         mArtView = findViewById(R.id.mr_cast_meta_art);
@@ -357,19 +384,13 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         setMediaSession(null);
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable MediaRouteVolumeSlider getVolumeSlider(@NonNull MediaRouter.RouteInfo route) {
-        MediaRouteVolumeSliderHolder volumeSliderHolder = mViewHolderMap.get(route.getId());
-        return (volumeSliderHolder == null) ? null : volumeSliderHolder.getVolumeSlider();
-    }
-
     void update() {
-        if (mRouteForTouchedVolumeSlider != null) {
+        if (mRouteForTouchedVolumeSlider != null || mRouteForClickedMuteButton != null) {
             mHasPendingUpdate = true;
             return;
         }
         mHasPendingUpdate = false;
-        if (!mRoute.isSelected() || mRoute.isDefaultOrBluetooth()) {
+        if (!mSelectedRoute.isSelected() || mSelectedRoute.isDefaultOrBluetooth()) {
             dismiss();
             return;
         }
@@ -466,38 +487,34 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     }
 
     private class VolumeChangeListener implements SeekBar.OnSeekBarChangeListener {
-        private final Runnable mStopTrackingTouch = new Runnable() {
-            @Override
-            public void run() {
-                if (mRouteForTouchedVolumeSlider != null) {
-                    mRouteForTouchedVolumeSlider = null;
-                    if (mHasPendingUpdate) {
-                        update();
-                    }
-                }
-            }
-        };
-
         VolumeChangeListener() {
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
             if (mRouteForTouchedVolumeSlider != null) {
-                mHandler.removeCallbacks(mStopTrackingTouch);
+                mHandler.removeMessages(MSG_STOP_TRACKING_TOUCH);
             }
             mRouteForTouchedVolumeSlider = (MediaRouter.RouteInfo) seekBar.getTag();
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            mHandler.postDelayed(mStopTrackingTouch, VOLUME_UPDATE_DELAY_MS);
+            // Defer resetting mRouteForTouchedVolumeSlider to allow the media route provider
+            // a little time to settle into its new state and publish the final
+            // volume update.
+            mHandler.sendEmptyMessageDelayed(MSG_STOP_TRACKING_TOUCH, UPDATE_VOLUME_DELAY_MS);
         }
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
                 MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) seekBar.getTag();
+                MediaRouteVolumeSliderHolder holder = mVolumeSliderHolderMap.get(route.getId());
+
+                if (holder != null) {
+                    holder.setMute(progress == MUTED_VOLUME);
+                }
                 route.requestSetVolume(progress);
             }
         }
@@ -528,8 +545,85 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         mAdapter.setItems();
     }
 
-    private interface MediaRouteVolumeSliderHolder {
-        MediaRouteVolumeSlider getVolumeSlider();
+    private abstract class MediaRouteVolumeSliderHolder extends RecyclerView.ViewHolder {
+        MediaRouter.RouteInfo mRoute;
+        final ImageButton mMuteButton;
+        final MediaRouteVolumeSlider mVolumeSlider;
+
+        MediaRouteVolumeSliderHolder(View itemView) {
+            super(itemView);
+            Drawable muteButtonIcon = MediaRouterThemeHelper.getMuteButtonDrawableIcon(mContext);
+
+            mMuteButton = itemView.findViewById(R.id.mr_cast_mute_button);
+            mMuteButton.setImageDrawable(muteButtonIcon);
+            mVolumeSlider = itemView.findViewById(R.id.mr_cast_volume_slider);
+        }
+
+        @CallSuper
+        void bindRouteVolumeSliderHolder(MediaRouter.RouteInfo route) {
+            mRoute = route;
+            int volume = mRoute.getVolume();
+            boolean isMuted = (volume == MUTED_VOLUME);
+
+            mMuteButton.setActivated(isMuted);
+            mMuteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mRouteForClickedMuteButton != null) {
+                        mHandler.removeMessages(MSG_CLICK_MUTE_BUTTON);
+                    }
+                    mRouteForClickedMuteButton = mRoute;
+
+                    boolean mute = !v.isActivated();
+                    int volume = mute ? MUTED_VOLUME : getUnmutedVolume();
+
+                    setMute(mute);
+                    mVolumeSlider.setProgress(volume);
+                    mRoute.requestSetVolume(volume);
+                    // Defer resetting mRouteForClickedMuteButton to allow the media route provider
+                    // a little time to settle into its new state and publish the final
+                    // volume update.
+                    mHandler.sendEmptyMessageDelayed(MSG_CLICK_MUTE_BUTTON, UPDATE_VOLUME_DELAY_MS);
+                }
+            });
+
+            mVolumeSlider.setTag(mRoute);
+            mVolumeSlider.setColor(mVolumeSliderColor);
+            mVolumeSlider.setMax(route.getVolumeMax());
+            mVolumeSlider.setProgress(volume);
+            mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
+        }
+
+        void updateVolume() {
+            int volume = mRoute.getVolume();
+
+            setMute(volume == MUTED_VOLUME);
+            mVolumeSlider.setProgress(volume);
+        }
+
+        void setMute(boolean mute) {
+            boolean wasMuted = mMuteButton.isActivated();
+            if (wasMuted == mute) {
+                return;
+            }
+
+            mMuteButton.setActivated(mute);
+
+            if (mute) {
+                // Save current progress, who is the progress just before muted, so that the volume
+                // can be restored to that value when user unmutes it.
+                mBeforeMuteVolumeMap.put(mRoute.getId(), mVolumeSlider.getProgress());
+            } else {
+                mBeforeMuteVolumeMap.remove(mRoute.getId());
+            }
+        }
+
+        int getUnmutedVolume() {
+            Integer beforeMuteVolume = mBeforeMuteVolumeMap.get(mRoute.getId());
+
+            return (beforeMuteVolume == null)
+                    ? MIN_UNMUTED_VOLUME : Math.max(MIN_UNMUTED_VOLUME, beforeMuteVolume);
+        }
     }
 
     private final class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -558,7 +652,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             mDefaultIcon = MediaRouterThemeHelper.getDefaultDrawableIcon(mContext);
             mTvIcon = MediaRouterThemeHelper.getTvDrawableIcon(mContext);
             mSpeakerIcon = MediaRouterThemeHelper.getSpeakerDrawableIcon(mContext);
-            mSpeakerGroupIcon = MediaRouterThemeHelper.getSpeakerGropuIcon(mContext);
+            mSpeakerGroupIcon = MediaRouterThemeHelper.getSpeakerGroupDrawableIcon(mContext);
+
             setItems();
         }
 
@@ -567,9 +662,9 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 return true;
             }
             // If currently casting on a group and route is a member of the group
-            if (mRoute instanceof MediaRouter.RouteGroup) {
+            if (mSelectedRoute instanceof MediaRouter.RouteGroup) {
                 List<MediaRouter.RouteInfo> memberRoutes =
-                        ((MediaRouter.RouteGroup) mRoute).getRoutes();
+                        ((MediaRouter.RouteGroup) mSelectedRoute).getRoutes();
 
                 for (MediaRouter.RouteInfo memberRoute : memberRoutes) {
                     if (memberRoute.getId().equals(route.getId())) {
@@ -584,15 +679,16 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         void setItems() {
             mItems.clear();
             // Add Group Volume item only when currently casting on a group
-            if (mRoute instanceof MediaRouter.RouteGroup) {
-                mItems.add(new Item(mRoute, ITEM_TYPE_GROUP_VOLUME));
-                List<MediaRouter.RouteInfo> routes = ((MediaRouter.RouteGroup) mRoute).getRoutes();
+            if (mSelectedRoute instanceof MediaRouter.RouteGroup) {
+                mItems.add(new Item(mSelectedRoute, ITEM_TYPE_GROUP_VOLUME));
+                List<MediaRouter.RouteInfo> routes =
+                        ((MediaRouter.RouteGroup) mSelectedRoute).getRoutes();
 
                 for (MediaRouter.RouteInfo route: routes) {
                     mItems.add(new Item(route, ITEM_TYPE_ROUTE));
                 }
             } else {
-                mItems.add(new Item(mRoute, ITEM_TYPE_ROUTE));
+                mItems.add(new Item(mSelectedRoute, ITEM_TYPE_ROUTE));
             }
 
             mAvailableRoutes.clear();
@@ -661,7 +757,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             switch (viewType) {
                 case ITEM_TYPE_GROUP_VOLUME: {
                     MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
-                    mViewHolderMap.put(route.getId(), (MediaRouteVolumeSliderHolder) holder);
+                    mVolumeSliderHolderMap.put(
+                            route.getId(), (MediaRouteVolumeSliderHolder) holder);
                     ((GroupVolumeViewHolder) holder).bindGroupVolumeViewHolder(item);
                     break;
                 }
@@ -671,7 +768,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 }
                 case ITEM_TYPE_ROUTE: {
                     MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
-                    mViewHolderMap.put(route.getId(), (MediaRouteVolumeSliderHolder) holder);
+                    mVolumeSliderHolderMap.put(
+                            route.getId(), (MediaRouteVolumeSliderHolder) holder);
                     ((RouteViewHolder) holder).bindRouteViewHolder(item);
                     break;
                 }
@@ -689,7 +787,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         @Override
         public void onViewRecycled(RecyclerView.ViewHolder holder) {
             super.onViewRecycled(holder);
-            mViewHolderMap.values().remove(holder);
+            mVolumeSliderHolderMap.values().remove(holder);
         }
 
         @Override
@@ -762,37 +860,24 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             }
         }
 
-        // ViewHolder for route list item
-        private class GroupVolumeViewHolder extends RecyclerView.ViewHolder
-                implements MediaRouteVolumeSliderHolder {
+        private class GroupVolumeViewHolder extends MediaRouteVolumeSliderHolder {
             private final TextView mTextView;
-            private final MediaRouteVolumeSlider mGroupVolumeSlider;
 
             GroupVolumeViewHolder(View itemView) {
                 super(itemView);
                 mTextView = itemView.findViewById(R.id.mr_group_volume_route_name);
-                mGroupVolumeSlider = itemView.findViewById(R.id.mr_cast_group_volume_slider);
-            }
-
-            @Override
-            public MediaRouteVolumeSlider getVolumeSlider() {
-                return mGroupVolumeSlider;
             }
 
             public void bindGroupVolumeViewHolder(Item item) {
                 MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
 
-                mTextView.setText(route.getName().toUpperCase());
-                mGroupVolumeSlider.setTag(route);
-                mGroupVolumeSlider.setColor(mVolumeSliderColor);
-                mGroupVolumeSlider.setMax(route.getVolumeMax());
-                mGroupVolumeSlider.setProgress(route.getVolume());
-                mGroupVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
+                super.bindRouteVolumeSliderHolder(route);
+                mTextView.setText(route.getName());
             }
         }
 
         private class HeaderViewHolder extends RecyclerView.ViewHolder {
-            TextView mTextView;
+            private final TextView mTextView;
 
             HeaderViewHolder(View itemView) {
                 super(itemView);
@@ -806,12 +891,10 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             }
         }
 
-        private class RouteViewHolder extends RecyclerView.ViewHolder
-                implements MediaRouteVolumeSliderHolder {
+        private class RouteViewHolder extends MediaRouteVolumeSliderHolder {
             final ImageView mImageView;
             final ProgressBar mProgressBar;
             final TextView mTextView;
-            final MediaRouteVolumeSlider mVolumeSlider;
             final LinearLayout mVolumeSliderLayout;
             final CheckBox mCheckBox;
             final Runnable mSelectRoute = new Runnable() {
@@ -842,28 +925,17 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 mImageView = itemView.findViewById(R.id.mr_cast_route_icon);
                 mProgressBar = itemView.findViewById(R.id.mr_cast_progress_bar);
                 mTextView = itemView.findViewById(R.id.mr_cast_route_name);
-                mVolumeSlider = itemView.findViewById(R.id.mr_cast_volume_slider);
                 mVolumeSliderLayout = itemView.findViewById(R.id.mr_cast_volume_layout);
                 mCheckBox = itemView.findViewById(R.id.mr_cast_checkbox);
             }
 
-            @Override
-            public MediaRouteVolumeSlider getVolumeSlider() {
-                return mVolumeSlider;
-            }
-
             public void bindRouteViewHolder(Item item) {
                 MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
-                String routeId = route.getId();
                 boolean selected = isSelectedRoute(route);
 
+                super.bindRouteVolumeSliderHolder(route);
                 mImageView.setImageDrawable(getIconDrawable(route));
                 mTextView.setText(route.getName());
-                mVolumeSlider.setTag(route);
-                mVolumeSlider.setColor(mVolumeSliderColor);
-                mVolumeSlider.setMax(route.getVolumeMax());
-                mVolumeSlider.setProgress(route.getVolume());
-                mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
                 mVolumeSliderLayout.setVisibility(selected ? View.VISIBLE : View.GONE);
                 mCheckBox.setOnClickListener(mCheckBoxClickListener);
                 // TODO(b/111624415): Make CheckBox works for both selected and unselected routes.
@@ -877,8 +949,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         }
 
         private class GroupViewHolder extends RecyclerView.ViewHolder {
-            ImageView mImageView;
-            TextView mTextView;
+            private final ImageView mImageView;
+            private final TextView mTextView;
 
             GroupViewHolder(View itemView) {
                 super(itemView);
@@ -921,20 +993,23 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         @Override
         public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo route) {
-            if (mRouteForTouchedVolumeSlider == null) {
+            // Call refreshRoutes only when there's no volume update in progress.
+            if (mRouteForTouchedVolumeSlider == null && mRouteForClickedMuteButton == null) {
                 refreshRoutes();
             }
         }
 
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
-            MediaRouteVolumeSlider volumeSlider = getVolumeSlider(route);
             int volume = route.getVolume();
             if (DEBUG) {
                 Log.d(TAG, "onRouteVolumeChanged(), route.getVolume:" + volume);
             }
-            if (volumeSlider != null && mRouteForTouchedVolumeSlider != route) {
-                volumeSlider.setProgress(volume);
+            if (mRouteForTouchedVolumeSlider != route && mRouteForClickedMuteButton != route) {
+                MediaRouteVolumeSliderHolder holder = mVolumeSliderHolderMap.get(route.getId());
+                if (holder != null) {
+                    holder.updateVolume();
+                }
             }
         }
     }
