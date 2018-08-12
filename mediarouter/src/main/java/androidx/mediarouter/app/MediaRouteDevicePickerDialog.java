@@ -306,7 +306,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
             mDefaultIcon = MediaRouterThemeHelper.getDefaultDrawableIcon(mContext);
             mTvIcon = MediaRouterThemeHelper.getTvDrawableIcon(mContext);
             mSpeakerIcon = MediaRouterThemeHelper.getSpeakerDrawableIcon(mContext);
-            mSpeakerGroupIcon = MediaRouterThemeHelper.getSpeakerGropuIcon(mContext);
+            mSpeakerGroupIcon = MediaRouterThemeHelper.getSpeakerGroupDrawableIcon(mContext);
             setItems();
         }
 

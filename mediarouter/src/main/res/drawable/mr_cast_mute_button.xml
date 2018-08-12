@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="mr_cast_meta_default_background">#212228</color>
-    <color name="mr_dynamic_dialog_icon_dark">#202124</color>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true" android:drawable="@drawable/ic_vol_mute" />
+    <item android:state_activated="false" android:drawable="@drawable/ic_vol_unmute" />
+</selector>
