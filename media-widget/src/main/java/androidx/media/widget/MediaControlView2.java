@@ -590,8 +590,8 @@ public class MediaControlView2 extends BaseLayout {
                 mOverflowHideAnimator.start();
             }
 
-            // The following views may not have been initialized yet.
-            if (mTransportControls.getWidth() == 0 || mTimeView.getWidth() == 0) {
+            // The following view may not have been initialized yet.
+            if (mTimeView.getWidth() == 0) {
                 return;
             }
 
@@ -1734,24 +1734,13 @@ public class MediaControlView2 extends BaseLayout {
         int screenMaxLength = Math.max(screenWidth, screenHeight);
         int embeddedWidth = mMaxTimeViewWidth + bottomBarRightWidthMax;
 
-        // TODO: b/111246858
         // If Media type is default, the size of MCV2 is full only when the current width is equal
         // to the max length of the screen (only landscape mode). If Media type is music, however,
         // the size of MCV2 is full when the current width is equal to the current screen width
         // (both landscape and portrait modes).
         boolean isFullSize = (mMediaType == MEDIA_TYPE_DEFAULT) ? currWidth == screenMaxLength
                 : currWidth == screenWidth;
-        // This handles an edge case where the size of MCV2 is full but the layout is being
-        // redrawn because the orientation changed. Since the size of MCV2 does not change,
-        // the layout does not need to be redrawn.
-        int currOrientation = retrieveOrientation();
-        boolean isFullSizeOrientationChanged = (mSizeType == SIZE_TYPE_FULL
-                && mPrevOrientation != currOrientation) ? true : false;
-        mPrevOrientation = currOrientation;
-
-        if (isFullSizeOrientationChanged) {
-            // Do nothing.
-        } else if (isFullSize) {
+        if (isFullSize) {
             if (mSizeType != SIZE_TYPE_FULL) {
                 updateLayoutForSizeChange(SIZE_TYPE_FULL);
                 if (mMediaType == MEDIA_TYPE_MUSIC) {
