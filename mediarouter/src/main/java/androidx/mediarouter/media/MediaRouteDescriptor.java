@@ -47,6 +47,7 @@ public final class MediaRouteDescriptor {
     static final String KEY_DESCRIPTION = "status";
     static final String KEY_ICON_URI = "iconUri";
     static final String KEY_ENABLED = "enabled";
+    static final String IS_DYNAMIC_GROUP_ROUTE = "isDynamicGroupRoute";
     static final String KEY_CONNECTING = "connecting";
     static final String KEY_CONNECTION_STATE = "connectionState";
     static final String KEY_CONTROL_FILTERS = "controlFilters";
@@ -134,6 +135,29 @@ public final class MediaRouteDescriptor {
      */
     public boolean isEnabled() {
         return mBundle.getBoolean(KEY_ENABLED, true);
+    }
+
+    /**
+     * Returns if this route is a dynamic group route.
+     * <p>
+     * {@link MediaRouteProvider} creates a dynamic group route when
+     * {@link MediaRouteProvider#onCreateDynamicGroupRouteController(String)} is called.
+     * It happens when a single route or a single static group is selected.
+     * </p>
+     * <p>
+     * If a single device or a static group is selected, the associated dynamic group route
+     * should not be seen by any client app because there is already one for the device.
+     * After user added more devices into the session, it should be seen by the client app.
+     * The provider can treat this by not setting the media intent for the dynamic group route
+     * if it contains only one member.
+     * </p>>
+     * @return {@code true} if this route is a dynamic group route.
+     *
+     * @hide TODO unhide this method and updateApi
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean isDynamicGroupRoute() {
+        return mBundle.getBoolean(IS_DYNAMIC_GROUP_ROUTE, false);
     }
 
     /**
@@ -507,6 +531,17 @@ public final class MediaRouteDescriptor {
             return this;
         }
 
+        /**
+         * Sets whether the route is a dynamic group route.
+         * @see #isDynamicGroupRoute()
+         *
+         * @hide TODO unhide this method and updateApi
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public Builder setIsDynamicGroupRoute(boolean isDynamicGroupRoute) {
+            mBundle.putBoolean(IS_DYNAMIC_GROUP_ROUTE, isDynamicGroupRoute);
+            return this;
+        }
         /**
          * Sets whether the route is in the process of connecting and is not yet
          * ready for use.
