@@ -19,18 +19,22 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            android:title="Preference Category"
+            android:title="Category"
             android:key="category">
-        <Preference
-                android:summary="This preference is visible by default"
-                android:key="default_visibility"/>
 
         <Preference
+                android:title="Default"
+                android:summary="This preference is visible by default"
+                android:key="default"/>
+
+        <Preference
+                android:title="Visible"
                 android:summary="This preference is forced to be visible"
                 android:key="visible"
                 app:isPreferenceVisible="true"/>
 
         <Preference
+                android:title="Invisible"
                 android:summary="This preference is invisible"
                 android:key="invisible"
                 app:isPreferenceVisible="false"/>
