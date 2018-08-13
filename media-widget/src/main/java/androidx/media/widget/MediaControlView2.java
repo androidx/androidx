@@ -254,11 +254,11 @@ public class MediaControlView2 extends BaseLayout {
 
     // Int for defining the UX state where all the views (TitleBar, ProgressBar, BottomBar) are
     // all visible.
-    private static final int UX_STATE_FULL = 0;
+    private static final int UX_STATE_ALL_VISIBLE = 0;
     // Int for defining the UX state where only the ProgressBar view is visible.
-    private static final int UX_STATE_PROGRESS_BAR_ONLY = 1;
+    private static final int UX_STATE_ONLY_PROGRESS_VISIBLE = 1;
     // Int for defining the UX state where none of the views are visible.
-    private static final int UX_STATE_EMPTY = 2;
+    private static final int UX_STATE_NONE_VISIBLE = 2;
     // Int for defining the UX state where the views are being animated (shown or hidden).
     private static final int UX_STATE_ANIMATING = 3;
 
@@ -609,12 +609,15 @@ public class MediaControlView2 extends BaseLayout {
             }
             mPrevWidth = currWidth;
 
-            // By default, show the full view when view size is changed.
-            if (mUxState != UX_STATE_FULL) {
-                removeCallbacks(mHideMainBars);
-                removeCallbacks(mHideProgressBar);
-                post(mShowMainBars);
-            }
+            // By default, show all bars when view size is changed.
+            showAllBars();
+        }
+
+        // By default, show all bars when view orientation is changed.
+        int currOrientation = retrieveOrientation();
+        if (currOrientation != mPrevOrientation) {
+            showAllBars();
+            mPrevOrientation = currOrientation;
         }
     }
 
@@ -966,7 +969,7 @@ public class MediaControlView2 extends BaseLayout {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         setEnabled(true);
-                        mUxState = UX_STATE_PROGRESS_BAR_ONLY;
+                        mUxState = UX_STATE_ONLY_PROGRESS_VISIBLE;
                     }
                 });
 
@@ -988,7 +991,7 @@ public class MediaControlView2 extends BaseLayout {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         setEnabled(true);
-                        mUxState = UX_STATE_EMPTY;
+                        mUxState = UX_STATE_NONE_VISIBLE;
                     }
                 });
 
@@ -1012,7 +1015,7 @@ public class MediaControlView2 extends BaseLayout {
             @Override
             public void onAnimationEnd(Animator animation) {
                 setEnabled(true);
-                mUxState = UX_STATE_EMPTY;
+                mUxState = UX_STATE_NONE_VISIBLE;
             }
         });
 
@@ -1037,7 +1040,7 @@ public class MediaControlView2 extends BaseLayout {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         setEnabled(true);
-                        mUxState = UX_STATE_FULL;
+                        mUxState = UX_STATE_ALL_VISIBLE;
                     }
                 });
 
@@ -1061,7 +1064,7 @@ public class MediaControlView2 extends BaseLayout {
             @Override
             public void onAnimationEnd(Animator animation) {
                 setEnabled(true);
-                mUxState = UX_STATE_FULL;
+                mUxState = UX_STATE_ALL_VISIBLE;
             }
         });
 
@@ -1261,13 +1264,13 @@ public class MediaControlView2 extends BaseLayout {
         removeCallbacks(mHideProgressBar);
 
         switch (mUxState) {
-            case UX_STATE_EMPTY:
+            case UX_STATE_NONE_VISIBLE:
                 post(mShowAllBars);
                 break;
-            case UX_STATE_PROGRESS_BAR_ONLY:
+            case UX_STATE_ONLY_PROGRESS_VISIBLE:
                 post(mShowMainBars);
                 break;
-            case UX_STATE_FULL:
+            case UX_STATE_ALL_VISIBLE:
                 post(mHideAllBars);
                 break;
         }
@@ -1746,7 +1749,7 @@ public class MediaControlView2 extends BaseLayout {
                 if (mMediaType == MEDIA_TYPE_MUSIC) {
                     mTitleView.setVisibility(View.GONE);
                 } else {
-                    mUxState = UX_STATE_EMPTY;
+                    mUxState = UX_STATE_NONE_VISIBLE;
                     toggleMediaControlViewVisibility();
                 }
             }
@@ -1801,7 +1804,7 @@ public class MediaControlView2 extends BaseLayout {
                 // Relating to Progress Bar
                 GradientDrawable thumb = (GradientDrawable) mResources.getDrawable(
                         R.drawable.custom_progress_thumb);
-                if (mUxState == UX_STATE_FULL) {
+                if (mUxState == UX_STATE_ALL_VISIBLE) {
                     int originalSize = mResources.getDimensionPixelSize(
                             R.dimen.mcv2_custom_progress_thumb_size);
                     thumb.setSize(originalSize, originalSize);
@@ -2144,6 +2147,15 @@ public class MediaControlView2 extends BaseLayout {
         } else {
             // If current seek position is already set, update the next seek position.
             mNextSeekPosition = newPosition;
+        }
+    }
+
+    private void showAllBars() {
+        if (mUxState != UX_STATE_ALL_VISIBLE) {
+            removeCallbacks(mHideMainBars);
+            removeCallbacks(mHideProgressBar);
+            // b/112570875
+            post(mShowMainBars);
         }
     }
 
