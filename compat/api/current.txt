@@ -1881,6 +1881,7 @@ package androidx.core.view {
     method public static androidx.core.view.AccessibilityDelegateCompat getAccessibilityDelegate(android.view.View);
     method public static int getAccessibilityLiveRegion(android.view.View);
     method public static androidx.core.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
+    method public static java.lang.CharSequence getAccessibilityPaneTitle(android.view.View);
     method public static deprecated float getAlpha(android.view.View);
     method public static android.content.res.ColorStateList getBackgroundTintList(android.view.View);
     method public static android.graphics.PorterDuff.Mode getBackgroundTintMode(android.view.View);
@@ -1961,6 +1962,7 @@ package androidx.core.view {
     method public static void setAccessibilityDelegate(android.view.View, androidx.core.view.AccessibilityDelegateCompat);
     method public static void setAccessibilityHeading(android.view.View, boolean);
     method public static void setAccessibilityLiveRegion(android.view.View, int);
+    method public static void setAccessibilityPaneTitle(android.view.View, java.lang.CharSequence);
     method public static deprecated void setActivated(android.view.View, boolean);
     method public static deprecated void setAlpha(android.view.View, float);
     method public static void setAutofillHints(android.view.View, java.lang.String...);
@@ -2191,6 +2193,9 @@ package androidx.core.view.accessibility {
     method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int);
     method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
     field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
+    field public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 16; // 0x10
+    field public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 32; // 0x20
+    field public static final int CONTENT_CHANGE_TYPE_PANE_TITLE = 8; // 0x8
     field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
     field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
     field public static final int CONTENT_CHANGE_TYPE_UNDEFINED = 0; // 0x0

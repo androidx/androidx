@@ -18,10 +18,13 @@ package androidx.core.view;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,76 +85,79 @@ public class AccessibilityDelegateCompatTest extends
     @Test
     public void testScreenReaderFocusable_propagatesToAccessibilityNodeInfo() {
         assertThat(ViewCompat.isScreenReaderFocusable(mView), is(false));
-        assertThat(getCompatForView(mView).isScreenReaderFocusable(), is(false));
+        assertThat(getNodeCompatForView(mView).isScreenReaderFocusable(), is(false));
 
         ViewCompat.setScreenReaderFocusable(mView, true);
 
         assertThat(ViewCompat.isScreenReaderFocusable(mView), is(true));
-        assertThat(getCompatForView(mView).isScreenReaderFocusable(), is(true));
+        assertThat(getNodeCompatForView(mView).isScreenReaderFocusable(), is(true));
 
         // The value should still propagate even if we attach and detach another delegate compat
         ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
-        assertThat(getCompatForView(mView).isScreenReaderFocusable(), is(true));
+        assertThat(getNodeCompatForView(mView).isScreenReaderFocusable(), is(true));
         ViewCompat.setAccessibilityDelegate(mView, null);
-        assertThat(getCompatForView(mView).isScreenReaderFocusable(), is(true));
-    }
-
-    @Test
-    public void testScreenReaderFocusable_generatesAccessibilityEvent() {
-        // The core framework is responsible for this behavior from P
-        if (Build.VERSION.SDK_INT < 28) {
-            //This test isn't to test the propgation up, just that the event is sent correctly.
-            ViewCompat.setAccessibilityLiveRegion(mView,
-                    ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
-            final AccessibilityDelegateCompat mockDelegate = mock(
-                    AccessibilityDelegateCompat.class);
-            ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockDelegate));
-            ViewCompat.setScreenReaderFocusable(mView, true);
-
-            ArgumentCaptor<AccessibilityEvent> argumentCaptor =
-                    ArgumentCaptor.forClass(AccessibilityEvent.class);
-            verify(mockDelegate).sendAccessibilityEventUnchecked(
-                    eq(mView), argumentCaptor.capture());
-            AccessibilityEvent event = argumentCaptor.<AccessibilityEvent>getValue();
-            assertThat(event.getEventType(), is(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED));
-        }
+        assertThat(getNodeCompatForView(mView).isScreenReaderFocusable(), is(true));
     }
 
     @Test
     public void testAccessibilityHeading_propagatesToAccessibilityNodeInfo() {
         assertThat(ViewCompat.isAccessibilityHeading(mView), is(false));
-        assertThat(getCompatForView(mView).isHeading(), is(false));
+        assertThat(getNodeCompatForView(mView).isHeading(), is(false));
 
         ViewCompat.setAccessibilityHeading(mView, true);
 
         assertThat(ViewCompat.isAccessibilityHeading(mView), is(true));
-        assertThat(getCompatForView(mView).isHeading(), is(true));
+        assertThat(getNodeCompatForView(mView).isHeading(), is(true));
 
         // The value should still propagate even if we attach and detach another delegate compat
         ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
-        assertThat(getCompatForView(mView).isHeading(), is(true));
+        assertThat(getNodeCompatForView(mView).isHeading(), is(true));
         ViewCompat.setAccessibilityDelegate(mView, null);
-        assertThat(getCompatForView(mView).isHeading(), is(true));
+        assertThat(getNodeCompatForView(mView).isHeading(), is(true));
     }
 
     @Test
-    public void testSetAccessibilityHeading_generatesAccessibilityEvent() {
-        // The core framework is responsible for this behavior from P
-        if (Build.VERSION.SDK_INT < 28) {
-            //This test isn't to test the propgation up, just that the event is sent correctly.
+    public void testAccessibilityPaneTitle_propagatesToAccessibilityNodeInfo() {
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertNull(ViewCompat.getAccessibilityPaneTitle(mView));
+            assertNull(getNodeCompatForView(mView).getPaneTitle());
+
+            String title = "Sample title";
+            ViewCompat.setAccessibilityPaneTitle(mView, title);
+
+            assertEquals(ViewCompat.getAccessibilityPaneTitle(mView), title);
+            assertEquals(getNodeCompatForView(mView).getPaneTitle(), title);
+
+            // The value should still propagate even if we attach and detach another delegate compat
+            ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
+            assertEquals(getNodeCompatForView(mView).getPaneTitle(), title);
+            ViewCompat.setAccessibilityDelegate(mView, null);
+            assertEquals(getNodeCompatForView(mView).getPaneTitle(), title);
+        }
+    }
+
+    @Test
+    public void testAccessibilityPaneTitle_isntTrackedAsPaneWithoutTitle() {
+        if (Build.VERSION.SDK_INT < 28 && Build.VERSION.SDK_INT >= 19) {
+            // This test isn't to test the propagation up, just that the event is sent correctly
             ViewCompat.setAccessibilityLiveRegion(mView,
                     ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
+
+            ViewCompat.setAccessibilityPaneTitle(mView, "Sample title");
+
+            ViewCompat.setAccessibilityPaneTitle(mView, null);
+
             final AccessibilityDelegateCompat mockDelegate = mock(
                     AccessibilityDelegateCompat.class);
             ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockDelegate));
-            ViewCompat.setAccessibilityHeading(mView, true);
 
+            mView.setVisibility(View.VISIBLE);
+
+            mView.getViewTreeObserver().dispatchOnGlobalLayout();
             ArgumentCaptor<AccessibilityEvent> argumentCaptor =
                     ArgumentCaptor.forClass(AccessibilityEvent.class);
-            verify(mockDelegate).sendAccessibilityEventUnchecked(
+            verify(mockDelegate, never()).sendAccessibilityEventUnchecked(
                     eq(mView), argumentCaptor.capture());
-            AccessibilityEvent event = argumentCaptor.<AccessibilityEvent>getValue();
-            assertThat(event.getEventType(), is(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED));
         }
     }
 
@@ -252,7 +258,7 @@ public class AccessibilityDelegateCompatTest extends
         }
     }
 
-    private AccessibilityNodeInfoCompat getCompatForView(View view) {
+    private AccessibilityNodeInfoCompat getNodeCompatForView(View view) {
         final AccessibilityNodeInfo nodeInfo = AccessibilityNodeInfo.obtain();
         final AccessibilityNodeInfoCompat nodeCompat = AccessibilityNodeInfoCompat.wrap(nodeInfo);
         view.onInitializeAccessibilityNodeInfo(nodeInfo);
