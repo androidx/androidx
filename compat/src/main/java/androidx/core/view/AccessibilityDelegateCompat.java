@@ -70,6 +70,7 @@ public class AccessibilityDelegateCompat {
             AccessibilityNodeInfoCompat nodeInfoCompat = AccessibilityNodeInfoCompat.wrap(info);
             nodeInfoCompat.setScreenReaderFocusable(ViewCompat.isScreenReaderFocusable(host));
             nodeInfoCompat.setHeading(ViewCompat.isAccessibilityHeading(host));
+            nodeInfoCompat.setPaneTitle(ViewCompat.getAccessibilityPaneTitle(host));
             mCompat.onInitializeAccessibilityNodeInfo(host, nodeInfoCompat);
         }
 
