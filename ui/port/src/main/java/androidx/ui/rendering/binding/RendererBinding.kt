@@ -3,37 +3,43 @@ package androidx.ui.rendering.binding
 import androidx.ui.assert
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.binding.BindingBase
+import androidx.ui.foundation.binding.BindingBaseImpl
 import androidx.ui.rendering.obj.PipelineOwner
 import androidx.ui.rendering.obj.SemanticsHandle
 import androidx.ui.rendering.view.RenderView
 import androidx.ui.rendering.view.ViewConfiguration
+import androidx.ui.scheduler.binding.SchedulerBinding
+import androidx.ui.scheduler.binding.SchedulerBindingImpl
+import androidx.ui.services.ServicesBinding
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 
-interface RendererBinding {
-    fun handleMetricsChanged() {
-    }
+interface RendererBinding : SchedulerBinding, ServicesBinding {
+    fun handleMetricsChanged()
 
-    fun handleTextScaleFactorChanged() {
-    }
+    fun handleTextScaleFactorChanged()
 
-    fun drawFrame() {
-    }
+    fun drawFrame()
+
+    fun performReassembleRenderer(superCall: () -> Deferred<Unit>): Deferred<Unit>
 }
+
+open class RendererMixinsWrapper(
+    base: BindingBase,
+    scheduler: SchedulerBinding
+) : BindingBase by base, SchedulerBinding by scheduler
 
 /**
  * The glue between the render tree and the Flutter engine.
  */
-class RendererBindingImpl : BindingBase(), RendererBinding {
-/*with ServicesBinding, SchedulerBinding, HitTestable*/
+object RendererBindingImpl : RendererMixinsWrapper(
+        BindingBaseImpl,
+        SchedulerBindingImpl
+), RendererBinding {
+/*with ServicesBinding, HitTestable*/
 
-    companion object {
-        var _instance: RendererBinding? = null
-    }
-
-    override fun initInstances() {
-        super.initInstances()
-        _instance = this
+    // was initInstances
+    init {
         TODO("Migration/Andrey): needs SchedulerBinding mixin and semantic methods")
 //        pipelineOwner = PipelineOwner(
 //                onNeedVisualUpdate= ensureVisualUpdate,
@@ -57,9 +63,8 @@ class RendererBindingImpl : BindingBase(), RendererBinding {
 //        addPersistentFrameCallback { handlePersistentFrameCallback() };
     }
 
-    override fun initServiceExtensions() {
-        super.initServiceExtensions()
-
+    // was initServiceExtensions
+    init {
         assert {
             TODO("Migration/Andrey): do we need this debug logic?")
             // these service extensions only work in checked mode
@@ -308,8 +313,12 @@ class RendererBindingImpl : BindingBase(), RendererBinding {
     }
 
     override fun performReassemble(): Deferred<Unit> {
+        return performReassembleRenderer { super.performReassemble() }
+    }
+
+    override fun performReassembleRenderer(superCall: () -> Deferred<Unit>): Deferred<Unit> {
         return async {
-            super.performReassemble().await()
+            superCall().await()
             TODO("Migration/Andrey: needs Timeline and SchedulerBinding mixin")
 //            Timeline.startSync('Dirty Render Tree', arguments: timelineWhitelistArguments);
 //            try {

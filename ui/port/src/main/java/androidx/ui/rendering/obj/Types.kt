@@ -24,7 +24,6 @@ import androidx.ui.semantics.SemanticsConfiguration
 typealias LayoutCallback = (Constraints) -> Unit
 
 // These are just a stubbed class to remove warnings:
-class RendererBinding
 class HitTestEntry
 class HitTestResult
 class PointerEvent

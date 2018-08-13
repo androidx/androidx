@@ -1,7 +1,6 @@
 package androidx.ui.foundation.binding
 
 import androidx.annotation.CallSuper
-import androidx.ui.assert
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.runtimeType
 import kotlinx.coroutines.experimental.Deferred
@@ -16,6 +15,36 @@ import kotlinx.coroutines.experimental.runBlocking
 // / that this is a return value from a service extension, and the
 // / "method" key will be set to the full name of the method.
 typealias ServiceExtensionCallback = (Map<String, String>) -> Deferred<Map<String, Any?>>
+
+interface BindingBase {
+
+    fun performReassemble(): Deferred<Unit>
+
+    // / Registers a service extension method with the given name (full
+    // / name "ext.flutter.name"), which takes no arguments and returns
+    // / no value.
+    // /
+    // / Calls the `callback` callback when the service extension is called.
+    fun registerSignalServiceExtension(
+        name: String,
+        callback: Deferred<Unit>
+    )
+
+    // / Registers a service extension method with the given name (full
+    // / name "ext.flutter.name"). The given callback is called when the
+    // / extension method is called. The callback must return a [Future]
+    // / that either eventually completes to a return value in the form
+    // / of a name/value map where the values can all be converted to
+    // / JSON using `json.encode()` (see [JsonEncoder]), or fails. In case of failure, the
+    // / failure is reported to the remote caller and is dumped to the
+    // / logs.
+    // /
+    // / The returned map will be mutated.
+    fun registerServiceExtension(
+        name: String,
+        callback: ServiceExtensionCallback
+    )
+}
 
 // / Base class for mixins that provide singleton services (also known as
 // / "bindings").
@@ -32,7 +61,8 @@ typealias ServiceExtensionCallback = (Map<String, String>) -> Deferred<Map<Strin
 // / library defines how to create the binding. It could be implied (for example,
 // / [WidgetsFlutterBinding] is automatically started from [runApp]), or the
 // / application might be required to explicitly call the constructor.
-abstract class BindingBase {
+object BindingBaseImpl : BindingBase {
+
     // / Default abstract constructor for bindings.
     // /
     // / First calls [initInstances] to have bindings initialize their
@@ -43,31 +73,9 @@ abstract class BindingBase {
         // TODO(migration/popam): see what to do with this
 //        developer.Timeline.startSync('Framework initialization');
 
-        assert(!_debugInitialized)
-        initInstances()
-        assert(_debugInitialized)
-
-        assert(!_debugServiceExtensionsRegistered)
-        initServiceExtensions()
-        assert(_debugServiceExtensionsRegistered)
-
 //        developer.postEvent('Flutter.FrameworkInitialization', <String, String>{});
 
 //        developer.Timeline.finishSync();
-    }
-
-    // / The initialization method. Subclasses override this method to hook into
-    // / the platform and otherwise configure their services. Subclasses must call
-    // / "super.initInstances()".
-    // /
-    // / By convention, if the service is to be provided as a singleton, it should
-    // / be exposed as `MixinClassName.instance`, a static getter that returns
-    // / `MixinClassName._instance`, a static field that is set by
-    // / `initInstances()`.
-    @CallSuper
-    protected open fun initInstances() {
-        assert(!_debugInitialized)
-        assert { _debugInitialized = true; true; }
     }
 
     // / Called when the binding is initialized, to register service
@@ -90,9 +98,7 @@ abstract class BindingBase {
     // / See also:
     // /
     // /  * <https://github.com/dart-lang/sdk/blob/master/runtime/vm/service/service.md#rpcs-requests-and-responses>
-    @CallSuper
-    protected open fun initServiceExtensions() {
-        assert(!_debugServiceExtensionsRegistered)
+    init { // was initServiceExtensions
         TODO("migration/popam/Implement this")
 //        registerSignalServiceExtension(
 //                name: 'reassemble',
@@ -145,7 +151,7 @@ abstract class BindingBase {
     // / set, queue events instead of firing them.
     // /
     // / Events should be flushed when [unlocked] is called.
-    protected val locked
+    val locked
         get() = _lockCount > 0
     var _lockCount = 0
 
@@ -158,7 +164,7 @@ abstract class BindingBase {
     // / (which it partially does asynchronously).
     // /
     // / The [Future] returned by the `callback` argument is returned by [lockEvents].
-    protected fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit> {
+    fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit> {
 //        developer.Timeline.startSync('Lock events');
 
         assert(callback != null)
@@ -180,7 +186,7 @@ abstract class BindingBase {
     // /
     // / This should flush any events that were queued while [locked] was true.
     @CallSuper
-    protected fun unlocked() {
+    fun unlocked() {
         assert(!locked)
     }
 
@@ -217,7 +223,7 @@ abstract class BindingBase {
     // /
     // / Do not call this method directly. Instead, use [reassembleApplication].
     @CallSuper
-    protected open fun performReassemble(): Deferred<Unit> {
+    override fun performReassemble(): Deferred<Unit> {
         FlutterError.resetErrorCount()
         return async { }
     }
@@ -227,7 +233,7 @@ abstract class BindingBase {
     // / no value.
     // /
     // / Calls the `callback` callback when the service extension is called.
-    protected fun registerSignalServiceExtension(
+    override fun registerSignalServiceExtension(
         name: String,
         callback: Deferred<Unit>
     ) {
@@ -344,7 +350,7 @@ abstract class BindingBase {
     // / logs.
     // /
     // / The returned map will be mutated.
-    protected fun registerServiceExtension(
+    override fun registerServiceExtension(
         name: String,
         callback: ServiceExtensionCallback
     ) {
@@ -407,11 +413,6 @@ abstract class BindingBase {
 
     override fun toString(): String {
         return "<${runtimeType()}"
-    }
-
-    companion object {
-        var _debugInitialized = false
-        var _debugServiceExtensionsRegistered = false
     }
 }
 

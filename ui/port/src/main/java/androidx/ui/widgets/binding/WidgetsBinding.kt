@@ -7,10 +7,11 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.binding.BindingBase
+import androidx.ui.foundation.binding.BindingBaseImpl
 import androidx.ui.rendering.binding.RendererBinding
 import androidx.ui.rendering.binding.RendererBindingImpl
 import androidx.ui.scheduler.binding.SchedulerBinding
-import androidx.ui.scheduler.binding.SchedulerBindingImpl
+import androidx.ui.services.ServicesBinding
 import androidx.ui.services.SystemNavigator
 import androidx.ui.widgets.framework.BuildOwner
 import androidx.ui.widgets.framework.Element
@@ -18,32 +19,29 @@ import androidx.ui.widgets.framework.Widget
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 
-// TODO(Migration/popam): do mixins
-class WidgetsBinding : BindingBase(), RendererBinding by RendererBindingImpl(),
-        SchedulerBinding by SchedulerBindingImpl() /* with GestureBinding */ {
+interface WidgetsBinding : RendererBinding, SchedulerBinding, ServicesBinding
 
-    override fun initInstances() {
-        super.initInstances()
-        _instance = this
+open class WidgetsMixinsWrapper(
+    base: BindingBase,
+    renderer: RendererBinding
+) : BindingBase by base, RendererBinding by renderer
+
+// TODO(Migration/popam): do mixins
+object WidgetsBindingImpl : WidgetsMixinsWrapper(
+        BindingBaseImpl,
+        RendererBindingImpl
+), WidgetsBinding /* with GestureBinding */ {
+
+    // was initInstances
+    init {
         buildOwner.onBuildScheduled = ::_handleBuildScheduled
         Window.onLocaleChanged = ::handleLocaleChanged
 //        SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);
 //        SystemChannels.system.setMessageHandler(_handleSystemMessage);
     }
 
-    // / The current [WidgetsBinding], if one has been created.
-    // /
-    // / If you need the binding to be constructed before calling [runApp],
-    // / you can ensure a Widget binding has been constructed by calling the
-    // / `WidgetsFlutterBinding.ensureInitialized()` function.
-    val instance: WidgetsBinding?
-        get() = _instance
-    var _instance: WidgetsBinding? = null
-
-    override fun initServiceExtensions() {
-        super.initServiceExtensions()
-        TODO("migration/popam/Implement this")
-
+    // was initServiceExtensions
+    init {
         registerSignalServiceExtension(
                 "debugDumpApp",
                 async {
@@ -165,7 +163,7 @@ class WidgetsBinding : BindingBase(), RendererBinding by RendererBindingImpl(),
     // /
     // / See [Window.onLocaleChanged].
     @CallSuper
-    protected fun handleLocaleChanged() {
+    internal fun handleLocaleChanged() {
         TODO("migration/popam/Implement this")
 //        dispatchLocaleChanged(ui.window.locale);
     }
@@ -177,7 +175,7 @@ class WidgetsBinding : BindingBase(), RendererBinding by RendererBindingImpl(),
     // / This is called by [handleLocaleChanged] when the [Window.onLocaleChanged]
     // / notification is received.
     @CallSuper
-    protected fun dispatchLocaleChanged(locale: Locale) {
+    internal fun dispatchLocaleChanged(locale: Locale) {
         for (observer in _observers) {
             observer.didChangeLocale(locale)
         }
@@ -197,7 +195,7 @@ class WidgetsBinding : BindingBase(), RendererBinding by RendererBindingImpl(),
     // /
     // / This method exposes the `popRoute` notification from
     // / [SystemChannels.navigation].
-    protected fun handlePopRoute(): Deferred<Unit> {
+    internal fun handlePopRoute(): Deferred<Unit> {
         return async {
             for (observer in _observers.toList()) {
                 if (observer.didPopRoute().await()) {
@@ -219,7 +217,7 @@ class WidgetsBinding : BindingBase(), RendererBinding by RendererBindingImpl(),
     // / This method exposes the `pushRoute` notification from
     // / [SystemChannels.navigation].
     @CallSuper
-    protected fun handlePushRoute(route: String): Deferred<Unit> {
+    internal fun handlePushRoute(route: String): Deferred<Unit> {
         return async {
             for (observer in _observers.toList()) {
                 if (observer.didPushRoute(route).await()) {
@@ -344,7 +342,7 @@ class WidgetsBinding : BindingBase(), RendererBinding by RendererBindingImpl(),
     // / This is public so that test frameworks can change it.
     // /
     // / This flag is not used in release builds.
-    protected var debugBuildingDirtyElements = false
+    internal var debugBuildingDirtyElements = false
 
     // / Pump the build and rendering pipeline to generate a frame.
     // /
@@ -466,7 +464,9 @@ class WidgetsBinding : BindingBase(), RendererBinding by RendererBindingImpl(),
             buildOwner.reassemble(renderViewElement as Element)
         // TODO(hansmuller): eliminate the value variable after analyzer bug
         // https://github.com/flutter/flutter/issues/11646 is fixed.
-        val value = super.performReassemble()
+        val value = performReassembleRenderer { // renderer first
+            super.performReassemble() // and then base
+        }
         return async {
             value.await()
             allowFirstFrameReport()
