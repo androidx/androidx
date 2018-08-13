@@ -611,48 +611,43 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         Preconditions.checkArgument(dsd != null, "the DataSourceDesc2 cannot be null");
 
         MediaPlayer player = src.getPlayer();
-        switch (dsd.getType()) {
-            case DataSourceDesc2.TYPE_CALLBACK:
-                player.setDataSource(new MediaDataSource() {
-                    CallbackDataSource2 mDataSource =
-                            ((CallbackDataSourceDesc2) dsd).getCallbackDataSource2();
-                    @Override
-                    public int readAt(long position, byte[] buffer, int offset, int size)
-                            throws IOException {
-                        return mDataSource.readAt(position, buffer, offset, size);
-                    }
+        if (dsd instanceof CallbackDataSourceDesc2) {
+            player.setDataSource(new MediaDataSource() {
+                CallbackDataSource2 mDataSource =
+                        ((CallbackDataSourceDesc2) dsd).getCallbackDataSource2();
 
-                    @Override
-                    public long getSize() throws IOException {
-                        return mDataSource.getSize();
-                    }
+                @Override
+                public int readAt(long position, byte[] buffer, int offset, int size)
+                        throws IOException {
+                    return mDataSource.readAt(position, buffer, offset, size);
+                }
 
-                    @Override
-                    public void close() throws IOException {
-                        mDataSource.close();
-                    }
-                });
-                break;
+                @Override
+                public long getSize() throws IOException {
+                    return mDataSource.getSize();
+                }
 
-            case DataSourceDesc2.TYPE_FD:
-                FileDataSourceDesc2 fdsd = (FileDataSourceDesc2) dsd;
-                player.setDataSource(
-                        fdsd.getFileDescriptor(),
-                        fdsd.getFileDescriptorOffset(),
-                        fdsd.getFileDescriptorLength());
-                break;
-
-            case DataSourceDesc2.TYPE_URI:
-                UriDataSourceDesc2 udsd = (UriDataSourceDesc2) dsd;
-                player.setDataSource(
-                        udsd.getUriContext(),
-                        udsd.getUri(),
-                        udsd.getUriHeaders(),
-                        udsd.getUriCookies());
-                break;
-
-            default:
-                break;
+                @Override
+                public void close() throws IOException {
+                    mDataSource.close();
+                }
+            });
+        } else if (dsd instanceof FileDataSourceDesc2) {
+            FileDataSourceDesc2 fdsd = (FileDataSourceDesc2) dsd;
+            player.setDataSource(
+                    fdsd.getFileDescriptor(),
+                    fdsd.getFileDescriptorOffset(),
+                    fdsd.getFileDescriptorLength());
+        } else if (dsd instanceof UriDataSourceDesc2) {
+            UriDataSourceDesc2 udsd = (UriDataSourceDesc2) dsd;
+            player.setDataSource(
+                    udsd.getUriContext(),
+                    udsd.getUri(),
+                    udsd.getUriHeaders(),
+                    udsd.getUriCookies());
+        } else {
+            throw new IllegalArgumentException(
+                    "Unsupported data source description. " + dsd.toString());
         }
     }
 

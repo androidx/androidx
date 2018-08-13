@@ -57,15 +57,6 @@ public class UriDataSourceDesc2 extends DataSourceDesc2 {
     }
 
     /**
-     * Return the type of data source.
-     * @return the type of data source
-     */
-    @Override
-    public int getType() {
-        return TYPE_URI;
-    }
-
-    /**
      * Return the Uri of this data source.
      * @return the Uri of this data source
      */
