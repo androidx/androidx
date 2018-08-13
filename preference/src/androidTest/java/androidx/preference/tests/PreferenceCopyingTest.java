@@ -34,11 +34,12 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 
+import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.test.R;
 import androidx.preference.tests.helpers.PreferenceTestHelperActivity;
 import androidx.test.annotation.UiThreadTest;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -50,7 +51,7 @@ import org.junit.runner.RunWith;
 /**
  * Test for {@link androidx.preference.Preference} copying logic.
  */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class PreferenceCopyingTest {
 
@@ -71,7 +72,9 @@ public class PreferenceCopyingTest {
     @Before
     @UiThreadTest
     public void setUp() {
-        mScreen = mActivityRule.getActivity().setupPreferenceHierarchy(R.xml.test_copying);
+        PreferenceFragmentCompat fragment = mActivityRule.getActivity().setupPreferenceHierarchy(
+                R.xml.test_copying);
+        mScreen = fragment.getPreferenceScreen();
         mClipboard = (ClipboardManager) mActivityRule.getActivity().getSystemService(
                 Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("", "");
