@@ -13,31 +13,38 @@ import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.vectormath64.Matrix4
 
-// / The root of the render tree.
-// /
-// / The view represents the total output surface of the render tree and handles
-// / bootstrapping the rendering pipeline. The view has a unique child
-// / [RenderBox], which is required to fill the entire output surface.
+/**
+ * The root of the render tree.
+ *
+ * The view represents the total output surface of the render tree and handles
+ * bootstrapping the rendering pipeline. The view has a unique child
+ * [RenderBox], which is required to fill the entire output surface.
 
-// / Creates the root of the render tree.
-// /
-// / Typically created by the binding (e.g., [RendererBinding]).
+ * Creates the root of the render tree.
+ *
+ * Typically created by the binding (e.g., [RendererBinding]).
+ */
 class RenderView(
     child: RenderBox? = null,
     configuration: ViewConfiguration
 ) : RenderObjectWithChildMixin<RenderBox>() {
 
-    // / The current layout size of the view.
+    /**
+     * The current layout size of the view.
+     */
     var size: Size = Size.zero
         private set
 
-    // / The constraints used for the root layout.
+    /**
+     * The constraints used for the root layout.
+     */
     var configuration: ViewConfiguration = configuration
-    // / The configuration is initially set by the `configuration` argument
-    // / passed to the constructor.
-    // /
-    // / Always call [scheduleInitialFrame] before changing the configuration.
-        private set(value) {
+    /**
+     * The configuration is initially set by the `configuration` argument
+     * passed to the constructor.
+     *
+     * Always call [scheduleInitialFrame] before changing the configuration.
+        internal set(value) {
             if (field == value)
                 return
             field = value
@@ -46,11 +53,12 @@ class RenderView(
             markNeedsLayout()
         }
 
-    // / Bootstrap the rendering pipeline by scheduling the first frame.
-    // /
-    // / This should only be called once, and must be called before changing
-    // / [configuration]. It is typically called immediately after calling the
-    // / constructor.
+     * Bootstrap the rendering pipeline by scheduling the first frame.
+     *
+     * This should only be called once, and must be called before changing
+     * [configuration]. It is typically called immediately after calling the
+     * constructor.
+     */
     fun scheduleInitialFrame() {
         assert(owner != null)
         assert(_rootTransform == null)
@@ -122,11 +130,13 @@ class RenderView(
         super.applyPaintTransform(child, transform)
     }
 
-    // TODO(Migration/andrey): Needs Timeline
-//    /// Uploads the composited layer tree to the engine.
-//    ///
-//    /// Actually causes the output of the rendering pipeline to appear on screen.
-//    fun compositeFrame() {
+    /**
+     * Uploads the composited layer tree to the engine.
+     *
+     * Actually causes the output of the rendering pipeline to appear on screen.
+     */
+    fun compositeFrame() {
+        TODO("Migration/andrey: Needs Timeline")
 //        Timeline.startSync('Compositing', arguments = timelineWhitelistArguments);
 //        try {
 //            val builder : ui.SceneBuilder = ui.SceneBuilder();
@@ -142,7 +152,7 @@ class RenderView(
 //        } finally {
 //            Timeline.finishSync();
 //        }
-//    }
+    }
 
     override val paintBounds: Rect? = Offset.zero.and(size * configuration.devicePixelRatio)
 

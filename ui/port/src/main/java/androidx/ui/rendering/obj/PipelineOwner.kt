@@ -261,7 +261,7 @@ class PipelineOwner(
     // / [SemanticsHandle.dispose]. Once all the outstanding [SemanticsHandle]
     // / objects for a given [PipelineOwner] are closed, the [PipelineOwner] stops
     // / maintaining the semantics tree.
-    fun ensureSemantics(listener: VoidCallback): SemanticsHandle {
+    fun ensureSemantics(listener: VoidCallback? = null): SemanticsHandle {
         TODO()
 //        _outstandingSemanticsHandle += 1;
 //        if (_outstandingSemanticsHandle == 1) {

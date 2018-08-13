@@ -187,15 +187,15 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
      *
      * * [BindingBase.reassembleApplication].
      */
-//    fun reassemble() {
-//        markNeedsLayout()
-//        markNeedsCompositingBitsUpdate()
-//        markNeedsPaint()
-//        markNeedsSemanticsUpdate()
-//        visitChildren { child: RenderObject ->
-//            child.reassemble()
-//        }
-//    }
+    fun reassemble() {
+        markNeedsLayout()
+        markNeedsCompositingBitsUpdate()
+        markNeedsPaint()
+        markNeedsSemanticsUpdate()
+        visitChildren { child: RenderObject ->
+            child.reassemble()
+        }
+    }
 
     // LAYOUT
 

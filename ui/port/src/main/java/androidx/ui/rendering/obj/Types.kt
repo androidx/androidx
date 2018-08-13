@@ -25,14 +25,9 @@ typealias LayoutCallback = (Constraints) -> Unit
 
 // These are just a stubbed class to remove warnings:
 class RendererBinding
-class BoxConstraints
 class HitTestEntry
 class HitTestResult
-class RenderView
 class PointerEvent
-abstract class BindingBase() {
-    abstract fun reassembleApplication()
-}
 class GlobalKey
 class SemanticsEvent
 class SemanticsOwner
