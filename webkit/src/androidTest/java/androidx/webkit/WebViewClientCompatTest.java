@@ -299,6 +299,54 @@ public class WebViewClientCompatTest {
         Assert.assertTrue(callbackLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
 
+    @Test
+    public void testResetClientToCompat() throws Exception {
+        AssumptionUtils.checkFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
+
+        WebViewClient nonCompatClient = new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap bitmap) {
+                Assert.fail("This client should not have callbacks invoked");
+            }
+        };
+        mWebViewOnUiThread.setWebViewClient(nonCompatClient);
+
+        final CountDownLatch callbackLatch = new CountDownLatch(1);
+        WebViewClientCompat compatClient = new WebViewClientCompat() {
+            @Override
+            public void onPageCommitVisible(@NonNull WebView view, @NonNull String url) {
+                Assert.assertEquals(url, "about:blank");
+                callbackLatch.countDown();
+            }
+        };
+        mWebViewOnUiThread.setWebViewClient(compatClient); // reset to the new client
+        mWebViewOnUiThread.loadUrl("about:blank");
+        Assert.assertTrue(callbackLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testResetClientToRegular() throws Exception {
+        WebViewClientCompat compatClient = new WebViewClientCompat() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap bitmap) {
+                Assert.fail("This client should not have callbacks invoked");
+            }
+        };
+        mWebViewOnUiThread.setWebViewClient(compatClient);
+
+        final CountDownLatch callbackLatch = new CountDownLatch(1);
+        WebViewClient nonCompatClient = new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                Assert.assertEquals(url, "about:blank");
+                callbackLatch.countDown();
+            }
+        };
+        mWebViewOnUiThread.setWebViewClient(nonCompatClient); // reset to the new client
+        mWebViewOnUiThread.loadUrl("about:blank");
+        Assert.assertTrue(callbackLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
+    }
+
     private class MockWebViewClient extends WebViewOnUiThread.WaitForLoadedClient {
         private boolean mOnPageStartedCalled;
         private boolean mOnPageFinishedCalled;
