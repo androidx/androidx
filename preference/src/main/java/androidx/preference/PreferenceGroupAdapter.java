@@ -251,47 +251,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
     @Override
     public void onPreferenceVisibilityChange(Preference preference) {
-        if (!mPreferenceListInternal.contains(preference)) {
-            return;
-        }
-        if (mPreferenceGroupController.onPreferenceVisibilityChange(preference)) {
-            return;
-        }
-        if (preference.isVisible()) {
-            // The preference has become visible, we need to add it in the correct location.
-
-            // Index (inferred) in mPreferenceList of the item preceding the newly visible pref
-            int previousVisibleIndex = -1;
-            for (final Preference pref : mPreferenceListInternal) {
-                if (preference.equals(pref)) {
-                    break;
-                }
-                if (pref.isVisible()) {
-                    previousVisibleIndex++;
-                }
-            }
-            // Insert this preference into the active list just after the previous visible entry
-            mPreferenceList.add(previousVisibleIndex + 1, preference);
-
-            notifyItemInserted(previousVisibleIndex + 1);
-        } else {
-            // The preference has become invisible. Find it in the list and remove it.
-
-            int removalIndex;
-            final int listSize = mPreferenceList.size();
-            for (removalIndex = 0; removalIndex < listSize; removalIndex++) {
-                if (preference.equals(mPreferenceList.get(removalIndex))) {
-                    break;
-                } else if (removalIndex == listSize - 1) {
-                    // Return if this preference can not be found in this list. This can happen
-                    // if the preference was removed from this list asynchronously (for example
-                    // in onPreferenceHierarchyChange)
-                    return;
-                }
-            }
-            mPreferenceList.remove(removalIndex);
-            notifyItemRemoved(removalIndex);
-        }
+        onPreferenceHierarchyChange(preference);
     }
 
     @Override

@@ -21,7 +21,6 @@ import android.os.Bundle;
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceScreen;
 
 /**
  * Helper activity that inflates a preference hierarchy defined in a given XML resource with a
@@ -30,16 +29,16 @@ import androidx.preference.PreferenceScreen;
 public class PreferenceTestHelperActivity extends AppCompatActivity {
 
     /**
-     * Inflates the given XML resource and returns the root PreferenceScreen from the hierarchy.
+     * Inflates the given XML resource and returns the created PreferenceFragmentCompat.
      *
      * @param preferenceLayoutId The XML resource ID to inflate
-     * @return An inflated PreferenceScreen to be used in tests
+     * @return The PreferenceFragmentCompat that contains the inflated hierarchy
      */
-    public PreferenceScreen setupPreferenceHierarchy(@LayoutRes int preferenceLayoutId) {
+    public PreferenceFragmentCompat setupPreferenceHierarchy(@LayoutRes int preferenceLayoutId) {
         TestFragment fragment = new TestFragment(preferenceLayoutId);
         getSupportFragmentManager().beginTransaction().replace(android.R.id.content,
                 fragment).commitNow();
-        return fragment.getPreferenceScreen();
+        return fragment;
     }
 
     public static class TestFragment extends PreferenceFragmentCompat {
