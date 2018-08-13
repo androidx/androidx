@@ -98,8 +98,8 @@ public class PagedListView extends FrameLayout {
     private static final String TAG = "PagedListView";
     private static final int INVALID_RESOURCE_ID = -1;
 
-    private RecyclerView mRecyclerView;
-    private PagedSnapHelper mSnapHelper;
+    private final RecyclerView mRecyclerView;
+    private final PagedSnapHelper mSnapHelper;
     final Handler mHandler = new Handler();
     private boolean mScrollBarEnabled;
     @VisibleForTesting
@@ -128,6 +128,7 @@ public class PagedListView extends FrameLayout {
 
     private boolean mNeedsFocus;
 
+    @Nullable
     private OrientationHelper mOrientationHelper;
 
     @Gutter
@@ -238,26 +239,20 @@ public class PagedListView extends FrameLayout {
     }
 
     public PagedListView(Context context) {
-        super(context);
-        init(context, /* attrs= */ null, R.attr.pagedListViewStyle, R.style.Widget_Car_List_Light);
+        this(context, /* attrs= */ null, R.attr.pagedListViewStyle, R.style.Widget_Car_List_Light);
     }
 
     public PagedListView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs, R.attr.pagedListViewStyle, R.style.Widget_Car_List_Light);
+        this(context, attrs, R.attr.pagedListViewStyle, R.style.Widget_Car_List_Light);
     }
 
     public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs) {
-        super(context, attrs, defStyleAttrs);
-        init(context, attrs, defStyleAttrs, R.style.Widget_Car_List_Light);
+        this(context, attrs, defStyleAttrs, R.style.Widget_Car_List_Light);
     }
 
     public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
         super(context, attrs, defStyleAttrs, defStyleRes);
-        init(context, attrs, defStyleAttrs, defStyleRes);
-    }
 
-    private void init(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
         LayoutInflater.from(context).inflate(R.layout.car_paged_recycler_view,
                 /* root= */ this, /* attachToRoot= */ true);
 
