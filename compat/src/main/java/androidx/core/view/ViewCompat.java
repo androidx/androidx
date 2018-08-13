@@ -31,6 +31,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -42,9 +43,11 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeProvider;
 
 import androidx.annotation.FloatRange;
@@ -3667,6 +3670,77 @@ public class ViewCompat {
     }
 
     /**
+     * Visually distinct portion of a window with window-like semantics are considered panes for
+     * accessibility purposes. One example is the content view of a fragment that is replaced.
+     * In order for accessibility services to understand a pane's window-like behavior, panes
+     * should have descriptive titles. Views with pane titles produce {@link AccessibilityEvent}s
+     * when they appear, disappear, or change title.
+     *
+     * @param view The view whose pane title should be set.
+     * @param accessibilityPaneTitle The pane's title. Setting to {@code null} indicates that this
+     *                               View is not a pane.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op
+     * </ul>
+     *
+     * {@see AccessibilityNodeInfo#setPaneTitle(CharSequence)}
+     */
+    @UiThread
+    public static void setAccessibilityPaneTitle(View view, CharSequence accessibilityPaneTitle) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            paneTitleProperty().set(view, accessibilityPaneTitle);
+            if (accessibilityPaneTitle != null) {
+                sAccessibilityPaneVisibilityManager.addAccessibilityPane(view);
+            } else {
+                sAccessibilityPaneVisibilityManager.removeAccessibilityPane(view);
+            }
+        }
+    }
+
+    /**
+     * Get the title of the pane for purposes of accessibility.
+     *
+     * @param view The view queried for it's pane title.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: Always returns {@code null}</li>
+     * </ul>
+     *
+     * @return The current pane title.
+     *
+     * {@see #setAccessibilityPaneTitle}.
+     */
+    @UiThread
+    public static CharSequence getAccessibilityPaneTitle(View view) {
+        return paneTitleProperty().get(view);
+    }
+
+    @TargetApi(28)
+    private static AccessibilityViewProperty<CharSequence> paneTitleProperty() {
+        return new AccessibilityViewProperty<CharSequence>(R.id.tag_accessibility_pane_title,
+                CharSequence.class, AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE, 28) {
+
+            @Override
+            CharSequence frameworkGet(View view) {
+                return view.getAccessibilityPaneTitle();
+            }
+
+            @Override
+            void frameworkSet(View view, CharSequence value) {
+                view.setAccessibilityPaneTitle(value);
+            }
+
+            @Override
+            boolean shouldUpdate(CharSequence oldValue, CharSequence newValue) {
+                return !TextUtils.equals(oldValue, newValue);
+            }
+        };
+    }
+
+    /**
      * Gets whether this view is a heading for accessibility purposes.
      *
      * @param view The view checked if it is a heading.
@@ -3727,10 +3801,18 @@ public class ViewCompat {
         private final int mTagKey;
         private final Class<T> mType;
         private final int mFrameworkMinimumSdk;
+        private final int mContentChangeType;
 
         AccessibilityViewProperty(int tagKey, Class<T> type, int frameworkMinimumSdk) {
+            this(tagKey, type,
+                    AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED, frameworkMinimumSdk);
+        }
+
+        AccessibilityViewProperty(
+                int tagKey, Class<T> type, int contentChangeType, int frameworkMinimumSdk) {
             mTagKey = tagKey;
             mType = type;
+            mContentChangeType = contentChangeType;
             mFrameworkMinimumSdk = frameworkMinimumSdk;
         }
 
@@ -3781,12 +3863,19 @@ public class ViewCompat {
 
     @TargetApi(19)
     static void notifyViewAccessibilityStateChangedIfNeeded(View view, int changeType) {
-        // If this is a live region, we should send a subtree change event
+        AccessibilityManager accessibilityManager = (AccessibilityManager)
+                view.getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
+        if (!accessibilityManager.isEnabled()) {
+            return;
+        }
+        boolean isAccessibilityPane = getAccessibilityPaneTitle(view) != null;
+        // If this is a live region or accessibilityPane, we should send a subtree change event
         // from this view immediately. Otherwise, we can let it propagate up.
-        // getAccessibilityLiveRegion only works past 19.
-        if (getAccessibilityLiveRegion(view) != ACCESSIBILITY_LIVE_REGION_NONE) {
+        if ((getAccessibilityLiveRegion(view) != ACCESSIBILITY_LIVE_REGION_NONE)
+                || (isAccessibilityPane && view.getVisibility() == View.VISIBLE)) {
             final AccessibilityEvent event = AccessibilityEvent.obtain();
-            event.setEventType(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+            event.setEventType(isAccessibilityPane ? AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+                    : AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
             event.setContentChangeTypes(changeType);
             view.sendAccessibilityEventUnchecked(event);
         } else if (view.getParent() != null) {
@@ -3796,6 +3885,66 @@ public class ViewCompat {
                 Log.e(TAG, view.getParent().getClass().getSimpleName()
                         + " does not fully implement ViewParent", e);
             }
+        }
+    }
+
+    private static AccessibilityPaneVisibilityManager sAccessibilityPaneVisibilityManager =
+            new AccessibilityPaneVisibilityManager();
+
+    @TargetApi(19)
+    static class AccessibilityPaneVisibilityManager
+            implements ViewTreeObserver.OnGlobalLayoutListener, View.OnAttachStateChangeListener {
+        private WeakHashMap<View, Boolean> mPanesToVisible = new WeakHashMap<View, Boolean>();
+
+        @Override
+        public void onGlobalLayout() {
+            for (Map.Entry<View, Boolean> entry : mPanesToVisible.entrySet()) {
+                checkPaneVisibility(entry.getKey(), entry.getValue());
+            }
+        }
+
+        @Override
+        public void onViewAttachedToWindow(View view) {
+            // When detached the view loses its viewTreeObserver.
+            registerForLayoutCallback(view);
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(View view) {
+            // Don't do anything.
+        }
+
+        void addAccessibilityPane(View pane) {
+            mPanesToVisible.put(pane, pane.getVisibility() == View.VISIBLE);
+            pane.addOnAttachStateChangeListener(this);
+            if (pane.isAttachedToWindow()) {
+                registerForLayoutCallback(pane);
+            }
+        }
+
+        void removeAccessibilityPane(View pane) {
+            mPanesToVisible.remove(pane);
+            pane.removeOnAttachStateChangeListener(this);
+            unregisterForLayoutCallback(pane);
+        }
+
+        private void checkPaneVisibility(View pane, boolean oldVisibility) {
+            boolean newVisibility = pane.getVisibility() == View.VISIBLE;
+            if (oldVisibility != newVisibility) {
+                if (newVisibility) {
+                    notifyViewAccessibilityStateChangedIfNeeded(pane,
+                            AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED);
+                }
+                mPanesToVisible.put(pane, newVisibility);
+            }
+        }
+
+        private void registerForLayoutCallback(View view) {
+            view.getViewTreeObserver().addOnGlobalLayoutListener(this);
+        }
+
+        private void unregisterForLayoutCallback(View view) {
+            view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
         }
     }
 
