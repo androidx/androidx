@@ -21,6 +21,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -159,6 +160,14 @@ public class TextListItemActivity extends Activity {
             item.setPrimaryActionEmptyIcon();
             item.setTitle("clickable single line with empty icon and end icon no divider");
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+            mItems.add(item);
+
+            item = new TextListItem(mContext);
+            item.setPrimaryActionEmptyIcon();
+            item.setTitle("body with clickable link");
+            item.setBody(mContext.getText(R.string.test_link));
+            item.addViewBinder(
+                    vh -> vh.getBody().setMovementMethod(LinkMovementMethod.getInstance()));
             mItems.add(item);
 
             item = new TextListItem(mContext);
