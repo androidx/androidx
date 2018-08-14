@@ -444,8 +444,8 @@ package androidx.car.widget {
     method protected void resolveDirtyState();
     method public void setAction(java.lang.String, boolean, android.view.View.OnClickListener);
     method public void setActions(java.lang.String, boolean, android.view.View.OnClickListener, java.lang.String, boolean, android.view.View.OnClickListener);
-    method public void setBody(java.lang.String);
-    method public void setBody(java.lang.String, boolean);
+    method public void setBody(java.lang.CharSequence);
+    method public void setBody(java.lang.CharSequence, boolean);
     method public void setEnabled(boolean);
     method public void setOnClickListener(android.view.View.OnClickListener);
     method public void setPrimaryActionEmptyIcon();
@@ -463,7 +463,7 @@ package androidx.car.widget {
     method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean, android.view.View.OnClickListener);
     method public void setSwitch(boolean, boolean, android.widget.CompoundButton.OnCheckedChangeListener);
     method public void setSwitchState(boolean);
-    method public void setTitle(java.lang.String);
+    method public void setTitle(java.lang.CharSequence);
     field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
     field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
     field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
