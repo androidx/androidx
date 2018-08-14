@@ -58,16 +58,16 @@ public class PagedScrollBarView extends ViewGroup {
         void onAlphaJump();
     }
 
-    private ImageView mUpButton;
-    private PaginateButtonClickListener mUpButtonClickListener;
-    private ImageView mDownButton;
-    private PaginateButtonClickListener mDownButtonClickListener;
-    private TextView mAlphaJumpButton;
-    private AlphaJumpButtonClickListener mAlphaJumpButtonClickListener;
-    private View mScrollThumb;
+    private final ImageView mUpButton;
+    private final PaginateButtonClickListener mUpButtonClickListener;
+    private final ImageView mDownButton;
+    private final PaginateButtonClickListener mDownButtonClickListener;
+    private final TextView mAlphaJumpButton;
+    private final AlphaJumpButtonClickListener mAlphaJumpButtonClickListener;
+    private final View mScrollThumb;
 
-    private int mSeparatingMargin;
-    private int mScrollBarThumbWidth;
+    private final int mSeparatingMargin;
+    private final int mScrollBarThumbWidth;
 
     /** The amount of space that the scroll thumb is allowed to roam over. */
     private int mScrollThumbTrackHeight;
@@ -75,27 +75,22 @@ public class PagedScrollBarView extends ViewGroup {
     private final Interpolator mPaginationInterpolator = new AccelerateDecelerateInterpolator();
 
     public PagedScrollBarView(Context context) {
-        super(context);
-        init(context, /* attrs= */ null, R.attr.pagedScrollBarViewStyle);
+        this(context, /* attrs= */ null, R.attr.pagedScrollBarViewStyle,
+                R.style.Widget_Car_Scrollbar_Light);
     }
 
     public PagedScrollBarView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs, R.attr.pagedScrollBarViewStyle);
+        this(context, attrs, R.attr.pagedScrollBarViewStyle, R.style.Widget_Car_Scrollbar_Light);
     }
 
     public PagedScrollBarView(Context context, AttributeSet attrs, int defStyleAttrs) {
-        super(context, attrs, defStyleAttrs);
-        init(context, attrs, defStyleAttrs);
+        this(context, attrs, defStyleAttrs, R.style.Widget_Car_Scrollbar_Light);
     }
 
     public PagedScrollBarView(
             Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
         super(context, attrs, defStyleAttrs, defStyleRes);
-        init(context, attrs, defStyleAttrs);
-    }
 
-    private void init(Context context, AttributeSet attrs, int defStyleAttrs) {
         Resources res = context.getResources();
         mSeparatingMargin = res.getDimensionPixelSize(R.dimen.car_padding_2);
         mScrollBarThumbWidth = res.getDimensionPixelSize(R.dimen.car_scroll_bar_thumb_width);
@@ -117,7 +112,7 @@ public class PagedScrollBarView extends ViewGroup {
         mScrollThumb = findViewById(R.id.scrollbar_thumb);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PagedScrollBarView,
-                defStyleAttrs, /* defStyleRes= */ 0);
+                defStyleAttrs, defStyleRes);
 
         Drawable upButtonIcon = a.getDrawable(R.styleable.PagedScrollBarView_upButtonIcon);
         if (upButtonIcon != null) {
