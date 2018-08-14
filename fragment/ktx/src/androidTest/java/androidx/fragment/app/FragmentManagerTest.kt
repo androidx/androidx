@@ -8,6 +8,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @MediumTest
+@Suppress("DEPRECATION")
 class FragmentManagerTest {
     @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
@@ -49,6 +50,48 @@ class FragmentManagerTest {
         val fragmentManager = FragmentManagerImpl()
 
         fragmentManager.transaction(now = true, allowStateLoss = true) {
+            add(TestFragment(), null)
+        }
+        assertThat(fragmentManager.fragments).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test fun commit() {
+        val fragment = TestFragment()
+        fragmentManager.commit {
+            add(fragment, null)
+        }
+        assertThat(fragmentManager.fragments).doesNotContain(fragment)
+        fragmentManager.executePendingTransactions()
+        assertThat(fragmentManager.fragments).contains(fragment)
+    }
+
+    @UiThreadTest
+    @Test fun commitAllowingStateLoss() {
+        // Use a detached FragmentManager to ensure state loss.
+        val fragmentManager = FragmentManagerImpl()
+
+        fragmentManager.commit(allowStateLoss = true) {
+            add(TestFragment(), null)
+        }
+        assertThat(fragmentManager.fragments).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test fun commitNow() {
+        val fragment = TestFragment()
+        fragmentManager.commitNow {
+            add(fragment, null)
+        }
+        assertThat(fragmentManager.fragments).contains(fragment)
+    }
+
+    @UiThreadTest
+    @Test fun commitNowAllowingStateLoss() {
+        // Use a detached FragmentManager to ensure state loss.
+        val fragmentManager = FragmentManagerImpl()
+
+        fragmentManager.commitNow(allowStateLoss = true) {
             add(TestFragment(), null)
         }
         assertThat(fragmentManager.fragments).isEmpty()
