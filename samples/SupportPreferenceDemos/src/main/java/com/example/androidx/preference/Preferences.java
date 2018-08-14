@@ -11,10 +11,10 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
-package com.example.android.supportpreference;
+package com.example.androidx.preference;
 
 import android.os.Bundle;
 
@@ -23,12 +23,10 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
-import com.example.androidx.preference.R;
-
 /**
- * TODO(b/112588100): Remove after documentation is updated to point to new samples
+ * Demo activity using a PreferenceFragmentCompat to display a preference hierarchy.
  */
-public class FragmentSupportPreferencesCompat extends AppCompatActivity
+public class Preferences extends AppCompatActivity
         implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
     @Override
@@ -40,25 +38,39 @@ public class FragmentSupportPreferencesCompat extends AppCompatActivity
         // Display the fragment as the main content.
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(android.R.id.content,
-                    new PrefsFragment()).commit();
+                    new DemoFragment()).commit();
         }
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    /**
+     * This callback is used to handle navigation between nested preference screens. If you only
+     * have one screen of preferences or are using separate fragments for different screens you
+     * do not need to implement this.
+     */
+    @Override
     public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref) {
-        final Fragment f = new PrefsFragment();
+        final Fragment fragment = new DemoFragment();
         final Bundle args = new Bundle(1);
         args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, pref.getKey());
-        f.setArguments(args);
+        fragment.setArguments(args);
         getSupportFragmentManager().beginTransaction()
-                .replace(android.R.id.content, f)
+                .replace(android.R.id.content, fragment)
                 .addToBackStack(null)
                 .commit();
         return true;
     }
 
-    //BEGIN_INCLUDE(support_fragment_compat)
-    public static class PrefsFragment extends PreferenceFragmentCompat {
+    /**
+     * PreferenceFragmentCompat that sets the preference hierarchy from XML
+     */
+    //BEGIN_INCLUDE(preferences)
+    public static class DemoFragment extends PreferenceFragmentCompat {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -66,5 +78,5 @@ public class FragmentSupportPreferencesCompat extends AppCompatActivity
             setPreferencesFromResource(R.xml.preferences, rootKey);
         }
     }
-//END_INCLUDE(support_fragment_compat)
+    //END_INCLUDE(preferences)
 }

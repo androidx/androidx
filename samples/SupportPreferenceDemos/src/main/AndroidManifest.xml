@@ -17,7 +17,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.android.supportpreference">
+    package="com.example.androidx.preference">
 
     <uses-sdk
         tools:overrideLibrary="androidx.leanback.preference, androidx.leanback, androidx.car"/>
@@ -26,15 +26,16 @@
     <uses-feature android:name="android.software.leanback" android:required="false"/>
 
     <application
-        android:label="Preferences Demo"
+        android:label="@string/title"
         android:icon="@drawable/app_sample_code"
         android:allowBackup="false"
         android:supportsRtl="true"
-        android:theme="@style/DemoTheme">
+        android:theme="@style/AppTheme">
 
-        <activity android:name=".SupportPreferenceDemos">
+        <activity android:name="MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
@@ -42,48 +43,35 @@
         </activity>
 
         <activity
-            android:name=".FragmentSupportPreferences"
-            android:parentActivityName=".SupportPreferenceDemos"
-            android:label="@string/fragment_support_preferences_demo">
+            android:name="Preferences"
+            android:label="@string/preferences"
+            android:theme="@style/PreferenceTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".FragmentSupportPreferencesCompat"
-            android:parentActivityName=".SupportPreferenceDemos"
-            android:label="@string/fragment_support_preferences_compat_demo"
-            android:theme="@style/DemoThemeCompat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
+                <category android:name="com.example.androidx.preference.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
 
         <!-- Nothing technically wrong with showing this on a non-TV platform -->
         <activity
-            android:name=".FragmentSupportPreferencesLeanback"
-            android:parentActivityName=".SupportPreferenceDemos"
-            android:label="@string/fragment_support_preferences_leanback_demo"
-            android:theme="@style/SupportPreferenceLeanback"
-            android:enabled="@bool/atLeastJellyBeanMR2">
+            android:name="LeanbackPreferences"
+            android:label="@string/leanback_preferences"
+            android:theme="@style/LeanbackTheme"
+            android:enabled="@bool/atLeastLollipop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
+                <category android:name="com.example.androidx.preference.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".FragmentSupportPreferencesCar"
-            android:parentActivityName=".SupportPreferenceDemos"
-            android:label="@string/fragment_support_preferences_car_demo"
-            android:theme="@style/SupportPreferenceCar"
-            android:enabled="@bool/atLeastLollipop">
+            android:name="CarPreferences"
+            android:label="@string/car_preferences"
+            android:theme="@style/CarTheme"
+            android:enabled="@bool/atLeastP">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
+                <category android:name="com.example.androidx.preference.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
     </application>

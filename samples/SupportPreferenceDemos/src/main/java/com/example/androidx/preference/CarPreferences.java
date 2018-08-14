@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package com.example.android.supportpreference;
+package com.example.androidx.preference;
+
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * Demonstration of PreferenceFragment, showing a single fragment in an
- * activity for the Car.
+ * Demo activity using a PreferenceFragmentCompat to display a preference hierarchy. This activity
+ * uses a car specific theme defined in styles.xml.
  */
-public class FragmentSupportPreferencesCar extends AppCompatActivity
+@RequiresApi(LOLLIPOP)
+public class CarPreferences extends AppCompatActivity
         implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
     @Override
@@ -37,13 +44,18 @@ public class FragmentSupportPreferencesCar extends AppCompatActivity
         // Display the fragment as the main content.
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(android.R.id.content,
-                    new PrefsFragment()).commitNow();
+                    new DemoFragment()).commitNow();
         }
     }
 
+    /**
+     * This callback is used to handle navigation between nested preference screens. If you only
+     * have one screen of preferences or are using separate fragments for different screens you
+     * do not need to implement this.
+     */
     @Override
     public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref) {
-        Fragment fragment = new PrefsFragment();
+        Fragment fragment = new DemoFragment();
         Bundle args = new Bundle();
         args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, pref.getKey());
         fragment.setArguments(args);
@@ -54,14 +66,25 @@ public class FragmentSupportPreferencesCar extends AppCompatActivity
     }
 
     /**
-     * Create a PrefsFragment from the xml file of preferences
+     * PreferenceFragmentCompat that sets the preference hierarchy from XML
      */
-    public static class PrefsFragment extends PreferenceFragmentCompat {
+    public static class DemoFragment extends PreferenceFragmentCompat {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             // Load the preferences from an XML resource
             setPreferencesFromResource(R.xml.preferences, rootKey);
+        }
+
+        /**
+         * Do not use in production - this forces displaying the car specific PagedListView
+         * on all devices. PagedListView will automatically be used if running on an auto device
+         * with the car preference theme specified and should not be used on other devices.
+         */
+        @Override
+        public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
+                Bundle savedInstanceState) {
+            return parent.findViewById(R.id.recycler_view);
         }
     }
 }
