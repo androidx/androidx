@@ -2,7 +2,8 @@ package androidx.work {
 
   public final class DataKt {
     ctor public DataKt();
-    method public static <V> androidx.work.Data toWorkData(java.util.Map<java.lang.String,? extends V>);
+    method deprecated public static <V> androidx.work.Data toWorkData(java.util.Map<java.lang.String,? extends V>);
+    method public static androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 
   public final class OneTimeWorkRequestKt {
