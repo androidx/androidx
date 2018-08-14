@@ -13,7 +13,10 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager.LayoutParams
-
+import androidx.lifecycle.GenericLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.ui.engine.platform.io.view.FlutterNativeView
+import androidx.ui.engine.platform.io.view.FlutterView
 import java.util.ArrayList
 
 /**
@@ -33,27 +36,11 @@ import java.util.ArrayList
  * {@link PluginRegistry} and/or {@link io.flutter.view.FlutterView.Provider}
  * and forward those methods to this class as well.</p>
  */
-import androidx.ui.engine.platform.io.view.FlutterNativeView
-import androidx.ui.engine.platform.io.view.FlutterView
-
-/**
- * Class that performs the actual work of tying Android {@link Activity}
- * instances to Flutter.
- *
- * <p>This exists as a dedicated class (as opposed to being integrated directly
- * into {@link FlutterActivity}) to facilitate applications that don't wish
- * to subclass {@code FlutterActivity}. The most obvious example of when this
- * may come in handy is if an application wishes to subclass the Android v4
- * support library's {@code FragmentActivity}.</p>
- *
- * <h3>Usage:</h3>
- * <p>To wire this class up to your activity, simply forward the events defined
- * in {@link FlutterActivityEvents} from your activity to an instance of this
- * class. Optionally, you can make your activity implement
- * {@link PluginRegistry} and/or {@link io.flutter.view.FlutterView.Provider}
- * and forward those methods to this class as well.</p>
- */
-class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFactory) {
+class FlutterActivityDelegate(
+    val activity: Activity,
+    val viewFactory: ViewFactory,
+    lifecycle: Lifecycle
+) {
     // TODO: : FlutterActivityEvents, FlutterView.Provider, PluginRegistry
 
     companion object {
@@ -91,6 +78,21 @@ class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFacto
         fun retainFlutterNativeView(): Boolean
     }
 
+    init {
+        // Migration/Andrey: We added it instead of the manual delegation of all this
+        // lifecycle callbacks from an Activity. It would help us to not be tied
+        // to FlutterActivity in the future.
+        lifecycle.addObserver(GenericLifecycleObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> onCreate()
+                Lifecycle.Event.ON_PAUSE -> onPause()
+                Lifecycle.Event.ON_RESUME -> onResume()
+                Lifecycle.Event.ON_DESTROY -> onDestroy()
+                else -> { }
+            }
+        })
+    }
+
 //    // TODO(Migration/Filip): Is this ok?
 //    override val flutterView: FlutterView = FlutterView()
 //
@@ -125,7 +127,8 @@ class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFacto
 //        return flutterView.getPluginRegistry().onActivityResult(requestCode, resultCode, data)
 //    }
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
+    private fun onCreate() {
+        TODO()
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            val window = activity.getWindow()
 //            window.addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -163,8 +166,8 @@ class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFacto
 //            flutterView.runFromBundle(appBundlePath, null, "main", reuseIsolate)
 //          }
 //        }
-//    }
-//
+    }
+
 //    override fun onNewIntent(intent: Intent) {
 //        // Only attempt to reload the Flutter Dart code during development. Use
 //        // the debuggable flag as an indicator that we are in development mode.
@@ -177,7 +180,8 @@ class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFacto
         return activity.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE !== 0
     }
 
-//    override fun onPause() {
+    private fun onPause() {
+        TODO()
 //        val app = activity.applicationContext as Application
 //        if (app is FlutterApplication) {
 //            val flutterApp = app as FlutterApplication
@@ -185,30 +189,19 @@ class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFacto
 //                flutterApp.setCurrentActivity(null)
 //            }
 //        }
-//        flutterView?.onPause()
-//    }
-//
-//    override fun onStart() {
-//        flutterView?.onStart()
-//    }
+    }
 
-//    override fun onResume() {
+    private fun onResume() {
+        TODO()
 //        val app = activity.applicationContext as Application
 //        if (app is FlutterApplication) {
 //            val flutterApp = app as FlutterApplication
 //            flutterApp.setCurrentActivity(activity)
 //        }
-//    }
-//
-//    override fun onStop() {
-//        flutterView.onStop()
-//    }
-//
-//    override fun onPostResume() {
-//        flutterView?.onPostResume()
-//    }
-//
-//    override fun onDestroy() {
+    }
+
+    private fun onDestroy() {
+        TODO()
 //        val app = activity.applicationContext as Application
 //        if (app is FlutterApplication) {
 //            val flutterApp = app as FlutterApplication
@@ -226,7 +219,7 @@ class FlutterActivityDelegate(val activity: Activity, val viewFactory: ViewFacto
 //                flutterView.destroy()
 //            }
 //        }
-//    }
+    }
 
 //    override fun onBackPressed(): Boolean {
 //        if (flutterView != null) {

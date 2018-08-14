@@ -5,6 +5,9 @@ import androidx.ui.foundation.binding.BindingBase
 import androidx.ui.foundation.binding.BindingBaseImpl
 import androidx.ui.services.ServicesBinding
 import androidx.ui.services.ServicesBindingImpl
+import androidx.ui.services.SystemChannels
+import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.experimental.launch
 
 // Stub. TODO(migration/popam)
 interface SchedulerBinding : ServicesBinding {
@@ -21,6 +24,14 @@ object SchedulerBindingImpl : SchedulerMixinsWrapper(
         BindingBaseImpl,
         ServicesBindingImpl
 ), SchedulerBinding {
+
+    init {
+        launch {
+            SystemChannels.lifecycle
+                .openSubscription()
+                .consumeEach { handleAppLifecycleStateChanged(it) }
+        }
+    }
 
     override fun handleAppLifecycleStateChanged(state: AppLifecycleState) {
         TODO("not implemented")
