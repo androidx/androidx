@@ -116,8 +116,7 @@ public class AsyncListDiffer<T> {
     private final ListUpdateCallback mUpdateCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final AsyncDifferConfig<T> mConfig;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Executor mMainThreadExecutor;
+    Executor mMainThreadExecutor;
 
     private static class MainThreadExecutor implements Executor {
         final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -229,11 +228,36 @@ public class AsyncListDiffer<T> {
      */
     @SuppressWarnings("WeakerAccess")
     public void submitList(@Nullable final List<T> newList) {
+        submitList(newList, null);
+    }
+
+    /**
+     * Pass a new List to the AdapterHelper. Adapter updates will be computed on a background
+     * thread.
+     * <p>
+     * If a List is already present, a diff will be computed asynchronously on a background thread.
+     * When the diff is computed, it will be applied (dispatched to the {@link ListUpdateCallback}),
+     * and the new List will be swapped in.
+     * <p>
+     * The commit callback can be used to know when the List is committed, but note that it
+     * may not be executed. If List B is submitted immediately after List A, and is
+     * committed directly, the callback associated with List A will not be run.
+     *
+     * @param newList The new List.
+     * @param commitCallback Optional runnable that is executed when the List is committed, if
+     *                       it is committed.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public void submitList(@Nullable final List<T> newList,
+            @Nullable final Runnable commitCallback) {
         // incrementing generation means any currently-running diffs are discarded when they finish
         final int runGeneration = ++mMaxScheduledGeneration;
 
         if (newList == mList) {
             // nothing to do (Note - still had to inc generation, since may have ongoing work)
+            if (commitCallback != null) {
+                commitCallback.run();
+            }
             return;
         }
 
@@ -247,7 +271,7 @@ public class AsyncListDiffer<T> {
             mReadOnlyList = Collections.emptyList();
             // notify last, after list is updated
             mUpdateCallback.onRemoved(0, countRemoved);
-            onCurrentListChanged(previousList);
+            onCurrentListChanged(previousList, commitCallback);
             return;
         }
 
@@ -257,7 +281,7 @@ public class AsyncListDiffer<T> {
             mReadOnlyList = Collections.unmodifiableList(newList);
             // notify last, after list is updated
             mUpdateCallback.onInserted(0, newList.size());
-            onCurrentListChanged(previousList);
+            onCurrentListChanged(previousList, commitCallback);
             return;
         }
 
@@ -324,7 +348,7 @@ public class AsyncListDiffer<T> {
                     @Override
                     public void run() {
                         if (mMaxScheduledGeneration == runGeneration) {
-                            latchList(newList, result);
+                            latchList(newList, result, commitCallback);
                         }
                     }
                 });
@@ -333,19 +357,26 @@ public class AsyncListDiffer<T> {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void latchList(@NonNull List<T> newList, @NonNull DiffUtil.DiffResult diffResult) {
+    void latchList(
+            @NonNull List<T> newList,
+            @NonNull DiffUtil.DiffResult diffResult,
+            @Nullable Runnable commitCallback) {
         final List<T> previousList = mReadOnlyList;
         mList = newList;
         // notify last, after list is updated
         mReadOnlyList = Collections.unmodifiableList(newList);
         diffResult.dispatchUpdatesTo(mUpdateCallback);
-        onCurrentListChanged(previousList);
+        onCurrentListChanged(previousList, commitCallback);
     }
 
-    private void onCurrentListChanged(@NonNull List<T> previousList) {
+    private void onCurrentListChanged(@NonNull List<T> previousList,
+            @Nullable Runnable commitCallback) {
         // current list is always mReadOnlyList
         for (ListListener<T> listener : mListeners) {
             listener.onCurrentListChanged(previousList, mReadOnlyList);
+        }
+        if (commitCallback != null) {
+            commitCallback.run();
         }
     }
 
