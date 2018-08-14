@@ -138,7 +138,7 @@ public class WorkManagerImplLargeExecutorTest {
 
     @Test
     @LargeTest
-    @SdkSuppress(maxSdkVersion = 22)
+    @SdkSuppress(minSdkVersion = 22, maxSdkVersion = 22)
     public void testSchedulerLimits() throws InterruptedException {
         List<OneTimeWorkRequest> workRequests = new ArrayList<>(NUM_WORKERS);
         final Set<UUID> completed = new HashSet<>(NUM_WORKERS);
