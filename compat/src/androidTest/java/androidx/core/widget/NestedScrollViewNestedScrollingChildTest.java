@@ -19,7 +19,10 @@ package androidx.core.widget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -43,6 +46,7 @@ import androidx.test.runner.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -215,8 +219,10 @@ public class NestedScrollViewNestedScrollingChildTest {
         assertThat(mParentSpy.axesForTypeNonTouch, is(ViewCompat.SCROLL_AXIS_VERTICAL));
     }
 
-    /*@Test
+    @Test
     public void uiFling_callsNestedFlingsCorrectly() {
+        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
+                .thenReturn(true);
         NestedScrollViewTestUtils
                 .simulateFlingDown(InstrumentationRegistry.getContext(), mNestedScrollView);
 
@@ -230,7 +236,7 @@ public class NestedScrollViewNestedScrollingChildTest {
                 eq(0f),
                 anyFloat(),
                 eq(true));
-    }*/
+    }
 
     @Test
     public void uiDown_duringFling_stopsNestedScrolling() {
@@ -259,8 +265,10 @@ public class NestedScrollViewNestedScrollingChildTest {
         verify(mParentSpy).onStopNestedScroll(mNestedScrollView, ViewCompat.TYPE_NON_TOUCH);
     }
 
-    /*@Test
+    @Test
     public void uiFlings_parentReturnsTrueForOnNestedFling_dispatchNestedFlingCalled() {
+        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
+                .thenReturn(true);
         when(mParentSpy.onNestedPreFling(eq(mNestedScrollView), anyFloat(), anyFloat()))
                 .thenReturn(false);
 
@@ -268,10 +276,12 @@ public class NestedScrollViewNestedScrollingChildTest {
                 .simulateFlingDown(InstrumentationRegistry.getContext(), mNestedScrollView);
 
         verify(mParentSpy).onNestedFling(eq(mNestedScrollView), anyFloat(), anyFloat(), eq(true));
-    }*/
+    }
 
-    /*@Test
+    @Test
     public void uiFlings_parentReturnsFalseForOnNestedFling_dispatchNestedFlingNotCalled() {
+        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
+                .thenReturn(true);
         when(mParentSpy.onNestedPreFling(eq(mNestedScrollView), anyFloat(), anyFloat()))
                 .thenReturn(true);
 
@@ -280,7 +290,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
         verify(mParentSpy, never())
                 .onNestedFling(any(View.class), anyFloat(), anyFloat(), anyBoolean());
-    }*/
+    }
 
     @Test
     public void smoothScrollBy_doesNotStartNestedScrolling() {
@@ -388,6 +398,95 @@ public class NestedScrollViewNestedScrollingChildTest {
         public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
                 int dyUnconsumed, @Nullable int[] offsetInWindow, int type,
                 @NonNull int[] consumed) {
+        }
+
+        @Override
+        public void setNestedScrollingEnabled(boolean enabled) {
+
+        }
+
+        @Override
+        public boolean isNestedScrollingEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean startNestedScroll(int axes) {
+            return false;
+        }
+
+        @Override
+        public void stopNestedScroll() {
+
+        }
+
+        @Override
+        public boolean hasNestedScrollingParent() {
+            return false;
+        }
+
+        @Override
+        public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed, int[] offsetInWindow) {
+            return false;
+        }
+
+        @Override
+        public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed,
+                int[] offsetInWindow) {
+            return false;
+        }
+
+        @Override
+        public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+            return false;
+        }
+
+        @Override
+        public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
+            return false;
+        }
+
+        @Override
+        public boolean onStartNestedScroll(View child, View target, int axes) {
+            return false;
+        }
+
+        @Override
+        public void onNestedScrollAccepted(View child, View target, int axes) {
+
+        }
+
+        @Override
+        public void onStopNestedScroll(View target) {
+
+        }
+
+        @Override
+        public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed) {
+
+        }
+
+        @Override
+        public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+
+        }
+
+        @Override
+        public boolean onNestedFling(View target, float velocityX, float velocityY,
+                boolean consumed) {
+            return false;
+        }
+
+        @Override
+        public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+            return false;
+        }
+
+        @Override
+        public int getNestedScrollAxes() {
+            return 0;
         }
     }
 }
