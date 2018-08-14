@@ -135,8 +135,8 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private Drawable mPrimaryActionIconDrawable;
     @PrimaryActionIconSize private int mPrimaryActionIconSize = PRIMARY_ACTION_ICON_SIZE_SMALL;
 
-    private String mTitle;
-    private String mBody;
+    private CharSequence mTitle;
+    private CharSequence mBody;
     private boolean mIsBodyPrimary;
 
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
@@ -681,13 +681,13 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * Sets the title of item.
      *
      * <p>Primary text is {@code Title} by default. It can be set by
-     * {@link #setBody(String, boolean)}
+     * {@link #setBody(CharSequence, boolean)}
      *
      * <p>{@code Title} text is limited to one line, and ellipses at the end.
      *
      * @param title text to display as title.
      */
-    public void setTitle(String title) {
+    public void setTitle(CharSequence title) {
         mTitle = title;
         markDirty();
     }
@@ -699,7 +699,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * text as the primary.
      * @param body text to be displayed.
      */
-    public void setBody(String body) {
+    public void setBody(CharSequence body) {
         setBody(body, false);
     }
 
@@ -709,7 +709,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param body text to be displayed.
      * @param asPrimary sets {@code Body Text} as primary text of item.
      */
-    public void setBody(String body, boolean asPrimary) {
+    public void setBody(CharSequence body, boolean asPrimary) {
         mBody = body;
         mIsBodyPrimary = asPrimary;
 
