@@ -53,31 +53,24 @@ public final class TextLinkSpanTest {
     private Context mContext;
     private BlockingReceiver mReceiver;
     private TextLink mTextLink;
+    private TextClassifier mTextClassifier;
 
     @Before
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
         mReceiver = BlockingReceiver.registerForPendingIntent(mContext);
         final PendingIntent intent = mReceiver.getPendingIntent();
-        final TextClassifierFactory classifierFactory = new TextClassifierFactory() {
-            @NonNull
+        mTextClassifier = new TextClassifier() {
             @Override
-            public TextClassifier create(@NonNull TextClassificationContext ctx) {
-                return new TextClassifier(ctx) {
-                    @NonNull
-                    @Override
-                    public TextClassification classifyText(@NonNull TextClassification.Request r) {
-                        final RemoteActionCompat remoteAction =
-                                new RemoteActionCompat(ICON, "title", "desc", intent);
-                        remoteAction.setShouldShowIcon(false);
-                        return new TextClassification.Builder()
-                                .addAction(remoteAction)
-                                .build();
-                    }
-                };
+            public TextClassification classifyText(@NonNull TextClassification.Request r) {
+                final RemoteActionCompat remoteAction =
+                        new RemoteActionCompat(ICON, "title", "desc", intent);
+                remoteAction.setShouldShowIcon(false);
+                return new TextClassification.Builder()
+                        .addAction(remoteAction)
+                        .build();
             }
         };
-        TextClassificationManager.of(mContext).setTextClassifierFactory(classifierFactory);
 
         final Map<String, Float> scores = new ArrayMap<>();
         scores.put(TextClassifier.TYPE_EMAIL, 1f);
@@ -86,7 +79,7 @@ public final class TextLinkSpanTest {
 
     @Test
     public void onClick() throws Exception {
-        final TextLinkSpan span = new TextLinkSpan(mTextLink);
+        final TextLinkSpan span = createTextLinkSpan(mTextLink);
         final TextView textView = createTextViewWithSpan(span);
 
         span.onClick(textView);
@@ -95,14 +88,14 @@ public final class TextLinkSpanTest {
 
     @Test
     public void onClick_unsupportedWidget() throws Exception {
-        new TextLinkSpan(mTextLink).onClick(null);
-        new TextLinkSpan(mTextLink).onClick(new View(mContext));
+        createTextLinkSpan(mTextLink).onClick(null);
+        createTextLinkSpan(mTextLink).onClick(new View(mContext));
         mReceiver.assertIntentNotReceived();
     }
 
     @Test
     public void onClick_nonSpannedText() throws Exception {
-        final TextLinkSpan span = new TextLinkSpan(mTextLink);
+        final TextLinkSpan span = createTextLinkSpan(mTextLink);
         final TextView textView = new TextView(mContext);
         textView.setText(TEXT);
 
@@ -113,15 +106,9 @@ public final class TextLinkSpanTest {
 
     @Test
     public void onClick_noActions() throws Exception {
-        final TextLinkSpan span = new TextLinkSpan(mTextLink);
+        mTextClassifier = TextClassifier.NO_OP;
+        final TextLinkSpan span = createTextLinkSpan(mTextLink);
         final TextView textView = createTextViewWithSpan(span);
-        mTextLink.mClassifierFactory = new TextClassifierFactory() {
-            @Override
-            public TextClassifier create(TextClassificationContext ctx) {
-                return TextClassifier.NO_OP;  // returns no actions.
-            }
-        };
-
         span.onClick(textView);
 
         mReceiver.assertIntentNotReceived();
@@ -138,5 +125,10 @@ public final class TextLinkSpanTest {
         final TextView textView = new TextView(mContext);
         textView.setText(text);
         return textView;
+    }
+
+    private TextLinks.TextLinkSpan createTextLinkSpan(TextLinks.TextLink textLink) {
+        return new TextLinks.TextLinkSpan(
+                new TextLinks.TextLinkSpanData(textLink, mTextClassifier, null));
     }
 }

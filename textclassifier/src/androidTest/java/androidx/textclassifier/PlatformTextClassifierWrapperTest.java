@@ -16,7 +16,6 @@
 
 package androidx.textclassifier;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -58,9 +57,7 @@ public class PlatformTextClassifierWrapperTest {
     @Before
     public void setup() {
         mClassifier = PlatformTextClassifierWrapper.create(
-                InstrumentationRegistry.getTargetContext(),
-                new androidx.textclassifier.TextClassificationContext(
-                        "pkg", "widget", "version"));
+                InstrumentationRegistry.getTargetContext());
     }
 
     @Test
@@ -76,22 +73,6 @@ public class PlatformTextClassifierWrapperTest {
     @Test
     public void testGenerateLinks() {
         assertValidResult(mClassifier.generateLinks(new TextLinks.Request.Builder(TEXT).build()));
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    public void testDestroy_P() {
-        mClassifier.destroy();
-
-        assertTrue(mClassifier.isDestroyed());
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testDestroy_O() {
-        mClassifier.destroy();
-
-        assertFalse(mClassifier.isDestroyed());
     }
 
     private static void assertValidResult(TextSelection selection) {

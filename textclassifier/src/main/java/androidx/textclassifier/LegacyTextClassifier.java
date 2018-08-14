@@ -73,7 +73,6 @@ final class LegacyTextClassifier extends TextClassifier {
 
     @VisibleForTesting()
     LegacyTextClassifier(MatchMaker matchMaker) {
-        super(SessionStrategy.NO_OP);
         mMatchMaker = Preconditions.checkNotNull(matchMaker);
     }
 

@@ -20,7 +20,6 @@ import static androidx.textclassifier.ConvertUtils.toPlatformEntityConfig;
 import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.Spanned;
 import android.text.style.ClickableSpan;
@@ -129,30 +128,6 @@ public final class TextLinks {
         return mLinks;
     }
 
-    /**
-     * Sets the classifier factory used to generate the links.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    void setClassifierFactory(@Nullable TextClassifierFactory factory) {
-        for (TextLink link : getLinks()) {
-            link.mClassifierFactory = factory;
-        }
-    }
-
-    /**
-     * @param referenceTime reference time based on which relative dates (e.g. "tomorrow"
-     *      should be interpreted. This should usually be the time when the text was
-     *      originally composed. If no reference time is set, now is used.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    void setReferenceTime(@Nullable Calendar referenceTime) {
-        for (TextLink link : getLinks()) {
-            link.mReferenceTime = referenceTime;
-        }
-    }
-
     @Override
     @NonNull
     public String toString() {
@@ -195,22 +170,6 @@ public final class TextLinks {
         private final int mEnd;
         // Allows us to fallback to legacy Linkify if necessary. Not parcelled.
         @Nullable private final URLSpan mUrlSpan;
-
-        /**
-         * The classifier factory used to generate this TextLink. Not parcelled.
-         * @hide
-         */
-        @VisibleForTesting
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Nullable TextClassifierFactory mClassifierFactory;
-
-        /**
-         * Reference time for resolving relative dates. e.g. "tomorrow". Not parcelled.
-         * @hide
-         */
-        @VisibleForTesting
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Nullable Calendar mReferenceTime;
 
         /**
          * Create a new TextLink.
@@ -469,7 +428,54 @@ public final class TextLinks {
     public interface SpanFactory {
 
         /** Creates a span from a text link. */
-        TextLinkSpan createSpan(@NonNull TextLink textLink);
+        TextLinkSpan createSpan(@NonNull TextLinkSpanData textLinkSpanData);
+    }
+
+    /**
+     * Contains necessary data for {@link TextLinkSpan}.
+     */
+    public static class TextLinkSpanData {
+        @NonNull
+        private final TextLink mTextLink;
+        @NonNull
+        private final TextClassifier mTextClassifier;
+        @Nullable
+        private final Calendar mReferenceTime;
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        TextLinkSpanData(
+                @NonNull TextLink textLink,
+                @NonNull TextClassifier textClassifier,
+                @Nullable Calendar referenceTime) {
+            mTextLink = Preconditions.checkNotNull(textLink);
+            mTextClassifier = Preconditions.checkNotNull(textClassifier);
+            mReferenceTime = referenceTime;
+        }
+
+        @NonNull
+        public TextLink getTextLink() {
+            return mTextLink;
+        }
+
+        /**
+         * TODO: Make it public once we confirm how should we represent a datetime.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public Calendar getReferenceTime() {
+            return mReferenceTime;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        TextClassifier getTextClassifier() {
+            return mTextClassifier;
+        }
     }
 
     /**
@@ -477,10 +483,11 @@ public final class TextLinks {
      */
     public static class TextLinkSpan extends ClickableSpan {
 
-        @NonNull private final TextLink mTextLink;
+        @NonNull
+        private final TextLinkSpanData mTextLinkSpanData;
 
-        public TextLinkSpan(@NonNull TextLink textLink) {
-            mTextLink = Preconditions.checkNotNull(textLink);
+        public TextLinkSpan(@NonNull TextLinkSpanData textLinkSpanData) {
+            mTextLinkSpanData = Preconditions.checkNotNull(textLinkSpanData);
         }
 
         @Override
@@ -500,10 +507,10 @@ public final class TextLinks {
             final int end = spanned.getSpanEnd(this);
             final TextClassification.Request request =
                     new TextClassification.Request.Builder(text, start, end)
-                            .setReferenceTime(getReferenceTime())
+                            .setReferenceTime(mTextLinkSpanData.getReferenceTime())
                             .setDefaultLocales(getLocales(textView))
                             .build();
-            final TextClassifier classifier = getTextClassifier(widget.getContext());
+            final TextClassifier classifier = mTextLinkSpanData.getTextClassifier();
 
             // TODO: Truncate the text.
             sWorkerExecutor.execute(new Runnable() {
@@ -522,17 +529,10 @@ public final class TextLinks {
                                     Log.e(LOG_TAG, "Error handling TextLinkSpan click", e);
                                 }
                             }
-                            classifier.destroy();
                         }
                     });
                 }
             });
-
-        }
-
-        @Nullable
-        private Calendar getReferenceTime() {
-            return mTextLink != null ? mTextLink.mReferenceTime : null;
         }
 
         private LocaleListCompat getLocales(TextView textView) {
@@ -543,22 +543,9 @@ public final class TextLinks {
             }
         }
 
-        private TextClassifier getTextClassifier(Context context) {
-            final TextClassificationContext tcc = new TextClassificationContext.Builder(
-                    context.getPackageName(),
-                    TextClassifier.WIDGET_TYPE_TEXTVIEW)
-                    .setWidgetVersion("androidx")
-                    .build();
-            if (mTextLink != null && mTextLink.mClassifierFactory != null) {
-                return mTextLink.mClassifierFactory.create(tcc);
-            } else {
-                return TextClassificationManager.of(context).createTextClassifier(tcc);
-            }
-        }
-
-        @Nullable
-        public final TextLink getTextLink() {
-            return mTextLink;
+        @NonNull
+        public final TextLinkSpanData getTextLinkSpanData() {
+            return mTextLinkSpanData;
         }
     }
 
