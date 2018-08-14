@@ -39,15 +39,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
-
 /** Instrumentation unit tests for {@link TextClassification}. */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class TextClassificationTest {
-    private static final long REFERENCE_TIME_IN_MS = 946684800000L; // 2000-01-01 00:00:00
+    private static final Long REFERENCE_TIME_IN_MS = 946684800000L; // 2000-01-01 00:00:00
     private static final CharSequence TEXT = new SpannableString("This is an apple");
     private static final int START_INDEX = 2;
     private static final int END_INDEX = 5;
@@ -67,13 +63,6 @@ public final class TextClassificationTest {
     private static final String SECONDARY_LABEL = "secondaryLabel";
     private static final String SECONDARY_DESCRIPTION = "secondaryDescription";
     private static final Intent SECONDARY_INTENT = new Intent("secondaryIntentAction");
-
-    private static final Calendar REFERENCE_TIME;
-
-    static {
-        REFERENCE_TIME = Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
-        REFERENCE_TIME.setTimeInMillis(REFERENCE_TIME_IN_MS);
-    }
 
     private Context mContext;
 
@@ -112,7 +101,7 @@ public final class TextClassificationTest {
         assertEquals(START_INDEX, result.getStartIndex());
         assertEquals(END_INDEX, result.getEndIndex());
         assertEquals(LOCALE_LIST.toLanguageTags(), result.getDefaultLocales().toLanguageTags());
-        assertEquals(REFERENCE_TIME, result.getReferenceTime());
+        assertEquals(REFERENCE_TIME_IN_MS, result.getReferenceTime());
     }
 
     @Test
@@ -200,7 +189,7 @@ public final class TextClassificationTest {
     private static TextClassification.Request createTextClassificationRequest() {
         return new TextClassification.Request.Builder(TEXT, START_INDEX, END_INDEX)
                 .setDefaultLocales(LOCALE_LIST)
-                .setReferenceTime(REFERENCE_TIME)
+                .setReferenceTime(REFERENCE_TIME_IN_MS)
                 .build();
     }
 

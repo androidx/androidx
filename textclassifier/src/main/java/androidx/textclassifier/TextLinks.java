@@ -43,7 +43,6 @@ import androidx.textclassifier.TextClassifier.EntityType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -440,7 +439,7 @@ public final class TextLinks {
         @NonNull
         private final TextClassifier mTextClassifier;
         @Nullable
-        private final Calendar mReferenceTime;
+        private final Long mReferenceTime;
 
         /**
          * @hide
@@ -449,7 +448,7 @@ public final class TextLinks {
         TextLinkSpanData(
                 @NonNull TextLink textLink,
                 @NonNull TextClassifier textClassifier,
-                @Nullable Calendar referenceTime) {
+                @Nullable Long referenceTime) {
             mTextLink = Preconditions.checkNotNull(textLink);
             mTextClassifier = Preconditions.checkNotNull(textClassifier);
             mReferenceTime = referenceTime;
@@ -465,7 +464,8 @@ public final class TextLinks {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public Calendar getReferenceTime() {
+        @Nullable
+        public Long getReferenceTime() {
             return mReferenceTime;
         }
 

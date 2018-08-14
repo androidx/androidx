@@ -40,7 +40,6 @@ import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextClassifier.EntityType;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -374,7 +373,6 @@ public final class TextClassification {
      * A request object for generating TextClassification.
      */
     public static final class Request {
-
         private static final String EXTRA_TEXT = "text";
         private static final String EXTRA_START_INDEX = "start";
         private static final String EXTRA_END_INDEX = "end";
@@ -386,14 +384,14 @@ public final class TextClassification {
         private final int mStartIndex;
         private final int mEndIndex;
         @Nullable private final LocaleListCompat mDefaultLocales;
-        @Nullable private final Calendar mReferenceTime;
+        @Nullable private final Long mReferenceTime;
 
         Request(
                 CharSequence text,
                 int startIndex,
                 int endIndex,
                 LocaleListCompat defaultLocales,
-                Calendar referenceTime) {
+                Long referenceTime) {
             mText = text;
             mStartIndex = startIndex;
             mEndIndex = endIndex;
@@ -437,10 +435,11 @@ public final class TextClassification {
 
         /**
          * @return reference time based on which relative dates (e.g. "tomorrow") should be
-         *      interpreted.
+         *      interpreted. This should be milliseconds from the epoch of
+         *      1970-01-01T00:00:00Z(UTC timezone).
          */
         @Nullable
-        public Calendar getReferenceTime() {
+        public Long getReferenceTime() {
             return mReferenceTime;
         }
 
@@ -454,7 +453,7 @@ public final class TextClassification {
             return new android.view.textclassifier.TextClassification.Request.Builder(
                     mText, mStartIndex, mEndIndex)
                     .setDefaultLocales(ConvertUtils.unwrapLocalListCompat(getDefaultLocales()))
-                    .setReferenceTime(ConvertUtils.createZonedDateTimeFromCalendar(mReferenceTime))
+                    .setReferenceTime(ConvertUtils.createZonedDateTimeFromUtc(mReferenceTime))
                     .build();
         }
 
@@ -468,7 +467,7 @@ public final class TextClassification {
             private final int mEndIndex;
 
             @Nullable private LocaleListCompat mDefaultLocales;
-            @Nullable private Calendar mReferenceTime;
+            @Nullable private Long mReferenceTime = null;
 
             /**
              * @param text text providing context for the text to classify (which is specified
@@ -503,14 +502,18 @@ public final class TextClassification {
             }
 
             /**
-             * @param referenceTime reference time based on which relative dates (e.g. "tomorrow"
+             * @param referenceTime reference time based on which relative dates (e.g. "tomorrow")
              *      should be interpreted. This should usually be the time when the text was
-             *      originally composed. If no reference time is set, now is used.
+             *      originally composed and should be milliseconds from the epoch of
+             *      1970-01-01T00:00:00Z(UTC timezone). For example, if there is a message saying
+             *      "see you 10 days later", and the message was composed yesterday, text classifier
+             *      will then realize it is indeed means 9 days later from now and generate a link
+             *      accordingly. If no reference time is set, now is used.
              *
              * @return this builder
              */
             @NonNull
-            public Builder setReferenceTime(@Nullable Calendar referenceTime) {
+            public Builder setReferenceTime(@Nullable Long referenceTime) {
                 mReferenceTime = referenceTime;
                 return this;
             }
@@ -535,7 +538,7 @@ public final class TextClassification {
             bundle.putInt(EXTRA_START_INDEX, mStartIndex);
             bundle.putInt(EXTRA_END_INDEX, mEndIndex);
             BundleUtils.putLocaleList(bundle, EXTRA_DEFAULT_LOCALES, mDefaultLocales);
-            BundleUtils.putCalendar(bundle, EXTRA_REFERENCE_TIME, mReferenceTime);
+            bundle.putLong(EXTRA_REFERENCE_TIME, mReferenceTime);
             return bundle;
         }
 
@@ -548,7 +551,7 @@ public final class TextClassification {
                     bundle.getInt(EXTRA_START_INDEX),
                     bundle.getInt(EXTRA_END_INDEX))
                     .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES))
-                    .setReferenceTime(BundleUtils.getCalendar(bundle, EXTRA_REFERENCE_TIME));
+                    .setReferenceTime(bundle.getLong(EXTRA_REFERENCE_TIME));
             final Request request = builder.build();
             return request;
         }
