@@ -11,10 +11,12 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
-package com.example.android.supportpreference;
+package com.example.androidx.preference;
+
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
 import android.os.Bundle;
 
@@ -28,13 +30,11 @@ import androidx.preference.PreferenceDialogFragmentCompat;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
-import com.example.androidx.preference.R;
-
 /**
- * TODO(b/112588100): Remove after documentation is updated to point to new samples
+ * Demo activity using a LeanbackSettingsFragmentCompat to display a preference hierarchy.
  */
-@RequiresApi(21)
-public class FragmentSupportPreferencesLeanback extends FragmentActivity {
+@RequiresApi(LOLLIPOP)
+public class LeanbackPreferences extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,15 +46,14 @@ public class FragmentSupportPreferencesLeanback extends FragmentActivity {
         }
     }
 
-//BEGIN_INCLUDE(support_fragment_leanback)
-
     /**
-     * Entry of settings fragment.
+     * The parent fragment that contains the DemoFragment which displays the preference hierarchy
      */
+    //BEGIN_INCLUDE(leanback_preferences)
     public static class SettingsFragment extends LeanbackSettingsFragmentCompat {
         @Override
         public void onPreferenceStartInitialScreen() {
-            startPreferenceFragment(new PrefsFragment());
+            startPreferenceFragment(new DemoFragment());
         }
 
         @Override
@@ -71,22 +70,27 @@ public class FragmentSupportPreferencesLeanback extends FragmentActivity {
             return true;
         }
 
+        /**
+         * This callback is used to handle navigation between nested preference screens. If you only
+         * have one screen of preferences or are using separate fragments for different screens you
+         * do not need to implement this.
+         */
         @Override
         public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller,
                 PreferenceScreen pref) {
-            final Fragment f = new PrefsFragment();
+            final Fragment fragment = new DemoFragment();
             final Bundle args = new Bundle(1);
             args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, pref.getKey());
-            f.setArguments(args);
-            startPreferenceFragment(f);
+            fragment.setArguments(args);
+            startPreferenceFragment(fragment);
             return true;
         }
     }
 
     /**
-     * The fragment that is embedded in SettingsFragment.
+     * The fragment that is embedded in SettingsFragment
      */
-    public static class PrefsFragment extends LeanbackPreferenceFragmentCompat {
+    public static class DemoFragment extends LeanbackPreferenceFragmentCompat {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -94,6 +98,5 @@ public class FragmentSupportPreferencesLeanback extends FragmentActivity {
             setPreferencesFromResource(R.xml.preferences, rootKey);
         }
     }
-//END_INCLUDE(support_fragment_leanback)
-
+    //END_INCLUDE(leanback_preferences)
 }

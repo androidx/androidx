@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.example.android.supportpreference;
@@ -23,9 +23,10 @@ import android.os.Bundle;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceScreen;
 
+import com.example.androidx.preference.R;
+
 /**
- * Demonstration of PreferenceFragment, showing a single fragment in an
- * activity.
+ * TODO(b/112588100): Remove after documentation is updated to point to new samples
  */
 public class FragmentSupportPreferences extends Activity
         implements PreferenceFragment.OnPreferenceStartScreenCallback {
