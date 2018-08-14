@@ -2,10 +2,6 @@ package androidx.ui.semantics
 
 import androidx.ui.text.TextDirection
 
-// Copyright 2017 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // import 'package:flutter/painting.dart';
 
 // / An event sent by the application to notify interested listeners that
@@ -13,7 +9,7 @@ import androidx.ui.text.TextDirection
 // /
 // / These events are usually interpreted by assistive technologies to give the
 // / user additional clues about the current state of the UI.
-abstract class SemanticsEvent(
+sealed class SemanticsEvent(
     // / The type of this event.
     // /
     // / The type is used by the engine to translate this event into the
@@ -63,6 +59,8 @@ abstract class SemanticsEvent(
 // /
 // / When possible, prefer using mechanisms like [Semantics] to implicitly
 // / trigger announcements over using this event.
+// TODO(b/78144888): Remove once we update to Android Gradle Plugin 3.2
+@SuppressWarnings("SyntheticAccessor")
 class AnnounceSemanticsEvent(
     // / The message to announce.
     val message: String,
@@ -80,6 +78,8 @@ class AnnounceSemanticsEvent(
 // / An event for a semantic announcement of a tooltip.
 // /
 // / This is only used by Android to announce tooltip values.
+// TODO(b/78144888): Remove once we update to Android Gradle Plugin 3.2
+@SuppressWarnings("SyntheticAccessor")
 class TooltipSemanticsEvent(
     // / The text content of the tooltip.
     val message: String
@@ -95,6 +95,8 @@ class TooltipSemanticsEvent(
 // /
 // / Currently only honored on Android. Triggers a long-press specific sound
 // / when TalkBack is enabled.
+// TODO(b/78144888): Remove once we update to Android Gradle Plugin 3.2
+@SuppressWarnings("SyntheticAccessor")
 class LongPressSemanticsEvent : SemanticsEvent("longPress") {
     override val dataMap: Map<String, Any?>
         get() = mapOf()
@@ -104,6 +106,8 @@ class LongPressSemanticsEvent : SemanticsEvent("longPress") {
 // /
 // / Currently only honored on Android. Triggers a tap specific sound when
 // / TalkBack is enabled.
+// TODO(b/78144888): Remove once we update to Android Gradle Plugin 3.2
+@SuppressWarnings("SyntheticAccessor")
 class TapSemanticEvent : SemanticsEvent("tap") {
     override val dataMap: Map<String, Any?>
         get() = mapOf()
