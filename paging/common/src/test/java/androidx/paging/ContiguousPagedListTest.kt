@@ -141,10 +141,12 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
             assertEquals(0, actual.leadingNullCount)
             assertEquals(0, actual.trailingNullCount)
         }
+        assertEquals(count, actual.loadedCount)
     }
 
     private fun verifyRange(start: Int, count: Int, actual: PagedList<Item>) {
         verifyRange(start, count, actual.mStorage)
+        assertEquals(count, actual.loadedCount)
     }
 
     private fun createCountedPagedList(
