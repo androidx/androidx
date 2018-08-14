@@ -93,7 +93,7 @@ import java.util.List;
  */
 public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> {
-    private final AsyncListDiffer<T> mDiffer;
+    final AsyncListDiffer<T> mDiffer;
     private final AsyncListDiffer.ListListener<T> mListener =
             new AsyncListDiffer.ListListener<T>() {
         @Override
@@ -124,12 +124,28 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @param list The new list to be displayed.
      */
-    @SuppressWarnings({"WeakerAccess", "unused"})
     public void submitList(@Nullable List<T> list) {
         mDiffer.submitList(list);
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Set the new list to be displayed.
+     * <p>
+     * If a List is already being displayed, a diff will be computed on a background thread, which
+     * will dispatch Adapter.notifyItem events on the main thread.
+     * <p>
+     * The commit callback can be used to know when the List is committed, but note that it
+     * may not be executed. If List B is submitted immediately after List A, and is
+     * committed directly, the callback associated with List A will not be run.
+     *
+     * @param list The new list to be displayed.
+     * @param commitCallback Optional runnable that is executed when the List is committed, if
+     *                       it is committed.
+     */
+    public void submitList(@Nullable List<T> list, @Nullable final Runnable commitCallback) {
+        mDiffer.submitList(list, commitCallback);
+    }
+
     protected T getItem(int position) {
         return mDiffer.getCurrentList().get(position);
     }
@@ -152,7 +168,6 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @see #onCurrentListChanged(List, List)
      */
-    @SuppressWarnings({"WeakerAccess", "unused"})
     @NonNull
     public List<T> getCurrentList() {
         return mDiffer.getCurrentList();
@@ -170,7 +185,6 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @see #getCurrentList()
      */
-    @SuppressWarnings("WeakerAccess")
     public void onCurrentListChanged(@NonNull List<T> previousList, @NonNull List<T> currentList) {
     }
 }

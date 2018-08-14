@@ -242,8 +242,29 @@ public class AsyncPagedListDiffer<T> {
      *
      * @param pagedList The new PagedList.
      */
-    @SuppressWarnings("ReferenceEquality")
     public void submitList(@Nullable final PagedList<T> pagedList) {
+        submitList(pagedList, null);
+    }
+
+    /**
+     * Pass a new PagedList to the differ.
+     * <p>
+     * If a PagedList is already present, a diff will be computed asynchronously on a background
+     * thread. When the diff is computed, it will be applied (dispatched to the
+     * {@link ListUpdateCallback}), and the new PagedList will be swapped in as the
+     * {@link #getCurrentList() current list}.
+     * <p>
+     * The commit callback can be used to know when the PagedList is committed, but note that it
+     * may not be executed. If PagedList B is submitted immediately after PagedList A, and is
+     * committed directly, the callback associated with PagedList A will not be run.
+     *
+     * @param pagedList The new PagedList.
+     * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
+     *                       it is committed.
+     */
+    @SuppressWarnings("ReferenceEquality")
+    public void submitList(@Nullable final PagedList<T> pagedList,
+            @Nullable final Runnable commitCallback) {
         if (pagedList != null) {
             if (mPagedList == null && mSnapshot == null) {
                 mIsContiguous = pagedList.isContiguous();
@@ -260,6 +281,9 @@ public class AsyncPagedListDiffer<T> {
 
         if (pagedList == mPagedList) {
             // nothing to do (Note - still had to inc generation, since may have ongoing work)
+            if (commitCallback != null) {
+                commitCallback.run();
+            }
             return;
         }
 
@@ -275,7 +299,7 @@ public class AsyncPagedListDiffer<T> {
             }
             // dispatch update callback after updating mPagedList/mSnapshot
             mUpdateCallback.onRemoved(0, removedCount);
-            onCurrentListChanged(previous, null);
+            onCurrentListChanged(previous, null, commitCallback);
             return;
         }
 
@@ -287,7 +311,7 @@ public class AsyncPagedListDiffer<T> {
             // dispatch update callback after updating mPagedList/mSnapshot
             mUpdateCallback.onInserted(0, pagedList.size());
 
-            onCurrentListChanged(null, pagedList);
+            onCurrentListChanged(null, pagedList, commitCallback);
             return;
         }
 
@@ -318,7 +342,8 @@ public class AsyncPagedListDiffer<T> {
                     @Override
                     public void run() {
                         if (mMaxScheduledGeneration == runGeneration) {
-                            latchPagedList(pagedList, newSnapshot, result, oldSnapshot.mLastLoad);
+                            latchPagedList(pagedList, newSnapshot, result,
+                                    oldSnapshot.mLastLoad, commitCallback);
                         }
                     }
                 });
@@ -331,7 +356,8 @@ public class AsyncPagedListDiffer<T> {
             @NonNull PagedList<T> newList,
             @NonNull PagedList<T> diffSnapshot,
             @NonNull DiffUtil.DiffResult diffResult,
-            int lastAccessIndex) {
+            int lastAccessIndex,
+            @Nullable Runnable commitCallback) {
         if (mSnapshot == null || mPagedList != null) {
             throw new IllegalStateException("must be in snapshot state to apply diff");
         }
@@ -354,14 +380,18 @@ public class AsyncPagedListDiffer<T> {
         // copy lastLoad position, clamped to list bounds
         mPagedList.mLastLoad = Math.max(0, Math.min(mPagedList.size(), newPosition));
 
-        onCurrentListChanged(previousSnapshot, mPagedList);
+        onCurrentListChanged(previousSnapshot, mPagedList, commitCallback);
     }
 
     private void onCurrentListChanged(
             @Nullable PagedList<T> previousList,
-            @Nullable PagedList<T> currentList) {
+            @Nullable PagedList<T> currentList,
+            @Nullable Runnable commitCallback) {
         for (PagedListListener<T> listener : mListeners) {
             listener.onCurrentListChanged(previousList, currentList);
+        }
+        if (commitCallback != null) {
+            commitCallback.run();
         }
     }
 

@@ -25,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.reset
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
@@ -58,12 +59,11 @@ class AsyncListDifferTest {
     private val mMainThread = TestExecutor()
     private val mBackgroundThread = TestExecutor()
 
-    private fun <T> createDiffer(
-        listUpdateCallback: ListUpdateCallback,
-        diffCallback: DiffUtil.ItemCallback<T>
-    ): AsyncListDiffer<T> {
+    private fun createDiffer(
+        listUpdateCallback: ListUpdateCallback = IGNORE_CALLBACK
+    ): AsyncListDiffer<String> {
         return AsyncListDiffer(listUpdateCallback,
-                AsyncDifferConfig.Builder<T>(diffCallback)
+                AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
                         .setMainThreadExecutor(mMainThread)
                         .setBackgroundThreadExecutor(mBackgroundThread)
                         .build())
@@ -72,34 +72,34 @@ class AsyncListDifferTest {
     @Test
     fun initialState() {
         val callback = mock(ListUpdateCallback::class.java)
-        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback)
         assertEquals(0, differ.currentList.size)
         verifyZeroInteractions(callback)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getEmpty() {
-        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        val differ = createDiffer()
         differ.currentList[0]
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getNegative() {
-        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        val differ = createDiffer()
         differ.submitList(listOf("a", "b"))
         differ.currentList[-1]
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getPastEnd() {
-        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        val differ = createDiffer()
         differ.submitList(listOf("a", "b"))
         differ.currentList[2]
     }
 
     @Test
     fun getCurrentList() {
-        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        val differ = createDiffer()
 
         // null is emptyList
         assertSame(emptyList<String>(), differ.currentList)
@@ -117,13 +117,13 @@ class AsyncListDifferTest {
 
     @Test(expected = UnsupportedOperationException::class)
     fun mutateCurrentListEmpty() {
-        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        val differ = createDiffer()
         differ.currentList[0] = ""
     }
 
     @Test(expected = UnsupportedOperationException::class)
     fun mutateCurrentListNonEmpty() {
-        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        val differ = createDiffer()
         differ.submitList(listOf("a"))
         differ.currentList[0] = ""
     }
@@ -131,7 +131,7 @@ class AsyncListDifferTest {
     @Test
     fun submitListSimple() {
         val callback = mock(ListUpdateCallback::class.java)
-        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback)
 
         differ.submitList(listOf("a", "b"))
 
@@ -148,7 +148,7 @@ class AsyncListDifferTest {
     @Test
     fun submitListReuse() {
         val callback = mock(ListUpdateCallback::class.java)
-        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback)
         val origList = listOf("a", "b")
 
         // set up original list
@@ -174,7 +174,7 @@ class AsyncListDifferTest {
         val callback = mock(ListUpdateCallback::class.java)
         // Note: by virtue of being written in Kotlin, the item callback includes explicit null
         // checks on its parameters which assert that it is not invoked with a null value.
-        val helper = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val helper = createDiffer(callback)
 
         helper.submitList(listOf("a", "b"))
         drain()
@@ -196,7 +196,7 @@ class AsyncListDifferTest {
     @Test
     fun submitListUpdate() {
         val callback = mock(ListUpdateCallback::class.java)
-        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback)
 
         // initial list (immediate)
         differ.submitList(listOf("a", "b"))
@@ -223,7 +223,7 @@ class AsyncListDifferTest {
     @Test
     fun singleChangePayload() {
         val callback = mock(ListUpdateCallback::class.java)
-        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback)
 
         differ.submitList(listOf("a", "b"))
         verify(callback).onInserted(0, 2)
@@ -241,7 +241,7 @@ class AsyncListDifferTest {
     @Test
     fun multiChangePayload() {
         val callback = mock(ListUpdateCallback::class.java)
-        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback)
 
         differ.submitList(listOf("a", "b"))
         verify(callback).onInserted(0, 2)
@@ -284,7 +284,7 @@ class AsyncListDifferTest {
             }
         }
 
-        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback)
         differAccessor[0] = differ
 
         // in the fast-add case...
@@ -309,32 +309,54 @@ class AsyncListDifferTest {
 
     @Test
     fun listListener() {
-        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        val differ = createDiffer()
 
         @Suppress("UNCHECKED_CAST")
         val listener = mock(AsyncListDiffer.ListListener::class.java)
                 as AsyncListDiffer.ListListener<String>
         differ.addListListener(listener)
 
+        val callback = mock(Runnable::class.java)
+
         // first - simple insert
         val first = listOf("a", "b")
         verifyZeroInteractions(listener)
-        differ.submitList(first)
-        verify(listener).onCurrentListChanged(emptyList(), first)
+        differ.submitList(first, callback)
+        verify(listener).onCurrentListChanged(emptyList<String>(), first)
         verifyNoMoreInteractions(listener)
+        verify(callback).run()
+        verifyNoMoreInteractions(callback)
+        reset(callback)
 
         // second - async update
         val second = listOf("c", "d")
-        differ.submitList(second)
+        differ.submitList(second, callback)
         verifyNoMoreInteractions(listener)
+        verifyNoMoreInteractions(callback)
         drain()
         verify(listener).onCurrentListChanged(first, second)
         verifyNoMoreInteractions(listener)
+        verify(callback).run()
+        verifyNoMoreInteractions(callback)
+        reset(callback)
 
-        // third - null
-        differ.submitList(null)
-        verify(listener).onCurrentListChanged(second, emptyList())
+        // third - same list - only triggers callback
+        differ.submitList(second, callback)
         verifyNoMoreInteractions(listener)
+        verify(callback).run()
+        verifyNoMoreInteractions(callback)
+        drain()
+        verifyNoMoreInteractions(listener)
+        verifyNoMoreInteractions(callback)
+        reset(callback)
+
+        // fourth - null
+        differ.submitList(null, callback)
+        verify(listener).onCurrentListChanged(second, emptyList<String>())
+        verifyNoMoreInteractions(listener)
+        verify(callback).run()
+        verifyNoMoreInteractions(callback)
+        reset(callback)
 
         // remove listener, see nothing
         differ.removeListListener(listener)

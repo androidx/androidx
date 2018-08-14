@@ -26,6 +26,7 @@ package androidx.recyclerview.widget {
     method public java.util.List<T> getCurrentList();
     method public void removeListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T>);
     method public void submitList(java.util.List<T>);
+    method public void submitList(java.util.List<T>, java.lang.Runnable);
   }
 
   public static abstract interface AsyncListDiffer.ListListener<T> {
@@ -304,6 +305,7 @@ package androidx.recyclerview.widget {
     method public int getItemCount();
     method public void onCurrentListChanged(java.util.List<T>, java.util.List<T>);
     method public void submitList(java.util.List<T>);
+    method public void submitList(java.util.List<T>, java.lang.Runnable);
   }
 
   public abstract interface ListUpdateCallback {
