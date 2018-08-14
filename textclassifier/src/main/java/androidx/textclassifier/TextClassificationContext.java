@@ -29,7 +29,6 @@ import java.util.Locale;
 
 /**
  * A representation of the context in which text classification would be performed.
- * @see TextClassificationManager#createTextClassifier(TextClassificationContext)
  */
 public final class TextClassificationContext {
     private static final String EXTRA_PACKAGE_NAME = "package_name";
