@@ -22,13 +22,15 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Preconditions;
 
 /**
- * Helper for accessing features in {@link android.app.RemoteAction}.
+ * Represents a remote action that can be called from another process.  The action can have an
+ * associated visualization including metadata like an icon or title.
+ * <p>
+ * This is a backward-compatible version of {@link RemoteAction}.
  */
 public final class RemoteActionCompat {
 
@@ -48,20 +50,16 @@ public final class RemoteActionCompat {
 
     public RemoteActionCompat(@NonNull IconCompat icon, @NonNull CharSequence title,
             @NonNull CharSequence contentDescription, @NonNull PendingIntent intent) {
-        if (icon == null || title == null || contentDescription == null || intent == null) {
-            throw new IllegalArgumentException(
-                    "Expected icon, title, content description and action callback");
-        }
-        mIcon = icon;
-        mTitle = title;
-        mContentDescription = contentDescription;
-        mActionIntent = intent;
+        mIcon = Preconditions.checkNotNull(icon);
+        mTitle = Preconditions.checkNotNull(title);
+        mContentDescription = Preconditions.checkNotNull(contentDescription);
+        mActionIntent = Preconditions.checkNotNull(intent);
         mEnabled = true;
         mShouldShowIcon = true;
     }
 
     /**
-     * Constructs a Foo builder using data from {@code other}.
+     * Constructs a {@link RemoteActionCompat} using data from {@code other}.
      */
     public RemoteActionCompat(@NonNull RemoteActionCompat other) {
         Preconditions.checkNotNull(other);
@@ -84,7 +82,7 @@ public final class RemoteActionCompat {
                 IconCompat.createFromIcon(remoteAction.getIcon()), remoteAction.getTitle(),
                 remoteAction.getContentDescription(), remoteAction.getActionIntent());
         action.setEnabled(remoteAction.isEnabled());
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             action.setShouldShowIcon(remoteAction.shouldShowIcon());
         }
         return action;
@@ -157,16 +155,17 @@ public final class RemoteActionCompat {
         RemoteAction action = new RemoteAction(mIcon.toIcon(), mTitle, mContentDescription,
                 mActionIntent);
         action.setEnabled(isEnabled());
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             action.setShouldShowIcon(shouldShowIcon());
         }
         return action;
     }
 
     /**
-     * Adds this Icon to a Bundle that can be read back with the same parameters
-     * to {@link #createFromBundle(Bundle)}.
+     * Converts this into a Bundle that can be converted back to a {@link RemoteActionCompat}
+     * by calling {@link #createFromBundle(Bundle)}.
      */
+    @NonNull
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
         bundle.putBundle(EXTRA_ICON, mIcon.toBundle());
@@ -179,9 +178,9 @@ public final class RemoteActionCompat {
     }
 
     /**
-     * Extracts an icon from a bundle that was added using {@link #toBundle()}.
+     * Converts the bundle created by {@link #toBundle()} back to {@link RemoteActionCompat}.
      */
-    @Nullable
+    @NonNull
     public static RemoteActionCompat createFromBundle(@NonNull Bundle bundle) {
         RemoteActionCompat action = new RemoteActionCompat(
                 IconCompat.createFromBundle(bundle.getBundle(EXTRA_ICON)),
