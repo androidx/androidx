@@ -582,14 +582,6 @@ public class MediaControlView2 extends BaseLayout {
         // Update layout when this view's width changes in order to avoid any UI overlap between
         // transport controls.
         if (mPrevWidth != getMeasuredWidth()) {
-            // Dismiss SettingsWindow if it is showing.
-            mSettingsWindow.dismiss();
-
-            // Hide Overflow if it is showing.
-            if (mOverflowIsShowing) {
-                mOverflowHideAnimator.start();
-            }
-
             // The following view may not have been initialized yet.
             if (mTimeView.getWidth() == 0) {
                 return;
@@ -609,14 +601,18 @@ public class MediaControlView2 extends BaseLayout {
             }
             mPrevWidth = currWidth;
 
-            // By default, show all bars when view size is changed.
+            // By default, show all bars and hide settings window and overflow view when view size
+            // is changed.
             showAllBars();
+            hideSettingsAndOverflow();
         }
 
-        // By default, show all bars when view orientation is changed.
+        // By default, show all bars and hide settings window and overflow view when view
+        // orientation is changed.
         int currOrientation = retrieveOrientation();
         if (currOrientation != mPrevOrientation) {
             showAllBars();
+            hideSettingsAndOverflow();
             mPrevOrientation = currOrientation;
         }
     }
@@ -2156,6 +2152,15 @@ public class MediaControlView2 extends BaseLayout {
             removeCallbacks(mHideProgressBar);
             // b/112570875
             post(mShowMainBars);
+        } else {
+            resetHideCallbacks();
+        }
+    }
+
+    private void hideSettingsAndOverflow() {
+        mSettingsWindow.dismiss();
+        if (mOverflowIsShowing) {
+            mOverflowHideAnimator.start();
         }
     }
 
