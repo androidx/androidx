@@ -538,7 +538,8 @@ public class MigrationTest {
 
             database.execSQL("CREATE TABLE IF NOT EXISTS `Dummy` (`id` INTEGER NOT NULL,"
                     + " PRIMARY KEY(`id`))");
-            database.execSQL("INSERT INTO `Dummy` (`id`) VALUES (1), (2)");
+            database.execSQL("INSERT INTO `Dummy` (`id`) VALUES (1)");
+            database.execSQL("INSERT INTO `Dummy` (`id`) VALUES (2)");
         }
     };
 
