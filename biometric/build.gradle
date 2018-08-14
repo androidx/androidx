@@ -6,9 +6,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-    api(project(":core"))
-    api(project(":fragment"))
+    api("androidx.annotation:annotation:1.0.0-rc01") { transitive = true}
+    api("androidx.core:core:1.0.0-rc01") { transitive = true}
+    api("androidx.fragment:fragment:1.0.0-rc01") { transitive = true}
 }
 
 android {
