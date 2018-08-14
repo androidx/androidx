@@ -31,9 +31,9 @@ import androidx.textclassifier.TextLinks.TextLinkSpan;
 import java.util.Calendar;
 
 /**
- * Parameters for generating and applying links.
+ * Used to specify how to generate and apply links when using SmartLinkify APIs.
  */
-public final class TextLinksParams {
+public final class SmartLinkifyParams {
 
     /**
      * A function to create spans from TextLinks.
@@ -41,8 +41,8 @@ public final class TextLinksParams {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final SpanFactory DEFAULT_SPAN_FACTORY = new SpanFactory() {
         @Override
-        public TextLinkSpan createSpan(@NonNull TextLink textLink) {
-            return new TextLinkSpan(textLink);
+        public TextLinkSpan createSpan(@NonNull TextLinks.TextLinkSpanData textLinkSpan) {
+            return new TextLinkSpan(textLinkSpan);
         }
     };
 
@@ -53,7 +53,7 @@ public final class TextLinksParams {
     @Nullable private final LocaleListCompat mDefaultLocales;
     @Nullable private final Calendar mReferenceTime;
 
-    TextLinksParams(
+    SmartLinkifyParams(
             @TextLinks.ApplyStrategy int applyStrategy,
             SpanFactory spanFactory,
             @Nullable TextClassifier.EntityConfig entityConfig,
@@ -84,18 +84,6 @@ public final class TextLinksParams {
     }
 
     /**
-     * @return reference time based on which relative dates (e.g. "tomorrow") should be
-     *      interpreted.
-     * @hide
-     */
-    // TODO: Make public API.
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Nullable
-    public Calendar getReferenceTime() {
-        return mReferenceTime;
-    }
-
-    /**
      * Annotates the given text with the generated links. It will fail if the provided text doesn't
      * match the original text used to crete the TextLinks.
      *
@@ -105,9 +93,12 @@ public final class TextLinksParams {
      * @return a status code indicating whether or not the links were successfully applied
      */
     @TextLinks.Status
-    int apply(@NonNull Spannable text, @NonNull TextLinks textLinks) {
+    int apply(@NonNull Spannable text,
+            @NonNull TextLinks textLinks,
+            @NonNull TextClassifier textClassifier) {
         Preconditions.checkNotNull(text);
         Preconditions.checkNotNull(textLinks);
+        Preconditions.checkNotNull(textClassifier);
 
         if (!canApply(text, textLinks)) {
             return TextLinks.STATUS_DIFFERENT_TEXT;
@@ -118,7 +109,9 @@ public final class TextLinksParams {
 
         int applyCount = 0;
         for (TextLink link : textLinks.getLinks()) {
-            final TextLinkSpan span = mSpanFactory.createSpan(link);
+            TextLinks.TextLinkSpanData textLinkSpanData =
+                    new TextLinks.TextLinkSpanData(link, textClassifier, mReferenceTime);
+            final TextLinkSpan span = mSpanFactory.createSpan(textLinkSpanData);
             if (span != null) {
                 final ClickableSpan[] existingSpans = text.getSpans(
                         link.getStart(), link.getEnd(), ClickableSpan.class);
@@ -145,6 +138,18 @@ public final class TextLinksParams {
     }
 
     /**
+     * @return reference time based on which relative dates (e.g. "tomorrow") should be
+     *      interpreted.
+     * @hide
+     */
+    // TODO: Make public API.
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Nullable
+    public Calendar getReferenceTime() {
+        return mReferenceTime;
+    }
+
+    /**
      * Returns true if it is possible to apply the specified textLinks to the specified text.
      * Otherwise, returns false.
      */
@@ -153,7 +158,7 @@ public final class TextLinksParams {
     }
 
     /**
-     * A builder for building TextLinksParams.
+     * A builder for building SmartLinkifyParams.
      */
     public static final class Builder {
 
@@ -232,10 +237,10 @@ public final class TextLinksParams {
         }
 
         /**
-         * Builds and returns a TextLinksParams object.
+         * Builds and returns a SmartLinkifyParams object.
          */
-        public TextLinksParams build() {
-            return new TextLinksParams(
+        public SmartLinkifyParams build() {
+            return new SmartLinkifyParams(
                     mApplyStrategy, mSpanFactory, mEntityConfig, mDefaultLocales, mReferenceTime);
         }
     }
@@ -247,7 +252,7 @@ public final class TextLinksParams {
         if (applyStrategy != TextLinks.APPLY_STRATEGY_IGNORE
                 && applyStrategy != TextLinks.APPLY_STRATEGY_REPLACE) {
             throw new IllegalArgumentException(
-                    "Invalid apply strategy. See TextLinksParams.ApplyStrategy for options.");
+                    "Invalid apply strategy. See SmartLinkifyParams.ApplyStrategy for options.");
         }
         return applyStrategy;
     }
