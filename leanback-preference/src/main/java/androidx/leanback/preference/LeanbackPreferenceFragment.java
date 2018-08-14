@@ -35,8 +35,7 @@ import android.widget.TextView;
  * <p>The fragment needs only to implement {@link #onCreatePreferences(Bundle, String)} to populate
  * the list of preference objects:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/android/supportpreference/FragmentSupportPreferencesLeanback.java
- *      support_fragment_leanback}
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/LeanbackPreferences.java leanback_preferences}
  * @deprecated Use {@link LeanbackPreferenceFragmentCompat}
  */
 @Deprecated
