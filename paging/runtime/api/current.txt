@@ -9,6 +9,7 @@ package androidx.paging {
     method public int getItemCount();
     method public void removePagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T>);
     method public void submitList(androidx.paging.PagedList<T>);
+    method public void submitList(androidx.paging.PagedList<T>, java.lang.Runnable);
   }
 
   public static abstract interface AsyncPagedListDiffer.PagedListListener<T> {
@@ -33,6 +34,7 @@ package androidx.paging {
     method public deprecated void onCurrentListChanged(androidx.paging.PagedList<T>);
     method public void onCurrentListChanged(androidx.paging.PagedList<T>, androidx.paging.PagedList<T>);
     method public void submitList(androidx.paging.PagedList<T>);
+    method public void submitList(androidx.paging.PagedList<T>, java.lang.Runnable);
   }
 
 }

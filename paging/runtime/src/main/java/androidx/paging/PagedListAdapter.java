@@ -109,7 +109,7 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> {
-    private final AsyncPagedListDiffer<T> mDiffer;
+    final AsyncPagedListDiffer<T> mDiffer;
     private final AsyncPagedListDiffer.PagedListListener<T> mListener =
             new AsyncPagedListDiffer.PagedListListener<T>() {
         @Override
@@ -135,7 +135,6 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
         mDiffer.addPagedListListener(mListener);
     }
 
-    @SuppressWarnings("unused, WeakerAccess")
     protected PagedListAdapter(@NonNull AsyncDifferConfig<T> config) {
         mDiffer = new AsyncPagedListDiffer<>(new AdapterListUpdateCallback(this), config);
         mDiffer.addPagedListListener(mListener);
@@ -151,6 +150,25 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      */
     public void submitList(@Nullable PagedList<T> pagedList) {
         mDiffer.submitList(pagedList);
+    }
+
+    /**
+     * Set the new list to be displayed.
+     * <p>
+     * If a list is already being displayed, a diff will be computed on a background thread, which
+     * will dispatch Adapter.notifyItem events on the main thread.
+     * <p>
+     * The commit callback can be used to know when the PagedList is committed, but note that it
+     * may not be executed. If PagedList B is submitted immediately after PagedList A, and is
+     * committed directly, the callback associated with PagedList A will not be run.
+     *
+     * @param pagedList The new list to be displayed.
+     * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
+     *                       it is committed.
+     */
+    public void submitList(@Nullable PagedList<T> pagedList,
+            @Nullable final Runnable commitCallback) {
+        mDiffer.submitList(pagedList, commitCallback);
     }
 
     @Nullable
@@ -198,7 +216,7 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @see #getCurrentList()
      */
-    @SuppressWarnings({"WeakerAccess", "DeprecatedIsStillUsed"})
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void onCurrentListChanged(@Nullable PagedList<T> currentList) {
     }
@@ -220,7 +238,6 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @see #getCurrentList()
      */
-    @SuppressWarnings("WeakerAccess")
     public void onCurrentListChanged(
             @Nullable PagedList<T> previousList, @Nullable PagedList<T> currentList) {
     }
