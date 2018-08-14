@@ -18,6 +18,6 @@ class WidgetsFlutterBinding {
         // / In the `flutter_test` framework, [testWidgets] initializes the
         // / binding instance to a [TestWidgetsFlutterBinding], not a
         // / [WidgetsFlutterBinding].
-        val ensureInitialized: WidgetsBinding by lazy { WidgetsBinding() }
+        val ensureInitialized: WidgetsBinding = WidgetsBindingImpl
     }
 }
