@@ -46,12 +46,17 @@ class TiledPagedListTest {
     private fun verifyLoadedPages(list: List<Item>, vararg loadedPages: Int) {
         val loadedPageList = loadedPages.asList()
         assertEquals(ITEMS.size, list.size)
+        var totalCount = 0
         for (i in list.indices) {
             if (loadedPageList.contains(i / PAGE_SIZE)) {
                 assertSame("Index $i", ITEMS[i], list[i])
+                totalCount += 1
             } else {
                 assertNull("Index $i", list[i])
             }
+        }
+        if (list is PagedList<Item>) {
+            assertEquals(totalCount, list.loadedCount)
         }
     }
 

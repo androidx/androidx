@@ -205,6 +205,10 @@ final class PagedStorage<T> extends AbstractList<T> {
         return mPages.size();
     }
 
+    int getLoadedCount() {
+        return mLoadedCount;
+    }
+
     interface Callback {
         void onInitialized(int count);
         void onPagePrepended(int leadingNulls, int changed, int added);
