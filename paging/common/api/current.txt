@@ -92,6 +92,7 @@ package androidx.paging {
     method public androidx.paging.PagedList.Config getConfig();
     method public abstract androidx.paging.DataSource<?, T> getDataSource();
     method public abstract java.lang.Object getLastKey();
+    method public int getLoadedCount();
     method public int getPositionOffset();
     method public boolean isDetached();
     method public boolean isImmutable();
