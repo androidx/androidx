@@ -16,6 +16,8 @@
 
 package androidx.work.impl.utils;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.RestrictTo;
@@ -36,7 +38,9 @@ public class IdGenerator {
     static final String NEXT_FIREBASE_ALARM_ID_KEY = "next_firebase_alarm_id";
     static final String NEXT_ALARM_MANAGER_ID_KEY = "next_alarm_manager_id";
 
+    private final Context mContext;
     private SharedPreferences mSharedPrefs;
+    private boolean mLoadedPreferences;
 
     /**
      * Constructs a {@link IdGenerator}.
@@ -44,7 +48,7 @@ public class IdGenerator {
      * @param context {@link Context} to get the {@link SharedPreferences} from.
      */
     public IdGenerator(Context context) {
-        mSharedPrefs = context.getSharedPreferences(PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
+        mContext = context;
     }
 
     /**
@@ -52,6 +56,7 @@ public class IdGenerator {
      */
     public int nextJobSchedulerIdWithRange(int minInclusive, int maxInclusive) {
         synchronized (IdGenerator.class) {
+            loadPreferencesIfNecessary();
             int id = nextId(NEXT_JOB_SCHEDULER_ID_KEY);
             if (id < minInclusive || id > maxInclusive) {
                 // outside the range, re-start at minInclusive.
@@ -67,6 +72,7 @@ public class IdGenerator {
      */
     public int nextFirebaseAlarmId() {
         synchronized (IdGenerator.class) {
+            loadPreferencesIfNecessary();
             return nextId(NEXT_FIREBASE_ALARM_ID_KEY);
         }
     }
@@ -76,6 +82,7 @@ public class IdGenerator {
      */
     public int nextAlarmManagerId() {
         synchronized (IdGenerator.class) {
+            loadPreferencesIfNecessary();
             return nextId(NEXT_ALARM_MANAGER_ID_KEY);
         }
     }
@@ -95,5 +102,12 @@ public class IdGenerator {
 
     private void update(String key, int value) {
         mSharedPrefs.edit().putInt(key, value).apply();
+    }
+
+    private void loadPreferencesIfNecessary() {
+        if (!mLoadedPreferences) {
+            mSharedPrefs = mContext.getSharedPreferences(PREFERENCE_FILE_KEY, MODE_PRIVATE);
+            mLoadedPreferences = true;
+        }
     }
 }
