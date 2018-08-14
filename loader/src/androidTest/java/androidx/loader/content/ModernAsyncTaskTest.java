@@ -51,6 +51,10 @@ public class ModernAsyncTaskTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
+                // we need to class load AsyncTask on API 15 in a thread with Looper,
+                // because sInternalHandler was initialized as static field.
+                // https://github.com/aosp-mirror/platform_frameworks_base/blob/ics-mr1/core/java/android/os/AsyncTask.java#L190
+                Executor unused = AsyncTask.THREAD_POOL_EXECUTOR;
                 mModernAsyncTask = new ModernAsyncTask() {
                     @Override
                     protected Object doInBackground() {
