@@ -616,10 +616,26 @@ public final class Data {
             for (Map.Entry<String, Object> entry : values.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
-                if (value == null) {
-                    mValues.put(key, null);
-                    continue;
-                }
+                put(key, value);
+            }
+            return this;
+        }
+
+        /**
+         * Puts an input key-value pair into the Builder. Valid types are: Boolean, Integer,
+         * Long, Float, Double, String, and array versions of each of those types.
+         * Invalid types throw an {@link IllegalArgumentException}.
+         *
+         * @param key A {@link String} key to add
+         * @param value A Nullable {@link Object} value to add
+         * @return The {@link Builder}
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public @NonNull Builder put(@NonNull String key, @Nullable Object value) {
+            if (value == null) {
+                mValues.put(key, null);
+            } else {
                 Class valueType = value.getClass();
                 if (valueType == Boolean.class
                         || valueType == Integer.class
