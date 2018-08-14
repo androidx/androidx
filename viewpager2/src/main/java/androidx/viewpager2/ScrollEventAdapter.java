@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.graphics.Rect;
 import android.view.View;
 
 import androidx.annotation.IntDef;
@@ -48,15 +47,14 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private final @NonNull List<OnPageChangeListener> mListeners = new ArrayList<>(3);
     private final @NonNull LinearLayoutManager mLayoutManager;
 
-    // reused for efficiency
-    private final @NonNull Rect mRect = new Rect();
-
     // state related fields
     private @AdapterState int mAdapterState;
     private int mInitialPosition;
     private int mTarget;
     private boolean mDispatchSelected;
     private boolean mScrollHappened;
+
+    private PageTransformerAdapter mPageTransformerAdapter;
 
     public ScrollEventAdapter(@NonNull LinearLayoutManager layoutManager) {
         mLayoutManager = layoutManager;
@@ -121,14 +119,24 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             return;
         }
 
-        firstVisibleView.getGlobalVisibleRect(mRect); // TODO: check if to use globalOffset variant
-
         boolean isHorizontal = mLayoutManager.getOrientation() == ViewPager2.Orientation.HORIZONTAL;
-        int visiblePx = isHorizontal ? (mRect.right - mRect.left) : (mRect.bottom - mRect.top);
-        int sizePx = isHorizontal ? firstVisibleView.getWidth() : firstVisibleView.getHeight();
+        int start, end;
+        if (isHorizontal) {
+            start = firstVisibleView.getLeft();
+            end = firstVisibleView.getRight();
+        } else {
+            start = firstVisibleView.getTop();
+            end = firstVisibleView.getBottom();
+        }
 
-        int offsetPx = sizePx - visiblePx;
-        float offset = (float) offsetPx / sizePx;
+        int offsetPx = -start;
+        if (offsetPx < 0) {
+            throw new IllegalStateException(String.format("Page can only be offset by a positive "
+                    + "amount, not by %d", offsetPx));
+        }
+
+        int sizePx = end - start;
+        float offset = sizePx == 0 ? 0 : (float) offsetPx / sizePx;
 
         if (mDispatchSelected) {
             mDispatchSelected = false;
@@ -165,6 +173,13 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
      */
     public void addOnPageChangeListener(OnPageChangeListener listener) {
         mListeners.add(listener);
+    }
+
+    /**
+     * Set the adapter for PageTransformer
+     */
+    public void setPageTransformerAdapter(PageTransformerAdapter adapter) {
+        mPageTransformerAdapter = adapter;
     }
 
     /**
@@ -222,6 +237,10 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             }
         } catch (ConcurrentModificationException ex) {
             throwListenerListModifiedWhileInUse(ex);
+        }
+
+        if (mPageTransformerAdapter != null) {
+            mPageTransformerAdapter.onPageScrolled(position, offset);
         }
     }
 
