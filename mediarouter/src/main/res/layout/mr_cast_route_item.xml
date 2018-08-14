@@ -47,7 +47,8 @@
                   android:singleLine="true" />
         <CheckBox android:id="@+id/mr_cast_checkbox"
                   android:layout_width="24dp"
-                  android:layout_height="24dp" />
+                  android:layout_height="24dp"
+                  android:background="?attr/selectableItemBackgroundBorderless" />
     </LinearLayout>
     <LinearLayout android:id="@+id/mr_cast_volume_layout"
                   android:layout_width="match_parent"
