@@ -30,6 +30,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/label_orientation" />
+
+        <Spinner
+            android:id="@+id/orientation_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|start"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/label_jump_to" />
 
         <Spinner
@@ -49,12 +67,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:text="@string/checkbox_smoothscroll" />
 
@@ -65,6 +77,36 @@
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:text="@string/button_jump" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|start"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/rotate_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/checkbox_rotate" />
+
+        <CheckBox
+            android:id="@+id/translate_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:text="@string/checkbox_translate" />
+
+        <CheckBox
+            android:id="@+id/scale_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:text="@string/checkbox_scale" />
 
     </LinearLayout>
 

@@ -49,6 +49,10 @@ public class Card {
         return mSuit;
     }
 
+    char getValue() {
+        return mValue;
+    }
+
     String getCornerLabel() {
         return mValue + "\n" + mSuit;
     }
