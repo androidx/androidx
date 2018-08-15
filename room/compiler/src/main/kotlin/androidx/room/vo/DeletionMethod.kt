@@ -15,11 +15,14 @@
  */
 package androidx.room.vo
 
+import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import javax.lang.model.element.ExecutableElement
 
 class DeletionMethod(
-        element: ExecutableElement,
-        name: String,
-        entities: Map<String, Entity>, returnCount: Boolean,
-        parameters: List<ShortcutQueryParameter>
-) : ShortcutMethod(element, name, entities, returnCount, parameters)
+    element: ExecutableElement,
+    name: String,
+    entities: Map<String, Entity>,
+    returnCount: Boolean,
+    parameters: List<ShortcutQueryParameter>,
+    methodBinder: DeleteOrUpdateMethodBinder?
+) : ShortcutMethod(element, name, entities, returnCount, parameters, methodBinder)
