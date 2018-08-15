@@ -280,7 +280,7 @@ class PageChangeListenerTest : BaseTest() {
 
             // when
             peekBackward(orientation)
-            latch1.await(1, SECONDS)
+            latch1.await(10, SECONDS)
 
             // then
             listener.apply {
