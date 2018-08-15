@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +33,6 @@ import androidx.navigation.testing.TestNavigator;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 @SmallTest
@@ -72,11 +72,20 @@ public class NavControllerTest {
     @Test
     public void testSetGraph() {
         NavController navController = createNavController();
-        assertThat(navController.getGraph(), is(nullValue(NavGraph.class)));
 
         navController.setGraph(R.navigation.nav_start_destination);
         assertThat(navController.getGraph(), is(notNullValue(NavGraph.class)));
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+    }
+
+    @Test
+    public void testGetGraphIllegalStateException() {
+        NavController navController = createNavController();
+        try {
+            navController.getGraph();
+            fail("getGraph() should throw an IllegalStateException before setGraph()");
+        } catch (IllegalStateException expected) {
+        }
     }
 
     @Test
@@ -130,7 +139,7 @@ public class NavControllerTest {
 
         // Restore state doesn't recreate any graph
         navController.restoreState(savedState);
-        assertThat(navController.getGraph(), is(nullValue(NavGraph.class)));
+        assertThat(navController.getCurrentDestination(), is(nullValue(NavDestination.class)));
 
         // Explicitly setting a graph then restores the state
         navController.setGraph(graph);
@@ -384,7 +393,7 @@ public class NavControllerTest {
         NavOptions options = new NavOptions.Builder().build();
         try {
             navController.navigate(0, null, options);
-            Assert.fail("navController.navigate must throw");
+            fail("navController.navigate must throw");
         } catch (IllegalArgumentException e) {
             // expected exception
         }
