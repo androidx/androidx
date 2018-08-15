@@ -33,16 +33,12 @@ import java.util.UUID;
 
 /**
  * The basic object that performs work.  Worker classes are instantiated at runtime by
- * {@link WorkManager} and the {@link #onStartWork(WorkFinishedCallback)} method is called on
- * the background thread. In case the work is preempted for any reason, the same instance of
- * {@link NonBlockingWorker} is not reused. This means that
- * {@link #onStartWork(WorkFinishedCallback)} is called exactly once per {@link NonBlockingWorker}
- * instance. The {@link NonBlockingWorker} signals work completion by using
- * {@link WorkFinishedCallback}.
- *
- * @hide
+ * {@link WorkManager} and the {@code onStartWork} method is called on the background thread.
+ * In case the work is preempted for any reason, the same instance of {@link NonBlockingWorker}
+ * is not reused. This means that {@code onStartWork} is called exactly once per
+ * {@link NonBlockingWorker} instance. The {@link NonBlockingWorker} signals work completion
+ * by using a {@code WorkFinishedCallback}.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class NonBlockingWorker implements WorkFinishedCallback {
 
     @SuppressWarnings("NullableProblems")   // Set by internalInit
@@ -146,9 +142,9 @@ public abstract class NonBlockingWorker implements WorkFinishedCallback {
     /**
      * Override this method to do your actual background processing.
      * Typical flow involves, starting the execution of work on a background thread, and notifying
-     * completion via the completion callback WorkFinishedCallback.
+     * completion via the completion callback {@code WorkFinishedCallback}.
      *
-     * @param callback The WorkFinishedCallback that helps signal work completion.
+     * @param callback The {@code WorkFinishedCallback} that helps signal work completion.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -214,8 +210,8 @@ public abstract class NonBlockingWorker implements WorkFinishedCallback {
      * {@link OverwritingInputMerger}, unless otherwise specified using the
      * {@link OneTimeWorkRequest.Builder#setInputMerger(Class)} method.
      * <p>
-     * This method is invoked after {@link #onStartWork(WorkFinishedCallback)}
-     * returns {@link Worker.Result#SUCCESS} or {@link Worker.Result#FAILURE}.
+     * This method is invoked after {@code onStartWork} and returns {@link Worker.Result#SUCCESS}
+     * or a {@link Worker.Result#FAILURE}.
      * <p>
      * For example, if you had this structure:
      * <pre>
