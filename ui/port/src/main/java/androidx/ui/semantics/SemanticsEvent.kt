@@ -1,5 +1,7 @@
 package androidx.ui.semantics
 
+import androidx.ui.text.TextDirection
+
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -71,7 +73,7 @@ class AnnounceSemanticsEvent(
     override val dataMap: Map<String, Any?>
         get() = mapOf(
             "message" to message,
-            "textDirection" to textDirection.index
+            "textDirection" to textDirection.ordinal
         )
 }
 
