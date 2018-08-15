@@ -578,9 +578,13 @@ public class NavController {
      * @see #setGraph(int)
      * @see #setGraph(NavGraph)
      * @see #setMetadataGraph()
+     * @throws IllegalStateException if called before <code>setGraph()</code>.
      */
-    @SuppressWarnings("UnknownNullness") // TODO https://b.corp.google.com/issues/112243286
+    @NonNull
     public NavGraph getGraph() {
+        if (mGraph == null) {
+            throw new IllegalStateException("You must call setGraph() before calling getGraph()");
+        }
         return mGraph;
     }
 
