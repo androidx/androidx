@@ -734,7 +734,7 @@ public class NavController {
             Bundle savedState = entry.getValue().onSaveState();
             if (savedState != null) {
                 navigatorNames.add(name);
-                navigatorState.putBundle(name, entry.getValue().onSaveState());
+                navigatorState.putBundle(name, savedState);
             }
         }
         if (!navigatorNames.isEmpty()) {
