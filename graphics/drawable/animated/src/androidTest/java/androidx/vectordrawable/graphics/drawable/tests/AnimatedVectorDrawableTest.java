@@ -81,9 +81,7 @@ public class AnimatedVectorDrawableTest {
 
     private Context mContext;
     private Resources mResources;
-    private AnimatedVectorDrawableCompat mAnimatedVectorDrawable;
-    private Bitmap mBitmap;
-    private Canvas mCanvas;
+
     private static final boolean DBG_DUMP_PNG = false;
 
     // States to check for animation callback tests.
@@ -112,14 +110,9 @@ public class AnimatedVectorDrawableTest {
 
     @Before
     public void setup() throws Exception {
-        mBitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
         mContext = mActivityTestRule.getActivity();
         mResources = mContext.getResources();
-
-        mAnimatedVectorDrawable = AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
     }
-
 
     @Test
     public void testInflate() throws Exception {
@@ -137,17 +130,22 @@ public class AnimatedVectorDrawableTest {
             throw new XmlPullParserException("No start tag found");
         }
 
-        mAnimatedVectorDrawable.inflate(mResources, parser, attrs);
-        mAnimatedVectorDrawable.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
-        mBitmap.eraseColor(0);
-        mAnimatedVectorDrawable.draw(mCanvas);
-        int sunColor = mBitmap.getPixel(IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2);
-        int earthColor = mBitmap.getPixel(IMAGE_WIDTH * 3 / 4 + 2, IMAGE_HEIGHT / 2);
+        Bitmap bitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        AnimatedVectorDrawableCompat animatedVectorDrawable =
+                AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
+        animatedVectorDrawable.inflate(mResources, parser, attrs);
+        animatedVectorDrawable.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        bitmap.eraseColor(0);
+        animatedVectorDrawable.draw(canvas);
+        int sunColor = bitmap.getPixel(IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2);
+        int earthColor = bitmap.getPixel(IMAGE_WIDTH * 3 / 4 + 2, IMAGE_HEIGHT / 2);
         assertTrue(sunColor == 0xFFFF8000);
         assertTrue(earthColor == 0xFF5656EA);
 
         if (DBG_DUMP_PNG) {
-            saveVectorDrawableIntoPNG(mResources, mBitmap, DRAWABLE_RES_ID, null);
+            saveVectorDrawableIntoPNG(mResources, bitmap, DRAWABLE_RES_ID, null);
         }
     }
 
@@ -279,12 +277,14 @@ public class AnimatedVectorDrawableTest {
 
     @Test
     public void testGetConstantState() {
-        ConstantState constantState = mAnimatedVectorDrawable.getConstantState();
+        AnimatedVectorDrawableCompat animatedVectorDrawableCompat =
+                AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
+        ConstantState constantState = animatedVectorDrawableCompat.getConstantState();
         if (constantState != null) {
             assertEquals(0, constantState.getChangingConfigurations());
 
-            mAnimatedVectorDrawable.setChangingConfigurations(1);
-            constantState = mAnimatedVectorDrawable.getConstantState();
+            animatedVectorDrawableCompat.setChangingConfigurations(1);
+            constantState = animatedVectorDrawableCompat.getConstantState();
             assertNotNull(constantState);
             assertEquals(1, constantState.getChangingConfigurations());
         }
