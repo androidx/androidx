@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
@@ -37,6 +38,7 @@ import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.DatabaseTest;
+import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
 import androidx.work.impl.Processor;
@@ -49,6 +51,7 @@ import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.RepeatRule;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
@@ -79,6 +82,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Rule
     public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
+
+    @Rule
+    public RepeatRule mRepeatRule = new RepeatRule();
 
     private static final int START_ID = 0;
     // Test timeout in seconds - this needs to be longer than SleepTestWorker.SLEEP_DURATION
@@ -115,6 +121,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
             }
         };
 
+        Logger.setMinimumLoggingLevel(Log.VERBOSE);
         mConfiguration = new Configuration.Builder().build();
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
@@ -305,25 +312,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
-    public void testConstraintsChanged_withConstraint() throws InterruptedException {
-        when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .setConstraints(new Constraints.Builder()
-                        .setRequiresCharging(true)
-                        .build())
-                .build();
-
-        insertWork(work);
-        final Intent constraintChanged = CommandHandler.createConstraintsChangedIntent(mContext);
-        mSpyDispatcher.postOnMainThread(
-                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, constraintChanged, START_ID));
-        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
-        assertThat(mLatch.getCount(), is(0L));
-    }
-
-    @Test
     @LargeTest
+    @RepeatRule.Repeat(times = 1)
     public void testDelayMet_withUnMetConstraint() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(false);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
@@ -341,11 +331,12 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
-        List<String> intentActions = intentActionsFor(mSpyDispatcher.getCommands());
+        List<String> intentActions = mSpyDispatcher.getIntentActions();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         WorkSpec workSpec = workSpecDao.getWorkSpec(work.getStringId());
 
         assertThat(mLatch.getCount(), is(0L));
+
         // Verify order of events
         assertThat(intentActions,
                 IsIterableContainingInOrder.contains(
@@ -355,6 +346,24 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                         CommandHandler.ACTION_CONSTRAINTS_CHANGED));
 
         assertThat(workSpec.state, is(State.ENQUEUED));
+    }
+
+    @Test
+    public void testConstraintsChanged_withConstraint() throws InterruptedException {
+        when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiresCharging(true)
+                        .build())
+                .build();
+
+        insertWork(work);
+        final Intent constraintChanged = CommandHandler.createConstraintsChangedIntent(mContext);
+        mSpyDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, constraintChanged, START_ID));
+        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+        assertThat(mLatch.getCount(), is(0L));
     }
 
     @Test
@@ -374,8 +383,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, delayMet, START_ID));
 
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
-
-        List<String> intentActions = intentActionsFor(mSpyDispatcher.getCommands());
+        List<String> intentActions = mSpyDispatcher.getIntentActions();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         WorkSpec workSpec = workSpecDao.getWorkSpec(work.getStringId());
 
@@ -448,14 +456,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(capturedIds.contains(succeeded.getStringId()), is(false));
     }
 
-    private static List<String> intentActionsFor(@NonNull List<Intent> intents) {
-        List<String> intentActions = new ArrayList<>(intents.size());
-        for (Intent intent : intents) {
-            intentActions.add(intent.getAction());
-        }
-        return intentActions;
-    }
-
     // Marking it public for mocking
     public static class CommandInterceptingSystemDispatcher extends SystemAlarmDispatcher {
         private final List<Intent> mCommands;
@@ -478,20 +478,28 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
             return isAdded;
         }
 
-        private void update(Intent intent) {
-            String action = intent.getAction();
-            Integer count = mActionCount.get(intent.getAction());
-            int incremented = count != null ? count + 1 : 1;
-            mActionCount.put(action, incremented);
-            mCommands.add(intent);
-        }
-
         Map<String, Integer> getActionCount() {
             return mActionCount;
         }
 
         List<Intent> getCommands() {
             return mCommands;
+        }
+
+        List<String> getIntentActions() {
+            List<String> intentActions = new ArrayList<>(mCommands.size());
+            for (Intent intent : mCommands) {
+                intentActions.add(intent.getAction());
+            }
+            return intentActions;
+        }
+
+        private void update(Intent intent) {
+            String action = intent.getAction();
+            Integer count = mActionCount.get(intent.getAction());
+            int incremented = count != null ? count + 1 : 1;
+            mActionCount.put(action, incremented);
+            mCommands.add(intent);
         }
     }
 }
