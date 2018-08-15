@@ -44,15 +44,16 @@ android {
 }
 
 dependencies {
-
+    // @aar and { transitive = true } are needed as a workaround for
+    // https://github.com/gradle/gradle/issues/3170
     implementation(project(":work:work-runtime"))
-    implementation(PLAY_SERVICES, libs.support_exclude_config)
-    implementation(FIREBASE_JOBDISPATCHER, libs.support_exclude_config)
+    implementation(PLAY_SERVICES) { transitive = true }
+    implementation(FIREBASE_JOBDISPATCHER) { transitive = true }
     // Temporary workaround to the fact that FIREBASE_JOBDISPATCHER imports v4 of 25.0.0, but we
     // pull in 26.1.0 on some of the dependencies of v4, but not support-media-compat.
-    implementation("com.android.support:support-v4:26.1.0", libs.support_exclude_config)
-    implementation "android.arch.persistence.room:runtime:1.0.0"
-    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
+    implementation("com.android.support:support-v4:26.1.0@aar") { transitive = true }
+    implementation("android.arch.persistence.room:runtime:1.0.0@aar") { transitive = true }
+    annotationProcessor("android.arch.persistence.room:compiler:1.0.0")
 
     androidTestImplementation(project(":work:work-runtime"))
     androidTestImplementation(TEST_RUNNER)
