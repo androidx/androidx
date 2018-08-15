@@ -46,7 +46,7 @@ class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
             if (typeDeclaration.isEmpty()) {
                 return value
             }
-            return "L" + remapper.rewriteType(JavaType(value)).fullName + ";"
+            return "L" + remapper.rewriteType(JavaType(typeDeclaration)).fullName + ";"
         }
         return remapper.rewriteString(stringVal)
     }
