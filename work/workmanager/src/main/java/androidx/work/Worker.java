@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import java.util.concurrent.TimeUnit;
@@ -60,6 +61,10 @@ public abstract class Worker extends NonBlockingWorker {
     @WorkerThread
     public abstract @NonNull Result doWork();
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public void onStartWork(@NonNull WorkFinishedCallback callback) {
         Result result = doWork();
