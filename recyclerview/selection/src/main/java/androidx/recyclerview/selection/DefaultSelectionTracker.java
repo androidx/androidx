@@ -348,7 +348,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     }
 
     @Override
-    AdapterDataObserver getAdapterDataObserver() {
+    protected AdapterDataObserver getAdapterDataObserver() {
         return mAdapterObserver;
     }
 
