@@ -517,4 +517,17 @@ limitations under the License.
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
     </style>
+
+    <!-- ============== -->
+    <!-- Spinner Styles -->
+    <!-- ============== -->
+    <eat-comment />
+
+    <style name="SpinnerDropDownItem">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body2</item>
+        <item name="android:divider">@drawable/car_preference_divider</item>
+        <item name="android:paddingLeft">@dimen/car_keyline_1</item>
+        <item name="android:paddingRight">@dimen/car_keyline_1</item>
+    </style>
+
 </resources>
