@@ -47,21 +47,21 @@ public class InterpolatorTest {
     @Test
     public void testPathInterpolator() {
         Interpolator interpolator = new PathInterpolator(0f, 0f, 0f, 1f);
-        assertEquals(0.8892f, interpolator.getInterpolation(0.5f), EPSILON);
-        assertEquals(0f, interpolator.getInterpolation(0f), EPSILON);
-        assertEquals(1f, interpolator.getInterpolation(1f), EPSILON);
+        assertEquals(0.8892f, interpolator.getInterpolation(0.5f), 0.01f);
+        assertEquals(0f, interpolator.getInterpolation(0f), 0.01f);
+        assertEquals(1f, interpolator.getInterpolation(1f), 0.01f);
 
         interpolator = new PathInterpolator(1f, 0f);
-        assertEquals(0.087f, interpolator.getInterpolation(0.5f), EPSILON);
-        assertEquals(0f, interpolator.getInterpolation(0f), EPSILON);
-        assertEquals(1f, interpolator.getInterpolation(1f), EPSILON);
+        assertEquals(0.087f, interpolator.getInterpolation(0.5f), 0.01f);
+        assertEquals(0f, interpolator.getInterpolation(0f), 0.01f);
+        assertEquals(1f, interpolator.getInterpolation(1f), 0.01f);
 
         Path path = PathParser.createPathFromPathData(
                 "M 0.0,0.0 c 0.08,0.0 0.04,1.0 0.2,0.8 l 0.6,0.1 L 1.0,1.0");
         interpolator = new PathInterpolator(path);
-        assertEquals(0.85f, interpolator.getInterpolation(0.5f), EPSILON);
-        assertEquals(0f, interpolator.getInterpolation(0f), EPSILON);
-        assertEquals(1f, interpolator.getInterpolation(1f), EPSILON);
+        assertEquals(0.85f, interpolator.getInterpolation(0.5f), 0.01f);
+        assertEquals(0f, interpolator.getInterpolation(0f), 0.01f);
+        assertEquals(1f, interpolator.getInterpolation(1f), 0.01f);
     }
 
     /**
