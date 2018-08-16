@@ -401,8 +401,8 @@ public class RemoteMediaController2 {
      */
     void create(SessionToken2 token, boolean waitForConnection) {
         try {
-            mBinder.create(false /* isBrowser */, mControllerId, token.toBundle(),
-                    waitForConnection);
+            mBinder.create(false /* isBrowser */, mControllerId,
+                    (ParcelImpl) ParcelUtils.toParcelable(token), waitForConnection);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to create default controller with given token.");
         }

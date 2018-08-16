@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.ComponentName;
@@ -24,7 +25,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -40,6 +40,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -59,7 +62,8 @@ import java.util.concurrent.Executor;
 //   - Stop implementing Parcelable for updatable support
 //   - Represent session and library service (formerly browser service) in one class.
 //     Previously MediaSession.Token was for session and ComponentName was for service.
-public final class SessionToken2 {
+@VersionedParcelize
+public final class SessionToken2 implements VersionedParcelable {
     private static final String TAG = "SessionToken2";
 
     private static final long WAIT_TIME_MS_FOR_SESSION_READY = 300;
@@ -99,18 +103,8 @@ public final class SessionToken2 {
      */
     static final int TYPE_BROWSER_SERVICE_LEGACY = 101;
 
-    // From the return value of android.os.Process.getUidForName(String) when error
-    static final int UID_UNKNOWN = -1;
-
-    static final String KEY_UID = "android.media.token.uid";
-    static final String KEY_TYPE = "android.media.token.type";
-    static final String KEY_PACKAGE_NAME = "android.media.token.package_name";
-    static final String KEY_SERVICE_NAME = "android.media.token.service_name";
-    static final String KEY_SESSION_ID = "android.media.token.session_id";
-    static final String KEY_SESSION_BINDER = "android.media.token.session_binder";
-    static final String KEY_TOKEN_LEGACY = "android.media.token.LEGACY";
-
-    private final SessionToken2Impl mImpl;
+    @ParcelField(1)
+    SessionToken2Impl mImpl;
 
     /**
      * Constructor for the token. You can create token of {@link MediaSessionService2},
@@ -163,6 +157,15 @@ public final class SessionToken2 {
     @RestrictTo(LIBRARY_GROUP)
     SessionToken2(SessionToken2Impl impl) {
         mImpl = impl;
+    }
+
+    /**
+     * Used for {@link VersionedParcelable}
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    SessionToken2() {
+        // do nothing
     }
 
     @Override
@@ -248,33 +251,6 @@ public final class SessionToken2 {
     }
 
     /**
-     * Create a {@link Bundle} from this token to share it across processes.
-     * @return Bundle
-     */
-    public Bundle toBundle() {
-        return mImpl.toBundle();
-    }
-
-    /**
-     * Create a token from the bundle, exported by {@link #toBundle()}.
-     *
-     * @param bundle
-     * @return SessionToken2 object
-     */
-    public static SessionToken2 fromBundle(@NonNull Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-
-        final int type = bundle.getInt(KEY_TYPE, -1);
-        if (type == TYPE_SESSION_LEGACY) {
-            return new SessionToken2(SessionToken2ImplLegacy.fromBundle(bundle));
-        } else {
-            return new SessionToken2(SessionToken2ImplBase.fromBundle(bundle));
-        }
-    }
-
-    /**
      * Creates SessionToken2 object from MediaSessionCompat.Token.
      * When the SessionToken2 is ready, OnSessionToken2CreateListner will be called.
      *
@@ -299,10 +275,9 @@ public final class SessionToken2 {
         }
 
         try {
-            Bundle token2Bundle = token.getSessionToken2Bundle();
-            if (token2Bundle != null) {
-                notifySessionToken2Created(executor, listener, token,
-                        SessionToken2.fromBundle(token2Bundle));
+            VersionedParcelable token2 = token.getSessionToken2();
+            if (token2 instanceof SessionToken2) {
+                notifySessionToken2Created(executor, listener, token, (SessionToken2) token2);
                 return;
             }
             final MediaControllerCompat controller = new MediaControllerCompat(context, token);
@@ -319,7 +294,7 @@ public final class SessionToken2 {
                         if (msg.what == MSG_SEND_TOKEN2_FOR_LEGACY_SESSION) {
                             // token for framework session.
                             controller.unregisterCallback((MediaControllerCompat.Callback) msg.obj);
-                            token.setSessionToken2Bundle(token2ForLegacySession.toBundle());
+                            token.setSessionToken2(token2ForLegacySession);
                             notifySessionToken2Created(executor, listener, token,
                                     token2ForLegacySession);
                             if (Build.VERSION.SDK_INT >= 18) {
@@ -337,11 +312,11 @@ public final class SessionToken2 {
                     synchronized (listener) {
                         handler.removeMessages(MSG_SEND_TOKEN2_FOR_LEGACY_SESSION);
                         controller.unregisterCallback(this);
-                        if (token.getSessionToken2Bundle() == null) {
-                            token.setSessionToken2Bundle(token2ForLegacySession.toBundle());
+                        if (!(token.getSessionToken2() instanceof SessionToken2)) {
+                            token.setSessionToken2(token2ForLegacySession);
                         }
                         notifySessionToken2Created(executor, listener, token,
-                                SessionToken2.fromBundle(token.getSessionToken2Bundle()));
+                                (SessionToken2) token.getSessionToken2());
                         if (Build.VERSION.SDK_INT >= 18) {
                             thread.quitSafely();
                         } else {
@@ -438,7 +413,7 @@ public final class SessionToken2 {
         void onSessionToken2Created(MediaSessionCompat.Token token, SessionToken2 token2);
     }
 
-    interface SessionToken2Impl {
+    interface SessionToken2Impl extends VersionedParcelable {
         boolean isLegacySession();
         int getUid();
         @NonNull String getPackageName();
@@ -446,7 +421,6 @@ public final class SessionToken2 {
         @Nullable ComponentName getComponentName();
         String getSessionId();
         @TokenType int getType();
-        Bundle toBundle();
         Object getBinder();
     }
 }

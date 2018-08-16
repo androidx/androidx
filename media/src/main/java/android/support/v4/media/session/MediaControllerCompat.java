@@ -50,6 +50,8 @@ import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.core.app.ComponentActivity;
 import androidx.media.VolumeProviderCompat;
+import androidx.versionedparcelable.ParcelUtils;
+import androidx.versionedparcelable.VersionedParcelable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -533,14 +535,15 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Gets the SessionToken2 as bundle for the session that this controller is connected to.
+     * Gets the SessionToken2 as VersionedParcelable for the session that this controller is
+     * connected to.
      *
-     * @return The session's token as bundle.
+     * @return The session's token as VersionedParcelable.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public @Nullable Bundle getSessionToken2Bundle() {
-        return mToken.getSessionToken2Bundle();
+    public @Nullable VersionedParcelable getSessionToken2() {
+        return mToken.getSessionToken2();
     }
 
     /**
@@ -2238,8 +2241,9 @@ public final class MediaControllerCompat {
                             IMediaSession.Stub.asInterface(
                                     BundleCompat.getBinder(
                                             resultData, MediaSessionCompat.KEY_EXTRA_BINDER)));
-                    mediaControllerImpl.mSessionToken.setSessionToken2Bundle(
-                            resultData.getBundle(MediaSessionCompat.KEY_SESSION_TOKEN2_BUNDLE));
+                    mediaControllerImpl.mSessionToken.setSessionToken2(
+                            ParcelUtils.getVersionedParcelable(resultData,
+                                    MediaSessionCompat.KEY_SESSION_TOKEN2));
                     mediaControllerImpl.processPendingCallbacksLocked();
                 }
             }

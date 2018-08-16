@@ -25,6 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.MediaBrowser2;
 import androidx.media2.SessionToken2;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
 
 /**
  * Represents remote {@link MediaBrowser2} the client app's MediaController2Service.
@@ -76,8 +78,8 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
      */
     void create(SessionToken2 token, boolean waitForConnection) {
         try {
-            mBinder.create(true /* isBrowser */, mControllerId, token.toBundle(),
-                    waitForConnection);
+            mBinder.create(true /* isBrowser */, mControllerId,
+                    (ParcelImpl) ParcelUtils.toParcelable(token), waitForConnection);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to create default browser with given token.");
         }
