@@ -15,7 +15,12 @@
  */
 package androidx.mediarouter.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,39 +36,29 @@ import java.util.List;
  */
 public final class MediaRouteProviderDescriptor {
     private static final String KEY_ROUTES = "routes";
+    private static final String KEY_SUPPORTS_DYNAMIC_GROUP_ROUTE = "supportsDynamicGroupRoute";
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Bundle mBundle;
+    Bundle mBundle;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    List<MediaRouteDescriptor> mRoutes;
+    final List<MediaRouteDescriptor> mRoutes;
+    final boolean mSupportsDynamicGroupRoute;
 
-    MediaRouteProviderDescriptor(Bundle bundle, List<MediaRouteDescriptor> routes) {
-        mBundle = bundle;
-        mRoutes = routes;
+    MediaRouteProviderDescriptor(List<MediaRouteDescriptor> routes,
+                                 boolean supportsDynamicGroupRoute) {
+        mRoutes = (routes == null) ? Collections.<MediaRouteDescriptor>emptyList() : routes;
+        mSupportsDynamicGroupRoute = supportsDynamicGroupRoute;
     }
 
     /**
      * Gets the list of all routes that this provider has published.
+     * <p>
+     * If it doesn't have any routes, it returns an empty list.
+     * </p>
      */
+    @NonNull
     public List<MediaRouteDescriptor> getRoutes() {
-        ensureRoutes();
         return mRoutes;
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void ensureRoutes() {
-        if (mRoutes == null) {
-            ArrayList<Bundle> routeBundles = mBundle.<Bundle>getParcelableArrayList(KEY_ROUTES);
-            if (routeBundles == null || routeBundles.isEmpty()) {
-                mRoutes = Collections.<MediaRouteDescriptor>emptyList();
-            } else {
-                final int count = routeBundles.size();
-                mRoutes = new ArrayList<MediaRouteDescriptor>(count);
-                for (int i = 0; i < count; i++) {
-                    mRoutes.add(MediaRouteDescriptor.fromBundle(routeBundles.get(i)));
-                }
-            }
-        }
     }
 
     /**
@@ -75,8 +70,7 @@ public final class MediaRouteProviderDescriptor {
      * </p>
      */
     public boolean isValid() {
-        ensureRoutes();
-        final int routeCount = mRoutes.size();
+        final int routeCount = getRoutes().size();
         for (int i = 0; i < routeCount; i++) {
             MediaRouteDescriptor route = mRoutes.get(i);
             if (route == null || !route.isValid()) {
@@ -84,6 +78,16 @@ public final class MediaRouteProviderDescriptor {
             }
         }
         return true;
+    }
+
+    /**
+     * Indicates whether a {@link MediaRouteProvider} supports dynamic group route.
+     *
+     * @hide TODO unhide this method and updateApi
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean supportsDynamicGroupRoute() {
+        return mSupportsDynamicGroupRoute;
     }
 
     @Override
@@ -103,6 +107,19 @@ public final class MediaRouteProviderDescriptor {
      * @return The contents of the object represented as a bundle.
      */
     public Bundle asBundle() {
+        if (mBundle != null) {
+            return mBundle;
+        }
+        mBundle = new Bundle();
+        if (mRoutes != null && !mRoutes.isEmpty()) {
+            final int count = mRoutes.size();
+            ArrayList<Bundle> routeBundles = new ArrayList<Bundle>(count);
+            for (int i = 0; i < count; i++) {
+                routeBundles.add(mRoutes.get(i).asBundle());
+            }
+            mBundle.putParcelableArrayList(KEY_ROUTES, routeBundles);
+        }
+        mBundle.putBoolean(KEY_SUPPORTS_DYNAMIC_GROUP_ROUTE, mSupportsDynamicGroupRoute);
         return mBundle;
     }
 
@@ -113,21 +130,34 @@ public final class MediaRouteProviderDescriptor {
      * @return The new instance, or null if the bundle was null.
      */
     public static MediaRouteProviderDescriptor fromBundle(Bundle bundle) {
-        return bundle != null ? new MediaRouteProviderDescriptor(bundle, null) : null;
+        if (bundle == null) {
+            return null;
+        }
+        List<MediaRouteDescriptor> routes = null;
+        ArrayList<Bundle> routeBundles = bundle.<Bundle>getParcelableArrayList(KEY_ROUTES);
+        if (routeBundles != null && !routeBundles.isEmpty()) {
+            final int count = routeBundles.size();
+            routes = new ArrayList<MediaRouteDescriptor>(count);
+            for (int i = 0; i < count; i++) {
+                routes.add(MediaRouteDescriptor.fromBundle(routeBundles.get(i)));
+            }
+        }
+        boolean supportsDynamicGroupRoute =
+                bundle.getBoolean(KEY_SUPPORTS_DYNAMIC_GROUP_ROUTE, false);
+        return new MediaRouteProviderDescriptor(routes, supportsDynamicGroupRoute);
     }
 
     /**
-     * Builder for {@link MediaRouteProviderDescriptor media route provider descriptors}.
+     * Builder for {@link MediaRouteProviderDescriptor}.
      */
     public static final class Builder {
-        private final Bundle mBundle;
-        private ArrayList<MediaRouteDescriptor> mRoutes;
+        private List<MediaRouteDescriptor> mRoutes;
+        private boolean mSupportsDynamicGroupRoute = false;
 
         /**
          * Creates an empty media route provider descriptor builder.
          */
         public Builder() {
-            mBundle = new Bundle();
         }
 
         /**
@@ -138,13 +168,8 @@ public final class MediaRouteProviderDescriptor {
             if (descriptor == null) {
                 throw new IllegalArgumentException("descriptor must not be null");
             }
-
-            mBundle = new Bundle(descriptor.mBundle);
-
-            descriptor.ensureRoutes();
-            if (!descriptor.mRoutes.isEmpty()) {
-                mRoutes = new ArrayList<MediaRouteDescriptor>(descriptor.mRoutes);
-            }
+            mRoutes = descriptor.mRoutes;
+            mSupportsDynamicGroupRoute = descriptor.mSupportsDynamicGroupRoute;
         }
 
         /**
@@ -186,7 +211,6 @@ public final class MediaRouteProviderDescriptor {
         Builder setRoutes(Collection<MediaRouteDescriptor> routes) {
             if (routes == null || routes.isEmpty()) {
                 mRoutes = null;
-                mBundle.remove(KEY_ROUTES);
             } else {
                 mRoutes = new ArrayList<>(routes);
             }
@@ -194,18 +218,22 @@ public final class MediaRouteProviderDescriptor {
         }
 
         /**
-         * Builds the {@link MediaRouteProviderDescriptor media route provider descriptor}.
+         * Sets if this provider supports dynamic group route.
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public Builder setSupportsDynamicGroupRoute(boolean value) {
+            mSupportsDynamicGroupRoute = value;
+            return this;
+        }
+
+
+        /**
+         * Builds the {@link MediaRouteProviderDescriptor}.
          */
         public MediaRouteProviderDescriptor build() {
-            if (mRoutes != null) {
-                final int count = mRoutes.size();
-                ArrayList<Bundle> routeBundles = new ArrayList<Bundle>(count);
-                for (int i = 0; i < count; i++) {
-                    routeBundles.add(mRoutes.get(i).asBundle());
-                }
-                mBundle.putParcelableArrayList(KEY_ROUTES, routeBundles);
-            }
-            return new MediaRouteProviderDescriptor(mBundle, mRoutes);
+            return new MediaRouteProviderDescriptor(mRoutes, mSupportsDynamicGroupRoute);
         }
     }
 }
