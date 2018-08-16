@@ -240,13 +240,14 @@ File externalRoot = new File(rootDir, "../../external")
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
 includeProject(":webview-support-interfaces", new File(externalRoot, "webview_support_interfaces"))
 
-///// FLATFOOT START
-
-///// FLATFOOT END
-
 // fake project which is used for docs generation from prebuilts
 // we need real android project to generate R.java, aidl etc files that mentioned in sources
 if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
     // we don't need it in ide, so we don't configure it there
     includeProject(":docs-fake", "docs-fake")
 }
+
+// dumb test project that has a test for each size to ensure that at least one test is run
+// for each size and test runner is happy when there is nothing to test.
+includeProject(":dumb-tests", "dumb-tests")
+
