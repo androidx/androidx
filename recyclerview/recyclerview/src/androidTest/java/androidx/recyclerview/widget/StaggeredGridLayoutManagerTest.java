@@ -1017,11 +1017,15 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
 
     @Test
     public void temporaryGapHandling() throws Throwable {
-        int fullSpanIndex = 200;
-        setupByConfig(new Config().spanCount(2).itemCount(500));
+        int fullSpanIndex = 100;
+        setupByConfig(new Config()
+                .spanCount(2)
+                .itemCount(250)
+                .recyclerViewLayoutWidth(800)
+                .recyclerViewLayoutHeight(1600));
         mAdapter.mFullSpanItems.add(fullSpanIndex);
         waitFirstLayout();
-        smoothScrollToPosition(fullSpanIndex + 200);// go far away
+        smoothScrollToPosition(fullSpanIndex + 100); // go far away
         assertNull("test sanity. full span item should not be visible",
                 mRecyclerView.findViewHolderForAdapterPosition(fullSpanIndex));
         mLayoutManager.expectLayouts(1);
