@@ -238,6 +238,7 @@ public class MigrationTest {
             Context targetContext = InstrumentationRegistry.getTargetContext();
             MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
                     .build();
+            helper.closeWhenFinished(db);
             db.dao().loadAllEntity1s();
             throw new AssertionError("Should've failed :/");
         } catch (IllegalStateException ignored) {
@@ -252,6 +253,7 @@ public class MigrationTest {
             Context targetContext = InstrumentationRegistry.getTargetContext();
             MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
                     .build();
+            helper.closeWhenFinished(db);
             db.dao().loadAllEntity1s();
             throw new AssertionError("Should've failed :/");
         } catch (IllegalStateException ignored) {
@@ -268,6 +270,7 @@ public class MigrationTest {
             MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build();
+            helper.closeWhenFinished(db);
             db.dao().loadAllEntity1s();
             throw new AssertionError("Should've failed :/");
         } catch (IllegalStateException ignored) {
@@ -300,6 +303,7 @@ public class MigrationTest {
                 MigrationDb db = Room.databaseBuilder(
                         InstrumentationRegistry.getInstrumentation().getTargetContext(),
                         MigrationDb.class, name).build();
+                helper.closeWhenFinished(db);
                 db.runInTransaction(new Runnable() {
                     @Override
                     public void run() {
@@ -327,7 +331,7 @@ public class MigrationTest {
         MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
                 .fallbackToDestructiveMigrationFrom(6)
                 .build();
-
+        helper.closeWhenFinished(db);
         assertThat(db.dao().loadAllEntity1s().size(), is(0));
     }
 
