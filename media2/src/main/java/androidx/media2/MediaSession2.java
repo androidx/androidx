@@ -513,9 +513,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      * Notify routes information to a connected controller
      *
      * @param controller controller information
-     * @param routes The routes information. Each bundle should be from {@link
-     *               androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
-     *               RouteInfo}.
+     * @param routes The routes information
      */
     public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
             @Nullable List<Bundle> routes) {

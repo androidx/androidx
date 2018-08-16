@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":media2"))
+    api(project(":media"))
     api(project(":appcompat"))
     api(project(":palette"))
     api(project(":recyclerview"))
@@ -31,7 +31,7 @@ android {
 supportLibrary {
     name = "Android MediaRouter Support Library"
     publish = true
-    mavenVersion = LibraryVersions.MEDIAROUTER
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.MEDIAROUTER
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
