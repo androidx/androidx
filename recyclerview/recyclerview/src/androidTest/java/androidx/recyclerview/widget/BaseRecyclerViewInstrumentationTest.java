@@ -36,7 +36,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -396,7 +395,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         });
     }
 
-    protected FrameLayout getRecyclerViewContainer() {
+    protected TestedFrameLayout getRecyclerViewContainer() {
         return getActivity().getContainer();
     }
 
