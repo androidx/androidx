@@ -44,7 +44,10 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_centerVertical="true"
-            android:contentDescription="@string/mr_controller_volume_slider" />
+            android:contentDescription="@string/mr_controller_volume_slider"
+            android:progressDrawable="@drawable/mr_cast_group_seekbar_track"
+            android:thumb="@drawable/mr_cast_thumb"
+            android:splitTrack="false" />
         <View android:id="@+id/mr_cast_divider"
               android:layout_width="match_parent"
               android:layout_height="1dp"

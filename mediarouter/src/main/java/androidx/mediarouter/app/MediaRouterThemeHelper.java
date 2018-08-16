@@ -19,11 +19,13 @@ package androidx.mediarouter.app;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.IntDef;
 import androidx.core.content.ContextCompat;
@@ -221,6 +223,10 @@ final class MediaRouterThemeHelper {
         groupControls.setTag(primaryDarkColor);
     }
 
+    /**
+     * This method is used by MediaRouteControllerDialog to set color of the volume slider
+     * appropriate for the color of controller and backgroundView.
+     */
     static void setVolumeSliderColor(
             Context context, MediaRouteVolumeSlider volumeSlider, View backgroundView) {
         int controllerColor = getControllerColor(context, 0);
@@ -231,6 +237,37 @@ final class MediaRouterThemeHelper {
             controllerColor = ColorUtils.compositeColors(controllerColor, backgroundColor);
         }
         volumeSlider.setColor(controllerColor);
+    }
+
+    /**
+     * This method is used by MediaRouteCastDialog to set color of the volume slider according to
+     * current theme.
+     */
+    static void setVolumeSliderColor(Context context, MediaRouteVolumeSlider volumeSlider) {
+        int progressAndThumbColor, backgroundColor;
+        if (isLightTheme(context)) {
+            progressAndThumbColor = ContextCompat.getColor(context,
+                    R.color.mr_cast_progressbar_progress_and_thumb_light);
+            backgroundColor = ContextCompat.getColor(context,
+                    R.color.mr_cast_progressbar_background_light);
+        } else {
+            progressAndThumbColor = ContextCompat.getColor(context,
+                    R.color.mr_cast_progressbar_progress_and_thumb_dark);
+            backgroundColor = ContextCompat.getColor(context,
+                    R.color.mr_cast_progressbar_background_dark);
+        }
+        volumeSlider.setColor(progressAndThumbColor, backgroundColor);
+    }
+
+    static void setIndeterminateProgressBarColor(Context context, ProgressBar progressBar) {
+        if (!progressBar.isIndeterminate()) {
+            return;
+        }
+        int progressColor = ContextCompat.getColor(context, isLightTheme(context)
+                ? R.color.mr_cast_progressbar_progress_and_thumb_light :
+                R.color.mr_cast_progressbar_progress_and_thumb_dark);
+        progressBar.getIndeterminateDrawable().setColorFilter(progressColor,
+                PorterDuff.Mode.SRC_IN);
     }
 
     private static boolean isLightTheme(Context context) {
