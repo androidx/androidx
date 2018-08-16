@@ -45,7 +45,6 @@ import androidx.media2.MediaPlayerConnector;
 import androidx.media2.UriDataSourceDesc2;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
@@ -200,7 +199,6 @@ public class MediaControlView2Test {
     }
 
     @Test
-    @FlakyTest
     public void testRewButtonClick() throws Throwable {
         // Don't run the test if the codec isn't supported.
         if (!hasCodec(mFileSchemeUri)) {
@@ -229,7 +227,7 @@ public class MediaControlView2Test {
                                 }
                                 break;
                             case 1:
-                                if (position == FFWD_MS - REW_MS) {
+                                if (position <= FFWD_MS - REW_MS) {
                                     latch.countDown();
                                 }
                         }
