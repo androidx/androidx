@@ -58,12 +58,12 @@ public class TextListItemActivity extends Activity {
         ListItemAdapter adapter = new ListItemAdapter(this, provider,
                 ListItemAdapter.BackgroundStyle.SOLID);
 
-        final boolean[] hideDivider = {true};
+        final boolean[] showDivider = {false};
         // Demonstrate how to update list item post construction.
         TextListItem toBeUpdated = new TextListItem(this);
         toBeUpdated.setPrimaryActionEmptyIcon();
         toBeUpdated.setTitle("tap next item to update my icon");
-        toBeUpdated.setHideDivider(hideDivider[0]);
+        toBeUpdated.setShowDivider(showDivider[0]);
         provider.mItems.add(0, toBeUpdated);
 
         boolean[] useEmptyIcon = new boolean[]{false};
@@ -79,8 +79,8 @@ public class TextListItemActivity extends Activity {
             useEmptyIcon[0] = !useEmptyIcon[0];
 
             // Show/hide item divider.
-            toBeUpdated.setHideDivider(hideDivider[0]);
-            hideDivider[0] = !hideDivider[0];
+            toBeUpdated.setShowDivider(showDivider[0]);
+            showDivider[0] = !showDivider[0];
 
             // Make sure to notify adapter about the change.
             adapter.notifyItemChanged(0);
@@ -152,7 +152,7 @@ public class TextListItemActivity extends Activity {
             item = new TextListItem(mContext);
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setTitle("single line without a list divider");
-            item.setHideDivider(true);
+            item.setShowDivider(false);
             mItems.add(item);
 
             item = new TextListItem(mContext);
@@ -178,7 +178,7 @@ public class TextListItemActivity extends Activity {
 
             item = new TextListItem(mContext);
             item.setTitle("Subtitle-like line without a list divider");
-            item.setHideDivider(true);
+            item.setShowDivider(false);
             item.addViewBinder(viewHolder ->
                             viewHolder.getTitle().setTextAppearance(R.style.CarListSubtitle));
             mItems.add(item);

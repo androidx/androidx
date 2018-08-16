@@ -172,17 +172,6 @@ public class PagedListView extends FrameLayout {
      */
     public interface DividerVisibilityManager {
         /**
-         * Given an item position, returns whether the divider below that item should be hidden.
-         *
-         * @param position item position inside the adapter.
-         * @return true if divider is to be hidden, false if divider should be shown.
-         *
-         * @deprecated use {@link #getShowDivider(int)}.
-         */
-        @Deprecated
-        boolean shouldHideDivider(int position);
-
-        /**
          * Given an item position, returns whether the divider below that item should be shown.
          *
          * @param position item position inside the adapter.

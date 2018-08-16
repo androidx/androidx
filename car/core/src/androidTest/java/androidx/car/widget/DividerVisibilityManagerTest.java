@@ -207,12 +207,6 @@ public final class DividerVisibilityManagerTest {
 
     private class TestDividerVisibilityManager implements PagedListView.DividerVisibilityManager {
         @Override
-        @Deprecated
-        public boolean shouldHideDivider(int position) {
-            return !getShowDivider(position);
-        }
-
-        @Override
         public boolean getShowDivider(int position) {
             // Show divider after items at odd positions; hide after items at even positions.
             return position % 2 != 0;
