@@ -68,7 +68,7 @@ def test_or_group_handler(line):
     elif stmt_type == 'test':
       return (True, [
         '@Test',
-        'fun `{name}` {{'.format(name=name)
+        'fun `{name}`() {{'.format(name=name)
       ])
 
   return NO_MATCH

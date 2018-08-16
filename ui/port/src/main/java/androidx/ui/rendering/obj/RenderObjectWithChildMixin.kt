@@ -43,8 +43,8 @@ abstract class RenderObjectWithChildMixin<ChildType : RenderObject> : RenderObje
 //    }
 
     // / The render object's unique child
-    var child: ChildType? = null
-        private set(value) {
+    open var child: ChildType? = null
+        set(value) {
             field?.let { dropChild(it) }
             field = value
             field?.let { adoptChild(it) }

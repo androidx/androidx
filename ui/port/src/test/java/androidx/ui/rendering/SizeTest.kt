@@ -13,23 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.port
 
-import org.junit.Assert.assertTrue
+package androidx.ui.rendering
+
+import androidx.ui.engine.geometry.Size
+import androidx.ui.rendering.box.BoxConstraints
+import androidx.ui.rendering.box._DebugSize
+import androidx.ui.rendering.proxybox.RenderConstrainedBox
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Sample test class.
- */
 @RunWith(JUnit4::class)
-class Test {
-    /**
-     * Doesn't test anything. Remove me and the whole class once you've added your own tests.
-     */
+class SizeTest {
+
     @Test
-    fun doATest() {
-        assertTrue(true)
+    fun `Stack can layout with top, right, bottom, left 0,0`() {
+        val box = RenderConstrainedBox(_additionalConstraints = BoxConstraints.tight(
+                Size(100.0, 100.0)))
+
+        box.layout(constraints = BoxConstraints())
+
+        Assert.assertEquals(box.size!!.width, 100.0, 0.1)
+        Assert.assertEquals(box.size!!.height, 100.0, 0.1)
+        Assert.assertEquals(box.size, Size(100.0, 100.0))
+        Assert.assertTrue(box.size is _DebugSize)
     }
 }

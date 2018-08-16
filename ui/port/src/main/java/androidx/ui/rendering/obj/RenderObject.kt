@@ -407,7 +407,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
     /**
      * The layout constraints most recently supplied by the parent.
      */
-    protected open val constraints: Constraints? = _constraints
+    protected open val constraints: Constraints? get() { return _constraints }
 
     /**
      * Verify that the object's constraints are being met. Override
