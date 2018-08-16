@@ -230,6 +230,7 @@
             <ImageButton
                 android:id="@+id/subtitle"
                 style="@style/BottomBarButton.CC"
+                android:alpha="0.5"
                 android:scaleType="fitCenter"
                 android:visibility="gone" />
 
