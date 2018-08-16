@@ -24,6 +24,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
 
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.test.R;
@@ -40,6 +42,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -101,7 +105,8 @@ public class FragmentTest {
             }
         });
         // Wait for the middle of the animation
-        Thread.sleep(150);
+        waitForHalfFadeIn(fragmentB);
+
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -114,23 +119,48 @@ public class FragmentTest {
             }
         });
         // Wait for the middle of the animation
-        Thread.sleep(150);
-        mInstrumentation.waitForIdleSync();
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mActivity.getSupportFragmentManager().popBackStack();
-            }
-        });
+        waitForHalfFadeIn(fragmentA);
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+
         // Wait for the middle of the animation
-        Thread.sleep(150);
-        mInstrumentation.waitForIdleSync();
-        mActivityRule.runOnUiThread(new Runnable() {
+        waitForHalfFadeIn(fragmentB);
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+    }
+
+    private void waitForHalfFadeIn(Fragment fragment) throws Throwable {
+        if (fragment.getView() == null) {
+            FragmentTestUtil.waitForExecution(mActivityRule);
+        }
+        final View view = fragment.getView();
+        final Animation animation = view.getAnimation();
+        if (animation == null || animation.hasEnded()) {
+            // animation has already completed
+            return;
+        }
+
+        final long startTime = animation.getStartTime();
+        if (view.getDrawingTime() > animation.getStartTime()) {
+            return; // We've already done at least one frame
+        }
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ViewTreeObserver viewTreeObserver = view.getViewTreeObserver();
+        ViewTreeObserver.OnDrawListener listener = new ViewTreeObserver.OnDrawListener() {
             @Override
-            public void run() {
-                mActivity.getSupportFragmentManager().popBackStack();
+            public void onDraw() {
+                if (animation.hasEnded() || view.getDrawingTime() > startTime) {
+                    final ViewTreeObserver.OnDrawListener onDrawListener = this;
+                    latch.countDown();
+                    view.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            viewTreeObserver.removeOnDrawListener(onDrawListener);
+                        }
+                    });
+                }
             }
-        });
+        };
+        viewTreeObserver.addOnDrawListener(listener);
+        latch.await(5, TimeUnit.SECONDS);
     }
 
     @MediumTest
