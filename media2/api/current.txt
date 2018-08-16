@@ -812,15 +812,13 @@ package androidx.media2 {
     method public androidx.media2.SessionCommandGroup2.Builder removeCommand(int);
   }
 
-  public final class SessionToken2 {
+  public final class SessionToken2 implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionToken2(android.content.Context, android.content.ComponentName);
-    method public static androidx.media2.SessionToken2 fromBundle(android.os.Bundle);
     method public java.lang.String getId();
     method public java.lang.String getPackageName();
     method public java.lang.String getServiceName();
     method public int getType();
     method public int getUid();
-    method public android.os.Bundle toBundle();
     field public static final int TYPE_LIBRARY_SERVICE = 2; // 0x2
     field public static final int TYPE_SESSION = 0; // 0x0
     field public static final int TYPE_SESSION_SERVICE = 1; // 0x1

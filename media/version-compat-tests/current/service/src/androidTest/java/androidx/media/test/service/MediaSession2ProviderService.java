@@ -62,6 +62,8 @@ import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -176,9 +178,10 @@ public class MediaSession2ProviderService extends Service {
         ////////////////////////////////////////////////////////////////////////////////
 
         @Override
-        public Bundle getToken(String sessionId) throws RemoteException {
+        public ParcelImpl getToken(String sessionId) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            return session2.getToken().toBundle();
+            return session2 != null
+                    ? (ParcelImpl) ParcelUtils.toParcelable(session2.getToken()) : null;
         }
 
         @Override

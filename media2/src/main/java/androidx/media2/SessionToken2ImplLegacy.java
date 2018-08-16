@@ -16,15 +16,11 @@
 
 package androidx.media2;
 
-import static androidx.media2.SessionToken2.KEY_PACKAGE_NAME;
-import static androidx.media2.SessionToken2.KEY_SERVICE_NAME;
-import static androidx.media2.SessionToken2.KEY_SESSION_ID;
-import static androidx.media2.SessionToken2.KEY_TOKEN_LEGACY;
-import static androidx.media2.SessionToken2.KEY_TYPE;
-import static androidx.media2.SessionToken2.KEY_UID;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media2.SessionToken2.TYPE_BROWSER_SERVICE_LEGACY;
+import static androidx.media2.SessionToken2.TYPE_LIBRARY_SERVICE;
+import static androidx.media2.SessionToken2.TYPE_SESSION;
 import static androidx.media2.SessionToken2.TYPE_SESSION_LEGACY;
-import static androidx.media2.SessionToken2.UID_UNKNOWN;
 
 import android.content.ComponentName;
 import android.os.Bundle;
@@ -33,9 +29,15 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media2.SessionToken2.SessionToken2Impl;
+import androidx.versionedparcelable.CustomVersionedParcelable;
+import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Represents an ongoing {@link MediaSession2} or a {@link MediaSessionService2}.
@@ -50,14 +52,25 @@ import androidx.media2.SessionToken2.SessionToken2Impl;
 //   - Stop implementing Parcelable for updatable support
 //   - Represent session and library service (formerly browser service) in one class.
 //     Previously MediaSession.Token was for session and ComponentName was for service.
-final class SessionToken2ImplLegacy implements SessionToken2Impl {
-
-    private final MediaSessionCompat.Token mLegacyToken;
-    private final int mUid;
-    private final int mType;
-    private final ComponentName mComponentName;
-    private final String mPackageName;
-    private final String mId;
+@VersionedParcelize(isCustom = true)
+final class SessionToken2ImplLegacy extends CustomVersionedParcelable implements SessionToken2Impl {
+    // Don't mark mLegacyToken @ParcelField, because we need to use toBundle()/fromBundle() instead
+    // of the writeToParcel()/Parcelable.Creator for sending extra binder.
+    @NonParcelField
+    private MediaSessionCompat.Token mLegacyToken;
+    // Intermediate Bundle just for CustomVersionedParcelable.
+    @ParcelField(1)
+    Bundle mLegacyTokenBundle;
+    @ParcelField(2)
+    int mUid;
+    @ParcelField(3)
+    int mType;
+    @ParcelField(4)
+    ComponentName mComponentName;
+    @ParcelField(5)
+    String mPackageName;
+    @ParcelField(6)
+    String mId;
 
     SessionToken2ImplLegacy(MediaSessionCompat.Token token, String packageName, int uid) {
         if (token == null) {
@@ -86,6 +99,15 @@ final class SessionToken2ImplLegacy implements SessionToken2Impl {
         mPackageName = serviceComponent.getPackageName();
         mComponentName = serviceComponent;
         mId = id;
+    }
+
+    /**
+     * Used for {@link VersionedParcelable}
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    SessionToken2ImplLegacy() {
+        // Do nothing.
     }
 
     @Override
@@ -123,7 +145,7 @@ final class SessionToken2ImplLegacy implements SessionToken2Impl {
 
     @Override
     public int getUid() {
-        return UID_UNKNOWN;
+        return mUid;
     }
 
     @Override
@@ -150,24 +172,11 @@ final class SessionToken2ImplLegacy implements SessionToken2Impl {
     public @SessionToken2.TokenType int getType() {
         switch (mType) {
             case TYPE_SESSION_LEGACY:
-                return SessionToken2.TYPE_SESSION;
+                return TYPE_SESSION;
             case TYPE_BROWSER_SERVICE_LEGACY:
-                return SessionToken2.TYPE_LIBRARY_SERVICE;
+                return TYPE_LIBRARY_SERVICE;
         }
-        return SessionToken2.TYPE_SESSION;
-    }
-
-    @Override
-    public Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putBundle(KEY_TOKEN_LEGACY, (mLegacyToken == null) ? null : mLegacyToken.toBundle());
-        bundle.putInt(KEY_UID, mUid);
-        bundle.putInt(KEY_TYPE, mType);
-        bundle.putString(KEY_PACKAGE_NAME, mPackageName);
-        bundle.putString(KEY_SERVICE_NAME,
-                mComponentName == null ? null : mComponentName.getClassName());
-        bundle.putString(KEY_SESSION_ID, mId);
-        return bundle;
+        return TYPE_SESSION;
     }
 
     @Override
@@ -175,26 +184,33 @@ final class SessionToken2ImplLegacy implements SessionToken2Impl {
         return mLegacyToken;
     }
 
-    /**
-     * Create a token from the bundle, exported by {@link #toBundle()}.
-     *
-     * @return SessionToken2 object
-     */
-    public static SessionToken2ImplLegacy fromBundle(@NonNull Bundle bundle) {
-        int type = bundle.getInt(KEY_TYPE);
-        switch (type) {
-            case TYPE_SESSION_LEGACY:
-                return new SessionToken2ImplLegacy(
-                        MediaSessionCompat.Token.fromBundle(bundle.getBundle(KEY_TOKEN_LEGACY)),
-                        bundle.getString(KEY_PACKAGE_NAME),
-                        bundle.getInt(KEY_UID));
-            case TYPE_BROWSER_SERVICE_LEGACY:
-                return new SessionToken2ImplLegacy(
-                        new ComponentName(bundle.getString(KEY_PACKAGE_NAME),
-                                bundle.getString(KEY_SERVICE_NAME)),
-                        bundle.getInt(KEY_UID),
-                        bundle.getString(KEY_SESSION_ID));
+    @Override
+    public void onPreParceling(boolean isStream) {
+        if (mLegacyToken != null) {
+            // Note: token should be null or SessionToken2 whose impl equals to this object.
+            VersionedParcelable token = mLegacyToken.getSessionToken2();
+
+            // Temporarily sets the SessionToken2 to null to prevent infinite loop when parceling.
+            // Otherwise, this will be called again when mLegacyToken parcelize SessionToken2 in it
+            // and it never ends.
+            mLegacyToken.setSessionToken2(null);
+
+            // Although mLegacyToken is Parcelable, we should use toBundle() instead here because
+            // extra binder inside of the mLegacyToken are shared only through the toBundle().
+            mLegacyTokenBundle = mLegacyToken.toBundle();
+
+            // Resets the SessionToken2.
+            mLegacyToken.setSessionToken2(token);
+        } else {
+            mLegacyTokenBundle = null;
         }
-        return null;
+    }
+
+    @Override
+    public void onPostParceling() {
+        // Although mLegacyToken is Parcelable, we should use fromBundle() instead here because
+        // extra binder inside of the mLegacyToken are shared only through the fromBundle().
+        mLegacyToken = MediaSessionCompat.Token.fromBundle(mLegacyTokenBundle);
+        mLegacyTokenBundle = null;
     }
 }

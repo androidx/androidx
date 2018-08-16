@@ -843,6 +843,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
         try {
             controllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
         } catch (RemoteException e) {
+            // TODO: Handle connection error
             e.printStackTrace();
         }
         synchronized (mLock) {
