@@ -47,7 +47,7 @@ final class MediaRouterThemeHelper {
     static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0xDE000000; /* Opacity of 87% */
     static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
     private static final int COLOR_DARK_ON_LIGHT_BACKGROUND_RES_ID =
-            R.color.mr_dynamic_dialog_icon_dark;
+            R.color.mr_dynamic_dialog_icon_light;
 
     private MediaRouterThemeHelper() {
     }

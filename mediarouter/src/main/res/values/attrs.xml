@@ -38,6 +38,7 @@
     <attr name="mediaRouteTvIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerGroupIconDrawable" format="reference" />
+    <attr name="mediaRouteDividerColor" format="color" />
     <attr name="mediaRouteControlPanelThemeOverlay" format="reference" />
 
     <attr name="mediaRouteTheme" format="reference" />
