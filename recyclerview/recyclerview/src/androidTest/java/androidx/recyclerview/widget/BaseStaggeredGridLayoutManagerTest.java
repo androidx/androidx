@@ -111,6 +111,8 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
         mLayoutManager = new WrappedLayoutManager(config.mSpanCount, config.mOrientation);
         mLayoutManager.setGapStrategy(config.mGapStrategy);
         mLayoutManager.setReverseLayout(config.mReverseLayout);
+        mRecyclerView.setLayoutParams(new ViewGroup.LayoutParams(
+                config.mRecyclerViewLayoutWidth, config.mRecyclerViewLayoutHeight));
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
@@ -411,16 +413,13 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
         static final int DEFAULT_ITEM_COUNT = 300;
 
         int mOrientation = OrientationHelper.VERTICAL;
-
         boolean mReverseLayout = false;
-
         int mSpanCount = 3;
-
         int mGapStrategy = GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
-
         int mItemCount = DEFAULT_ITEM_COUNT;
-
         boolean mWrap = false;
+        int mRecyclerViewLayoutHeight = ViewGroup.LayoutParams.MATCH_PARENT;
+        int mRecyclerViewLayoutWidth = ViewGroup.LayoutParams.MATCH_PARENT;
 
         Config(int orientation, boolean reverseLayout, int spanCount, int gapStrategy) {
             mOrientation = orientation;
@@ -450,6 +449,16 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
 
         Config gapStrategy(int gapStrategy) {
             mGapStrategy = gapStrategy;
+            return this;
+        }
+
+        Config recyclerViewLayoutWidth(int recyclerViewLayoutWidth) {
+            mRecyclerViewLayoutWidth = recyclerViewLayoutWidth;
+            return this;
+        }
+
+        Config recyclerViewLayoutHeight(int recyclerViewLayoutHeight) {
+            mRecyclerViewLayoutHeight = recyclerViewLayoutHeight;
             return this;
         }
 
