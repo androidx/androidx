@@ -33,7 +33,6 @@ import androidx.media2.MediaBrowser2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
-import androidx.media2.MediaSession2;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
@@ -92,10 +91,9 @@ public class MediaController2ProviderService extends Service {
 
     private class RemoteMediaController2Stub extends IRemoteMediaController2.Stub {
         @Override
-        public void create(final boolean isBrowser, final String controllerId, Bundle tokenBundle,
-                boolean waitForConnection) throws RemoteException {
-            tokenBundle.setClassLoader(MediaSession2.class.getClassLoader());
-            final SessionToken2 token = SessionToken2.fromBundle(tokenBundle);
+        public void create(final boolean isBrowser, final String controllerId,
+                ParcelImpl tokenBundle, boolean waitForConnection) throws RemoteException {
+            final SessionToken2 token = ParcelUtils.fromParcelable(tokenBundle);
             final TestControllerCallback callback = new TestControllerCallback();
 
             try {

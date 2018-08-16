@@ -19,12 +19,14 @@ package android.support.mediacompat.testlib;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import androidx.versionedparcelable.ParcelImpl;
+
 interface IRemoteMediaSession2 {
 
     void create(String sessionId);
 
     // MediaSession2 Methods
-    Bundle getToken(String sessionId);
+    ParcelImpl getToken(String sessionId);
     Bundle getCompatToken(String sessionId);
     void updatePlayerConnector(String sessionId, in Bundle playerBundle, in Bundle agentBundle);
     void sendCustomCommand(String sessionId, in Bundle command, in Bundle args);

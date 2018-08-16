@@ -67,6 +67,8 @@ import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.session.MediaButtonReceiver;
+import androidx.versionedparcelable.ParcelUtils;
+import androidx.versionedparcelable.VersionedParcelable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -398,8 +400,8 @@ public class MediaSessionCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final String KEY_SESSION_TOKEN2_BUNDLE =
-            "android.support.v4.media.session.SESSION_TOKEN2_BUNDLE";
+    public static final String KEY_SESSION_TOKEN2 =
+            "android.support.v4.media.session.SESSION_TOKEN2";
 
     // Maximum size of the bitmap in dp.
     private static final int MAX_BITMAP_SIZE_IN_DP = 320;
@@ -461,12 +463,12 @@ public class MediaSessionCompat {
      * Creates session for MediaSession2.
      */
     @RestrictTo(LIBRARY_GROUP)
-    public MediaSessionCompat(Context context, String tag, Bundle token2Bundle) {
-        this(context, tag, null, null, token2Bundle);
+    public MediaSessionCompat(Context context, String tag, VersionedParcelable token2) {
+        this(context, tag, null, null, token2);
     }
 
     private MediaSessionCompat(Context context, String tag, ComponentName mbrComponent,
-            PendingIntent mbrIntent, Bundle token2Bundle) {
+            PendingIntent mbrIntent, VersionedParcelable token2) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
         }
@@ -490,12 +492,12 @@ public class MediaSessionCompat {
                     0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
         }
         if (android.os.Build.VERSION.SDK_INT >= 28) {
-            mImpl = new MediaSessionImplApi28(context, tag, token2Bundle);
+            mImpl = new MediaSessionImplApi28(context, tag, token2);
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
             mImpl.setMediaButtonReceiver(mbrIntent);
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaSessionImplApi21(context, tag, token2Bundle);
+            mImpl = new MediaSessionImplApi21(context, tag, token2);
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
             mImpl.setMediaButtonReceiver(mbrIntent);
@@ -1356,9 +1358,8 @@ public class MediaSessionCompat {
                             IMediaSession extraBinder = token.getExtraBinder();
                             BundleCompat.putBinder(result, KEY_EXTRA_BINDER,
                                     extraBinder == null ? null : extraBinder.asBinder());
-
-                            Bundle token2Bundle = token.getSessionToken2Bundle();
-                            result.putBundle(KEY_SESSION_TOKEN2_BUNDLE, token2Bundle);
+                            ParcelUtils.putVersionedParcelable(result,
+                                    KEY_SESSION_TOKEN2, token.getSessionToken2());
                             cb.send(0, result);
                         }
                     } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
@@ -1550,7 +1551,7 @@ public class MediaSessionCompat {
     public static final class Token implements Parcelable {
         private final Object mInner;
         private IMediaSession mExtraBinder;
-        private Bundle mSessionToken2Bundle;
+        private VersionedParcelable mSessionToken2;
 
         Token(Object inner) {
             this(inner, null, null);
@@ -1560,10 +1561,10 @@ public class MediaSessionCompat {
             this(inner, extraBinder, null);
         }
 
-        Token(Object inner, IMediaSession extraBinder, Bundle token2Bundle) {
+        Token(Object inner, IMediaSession extraBinder, VersionedParcelable token2) {
             mInner = inner;
             mExtraBinder = extraBinder;
-            mSessionToken2Bundle = token2Bundle;
+            mSessionToken2 = token2;
         }
 
         /**
@@ -1676,16 +1677,16 @@ public class MediaSessionCompat {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public Bundle getSessionToken2Bundle() {
-            return mSessionToken2Bundle;
+        public VersionedParcelable getSessionToken2() {
+            return mSessionToken2;
         }
 
         /**
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public void setSessionToken2Bundle(Bundle token2Bundle) {
-            mSessionToken2Bundle = token2Bundle;
+        public void setSessionToken2(VersionedParcelable token2) {
+            mSessionToken2 = token2;
         }
 
         /**
@@ -1698,8 +1699,9 @@ public class MediaSessionCompat {
             if (mExtraBinder != null) {
                 BundleCompat.putBinder(bundle, KEY_EXTRA_BINDER, mExtraBinder.asBinder());
             }
-            if (mSessionToken2Bundle != null) {
-                bundle.putBundle(KEY_SESSION_TOKEN2_BUNDLE, mSessionToken2Bundle);
+            if (mSessionToken2 != null) {
+                ParcelUtils.putVersionedParcelable(bundle, KEY_SESSION_TOKEN2,
+                        mSessionToken2);
             }
             return bundle;
         }
@@ -1718,9 +1720,10 @@ public class MediaSessionCompat {
             }
             IMediaSession extraSession = IMediaSession.Stub.asInterface(
                     BundleCompat.getBinder(tokenBundle, KEY_EXTRA_BINDER));
-            Bundle token2Bundle = tokenBundle.getBundle(KEY_SESSION_TOKEN2_BUNDLE);
+            VersionedParcelable token2 = ParcelUtils.getVersionedParcelable(tokenBundle,
+                    KEY_SESSION_TOKEN2);
             Token token = tokenBundle.getParcelable(KEY_TOKEN);
-            return token == null ? null : new Token(token.mInner, extraSession, token2Bundle);
+            return token == null ? null : new Token(token.mInner, extraSession, token2);
         }
 
         public static final Parcelable.Creator<Token> CREATOR
@@ -3376,10 +3379,10 @@ public class MediaSessionCompat {
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
         @PlaybackStateCompat.ShuffleMode int mShuffleMode;
 
-        MediaSessionImplApi21(Context context, String tag, Bundle token2Bundle) {
+        MediaSessionImplApi21(Context context, String tag, VersionedParcelable token2) {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
             mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj),
-                    new ExtraSession(), token2Bundle);
+                    new ExtraSession(), token2);
         }
 
         MediaSessionImplApi21(Object mediaSession) {
@@ -3902,8 +3905,8 @@ public class MediaSessionCompat {
 
     @RequiresApi(28)
     static class MediaSessionImplApi28 extends MediaSessionImplApi21 {
-        MediaSessionImplApi28(Context context, String tag, Bundle token2Bundle) {
-            super(context, tag, token2Bundle);
+        MediaSessionImplApi28(Context context, String tag, VersionedParcelable token2) {
+            super(context, tag, token2);
         }
 
         MediaSessionImplApi28(Object mediaSession) {
