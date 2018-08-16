@@ -177,6 +177,7 @@ package androidx.mediarouter.media {
     method public int getVolumeHandling();
     method public int getVolumeMax();
     method public deprecated boolean isConnecting();
+    method public boolean isDynamicGroupRoute();
     method public boolean isEnabled();
     method public boolean isValid();
   }
@@ -196,6 +197,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setExtras(android.os.Bundle);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setIconUri(android.net.Uri);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setId(java.lang.String);
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setIsDynamicGroupRoute(boolean);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setName(java.lang.String);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPlaybackStream(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPlaybackType(int);
@@ -222,6 +224,7 @@ package androidx.mediarouter.media {
     method public final androidx.mediarouter.media.MediaRouteDiscoveryRequest getDiscoveryRequest();
     method public final android.os.Handler getHandler();
     method public final androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata getMetadata();
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController onCreateDynamicGroupRouteController(java.lang.String);
     method public androidx.mediarouter.media.MediaRouteProvider.RouteController onCreateRouteController(java.lang.String);
     method public void onDiscoveryRequestChanged(androidx.mediarouter.media.MediaRouteDiscoveryRequest);
     method public final void setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback);
@@ -232,6 +235,44 @@ package androidx.mediarouter.media {
   public static abstract class MediaRouteProvider.Callback {
     ctor public MediaRouteProvider.Callback();
     method public void onDescriptorChanged(androidx.mediarouter.media.MediaRouteProvider, androidx.mediarouter.media.MediaRouteProviderDescriptor);
+  }
+
+  public static abstract class MediaRouteProvider.DynamicGroupRouteController extends androidx.mediarouter.media.MediaRouteProvider.RouteController {
+    ctor public MediaRouteProvider.DynamicGroupRouteController();
+    method public abstract java.lang.String getDynamicGroupRouteId();
+    method public java.lang.String getGroupableSelectionTitle();
+    method public java.lang.String getTransferableSectionTitle();
+    method public abstract void onAddMemberRoute(java.lang.String);
+    method public abstract void onRemoveMemberRoute(java.lang.String);
+    method public abstract void onUpdateMemberRoutes(java.util.List<java.lang.String>);
+    method public abstract void setOnDynamicRoutesChangedListener(java.util.concurrent.Executor, androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener);
+  }
+
+  public static final class MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor {
+    ctor public MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor();
+    method public androidx.mediarouter.media.MediaRouteDescriptor getRouteDescriptor();
+    method public int getSelectionState();
+    method public boolean isGroupable();
+    method public boolean isTransferable();
+    method public boolean isUnselectable();
+    field public static final int SELECTED = 3; // 0x3
+    field public static final int SELECTING = 2; // 0x2
+    field public static final int UNSELECTED = 1; // 0x1
+    field public static final int UNSELECTING = 0; // 0x0
+  }
+
+  public static final class MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder {
+    ctor public MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder(androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor);
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor build();
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder setIsGroupable(boolean);
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder setIsTransferable(boolean);
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder setIsUnselectable(boolean);
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder setRouteDescriptor(androidx.mediarouter.media.MediaRouteDescriptor);
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder setSelectionState(int);
+  }
+
+  public static abstract interface MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener {
+    method public abstract void onRoutesChanged(java.util.List<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor>);
   }
 
   public static final class MediaRouteProvider.ProviderMetadata {
@@ -255,6 +296,7 @@ package androidx.mediarouter.media {
     method public static androidx.mediarouter.media.MediaRouteProviderDescriptor fromBundle(android.os.Bundle);
     method public java.util.List<androidx.mediarouter.media.MediaRouteDescriptor> getRoutes();
     method public boolean isValid();
+    method public boolean supportsDynamicGroupRoute();
   }
 
   public static final class MediaRouteProviderDescriptor.Builder {
