@@ -29,7 +29,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -94,7 +93,7 @@ import java.util.concurrent.Executor;
  * A View that contains the controls for {@link MediaPlayer2}.
  * It provides a wide range of buttons that serve the following functions: play/pause,
  * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
- * adjust video quality, select audio track, mute/unmute, and adjust playback speed.
+ * adjust video quality, select audio track, and adjust playback speed.
  * <p>
  * The easiest way to use a MediaControlView2 is by creating a {@link VideoView2}, which will
  * internally create a MediaControlView2 instance and handle all the commands from buttons inside
@@ -134,7 +133,6 @@ public class MediaControlView2 extends BaseLayout {
             BUTTON_SUBTITLE,
             BUTTON_FULL_SCREEN,
             BUTTON_OVERFLOW,
-            BUTTON_MUTE,
             BUTTON_ASPECT_RATIO,
             BUTTON_SETTINGS
     })
@@ -190,23 +188,17 @@ public class MediaControlView2 extends BaseLayout {
     @RestrictTo(LIBRARY_GROUP)
     public static final int BUTTON_OVERFLOW = 8;
     /**
-     * MediaControlView2 button value for muting audio.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final int BUTTON_MUTE = 9;
-    /**
      * MediaControlView2 button value for adjusting aspect ratio of view.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int BUTTON_ASPECT_RATIO = 10;
+    public static final int BUTTON_ASPECT_RATIO = 9;
     /**
      * MediaControlView2 button value for showing/hiding settings page.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int BUTTON_SETTINGS = 11;
+    public static final int BUTTON_SETTINGS = 10;
 
     private static final String TAG = "MediaControlView2";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -232,10 +224,6 @@ public class MediaControlView2 extends BaseLayout {
     static final String COMMAND_SELECT_AUDIO_TRACK = "SelectTrack";
     // String for sending command to set playback speed to MediaSession.
     static final String COMMAND_SET_PLAYBACK_SPEED = "SetPlaybackSpeed";
-    // String for sending command to mute audio to MediaSession.
-    static final String COMMAND_MUTE = "Mute";
-    // String for sending command to unmute audio to MediaSession.
-    static final String COMMAND_UNMUTE = "Unmute";
 
     private static final int SETTINGS_MODE_AUDIO_TRACK = 0;
     private static final int SETTINGS_MODE_PLAYBACK_SPEED = 1;
@@ -317,7 +305,6 @@ public class MediaControlView2 extends BaseLayout {
     boolean mIsStopped;
     boolean mSeekAvailable;
     boolean mIsAdvertisement;
-    boolean mIsMute;
     boolean mNeedToHideBars;
     boolean mWasPlaying;
 
@@ -368,7 +355,6 @@ public class MediaControlView2 extends BaseLayout {
     ImageButton mFullScreenButton;
     ImageButton mOverflowShowButton;
     ImageButton mOverflowHideButton;
-    ImageButton mMuteButton;
     private ImageButton mVideoQualityButton;
     private ImageButton mSettingsButton;
     private TextView mAdRemainingView;
@@ -468,7 +454,6 @@ public class MediaControlView2 extends BaseLayout {
      * <li>{@link #BUTTON_PREV}
      * <li>{@link #BUTTON_SUBTITLE}
      * <li>{@link #BUTTON_FULL_SCREEN}
-     * <li>{@link #BUTTON_MUTE}
      * <li>{@link #BUTTON_OVERFLOW}
      * <li>{@link #BUTTON_ASPECT_RATIO}
      * <li>{@link #BUTTON_SETTINGS}
@@ -517,11 +502,6 @@ public class MediaControlView2 extends BaseLayout {
             case MediaControlView2.BUTTON_OVERFLOW:
                 if (mOverflowShowButton != null) {
                     mOverflowShowButton.setVisibility(visibility);
-                }
-                break;
-            case MediaControlView2.BUTTON_MUTE:
-                if (mMuteButton != null) {
-                    mMuteButton.setVisibility(visibility);
                 }
                 break;
             case MediaControlView2.BUTTON_SETTINGS:
@@ -657,9 +637,6 @@ public class MediaControlView2 extends BaseLayout {
         }
         if (mOverflowHideButton != null) {
             mOverflowHideButton.setEnabled(enabled);
-        }
-        if (mMuteButton != null) {
-            mMuteButton.setEnabled(enabled);
         }
         if (mVideoQualityButton != null) {
             mVideoQualityButton.setEnabled(enabled);
@@ -839,10 +816,6 @@ public class MediaControlView2 extends BaseLayout {
         mOverflowHideButton = v.findViewById(R.id.overflow_hide);
         if (mOverflowHideButton != null) {
             mOverflowHideButton.setOnClickListener(mOverflowHideListener);
-        }
-        mMuteButton = v.findViewById(R.id.mute);
-        if (mMuteButton != null) {
-            mMuteButton.setOnClickListener(mMuteButtonListener);
         }
         mSettingsButton = v.findViewById(R.id.settings);
         if (mSettingsButton != null) {
@@ -1542,29 +1515,6 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final OnClickListener mMuteButtonListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            resetHideCallbacks();
-
-            if (!mIsMute) {
-                mMuteButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.ic_mute, null));
-                mMuteButton.setContentDescription(
-                        mResources.getString(R.string.mcv2_muted_button_desc));
-                mIsMute = true;
-                mController.volumeMute();
-            } else {
-                mMuteButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.ic_unmute, null));
-                mMuteButton.setContentDescription(
-                        mResources.getString(R.string.mcv2_unmuted_button_desc));
-                mIsMute = false;
-                mController.volumeUnmute();
-            }
-        }
-    };
-
     private final OnClickListener mSettingsButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -1680,10 +1630,6 @@ public class MediaControlView2 extends BaseLayout {
 
             // Update title for Embedded size type
             mTitleView.setText(titleText + " - " + artistText);
-
-            // Update mute button location
-            mBasicControls.removeView(mMuteButton);
-            mExtraControls.addView(mMuteButton, 0);
 
             // Remove unnecessary buttons
             mVideoQualityButton.setVisibility(View.GONE);
@@ -2113,12 +2059,6 @@ public class MediaControlView2 extends BaseLayout {
         } else {
             mSubtitleButton.setVisibility(View.GONE);
         }
-        if (commands.hasCommand(new SessionCommand2(COMMAND_MUTE, null))
-                && commands.hasCommand(new SessionCommand2(COMMAND_UNMUTE, null))) {
-            mMuteButton.setVisibility(View.VISIBLE);
-        } else {
-            mMuteButton.setVisibility(View.GONE);
-        }
     }
 
     private int retrieveOrientation() {
@@ -2329,8 +2269,6 @@ public class MediaControlView2 extends BaseLayout {
         void seekTo(long posMs);
         void skipToNextItem();
         void skipToPreviousItem();
-        void volumeMute();
-        void volumeUnmute();
         void setSpeed(float speed);
         void selectAudioTrack(int trackIndex);
         void showSubtitle(int trackIndex);
@@ -2411,16 +2349,6 @@ public class MediaControlView2 extends BaseLayout {
         @Override
         public void skipToPreviousItem() {
             mController2.skipToPreviousItem();
-        }
-        @Override
-        public void volumeMute() {
-            mController2.adjustVolume(AudioManager.ADJUST_MUTE,
-                    AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-        }
-        @Override
-        public void volumeUnmute() {
-            mController2.adjustVolume(AudioManager.ADJUST_UNMUTE,
-                    AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
         }
         @Override
         public void setSpeed(float speed) {
@@ -2776,15 +2704,6 @@ public class MediaControlView2 extends BaseLayout {
         public void skipToPreviousItem() {
             mControls.skipToPrevious();
         }
-        @Override
-        public void volumeMute() {
-            mControllerCompat.sendCommand(COMMAND_MUTE, null, null);
-        }
-        @Override
-        public void volumeUnmute() {
-            mControllerCompat.sendCommand(COMMAND_UNMUTE, null, null);
-        }
-
         @Override
         public void setSpeed(float speed) {
             Bundle extra = new Bundle();

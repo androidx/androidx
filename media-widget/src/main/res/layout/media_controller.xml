@@ -224,10 +224,6 @@
                 android:visibility="gone" />
 
             <ImageButton
-                android:id="@+id/mute"
-                style="@style/BottomBarButton.Mute" />
-
-            <ImageButton
                 android:id="@+id/subtitle"
                 style="@style/BottomBarButton.CC"
                 android:alpha="0.5"
