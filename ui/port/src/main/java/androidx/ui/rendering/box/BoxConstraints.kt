@@ -1,5 +1,6 @@
 package androidx.ui.rendering.box
 
+import androidx.ui.assert
 import androidx.ui.clamp
 import androidx.ui.engine.geometry.Size
 import androidx.ui.rendering.obj.Constraints
@@ -178,17 +179,20 @@ data class BoxConstraints(
 //        );
 //    }
 //
-//    /// Returns new box constraints that respect the given constraints while being
-//    /// as close as possible to the original constraints.
-//    BoxConstraints enforce(BoxConstraints constraints) {
-//        return new BoxConstraints(
-//                minWidth: minWidth.clamp(constraints.minWidth, constraints.maxWidth),
-//        maxWidth: maxWidth.clamp(constraints.minWidth, constraints.maxWidth),
-//        minHeight: minHeight.clamp(constraints.minHeight, constraints.maxHeight),
-//        maxHeight: maxHeight.clamp(constraints.minHeight, constraints.maxHeight)
-//        );
-//    }
-//
+
+    /**
+     * Returns new box constraints that respect the given constraints while being
+     * as close as possible to the original constraints.
+     */
+    fun enforce(constraints: BoxConstraints): BoxConstraints {
+        return BoxConstraints(
+                minWidth = minWidth.clamp(constraints.minWidth, constraints.maxWidth),
+                maxWidth = maxWidth.clamp(constraints.minWidth, constraints.maxWidth),
+                minHeight = minHeight.clamp(constraints.minHeight, constraints.maxHeight),
+                maxHeight = maxHeight.clamp(constraints.minHeight, constraints.maxHeight)
+        )
+    }
+
 //    /// Returns new box constraints with a tight width and/or height as close to
 //    /// the given width and height as possible while still respecting the original
 //    /// box constraints.
@@ -234,27 +238,33 @@ data class BoxConstraints(
         assert(debugAssertIsValid())
         return height.clamp(minHeight, maxHeight)
     }
-//
-//    Size _debugPropagateDebugSize(Size size, Size result) {
-//        assert(() {
-//            if (size is _DebugSize)
-//                result = new _DebugSize(result, size._owner, size._canBeUsedByParent);
-//            return true;
-//        }());
-//        return result;
-//    }
-//
-//    /// Returns the size that both satisfies the constraints and is as close as
-//    /// possible to the given size.
-//    ///
-//    /// See also [constrainDimensions], which applies the same algorithm to
-//    /// separately provided widths and heights.
-//    Size constrain(Size size) {
-//        Size result = new Size(constrainWidth(size.width), constrainHeight(size.height));
-//        assert(() { result = _debugPropagateDebugSize(size, result); return true; }());
-//        return result;
-//    }
-//
+
+    private fun _debugPropagateDebugSize(size: Size, result: Size): Size {
+        var finalResult = result
+        assert {
+            if (size is _DebugSize)
+                finalResult = _DebugSize(result, size._owner, size._canBeUsedByParent)
+            true
+        }
+        return finalResult
+    }
+
+    /**
+     * Returns the size that both satisfies the constraints and is as close as
+     * possible to the given size.
+     *
+     * See also [constrainDimensions], which applies the same algorithm to
+     * separately provided widths and heights.
+     */
+    fun constrain(size: Size): Size {
+        var result = Size(constrainWidth(size.width), constrainHeight(size.height))
+        assert {
+            result = _debugPropagateDebugSize(size, result)
+            true
+        }
+        return result
+    }
+
 //    /// Returns the size that both satisfies the constraints and is as close as
 //    /// possible to the given width and height.
 //    ///

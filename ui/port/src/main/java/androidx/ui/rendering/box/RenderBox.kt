@@ -16,6 +16,7 @@ import androidx.ui.rendering.debugPaintPointersEnabled
 import androidx.ui.rendering.debugPaintSizeEnabled
 import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.RenderObject
+import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.runtimeType
 
 /**
@@ -427,7 +428,10 @@ import androidx.ui.runtimeType
  * of the child relative to the parent. If you do not inherited from either of
  * these classes, however, you must implement the algorithm yourself.
  */
-abstract class RenderBox : RenderObject() {
+// TODO(Migration/Andrey): Originally it extends RenderObject. But without mixins we have to
+// TODO(Migration/Andrey): use regular inheritance. anyway RenderObjectWithChildMixin changes
+// TODO(Migration/Andrey): nothing while you are not providing child into it.
+abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
     override fun setupParentData(child: RenderObject) {
         if (child.parentData !is BoxParentData)
             child.parentData = BoxParentData()
@@ -601,7 +605,7 @@ abstract class RenderBox : RenderObject() {
      * When the incoming argument is not finite, then they should return the
      * actual intrinsic dimensions based on the contents, as any other box would.
      */
-    protected fun computeMinIntrinsicWidth(height: Double): Double {
+    protected open fun computeMinIntrinsicWidth(height: Double): Double {
         return 0.0
     }
 
@@ -685,7 +689,7 @@ abstract class RenderBox : RenderObject() {
      *
      * See also examples in the definition of [computeMinIntrinsicWidth].
      */
-    protected fun computeMaxIntrinsicWidth(height: Double): Double {
+    protected open fun computeMaxIntrinsicWidth(height: Double): Double {
         return 0.0
     }
 
@@ -763,7 +767,7 @@ abstract class RenderBox : RenderObject() {
      *
      * See also examples in the definition of [computeMinIntrinsicWidth].
      */
-    protected fun computeMinIntrinsicHeight(width: Double): Double {
+    protected open fun computeMinIntrinsicHeight(width: Double): Double {
         return 0.0
     }
 
@@ -847,7 +851,7 @@ abstract class RenderBox : RenderObject() {
      *
      * See also examples in the definition of [computeMinIntrinsicWidth].
      */
-    protected fun computeMaxIntrinsicHeight(width: Double): Double {
+    protected open fun computeMaxIntrinsicHeight(width: Double): Double {
         return 0.0
     }
 
@@ -866,27 +870,27 @@ abstract class RenderBox : RenderObject() {
      * of those functions, call [markNeedsLayout] instead to schedule a layout of
      * the box.
      */
-    var size: androidx.ui.engine.geometry.Size?
+    var size: Size?
         get() {
             assert(hasSize, { "RenderBox was not laid out: ${toString()}" })
-            // TODO(Migration/xbhatnag): Commented out because _DebugSize does not extend Size
-//            assert {
-//                if (_size is _DebugSize) {
-//                    val _size = this._size as _DebugSize;
-//                    assert(_size._owner == this);
-//                    if (RenderObject.debugActiveLayout != null) {
-//                        // We are always allowed to access our own size (for print debugging
-//                        // and asserts if nothing else). Other than us, the only object that's
-//                        // allowed to read our size is our parent, if they've said they will.
-//                        // If you hit this assert trying to access a child's size, pass
-//                        // "parentUsesSize: true" to that child's layout().
-//                        assert(debugDoingThisResize || debugDoingThisLayout ||
-//                                (RenderObject.debugActiveLayout == parent && _size._canBeUsedByParent));
-//                    }
-//                    assert(_size == this._size);
-//                }
-//                true;
-//            };
+            assert {
+                if (_size is _DebugSize) {
+                    val _size = this._size as _DebugSize
+                    assert(_size._owner == this)
+                    if (RenderObject.debugActiveLayout != null) {
+                        // We are always allowed to access our own size (for print debugging
+                        // and asserts if nothing else). Other than us, the only object that's
+                        // allowed to read our size is our parent, if they've said they will.
+                        // If you hit this assert trying to access a child's size, pass
+                        // "parentUsesSize: true" to that child's layout().
+                        assert(debugDoingThisResize || debugDoingThisLayout ||
+                                (RenderObject.debugActiveLayout == parent &&
+                                        _size._canBeUsedByParent))
+                    }
+                    assert(_size == this._size)
+                }
+                true
+            }
             return _size
         }
         // Setting the size, in checked mode, triggers some analysis of the render box,
@@ -962,52 +966,51 @@ abstract class RenderBox : RenderObject() {
      */
     fun debugAdoptSize(value: Size): Size {
         var result = value
-        // TODO(Migration/xbhatnag): Commented out because _DebugSize does not extend Size
-//        assert{
-//            if (value is _DebugSize) {
-//                if (value._owner != this) {
-//                    if (value._owner.parent != this) {
-//                        throw FlutterError(
-//                                "The size property was assigned a size inappropriately.\n" +
-//                        "The following render object:\n" +
-//                        "  $this\n" +
-//                        "...was assigned a size obtained from:\n" +
-//                        "  ${value._owner}\n" +
-//                        "However, this second render object is not, or is no longer, a " +
-//                        "child of the first, and it is therefore a violation of the " +
-//                        "RenderBox layout protocol to use that size in the layout of the " +
-//                        "first render object.\n" +
-//                        "If the size was obtained at a time where it was valid to read " +
-//                        "the size (because the second render object above was a child " +
-//                        "of the first at the time), then it should be adopted using " +
-//                        "debugAdoptSize at that time.\n" +
-//                        "If the size comes from a grandchild or a render object from an " +
-//                        "entirely different part of the render tree, then there is no " +
-//                        "way to be notified when the size changes and therefore attempts " +
-//                        "to read that size are almost certainly a source of bugs. A different " +
-//                        "approach should be used."
-//                        );
-//                    }
-//                    if (!value._canBeUsedByParent) {
-//                        throw FlutterError(
-//                                "A child\'s size was used without setting parentUsesSize.\n" +
-//                        "The following render object:\n" +
-//                        "  $this\n" +
-//                        "...was assigned a size obtained from its child:\n" +
-//                        "  ${value._owner}\n" +
-//                        "However, when the child was laid out, the parentUsesSize argument " +
-//                        "was not set or set to false. Subsequently this transpired to be " +
-//                        "inaccurate: the size was nonetheless used by the parent.\n" +
-//                        "It is important to tell the framework if the size will be used or not " +
-//                        "as several important performance optimizations can be made if the " +
-//                        "size will not be used by the parent."
-//                        );
-//                    }
-//                }
-//            }
-//            result = _DebugSize(value, this, debugCanParentUseSize);
-//            true;
-//        };
+        assert {
+            if (value is _DebugSize) {
+                if (value._owner != this) {
+                    if (value._owner.parent != this) {
+                        throw FlutterError(
+                                "The size property was assigned a size inappropriately.\n" +
+                        "The following render object:\n" +
+                        "  $this\n" +
+                        "...was assigned a size obtained from:\n" +
+                        "  ${value._owner}\n" +
+                        "However, this second render object is not, or is no longer, a " +
+                        "child of the first, and it is therefore a violation of the " +
+                        "RenderBox layout protocol to use that size in the layout of the " +
+                        "first render object.\n" +
+                        "If the size was obtained at a time where it was valid to read " +
+                        "the size (because the second render object above was a child " +
+                        "of the first at the time), then it should be adopted using " +
+                        "debugAdoptSize at that time.\n" +
+                        "If the size comes from a grandchild or a render object from an " +
+                        "entirely different part of the render tree, then there is no " +
+                        "way to be notified when the size changes and therefore attempts " +
+                        "to read that size are almost certainly a source of bugs. A different " +
+                        "approach should be used."
+                        )
+                    }
+                    if (!value._canBeUsedByParent) {
+                        throw FlutterError(
+                                "A child\'s size was used without setting parentUsesSize.\n" +
+                        "The following render object:\n" +
+                        "  $this\n" +
+                        "...was assigned a size obtained from its child:\n" +
+                        "  ${value._owner}\n" +
+                        "However, when the child was laid out, the parentUsesSize argument " +
+                        "was not set or set to false. Subsequently this transpired to be " +
+                        "inaccurate: the size was nonetheless used by the parent.\n" +
+                        "It is important to tell the framework if the size will be used or not " +
+                        "as several important performance optimizations can be made if the " +
+                        "size will not be used by the parent."
+                        )
+                    }
+                }
+            }
+            result = _DebugSize(value, this, debugCanParentUseSize)
+            true
+        }
         return result
     }
 
@@ -1549,7 +1552,7 @@ abstract class RenderBox : RenderObject() {
      *
      * Called for every [RenderBox] when [debugPaintSizeEnabled] is true.
      */
-    protected fun debugPaintSize(context: PaintingContext, offset: Offset) {
+    protected open fun debugPaintSize(context: PaintingContext, offset: Offset) {
         assert {
             val paint = Paint().apply {
                 style = PaintingStyle.stroke
