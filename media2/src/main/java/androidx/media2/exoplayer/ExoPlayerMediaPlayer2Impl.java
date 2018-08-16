@@ -18,6 +18,7 @@ package androidx.media2.exoplayer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaDrm;
@@ -43,6 +44,8 @@ import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaTimestamp2;
 import androidx.media2.PlaybackParams2;
 import androidx.media2.UriDataSourceDesc2;
+import androidx.media2.exoplayer.external.DefaultLoadControl;
+import androidx.media2.exoplayer.external.DefaultRenderersFactory;
 import androidx.media2.exoplayer.external.ExoPlayerFactory;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
@@ -69,6 +72,7 @@ import java.util.concurrent.Executor;
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY_GROUP)
+@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     private static final String USER_AGENT_NAME = "MediaPlayer2";
@@ -77,6 +81,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     final @NonNull DataSource.Factory mDataSourceFactory;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final @NonNull SimpleExoPlayer mPlayer;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final @NonNull Object mPlayerLock;
 
     private final HandlerThread mHandlerThread;
     private final Handler mTaskHandler;
@@ -88,7 +94,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     @GuardedBy("mTaskLock")
     Task mCurrentTask;
 
-    private final Object mLock;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Object mLock;
     @GuardedBy("mLock")
     private ArrayMap<MediaPlayerConnector.PlayerEventCallback, Executor>
             mExecutorByPlayerEventCallback;
@@ -96,35 +103,42 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     private Pair<Executor, EventCallback> mExecutorAndEventCallback;
     @GuardedBy("mLock")
     private MediaPlayerConnector mMediaPlayerConnectorImpl;
-
+    @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @Nullable DataSourceDesc2 mDataSourceDescription;
+    @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mVideoWidth;
+    @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mVideoHeight;
 
     // TODO(b/80232248): Implement command queue and make setters notify their callbacks.
-    // TODO(b/80232248): Make all methods thread-safe.
 
     /** Creates a new ExoPlayer wrapper using the specified context. */
     public ExoPlayerMediaPlayer2Impl(@NonNull Context context) {
         context = Preconditions.checkNotNull(context).getApplicationContext();
-        String userAgent = Util.getUserAgent(context, USER_AGENT_NAME);
-        mDataSourceFactory = new DefaultDataSourceFactory(context, userAgent);
-        mPlayer = ExoPlayerFactory.newSimpleInstance(context, new DefaultTrackSelector());
-        mPlayer.addListener(new ComponentListener());
 
         mHandlerThread = new HandlerThread("ExoMediaPlayer2TaskThread");
         mHandlerThread.start();
         Looper looper = mHandlerThread.getLooper();
         mTaskHandler = new Handler(looper);
-        mTaskLock = new Object();
         mPendingTasks = new ArrayDeque<>();
+        mTaskLock = new Object();
 
-        mLock = new Object();
+        String userAgent = Util.getUserAgent(context, USER_AGENT_NAME);
+        mDataSourceFactory = new DefaultDataSourceFactory(context, userAgent);
+        mPlayer = ExoPlayerFactory.newSimpleInstance(
+                new DefaultRenderersFactory(context),
+                new DefaultTrackSelector(),
+                new DefaultLoadControl(),
+                /* drmSessionManager= */ null,
+                looper);
+        mPlayer.addListener(new ComponentListener());
+        mPlayerLock = new Object();
+
         mExecutorByPlayerEventCallback = new ArrayMap<>();
-
+        mLock = new Object();
     }
 
     // Command queue and events implementation.
@@ -154,10 +168,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     @GuardedBy("mTaskLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void processPendingTask() {
-        if (mCurrentTask != null) {
-            return;
-        }
-        if (!mPendingTasks.isEmpty()) {
+        if (mCurrentTask == null && !mPendingTasks.isEmpty()) {
             Task task = mPendingTasks.removeFirst();
             mCurrentTask = task;
             mTaskHandler.post(task);
@@ -232,12 +243,16 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void setDataSource(DataSourceDesc2 dsd) {
-        mDataSourceDescription = dsd;
+        synchronized (mLock) {
+            mDataSourceDescription = dsd;
+        }
     }
 
     @Override
     public DataSourceDesc2 getCurrentDataSource() {
-        return mDataSourceDescription;
+        synchronized (mLock) {
+            return mDataSourceDescription;
+        }
     }
 
     @Override
@@ -245,49 +260,77 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_PREPARE, true) {
             @Override
             void process() {
+                DataSourceDesc2 dataSourceDescription = getCurrentDataSource();
                 MediaSource mediaSource;
-                if (mDataSourceDescription.getType() == DataSourceDesc2.TYPE_URI) {
+                if (dataSourceDescription.getType() == DataSourceDesc2.TYPE_URI) {
                     // TODO(b/111150876): Add support for HLS streams.
-                    Uri uri = ((UriDataSourceDesc2) mDataSourceDescription).getUri();
+                    Uri uri = ((UriDataSourceDesc2) dataSourceDescription).getUri();
                     mediaSource =
                             new ExtractorMediaSource.Factory(mDataSourceFactory)
                                     .createMediaSource(uri);
                 } else {
                     throw new UnsupportedOperationException();
                 }
-                mPlayer.prepare(mediaSource);
+                synchronized (mPlayerLock) {
+                    mPlayer.prepare(mediaSource);
+                }
             }
         });
     }
 
     @Override
     public void play() {
-        mPlayer.setPlayWhenReady(true);
+        addTask(new Task(CALL_COMPLETED_PLAY, false) {
+            @Override
+            void process() {
+                synchronized (mPlayerLock) {
+                    mPlayer.setPlayWhenReady(true);
+                }
+            }
+        });
     }
 
     @Override
     public void pause() {
-        mPlayer.setPlayWhenReady(false);
+        addTask(new Task(CALL_COMPLETED_PAUSE, false) {
+            @Override
+            void process() {
+                synchronized (mPlayerLock) {
+                    mPlayer.setPlayWhenReady(false);
+                }
+            }
+        });
     }
 
     @Override
     public long getCurrentPosition() {
-        return mPlayer.getCurrentPosition();
+        synchronized (mPlayerLock) {
+            return mPlayer.getCurrentPosition();
+        }
     }
 
     @Override
     public long getDuration() {
-        return mPlayer.getDuration();
+        synchronized (mPlayerLock) {
+            return mPlayer.getDuration();
+        }
     }
 
     @Override
     public long getBufferedPosition() {
-        return mPlayer.getBufferedPosition();
+        synchronized (mPlayerLock) {
+            return mPlayer.getBufferedPosition();
+        }
     }
 
     @Override
     public @MediaPlayer2.MediaPlayer2State int getState() {
-        int state = mPlayer.getPlaybackState();
+        int state;
+        boolean playWhenReady;
+        synchronized (mPlayerLock) {
+            state = mPlayer.getPlaybackState();
+            playWhenReady = mPlayer.getPlayWhenReady();
+        }
         switch (state) {
             case Player.STATE_IDLE:
             case Player.STATE_ENDED:
@@ -295,15 +338,22 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             case Player.STATE_BUFFERING:
                 return PLAYER_STATE_PAUSED;
             case Player.STATE_READY:
-                return mPlayer.getPlayWhenReady() ? PLAYER_STATE_PLAYING : PLAYER_STATE_PAUSED;
+                return playWhenReady ? PLAYER_STATE_PLAYING : PLAYER_STATE_PAUSED;
             default:
                 throw new IllegalStateException();
         }
     }
 
     @Override
-    public void loopCurrent(boolean loop) {
-        mPlayer.setRepeatMode(loop ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
+    public void loopCurrent(final boolean loop) {
+        addTask(new Task(CALL_COMPLETED_LOOP_CURRENT, false) {
+            @Override
+            void process() {
+                synchronized (mPlayerLock) {
+                    mPlayer.setRepeatMode(loop ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
+                }
+            }
+        });
     }
 
     @Override
@@ -318,40 +368,55 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void close() {
-        mPlayer.release();
+        synchronized (mPlayerLock) {
+            mPlayer.release();
+        }
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
         }
     }
 
     @Override
-    public void setAudioAttributes(AudioAttributesCompat attributes) {
-        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                .setContentType(attributes.getContentType())
-                .setFlags(attributes.getFlags())
-                .setUsage(attributes.getUsage())
-                .build();
-        mPlayer.setAudioAttributes(audioAttributes);
+    public void setAudioAttributes(final AudioAttributesCompat attributes) {
+        addTask(new Task(CALL_COMPLETED_SET_AUDIO_ATTRIBUTES, false) {
+            @Override
+            void process() {
+                synchronized (mPlayerLock) {
+                    mPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                            .setContentType(attributes.getContentType())
+                            .setFlags(attributes.getFlags())
+                            .setUsage(attributes.getUsage())
+                            .build());
+                }
+            }
+        });
     }
 
     @Override
     public AudioAttributesCompat getAudioAttributes() {
-        AudioAttributes audioAttributes = mPlayer.getAudioAttributes();
+        AudioAttributes exoPlayerAudioAttributes;
+        synchronized (mPlayerLock) {
+            exoPlayerAudioAttributes = mPlayer.getAudioAttributes();
+        }
         return new AudioAttributesCompat.Builder()
-                .setContentType(audioAttributes.contentType)
-                .setFlags(audioAttributes.flags)
-                .setUsage(audioAttributes.usage)
+                .setContentType(exoPlayerAudioAttributes.contentType)
+                .setFlags(exoPlayerAudioAttributes.flags)
+                .setUsage(exoPlayerAudioAttributes.usage)
                 .build();
     }
 
     @Override
     public int getVideoWidth() {
-        return mVideoWidth;
+        synchronized (mLock) {
+            return mVideoWidth;
+        }
     }
 
     @Override
     public int getVideoHeight() {
-        return mVideoHeight;
+        synchronized (mLock) {
+            return mVideoHeight;
+        }
     }
 
     @Override
@@ -359,9 +424,30 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_SET_SURFACE, false) {
             @Override
             void process() {
-                mPlayer.setVideoSurface(surface);
+                synchronized (mPlayerLock) {
+                    mPlayer.setVideoSurface(surface);
+                }
             }
         });
+    }
+
+    @Override
+    public void setPlayerVolume(final float volume) {
+        addTask(new Task(CALL_COMPLETED_SET_PLAYER_VOLUME, false) {
+            @Override
+            void process() {
+                synchronized (mPlayerLock) {
+                    mPlayer.setVolume(volume);
+                }
+            }
+        });
+    }
+
+    @Override
+    public float getPlayerVolume() {
+        synchronized (mPlayerLock) {
+            return mPlayer.getVolume();
+        }
     }
 
     @Override
@@ -376,16 +462,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void setNextDataSources(List<DataSourceDesc2> dsds) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setPlayerVolume(float volume) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public float getPlayerVolume() {
         throw new UnsupportedOperationException();
     }
 
@@ -531,18 +607,24 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 int height,
                 int unappliedRotationDegrees,
                 float pixelWidthHeightRatio) {
-            mVideoWidth = width;
-            mVideoHeight = height;
+            synchronized (mLock) {
+                mVideoWidth = width;
+                mVideoHeight = height;
+            }
         }
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int state) {
+            DataSourceDesc2 dataSourceDescription;
+            synchronized (mLock) {
+                dataSourceDescription = mDataSourceDescription;
+            }
             switch (state) {
                 case Player.STATE_READY:
                     synchronized (mTaskLock) {
                         if (mCurrentTask != null
                                 && mCurrentTask.mMediaCallType == CALL_COMPLETED_PREPARE
-                                && mCurrentTask.mDSD == mDataSourceDescription
+                                && mCurrentTask.mDSD == dataSourceDescription
                                 && mCurrentTask.mNeedToWaitForEventToComplete) {
                             mCurrentTask.sendCompleteNotification(CALL_STATUS_NO_ERROR);
                             mCurrentTask = null;
@@ -578,17 +660,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
         @Override
         public void play() {
-            mPlayer.setPlayWhenReady(true);
+            ExoPlayerMediaPlayer2Impl.this.play();
         }
 
         @Override
         public void pause() {
-            mPlayer.setPlayWhenReady(false);
+            ExoPlayerMediaPlayer2Impl.this.pause();
         }
 
         @Override
         public void reset() {
-            mPlayer.stop();
+            ExoPlayerMediaPlayer2Impl.this.reset();
         }
 
         @Override
