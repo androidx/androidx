@@ -20,36 +20,6 @@ interface FlutterActivityEvents
     fun onNewIntent(intent: Intent)
 
     /**
-     * @see android.app.Activity.onPause
-     */
-    fun onPause()
-
-    /**
-     * @see android.app.Activity.onStart
-     */
-    fun onStart()
-
-    /**
-     * @see android.app.Activity.onResume
-     */
-    fun onResume()
-
-    /**
-     * @see android.app.Activity.onPostResume
-     */
-    fun onPostResume()
-
-    /**
-     * @see android.app.Activity.onDestroy
-     */
-    fun onDestroy()
-
-    /**
-     * @see android.app.Activity.onStop
-     */
-    fun onStop()
-
-    /**
      * Invoked when the activity has detected the user's press of the back key.
      *
      * @return `true` if the listener handled the event; `false`

@@ -1,18 +1,19 @@
 package androidx.ui.engine.platform.io.app
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.core.app.ComponentActivity
 import androidx.ui.engine.platform.io.plugin.common.PluginRegistry
 import androidx.ui.engine.platform.io.view.FlutterNativeView
 import androidx.ui.engine.platform.io.view.FlutterView
 
 class FlutterActivity
-    : Activity(), FlutterView.Provider, PluginRegistry, FlutterActivityDelegate.ViewFactory {
+    : ComponentActivity(), FlutterView.Provider, PluginRegistry,
+    FlutterActivityDelegate.ViewFactory {
 
-    private val delegate = FlutterActivityDelegate(this, this)
+    private val delegate = FlutterActivityDelegate(this, this, lifecycle)
 
     // These aliases ensure that the methods we forward to the delegate adhere
     // to relevant interfaces versus just existing in FlutterActivityDelegate.
@@ -71,40 +72,10 @@ class FlutterActivity
         eventDelegate.onCreate(savedInstanceState)
     }
 
-    override fun onStart() {
-        super.onStart()
-        eventDelegate.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        eventDelegate.onResume()
-    }
-
-    override fun onDestroy() {
-        eventDelegate.onDestroy()
-        super.onDestroy()
-    }
-
     override fun onBackPressed() {
         if (!eventDelegate.onBackPressed()) {
             super.onBackPressed()
         }
-    }
-
-    override fun onStop() {
-        eventDelegate.onStop()
-        super.onStop()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        eventDelegate.onPause()
-    }
-
-    override fun onPostResume() {
-        super.onPostResume()
-        eventDelegate.onPostResume()
     }
 
     // @Override - added in API level 23

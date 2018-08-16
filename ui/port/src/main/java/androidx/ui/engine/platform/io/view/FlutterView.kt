@@ -1,26 +1,32 @@
 package androidx.ui.engine.platform.io.view
 
-import android.content.Context
-import android.util.AttributeSet
-import android.view.SurfaceView
-import android.view.accessibility.AccessibilityManager
-import android.view.SurfaceHolder
-import android.util.TypedValue
-import android.view.inputmethod.InputConnection
-import android.view.inputmethod.InputMethodManager
-import java.util.concurrent.atomic.AtomicLong
-import android.graphics.SurfaceTexture
-import android.content.Intent
+import android.app.Activity
 import android.content.BroadcastReceiver
-import android.view.MotionEvent
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
-import android.view.WindowInsets
+import android.graphics.SurfaceTexture
+import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.view.WindowInsets
+import android.view.accessibility.AccessibilityManager
+import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InputMethodManager
+import androidx.core.app.ComponentActivity
+import androidx.lifecycle.GenericLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.window.AppLifecycleState
+import androidx.ui.services.SystemChannels
 import androidx.ui.services.raw_keyboard.RawKeyboard
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * An Android view containing a Flutter app.
@@ -101,13 +107,17 @@ class FlutterView(
         isFocusable = true
         isFocusableInTouchMode = true
 
-//        val activity = getContext() as Activity
+        val activity = getContext() as Activity
 //        if (nativeView == null) {
 //            mNativeView = FlutterNativeView(activity.applicationContext)
 //        } else {
 //            mNativeView = nativeView
 //        }
 //        mNativeView.attachViewAndActivity(this, activity)
+
+        // TODO(Migration/Andrey): Inject lifecycle here without casting
+        val lifecycle = (activity as ComponentActivity).lifecycle
+        lifecycle.addObserver(GenericLifecycleObserver { _, event -> onLifecycleEvent(event) })
 
         var color = -0x1000000
         val typedValue = TypedValue()
@@ -209,27 +219,36 @@ class FlutterView(
 //    fun addActivityLifecycleListener(listener: ActivityLifecycleListener) {
 //        mActivityLifecycleListeners.add(listener)
 //    }
-//
-//    fun onStart() {
-//        mFlutterLifecycleChannel.send("AppLifecycleState.inactive")
-//    }
-//
-//    fun onPause() {
-//        mFlutterLifecycleChannel.send("AppLifecycleState.inactive")
-//    }
-//
-//    fun onPostResume() {
+
+    private fun onLifecycleEvent(event: Lifecycle.Event?) {
+        // Migration/Andrey: We added it instead of the manual delegation of all this
+        // lifecycle callbacks from an ActivityDelegate. It would help us to not be tied
+        // to FlutterActivity in the future.
+        if (event == Lifecycle.Event.ON_RESUME) { // onPostResume originally
+            onPostResume()
+        }
+        val state = mapLifecycleEventToState(event)
+        if (state != null) {
+            SystemChannels.lifecycle.offer(state)
+        }
+    }
+
+    private fun mapLifecycleEventToState(event: Lifecycle.Event?): AppLifecycleState? =
+            when (event) {
+                Lifecycle.Event.ON_START -> AppLifecycleState.INACTIVE
+                Lifecycle.Event.ON_PAUSE -> AppLifecycleState.INACTIVE
+                Lifecycle.Event.ON_RESUME -> AppLifecycleState.RESUMED // onPostResume originally
+                Lifecycle.Event.ON_STOP -> AppLifecycleState.PAUSED
+                else -> null
+            }
+
+    private fun onPostResume() {
 //        updateAccessibilityFeatures()
 //        for (listener in mActivityLifecycleListeners) {
 //            listener.onPostResume()
 //        }
-//        mFlutterLifecycleChannel.send("AppLifecycleState.resumed")
-//    }
-//
-//    fun onStop() {
-//        mFlutterLifecycleChannel.send("AppLifecycleState.paused")
-//    }
-//
+    }
+
 //    fun onMemoryPressure() {
 //        val message = HashMap(1)
 //        message.put("type", "memoryPressure")
