@@ -177,6 +177,7 @@ public class DatabaseCallbackTest {
         // Should not throw a SQLiteDatabaseCorruptException, i.e. default onCorruption() was
         // executed and DB file was re-created.
         List<Integer> ids = db.getUserDao().loadIds();
+        db.close();
         assertThat(ids, is(empty()));
 
         assertTrue(callback.mCreated);

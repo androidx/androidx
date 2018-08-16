@@ -74,6 +74,7 @@ public class JournalDbPostMigrationTest {
     private static final String DB_NAME = "journal-db";
     private AtomicInteger mOnOpenCount = new AtomicInteger(0);
     private AtomicInteger mOnCreateCount = new AtomicInteger(0);
+    private AppDatabase mAppDatabase;
 
     @Entity
     public static class User {
@@ -135,24 +136,6 @@ public class JournalDbPostMigrationTest {
         }
     };
 
-    private AppDatabase getDb() {
-        return Room.databaseBuilder(InstrumentationRegistry.getTargetContext(),
-                AppDatabase.class, "journal-db")
-                .addMigrations(sMigrationV1toV2, sMigrationV2toV3)
-                .addCallback(new RoomDatabase.Callback() {
-                    @Override
-                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                        mOnCreateCount.incrementAndGet();
-                    }
-
-                    @Override
-                    public void onOpen(@NonNull SupportSQLiteDatabase db) {
-                        mOnOpenCount.incrementAndGet();
-                    }
-                })
-                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE).build();
-    }
-
     private void copyAsset(String path, File outFile) throws IOException {
         byte[] buffer = new byte[1024];
         int length;
@@ -171,6 +154,7 @@ public class JournalDbPostMigrationTest {
 
     @After
     public void deleteDb() {
+        mAppDatabase.close();
         InstrumentationRegistry.getTargetContext().deleteDatabase(DB_NAME);
     }
 
@@ -184,25 +168,41 @@ public class JournalDbPostMigrationTest {
             copyAsset(DB_NAME + "/" + file,
                     new File(databasePath.getParentFile(), file));
         }
+        mAppDatabase = Room.databaseBuilder(InstrumentationRegistry.getTargetContext(),
+                AppDatabase.class, "journal-db")
+                .addMigrations(sMigrationV1toV2, sMigrationV2toV3)
+                .addCallback(new RoomDatabase.Callback() {
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                        mOnCreateCount.incrementAndGet();
+                    }
+
+                    @Override
+                    public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                        mOnOpenCount.incrementAndGet();
+                    }
+                })
+                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+                .build();
     }
 
     @Test
     public void migrateAndRead() {
-        List<User> users = getDb().userDao().getAll();
+        List<User> users = mAppDatabase.userDao().getAll();
         assertThat(users.size(), is(10));
     }
 
     @Test
     public void checkCallbacks() {
         // trigger db open
-        getDb().userDao().getAll();
+        mAppDatabase.userDao().getAll();
         assertThat(mOnOpenCount.get(), is(1));
         assertThat(mOnCreateCount.get(), is(0));
     }
 
     @Test
     public void liveDataPostMigrations() throws TimeoutException, InterruptedException {
-        UserDao dao = getDb().userDao();
+        UserDao dao = mAppDatabase.userDao();
         LiveData<User> liveData = dao.getUser(3);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
                 liveData.observeForever(user -> {
