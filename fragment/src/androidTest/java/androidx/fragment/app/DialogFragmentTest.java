@@ -26,13 +26,13 @@ import android.app.Dialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.test.EmptyFragmentTestActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.Suppress;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -43,7 +43,6 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@Suppress
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class DialogFragmentTest {
@@ -138,17 +137,41 @@ public class DialogFragmentTest {
             }
         });
 
+        final CountDownLatch dismissLatch = new CountDownLatch(1);
+        fragment.setDestroyViewCallback(new TestDialogFragment.OnDestroyViewCallback() {
+            @Override
+            public void onDestroyView(TestDialogFragment fragment) {
+                dismissLatch.countDown();
+            }
+        });
+
         fragment.dismiss();
 
         countDownLatch.await(1, TimeUnit.SECONDS);
+
         assertTrue("Dialog should not be null in onStop()", dialogIsNonNull[0]);
         assertFalse("Dialog should not be showing in onStop() "
                 + "when manually dismissed", isShowing[0]);
+
+        // Wait for the DialogFragment's onDestroyView to be called which is where the Dialog
+        // gets null'ed out
+        dismissLatch.await();
 
         assertNull("Dialog should be null after dismiss()", fragment.getDialog());
     }
 
     public static class TestDialogFragment extends DialogFragment {
+
+        public interface OnDestroyViewCallback {
+            void onDestroyView(TestDialogFragment fragment);
+        }
+
+        private @Nullable OnDestroyViewCallback mDestroyViewCallback = null;
+
+        public void setDestroyViewCallback(OnDestroyViewCallback callback) {
+            mDestroyViewCallback = callback;
+        }
+
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -157,6 +180,14 @@ public class DialogFragmentTest {
                     .setMessage("Message")
                     .setPositiveButton("Button", null)
                     .create();
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+            if (mDestroyViewCallback != null) {
+                mDestroyViewCallback.onDestroyView(this);
+            }
         }
     }
 }
