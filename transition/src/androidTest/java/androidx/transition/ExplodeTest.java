@@ -31,13 +31,13 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.verification.VerificationMode;
 
-@MediumTest
+@LargeTest
 public class ExplodeTest extends BaseTransitionTest {
 
     private View mRedSquare;
