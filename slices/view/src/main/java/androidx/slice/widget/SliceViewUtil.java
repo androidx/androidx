@@ -231,7 +231,7 @@ public class SliceViewUtil {
         int color = SliceViewUtil.getColorAttr(context, R.attr.colorControlHighlight);
         Drawable progressDrawable = DrawableCompat.wrap(
                 bar.getIndeterminateDrawable());
-        if (progressDrawable != null) {
+        if (progressDrawable != null && color != 0) {
             progressDrawable.setColorFilter(color, android.graphics.PorterDuff.Mode.MULTIPLY);
             bar.setProgressDrawable(progressDrawable);
         }
