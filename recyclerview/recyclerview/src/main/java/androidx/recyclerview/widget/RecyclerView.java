@@ -5062,10 +5062,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             disableRunOnAnimationRequests();
             consumePendingUpdateOperations();
-            // keep a local reference so that if it is changed during onAnimation method, it won't
+
+            // TODO(72745539): After reviewing the code, it seems to me we may actually want to
+            // update the reference to the OverScroller after onAnimation.  It looks to me like
+            // it is possible that a new OverScroller could be created (due to a new Interpolator
+            // being used), when the current OverScroller knows it's done after
+            // scroller.computeScrollOffset() is called.  If that happens, and we don't update the
+            // reference, it seems to me that we could prematurely stop the newly created scroller
+            // due to setScrollState(SCROLL_STATE_IDLE) being called below.
+
+            // Keep a local reference so that if it is changed during onAnimation method, it won't
             // cause unexpected behaviors
             final OverScroller scroller = mScroller;
-            final SmoothScroller smoothScroller = mLayout.mSmoothScroller;
             if (scroller.computeScrollOffset()) {
                 final int[] scrollConsumed = mScrollConsumed;
                 final int x = scroller.getCurrX();
@@ -5090,6 +5098,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     overscrollX = dx - hresult;
                     overscrollY = dy - vresult;
 
+                    SmoothScroller smoothScroller = mLayout.mSmoothScroller;
                     if (smoothScroller != null && !smoothScroller.isPendingInitialRun()
                             && smoothScroller.isRunning()) {
                         final int adapterSize = mState.getItemCount();
@@ -5148,8 +5157,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 final boolean fullyConsumedAny = (dx == 0 && dy == 0) || fullyConsumedHorizontal
                         || fullyConsumedVertical;
 
-                if (scroller.isFinished() || (!fullyConsumedAny
-                        && !hasNestedScrollingParent(TYPE_NON_TOUCH))) {
+                SmoothScroller smoothScroller = mLayout.mSmoothScroller;
+                boolean smoothScrollerPending = smoothScroller != null
+                        && smoothScroller.isPendingInitialRun();
+                if (!smoothScrollerPending && (scroller.isFinished() || (!fullyConsumedAny
+                        && !hasNestedScrollingParent(TYPE_NON_TOUCH)))) {
                     // setting state to idle will stop this.
                     setScrollState(SCROLL_STATE_IDLE);
                     if (ALLOW_THREAD_GAP_WORK) {
@@ -5163,11 +5175,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     }
                 }
             }
+
+            SmoothScroller smoothScroller = mLayout.mSmoothScroller;
             // call this after the onAnimation is complete not to have inconsistent callbacks etc.
             if (smoothScroller != null) {
                 if (smoothScroller.isPendingInitialRun()) {
                     smoothScroller.onAnimation(0, 0);
                 }
+                // if mReSchedulePostAnimationCallback is false, disableRunOnAnimationRequests() was
+                // called at the start of this method and postOnAnimation() was not called before
+                // this point, which means that we aren't going to scroll anymore so we need to
+                // call stop on smoothScroller.
                 if (!mReSchedulePostAnimationCallback) {
                     smoothScroller.stop(); //stop if it does not trigger any scroll
                 }
@@ -5199,6 +5217,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public void fling(int velocityX, int velocityY) {
             setScrollState(SCROLL_STATE_SETTLING);
             mLastFlingX = mLastFlingY = 0;
+            // Because you can't define a custom interpolator for flinging, we should make sure we
+            // reset ourselves back to the teh default interpolator in case a different call
+            // changed our interpolator.
+            if (mInterpolator != sQuinticInterpolator) {
+                mInterpolator = sQuinticInterpolator;
+                mScroller = new OverScroller(getContext(), sQuinticInterpolator);
+            }
             mScroller.fling(0, 0, velocityX, velocityY,
                     Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
             postOnAnimation();
