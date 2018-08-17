@@ -17,7 +17,8 @@
 import androidx.build.SupportConfig
 
 plugins {
-    id("SupportAndroidTestAppPlugin")
+    id("AndroidXPlugin")
+    id("com.android.application")
 }
 
 // replace all tests etc with empty task, so we don't run anything
