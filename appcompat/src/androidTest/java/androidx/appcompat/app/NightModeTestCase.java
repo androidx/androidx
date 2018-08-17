@@ -148,6 +148,7 @@ public class NightModeTestCase {
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
 
         final NightModeActivity toTest = activity;
+        final CountDownLatch resumeCompleteLatch = new CountDownLatch(1);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -164,9 +165,12 @@ public class NightModeTestCase {
                 // Now tell the Activity that it has gone into the foreground again
                 instrumentation.callActivityOnStart(toTest);
                 instrumentation.callActivityOnResume(toTest);
+
+                resumeCompleteLatch.countDown();
             }
         });
 
+        resumeCompleteLatch.await();
         // finally check that the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
     }
