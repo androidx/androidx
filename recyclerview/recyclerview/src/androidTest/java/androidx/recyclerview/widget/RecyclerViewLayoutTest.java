@@ -3034,6 +3034,66 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void smoothScrollToPosition_calledOnPreviousFinished_scrollsToPosition()
+            throws Throwable {
+
+        final int adapterSize = 3;
+        final int firstTargetPosition = 2;
+        final int secondTargetPosition = 1;
+
+        final RecyclerView rv = new RecyclerView(getActivity());
+
+        LinearLayoutManager llm =
+                new LinearLayoutManager(getActivity(), LinearLayout.HORIZONTAL, false);
+        rv.setLayoutManager(llm);
+
+        TestAdapter testAdapter = new TestAdapter(adapterSize, new RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        rv.setAdapter(testAdapter);
+
+        final CountDownLatch goToTargetLatch = new CountDownLatch(1);
+
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            boolean mMadeItToFirst = false;
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int childCount = mRecyclerView.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    View child = mRecyclerView.getChildAt(i);
+                    int adapterPosition = mRecyclerView.getChildAdapterPosition(child);
+                    if (!mMadeItToFirst) {
+                        if (adapterPosition == firstTargetPosition && child.getLeft() <= 0) {
+                            // If the child at our first target position is at (or beyond) 0, we are
+                            // in the run of ViewFlinger.run() so now trigger a smooth scroll so we
+                            // can verify that it is respected.
+                            mRecyclerView.smoothScrollToPosition(secondTargetPosition);
+                            mMadeItToFirst = true;
+                        }
+                    } else if (adapterPosition == secondTargetPosition && child.getLeft() >= 0) {
+                        // We've made it to the second target position! Success!
+                        goToTargetLatch.countDown();
+                    }
+                }
+            }
+        });
+
+        TestedFrameLayout container = getRecyclerViewContainer();
+        container.expectLayouts(1);
+        setRecyclerView(rv);
+        container.waitForLayout(2);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                rv.smoothScrollToPosition(firstTargetPosition);
+            }
+        });
+
+        assertTrue("Failed to reach target view in time.",
+                goToTargetLatch.await(1, TimeUnit.SECONDS));
+    }
+
+    @Test
     public void smoothScrollToPosition_targetNotFoundSeekInXAndY_scrollsLayoutManagerBy1InXAndY()
             throws Throwable {
         smoothScrollToPosition_initialScroll(
