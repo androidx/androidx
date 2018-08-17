@@ -83,7 +83,7 @@ public class FragmentTransitionTest extends BaseTest {
         final TransitionFragment fragment2 = TransitionFragment.newInstance(R.layout.scene3);
         showFragment(fragment1, false, null);
         showFragment(fragment2, true, null);
-        verify(fragment1.mListeners.get(TransitionFragment.TRANSITION_EXIT))
+        verify(fragment1.mListeners.get(TransitionFragment.TRANSITION_EXIT), timeout(1000))
                 .onTransitionStart(any(Transition.class));
         verify(fragment1.mListeners.get(TransitionFragment.TRANSITION_EXIT), timeout(3000))
                 .onTransitionEnd(any(Transition.class));
@@ -92,9 +92,9 @@ public class FragmentTransitionTest extends BaseTest {
         verify(fragment2.mListeners.get(TransitionFragment.TRANSITION_ENTER), timeout(3000))
                 .onTransitionEnd(any(Transition.class));
         popBackStack();
-        verify(fragment1.mListeners.get(TransitionFragment.TRANSITION_REENTER))
+        verify(fragment1.mListeners.get(TransitionFragment.TRANSITION_REENTER), timeout(1000))
                 .onTransitionStart(any(Transition.class));
-        verify(fragment2.mListeners.get(TransitionFragment.TRANSITION_RETURN))
+        verify(fragment2.mListeners.get(TransitionFragment.TRANSITION_RETURN), timeout(1000))
                 .onTransitionStart(any(Transition.class));
     }
 
@@ -104,12 +104,12 @@ public class FragmentTransitionTest extends BaseTest {
         final TransitionFragment fragment2 = TransitionFragment.newInstance(R.layout.scene3);
         showFragment(fragment1, false, null);
         showFragment(fragment2, true, new Pair<>(fragment1.mGreen, "green"));
-        verify(fragment2.mListeners.get(TransitionFragment.TRANSITION_SHARED_ENTER))
+        verify(fragment2.mListeners.get(TransitionFragment.TRANSITION_SHARED_ENTER), timeout(1000))
                 .onTransitionStart(any(Transition.class));
         verify(fragment2.mListeners.get(TransitionFragment.TRANSITION_SHARED_ENTER), timeout(3000))
                 .onTransitionEnd(any(Transition.class));
         popBackStack();
-        verify(fragment2.mListeners.get(TransitionFragment.TRANSITION_SHARED_RETURN))
+        verify(fragment2.mListeners.get(TransitionFragment.TRANSITION_SHARED_RETURN), timeout(1000))
                 .onTransitionStart(any(Transition.class));
     }
 
