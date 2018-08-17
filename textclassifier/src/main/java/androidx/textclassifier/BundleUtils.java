@@ -26,7 +26,6 @@ import androidx.core.app.RemoteActionCompat;
 import androidx.core.os.LocaleListCompat;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -140,22 +139,5 @@ import java.util.Map;
             return null;
         }
         return LocaleListCompat.forLanguageTags(localeTags);
-    }
-
-    /** Serializes a calendar to a bundle, or clears it if null is passed. */
-    static void putCalendar(
-            @NonNull Bundle bundle, @NonNull String key, @Nullable Calendar calendar) {
-        if (calendar == null) {
-            bundle.remove(key);
-            return;
-        }
-        bundle.putSerializable(key, calendar);
-    }
-
-    static @Nullable Calendar getCalendar(@NonNull Bundle bundle, @NonNull String key) {
-        if (!bundle.containsKey(key)) {
-            return null;
-        }
-        return (Calendar) bundle.getSerializable(key);
     }
 }

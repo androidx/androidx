@@ -31,8 +31,9 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.Map;
 
 /**
@@ -67,12 +68,11 @@ final class ConvertUtils {
 
     @Nullable
     @RequiresApi(26)
-    static ZonedDateTime createZonedDateTimeFromCalendar(
-            @Nullable Calendar calendar) {
-        if (calendar == null) {
+    static ZonedDateTime createZonedDateTimeFromUtc(Long timeInMs) {
+        if (timeInMs == null) {
             return null;
         }
-        return ZonedDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId());
+        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeInMs), ZoneOffset.UTC);
     }
 
     @NonNull
