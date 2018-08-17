@@ -52,6 +52,7 @@ public class ImmediateNavigationTest {
         instrumentation.waitForIdleSync();
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
         navController.popBackStack();
+        instrumentation.waitForIdleSync();
         assertThat(navController.getCurrentDestination().getId(), is(R.id.immediate_test));
     }
 }
