@@ -67,8 +67,8 @@ public class ListItemAdapter extends
         private BackgroundStyle() {}
 
         /**
-         * Sets the background color of each item.
-         * Background can be configured by {@link R.styleable#ListItem_listItemBackgroundColor}.
+         * Sets the background color of each item. Background can be configured by
+         * {@link R.styleable#ListItem_listItemBackgroundColor}.
          */
         public static final int SOLID = 0;
         /**
@@ -120,10 +120,10 @@ public class ListItemAdapter extends
     private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
 
     /**
-     * Defaults {@link BackgroundStyle} to {@link BackgroundStyle#SOLID}.
+     * Defaults {@link BackgroundStyle} to {@link BackgroundStyle#NONE}.
      */
     public ListItemAdapter(Context context, ListItemProvider itemProvider) {
-        this(context, itemProvider, BackgroundStyle.SOLID);
+        this(context, itemProvider, BackgroundStyle.NONE);
     }
 
     public ListItemAdapter(Context context, ListItemProvider itemProvider,
