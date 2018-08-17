@@ -98,7 +98,6 @@
 
     <!-- Switch colors -->
     <public type="color" name="car_switch_thumb_on" />
-    <public type="color" name="car_switch_thumb_on_disabled" />
     <public type="color" name="car_switch_thumb_off" />
     <public type="color" name="car_switch_track_on" />
     <public type="color" name="car_switch_track_off" />
