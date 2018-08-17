@@ -427,6 +427,7 @@ public class FragmentAnimationTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .setReorderingAllowed(true)
+                .addToBackStack(null)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
