@@ -15,13 +15,19 @@
  */
 package androidx.fragment.app;
 
+import static androidx.fragment.app.CtsMockitoUtils.within;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Pair;
@@ -65,7 +71,7 @@ public class FragmentAnimationTest {
 
     @Rule
     public ActivityTestRule<FragmentTestActivity> mActivityRule =
-            new ActivityTestRule<FragmentTestActivity>(FragmentTestActivity.class);
+            new ActivityTestRule<>(FragmentTestActivity.class);
 
     private Instrumentation mInstrumentation;
 
@@ -78,6 +84,7 @@ public class FragmentAnimationTest {
     // Ensure that adding and popping a Fragment uses the enter and popExit animators
     @Test
     public void addAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -95,6 +102,7 @@ public class FragmentAnimationTest {
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators
     @Test
     public void removeAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -115,6 +123,7 @@ public class FragmentAnimationTest {
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
     @Test
     public void showAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -135,6 +144,7 @@ public class FragmentAnimationTest {
     // Ensure that hiding and popping a Fragment uses the exit and popEnter animators
     @Test
     public void hideAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -155,6 +165,7 @@ public class FragmentAnimationTest {
     // Ensure that attaching and popping a Fragment uses the enter and popExit animators
     @Test
     public void attachAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -175,6 +186,7 @@ public class FragmentAnimationTest {
     // Ensure that detaching and popping a Fragment uses the exit and popEnter animators
     @Test
     public void detachAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -196,6 +208,7 @@ public class FragmentAnimationTest {
     // popping should popExit the removed fragment and popEnter the added fragments
     @Test
     public void replaceAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -234,6 +247,7 @@ public class FragmentAnimationTest {
     // but the animators are delayed when an entering Fragment is postponed.
     @Test
     public void postponedAddAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         final AnimatorFragment fragment = new AnimatorFragment();
@@ -257,6 +271,7 @@ public class FragmentAnimationTest {
     // but the animators are delayed when an entering Fragment is postponed.
     @Test
     public void postponedRemoveAnimators() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         final AnimatorFragment fragment = new AnimatorFragment();
@@ -278,6 +293,7 @@ public class FragmentAnimationTest {
     // when the fragments have been marked for postponing.
     @Test
     public void postponedAddRemove() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         final AnimatorFragment fragment1 = new AnimatorFragment();
@@ -315,6 +331,7 @@ public class FragmentAnimationTest {
     // Popping a postponed transaction should result in no animators
     @Test
     public void popPostponed() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         final AnimatorFragment fragment1 = new AnimatorFragment();
@@ -361,6 +378,7 @@ public class FragmentAnimationTest {
     // state is proper after restoring.
     @Test
     public void saveWhileAnimatingAway() throws Throwable {
+        waitForAnimationReady();
         final FragmentController fc1 = FragmentTestUtil.createController(mActivityRule);
         FragmentTestUtil.resume(mActivityRule, fc1, null);
 
@@ -421,6 +439,7 @@ public class FragmentAnimationTest {
     // test to see if the animation is still running.
     @Test
     public void clearAnimations() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         final StrictViewFragment fragment1 = new StrictViewFragment();
@@ -454,6 +473,7 @@ public class FragmentAnimationTest {
     // When a view is animated out, is parent should be null after the animation completes
     @Test
     public void parentNullAfterAnimation() throws Throwable {
+        waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         final EndAnimationListenerFragment fragment1 = new EndAnimationListenerFragment();
@@ -552,6 +572,34 @@ public class FragmentAnimationTest {
         assertEquals(View.VISIBLE, fragment.getView().getVisibility());
         assertEquals(0f, fragment.getView().getAlpha(), 0f);
         assertEquals(expectedAnimators, fragment.numAnimators);
+    }
+
+    // On Lollipop and earlier, animations are not allowed during window transitions
+    private void waitForAnimationReady() throws Throwable {
+        final View[] view = new View[1];
+        final FragmentTestActivity activity = mActivityRule.getActivity();
+        // Add a view to the hierarchy
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view[0] = spy(new View(activity));
+                ViewGroup content = activity.findViewById(R.id.fragmentContainer);
+                content.addView(view[0]);
+            }
+        });
+
+        // Wait for its draw method to be called so we know that drawing can happen after
+        // the first frame (API 21 didn't allow it during Window transitions)
+        verify(view[0], within(1000)).draw((Canvas) any());
+
+        // Remove the view that we just added
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup content = activity.findViewById(R.id.fragmentContainer);
+                content.removeView(view[0]);
+            }
+        });
     }
 
     public static class AnimatorFragment extends StrictViewFragment {
