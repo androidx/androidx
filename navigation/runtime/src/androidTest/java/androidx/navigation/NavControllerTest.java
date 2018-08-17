@@ -106,7 +106,7 @@ public class NavControllerTest {
     public void testSaveRestoreStateXml() {
         Context context = InstrumentationRegistry.getTargetContext();
         NavController navController = new NavController(context);
-        TestNavigator navigator = new TestNavigator();
+        SaveStateTestNavigator navigator = new SaveStateTestNavigator();
         navController.getNavigatorProvider().addNavigator(navigator);
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -120,6 +120,8 @@ public class NavControllerTest {
         navController.restoreState(savedState);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
         assertThat(navigator.mBackStack.size(), is(2));
+        // Save state should be called on the navigator exactly once
+        assertThat(navigator.mSaveStateCount, is(1));
     }
 
     @Test
