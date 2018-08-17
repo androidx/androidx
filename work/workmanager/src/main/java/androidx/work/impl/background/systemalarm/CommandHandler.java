@@ -293,7 +293,7 @@ public class CommandHandler implements ExecutionListener {
         onExecuted(workSpecId, isSuccessful, needsReschedule);
         // Check if we need to stop service.
         dispatcher.postOnMainThread(
-                new SystemAlarmDispatcher.CheckForCompletionRunnable(dispatcher));
+                new SystemAlarmDispatcher.DequeueAndCheckForCompletion(dispatcher));
     }
 
     private static boolean hasKeys(@Nullable Bundle bundle, @NonNull String... keys) {

@@ -63,10 +63,12 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     private final Handler mMainHandler;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final List<Intent> mIntents;
+    Intent mCurrentIntent;
     // The executor service responsible for dispatching all the commands.
     private final ExecutorService mCommandExecutorService;
 
-    @Nullable private CommandsCompletedListener mCompletedListener;
+    @Nullable
+    private CommandsCompletedListener mCompletedListener;
 
     SystemAlarmDispatcher(@NonNull Context context) {
         this(context, null, null);
@@ -86,6 +88,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         mProcessor.addExecutionListener(this);
         // a list of pending intents which need to be processed
         mIntents = new ArrayList<>();
+        // the current intent (command) being processed.
+        mCurrentIntent = null;
         mMainHandler = new Handler(Looper.getMainLooper());
         // Use a single thread executor for handling the actual
         // execution of the commands themselves
@@ -121,12 +125,13 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     /**
      * Adds the {@link Intent} intent and the startId to the command processor queue.
      *
-     * @param intent The {@link Intent} command that needs to be added to the command queue.
+     * @param intent  The {@link Intent} command that needs to be added to the command queue.
      * @param startId The command startId
      * @return <code>true</code> when the command was added to the command processor queue.
      */
     @MainThread
     public boolean add(@NonNull final Intent intent, final int startId) {
+        Logger.debug(TAG, String.format("Adding command %s (%s)", intent, startId));
         assertMainThread();
         String action = intent.getAction();
         if (TextUtils.isEmpty(action)) {
@@ -144,9 +149,15 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
         intent.putExtra(KEY_START_ID, startId);
         synchronized (mIntents) {
+            boolean hasCommands = !mIntents.isEmpty();
             mIntents.add(intent);
+            if (!hasCommands) {
+                // Only call processCommand if this is the first command.
+                // The call to dequeueAndCheckForCompletion will process the remaining commands
+                // in the order that they were added.
+                processCommand();
+            }
         }
-        processCommand();
         return true;
     }
 
@@ -176,16 +187,45 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void checkForCommandsCompleted() {
+    void dequeueAndCheckForCompletion() {
+        Logger.debug(TAG, "Checking if commands are complete.");
         assertMainThread();
-        // if there are no more intents to process, and the command handler
-        // has no more pending commands, stop the service.
+
         synchronized (mIntents) {
+            // Remove the intent from the list of processed commands.
+            // We are doing this to avoid a race condition between completion of a
+            // command in the command handler, and the checkForCompletion triggered
+            // by a worker's onExecutionComplete().
+            // For e.g.
+            // t0 -> delay_met_intent
+            // t1 -> bgProcessor.startWork(workSpec)
+            // t2 -> constraints_changed_intent
+            // t3 -> bgProcessor.onExecutionCompleted(...)
+            // t4 -> DequeueAndCheckForCompletion (while constraints_changed_intent is
+            // still being processed).
+
+            // Note: this works only because mCommandExecutor service is a single
+            // threaded executor. If that assumption changes in the future, use a
+            // ReentrantLock, and lock the queue while command processor processes
+            // an intent. Synchronized to prevent ConcurrentModificationExceptions.
+            if (mCurrentIntent != null) {
+                Logger.debug(TAG, String.format("Removing command %s", mCurrentIntent));
+                if (!mIntents.remove(0).equals(mCurrentIntent)) {
+                    throw new IllegalStateException("Dequeue-d command is not the first.");
+                }
+                mCurrentIntent = null;
+            }
+
+            // if there are no more intents to process, and the command handler
+            // has no more pending commands, stop the service.
             if (!mCommandHandler.hasPendingCommands() && mIntents.isEmpty()) {
                 Logger.debug(TAG, "No more commands & intents.");
                 if (mCompletedListener != null) {
                     mCompletedListener.onAllCommandsCompleted();
                 }
+            } else {
+                // process the next command
+                processCommand();
             }
         }
     }
@@ -203,16 +243,17 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             mCommandExecutorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    final Intent intent;
                     synchronized (mIntents) {
-                        intent = mIntents.get(0);
+                        mCurrentIntent = mIntents.get(0);
                     }
 
-                    if (intent != null) {
-                        final String action = intent.getAction();
-                        final int startId = intent.getIntExtra(KEY_START_ID, DEFAULT_START_ID);
+                    if (mCurrentIntent != null) {
+                        final String action = mCurrentIntent.getAction();
+                        final int startId = mCurrentIntent.getIntExtra(KEY_START_ID,
+                                DEFAULT_START_ID);
                         Logger.debug(TAG,
-                                String.format("Processing command %s, %s", intent, startId));
+                                String.format("Processing command %s, %s", mCurrentIntent,
+                                        startId));
                         final PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
                                 mContext,
                                 String.format("%s (%s)", action, startId));
@@ -223,39 +264,17 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                                     wakeLock));
 
                             wakeLock.acquire();
-                            mCommandHandler.onHandleIntent(intent, startId,
+                            mCommandHandler.onHandleIntent(mCurrentIntent, startId,
                                     SystemAlarmDispatcher.this);
                         } finally {
-                            // Remove the intent from the queue, only after it has been processed.
-
-                            // We are doing this to avoid a race condition between completion of a
-                            // command in the command handler, and the checkForCompletion triggered
-                            // by a worker's onExecutionComplete().
-                            // For e.g.
-                            // t0 -> delay_met_intent
-                            // t1 -> bgProcessor.startWork(workSpec)
-                            // t2 -> constraints_changed_intent
-                            // t3 -> bgProcessor.onExecutionCompleted(...)
-                            // t4 -> CheckForCompletionRunnable (while constraints_changed_intent is
-                            // still being processed).
-
-                            // Note: this works only because mCommandExecutor service is a single
-                            // threaded executor. If that assumption changes in the future, use a
-                            // ReentrantLock, and lock the queue while command processor processes
-                            // an intent. Synchronized to prevent ConcurrentModificationExceptions.
-                            synchronized (mIntents) {
-                                mIntents.remove(0);
-                            }
-
                             Logger.debug(TAG, String.format(
                                     "Releasing operation wake lock (%s) %s",
                                     action,
                                     wakeLock));
-
                             wakeLock.release();
                             // Check if we have processed all commands
                             postOnMainThread(
-                                    new CheckForCompletionRunnable(SystemAlarmDispatcher.this));
+                                    new DequeueAndCheckForCompletion(SystemAlarmDispatcher.this));
                         }
                     }
                 }
@@ -285,18 +304,18 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     }
 
     /**
-     * Checks if we are done executing all commands.
+     * Checks if we are done executing all commands after dequeue-ing the current command.
      */
-    static class CheckForCompletionRunnable implements Runnable {
+    static class DequeueAndCheckForCompletion implements Runnable {
         private final SystemAlarmDispatcher mDispatcher;
 
-        CheckForCompletionRunnable(@NonNull SystemAlarmDispatcher dispatcher) {
+        DequeueAndCheckForCompletion(@NonNull SystemAlarmDispatcher dispatcher) {
             mDispatcher = dispatcher;
         }
 
         @Override
         public void run() {
-            mDispatcher.checkForCommandsCompleted();
+            mDispatcher.dequeueAndCheckForCompletion();
         }
     }
 
