@@ -17,7 +17,6 @@
 package com.android.tools.build.jetifier.processor.transform.bytecode.asm
 
 import com.android.tools.build.jetifier.core.type.JavaType
-import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.transform.bytecode.CoreRemapper
 import org.objectweb.asm.commons.Remapper
 
@@ -47,7 +46,7 @@ class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
             if (typeDeclaration.isEmpty()) {
                 return value
             }
-            return "L" + remapper.rewriteString(typeDeclaration) + ";"
+            return "L" + remapper.rewriteType(JavaType(value)).fullName + ";"
         }
         return remapper.rewriteString(stringVal)
     }
