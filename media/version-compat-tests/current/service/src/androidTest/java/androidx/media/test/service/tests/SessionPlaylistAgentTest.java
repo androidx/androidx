@@ -41,7 +41,6 @@ import androidx.media2.MediaSession2.OnDataSourceMissingHelper;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlaylistAgentImplBase;
 import androidx.media2.UriDataSourceDesc2;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -259,7 +258,6 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
         assertEquals(listSize - 1, mPlaylistAgent.getCurShuffledIndex());
     }
 
-    @FlakyTest(bugId = 112290073)
     @Test
     public void testEditPlaylist() throws Exception {
         int listSize = 5;
@@ -340,7 +338,6 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
                 mPlaylistAgent.getCurShuffledIndex());
     }
 
-    @FlakyTest(bugId = 112290362)
     @Test
     public void testPlaylistWithInvalidItem() throws Exception {
         int listSize = 2;
