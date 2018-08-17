@@ -49,6 +49,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -362,7 +363,24 @@ public class FragmentTransactionTest {
 
         // We can't force concurrency, but we can do it lots of times and hope that
         // we hit it.
-        for (int i = 0; i < 100; i++) {
+        // Reset count here to verify afterwards
+
+        // Wait until we receive a OnBackStackChange callback for the total number of times
+        // specified by transactionCount times 2 (1 for adding, 1 for removal)
+        final int transactionCount = 100;
+        final CountDownLatch backStackLatch = new CountDownLatch(transactionCount * 2);
+        final FragmentManager.OnBackStackChangedListener countDownListener =
+                new FragmentManager.OnBackStackChangedListener() {
+
+            @Override
+            public void onBackStackChanged() {
+                backStackLatch.countDown();
+            }
+        };
+
+        fm.addOnBackStackChangedListener(countDownListener);
+
+        for (int i = 0; i < transactionCount; i++) {
             Fragment fragment2 = new CorrectFragment();
             fm.beginTransaction()
                     .add(R.id.content, fragment2)
@@ -373,6 +391,10 @@ public class FragmentTransactionTest {
             fm.popBackStack();
             getFragmentsUntilSize(0);
         }
+
+        backStackLatch.await();
+
+        fm.removeOnBackStackChangedListener(countDownListener);
     }
 
     /**
