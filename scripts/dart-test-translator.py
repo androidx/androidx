@@ -21,7 +21,7 @@ def whitespace_handler(line):
 #
 # Handles statements generally of the form expect(...)
 # ===================================================================
-EXPECTATION = re.compile(r"expect\((?P<actual>[^,]+), (?P<expected>[^,]+)\);")
+EXPECTATION = re.compile(r"expect\((?P<actual>.+), (?P<expected>[^,]+)\);")
 EQUALS_MATCHER = re.compile(r"equals\((?P<value>.+)\)")
 
 def expecation_handler(line):

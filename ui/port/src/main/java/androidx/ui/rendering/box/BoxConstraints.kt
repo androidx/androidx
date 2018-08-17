@@ -3,7 +3,12 @@ package androidx.ui.rendering.box
 import androidx.ui.assert
 import androidx.ui.clamp
 import androidx.ui.engine.geometry.Size
+import androidx.ui.foundation.assertions.FlutterError
+import androidx.ui.foundation.assertions.InformationCollector
+import androidx.ui.lerpDouble
 import androidx.ui.rendering.obj.Constraints
+import androidx.ui.toStringAsFixed
+import androidx.ui.truncDiv
 
 /** Immutable layout constraints for [RenderBox] layout.
  *
@@ -15,10 +20,10 @@ import androidx.ui.rendering.obj.Constraints
  *
  * The constraints themselves must satisfy these relations:
  *
- * * 0.0 <= [minWidth] <= [maxWidth] <= [double.infinity]
- * * 0.0 <= [minHeight] <= [maxHeight] <= [double.infinity]
+ * * 0.0 <= [minWidth] <= [maxWidth] <= [Double.POSITIVE_INFINITY]
+ * * 0.0 <= [minHeight] <= [maxHeight] <= [Double.POSITIVE_INFINITY]
  *
- * [double.infinity] is a legal value for each constraint.
+ * [Double.POSITIVE_INFINITY] is a legal value for each constraint.
  *
  * ## The box layout model
  *
@@ -67,17 +72,16 @@ import androidx.ui.rendering.obj.Constraints
  */
 
 // Creates box constraints with the given constraints.
-// TODO(Migration/xbhatnag): const constructor
 data class BoxConstraints(
-    // The minimum width that satisfies the constraints.
+        // The minimum width that satisfies the constraints.
     val minWidth: Double = 0.0,
-    // The maximum width that satisfies the constraints.
-    // Might be [double.infinity].
+        // The maximum width that satisfies the constraints.
+        // Might be [Double.POSITIVE_INFINITY].
     val maxWidth: Double = Double.POSITIVE_INFINITY,
-    // The minimum height that satisfies the constraints.
+        // The minimum height that satisfies the constraints.
     val minHeight: Double = 0.0,
-    // The maximum height that satisfies the constraints.
-    // Might be [double.infinity].
+        // The maximum height that satisfies the constraints.
+        // Might be [Double.POSITIVE_INFINITY].
     val maxHeight: Double = Double.POSITIVE_INFINITY
 ) : Constraints() {
 
@@ -86,73 +90,147 @@ data class BoxConstraints(
         fun tight(size: Size): BoxConstraints {
             return BoxConstraints(size.width, size.width, size.height, size.height)
         }
+
+        /**
+         * Creates box constraints that require the given width or height.
+         *
+         * See also:
+         *
+         *  * [new BoxConstraints.tightForFinite], which is similar but instead of
+         *    being tight if the value is non-null, is tight if the value is not
+         *    infinite.
+         */
+        fun tightFor(width: Double? = null, height: Double? = null): BoxConstraints {
+            return BoxConstraints(minWidth = width ?: 0.0,
+                    maxWidth = width ?: Double.POSITIVE_INFINITY,
+                    minHeight = height ?: 0.0,
+                    maxHeight = height ?: Double.POSITIVE_INFINITY
+            )
+        }
+
+        /**
+         * Creates box constraints that require the given width or height, except if
+         * they are infinite.
+         *
+         * See also:
+         *
+         *  * [new BoxConstraints.tightFor], which is similar but instead of being
+         *    tight if the value is not infinite, is tight if the value is non-null.
+         */
+        fun tightForFinite(
+            width: Double = Double.POSITIVE_INFINITY,
+            height: Double = Double.POSITIVE_INFINITY
+        ): BoxConstraints {
+            return BoxConstraints(minWidth = if (width != Double.POSITIVE_INFINITY) width else 0.0,
+                    maxWidth = if (width != Double.POSITIVE_INFINITY) width
+                    else Double.POSITIVE_INFINITY,
+                    minHeight = if (height != Double.POSITIVE_INFINITY) height
+                    else 0.0,
+                    maxHeight = if (height != Double.POSITIVE_INFINITY) height
+                    else Double.POSITIVE_INFINITY
+            )
+        }
+
+        /**
+         * Creates box constraints that forbid sizes larger than the given size.
+         */
+        fun loose(size: Size): BoxConstraints {
+            return BoxConstraints(minWidth = 0.0,
+                    maxWidth = size.width,
+                    minHeight = 0.0,
+                    maxHeight = size.height)
+        }
+
+        /**
+         * Creates box constraints that expand to fill another box constraints.
+         *
+         * If width or height is given, the constraints will require exactly the
+         * given value in the given dimension.
+         */
+        fun expand(width: Double? = null, height: Double? = null): BoxConstraints {
+            return BoxConstraints(minWidth = width ?: Double.POSITIVE_INFINITY,
+                    maxWidth = width ?: Double.POSITIVE_INFINITY,
+                    minHeight = height ?: Double.POSITIVE_INFINITY,
+                    maxHeight = height ?: Double.POSITIVE_INFINITY
+            )
+        }
+
+        /**
+         * Linearly interpolate between two BoxConstraints.
+         *
+         * If either is null, this function interpolates from a [BoxConstraints]
+         * object whose fields are all set to 0.0.
+         *
+         * The `t` argument represents position on the timeline, with 0.0 meaning
+         * that the interpolation has not started, returning `a` (or something
+         * equivalent to `a`), 1.0 meaning that the interpolation has finished,
+         * returning `b` (or something equivalent to `b`), and values in between
+         * meaning that the interpolation is at the relevant point on the timeline
+         * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+         * 1.0, so negative values and values greater than 1.0 are valid (and can
+         * easily be generated by curves such as [Curves.elasticInOut]).
+         *
+         * Values for `t` are usually obtained from an [Animation<double>], such as
+         * an [AnimationController].
+         */
+        fun lerp(a: BoxConstraints?, b: BoxConstraints?, t: Double): BoxConstraints? {
+            assert(t != null)
+            if (a == null && b == null)
+                return null
+            if (a == null)
+                return b!! * t
+            if (b == null)
+                return a * (1.0 - t)
+            assert(a.debugAssertIsValid())
+            assert(b.debugAssertIsValid())
+            assert((a.minWidth.isFinite() && b.minWidth.isFinite()) ||
+                    (a.minWidth == Double.POSITIVE_INFINITY &&
+                            b.minWidth == Double.POSITIVE_INFINITY)
+            ) { "Cannot interpolate between finite constraints and unbounded constraints." }
+            assert((a.maxWidth.isFinite() && b.maxWidth.isFinite()) ||
+                    (a.maxWidth == Double.POSITIVE_INFINITY &&
+                            b.maxWidth == Double.POSITIVE_INFINITY)
+            ) { "Cannot interpolate between finite constraints and unbounded constraints." }
+            assert((a.minHeight.isFinite() && b.minHeight.isFinite()) ||
+                    (a.minHeight == Double.POSITIVE_INFINITY &&
+                            b.minHeight == Double.POSITIVE_INFINITY)
+            ) { "Cannot interpolate between finite constraints and unbounded constraints." }
+            assert((a.maxHeight.isFinite() && b.maxHeight.isFinite()) ||
+                    (a.maxHeight == Double.POSITIVE_INFINITY &&
+                            b.maxHeight == Double.POSITIVE_INFINITY)
+            ) { "Cannot interpolate between finite constraints and unbounded constraints." }
+            return BoxConstraints(
+                    minWidth = if (a.minWidth.isFinite()) lerpDouble(a.minWidth, b.minWidth,
+                            t) else Double.POSITIVE_INFINITY,
+                    maxWidth = if (a.maxWidth.isFinite()) lerpDouble(a.maxWidth, b.maxWidth,
+                            t) else Double.POSITIVE_INFINITY,
+                    minHeight = if (a.minHeight.isFinite()) lerpDouble(a.minHeight, b.minHeight,
+                            t) else Double.POSITIVE_INFINITY,
+                    maxHeight = if (a.maxHeight.isFinite()) lerpDouble(a.maxHeight, b.maxHeight,
+                            t) else Double.POSITIVE_INFINITY
+            )
+        }
     }
 
-//    /// Creates box constraints that require the given width or height.
-//    ///
-//    /// See also:
-//    ///
-//    ///  * [new BoxConstraints.tightForFinite], which is similar but instead of
-//    ///    being tight if the value is non-null, is tight if the value is not
-//    ///    infinite.
-//    const BoxConstraints.tightFor({
-//        double width,
-//        double height
-//    }): minWidth = width != null ? width : 0.0,
-//    maxWidth = width != null ? width : double.infinity,
-//    minHeight = height != null ? height : 0.0,
-//    maxHeight = height != null ? height : double.infinity;
-//
-//    /// Creates box constraints that require the given width or height, except if
-//    /// they are infinite.
-//    ///
-//    /// See also:
-//    ///
-//    ///  * [new BoxConstraints.tightFor], which is similar but instead of being
-//    ///    tight if the value is not infinite, is tight if the value is non-null.
-//    const BoxConstraints.tightForFinite({
-//        double width: double.infinity,
-//        double height: double.infinity
-//    }): minWidth = width != double.infinity ? width : 0.0,
-//    maxWidth = width != double.infinity ? width : double.infinity,
-//    minHeight = height != double.infinity ? height : 0.0,
-//    maxHeight = height != double.infinity ? height : double.infinity;
-//
-//    /// Creates box constraints that forbid sizes larger than the given size.
-//    BoxConstraints.loose(Size size)
-//    : minWidth = 0.0,
-//    maxWidth = size.width,
-//    minHeight = 0.0,
-//    maxHeight = size.height;
-//
-//    /// Creates box constraints that expand to fill another box constraints.
-//    ///
-//    /// If width or height is given, the constraints will require exactly the
-//    /// given value in the given dimension.
-//    const BoxConstraints.expand({
-//        double width,
-//        double height
-//    }): minWidth = width != null ? width : double.infinity,
-//    maxWidth = width != null ? width : double.infinity,
-//    minHeight = height != null ? height : double.infinity,
-//    maxHeight = height != null ? height : double.infinity;
-//
-//    /// Creates a copy of this box constraints but with the given fields replaced with the new values.
-//    BoxConstraints copyWith({
-//        double minWidth,
-//        double maxWidth,
-//        double minHeight,
-//        double maxHeight
-//    }) {
-//        return new BoxConstraints(
-//                minWidth: minWidth ?? this.minWidth,
-//        maxWidth: maxWidth ?? this.maxWidth,
-//        minHeight: minHeight ?? this.minHeight,
-//        maxHeight: maxHeight ?? this.maxHeight
-//        );
-//    }
-//
-//    /// Returns new box constraints that are smaller by the given edge dimensions.
+    /**
+     * Creates a copy of this box constraints but with the given fields replaced with the new values.
+     */
+    fun copyWith(
+        minWidth: Double? = null,
+        maxWidth: Double? = null,
+        minHeight: Double? = null,
+        maxHeight: Double? = null
+    ): BoxConstraints {
+        return BoxConstraints(
+                minWidth = minWidth ?: this.minWidth,
+                maxWidth = maxWidth ?: this.maxWidth,
+                minHeight = minHeight ?: this.minHeight,
+                maxHeight = maxHeight ?: this.maxHeight
+        )
+    }
+
+    // TODO(Migration/Andrey): needs EdgeInsets
+//     * Returns new box constraints that are smaller by the given edge dimensions.
 //    BoxConstraints deflate(EdgeInsets edges) {
 //        assert(edges != null);
 //        assert(debugAssertIsValid());
@@ -167,18 +245,19 @@ data class BoxConstraints(
 //        maxHeight: math.max(deflatedMinHeight, maxHeight - vertical)
 //        );
 //    }
-//
-//    /// Returns new box constraints that remove the minimum width and height requirements.
-//    BoxConstraints loosen() {
-//        assert(debugAssertIsValid());
-//        return new BoxConstraints(
-//                minWidth: 0.0,
-//        maxWidth: maxWidth,
-//        minHeight: 0.0,
-//        maxHeight: maxHeight
-//        );
-//    }
-//
+
+    /**
+     * Returns new box constraints that remove the minimum width and height requirements.
+     */
+    fun loosen(): BoxConstraints {
+        assert(debugAssertIsValid())
+        return BoxConstraints(
+                minWidth = 0.0,
+                maxWidth = maxWidth,
+                minHeight = 0.0,
+                maxHeight = maxHeight
+        )
+    }
 
     /**
      * Returns new box constraints that respect the given constraints while being
@@ -193,34 +272,47 @@ data class BoxConstraints(
         )
     }
 
-//    /// Returns new box constraints with a tight width and/or height as close to
-//    /// the given width and height as possible while still respecting the original
-//    /// box constraints.
-//    BoxConstraints tighten({ double width, double height }) {
-//        return new BoxConstraints(minWidth: width == null ? minWidth : width.clamp(minWidth, maxWidth),
-//        maxWidth: width == null ? maxWidth : width.clamp(minWidth, maxWidth),
-//        minHeight: height == null ? minHeight : height.clamp(minHeight, maxHeight),
-//        maxHeight: height == null ? maxHeight : height.clamp(minHeight, maxHeight));
-//    }
-//
-//    /// A box constraints with the width and height constraints flipped.
-//    BoxConstraints get flipped {
-//        return new BoxConstraints(
-//                minWidth: minHeight,
-//        maxWidth: maxHeight,
-//        minHeight: minWidth,
-//        maxHeight: maxWidth
-//        );
-//    }
-//
-//    /// Returns box constraints with the same width constraints but with
-//    /// unconstrained height.
-//    BoxConstraints widthConstraints() => new BoxConstraints(minWidth: minWidth, maxWidth: maxWidth);
-//
-//    /// Returns box constraints with the same height constraints but with
-//    /// unconstrained width
-//    BoxConstraints heightConstraints() => new BoxConstraints(minHeight: minHeight, maxHeight: maxHeight);
-//
+    /**
+     * Returns new box constraints with a tight width and/or height as close to
+     * the given width and height as possible while still respecting the original
+     * box constraints.
+     */
+    fun tighten(width: Double? = null, height: Double?): BoxConstraints {
+        return BoxConstraints(minWidth = width?.clamp(minWidth, maxWidth) ?: minWidth,
+                maxWidth = width?.clamp(minWidth, maxWidth) ?: maxWidth,
+                minHeight = height?.clamp(minHeight, maxHeight) ?: minHeight,
+                maxHeight = height?.clamp(minHeight, maxHeight) ?: maxHeight
+        )
+    }
+
+    /**
+     * A box constraints with the width and height constraints flipped.
+     */
+    fun flipped(): BoxConstraints {
+        return BoxConstraints(
+                minWidth = minHeight,
+                maxWidth = maxHeight,
+                minHeight = minWidth,
+                maxHeight = maxWidth
+        )
+    }
+
+    /**
+     * Returns box constraints with the same width constraints but with
+     * unconstrained height.
+     */
+    fun widthConstraints(): BoxConstraints {
+        return BoxConstraints(minWidth = minWidth, maxWidth = maxWidth)
+    }
+
+    /**
+     * Returns box constraints with the same height constraints but with
+     * unconstrained width
+     */
+    fun heightConstraints(): BoxConstraints {
+        return BoxConstraints(minHeight = minHeight, maxHeight = maxHeight)
+    }
+
     /**
      * Returns the width that both satisfies the constraints and is as close as
      * possible to the given width.
@@ -265,166 +357,149 @@ data class BoxConstraints(
         return result
     }
 
-//    /// Returns the size that both satisfies the constraints and is as close as
-//    /// possible to the given width and height.
-//    ///
-//    /// When you already have a [Size], prefer [constrain], which applies the same
-//    /// algorithm to a [Size] directly.
-//    Size constrainDimensions(double width, double height) {
-//        return new Size(constrainWidth(width), constrainHeight(height));
-//    }
-//
-//    /// Returns a size that attempts to meet the following conditions, in order:
-//    ///
-//    ///  * The size must satisfy these constraints.
-//    ///  * The aspect ratio of the returned size matches the aspect ratio of the
-//    ///    given size.
-//    ///  * The returned size as big as possible while still being equal to or
-//    ///    smaller than the given size.
-//    Size constrainSizeAndAttemptToPreserveAspectRatio(Size size) {
-//        if (isTight) {
-//            Size result = smallest;
-//            assert(() { result = _debugPropagateDebugSize(size, result); return true; }());
-//            return result;
-//        }
-//
-//        double width = size.width;
-//        double height = size.height;
-//        assert(width > 0.0);
-//        assert(height > 0.0);
-//        final double aspectRatio = width / height;
-//
-//        if (width > maxWidth) {
-//            width = maxWidth;
-//            height = width / aspectRatio;
-//        }
-//
-//        if (height > maxHeight) {
-//            height = maxHeight;
-//            width = height * aspectRatio;
-//        }
-//
-//        if (width < minWidth) {
-//            width = minWidth;
-//            height = width / aspectRatio;
-//        }
-//
-//        if (height < minHeight) {
-//            height = minHeight;
-//            width = height * aspectRatio;
-//        }
-//
-//        Size result = new Size(constrainWidth(width), constrainHeight(height));
-//        assert(() { result = _debugPropagateDebugSize(size, result); return true; }());
-//        return result;
-//    }
-//
-//    /// The biggest size that satisfies the constraints.
-//    Size get biggest => new Size(constrainWidth(), constrainHeight());
-//
-    // The smallest size that satisfies the constraints.
+    /**
+     * Returns the size that both satisfies the constraints and is as close as
+     * possible to the given width and height.
+     *
+     * When you already have a [Size], prefer [constrain], which applies the same
+     * algorithm to a [Size] directly.
+     */
+    fun constrainDimensions(width: Double, height: Double): Size {
+        return Size(constrainWidth(width), constrainHeight(height))
+    }
+
+    /**
+     * Returns a size that attempts to meet the following conditions, in order:
+     *
+     *  * The size must satisfy these constraints.
+     *  * The aspect ratio of the returned size matches the aspect ratio of the
+     *    given size.
+     *  * The returned size as big as possible while still being equal to or
+     *    smaller than the given size.
+     */
+    fun constrainSizeAndAttemptToPreserveAspectRatio(size: Size): Size {
+        if (isTight) {
+            var result = smallest
+            assert { result = _debugPropagateDebugSize(size, result); true; }
+            return result
+        }
+
+        var width = size.width
+        var height = size.height
+        assert(width > 0.0)
+        assert(height > 0.0)
+        val aspectRatio = width / height
+
+        if (width > maxWidth) {
+            width = maxWidth
+            height = width / aspectRatio
+        }
+
+        if (height > maxHeight) {
+            height = maxHeight
+            width = height * aspectRatio
+        }
+
+        if (width < minWidth) {
+            width = minWidth
+            height = width / aspectRatio
+        }
+
+        if (height < minHeight) {
+            height = minHeight
+            width = height * aspectRatio
+        }
+
+        var result = Size(constrainWidth(width), constrainHeight(height))
+        assert { result = _debugPropagateDebugSize(size, result); true; }
+        return result
+    }
+
+    /**
+     * The biggest size that satisfies the constraints.
+     */
+    val biggest get() = Size(constrainWidth(), constrainHeight())
+
+    /**
+     * The smallest size that satisfies the constraints.
+     */
     val smallest get() = Size(constrainWidth(0.0), constrainHeight(0.0))
 
-    // Whether there is exactly one width value that satisfies the constraints.
+    /**
+     * Whether there is exactly one width value that satisfies the constraints.
+     */
     val hasTightWidth get() = minWidth >= maxWidth
 
-    // Whether there is exactly one height value that satisfies the constraints.
+    /**
+     * Whether there is exactly one height value that satisfies the constraints.
+     */
     val hasTightHeight get() = minHeight >= maxHeight
 
-    // Whether there is exactly one size that satisfies the constraints.
+    /**
+     * Whether there is exactly one size that satisfies the constraints.
+     */
     override val isTight: Boolean
         get() = hasTightWidth && hasTightHeight
 
-    // Whether there is an upper bound on the maximum width.
+    /**
+     * Whether there is an upper bound on the maximum width.
+     */
     val hasBoundedWidth get() = maxWidth < Double.POSITIVE_INFINITY
 
-    // Whether there is an upper bound on the maximum height.
+    /**
+     * Whether there is an upper bound on the maximum height.
+     */
     val hasBoundedHeight get() = maxHeight < Double.POSITIVE_INFINITY
 
-    // Whether the given size satisfies the constraints.
+    /**
+     * Whether the given size satisfies the constraints.
+     */
     fun isSatisfiedBy(size: Size): Boolean {
         assert(debugAssertIsValid())
         return (minWidth <= size.width) && (size.width <= maxWidth) &&
                 (minHeight <= size.height) && (size.height <= maxHeight)
     }
-//
-//    /// Scales each constraint parameter by the given factor.
-//    BoxConstraints operator*(double factor) {
-//        return new BoxConstraints(
-//                minWidth: minWidth * factor,
-//        maxWidth: maxWidth * factor,
-//        minHeight: minHeight * factor,
-//        maxHeight: maxHeight * factor
-//        );
-//    }
-//
-//    /// Scales each constraint parameter by the inverse of the given factor.
-//    BoxConstraints operator/(double factor) {
-//        return new BoxConstraints(
-//                minWidth: minWidth / factor,
-//        maxWidth: maxWidth / factor,
-//        minHeight: minHeight / factor,
-//        maxHeight: maxHeight / factor
-//        );
-//    }
-//
-//    /// Scales each constraint parameter by the inverse of the given factor, rounded to the nearest integer.
-//    BoxConstraints operator~/(double factor) {
-//        return new BoxConstraints(
-//                minWidth: (minWidth ~/ factor).toDouble(),
-//        maxWidth: (maxWidth ~/ factor).toDouble(),
-//        minHeight: (minHeight ~/ factor).toDouble(),
-//        maxHeight: (maxHeight ~/ factor).toDouble()
-//        );
-//    }
-//
-//    /// Computes the remainder of each constraint parameter by the given value.
-//    BoxConstraints operator%(double value) {
-//        return new BoxConstraints(
-//                minWidth: minWidth % value,
-//        maxWidth: maxWidth % value,
-//        minHeight: minHeight % value,
-//        maxHeight: maxHeight % value
-//        );
-//    }
-//
-//    /// Linearly interpolate between two BoxConstraints.
-//    ///
-//    /// If either is null, this function interpolates from a [BoxConstraints]
-//    /// object whose fields are all set to 0.0.
-//    ///
-//    /// The `t` argument represents position on the timeline, with 0.0 meaning
-//    /// that the interpolation has not started, returning `a` (or something
-//    /// equivalent to `a`), 1.0 meaning that the interpolation has finished,
-//    /// returning `b` (or something equivalent to `b`), and values in between
-//    /// meaning that the interpolation is at the relevant point on the timeline
-//    /// between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
-//    /// 1.0, so negative values and values greater than 1.0 are valid (and can
-//    /// easily be generated by curves such as [Curves.elasticInOut]).
-//    ///
-//    /// Values for `t` are usually obtained from an [Animation<double>], such as
-//    /// an [AnimationController].
-//    static BoxConstraints lerp(BoxConstraints a, BoxConstraints b, double t) {
-//        assert(t != null);
-//        if (a == null && b == null)
-//            return null;
-//        if (a == null)
-//            return b * t;
-//        if (b == null)
-//            return a * (1.0 - t);
-//        assert(a.debugAssertIsValid());
-//        assert(b.debugAssertIsValid());
-//        assert((a.minWidth.isFinite && b.minWidth.isFinite) || (a.minWidth == double.infinity && b.minWidth == double.infinity), 'Cannot interpolate between finite constraints and unbounded constraints.');
-//        assert((a.maxWidth.isFinite && b.maxWidth.isFinite) || (a.maxWidth == double.infinity && b.maxWidth == double.infinity), 'Cannot interpolate between finite constraints and unbounded constraints.');
-//        assert((a.minHeight.isFinite && b.minHeight.isFinite) || (a.minHeight == double.infinity && b.minHeight == double.infinity), 'Cannot interpolate between finite constraints and unbounded constraints.');
-//        assert((a.maxHeight.isFinite && b.maxHeight.isFinite) || (a.maxHeight == double.infinity && b.maxHeight == double.infinity), 'Cannot interpolate between finite constraints and unbounded constraints.');
-//        return new BoxConstraints(
-//                minWidth: a.minWidth.isFinite ? ui.lerpDouble(a.minWidth, b.minWidth, t) : double.infinity,
-//        maxWidth: a.maxWidth.isFinite ? ui.lerpDouble(a.maxWidth, b.maxWidth, t) : double.infinity,
-//        minHeight: a.minHeight.isFinite ? ui.lerpDouble(a.minHeight, b.minHeight, t) : double.infinity,
-//        maxHeight: a.maxHeight.isFinite ? ui.lerpDouble(a.maxHeight, b.maxHeight, t) : double.infinity,
-//        );
-//    }
+
+    /**
+     * Scales each constraint parameter by the given factor.
+     */
+    operator fun times(factor: Double) = BoxConstraints(
+            minWidth = minWidth * factor,
+            maxWidth = maxWidth * factor,
+            minHeight = minHeight * factor,
+            maxHeight = maxHeight * factor
+    )
+
+    /**
+     * Scales each constraint parameter by the inverse of the given factor.
+     */
+    operator fun div(factor: Double) = BoxConstraints(
+            minWidth = minWidth / factor,
+            maxWidth = maxWidth / factor,
+            minHeight = minHeight / factor,
+            maxHeight = maxHeight / factor
+    )
+
+    /**
+     * Scales each constraint parameter by the inverse of the given factor, rounded to the nearest integer.
+     */
+    // TODO(Migration/Andrey): Original operator ~/ could not be overriden in Kotlin
+    fun truncDiv(factor: Double) = BoxConstraints(
+            minWidth = minWidth.truncDiv(factor).toDouble(),
+            maxWidth = maxWidth.truncDiv(factor).toDouble(),
+            minHeight = minHeight.truncDiv(factor).toDouble(),
+            maxHeight = maxHeight.truncDiv(factor).toDouble()
+    )
+
+    /**
+     * Computes the remainder of each constraint parameter by the given value.
+     */
+    operator fun rem(value: Double) = BoxConstraints(
+            minWidth = minWidth % value,
+            maxWidth = maxWidth % value,
+            minHeight = minHeight % value,
+            maxHeight = maxHeight % value
+    )
 
     /**
      * Returns whether the object's constraints are normalized.
@@ -445,84 +520,91 @@ data class BoxConstraints(
                 minHeight >= 0.0 &&
                 minHeight <= maxHeight
 
-//    @override
-//    bool debugAssertIsValid({
-//        bool isAppliedConstraint: false,
-//        InformationCollector informationCollector,
-//    }) {
-//        assert(() {
-//            void throwError(String message) {
-//                final StringBuffer information = new StringBuffer();
-//                if (informationCollector != null)
-//                    informationCollector(information);
-//                throw new FlutterError('$message\n${information}The offending constraints were:\n  $this');
-//            }
-//            if (minWidth.isNaN || maxWidth.isNaN || minHeight.isNaN || maxHeight.isNaN) {
-//                final List<String> affectedFieldsList = <String>[];
-//                if (minWidth.isNaN)
-//                    affectedFieldsList.add('minWidth');
-//                if (maxWidth.isNaN)
-//                    affectedFieldsList.add('maxWidth');
-//                if (minHeight.isNaN)
-//                    affectedFieldsList.add('minHeight');
-//                if (maxHeight.isNaN)
-//                    affectedFieldsList.add('maxHeight');
-//                assert(affectedFieldsList.isNotEmpty);
-//                if (affectedFieldsList.length > 1)
-//                    affectedFieldsList.add('and ${affectedFieldsList.removeLast()}');
-//                String whichFields = '';
-//                if (affectedFieldsList.length > 2) {
-//                    whichFields = affectedFieldsList.join(', ');
-//                } else if (affectedFieldsList.length == 2) {
-//                    whichFields = affectedFieldsList.join(' ');
-//                } else {
-//                    whichFields = affectedFieldsList.single;
-//                }
-//                throwError('BoxConstraints has ${affectedFieldsList.length == 1 ? 'a NaN value' : 'NaN values' } in $whichFields.');
-//            }
-//            if (minWidth < 0.0 && minHeight < 0.0)
-//                throwError('BoxConstraints has both a negative minimum width and a negative minimum height.');
-//            if (minWidth < 0.0)
-//                throwError('BoxConstraints has a negative minimum width.');
-//            if (minHeight < 0.0)
-//                throwError('BoxConstraints has a negative minimum height.');
-//            if (maxWidth < minWidth && maxHeight < minHeight)
-//                throwError('BoxConstraints has both width and height constraints non-normalized.');
-//            if (maxWidth < minWidth)
-//                throwError('BoxConstraints has non-normalized width constraints.');
-//            if (maxHeight < minHeight)
-//                throwError('BoxConstraints has non-normalized height constraints.');
-//            if (isAppliedConstraint) {
-//                if (minWidth.isInfinite && minHeight.isInfinite)
-//                    throwError('BoxConstraints forces an infinite width and infinite height.');
-//                if (minWidth.isInfinite)
-//                    throwError('BoxConstraints forces an infinite width.');
-//                if (minHeight.isInfinite)
-//                    throwError('BoxConstraints forces an infinite height.');
-//            }
-//            assert(isNormalized);
-//            return true;
-//        }());
-//        return isNormalized;
-//    }
-//
-//    /// Returns a box constraints that [isNormalized].
-//    ///
-//    /// The returned [maxWidth] is at least as large as the [minWidth]. Similarly,
-//    /// the returned [maxHeight] is at least as large as the [minHeight].
-//    BoxConstraints normalize() {
-//        if (isNormalized)
-//            return this;
-//        final double minWidth = this.minWidth >= 0.0 ? this.minWidth : 0.0;
-//        final double minHeight = this.minHeight >= 0.0 ? this.minHeight : 0.0;
-//        return new BoxConstraints(
-//                minWidth: minWidth,
-//        maxWidth: minWidth > maxWidth ? minWidth : maxWidth,
-//        minHeight: minHeight,
-//        maxHeight: minHeight > maxHeight ? minHeight : maxHeight
-//        );
-//    }
-//
+    override fun debugAssertIsValid(
+        isAppliedConstraint: Boolean,
+        informationCollector: InformationCollector?
+    ): Boolean {
+        assert {
+            val throwError: (String) -> Unit = { message ->
+                val information = StringBuffer()
+                if (informationCollector != null)
+                    informationCollector(information)
+                throw FlutterError(
+                        "$message\n${information}The offending constraints were:\n  $this")
+            }
+            if (minWidth.isNaN() || maxWidth.isNaN() || minHeight.isNaN() || maxHeight.isNaN()) {
+                val affectedFieldsList = mutableListOf<String>()
+                if (minWidth.isNaN())
+                    affectedFieldsList.add("minWidth")
+                if (maxWidth.isNaN())
+                    affectedFieldsList.add("maxWidth")
+                if (minHeight.isNaN())
+                    affectedFieldsList.add("minHeight")
+                if (maxHeight.isNaN())
+                    affectedFieldsList.add("maxHeight")
+                assert(affectedFieldsList.isNotEmpty())
+                if (affectedFieldsList.size > 1)
+                    affectedFieldsList.add(
+                            "and ${affectedFieldsList.removeAt(affectedFieldsList.lastIndex)}")
+                var whichFields = ""
+                if (affectedFieldsList.size > 2) {
+                    whichFields = affectedFieldsList.joinToString(", ")
+                } else if (affectedFieldsList.size == 2) {
+                    whichFields = affectedFieldsList.joinToString(" ")
+                } else {
+                    whichFields = affectedFieldsList.single()
+                }
+                throwError(
+                        "BoxConstraints has ${(if (affectedFieldsList.size == 1) " a NaN value "
+                        else " NaN values")} in $whichFields.")
+            }
+            if (minWidth < 0.0 && minHeight < 0.0)
+                throwError("BoxConstraints has both a negative minimum width " +
+                        "and a negative minimum height.")
+            if (minWidth < 0.0)
+                throwError("BoxConstraints has a negative minimum width.")
+            if (minHeight < 0.0)
+                throwError("BoxConstraints has a negative minimum height.")
+            if (maxWidth < minWidth && maxHeight < minHeight)
+                throwError("BoxConstraints has both width and height constraints non-normalized.")
+            if (maxWidth < minWidth)
+                throwError("BoxConstraints has non-normalized width constraints.")
+            if (maxHeight < minHeight)
+                throwError("BoxConstraints has non-normalized height constraints.")
+            if (isAppliedConstraint) {
+                if (minWidth.isInfinite() && minHeight.isInfinite())
+                    throwError("BoxConstraints forces an infinite width and infinite height.")
+                if (minWidth.isInfinite())
+                    throwError("BoxConstraints forces an infinite width.")
+                if (minHeight.isInfinite())
+                    throwError("BoxConstraints forces an infinite height.")
+            }
+            assert(isNormalized)
+            true
+        }
+        return isNormalized
+    }
+
+    /**
+     * Returns a box constraints that [isNormalized].
+     *
+     * The returned [maxWidth] is at least as large as the [minWidth]. Similarly,
+     * the returned [maxHeight] is at least as large as the [minHeight].
+     */
+    fun normalize(): BoxConstraints {
+        if (isNormalized)
+            return this
+        val minWidth = if (this.minWidth >= 0.0) this.minWidth else 0.0
+        val minHeight = if (this.minHeight >= 0.0) this.minHeight else 0.0
+        return BoxConstraints(
+                minWidth = minWidth,
+                maxWidth = if (minWidth > maxWidth) minWidth else maxWidth,
+                minHeight = minHeight,
+                maxHeight = if (minHeight > maxHeight) minHeight else maxHeight
+        )
+    }
+
+    // (Migration:Andrey) It's data class now, no need for equals and hashcode
 //    @override
 //    bool operator ==(dynamic other) {
 //        assert(debugAssertIsValid());
@@ -543,22 +625,22 @@ data class BoxConstraints(
 //        assert(debugAssertIsValid());
 //        return hashValues(minWidth, maxWidth, minHeight, maxHeight);
 //    }
-//
-//    @override
-//    String toString() {
-//        final String annotation = isNormalized ? '' : '; NOT NORMALIZED';
-//        if (minWidth == double.infinity && minHeight == double.infinity)
-//            return 'BoxConstraints(biggest$annotation)';
-//        if (minWidth == 0 && maxWidth == double.infinity &&
-//                minHeight == 0 && maxHeight == double.infinity)
-//            return 'BoxConstraints(unconstrained$annotation)';
-//        String describe(double min, double max, String dim) {
-//        if (min == max)
-//            return '$dim=${min.toStringAsFixed(1)}';
-//        return '${min.toStringAsFixed(1)}<=$dim<=${max.toStringAsFixed(1)}';
-//    }
-//        final String width = describe(minWidth, maxWidth, 'w');
-//        final String height = describe(minHeight, maxHeight, 'h');
-//        return 'BoxConstraints($width, $height$annotation)';
-//    }
+
+    override fun toString(): String {
+        val annotation = if (isNormalized) "" else "; NOT NORMALIZED"
+        if (minWidth == Double.POSITIVE_INFINITY && minHeight == Double.POSITIVE_INFINITY)
+            return "BoxConstraints(biggest$annotation)"
+        if (minWidth == 0.0 && maxWidth == Double.POSITIVE_INFINITY &&
+                minHeight == 0.0 && maxHeight == Double.POSITIVE_INFINITY)
+            return "BoxConstraints(unconstrained$annotation)"
+        val describe: (Double, Double, String) -> String = { min, max, dim ->
+            if (min == max)
+                "$dim=${min.toStringAsFixed(1)}"
+            else
+                "${min.toStringAsFixed(1)}<=$dim<=${max.toStringAsFixed(1)}"
+        }
+        val width = describe(minWidth, maxWidth, "w")
+        val height = describe(minHeight, maxHeight, "h")
+        return "BoxConstraints($width, $height$annotation)"
+    }
 }

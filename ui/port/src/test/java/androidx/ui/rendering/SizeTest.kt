@@ -20,7 +20,8 @@ import androidx.ui.engine.geometry.Size
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box._DebugSize
 import androidx.ui.rendering.proxybox.RenderConstrainedBox
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,9 +36,9 @@ class SizeTest {
 
         box.layout(constraints = BoxConstraints())
 
-        Assert.assertEquals(box.size!!.width, 100.0, 0.1)
-        Assert.assertEquals(box.size!!.height, 100.0, 0.1)
-        Assert.assertEquals(box.size, Size(100.0, 100.0))
-        Assert.assertTrue(box.size is _DebugSize)
+        assertEquals(box.size!!.width, 100.0, 0.1)
+        assertEquals(box.size!!.height, 100.0, 0.1)
+        assertEquals(box.size, Size(100.0, 100.0))
+        assertTrue(box.size is _DebugSize)
     }
 }
