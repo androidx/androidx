@@ -46,7 +46,7 @@ public class OvershootInterpolator implements Interpolator {
         this(context.getResources(), context.getTheme(), attrs);
     }
 
-    private OvershootInterpolator(Resources res, Theme theme, AttributeSet attrs) {
+    OvershootInterpolator(Resources res, Theme theme, AttributeSet attrs) {
         TypedArray a;
         if (theme != null) {
             a = theme.obtainStyledAttributes(attrs,

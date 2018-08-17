@@ -45,7 +45,7 @@ public class AnticipateInterpolator implements Interpolator {
         this(context.getResources(), context.getTheme(), attrs);
     }
 
-    private AnticipateInterpolator(Resources res, Theme theme, AttributeSet attrs) {
+    AnticipateInterpolator(Resources res, Theme theme, AttributeSet attrs) {
         TypedArray a;
         if (theme != null) {
             a = theme.obtainStyledAttributes(attrs,
