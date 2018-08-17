@@ -44,6 +44,8 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavOptions;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Class which hooks up elements typically in the 'chrome' of your application such as global
  * navigation patterns like a navigation drawer or bottom nav bar with your {@link NavController}.
@@ -295,11 +297,17 @@ public class NavigationUI {
                         return handled;
                     }
                 });
+        final WeakReference<NavigationView> weakReference = new WeakReference<>(navigationView);
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
             @Override
             public void onNavigated(@NonNull NavController controller,
                     @NonNull NavDestination destination) {
-                Menu menu = navigationView.getMenu();
+                NavigationView view = weakReference.get();
+                if (view == null) {
+                    controller.removeOnNavigatedListener(this);
+                    return;
+                }
+                Menu menu = view.getMenu();
                 for (int h = 0, size = menu.size(); h < size; h++) {
                     MenuItem item = menu.getItem(h);
                     item.setChecked(matchDestination(destination, item.getItemId()));
@@ -330,11 +338,18 @@ public class NavigationUI {
                         return onNavDestinationSelected(item, navController, true);
                     }
                 });
+        final WeakReference<BottomNavigationView> weakReference =
+                new WeakReference<>(bottomNavigationView);
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
             @Override
             public void onNavigated(@NonNull NavController controller,
                     @NonNull NavDestination destination) {
-                Menu menu = bottomNavigationView.getMenu();
+                BottomNavigationView view = weakReference.get();
+                if (view == null) {
+                    controller.removeOnNavigatedListener(this);
+                    return;
+                }
+                Menu menu = view.getMenu();
                 for (int h = 0, size = menu.size(); h < size; h++) {
                     MenuItem item = menu.getItem(h);
                     if (matchDestination(destination, item.getItemId())) {
@@ -413,22 +428,36 @@ public class NavigationUI {
      * up arrow as needed.
      */
     private static class ToolbarOnNavigatedListener extends AbstractAppBarOnNavigatedListener {
-        private final Toolbar mToolbar;
+        private final WeakReference<Toolbar> mToolbarWeakReference;
 
         ToolbarOnNavigatedListener(
                 @NonNull Toolbar toolbar, @Nullable DrawerLayout drawerLayout) {
             super(toolbar.getContext(), drawerLayout);
-            mToolbar = toolbar;
+            mToolbarWeakReference = new WeakReference<>(toolbar);
+        }
+
+        @Override
+        public void onNavigated(@NonNull NavController controller,
+                @NonNull NavDestination destination) {
+            Toolbar toolbar = mToolbarWeakReference.get();
+            if (toolbar == null) {
+                controller.removeOnNavigatedListener(this);
+                return;
+            }
+            super.onNavigated(controller, destination);
         }
 
         @Override
         protected void setTitle(CharSequence title) {
-            mToolbar.setTitle(title);
+            mToolbarWeakReference.get().setTitle(title);
         }
 
         @Override
         protected void setNavigationIcon(Drawable icon) {
-            mToolbar.setNavigationIcon(icon);
+            Toolbar toolbar = mToolbarWeakReference.get();
+            if (toolbar != null) {
+                toolbar.setNavigationIcon(icon);
+            }
         }
     }
 
@@ -439,25 +468,45 @@ public class NavigationUI {
      */
     private static class CollapsingToolbarOnNavigatedListener
             extends AbstractAppBarOnNavigatedListener {
-        private final CollapsingToolbarLayout mCollapsingToolbarLayout;
-        private final Toolbar mToolbar;
+        private final WeakReference<CollapsingToolbarLayout> mCollapsingToolbarLayoutWeakReference;
+        private final WeakReference<Toolbar> mToolbarWeakReference;
 
         CollapsingToolbarOnNavigatedListener(
                 @NonNull CollapsingToolbarLayout collapsingToolbarLayout,
                 @NonNull Toolbar toolbar, @Nullable DrawerLayout drawerLayout) {
             super(collapsingToolbarLayout.getContext(), drawerLayout);
-            mCollapsingToolbarLayout = collapsingToolbarLayout;
-            mToolbar = toolbar;
+            mCollapsingToolbarLayoutWeakReference = new WeakReference<>(collapsingToolbarLayout);
+            mToolbarWeakReference = new WeakReference<>(toolbar);
+        }
+
+        @Override
+        public void onNavigated(@NonNull NavController controller,
+                @NonNull NavDestination destination) {
+            CollapsingToolbarLayout collapsingToolbarLayout =
+                    mCollapsingToolbarLayoutWeakReference.get();
+            Toolbar toolbar = mToolbarWeakReference.get();
+            if (collapsingToolbarLayout == null || toolbar == null) {
+                controller.removeOnNavigatedListener(this);
+                return;
+            }
+            super.onNavigated(controller, destination);
         }
 
         @Override
         protected void setTitle(CharSequence title) {
-            mCollapsingToolbarLayout.setTitle(title);
+            CollapsingToolbarLayout collapsingToolbarLayout =
+                    mCollapsingToolbarLayoutWeakReference.get();
+            if (collapsingToolbarLayout != null) {
+                collapsingToolbarLayout.setTitle(title);
+            }
         }
 
         @Override
         protected void setNavigationIcon(Drawable icon) {
-            mToolbar.setNavigationIcon(icon);
+            Toolbar toolbar = mToolbarWeakReference.get();
+            if (toolbar != null) {
+                toolbar.setNavigationIcon(icon);
+            }
         }
     }
 
@@ -470,14 +519,18 @@ public class NavigationUI {
             implements NavController.OnNavigatedListener {
         private final Context mContext;
         @Nullable
-        private final DrawerLayout mDrawerLayout;
+        private final WeakReference<DrawerLayout> mDrawerLayoutWeakReference;
         private DrawerArrowDrawable mArrowDrawable;
         private ValueAnimator mAnimator;
 
         AbstractAppBarOnNavigatedListener(@NonNull Context context,
                 @Nullable DrawerLayout drawerLayout) {
             mContext = context;
-            mDrawerLayout = drawerLayout;
+            if (drawerLayout != null) {
+                mDrawerLayoutWeakReference = new WeakReference<>(drawerLayout);
+            } else {
+                mDrawerLayoutWeakReference = null;
+            }
         }
 
         protected abstract void setTitle(CharSequence title);
@@ -487,15 +540,22 @@ public class NavigationUI {
         @Override
         public void onNavigated(@NonNull NavController controller,
                 @NonNull NavDestination destination) {
+            DrawerLayout drawerLayout = mDrawerLayoutWeakReference != null
+                    ? mDrawerLayoutWeakReference.get()
+                    : null;
+            if (mDrawerLayoutWeakReference != null && drawerLayout == null) {
+                controller.removeOnNavigatedListener(this);
+                return;
+            }
             CharSequence title = destination.getLabel();
             if (!TextUtils.isEmpty(title)) {
                 setTitle(title);
             }
             boolean isStartDestination = findStartDestination(controller.getGraph()) == destination;
-            if (mDrawerLayout == null && isStartDestination) {
+            if (drawerLayout == null && isStartDestination) {
                 setNavigationIcon(null);
             } else {
-                setActionBarUpIndicator(mDrawerLayout != null && isStartDestination);
+                setActionBarUpIndicator(drawerLayout != null && isStartDestination);
             }
         }
 
