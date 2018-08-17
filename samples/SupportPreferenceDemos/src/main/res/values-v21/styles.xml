@@ -32,8 +32,5 @@
     <style name="CarTheme" parent="Theme.Car.Light.NoActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlayCar</item>
         <item name="android:windowBackground">@color/car_card</item>
-        <item name="android:colorPrimary">#3F51B5</item>
-        <item name="android:colorPrimaryDark">#303F9F</item>
-        <item name="android:colorAccent">#FF4081</item>
     </style>
 </resources>
