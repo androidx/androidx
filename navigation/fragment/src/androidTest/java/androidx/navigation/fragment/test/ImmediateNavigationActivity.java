@@ -43,6 +43,9 @@ public class ImmediateNavigationActivity extends BaseNavigationActivity {
     }
 
     public static class NavigateOnResumeFragment extends Fragment {
+
+        private boolean mShouldNavigateInOnResume = true;
+
         @Nullable
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -53,7 +56,12 @@ public class ImmediateNavigationActivity extends BaseNavigationActivity {
         @Override
         public void onResume() {
             super.onResume();
-            NavHostFragment.findNavController(this).navigate(R.id.deep_link_test);
+            // Only automatically navigate in onResume the first time to avoid getting
+            // stuck in a loop
+            if (mShouldNavigateInOnResume) {
+                NavHostFragment.findNavController(this).navigate(R.id.deep_link_test);
+                mShouldNavigateInOnResume = false;
+            }
         }
     }
 
