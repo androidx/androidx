@@ -17,7 +17,8 @@
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
-    id("SupportAndroidTestAppPlugin")
+    id("AndroidXPlugin")
+    id("com.android.application")
 }
 
 android {
@@ -53,5 +54,3 @@ dependencies {
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false

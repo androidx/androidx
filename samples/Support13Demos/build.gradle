@@ -1,5 +1,6 @@
 plugins {
-    id("SupportAndroidTestAppPlugin")
+    id("AndroidXPlugin")
+    id("com.android.application")
 }
 
 dependencies {

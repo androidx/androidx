@@ -38,7 +38,8 @@ buildscript {
 }
 
 plugins {
-    id("SupportAndroidTestAppPlugin")
+    id("AndroidXPlugin")
+    id("com.android.application")
 }
 
 apply plugin: 'androidx.navigation.safeargs'
