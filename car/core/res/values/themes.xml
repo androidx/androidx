@@ -40,6 +40,7 @@ limitations under the License.
         <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
         <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="android:textColorHint">@color/car_body2_light</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItem</item>
         <item name="actionBarItemBackground">@drawable/car_card_ripple_background</item>
         <item name="actionBarSize">@dimen/car_app_bar_height</item>
         <item name="actionButtonStyle">@style/Widget.Car.ActionButton.Light</item>
@@ -51,6 +52,7 @@ limitations under the License.
         <item name="colorControlHighlight">@color/car_card_ripple_background_light</item>
         <item name="colorPrimary">@color/car_card_dark</item>
         <item name="colorSwitchThumbNormal">@color/car_body2_light</item>
+        <item name="editTextStyle">@style/Widget.Car.EditText</item>
         <item name="listItemActionDividerColor">@color/car_list_divider_light</item>
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
@@ -69,7 +71,8 @@ limitations under the License.
     <!-- Light theme for the Car. This theme has light colors for card backgrounds and dark
          text. These colors will invert for night. -->
     <style name="Theme.Car.Light.NoActionBar" parent="Theme.Car.NoActionBar">
-        <item name="android:alertDialogTheme">@style/Theme.Car.Light.Dialog.Alert</item>
+        <item name="android:alertDialogTheme">@style/Theme.Car.Dialog.Alert</item>
+        <item name="android:checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="android:colorAccent">@color/car_accent</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
         <item name="android:colorControlHighlight">@color/car_card_ripple_background</item>
@@ -86,16 +89,19 @@ limitations under the License.
         <item name="android:editTextColor">@color/car_body1</item>
         <item name="android:colorControlNormal">@color/car_body2</item>
         <item name="android:seekBarStyle">@style/Widget.Car.SeekBar</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItem</item>
         <item name="actionBarItemBackground">@drawable/car_card_ripple_background</item>
         <item name="actionBarSize">@dimen/car_app_bar_height</item>
         <item name="actionButtonStyle">@style/Widget.Car.ActionButton</item>
         <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/colorButtonNormal</item>
+        <item name="alertDialogTheme">@style/Theme.Car.Dialog.Alert</item>
         <item name="carDialogTheme">@style/Theme.Car.Dialog</item>
         <item name="colorAccent">?attr/android:colorAccent</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background</item>
         <item name="colorPrimary">@color/car_card</item>
         <item name="colorSwitchThumbNormal">@color/car_body2</item>
+        <item name="editTextStyle">@style/Widget.Car.EditText</item>
         <item name="listItemActionDividerColor">@color/car_list_divider</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>

@@ -30,15 +30,15 @@
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="@dimen/car_padding_3"
+        android:layout_marginTop="@dimen/car_padding_2"
         android:layout_marginEnd="@dimen/car_keyline_1"
-        android:layout_marginBottom="@dimen/car_padding_3"/>
+        android:layout_marginBottom="@dimen/car_padding_2"/>
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/car_padding_3"
-        android:layout_marginBottom="@dimen/car_padding_3">
+        android:layout_marginTop="@dimen/car_padding_2"
+        android:layout_marginBottom="@dimen/car_padding_2">
 
         <TextView
             android:id="@android:id/title"
@@ -46,7 +46,6 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="end"
-            android:layout_marginBottom="@dimen/car_padding_1"
             android:textAppearance="@style/TextAppearance.Car.Body1"/>
 
         <TextView
