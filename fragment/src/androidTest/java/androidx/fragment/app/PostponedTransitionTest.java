@@ -44,6 +44,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
@@ -61,11 +63,25 @@ public class PostponedTransitionTest {
         FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
         mBeginningFragment = new PostponedFragment1();
+
+        final CountDownLatch backStackLatch = new CountDownLatch(1);
+        FragmentManager.OnBackStackChangedListener backstackListener =
+                new FragmentManager.OnBackStackChangedListener() {
+
+            @Override
+            public void onBackStackChanged() {
+                backStackLatch.countDown();
+                fm.removeOnBackStackChangedListener(this);
+            }
+        };
+        fm.addOnBackStackChangedListener(backstackListener);
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, mBeginningFragment)
                 .setReorderingAllowed(true)
+                .addToBackStack(null)
                 .commit();
-        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        backStackLatch.await();
 
         mBeginningFragment.startPostponedEnterTransition();
         mBeginningFragment.waitForTransition();
