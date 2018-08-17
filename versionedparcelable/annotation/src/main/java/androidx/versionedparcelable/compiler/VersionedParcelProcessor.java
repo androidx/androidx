@@ -25,6 +25,7 @@ import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -62,12 +63,16 @@ import javax.tools.Diagnostic;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class VersionedParcelProcessor extends AbstractProcessor {
 
-    public static final String VERSIONED_PARCELIZE =
-            "androidx.versionedparcelable.VersionedParcelize";
-    public static final String PARCEL_FIELD = "androidx.versionedparcelable.ParcelField";
-    public static final String NON_PARCEL_FIELD = "androidx.versionedparcelable.NonParcelField";
+    static final String VERSIONED_PARCELIZE = "androidx.versionedparcelable.VersionedParcelize";
+    static final String PARCEL_FIELD = "androidx.versionedparcelable.ParcelField";
+    static final String NON_PARCEL_FIELD = "androidx.versionedparcelable.NonParcelField";
 
-    public static final String GEN_SUFFIX = "Parcelizer";
+    private static final ClassName RESTRICT_TO = ClassName.get("androidx.annotation", "RestrictTo");
+    private static final ClassName RESTRICT_TO_SCOPE = RESTRICT_TO.nestedClass("Scope");
+    private static final ClassName VERSIONED_PARCEL =
+            ClassName.get("androidx.versionedparcelable", "VersionedParcel");
+
+    private static final String GEN_SUFFIX = "Parcelizer";
     private static final String READ = "read";
     private static final String WRITE = "write";
 
@@ -210,12 +215,12 @@ public class VersionedParcelProcessor extends AbstractProcessor {
             String allowSerialization, String ignoreParcelables, String isCustom,
             String jetifyAs, String factoryClass) {
         boolean custom = "true".equals(isCustom);
-        AnnotationSpec restrictTo = AnnotationSpec.builder(
-                ClassName.get("androidx.annotation", "RestrictTo"))
-                .addMember("value", "androidx.annotation.RestrictTo.Scope.LIBRARY").build();
+        AnnotationSpec restrictTo = AnnotationSpec.builder(RESTRICT_TO)
+                .addMember("value", "$T.LIBRARY", RESTRICT_TO_SCOPE)
+                .build();
         TypeSpec.Builder genClass = TypeSpec
                 .classBuilder(versionedParcelable.getSimpleName() + GEN_SUFFIX)
-                .addJavadoc("@hide")
+                .addJavadoc("@hide\n")
                 .addAnnotation(restrictTo)
                 .addModifiers(Modifier.PUBLIC);
         if (jetifyAs == null || jetifyAs.length() == 0) {
@@ -230,32 +235,25 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 .methodBuilder(READ)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(type)
-                .addParameter(ClassName.get("androidx.versionedparcelable", "VersionedParcel"),
-                        "parcel");
+                .addParameter(VERSIONED_PARCEL, "parcel");
         if (factoryClass != null && factoryClass.length() != 0) {
             // Strip the .class
-            int index = factoryClass.lastIndexOf('.');
-            factoryClass = factoryClass.substring(0, index);
-            // Now filter for pkg/classname.
-            index = factoryClass.lastIndexOf('.');
-            String pkg = factoryClass.substring(0, index);
-            String clsName = factoryClass.substring(index + 1);
-            ClassName cls = ClassName.get(pkg, clsName);
+            factoryClass = factoryClass.substring(0, factoryClass.lastIndexOf('.'));
+            ClassName cls = ClassName.bestGuess(factoryClass);
             genClass.addField(FieldSpec.builder(cls, "sBuilder")
                     .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-                    .initializer("new " + factoryClass + "()")
+                    .initializer("new $T()", cls)
                     .build());
-            readBuilder.addStatement("$L obj = sBuilder.get()", type);
+            readBuilder.addStatement("$T obj = sBuilder.get()", type);
         } else {
-            readBuilder.addStatement("$L obj = new $L()", type, type);
+            readBuilder.addStatement("$1T obj = new $1T()", type);
         }
 
         MethodSpec.Builder writeBuilder = MethodSpec
                 .methodBuilder(WRITE)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(type, "obj")
-                .addParameter(ClassName.get("androidx.versionedparcelable", "VersionedParcel"),
-                        "parcel")
+                .addParameter(VERSIONED_PARCEL, "parcel")
                 .addStatement("parcel.setSerializationFlags($L, $L)", allowSerialization,
                         ignoreParcelables);
         if (custom) {
@@ -278,8 +276,8 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                         writeBuilder.beginControlFlow("if ($L != obj.$L)", strip(defaultValue),
                                 e.getSimpleName());
                     } else if (isArray(e)) {
-                        writeBuilder.beginControlFlow("if (!java.util.Arrays.equals($L, obj.$L))",
-                                strip(defaultValue), e.getSimpleName());
+                        writeBuilder.beginControlFlow("if (!$T.equals($L, obj.$L))",
+                                Arrays.class, strip(defaultValue), e.getSimpleName());
                     } else {
                         String v = "java.lang.String".equals(e.asType().toString()) ? defaultValue
                                 : strip(defaultValue);
@@ -313,7 +311,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 TypeSpec.Builder jetifyClass = TypeSpec
                         .classBuilder(jetifyAs.substring(index + 1, jetifyAs.length() - 1)
                                 + GEN_SUFFIX)
-                        .addJavadoc("@hide")
+                        .addJavadoc("@hide\n")
                         .addAnnotation(restrictTo)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         // The empty package here is a hack to avoid an import,
@@ -323,16 +321,14 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                         .methodBuilder(READ)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .returns(type)
-                        .addParameter(ClassName.get("androidx.versionedparcelable",
-                                "VersionedParcel"), "parcel")
+                        .addParameter(VERSIONED_PARCEL, "parcel")
                         .addStatement("return $L.read(parcel)", superCls)
                         .build());
                 jetifyClass.addMethod(MethodSpec
                         .methodBuilder(WRITE)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .addParameter(type, "obj")
-                        .addParameter(ClassName.get("androidx.versionedparcelable",
-                                "VersionedParcel"), "parcel")
+                        .addParameter(VERSIONED_PARCEL, "parcel")
                         .addStatement("$L.write(obj, parcel)", superCls)
                         .build());
                 TypeSpec jetified = jetifyClass.build();
