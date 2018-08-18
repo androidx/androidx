@@ -14,6 +14,8 @@
  * limitations under the License
  */
 
+import androidx.build.BuildServerConfigurationKt
+
 plugins {
     id("SupportKotlinLibraryPlugin")
     id("application")
@@ -29,7 +31,7 @@ dependencies {
 task dist(type: Copy) {
   from project.tasks.findByPath("distZip") // defined by application plugin
 
-  destinationDir rootProject.distDir // defined by support library plugin
+  destinationDir BuildServerConfigurationKt.getDistributionDirectory(rootProject)
 }
 rootProject.tasks["createArchive"].dependsOn(dist)
 
