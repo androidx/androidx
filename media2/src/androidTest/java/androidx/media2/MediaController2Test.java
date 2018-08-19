@@ -1241,7 +1241,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         SessionToken2 token = TestUtils.getServiceToken(mContext, MockMediaSessionService2.ID);
         assertNotNull(token);
         assertEquals(mContext.getPackageName(), token.getPackageName());
-        assertEquals(MockMediaSessionService2.ID, token.getId());
         assertEquals(SessionToken2.TYPE_SESSION_SERVICE, token.getType());
     }
 
@@ -1308,7 +1307,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testControllerAfterSessionIsGone_session() throws InterruptedException {
         prepareLooper();
-        testControllerAfterSessionIsClosed(mSession.getToken().getId());
+        testControllerAfterSessionIsClosed(TAG);
     }
 
     @LargeTest
@@ -1394,14 +1393,13 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testClose_session() throws InterruptedException {
         prepareLooper();
-        final String id = mSession.getToken().getId();
         mController.close();
         // close is done immediately for session.
         testNoInteraction();
 
         // Test whether the controller is notified about later close of the session or
         // re-creation.
-        testControllerAfterSessionIsClosed(id);
+        testControllerAfterSessionIsClosed(TAG);
     }
 
     @LargeTest

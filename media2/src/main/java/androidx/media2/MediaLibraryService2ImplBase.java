@@ -37,9 +37,4 @@ class MediaLibraryService2ImplBase extends MediaSessionService2ImplBase {
     public MediaLibrarySession getSession() {
         return (MediaLibrarySession) super.getSession();
     }
-
-    @Override
-    public int getSessionType() {
-        return SessionToken2.TYPE_LIBRARY_SERVICE;
-    }
 }

@@ -41,7 +41,9 @@ import javax.annotation.concurrent.GuardedBy;
  * Mock implementation of {@link MediaLibraryService2} for testing.
  */
 public class MockMediaLibraryService2 extends MediaLibraryService2 {
-    // Keep in sync with the AndroidManifest.xml
+    /**
+     * ID of the session that this service will create.
+     */
     public static final String ID = "TestLibrary";
 
     public static final String ROOT_ID = "rootId";
@@ -101,7 +103,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     }
 
     @Override
-    public MediaLibrarySession onCreateSession(String sessionId) {
+    public MediaLibrarySession onCreateSession() {
         final MockPlayer player = new MockPlayer(1);
         final SyncHandler handler = (SyncHandler) TestServiceRegistry.getInstance().getHandler();
         final Executor executor = new Executor() {
@@ -119,7 +121,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             librarySessionCallback = new TestLibrarySessionCallback();
         }
         mSession = new MediaLibrarySession.Builder(MockMediaLibraryService2.this, executor,
-                librarySessionCallback).setPlayer(player).setId(sessionId).build();
+                librarySessionCallback).setPlayer(player).setId(ID).build();
         return mSession;
     }
 

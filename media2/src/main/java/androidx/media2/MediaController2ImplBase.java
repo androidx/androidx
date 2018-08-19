@@ -1150,8 +1150,8 @@ class MediaController2ImplBase implements MediaController2Impl {
             }
             // Sanity check
             if (!mToken.getPackageName().equals(name.getPackageName())) {
-                Log.wtf(TAG, name + " was connected, but expected pkg="
-                        + mToken.getPackageName() + " with id=" + mToken.getId());
+                Log.wtf(TAG, "Expected connection to " + mToken.getPackageName() + " but is"
+                        + " connected to " + name);
                 return;
             }
             connectToSession(IMediaSession2.Stub.asInterface(service));

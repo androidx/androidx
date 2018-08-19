@@ -54,7 +54,6 @@ public class SessionToken2Test {
         SessionToken2 token = new SessionToken2(mContext, new ComponentName(
                 mContext.getPackageName(),
                 MockMediaSessionService2.class.getCanonicalName()));
-        assertEquals(MockMediaSessionService2.ID, token.getId());
         assertEquals(mContext.getPackageName(), token.getPackageName());
         assertEquals(Process.myUid(), token.getUid());
         assertEquals(SessionToken2.TYPE_SESSION_SERVICE, token.getType());
@@ -65,7 +64,6 @@ public class SessionToken2Test {
         SessionToken2 token = new SessionToken2(mContext, new ComponentName(
                 mContext.getPackageName(),
                 MockMediaLibraryService2.class.getCanonicalName()));
-        assertEquals(MockMediaLibraryService2.ID, token.getId());
         assertEquals(mContext.getPackageName(), token.getPackageName());
         assertEquals(Process.myUid(), token.getUid());
         assertEquals(SessionToken2.TYPE_LIBRARY_SERVICE, token.getType());
