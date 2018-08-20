@@ -948,8 +948,6 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
     @LargeTest
     public void testControllerAfterSessionIsGone() throws InterruptedException {
         prepareLooper();
-        final String sessionId = mSession.getToken().getId();
-
         mSession.close();
         testSessionCallbackIsNotCalled();
 
@@ -959,7 +957,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         mSession = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {})
-                .setId(sessionId)
+                .setId(TAG)
                 .build();
         testSessionCallbackIsNotCalled();
     }

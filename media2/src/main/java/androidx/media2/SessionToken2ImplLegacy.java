@@ -31,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
-import androidx.media.MediaSessionManager;
 import androidx.media2.SessionToken2.SessionToken2Impl;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
@@ -39,19 +38,6 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
-/**
- * Represents an ongoing {@link MediaSession2} or a {@link MediaSessionService2}.
- * If it's representing a session service, it may not be ongoing.
- * <p>
- * This may be passed to apps by the session owner to allow them to create a
- * {@link MediaController2} to communicate with the session.
- * <p>
- * It can be also obtained by {@link MediaSessionManager}.
- */
-// New version of MediaSession.Token for following reasons
-//   - Stop implementing Parcelable for updatable support
-//   - Represent session and library service (formerly browser service) in one class.
-//     Previously MediaSession.Token was for session and ComponentName was for service.
 @VersionedParcelize(isCustom = true)
 final class SessionToken2ImplLegacy extends CustomVersionedParcelable implements SessionToken2Impl {
     // Don't mark mLegacyToken @ParcelField, because we need to use toBundle()/fromBundle() instead
@@ -69,8 +55,6 @@ final class SessionToken2ImplLegacy extends CustomVersionedParcelable implements
     ComponentName mComponentName;
     @ParcelField(5)
     String mPackageName;
-    @ParcelField(6)
-    String mId;
 
     SessionToken2ImplLegacy(MediaSessionCompat.Token token, String packageName, int uid) {
         if (token == null) {
@@ -85,10 +69,9 @@ final class SessionToken2ImplLegacy extends CustomVersionedParcelable implements
         mPackageName = packageName;
         mComponentName = null;
         mType = TYPE_SESSION_LEGACY;
-        mId = "";
     }
 
-    SessionToken2ImplLegacy(ComponentName serviceComponent, int uid, String id) {
+    SessionToken2ImplLegacy(ComponentName serviceComponent, int uid) {
         if (serviceComponent == null) {
             throw new IllegalArgumentException("serviceComponent shouldn't be null.");
         }
@@ -98,7 +81,6 @@ final class SessionToken2ImplLegacy extends CustomVersionedParcelable implements
         mType = TYPE_BROWSER_SERVICE_LEGACY;
         mPackageName = serviceComponent.getPackageName();
         mComponentName = serviceComponent;
-        mId = id;
     }
 
     /**
@@ -161,11 +143,6 @@ final class SessionToken2ImplLegacy extends CustomVersionedParcelable implements
     @Override
     public ComponentName getComponentName() {
         return mComponentName;
-    }
-
-    @Override
-    public String getSessionId() {
-        return mId;
     }
 
     @Override

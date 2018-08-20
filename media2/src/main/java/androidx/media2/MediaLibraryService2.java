@@ -32,7 +32,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * Base class for media library services.
+ * Base class for media library services, which is the service containing
+ * {@link MediaLibrarySession}.
  * <p>
  * Media library services enable applications to browse media content provided by an application
  * and ask the application to start playing it. They may also be used to control content that
@@ -45,11 +46,6 @@ import java.util.concurrent.Executor;
  *     &lt;action android:name="android.media.MediaLibraryService2" /&gt;
  *   &lt;/intent-filter&gt;
  * &lt;/service&gt;</pre>
- * <p>
- * The {@link MediaLibraryService2} class derives from {@link MediaSessionService2}. IDs shouldn't
- * be shared between the {@link MediaSessionService2} and {@link MediaSession2}. By
- * default, an empty string will be used for ID of the service. If you want to specify an ID,
- * declare metadata in the manifest as follows.
  *
  * @see MediaSessionService2
  */
@@ -61,7 +57,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
     /**
      * Session for the {@link MediaLibraryService2}. Build this object with
-     * {@link Builder} and return in {@link #onCreateSession(String)}.
+     * {@link Builder} and return in {@link #onCreateSession()}.
      */
     public static final class MediaLibrarySession extends MediaSession2 {
         /**
@@ -395,19 +391,15 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
      * Library service will accept or reject the connection with the
      * {@link MediaLibrarySessionCallback} in the created session.
      * <p>
-     * Service wouldn't run if {@code null} is returned or session's ID doesn't match with the
-     * expected ID that you've specified through the AndroidManifest.xml.
-     * <p>
      * This method will be called on the main thread.
      *
-     * @param sessionId session id written in the AndroidManifest.xml.
      * @return a new library session
      * @see Builder
      * @see #getSession()
      * @throws RuntimeException if returned session is invalid
      */
     @Override
-    public @NonNull abstract MediaLibrarySession onCreateSession(String sessionId);
+    public @NonNull abstract MediaLibrarySession onCreateSession();
 
     /**
      * Contains information that the library service needs to send to the client when

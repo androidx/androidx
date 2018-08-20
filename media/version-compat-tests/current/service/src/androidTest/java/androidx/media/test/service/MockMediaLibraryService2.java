@@ -68,9 +68,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MockMediaLibraryService2 extends MediaLibraryService2 {
-    // Keep in sync with the AndroidManifest.xml
-    public static final String ID = "TestLibrary";
-
     private static final String TAG = "MockMediaLibrarySvc2";
 
     MediaLibrarySession mSession;
@@ -97,7 +94,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     }
 
     @Override
-    public MediaLibrarySession onCreateSession(String sessionId) {
+    public MediaLibrarySession onCreateSession() {
         final MockPlayerConnector player = new MockPlayerConnector(1);
         final Executor executor = new Executor() {
             @Override
@@ -107,7 +104,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         };
 
         mSession = new MediaLibrarySession.Builder(MockMediaLibraryService2.this, executor,
-                new TestLibrarySessionCallback()).setPlayer(player).setId(sessionId).build();
+                new TestLibrarySessionCallback()).setPlayer(player).build();
         return mSession;
     }
 
