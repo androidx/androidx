@@ -145,7 +145,6 @@ class VideoView2ImplBaseWithMp1
 
     float mSpeed;
     private float mFallbackSpeed;  // keep the original speed before 'pause' is called.
-    int mVolumeLevel;
     protected VideoView2 mInstance;
 
     private long mShowControllerIntervalMs;
@@ -1243,13 +1242,6 @@ class VideoView2ImplBaseWithMp1
                             setSpeed(speed);
                             mSpeed = speed;
                         }
-                        break;
-                    case MediaControlView2.COMMAND_MUTE:
-                        mVolumeLevel = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                        break;
-                    case MediaControlView2.COMMAND_UNMUTE:
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeLevel, 0);
                         break;
                 }
             }
