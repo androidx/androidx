@@ -16,12 +16,11 @@
 
 package androidx.preference
 
-import android.app.Activity
 import android.os.Bundle
-import android.preference.PreferenceFragment
+import androidx.fragment.app.FragmentActivity
 import androidx.preference.ktx.test.R
 
-class TestPreferenceActivity : Activity() {
+class TestPreferenceActivity : FragmentActivity() {
 
     companion object {
         const val TAG = "TestPreferenceActivity"
@@ -29,14 +28,13 @@ class TestPreferenceActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .add(android.R.id.content, TestPreferenceFragment(), TAG)
                 .commitNow()
     }
 
-    class TestPreferenceFragment : PreferenceFragment() {
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
+    class TestPreferenceFragment : PreferenceFragmentCompat() {
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             addPreferencesFromResource(R.xml.preferences)
         }
     }
