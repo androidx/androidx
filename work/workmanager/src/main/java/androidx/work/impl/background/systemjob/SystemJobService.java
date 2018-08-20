@@ -165,7 +165,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         Logger.debug(TAG, String.format("%s executed on JobScheduler", workSpecId));
         JobParameters parameters;
         synchronized (mJobParameters) {
-            parameters = mJobParameters.get(workSpecId);
+            parameters = mJobParameters.remove(workSpecId);
         }
         if (parameters != null) {
             jobFinished(parameters, needsReschedule);

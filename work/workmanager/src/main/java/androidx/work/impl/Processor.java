@@ -219,22 +219,25 @@ public class Processor implements ExecutionListener {
             }
         }
 
-        // Avoiding a synthetic accessor
-        final List<Scheduler> schedulers = mSchedulers;
+        if (!needsReschedule) {
+            // Avoiding a synthetic accessor
+            final List<Scheduler> schedulers = mSchedulers;
 
-        // IMPORTANT: This step must not be synchronized because InstantTaskExecutorRule
-        // moves a lot of our work in the TaskExecutor thread to the same thread that the test uses.
+            // IMPORTANT: This step must not be synchronized because InstantTaskExecutorRule
+            // moves a lot of our work in the TaskExecutor thread to the same thread that the test
+            // uses.
 
-        // Schedulers race to complete the work. So if the Work was completed in one scheduler,
-        // other schedulers need to cancel that work. Otherwise we will exceed scheduling limits
-        // if the rate of enqueue >>> rate of execution of work.
-        WorkManagerTaskExecutor.getInstance().executeOnBackgroundThread(new Runnable() {
-            @Override
-            public void run() {
-                for (Scheduler scheduler : schedulers) {
-                    scheduler.cancel(workSpecId);
+            // Schedulers race to complete the work. So if the Work was completed in one scheduler,
+            // other schedulers need to cancel that work. Otherwise we will exceed scheduling limits
+            // if the rate of enqueue >>> rate of execution of work.
+            WorkManagerTaskExecutor.getInstance().executeOnBackgroundThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (Scheduler scheduler : schedulers) {
+                        scheduler.cancel(workSpecId);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }
