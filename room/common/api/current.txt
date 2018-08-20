@@ -47,6 +47,29 @@ package androidx.room {
   public static abstract class ForeignKey.Action implements java.lang.annotation.Annotation {
   }
 
+  public abstract class Fts3Entity implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class Fts4Entity implements java.lang.annotation.Annotation {
+  }
+
+  public class FtsOptions {
+    field public static final int ASC = 0; // 0x0
+    field public static final int DESC = 1; // 0x1
+    field public static final int FTS3 = 1; // 0x1
+    field public static final int FTS4 = 2; // 0x2
+    field public static final int ICU = 2; // 0x2
+    field public static final int PORTER = 1; // 0x1
+    field public static final int SIMPLE = 0; // 0x0
+    field public static final int UNICODE61 = 3; // 0x3
+  }
+
+  public static abstract class FtsOptions.Order implements java.lang.annotation.Annotation {
+  }
+
+  public static abstract class FtsOptions.Tokenizer implements java.lang.annotation.Annotation {
+  }
+
   public abstract class Ignore implements java.lang.annotation.Annotation {
   }
 
