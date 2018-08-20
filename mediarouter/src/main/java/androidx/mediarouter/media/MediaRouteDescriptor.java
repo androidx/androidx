@@ -152,10 +152,7 @@ public final class MediaRouteDescriptor {
      * if it contains only one member.
      * </p>>
      * @return {@code true} if this route is a dynamic group route.
-     *
-     * @hide TODO unhide this method and updateApi
      */
-    @RestrictTo(LIBRARY_GROUP)
     public boolean isDynamicGroupRoute() {
         return mBundle.getBoolean(IS_DYNAMIC_GROUP_ROUTE, false);
     }
@@ -534,10 +531,7 @@ public final class MediaRouteDescriptor {
         /**
          * Sets whether the route is a dynamic group route.
          * @see #isDynamicGroupRoute()
-         *
-         * @hide TODO unhide this method and updateApi
          */
-        @RestrictTo(LIBRARY_GROUP)
         public Builder setIsDynamicGroupRoute(boolean isDynamicGroupRoute) {
             mBundle.putBoolean(IS_DYNAMIC_GROUP_ROUTE, isDynamicGroupRoute);
             return this;
