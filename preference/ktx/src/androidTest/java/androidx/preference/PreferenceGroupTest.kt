@@ -40,8 +40,9 @@ class PreferenceGroupTest {
     @Before fun setup() {
         preferenceGroup = (rule
                 .activity
-                .fragmentManager
-                .findFragmentByTag(TestPreferenceActivity.TAG) as PreferenceFragment).preferenceScreen
+                .supportFragmentManager
+                .findFragmentByTag(
+                        TestPreferenceActivity.TAG) as PreferenceFragmentCompat).preferenceScreen
     }
 
     @Test fun get() {
