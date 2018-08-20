@@ -72,7 +72,11 @@ import java.util.Map;
  * ViewModel would be:
  * <pre>
  * public class UserModel extends ViewModel {
- *     public final LiveData&lt;User&gt; userLiveData = new LiveData<>();
+ *     private final MutableLiveData&lt;User&gt; userLiveData = new MutableLiveData&lt;&gt;();
+ *
+ *     public LiveData&lt;User&gt; getUser() {
+ *         return userLiveData;
+ *     }
  *
  *     public UserModel() {
  *         // trigger user load.
