@@ -140,6 +140,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
+        assertThat(latestWorkSpec.runAttemptCount, is(1));
     }
 
     @Test
@@ -628,7 +629,10 @@ public class WorkerWrapperTest extends DatabaseTest {
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), null, 1));
+                new Extras(Data.EMPTY,
+                        Collections.<String>emptyList(),
+                        new Extras.RuntimeExtras(),
+                        1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getApplicationContext(), is(equalTo(mContext.getApplicationContext())));
@@ -646,7 +650,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(input, Collections.<String>emptyList(), null, 1));
+                new Extras(input, Collections.<String>emptyList(), new Extras.RuntimeExtras(), 1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getInputData().getString(key), is(expectedValue));
@@ -655,7 +659,10 @@ public class WorkerWrapperTest extends DatabaseTest {
         worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), null, 1));
+                new Extras(Data.EMPTY,
+                        Collections.<String>emptyList(),
+                        new Extras.RuntimeExtras(),
+                        1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getInputData().size(), is(0));
@@ -673,7 +680,10 @@ public class WorkerWrapperTest extends DatabaseTest {
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(Data.EMPTY, Arrays.asList("one", "two", "three"), null, 1));
+                new Extras(Data.EMPTY,
+                        Arrays.asList("one", "two", "three"),
+                        new Extras.RuntimeExtras(),
+                        1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getTags(), containsInAnyOrder("one", "two", "three"));
@@ -768,7 +778,10 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mContext,
                 InterruptionAwareWorker.class.getName(),
                 work.getId(),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), null, 1));
+                new Extras(Data.EMPTY,
+                        Collections.<String>emptyList(),
+                        new Extras.RuntimeExtras(),
+                        1));
         assertThat(worker, is(notNullValue()));
         assertThat(worker.isStopped(), is(false));
 
@@ -795,7 +808,10 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mContext,
                 InterruptionAwareWorker.class.getName(),
                 work.getId(),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), null, 1));
+                new Extras(Data.EMPTY,
+                        Collections.<String>emptyList(),
+                        new Extras.RuntimeExtras(),
+                        1));
         assertThat(worker, is(notNullValue()));
         assertThat(worker.isStopped(), is(false));
 

@@ -103,8 +103,7 @@ public abstract class NonBlockingWorker implements WorkFinishedCallback {
      */
     @RequiresApi(24)
     public final @Nullable Uri[] getTriggeredContentUris() {
-        Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
-        return (runtimeExtras == null) ? null : runtimeExtras.triggeredContentUris;
+        return mExtras.getRuntimeExtras().triggeredContentUris;
     }
 
     /**
@@ -114,8 +113,7 @@ public abstract class NonBlockingWorker implements WorkFinishedCallback {
      */
     @RequiresApi(24)
     public final @Nullable String[] getTriggeredContentAuthorities() {
-        Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
-        return (runtimeExtras == null) ? null : runtimeExtras.triggeredContentAuthorities;
+        return mExtras.getRuntimeExtras().triggeredContentAuthorities;
     }
 
     /**
@@ -126,8 +124,7 @@ public abstract class NonBlockingWorker implements WorkFinishedCallback {
      */
     @RequiresApi(28)
     public final @Nullable Network getNetwork() {
-        Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
-        return (runtimeExtras == null) ? null : runtimeExtras.network;
+        return mExtras.getRuntimeExtras().network;
     }
 
     /**
