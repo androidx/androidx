@@ -296,6 +296,12 @@ limitations under the License.
         <item name="android:thumb">@drawable/car_seekbar_thumb</item>
     </style>
 
+    <!-- Styling for switches. -->
+    <style name="Widget.Car.Switch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="android:thumb">@drawable/car_switch_thumb</item>
+        <item name="android:switchMinWidth">@dimen/car_primary_icon_size</item>
+    </style>
+
     <style name="CarListVerticalDivider">
         <item name="android:layout_width">@dimen/car_vertical_line_divider_width</item>
         <item name="android:layout_height">@dimen/car_vertical_line_divider_height</item>
