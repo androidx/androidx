@@ -528,6 +528,13 @@ limitations under the License.
         <item name="android:divider">@drawable/car_preference_divider</item>
         <item name="android:paddingLeft">@dimen/car_keyline_1</item>
         <item name="android:paddingRight">@dimen/car_keyline_1</item>
+        <item name="android:paddingTop">@dimen/car_padding_4</item>
+        <item name="android:paddingBottom">@dimen/car_padding_4</item>
+    </style>
+
+    <style name="AlertDialog" parent="AlertDialog.AppCompat">
+        <item name="multiChoiceItemLayout">@layout/select_dialog_multichoice_car</item>
+        <item name="singleChoiceItemLayout">@layout/select_dialog_singlechoice_car</item>
     </style>
 
 </resources>
