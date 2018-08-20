@@ -31,8 +31,10 @@ import androidx.room.migration.bundle.DatabaseBundle;
 import androidx.room.migration.bundle.EntityBundle;
 import androidx.room.migration.bundle.FieldBundle;
 import androidx.room.migration.bundle.ForeignKeyBundle;
+import androidx.room.migration.bundle.FtsEntityBundle;
 import androidx.room.migration.bundle.IndexBundle;
 import androidx.room.migration.bundle.SchemaBundle;
+import androidx.room.util.FtsTableInfo;
 import androidx.room.util.TableInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
@@ -318,6 +320,12 @@ public class MigrationTestHelper extends TestWatcher {
                 toForeignKeys(entityBundle.getForeignKeys()), toIndices(entityBundle.getIndices()));
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static FtsTableInfo toFtsTableInfo(FtsEntityBundle ftsEntityBundle) {
+        return new FtsTableInfo(ftsEntityBundle.getTableName(), toColumnNamesSet(ftsEntityBundle),
+                ftsEntityBundle.getCreateSql());
+    }
+
     private static Set<TableInfo.Index> toIndices(List<IndexBundle> indices) {
         if (indices == null) {
             return Collections.emptySet();
@@ -340,6 +348,14 @@ public class MigrationTestHelper extends TestWatcher {
             result.add(new TableInfo.ForeignKey(bundle.getTable(),
                     bundle.getOnDelete(), bundle.getOnUpdate(),
                     bundle.getColumns(), bundle.getReferencedColumns()));
+        }
+        return result;
+    }
+
+    private static Set<String> toColumnNamesSet(EntityBundle entity) {
+        Set<String> result = new HashSet<>();
+        for (FieldBundle field : entity.getFields()) {
+            result.add(field.getColumnName());
         }
         return result;
     }
@@ -388,15 +404,31 @@ public class MigrationTestHelper extends TestWatcher {
         protected void validateMigration(SupportSQLiteDatabase db) {
             final Map<String, EntityBundle> tables = mDatabaseBundle.getEntitiesByTableName();
             for (EntityBundle entity : tables.values()) {
-                final TableInfo expected = toTableInfo(entity);
-                final TableInfo found = TableInfo.read(db, entity.getTableName());
-                if (!expected.equals(found)) {
-                    throw new IllegalStateException(
-                            "Migration failed. expected:" + expected + " , found:" + found);
+                if (entity instanceof FtsEntityBundle) {
+                    final FtsTableInfo expected = toFtsTableInfo((FtsEntityBundle) entity);
+                    final FtsTableInfo found = FtsTableInfo.read(db, entity.getTableName());
+                    if (!expected.equals(found)) {
+                        throw new IllegalStateException(
+                                "Migration failed.\nExpected:" + expected + "\nFound:" + found);
+                    }
+                } else {
+                    final TableInfo expected = toTableInfo(entity);
+                    final TableInfo found = TableInfo.read(db, entity.getTableName());
+                    if (!expected.equals(found)) {
+                        throw new IllegalStateException(
+                                "Migration failed.\nExpected:" + expected + " \nfound:" + found);
+                    }
                 }
             }
             if (mVerifyDroppedTables) {
                 // now ensure tables that should be removed are removed.
+                Set<String> expectedTables = new HashSet<>();
+                for (EntityBundle entity : tables.values()) {
+                    expectedTables.add(entity.getTableName());
+                    if (entity instanceof FtsEntityBundle) {
+                        expectedTables.addAll(((FtsEntityBundle) entity).getShadowTableNames());
+                    }
+                }
                 Cursor cursor = db.query("SELECT name FROM sqlite_master WHERE type='table'"
                                 + " AND name NOT IN(?, ?, ?)",
                         new String[]{Room.MASTER_TABLE_NAME, "android_metadata",
@@ -405,7 +437,7 @@ public class MigrationTestHelper extends TestWatcher {
                 try {
                     while (cursor.moveToNext()) {
                         final String tableName = cursor.getString(0);
-                        if (!tables.containsKey(tableName)) {
+                        if (!expectedTables.contains(tableName)) {
                             throw new IllegalStateException("Migration failed. Unexpected table "
                                     + tableName);
                         }

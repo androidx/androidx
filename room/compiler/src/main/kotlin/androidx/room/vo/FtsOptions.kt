@@ -52,7 +52,7 @@ data class FtsOptions(
             }
 
             if (languageIdColumnName.isNotEmpty()) {
-                add("languageid=$languageIdColumnName")
+                add("languageid=`$languageIdColumnName`")
             }
 
             if (matchInfo != FtsVersion.FTS4) {
@@ -60,11 +60,11 @@ data class FtsOptions(
             }
 
             notIndexedColumns.forEach {
-                add("notindexed=$it")
+                add("notindexed=`$it`")
             }
 
             if (prefixSizes.isNotEmpty()) {
-                add("prefix=${prefixSizes.joinToString(separator = ",") { it.toString() }}")
+                add("prefix=`${prefixSizes.joinToString(separator = ",") { it.toString() }}`")
             }
 
             if (preferredOrder != FtsOrder.ASC) {

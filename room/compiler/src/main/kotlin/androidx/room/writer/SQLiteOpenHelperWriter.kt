@@ -26,6 +26,7 @@ import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Database
 import androidx.room.vo.Entity
+import androidx.room.vo.FtsEntity
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeSpec
@@ -102,7 +103,11 @@ class SQLiteOpenHelperWriter(val database: Database) {
                 var statementCount = 0
                 while (!entities.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
                     val methodScope = scope.fork()
-                    val validationWriter = TableInfoValidationWriter(entities.poll())
+                    val entity = entities.poll()
+                    val validationWriter = when (entity) {
+                        is FtsEntity -> FtsTableInfoValidationWriter(entity)
+                        else -> TableInfoValidationWriter(entity)
+                    }
                     validationWriter.write(dbParam, methodScope)
                     addCode(methodScope.builder().build())
                     statementCount += validationWriter.statementCount()

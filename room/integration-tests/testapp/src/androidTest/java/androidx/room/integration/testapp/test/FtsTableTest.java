@@ -42,7 +42,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
-public class FtsTableTest extends TestDatabaseTest {
+public class FtsTableTest {
 
     private FtsTestDatabase mDatabase;
     private MailDao mMailDao;
