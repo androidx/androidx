@@ -30,7 +30,9 @@ import java.util.concurrent.Executor;
  * Mock implementation of {@link MediaSessionService2} for testing.
  */
 public class MockMediaSessionService2 extends MediaSessionService2 {
-    // Keep in sync with the AndroidManifest.xml
+    /**
+     * ID of the session that this service will create.
+     */
     public static final String ID = "TestSession";
 
     private static final String DEFAULT_MEDIA_NOTIFICATION_CHANNEL_ID = "media_session_service";
@@ -48,7 +50,7 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
     }
 
     @Override
-    public MediaSession2 onCreateSession(String sessionId) {
+    public MediaSession2 onCreateSession() {
         final MockPlayer player = new MockPlayer(1);
         final SyncHandler handler = (SyncHandler) TestServiceRegistry.getInstance().getHandler();
         final Executor executor = new Executor() {
@@ -65,7 +67,7 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
         mSession = new MediaSession2.Builder(this)
                 .setPlayer(player)
                 .setSessionCallback(executor, sessionCallback)
-                .setId(sessionId).build();
+                .setId(ID).build();
         return mSession;
     }
 

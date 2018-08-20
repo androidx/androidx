@@ -22,15 +22,11 @@ import static androidx.media2.MediaSession2.ControllerCb;
 import static androidx.media2.MediaSession2.ControllerInfo;
 import static androidx.media2.MediaSession2.OnDataSourceMissingHelper;
 import static androidx.media2.MediaSession2.SessionCallback;
-import static androidx.media2.SessionToken2.TYPE_LIBRARY_SERVICE;
 import static androidx.media2.SessionToken2.TYPE_SESSION;
-import static androidx.media2.SessionToken2.TYPE_SESSION_SERVICE;
 
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -128,25 +124,8 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         mPlaylistEventCallback = new MyPlaylistEventCallback(this);
         mAudioFocusHandler = new AudioFocusHandler(context, instance);
 
-        // Infer type from the id and package name.
-        String libraryService = getServiceName(context, MediaLibraryService2.SERVICE_INTERFACE, id);
-        String sessionService = getServiceName(context, MediaSessionService2.SERVICE_INTERFACE, id);
-        if (sessionService != null && libraryService != null) {
-            throw new IllegalArgumentException("Ambiguous session type. Multiple"
-                    + " session services define the same id=" + id);
-        } else if (libraryService != null) {
-            mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
-                    TYPE_LIBRARY_SERVICE, context.getPackageName(), libraryService, id,
-                    mSession2Stub));
-        } else if (sessionService != null) {
-            mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
-                    TYPE_SESSION_SERVICE, context.getPackageName(), sessionService, id,
-                    mSession2Stub));
-        } else {
-            mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
-                    TYPE_SESSION, context.getPackageName(), null, id, mSession2Stub));
-        }
-
+        mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
+                TYPE_SESSION, context.getPackageName(), mSession2Stub));
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
 
@@ -159,12 +138,11 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                 | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
                 | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mSessionCompat.setActive(true);
-        if (mSessionToken.getType() == TYPE_SESSION) {
-            mBrowserServiceLegacyStub = null;
-        } else {
-            mBrowserServiceLegacyStub = createLegacyBrowserService(context, mSessionToken,
-                    mSessionCompat.getSessionToken());
-        }
+        // Note: Session may be registered to the {@link MediaSessionService2} later, so create
+        //       browser service instance in advance. We may do this when it's really needed but
+        //       it needs removing final from the member variable.
+        mBrowserServiceLegacyStub = createLegacyBrowserService(context, mSessionToken,
+                mSessionCompat.getSessionToken());
 
         updatePlayer(player, playlistAgent);
         // Do this at the last moment. Otherwise commands through framework would be sent to this
@@ -1006,52 +984,17 @@ class MediaSession2ImplBase implements MediaSession2Impl {
 
     MediaBrowserServiceCompat createLegacyBrowserService(Context context, SessionToken2 token,
             Token sessionToken) {
-        switch (token.getType()) {
-            case TYPE_SESSION:
-                // Shouldn't be happen.
-                return null;
-            case TYPE_SESSION_SERVICE:
-                return new MediaSessionService2LegacyStub(context, this, sessionToken);
-        }
-        return null;
+        return new MediaSessionService2LegacyStub(context, this, sessionToken);
     }
 
     @Override
     public IBinder getLegacyBrowserServiceBinder() {
-        if (mBrowserServiceLegacyStub != null) {
-            Intent intent = new Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE);
-            return mBrowserServiceLegacyStub.onBind(intent);
-        }
-        return null;
+        Intent intent = new Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE);
+        return mBrowserServiceLegacyStub.onBind(intent);
     }
 
     MediaBrowserServiceCompat getLegacyBrowserService() {
         return mBrowserServiceLegacyStub;
-    }
-
-    private static String getServiceName(Context context, String serviceAction, String id) {
-        PackageManager manager = context.getPackageManager();
-        Intent serviceIntent = new Intent(serviceAction);
-        serviceIntent.setPackage(context.getPackageName());
-        List<ResolveInfo> services = manager.queryIntentServices(serviceIntent,
-                PackageManager.GET_META_DATA);
-        String serviceName = null;
-        if (services != null) {
-            for (int i = 0; i < services.size(); i++) {
-                String serviceId = SessionToken2.getSessionId(services.get(i));
-                if (serviceId != null && TextUtils.equals(id, serviceId)) {
-                    if (services.get(i).serviceInfo == null) {
-                        continue;
-                    }
-                    if (serviceName != null) {
-                        throw new IllegalArgumentException("Ambiguous session type. Multiple"
-                                + " session services define the same id=" + id);
-                    }
-                    serviceName = services.get(i).serviceInfo.name;
-                }
-            }
-        }
-        return serviceName;
     }
 
     private boolean isInPlaybackState(@Nullable MediaPlayerConnector player) {

@@ -27,13 +27,15 @@ import androidx.media2.SessionCommandGroup2;
 import java.util.concurrent.Executors;
 
 public class MockMediaSessionService2 extends MediaSessionService2 {
-    // Keep in sync with the AndroidManifest.xml
+    /**
+     * ID of the session that this service will create.
+     */
     public static final String ID = "TestSession";
 
     @Override
-    public MediaSession2 onCreateSession(String sessionId) {
+    public MediaSession2 onCreateSession() {
         return new MediaSession2.Builder(MockMediaSessionService2.this)
-                .setId(sessionId)
+                .setId(ID)
                 .setPlayer(new MockPlayerConnector(0))
                 .setSessionCallback(Executors.newSingleThreadExecutor(), new TestSessionCallback())
                 .build();

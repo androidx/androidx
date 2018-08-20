@@ -155,7 +155,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         SessionToken2 token = mRemoteSession2.getToken();
         mController = createController(token);
-        testControllerAfterSessionIsClosed(token.getId());
+        testControllerAfterSessionIsClosed(DEFAULT_TEST_NAME);
     }
 
     @Test
@@ -171,7 +171,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
 
         // Test whether the controller is notified about later close of the session or
         // re-creation.
-        testControllerAfterSessionIsClosed(token.getId());
+        testControllerAfterSessionIsClosed(DEFAULT_TEST_NAME);
     }
 
     @Test
@@ -717,8 +717,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         // Ensure that the controller cannot use newly create session with the same ID.
         // Recreated session has different session stub, so previously created controller
         // shouldn't be available.
-        SessionToken2 token = mRemoteSession2.getToken();
-        assertEquals(id, token.getId());
+        mRemoteSession2 = new RemoteMediaSession2(id, mContext);
         testNoInteraction();
     }
 

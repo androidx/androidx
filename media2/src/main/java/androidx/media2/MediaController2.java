@@ -58,23 +58,39 @@ import java.util.concurrent.Executor;
 
 /**
  * Allows an app to interact with an active {@link MediaSession2} or a
- * {@link MediaSessionService2} in any status. Media buttons and other commands can be sent to
- * the session.
- * <p>
- * When you're done, use {@link #close()} to clean up resources. This also helps session service
- * to be destroyed when there's no controller associated with it.
- * <p>
- * When controlling {@link MediaSession2}, the controller will be available immediately after
- * the creation.
- * <p>
- * When controlling {@link MediaSessionService2}, the {@link MediaController2} would be
- * available only if the session service allows this controller by
- * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)} for the service.
- * Wait {@link ControllerCallback#onConnected(MediaController2, SessionCommandGroup2)} or
- * {@link ControllerCallback#onDisconnected(MediaController2)} for the result.
+ * {@link MediaSessionService2} which would provide {@link MediaSession2}. Media buttons and other
+ * commands can be sent to the session.
  * <p>
  * MediaController2 objects are thread-safe.
  * <p>
+ * Topic covered here:
+ * <ol>
+ * <li><a href="#ControllerLifeCycle">Controller Lifecycle</a>
+ * </ol>
+ * <a name="ControllerLifeCycle"></a>
+ * <h3>Controller Lifecycle</h3>
+ * <p>
+ * When a controller is created with the {@link SessionToken2} for a {@link MediaSession2} (i.e.
+ * session token type is {@link SessionToken2#TYPE_SESSION}), the controller will connect to the
+ * specific session.
+ * <p>
+ * When a controller is created with the {@link SessionToken2} for a {@link MediaSessionService2}
+ * (i.e. session token type is {@link SessionToken2#TYPE_SESSION_SERVICE} or
+ * {@link SessionToken2#TYPE_LIBRARY_SERVICE}), the controller binds to the service for connecting
+ * to a {@link MediaSession2} in it. {@link MediaSessionService2} will provide a session to connect.
+ * <p>
+ * When a controller connects to a session,
+ * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)} will be called to
+ * either accept or reject the connection. Wait
+ * {@link ControllerCallback#onConnected(MediaController2, SessionCommandGroup2)} or
+ * {@link ControllerCallback#onDisconnected(MediaController2)} for the result.
+ * <p>
+ * When the connected session is closed, the controller will receive
+ * {@link ControllerCallback#onDisconnected(MediaController2)}.
+ * <p>
+ * When you're done, use {@link #close()} to clean up resources. This also helps session service
+ * to be destroyed when there's no controller associated with it.
+ *
  * @see MediaSession2
  * @see MediaSessionService2
  */

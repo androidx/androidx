@@ -28,13 +28,12 @@ import androidx.annotation.Nullable;
 import androidx.media2.MediaSession2.ControllerInfo;
 
 /**
- * Base class for media session services, which is the service version of the {@link MediaSession2}.
+ * Base class for media session services, which is the service containing {@link MediaSession2}.
  * <p>
- * It's highly recommended for an app to use this instead of {@link MediaSession2} if it wants
- * to keep media playback in the background.
+ * It's highly recommended for an app to use this if it wants to keep media playback in the
+ * background.
  * <p>
- * Here's the benefits of using {@link MediaSessionService2} instead of
- * {@link MediaSession2}.
+ * Here are the benefits of using {@link MediaSessionService2}.
  * <ul>
  * <li>Another app can know that your app supports {@link MediaSession2} even when your app
  * isn't running.
@@ -50,25 +49,9 @@ import androidx.media2.MediaSession2.ControllerInfo;
  *   &lt;/intent-filter&gt;
  * &lt;/service&gt;</pre>
  * <p>
- * A {@link MediaSessionService2} is another form of {@link MediaSession2}. IDs shouldn't
- * be shared between the {@link MediaSessionService2} and {@link MediaSession2}. By
- * default, an empty string will be used for ID of the service. If you want to specify an ID,
- * declare metadata in the manifest as follows.
- * <pre>
- * &lt;service android:name="component_name_of_your_implementation" &gt;
- *   &lt;intent-filter&gt;
- *     &lt;action android:name="android.media.MediaSessionService2" /&gt;
- *   &lt;/intent-filter&gt;
- *   &lt;meta-data android:name="android.media.session2.SESSION_ID"
- *       android:value="session_id"/&gt;
- * &lt;/service&gt;</pre>
- * <p>
  * It's recommended for an app to have a single {@link MediaSessionService2} declared in the
  * manifest. Otherwise, your app might be shown twice in the list of the Auto/Wearable, or another
  * app fails to pick the right session service when it wants to start the playback this app.
- * <p>
- * If there's conflicts with the session ID among the services, services wouldn't be available for
- * any controllers.
  * <p>
  * Topic covered here:
  * <ol>
@@ -79,8 +62,8 @@ import androidx.media2.MediaSession2.ControllerInfo;
  * <a name="ServiceLifecycle"></a>
  * <h3>Service Lifecycle</h3>
  * <p>
- * Session service is bounded service. When a {@link MediaController2} is created for the
- * session service, the controller binds to the session service. {@link #onCreateSession(String)}
+ * Session service is bound service. When a {@link MediaController2} is created for the
+ * session service, the controller binds to the session service. {@link #onCreateSession()}
  * may be called after the {@link #onCreate} if the service hasn't created yet.
  * <p>
  * After the binding, session's
@@ -96,7 +79,7 @@ import androidx.media2.MediaSession2.ControllerInfo;
  * the permission {@link android.Manifest.permission#FOREGROUND_SERVICE} in order to make the
  * service as foreground.
  * <p>
- * The service is destroyed when the session is closed, or no media controller is bounded to the
+ * The service is destroyed when the session is closed, or no media controller is binding to the
  * session while the service is not running as a foreground service.
  * <a name="Permissions"></a>
  * <h3>Permissions</h3>
@@ -110,12 +93,6 @@ public abstract class MediaSessionService2 extends Service {
      * The {@link Intent} that must be declared as handled by the service.
      */
     public static final String SERVICE_INTERFACE = "android.media.MediaSessionService2";
-
-    /**
-     * Name under which a MediaSessionService2 component publishes information about itself.
-     * This meta-data must provide a string value for the ID.
-     */
-    public static final String SERVICE_META_DATA_SESSION_ID = "android.media.session2.SESSION_ID";
 
     private final MediaSessionService2Impl mImpl;
 
@@ -148,17 +125,13 @@ public abstract class MediaSessionService2 extends Service {
      * Session service will accept or reject the connection with the
      * {@link MediaSession2.SessionCallback} in the created session.
      * <p>
-     * Service wouldn't run if {@code null} is returned or session's ID doesn't match with the
-     * expected ID that you've specified through the AndroidManifest.xml.
-     * <p>
      * This method will be called on the main thread.
      *
-     * @param sessionId session id written in the AndroidManifest.xml.
      * @return a new session
      * @see MediaSession2.Builder
      * @see #getSession()
      */
-    public @NonNull abstract MediaSession2 onCreateSession(String sessionId);
+    public @NonNull abstract MediaSession2 onCreateSession();
 
     /**
      * Called when notification UI needs update. Override this method to show or cancel your own
@@ -257,8 +230,5 @@ public abstract class MediaSessionService2 extends Service {
         IBinder onBind(Intent intent);
         MediaNotification onUpdateNotification();
         MediaSession2 getSession();
-
-        // Internally used
-        int getSessionType();
     }
 }

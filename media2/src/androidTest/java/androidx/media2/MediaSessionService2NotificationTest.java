@@ -21,10 +21,12 @@ import static org.junit.Assert.assertFalse;
 
 import android.os.Build;
 import android.os.Process;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -88,14 +90,26 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
         // Notification should be shown for NOTIFICATION_SHOW_TIME_MS (ms).
         // The notification will not be removed by swiping horizontally, since the service is
         // running as foreground.
+        showToast("Notification will be shown");
         mPlayer.notifyPlaybackState(MediaPlayerConnector.PLAYER_STATE_PLAYING);
         Thread.sleep(NOTIFICATION_SHOW_TIME_MS);
 
         // Notification will still be shown. However, one can swipe the notification horizontally
         // to remove the notification, since the service is no longer a foreground service.
+        showToast("Notification can be removable shortly");
         mPlayer.notifyPlaybackState(MediaPlayerConnector.PLAYER_STATE_ERROR);
         Thread.sleep(NOTIFICATION_SHOW_TIME_MS);
 
         // Notification will be removed since the test framework stops the test process.
+        showToast("Notification will be removed");
+    }
+
+    private void showToast(final String msg) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
