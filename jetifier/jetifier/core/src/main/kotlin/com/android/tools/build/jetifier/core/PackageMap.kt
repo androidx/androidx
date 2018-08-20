@@ -51,7 +51,7 @@ class PackageMap(private val rules: List<PackageRule>) {
                 to = "androidx/tvprovider"
             ),
             PackageRule(
-                from = "androidx/textclassifier",
+                from = "android/support/textclassifier",
                 to = "androidx/textclassifier"
             ),
             PackageRule(
@@ -164,6 +164,10 @@ class PackageMap(private val rules: List<PackageRule>) {
             PackageRule(
                 from = "android/support/media2",
                 to = "androidx/media2"
+            ),
+            PackageRule(
+                from = "androidx/media2/exoplayer/external",
+                to = "androidx/media2/exoplayer/external"
             ),
             PackageRule(
                 from = "android/support/fragment",
