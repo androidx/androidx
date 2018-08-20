@@ -82,10 +82,7 @@ public final class MediaRouteProviderDescriptor {
 
     /**
      * Indicates whether a {@link MediaRouteProvider} supports dynamic group route.
-     *
-     * @hide TODO unhide this method and updateApi
      */
-    @RestrictTo(LIBRARY_GROUP)
     public boolean supportsDynamicGroupRoute() {
         return mSupportsDynamicGroupRoute;
     }
