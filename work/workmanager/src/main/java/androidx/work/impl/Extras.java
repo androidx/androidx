@@ -19,7 +19,6 @@ package androidx.work.impl;
 import android.net.Network;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
@@ -39,12 +38,12 @@ public class Extras {
 
     private @NonNull Data mInputData;
     private @NonNull Set<String> mTags;
-    private @Nullable RuntimeExtras mRuntimeExtras;
+    private @NonNull RuntimeExtras mRuntimeExtras;
     private int mRunAttemptCount;
 
     public Extras(@NonNull Data inputData,
             @NonNull List<String> tags,
-            @Nullable RuntimeExtras runtimeExtras,
+            @NonNull RuntimeExtras runtimeExtras,
             int runAttemptCount) {
         mInputData = inputData;
         mTags = new HashSet<>(tags);
