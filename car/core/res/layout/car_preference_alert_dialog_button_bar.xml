@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- layout from frameworks/base/core/res/res/layout/alert_dialog_button_bar_material.xml.
+     Used to override alert dialog layout for preferences.
+     Cannot change structure as UI components are used by AlertController.java -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/buttonPanel"
+    style="?android:attr/buttonBarStyle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:scrollIndicators="top|bottom">
+
+    <androidx.appcompat.widget.ButtonBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:layoutDirection="locale"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/car_padding_2"
+        android:paddingTop="@dimen/car_padding_2">
+
+        <Button
+            android:id="@android:id/button3"
+            style="@style/Widget.Car.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@android:id/button2"
+            style="@style/Widget.Car.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:paddingStart="@dimen/car_keyline_1"
+            android:paddingEnd="@dimen/car_keyline_1"/>
+
+        <Button
+            android:id="@android:id/button1"
+            style="@style/Widget.Car.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </androidx.appcompat.widget.ButtonBarLayout>
+
+</ScrollView>
