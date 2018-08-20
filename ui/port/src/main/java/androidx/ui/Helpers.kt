@@ -42,3 +42,30 @@ fun assert(conditionFunction: () -> Boolean) {
         throw AssertionError()
     }
 }
+
+/**
+ * Returns a short description of an enum value.
+ *
+ * Strips off the enum class name from the `enumEntry.toString()`.
+ *
+ * ## Sample code
+ *
+ * ```dart
+ * enum Day {
+ *   monday, tuesday, wednesday, thursday, friday, saturday, sunday
+ * }
+ *
+ * validateDescribeEnum() {
+ *   assert(Day.monday.toString() == 'Day.monday');
+ *   assert(describeEnum(Day.monday) == 'monday');
+ * }
+ * ```
+ */
+fun describeEnum(enumEntry: Any): String {
+//    val description = enumEntry.toString()
+//    val indexOfDot = description.indexOf('.')
+//    assert(indexOfDot != -1 && indexOfDot < description.length - 1)
+//    return description.substring(indexOfDot + 1)
+    // TODO(Andrey) it's not the case for Kotlin. Day.monday.toString() == "monday"
+    return enumEntry.toString()
+}

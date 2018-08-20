@@ -3,8 +3,8 @@ package androidx.ui.foundation.diagnostics
 abstract class _NumProperty<T : Number>(
     name: String,
     value: T?,
-    computeValue: ComputePropertyValueCallback<T>? = null,
-    ifNull: String,
+    computeValue: ComputePropertyValueCallback<T?>? = null,
+    ifNull: String? = null,
         // / Optional unit the [value] is measured in.
         // /
         // / Unit must be acceptable to display immediately after a number with no
@@ -12,7 +12,7 @@ abstract class _NumProperty<T : Number>(
         // / [tooltip] not a [unit].
     val unit: String?,
     showName: Boolean = true,
-    defaultValue: Any = kNoDefaultValue,
+    defaultValue: Any? = kNoDefaultValue,
     tooltip: String? = null,
     level: DiagnosticLevel = DiagnosticLevel.info
 ) : DiagnosticsProperty<T>(

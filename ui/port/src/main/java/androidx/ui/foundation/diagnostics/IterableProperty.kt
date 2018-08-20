@@ -19,10 +19,10 @@ package androidx.ui.foundation.diagnostics
 // / The [style], [showName], and [level] arguments must not be null.
 class IterableProperty<T>(
     name: String,
-    value: Iterable<T>,
-    defaultValue: Any = kNoDefaultValue,
+    value: Iterable<T>?,
+    defaultValue: Any? = kNoDefaultValue,
     ifNull: String? = null,
-    ifEmpty: String? = null,
+    ifEmpty: String? = "[]",
     showName: Boolean = true,
     style: DiagnosticsTreeStyle = DiagnosticsTreeStyle.singleLine,
     level: DiagnosticLevel = DiagnosticLevel.info

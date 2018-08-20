@@ -52,13 +52,13 @@ class FlagProperty(
         // /
         // / If not specified and [value] equals true the property's priority [level]
         // / will be [DiagnosticLevel.hidden].
-    val ifTrue: String,
+    val ifTrue: String? = null,
         // / Description to use if the property value is false.
         // /
         // / If not specified and [value] equals false, the property's priority [level]
         // / will be [DiagnosticLevel.hidden].
     val ifFalse: String? = null,
-    showName: Boolean = true,
+    showName: Boolean = false,
     defaultValue: Any = kNoDefaultValue,
     level: DiagnosticLevel = DiagnosticLevel.info
 ) : DiagnosticsProperty<Boolean>(

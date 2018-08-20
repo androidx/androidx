@@ -1,5 +1,7 @@
 package androidx.ui.foundation.diagnostics
 
+import androidx.ui.describeEnum
+
 // / An property than displays enum values tersely.
 // /
 // / The enum value is displayed with the class name stripped. For example:
@@ -11,7 +13,7 @@ package androidx.ui.foundation.diagnostics
 // /    [DiagnosticsProperty]
 class EnumProperty<T : Any>(
     name: String,
-    value: T,
+    value: T?,
     defaultValue: Any = kNoDefaultValue,
     level: DiagnosticLevel = DiagnosticLevel.info
 ) : DiagnosticsProperty<T>(
@@ -20,15 +22,9 @@ class EnumProperty<T : Any>(
         defaultValue = defaultValue,
         level = level
 ) {
-
-    override fun toString(): String {
-        return getValue().toString()
-    }
-
-    override fun toStringParametrized(
-        parentConfiguration: TextTreeConfiguration?,
-        minLevel: DiagnosticLevel
-    ): String {
-        return toString()
+    override fun valueToString(parentConfiguration: TextTreeConfiguration?): String {
+        if (getValue() == null)
+            return getValue().toString()
+        return describeEnum(getValue()!!)
     }
 }

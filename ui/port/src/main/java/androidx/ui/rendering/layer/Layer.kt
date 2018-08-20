@@ -83,11 +83,13 @@ abstract class Layer : AbstractNode(), DiagnosticableTree {
     @CallSuper
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DiagnosticsProperty(name = "owner", value = owner,
+        properties.add(DiagnosticsProperty.create(name = "owner", value = owner,
                 level = (if (parent != null) DiagnosticLevel.hidden else DiagnosticLevel.info),
                 defaultValue = null))
         properties.add(
-                DiagnosticsProperty(name = "creator", value = debugCreator, defaultValue = null,
+                DiagnosticsProperty.create(name = "creator",
+                        value = debugCreator,
+                        defaultValue = null,
                         level = DiagnosticLevel.debug))
     }
 }

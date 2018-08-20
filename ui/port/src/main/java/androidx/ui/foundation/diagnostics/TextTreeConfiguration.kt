@@ -263,7 +263,7 @@ val transitionTextConfiguration = TextTreeConfiguration(
         afterName = " ═══",
 // Add a colon after the description if the node has a body to make the
 // connection between the description and the body clearer.
-        afterDescriptionIfBody = " = ",
+        afterDescriptionIfBody = ":",
 // Members are indented an extra two spaces to disambiguate as the description
 // is placed within the box instead of along side the name as is the case for
 // other styles.

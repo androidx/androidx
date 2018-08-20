@@ -56,6 +56,6 @@ class PictureLayer(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DiagnosticsProperty(name = "paint bounds", value = canvasBounds))
+        properties.add(DiagnosticsProperty.create(name = "paint bounds", value = canvasBounds))
     }
 }

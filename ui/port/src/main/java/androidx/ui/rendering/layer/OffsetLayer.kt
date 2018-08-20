@@ -36,7 +36,7 @@ open class OffsetLayer(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DiagnosticsProperty(name = "offset", value = offset))
+        properties.add(DiagnosticsProperty.create(name = "offset", value = offset))
     }
 
     // TODO(Migration/andrey): Requires Image class

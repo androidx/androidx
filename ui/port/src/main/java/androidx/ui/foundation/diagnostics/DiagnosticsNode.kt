@@ -1,6 +1,7 @@
 package androidx.ui.foundation.diagnostics
 
 import androidx.annotation.CallSuper
+import androidx.ui.runtimeType
 
 // / Defines diagnostics data for a [value].
 // /
@@ -45,7 +46,7 @@ abstract class DiagnosticsNode(
             style: DiagnosticsTreeStyle = DiagnosticsTreeStyle.singleLine,
             level: DiagnosticLevel = DiagnosticLevel.info
         ): DiagnosticsProperty<Any> {
-            return DiagnosticsProperty.create<Any>(
+            return DiagnosticsProperty.create(
                     name = "",
                     value = null,
                     description = message,
@@ -129,17 +130,16 @@ abstract class DiagnosticsNode(
     // /    plugin.
     @CallSuper
     open fun toJsonMap(): Map<String, Any> {
-        // // TODO(Migration/Filip): Added several .orEmpty to satisfy non-nullability
         return mapOf(
-            "name" to name.orEmpty(),
+            "name" to name.toString(),
             "showSeparator" to showSeparator,
             "description" to toDescription(),
             "level" to getLevel().toString(),
-            "showName" to showName,
-            "emptyBodyDescription" to getEmptyBodyDescription().orEmpty(),
-            "style" to style.toString(),
+            "showName" to getShowName(),
+            "emptyBodyDescription" to getEmptyBodyDescription().toString(),
+            "style" to getStyle().toString(),
             "valueToString" to getValue().toString(),
-            "type" to this::class.java.toString(), // TODO(Migration/Filip): Not sure if this is it
+            "type" to runtimeType().toString(),
             "hasChildren" to getChildren().isNotEmpty()
         )
     }
@@ -157,14 +157,14 @@ abstract class DiagnosticsNode(
         parentConfiguration: TextTreeConfiguration? = null,
         minLevel: DiagnosticLevel = DiagnosticLevel.info
     ): String {
-        assert(style != null)
+        assert(getStyle() != null)
         assert(minLevel != null)
-        if (style == DiagnosticsTreeStyle.singleLine)
+        if (getStyle() == DiagnosticsTreeStyle.singleLine)
             return toStringDeep(parentConfiguration = parentConfiguration, minLevel = minLevel)
 
         val description = toDescription(parentConfiguration = parentConfiguration)
 
-        if (name == null || name.isEmpty() || !showName)
+        if (name == null || name.isEmpty() || !getShowName())
             return description
 
         return if (description.contains("\n")) {
@@ -181,17 +181,17 @@ abstract class DiagnosticsNode(
     // / Returns a configuration specifying how this object should be rendered
     // / as text art.
     protected fun getTextTreeConfiguration(): TextTreeConfiguration? {
-        assert(style != null)
+        assert(getStyle() != null)
 
-        when (style) {
+        return when (getStyle()) {
             DiagnosticsTreeStyle.dense -> denseTextConfiguration
             DiagnosticsTreeStyle.sparse -> sparseTextConfiguration
             DiagnosticsTreeStyle.offstage -> dashedTextConfiguration
             DiagnosticsTreeStyle.whitespace -> whitespaceTextConfiguration
             DiagnosticsTreeStyle.transition -> transitionTextConfiguration
             DiagnosticsTreeStyle.singleLine -> singleLineTextConfiguration
+            else -> null
         }
-        return null
     }
 
     // / Text configuration to use to connect this node to a `child`.
@@ -204,7 +204,7 @@ abstract class DiagnosticsNode(
         child: DiagnosticsNode?,
         textStyle: TextTreeConfiguration
     ): TextTreeConfiguration? {
-        return if (child != null && child.style != DiagnosticsTreeStyle.singleLine) {
+        return if (child != null && child.getStyle() != DiagnosticsTreeStyle.singleLine) {
             child.getTextTreeConfiguration()
         } else {
             textStyle
@@ -250,17 +250,17 @@ abstract class DiagnosticsNode(
 
         val description = toDescription(parentConfiguration = parentConfiguration)
         if (description == null || description.isEmpty()) {
-            if (showName && name != null)
+            if (getShowName() && name != null)
                 builder.write(name)
         } else {
-            if (name != null && name.isNotEmpty() && showName) {
+            if (name != null && name.isNotEmpty() && getShowName()) {
                 builder.write(name)
                 if (showSeparator)
                     builder.write(config.afterName)
 
                 builder.write(
                         if (config.isNameOnOwnLine || description.contains("\n")) "\n" else " ")
-                if (description.contains('\n') && style == DiagnosticsTreeStyle.singleLine)
+                if (description.contains('\n') && getStyle() == DiagnosticsTreeStyle.singleLine)
                     builder.prefixOtherLines += "  "
             }
             builder.prefixOtherLines += if (children.isEmpty()) {
@@ -293,13 +293,12 @@ abstract class DiagnosticsNode(
                 builder.write(config.lineBreak)
         }
 
-        for (i in 0..properties.size) {
-            val property = properties[i]
+        properties.forEachIndexed { i, property ->
             if (i > 0)
                 builder.write(config.propertySeparator)
 
             val kWrapWidth = 65
-            if (property.style != DiagnosticsTreeStyle.singleLine) {
+            if (property.getStyle() != DiagnosticsTreeStyle.singleLine) {
                 val propertyStyle = property.getTextTreeConfiguration()
                 builder.writeRaw(
                         property.toStringDeep(
@@ -311,9 +310,9 @@ abstract class DiagnosticsNode(
                                 parentConfiguration = config,
                                 minLevel = minLevel
                 ))
-                continue
+                return@forEachIndexed
             }
-            assert(property.style == DiagnosticsTreeStyle.singleLine)
+            assert(property.getStyle() == DiagnosticsTreeStyle.singleLine)
             val message = property.toStringParametrized(
                     parentConfiguration = config,
                     minLevel = minLevel
@@ -323,17 +322,7 @@ abstract class DiagnosticsNode(
             } else {
                 // debugWordWrap doesn't handle line breaks within the text being
                 // wrapped so we must call it on each line.
-                val lines = message.split('\n')
-                for (j in 0..lines.size) {
-                    val line = lines[j]
-                    if (j > 0)
-                        builder.write(config.lineBreak)
-                    builder.write(debugWordWrap(line, kWrapWidth, wrapIndent = "  ")
-                            .joinToString(separator = "\n"))
-                }
-
-                for (j in 0..lines.size) {
-                    val line = lines[j]
+                message.split('\n').forEachIndexed { j, line ->
                     if (j > 0)
                         builder.write(config.lineBreak)
                     builder.write(debugWordWrap(line, kWrapWidth, wrapIndent = "  ")
@@ -367,8 +356,7 @@ abstract class DiagnosticsNode(
                 builder.write(config.lineBreak)
             }
 
-            for (i in 0..children.size) {
-                val child = children[i]
+            children.forEachIndexed { i, child ->
                 assert(child != null)
                 val childConfig = _childTextConfiguration(child, config)!!
                 if (i == children.size - 1) {
