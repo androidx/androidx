@@ -42,17 +42,17 @@ public class EntityBundle implements SchemaEquality<EntityBundle> {
     static final String NEW_TABLE_PREFIX = "_new_";
 
     @SerializedName("tableName")
-    private String mTableName;
+    private final String mTableName;
     @SerializedName("createSql")
-    private String mCreateSql;
+    private final String mCreateSql;
     @SerializedName("fields")
-    private List<FieldBundle> mFields;
+    private final List<FieldBundle> mFields;
     @SerializedName("primaryKey")
-    private PrimaryKeyBundle mPrimaryKey;
+    private final PrimaryKeyBundle mPrimaryKey;
     @SerializedName("indices")
-    private List<IndexBundle> mIndices;
+    private final List<IndexBundle> mIndices;
     @SerializedName("foreignKeys")
-    private List<ForeignKeyBundle> mForeignKeys;
+    private final List<ForeignKeyBundle> mForeignKeys;
 
     private transient String mNewTableName;
     private transient Map<String, FieldBundle> mFieldsByColumnName;

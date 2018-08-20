@@ -16,10 +16,9 @@
 
 package androidx.room.solver
 
-import androidx.room.Entity
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
-import androidx.room.ext.hasAnnotation
+import androidx.room.ext.isEntityElement
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
@@ -355,9 +354,11 @@ class TypeAdapterStore private constructor(
             if (rowAdapter == null && query.resultInfo == null) {
                 // we don't know what query returns. Check for entity.
                 val asElement = MoreTypes.asElement(typeMirror)
-                if (asElement.hasAnnotation(Entity::class)) {
-                    return EntityRowAdapter(EntityProcessor(context,
-                            MoreElements.asType(asElement)).process())
+                if (asElement.isEntityElement()) {
+                    return EntityRowAdapter(EntityProcessor(
+                            context = context,
+                            element = MoreElements.asType(asElement)
+                    ).process())
                 }
             }
 

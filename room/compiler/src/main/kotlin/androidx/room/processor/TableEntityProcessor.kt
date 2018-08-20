@@ -23,6 +23,7 @@ import androidx.room.ext.getAsStringList
 import androidx.room.ext.toType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
+import androidx.room.processor.BaseEntityProcessor.Companion.extractTableName
 import androidx.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import androidx.room.processor.cache.Cache
@@ -47,17 +48,17 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 
-class EntityProcessor(
+class TableEntityProcessor internal constructor(
     baseContext: Context,
     val element: TypeElement,
     private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
-) {
+) : BaseEntityProcessor {
     val context = baseContext.fork(element)
 
-    fun process(): Entity {
-        return context.cache.entities.get(Cache.EntityKey(element), {
+    override fun process(): Entity {
+        return context.cache.entities.get(Cache.EntityKey(element)) {
             doProcess()
-        })
+        }
     }
 
     private fun doProcess(): Entity {
@@ -153,7 +154,8 @@ class EntityProcessor(
                 indices = indices,
                 primaryKey = primaryKey,
                 foreignKeys = entityForeignKeys,
-                constructor = pojo.constructor)
+                constructor = pojo.constructor,
+                shadowTableName = null)
 
         return entity
     }
@@ -506,15 +508,6 @@ class EntityProcessor(
     }
 
     companion object {
-        fun extractTableName(element: TypeElement, annotation: AnnotationMirror): String {
-            val annotationValue = AnnotationMirrors
-                    .getAnnotationValue(annotation, "tableName").value.toString()
-            return if (annotationValue == "") {
-                element.simpleName.toString()
-            } else {
-                annotationValue
-            }
-        }
 
         private fun extractIndices(
             annotation: AnnotationMirror,

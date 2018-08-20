@@ -60,6 +60,9 @@ fun Element.isNonNull() =
                 hasAnnotation(androidx.annotation.NonNull::class) ||
                 hasAnnotation(org.jetbrains.annotations.NotNull::class)
 
+fun Element.isEntityElement() = this.hasAnyOf(androidx.room.Entity::class,
+        androidx.room.Fts3Entity::class, androidx.room.Fts4Entity::class)
+
 /**
  * gets all members including super privates. does not handle duplicate field names!!!
  */
@@ -175,8 +178,21 @@ private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object
     }
 }
 
+private val ANNOTATION_VALUE_INT_ARR_VISITOR = object
+    : SimpleAnnotationValueVisitor6<List<Int>, Void>() {
+    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Int> {
+        return vals?.mapNotNull {
+            ANNOTATION_VALUE_TO_INT_VISITOR.visit(it)
+        } ?: emptyList()
+    }
+}
+
 fun AnnotationValue.getAsInt(def: Int? = null): Int? {
     return ANNOTATION_VALUE_TO_INT_VISITOR.visit(this) ?: def
+}
+
+fun AnnotationValue.getAsIntList(): List<Int> {
+    return ANNOTATION_VALUE_INT_ARR_VISITOR.visit(this)
 }
 
 fun AnnotationValue.getAsString(def: String? = null): String? {

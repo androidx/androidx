@@ -566,4 +566,31 @@ object ProcessorErrors {
     fun invalidAnnotationTarget(annotationName: String, elementKind: ElementKind): String {
         return "@$annotationName is not allowed in this ${elementKind.name.toLowerCase()}."
     }
+
+    val MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID = "The field with column name 'rowid' in " +
+            "an FtsEntity must be annotated with @PrimaryKey."
+
+    val TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY = "An FtsEntity can only have a single @PrimaryKey " +
+            "annotated field."
+
+    val INVALID_FTS_ENTITY_PRIMARY_KEY_NAME = "The single @PrimaryKey annotated field in an " +
+            "FtsEntity must either be named 'rowid' or must be annotated with " +
+            "@ColumnInfo(name = \"rowid\")"
+
+    val INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY = "The single @PrimaryKey annotated field in an " +
+            "FtsEntity must be of INTEGER affinity."
+
+    fun missingLanguageIdField(columnName: String) = "The specified 'languageid' column: " +
+            "\"$columnName\", was not found."
+
+    val INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY = "The 'languageid' field must be of INTEGER " +
+            "affinity."
+
+    fun missingNotIndexedField(missingNotIndexedColumns: List<String>) =
+            "Non-existent columns are specified to be not indexed in notIndexed: " +
+                    missingNotIndexedColumns.joinToString(",")
+
+    val INVALID_FTS_ENTITY_PREFIX_SIZES = "Prefix sizes to index must non-zero positive values."
+
+    val INVALID_FOREIGN_KEY_IN_FTS_ENTITY = "@ForeignKey is not allowed in FtsEntity fields."
 }
