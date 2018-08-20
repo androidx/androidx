@@ -102,7 +102,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     private Drawable mPrimaryActionIconDrawable;
     private View.OnClickListener mPrimaryActionIconOnClickListener;
 
-    private String mText;
+    @Nullable private CharSequence mText;
 
     private int mMax;
     private int mProgress;
@@ -173,8 +173,10 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
 
     /**
      * Sets text that sits on top of seekbar.
+     *
+     * @param text text to be displayed, or {@code null} to clear the content.
      */
-    public void setText(String text) {
+    public void setText(@Nullable CharSequence text) {
         mText = text;
         markDirty();
     }
