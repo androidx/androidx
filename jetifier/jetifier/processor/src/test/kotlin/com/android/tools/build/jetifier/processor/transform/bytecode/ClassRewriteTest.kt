@@ -60,6 +60,9 @@ class ClassRewriteTest {
 
         Truth.assertThat(decompiledResult).doesNotContain("androidx.fragment.app.Fragment")
         Truth.assertThat(decompiledResult).contains("androidx/fragment/app/Fragment")
+        Truth.assertThat(decompiledResult).contains("Landroidx/fragment/app/Fragment;")
+        Truth.assertThat(decompiledResult).doesNotContain("LL")
+        Truth.assertThat(decompiledResult).doesNotContain(";;")
     }
 
     private fun decompileClassFileToString(data: ByteArray): String {
