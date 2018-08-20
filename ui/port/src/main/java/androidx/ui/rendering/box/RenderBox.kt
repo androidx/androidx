@@ -428,9 +428,8 @@ import androidx.ui.runtimeType
  * of the child relative to the parent. If you do not inherited from either of
  * these classes, however, you must implement the algorithm yourself.
  */
-// TODO(Migration/Andrey): Originally it extends RenderObject. But without mixins we have to
-// TODO(Migration/Andrey): use regular inheritance. anyway RenderObjectWithChildMixin changes
-// TODO(Migration/Andrey): nothing while you are not providing child into it.
+// (Migration/Andrey): Replaced ": RenderObject"  with ": RenderObjectWithChildMixin" to make
+//  RenderProxyBoxMixin works.
 abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
     override fun setupParentData(child: RenderObject) {
         if (child.parentData !is BoxParentData)

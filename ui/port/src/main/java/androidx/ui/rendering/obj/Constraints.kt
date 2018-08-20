@@ -82,7 +82,7 @@ abstract class Constraints {
     // / then included in the message after the error line.
     // /
     // / Returns the same as [isNormalized] if asserts are disabled.
-    fun debugAssertIsValid(
+    open fun debugAssertIsValid(
         isAppliedConstraint: Boolean = false,
         informationCollector: InformationCollector? = null
     ): Boolean {

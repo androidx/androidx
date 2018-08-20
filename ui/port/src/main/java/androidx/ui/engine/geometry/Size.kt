@@ -302,15 +302,9 @@ open class Size(val width: Double, val height: Double) : OffsetBase {
     // TODO(Migration/Andrey): Can't use data class because of _DebugSize class extending this one.
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        // We don't compare the runtimeType because of _DebugSize in the framework.
-        // if (javaClass != other?.javaClass) return false
+        if (other !is Size) return false
 
-        other as Size
-
-        if (dx != other.dx) return false
-        if (dy != other.dy) return false
-
-        return true
+        return dx == other.dx && dy == other.dy
     }
 
     override fun hashCode(): Int {
