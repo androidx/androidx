@@ -21,9 +21,11 @@ import android.graphics.Bitmap.Config.ARGB_8888
 import android.graphics.Canvas
 import android.graphics.Color.RED
 import androidx.palette.graphics.Target.VIBRANT
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertSame
 import org.junit.Test
 
+@SmallTest
 class PaletteTest {
     @Test fun operatorGet() {
         val bitmap = Bitmap.createBitmap(10, 10, ARGB_8888).apply {

@@ -17,6 +17,7 @@
 package androidx.preference
 
 import androidx.test.InstrumentationRegistry
+import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
@@ -29,6 +30,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
+@LargeTest
 class PreferenceGroupTest {
 
     @JvmField

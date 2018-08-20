@@ -18,6 +18,8 @@ package androidx.core.widget
 
 import android.widget.TextView
 import androidx.test.InstrumentationRegistry
+import androidx.test.annotation.UiThreadTest
+import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -25,11 +27,13 @@ import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicBoolean
 
 @RunWith(AndroidJUnit4::class)
+@SmallTest
 class TextViewTest {
 
     private val context = InstrumentationRegistry.getContext()
     private val view = TextView(context)
 
+    @UiThreadTest
     @Test fun doBeforeTextChanged() {
         val called = AtomicBoolean()
         view.doBeforeTextChanged { _, _, _, _ ->
@@ -41,6 +45,7 @@ class TextViewTest {
         assertTrue(called.get())
     }
 
+    @UiThreadTest
     @Test fun doOnTextChanged() {
         val called = AtomicBoolean()
         view.doOnTextChanged { _, _, _, _ ->
@@ -52,6 +57,7 @@ class TextViewTest {
         assertTrue(called.get())
     }
 
+    @UiThreadTest
     @Test fun doAfterTextChanged() {
         val called = AtomicBoolean()
         view.doAfterTextChanged { _ ->

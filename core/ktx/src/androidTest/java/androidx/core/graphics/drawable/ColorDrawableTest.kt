@@ -18,9 +18,11 @@ package androidx.core.graphics.drawable
 
 import android.graphics.Color
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class ColorDrawableTest {
     @Test fun fromInt() {
         val drawable = Color.CYAN.toDrawable()

@@ -21,11 +21,13 @@ import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class RectTest {
     @Test fun destructuringInt() {
         val (l, t, r, b) = Rect(4, 8, 16, 24)
@@ -226,7 +228,7 @@ class RectTest {
         val (l, t, r, b) = RectF(-1.0f, -1.0f, 1.0f, 1.0f).transform(m)
         assertEquals(-1.414f, l, 1e-3f)
         assertEquals(-1.414f, t, 1e-3f)
-        assertEquals( 1.414f, r, 1e-3f)
-        assertEquals( 1.414f, b, 1e-3f)
+        assertEquals(1.414f, r, 1e-3f)
+        assertEquals(1.414f, b, 1e-3f)
     }
 }

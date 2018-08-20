@@ -16,11 +16,13 @@
 
 package androidx.core.text
 
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class CharSequenceTest {
     @Test fun isDigitsOnly() {
         assertTrue("012345".isDigitsOnly())

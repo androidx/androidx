@@ -19,10 +19,12 @@ package androidx.core.text
 import android.text.Html.FROM_HTML_MODE_COMPACT
 import android.text.Html.ImageGetter
 import android.text.Html.TagHandler
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class HtmlTest {
     private val imageGetter = ImageGetter { null }
     private val tagHandler = TagHandler { _, _, _, _ -> }

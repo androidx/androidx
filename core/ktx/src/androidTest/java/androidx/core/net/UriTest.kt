@@ -17,11 +17,13 @@
 package androidx.core.net
 
 import android.net.Uri
+import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
 
+@SmallTest
 class UriTest {
     @Test fun uriFromString() {
         val string = "https://test.example.com/foo?bar#baz"
