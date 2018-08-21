@@ -183,7 +183,7 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     @Override
     public @Nullable List<MediaItem2> getPlaylist() {
         synchronized (mLock) {
-            return Collections.unmodifiableList(mPlaylist);
+            return new ArrayList<>(mPlaylist);
         }
     }
 
