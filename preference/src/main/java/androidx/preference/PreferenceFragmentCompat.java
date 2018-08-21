@@ -27,6 +27,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -108,6 +109,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         PreferenceManager.OnDisplayPreferenceDialogListener,
         PreferenceManager.OnNavigateToScreenListener,
         DialogPreference.TargetFragment {
+
+    private static final String TAG = "PreferenceFragment";
 
     /**
      * Fragment argument used to specify the tag of the desired root {@link PreferenceScreen}
@@ -421,7 +424,26 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                 handled = ((OnPreferenceStartFragmentCallback) getActivity())
                         .onPreferenceStartFragment(this, preference);
             }
-            return handled;
+            if (!handled) {
+                Log.w(TAG,
+                        "onPreferenceStartFragment is not implemented in the parent activity - "
+                                + "attempting to use a fallback implementation. You should "
+                                + "implement this method so that you can configure the new "
+                                + "fragment that will be displayed, and set a transition between "
+                                + "the fragments.");
+                final Fragment fragment =
+                        Fragment.instantiate(getContext(), preference.getFragment(),
+                                preference.getExtras());
+                fragment.setTargetFragment(this, 0);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        // Attempt to replace this fragment in its root view - developers should
+                        // implement onPreferenceStartFragment in their activity so that they can
+                        // customize this behaviour and handle any transitions between fragments
+                        .replace((((View) getView().getParent()).getId()), fragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+            return true;
         }
         return false;
     }
@@ -443,8 +465,28 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                     .onPreferenceStartScreen(this, preferenceScreen);
         }
         if (!handled && getActivity() instanceof OnPreferenceStartScreenCallback) {
-            ((OnPreferenceStartScreenCallback) getActivity())
+            handled = ((OnPreferenceStartScreenCallback) getActivity())
                     .onPreferenceStartScreen(this, preferenceScreen);
+        }
+        if (!handled) {
+            Log.w(TAG,
+                    "onPreferenceStartScreen is not implemented in the parent activity - "
+                            + "attempting to use a fallback implementation. You should implement "
+                            + "this method so that you can configure the new fragment that will "
+                            + "display the nested hierarchy, and set a transition between the "
+                            + "fragments.");
+            // Try and use a new instance of this fragment to display the nested hierarchy
+            final Fragment fragment =
+                    Fragment.instantiate(getContext(), getClass().getName(),
+                            preferenceScreen.getExtras());
+            final Bundle args = new Bundle(1);
+            args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.getKey());
+            fragment.setArguments(args);
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    // Attempt to replace this fragment's root view with the new fragment
+                    .replace((((View) getView().getParent()).getId()), fragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
