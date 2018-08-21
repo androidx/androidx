@@ -16,6 +16,11 @@
   -->
 
 <resources>
+    <color name="mr_dynamic_dialog_icon_light">#202124</color>
+    <color name="mr_dynamic_dialog_icon_dark">#F8F9FA</color>
+
     <color name="mr_cast_meta_default_background">#212228</color>
-    <color name="mr_dynamic_dialog_icon_dark">#202124</color>
+
+    <color name="mr_cast_route_divider_light">#1425272B</color>
+    <color name="mr_cast_route_divider_dark">#803C4043</color>
 </resources>
