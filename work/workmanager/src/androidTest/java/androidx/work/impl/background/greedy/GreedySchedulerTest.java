@@ -94,6 +94,16 @@ public class GreedySchedulerTest extends WorkManagerTest {
 
     @Test
     @SmallTest
+    public void testGreedyScheduler_ignoresBackedOffWork() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialRunAttemptCount(5)
+                .build();
+        mGreedyScheduler.schedule(getWorkSpec(work));
+        verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
+    }
+
+    @Test
+    @SmallTest
     public void testGreedyScheduler_startsWorkWhenConstraintsMet() {
         mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(TEST_ID));
         verify(mWorkManagerImpl).startWork(TEST_ID);

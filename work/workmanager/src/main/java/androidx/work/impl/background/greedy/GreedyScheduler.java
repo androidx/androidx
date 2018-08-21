@@ -80,7 +80,8 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         for (WorkSpec workSpec: workSpecs) {
             if (workSpec.state == State.ENQUEUED
                     && !workSpec.isPeriodic()
-                    && workSpec.initialDelay == 0L) {
+                    && workSpec.initialDelay == 0L
+                    && !workSpec.isBackedOff()) {
                 if (workSpec.hasConstraints()) {
                     // Exclude content URI triggers - we don't know how to handle them here so the
                     // background scheduler should take care of them.
