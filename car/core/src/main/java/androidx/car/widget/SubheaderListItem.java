@@ -20,6 +20,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -53,14 +54,15 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
 
     private final List<ViewBinder<ViewHolder>> mBinders = new ArrayList<>();
 
-    private String mText;
+    private CharSequence mText;
 
-    public SubheaderListItem(Context context, String text) {
-
+    public SubheaderListItem(@NonNull Context context, @NonNull CharSequence text) {
+        if (TextUtils.isEmpty(text)) {
+            throw new IllegalArgumentException("Text for subheader cannot be empty.");
+        }
         mContext = context;
         mText = text;
         mTextStartMarginType = TEXT_START_MARGIN_TYPE_NONE;
-
         markDirty();
     }
 
@@ -95,9 +97,12 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     }
 
     /**
-     * Sets the text to be displayed.
+     * Sets the text to be displayed; cannot be null or empty string.
      */
-    public void setText(String text) {
+    public void setText(@NonNull CharSequence text) {
+        if (TextUtils.isEmpty(text)) {
+            throw new IllegalArgumentException("Text for subheader cannot be empty.");
+        }
         mText = text;
         markDirty();
     }
