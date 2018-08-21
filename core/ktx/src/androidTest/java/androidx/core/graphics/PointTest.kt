@@ -18,9 +18,11 @@ package androidx.core.graphics
 
 import android.graphics.Point
 import android.graphics.PointF
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class PointTest {
     @Test fun destructuringInt() {
         val (x, y) = Point(2, 3)

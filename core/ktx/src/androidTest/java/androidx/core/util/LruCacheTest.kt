@@ -16,10 +16,12 @@
 
 package androidx.core.util
 
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class LruCacheTest {
     private data class TestData(val x: String = "bla")
 

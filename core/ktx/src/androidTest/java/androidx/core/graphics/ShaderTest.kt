@@ -18,9 +18,11 @@ package androidx.core.graphics
 
 import android.graphics.Matrix
 import android.graphics.Shader
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class ShaderTest {
     @Test
     fun testTransform() {

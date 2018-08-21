@@ -17,6 +17,7 @@
 package androidx.core.util
 
 import android.util.SparseIntArray
+import androidx.test.filters.SmallTest
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
@@ -24,6 +25,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class SparseIntArrayTest {
     @Test fun sizeProperty() {
         val array = SparseIntArray()

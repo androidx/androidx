@@ -17,10 +17,14 @@
 package androidx.core.text
 
 import android.view.View
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.Locale
 
+@SdkSuppress(minSdkVersion = 21)
+@SmallTest
 class LocaleTest {
     @Test fun layoutDirectionWithLTR() {
         val ltrLocale = Locale.Builder().setLanguage("en").build()

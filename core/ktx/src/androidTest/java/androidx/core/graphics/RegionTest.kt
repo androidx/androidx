@@ -19,6 +19,7 @@ package androidx.core.graphics
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.Region
+import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -26,6 +27,7 @@ import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class RegionTest {
     @Test fun containsPoint() {
         assertFalse(Point(1, 1) in Region())

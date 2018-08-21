@@ -19,11 +19,13 @@ package androidx.core.graphics
 import android.graphics.Color
 import android.graphics.ColorSpace
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class ColorTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test fun destructuringColor() {
