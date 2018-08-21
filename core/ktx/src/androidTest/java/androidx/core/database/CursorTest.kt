@@ -18,9 +18,11 @@ package androidx.core.database
 
 import android.database.Cursor
 import android.database.MatrixCursor
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertNull
 import org.junit.Test
 
+@SmallTest
 class CursorTest {
     @Test fun blobOrNullByIndex() {
         val cursor = scalarCursor(null)

@@ -18,10 +18,12 @@ package androidx.core.graphics
 
 import android.graphics.Canvas
 import android.graphics.Matrix
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class CanvasTest {
     private val values = FloatArray(9)
     private val canvas = Canvas(createBitmap(1, 1))

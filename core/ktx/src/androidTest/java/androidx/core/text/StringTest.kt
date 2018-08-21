@@ -16,9 +16,11 @@
 
 package androidx.core.text
 
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class StringTest {
     @Test fun htmlEncode() {
         assertEquals("&lt;&gt; &amp; &quot; &#39;", """<> & " '""".htmlEncode())

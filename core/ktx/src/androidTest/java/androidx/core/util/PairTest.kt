@@ -17,10 +17,12 @@
 package androidx.core.util
 
 import android.util.Pair
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Test
 
+@SmallTest
 class PairTest {
     @Test fun destructuringNonNull() {
         val pair = Pair("one", "two")

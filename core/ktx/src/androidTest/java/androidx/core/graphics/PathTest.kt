@@ -19,11 +19,13 @@ package androidx.core.graphics
 import android.graphics.Path
 import android.graphics.RectF
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class PathTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test fun testFlatten() {

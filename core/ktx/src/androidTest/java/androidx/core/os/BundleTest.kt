@@ -19,11 +19,12 @@ package androidx.core.os
 import android.graphics.Rect
 import android.os.Binder
 import android.os.Bundle
-import androidx.test.InstrumentationRegistry
-import androidx.test.filters.SdkSuppress
 import android.util.Size
 import android.util.SizeF
 import android.view.View
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertArrayEquals
@@ -33,6 +34,7 @@ import org.junit.Assert.assertSame
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
 
+@SmallTest
 class BundleTest {
     @Test fun bundleOfValid() {
         val bundleValue = Bundle()

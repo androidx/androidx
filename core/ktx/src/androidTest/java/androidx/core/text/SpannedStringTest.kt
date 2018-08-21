@@ -21,11 +21,13 @@ import android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 import android.text.SpannedString
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class SpannedStringTest {
 
     @Test fun toSpanned() = assertTrue("Hello, World".toSpanned() is SpannedString)

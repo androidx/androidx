@@ -21,15 +21,17 @@ import android.graphics.Bitmap.Config.ARGB_8888
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.Icon
-import androidx.test.InstrumentationRegistry
-import androidx.test.filters.SdkSuppress
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
 
 @SdkSuppress(minSdkVersion = 26)
+@SmallTest
 class IconTest {
     private val context = InstrumentationRegistry.getContext()
 

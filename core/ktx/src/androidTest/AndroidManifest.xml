@@ -3,6 +3,5 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <application>
         <activity android:name="androidx.core.TestActivity"/>
-        <activity android:name="androidx.core.TestPreferenceActivity"/>
     </application>
 </manifest>

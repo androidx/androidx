@@ -30,10 +30,12 @@ import android.text.style.StyleSpan
 import android.text.style.SubscriptSpan
 import android.text.style.SuperscriptSpan
 import android.text.style.UnderlineSpan
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Test
 
+@SmallTest
 class SpannableStringBuilderTest {
     @Test fun builder() {
         val result: SpannedString = buildSpannedString {

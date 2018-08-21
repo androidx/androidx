@@ -16,6 +16,7 @@
 
 package androidx.core.content
 
+import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -23,6 +24,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
 
+@SmallTest
 class ContentValuesTest {
     @Test fun valuesOfValid() {
         val values = contentValuesOf(
