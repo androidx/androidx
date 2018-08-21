@@ -867,7 +867,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
 
         DataSourceDesc2 dsd = mMediaItem.getDataSourceDesc();
-        Uri uri = (dsd != null && dsd.getType() == DataSourceDesc2.TYPE_URI)
+        Uri uri = (dsd != null && dsd instanceof UriDataSourceDesc2)
                 ? ((UriDataSourceDesc2) dsd).getUri() : null;
         if (uri == null) {
             // Something wrong.
