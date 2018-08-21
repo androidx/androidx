@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Preconditions;
 
 /**
- * Structure for data source descriptor for {@link CallbackDataSource2}. Used by {@link MediaItem2}.
+ * Structure for data source descriptor for {@link DataSourceCallback2}. Used by {@link MediaItem2}.
  * <p>
  * Users should use {@link Builder} to create {@link CallbackDataSourceDesc2}.
  *
@@ -29,19 +29,19 @@ import androidx.core.util.Preconditions;
 public class CallbackDataSourceDesc2 extends DataSourceDesc2 {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            CallbackDataSource2 mCallbackDataSource2;
+            DataSourceCallback2 mDataSourceCallback2;
 
     CallbackDataSourceDesc2(Builder builder) {
         super(builder);
-        mCallbackDataSource2 = builder.mCallbackDataSource2;
+        mDataSourceCallback2 = builder.mDataSourceCallback2;
     }
 
     /**
-     * Return the CallbackDataSource2 that implements the callback for this data source.
-     * @return the CallbackDataSource2 that implements the callback for this data source,
+     * Return the DataSourceCallback2 that implements the callback for this data source.
+     * @return the DataSourceCallback2 that implements the callback for this data source,
      */
-    public @NonNull CallbackDataSource2 getCallbackDataSource2() {
-        return mCallbackDataSource2;
+    public @NonNull DataSourceCallback2 getDataSourceCallback2() {
+        return mDataSourceCallback2;
     }
 
     /**
@@ -50,15 +50,15 @@ public class CallbackDataSourceDesc2 extends DataSourceDesc2 {
     public static final class Builder extends DataSourceDesc2.Builder<Builder> {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-                CallbackDataSource2 mCallbackDataSource2;
+        DataSourceCallback2 mDataSourceCallback2;
 
         /**
          * Creates a new Builder object.
-         * @param m2ds the CallbackDataSource2 for the media you want to play
+         * @param dsc2 the DataSourceCallback2 for the media you want to play
          */
-        public Builder(@NonNull CallbackDataSource2 m2ds) {
-            Preconditions.checkNotNull(m2ds);
-            mCallbackDataSource2 = m2ds;
+        public Builder(@NonNull DataSourceCallback2 dsc2) {
+            Preconditions.checkNotNull(dsc2);
+            mDataSourceCallback2 = dsc2;
         }
 
         /**
