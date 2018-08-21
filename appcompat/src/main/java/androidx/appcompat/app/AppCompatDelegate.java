@@ -454,7 +454,7 @@ public abstract class AppCompatDelegate {
      * locally via {@link #setLocalNightMode(int)}.
      *
      * <p>This method only takes effect for those situations where {@link #applyDayNight()} works.
-     * Defaults to {@link #MODE_NIGHT_NO}.</p>
+     * Defaults to {@link #MODE_NIGHT_FOLLOW_SYSTEM}.</p>
      *
      * <p>This only takes effect for components which are created after the call. Any components
      * which are already open will not be updated.</p>
