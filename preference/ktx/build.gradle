@@ -24,6 +24,14 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
+    }
+}
+
 dependencies {
     api(project(":preference"))
     api(KOTLIN_STDLIB)
