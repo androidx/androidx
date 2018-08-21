@@ -18,9 +18,11 @@ package androidx.core.graphics
 
 import android.graphics.Color
 import android.graphics.Picture
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class PictureTest {
     @Test fun record() {
         val p = Picture().record(1, 1) {

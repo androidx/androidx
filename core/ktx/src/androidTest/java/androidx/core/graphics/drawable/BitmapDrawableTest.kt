@@ -16,11 +16,13 @@
 
 package androidx.core.graphics.drawable
 
-import androidx.test.InstrumentationRegistry
 import androidx.core.graphics.createBitmap
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class BitmapDrawableTest {
     private val context = InstrumentationRegistry.getContext()
 

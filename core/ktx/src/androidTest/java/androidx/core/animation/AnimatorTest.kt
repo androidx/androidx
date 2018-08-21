@@ -18,17 +18,19 @@ package androidx.core.animation
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
+import android.view.View
 import androidx.test.InstrumentationRegistry
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import android.view.View
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@SmallTest
 class AnimatorTest {
     private val context = InstrumentationRegistry.getContext()
     private val view = View(context)

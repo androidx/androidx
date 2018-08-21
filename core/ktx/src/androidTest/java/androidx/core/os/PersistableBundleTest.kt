@@ -16,9 +16,10 @@
 
 package androidx.core.os
 
+import android.view.View
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SdkSuppress
-import android.view.View
+import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertArrayEquals
@@ -27,6 +28,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 21)
+@SmallTest
 class PersistableBundleTest {
     @Test fun persistableBundleOfValid() {
         val bundle = persistableBundleOf(

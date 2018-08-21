@@ -17,9 +17,11 @@
 package androidx.core.content
 
 import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class SharedPreferencesTest {
     private val context = InstrumentationRegistry.getContext()
 

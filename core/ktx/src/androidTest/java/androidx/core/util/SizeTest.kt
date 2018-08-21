@@ -16,13 +16,15 @@
 
 package androidx.core.util
 
-import androidx.test.filters.SdkSuppress
 import android.util.Size
 import android.util.SizeF
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 21)
+@SmallTest
 class SizeTest {
     @Test fun destructuringSize() {
         val (w, h) = Size(320, 240)

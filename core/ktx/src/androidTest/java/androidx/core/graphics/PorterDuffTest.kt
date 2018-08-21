@@ -18,9 +18,11 @@ package androidx.core.graphics
 
 import android.graphics.Paint
 import android.graphics.PorterDuff
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class PorterDuffTest {
     @Test fun xfermode() {
         val p = createBitmap(1, 1).applyCanvas {

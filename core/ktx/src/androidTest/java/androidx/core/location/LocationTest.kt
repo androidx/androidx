@@ -17,9 +17,11 @@
 package androidx.core.location
 
 import android.location.Location
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class LocationTest {
     @Test fun destructuring() {
         val (lat, lon) = Location("").apply {

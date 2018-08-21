@@ -18,13 +18,14 @@ package androidx.core.view
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import androidx.test.InstrumentationRegistry
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.core.ktx.test.R
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
 import org.junit.Assert.assertEquals
@@ -33,6 +34,7 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@SmallTest
 class ViewTest {
     private val context = InstrumentationRegistry.getContext()
     private val view = View(context)

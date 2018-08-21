@@ -19,9 +19,11 @@ package androidx.core.graphics
 import android.graphics.Bitmap
 import android.graphics.ColorSpace
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@SmallTest
 class BitmapTest {
     @Test fun create() {
         val bitmap = createBitmap(7, 9)

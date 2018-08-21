@@ -19,6 +19,7 @@ package androidx.core.os
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.SystemClock
+import androidx.test.filters.SmallTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -29,6 +30,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
 
+@SmallTest
 class HandlerTest {
     private val handlerThread = HandlerThread("handler-test")
     private lateinit var handler: Handler
