@@ -172,8 +172,7 @@ public final class Configuration {
          * of {@link WorkRequest}s, and enqueues when slots become free.
          *
          * {@link WorkManager} requires a minimum of {@link Configuration#MIN_SCHEDULER_LIMIT}
-         * slots. The total number of slots also cannot exceed {@code 100} which is
-         * the {@link android.app.job.JobScheduler} limit.
+         * slots. The total number of slots also cannot exceed {@code 50}.
          *
          * @param maxSchedulerLimit The total number of jobs which can be enqueued by
          *                                {@link WorkManager} when using
