@@ -48,6 +48,7 @@ class PathKeyframes implements Keyframes<PointF> {
 
     private PointF mTempPointF = new PointF();
     private final float[] mKeyframeData;
+    private static final float EPSILON = 0.0001f;
 
     PathKeyframes(Path path) {
         this(path, 0.5f);
@@ -64,12 +65,13 @@ class PathKeyframes implements Keyframes<PointF> {
         }
     }
 
+    // TODO: Move this into a Util class
     private float[] createKeyFrameData(Path path, float precision) {
         // Measure the total length the whole path.
         final PathMeasure measureForTotalLength = new PathMeasure(path, false);
         float totalLength = 0;
         // The sum of the previous contour plus the current one. Using the sum here b/c we want to
-        // directly substract from it later.
+        // directly subtract from it later.
         ArrayList<Float> contourLengths = new ArrayList<>();
         contourLengths.add(0f);
         do {
@@ -84,33 +86,111 @@ class PathKeyframes implements Keyframes<PointF> {
 
         final int numPoints = Math.min(MAX_NUM_POINTS, (int) (totalLength / precision) + 1);
 
-        float[] results = new float[numPoints * NUM_COMPONENTS];
+        ArrayList<Float> results = new ArrayList<>(numPoints * NUM_COMPONENTS);
 
         final float[] position = new float[2];
 
         int contourIndex = 0;
-        float step = totalLength / (numPoints - 1);
+        float step = totalLength / (numPoints - 1 - contourLengths.size());
         float currentDistance = 0;
+
+        float[] lastTangent = new float[2];
+        float[] tangent = new float[2];
+        boolean lastTwoPointsOnALine = false;
 
         // For each sample point, determine whether we need to move on to next contour.
         // After we find the right contour, then sample it using the current distance value minus
         // the previously sampled contours' total length.
         for (int i = 0; i < numPoints; ++i) {
             pathMeasure.getPosTan(currentDistance - contourLengths.get(contourIndex),
-                    position, null);
+                    position, tangent);
 
-            results[i * NUM_COMPONENTS + FRACTION_OFFSET] = currentDistance / totalLength;
-            results[i * NUM_COMPONENTS + X_OFFSET] = position[0];
-            results[i * NUM_COMPONENTS + Y_OFFSET] = position[1];
+            int lastIndex = results.size() - 1;
+            if (i > 0 && twoPointsOnTheSameLinePath(tangent, lastTangent, position[0], position[1],
+                    results.get(lastIndex - 1), results.get(lastIndex))) {
+                // If the current point and the last two points have the same tangent, they are on
+                // the same line. Instead of adding new points, modify the last point entries.
+                if (lastTwoPointsOnALine) {
+                    // Modify the entries for the last point added.
+                    results.set(lastIndex - 2, (currentDistance / totalLength));
+                    results.set(lastIndex - 1, position[0]);
+                    results.set(lastIndex, position[1]);
+
+                } else {
+                    lastTwoPointsOnALine = true;
+                    addDataEntry(results, currentDistance / totalLength, position[0], position[1]);
+
+                }
+            } else {
+                int skippedPoints = i - results.size() / 3;
+                if (skippedPoints > 0 && lastTwoPointsOnALine) {
+                    float fineGrainedDistance = totalLength * results.get(results.size() - 3);
+                    float samplePoints = Math.min(skippedPoints, 4);
+                    float smallStep = step / samplePoints;
+
+                    while (fineGrainedDistance + smallStep < currentDistance) {
+                        fineGrainedDistance += smallStep;
+                        pathMeasure.getPosTan(
+                                fineGrainedDistance - contourLengths.get(contourIndex),
+                                position, tangent);
+
+                        addDataEntry(results, fineGrainedDistance / totalLength,
+                                position[0], position[1]);
+                    }
+                } else {
+                    addDataEntry(results, currentDistance / totalLength, position[0], position[1]);
+                }
+                lastTwoPointsOnALine = false;
+            }
 
             currentDistance += step;
+
             if ((contourIndex + 1) < contourLengths.size()
                     && currentDistance > contourLengths.get(contourIndex + 1)) {
+
+                float currentContourSum = contourLengths.get(contourIndex + 1);
+                // Add the point that defines the end of the contour, if it's not already added
+                pathMeasure.getPosTan(
+                        currentContourSum - contourLengths.get(contourIndex),
+                        position, tangent);
+                addDataEntry(results, currentContourSum / totalLength,
+                        position[0], position[1]);
+
                 contourIndex++;
                 pathMeasure.nextContour();
             }
+
+            lastTangent[0] = tangent[0];
+            lastTangent[1] = tangent[1];
+
+            if (currentDistance > totalLength) {
+                break;
+            }
         }
-        return results;
+
+        float[] optimizedResults = new float[results.size()];
+        for (int i = 0; i < results.size(); i++) {
+            optimizedResults[i] = results.get(i);
+        }
+        return optimizedResults;
+    }
+
+    private boolean twoPointsOnTheSameLinePath(float[] tan1, float[] tan2,
+            float x1, float y1, float x2, float y2) {
+        if (Math.abs(tan1[0] - tan2[0]) > EPSILON || Math.abs(tan1[1] - tan2[1]) > EPSILON) {
+            return false;
+        }
+        float deltaX = x1 - x2;
+        float deltaY = y1 - y2;
+        // If deltaY / deltaX = tan1[1] / tan1[0], that means the two points are on the same line as
+        // the path.
+        return Math.abs(deltaX * tan1[1] - deltaY * tan1[0]) < EPSILON;
+    }
+
+    private static void addDataEntry(List<Float> data, float fraction, float x, float y) {
+        data.add(fraction);
+        data.add(x);
+        data.add(y);
     }
 
     @Override
