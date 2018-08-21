@@ -66,7 +66,7 @@ class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
         _forgottenChildren.add(child)
     }
 
-    override fun mount(parent: Element, newSlot: Any?) {
+    override fun mount(parent: Element?, newSlot: Any?) {
         val multiChildWidget = widget as MultiChildRenderObjectWidget
 
         super.mount(parent, newSlot)

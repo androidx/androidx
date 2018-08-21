@@ -10,6 +10,8 @@ import androidx.ui.foundation.binding.BindingBase
 import androidx.ui.foundation.binding.BindingBaseImpl
 import androidx.ui.rendering.binding.RendererBinding
 import androidx.ui.rendering.binding.RendererBindingImpl
+import androidx.ui.rendering.box.RenderBox
+import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.scheduler.binding.SchedulerBinding
 import androidx.ui.services.ServicesBinding
 import androidx.ui.services.SystemNavigator
@@ -451,11 +453,14 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
     // / See also [RenderObjectToWidgetAdapter.attachToRenderTree].
     fun attachRootWidget(rootWidget: Widget) {
         // TODO(migration/popam): complete this
-//        _renderViewElement = RenderObjectToWidgetAdapter<RenderBox>(
-//                renderView,
-//                debugShortDescription: "[root]",
-//                child: rootWidget
-//        ).attachToRenderTree(buildOwner, renderViewElement);
+        _renderViewElement = RenderObjectToWidgetAdapter<RenderBox>(
+                // TODO(Migration/Filip): I'm forced to cast it here
+                container = RendererBindingImpl.renderView as RenderObjectWithChildMixin<RenderBox>,
+                debugShortDescription = "[root]",
+                child = rootWidget
+                // TODO(Migration/Filip): I'm forced to cast it here
+        ).attachToRenderTree(buildOwner,
+                renderViewElement as RenderObjectToWidgetElement<RenderBox>?)
     }
 
     override fun performReassemble(): Deferred<Unit> {

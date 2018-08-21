@@ -1369,7 +1369,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * Used by [hitTest]. If you override [hitTest] and do not call this
      * function, then you don't need to implement this function.
      */
-    protected fun hitTestSelf(position: Offset): Boolean = false
+    protected open fun hitTestSelf(position: Offset): Boolean = false
 
     // TODO(Migration/xbhatnag): Needs HitTestResult
 //    /// Override this method to check whether any children are located at the

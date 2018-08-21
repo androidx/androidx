@@ -20,7 +20,7 @@ abstract class RootRenderObjectElement(widget: RenderObjectWidget) : RenderObjec
         this.owner = owner
     }
 
-    override fun mount(parent: Element, newSlot: Any?) {
+    override fun mount(parent: Element?, newSlot: Any?) {
         // Root elements should never have parents.
         assert(parent == null)
         assert(newSlot == null)

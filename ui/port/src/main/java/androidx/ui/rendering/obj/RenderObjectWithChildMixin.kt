@@ -12,13 +12,14 @@ abstract class RenderObjectWithChildMixin<ChildType : RenderObject> : RenderObje
 //    factory RenderObjectWithChildMixin._() => null;
 
     // TODO(Migration/andrey): no way to have (child is! ChildType) in Kotlin. but maybe we don't need this method anyway
-//    /// Checks whether the given render object has the correct [runtimeType] to be
-//    /// a child of this render object.
-//    ///
-//    /// Does nothing if assertions are disabled.
-//    ///
-//    /// Always returns true.
-//    fun debugValidateChild(child : RenderObject) : Boolean {
+    // / Checks whether the given render object has the correct [runtimeType] to be
+    // / a child of this render object.
+    // /
+    // / Does nothing if assertions are disabled.
+    // /
+    // / Always returns true.
+    fun debugValidateChild(child: RenderObject?): Boolean {
+        // TODO(Migration/andrey): no way to have (child is! ChildType) in Kotlin. but maybe we don't need this method anyway
 //        assert(() {
 //            if (child is! ChildType) {
 //            throw new FlutterError(
@@ -39,8 +40,8 @@ abstract class RenderObjectWithChildMixin<ChildType : RenderObject> : RenderObje
 //        }
 //            return true;
 //        }());
-//        return true;
-//    }
+        return true
+    }
 
     // / The render object's unique child
     open var child: ChildType? = null

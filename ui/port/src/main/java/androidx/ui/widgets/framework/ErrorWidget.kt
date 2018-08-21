@@ -3,6 +3,7 @@ package androidx.ui.widgets.framework
 import androidx.ui.foundation.assertions.FlutterErrorDetails
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.StringProperty
+import androidx.ui.rendering.error.RenderErrorBox
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.widgets.framework.key.UniqueKey
 
@@ -66,9 +67,7 @@ class ErrorWidget(exception: Any) : LeafRenderObjectWidget(key = UniqueKey()) {
         }
     }
 
-    // TODO(Migration/Filip): Original below:
-    // override fun createRenderObject(context: BuildContext): RenderBox = RenderErrorBox(message);
-    override fun createRenderObject(context: BuildContext): RenderObject = TODO()
+    override fun createRenderObject(context: BuildContext): RenderObject = RenderErrorBox(message)
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)

@@ -1,0 +1,304 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.ui.painting
+
+import androidx.ui.clamp
+import androidx.ui.lerpDouble
+import androidx.ui.toRadixString
+import androidx.ui.truncDiv
+import kotlin.math.roundToInt
+
+// / An immutable 32 bit color value in ARGB format.
+// /
+// / Consider the light teal of the Flutter logo. It is fully opaque, with a red
+// / channel value of 0x42 (66), a green channel value of 0xA5 (165), and a blue
+// / channel value of 0xF5 (245). In the common "hash syntax" for colour values,
+// / it would be described as `#42A5F5`.
+// /
+// / Here are some ways it could be constructed:
+// /
+// / ```dart
+// / Color c = const Color(0xFF42A5F5);
+// / Color c = const Color.fromARGB(0xFF, 0x42, 0xA5, 0xF5);
+// / Color c = const Color.fromARGB(255, 66, 165, 245);
+// / Color c = const Color.fromRGBO(66, 165, 245, 1.0);
+// / ```
+// /
+// / If you are having a problem with `Color` wherein it seems your color is just
+// / not painting, check to make sure you are specifying the full 8 hexadecimal
+// / digits. If you only specify six, then the leading two digits are assumed to
+// / be zero, which means fully-transparent:
+// /
+// / ```dart
+// / Color c1 = const Color(0xFFFFFF); // fully transparent white (invisible)
+// / Color c2 = const Color(0xFFFFFFFF); // fully opaque white (visible)
+// / ```
+// /
+// / See also:
+// /
+// /  * [Colors](https://docs.flutter.io/flutter/material/Colors-class.html), which
+// /    defines the colors found in the Material Design specification.
+// /
+// / Ctor comment:
+// / Construct a color from the lower 32 bits of an [int].
+// /
+// / The bits are interpreted as follows:
+// /
+// / * Bits 24-31 are the alpha value.
+// / * Bits 16-23 are the red value.
+// / * Bits 8-15 are the green value.
+// / * Bits 0-7 are the blue value.
+// /
+// / In other words, if AA is the alpha value in hex, RR the red value in hex,
+// / GG the green value in hex, and BB the blue value in hex, a color can be
+// / expressed as `const Color(0xAARRGGBB)`.
+// /
+// / For example, to get a fully opaque orange, you would use `const
+// / Color(0xFFFF9000)` (`FF` for the alpha, `FF` for the red, `90` for the
+// / green, and `00` for the blue).
+class Color(colorValue: Int) {
+    // / A 32 bit value representing this color.
+    // /
+    // / The bits are assigned as follows:
+    // /
+    // / * Bits 24-31 are the alpha value.
+    // / * Bits 16-23 are the red value.
+    // / * Bits 8-15 are the green value.
+    // / * Bits 0-7 are the blue value.
+    val value: Int = colorValue and 0xFFFFFFFF.toInt()
+
+    companion object {
+        // / Construct a color from the lower 8 bits of four integers.
+        // /
+        // / * `a` is the alpha value, with 0 being transparent and 255 being fully
+        // /   opaque.
+        // / * `r` is [red], from 0 to 255.
+        // / * `g` is [green], from 0 to 255.
+        // / * `b` is [blue], from 0 to 255.
+        // /
+        // / Out of range values are brought into range using modulo 255.
+        // /
+        // / See also [fromARGB], which takes the alpha value as a floating point
+        // / value.
+        fun fromARGB(a: Int, r: Int, g: Int, b: Int): Color {
+            return Color((((a and 0xff) shl 24) or
+                    ((r and 0xff) shl 16) or
+                    ((g and 0xff) shl 8) or
+                    ((b and 0xff) shl 0)) and 0xFFFFFFFF.toInt())
+        }
+
+        // / Create a color from red, green, blue, and opacity, similar to `rgba()` in CSS.
+        // /
+        // / * `r` is [red], from 0 to 255.
+        // / * `g` is [green], from 0 to 255.
+        // / * `b` is [blue], from 0 to 255.
+        // / * `opacity` is alpha channel of this color as a double, with 0.0 being
+        // /   transparent and 1.0 being fully opaque.
+        // /
+        // / Out of range values are brought into range using modulo 255.
+        // /
+        // / See also [fromARGB], which takes the opacity as an integer value.
+        fun fromRGBO(r: Int, g: Int, b: Int, opacity: Double): Color {
+            return Color(
+                    (
+                        ((((opacity * 0xff.toDouble()).truncDiv(1.toDouble())) and 0xff) shl 24) or
+                        ((r and 0xff) shl 16) or
+                        ((g and 0xff) shl 8) or
+                        ((b and 0xff) shl 0)
+                    ) and 0xFFFFFFFF.toInt())
+        }
+
+        // See <https://www.w3.org/TR/WCAG20/#relativeluminancedef>
+        fun _linearizeColorComponent(component: Double): Double {
+            if (component <= 0.03928)
+                return component / 12.92
+            return Math.pow((component + 0.055) / 1.055, 2.4)
+        }
+
+        // / Linearly interpolate between two colors.
+        // /
+        // / This is intended to be fast but as a result may be ugly. Consider
+        // / [HSVColor] or writing custom logic for interpolating colors.
+        // /
+        // / If either color is null, this function linearly interpolates from a
+        // / transparent instance of the other color. This is usually preferable to
+        // / interpolating from [material.Colors.transparent] (`const
+        // / Color(0x00000000)`), which is specifically transparent _black_.
+        // /
+        // / The `t` argument represents position on the timeline, with 0.0 meaning
+        // / that the interpolation has not started, returning `a` (or something
+        // / equivalent to `a`), 1.0 meaning that the interpolation has finished,
+        // / returning `b` (or something equivalent to `b`), and values in between
+        // / meaning that the interpolation is at the relevant point on the timeline
+        // / between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+        // / 1.0, so negative values and values greater than 1.0 are valid (and can
+        // / easily be generated by curves such as [Curves.elasticInOut]). Each channel
+        // / will be clamped to the range 0 to 255.
+        // /
+        // / Values for `t` are usually obtained from an [Animation<double>], such as
+        // / an [AnimationController].
+        fun lerp(a: Color?, b: Color?, t: Double?): Color? {
+            assert(t != null)
+            if (a == null && b == null)
+                return null
+            if (a == null)
+                return _scaleAlpha(b!!, t!!)
+            if (b == null)
+                return _scaleAlpha(a, 1.0 - t!!)
+            return Color.fromARGB(
+                    lerpDouble(a.alpha.toDouble(), b.alpha.toDouble(), t!!).toInt().clamp(0, 255),
+                    lerpDouble(a.red.toDouble(), b.red.toDouble(), t).toInt().clamp(0, 255),
+                    lerpDouble(a.green.toDouble(), b.green.toDouble(), t).toInt().clamp(0, 255),
+                    lerpDouble(a.blue.toDouble(), b.blue.toDouble(), t).toInt().clamp(0, 255)
+            )
+        }
+
+        // / Combine the foreground color as a transparent color over top
+        // / of a background color, and return the resulting combined color.
+        // /
+        // / This uses standard alpha blending ("SRC over DST") rules to produce a
+        // / blended color from two colors. This can be used as a performance
+        // / enhancement when trying to avoid needless alpha blending compositing
+        // / operations for two things that are solid colors with the same shape, but
+        // / overlay each other: instead, just paint one with the combined color.
+        fun alphaBlend(foreground: Color, background: Color): Color {
+            val alpha = foreground.alpha
+            if (alpha == 0x00) { // Foreground completely transparent.
+                return background
+            }
+            val invAlpha = 0xff - alpha
+            var backAlpha = background.alpha
+            if (backAlpha == 0xff) { // Opaque background case
+                return Color.fromARGB(
+                        0xff,
+                (alpha * foreground.red + invAlpha * background.red).truncDiv(0xff),
+                (alpha * foreground.green + invAlpha * background.green).truncDiv(0xff),
+                (alpha * foreground.blue + invAlpha * background.blue).truncDiv(0xff)
+                )
+            } else { // General case
+                backAlpha = (backAlpha * invAlpha).truncDiv(0xff)
+                val outAlpha = alpha + backAlpha
+                assert(outAlpha != 0x00)
+                return Color.fromARGB(
+                        outAlpha,
+                (foreground.red * alpha + background.red * backAlpha).truncDiv(outAlpha),
+                (foreground.green * alpha + background.green * backAlpha).truncDiv(outAlpha),
+                (foreground.blue * alpha + background.blue * backAlpha).truncDiv(outAlpha)
+                )
+            }
+        }
+    }
+
+    // / The alpha channel of this color in an 8 bit value.
+    // /
+    // / A value of 0 means this color is fully transparent. A value of 255 means
+    // / this color is fully opaque.
+    val alpha get() = (0xff000000.toInt() and value) shr 24
+
+    // / The alpha channel of this color as a double.
+    // /
+    // / A value of 0.0 means this color is fully transparent. A value of 1.0 means
+    // / this color is fully opaque.
+    val opacity: Double = alpha / 0xFF.toDouble()
+
+    // / The red channel of this color in an 8 bit value.
+    val red = (0x00ff0000 and value) shr 16
+
+    // / The green channel of this color in an 8 bit value.
+    val green = (0x0000ff00 and value) shr 8
+
+    // / The blue channel of this color in an 8 bit value.
+    val blue = (0x000000ff and value) shr 0
+
+    // / Returns a new color that matches this color with the alpha channel
+    // / replaced with `a` (which ranges from 0 to 255).
+    // /
+    // / Out of range values will have unexpected effects.
+    fun withAlpha(a: Int): Color {
+        return Color.fromARGB(a, red, green, blue)
+    }
+
+    // / Returns a new color that matches this color with the alpha channel
+    // / replaced with the given `opacity` (which ranges from 0.0 to 1.0).
+    // /
+    // / Out of range values will have unexpected effects.
+    fun withOpacity(opacity: Double): Color {
+        assert(opacity >= 0.0 && opacity <= 1.0)
+        return withAlpha((255.0 * opacity).roundToInt())
+    }
+
+    // / Returns a new color that matches this color with the red channel replaced
+    // / with `r` (which ranges from 0 to 255).
+    // /
+    // / Out of range values will have unexpected effects.
+    fun withRed(r: Int): Color {
+        return Color.fromARGB(alpha, r, green, blue)
+    }
+
+    // / Returns a new color that matches this color with the green channel
+    // / replaced with `g` (which ranges from 0 to 255).
+    // /
+    // / Out of range values will have unexpected effects.
+    fun withGreen(g: Int): Color {
+        return Color.fromARGB(alpha, red, g, blue)
+    }
+
+    // / Returns a new color that matches this color with the blue channel replaced
+    // / with `b` (which ranges from 0 to 255).
+    // /
+    // / Out of range values will have unexpected effects.
+    fun withBlue(b: Int): Color {
+        return Color.fromARGB(alpha, red, green, b)
+    }
+
+    // / Returns a brightness value between 0 for darkest and 1 for lightest.
+    // /
+    // / Represents the relative luminance of the color. This value is computationally
+    // / expensive to calculate.
+    // /
+    // / See <https://en.wikipedia.org/wiki/Relative_luminance>.
+    fun computeLuminance(): Double {
+        // See <https://www.w3.org/TR/WCAG20/#relativeluminancedef>
+        val R = _linearizeColorComponent(red / 0xFF.toDouble())
+        val G = _linearizeColorComponent(green / 0xFF.toDouble())
+        val B = _linearizeColorComponent(blue / 0xFF.toDouble())
+        return 0.2126 * R + 0.7152 * G + 0.0722 * B
+    }
+
+    // Autogenerated by AS
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Color
+
+        if (value != other.value) return false
+
+        return true
+    }
+
+    // Autogenerated by AS
+    override fun hashCode(): Int {
+        return value
+    }
+
+    override fun toString() = "Color(0x${value.toRadixString(16).padStart(8, '0')})"
+}
+
+fun _scaleAlpha(a: Color, factor: Double): Color {
+    return a.withAlpha((a.alpha * factor).roundToInt().clamp(0, 255))
+}

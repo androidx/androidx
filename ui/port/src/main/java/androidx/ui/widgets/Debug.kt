@@ -1,8 +1,13 @@
 package androidx.ui.widgets
 
+import androidx.ui.Type
 import androidx.ui.assert
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.assertions.FlutterError
+import androidx.ui.runtimeType
+import androidx.ui.widgets.basic.Directionality
+import androidx.ui.widgets.framework.BuildContext
+import androidx.ui.widgets.framework.Element
 import androidx.ui.widgets.framework.Widget
 
 // / Log the dirty widgets that are built each frame.
@@ -107,4 +112,43 @@ fun debugChildrenHaveDuplicateKeys(parent: Widget, children: Iterable<Widget>): 
         true
     }
     return false
+}
+
+// / Asserts that the given context has a [Directionality] ancestor.
+// /
+// / Used by various widgets to make sure that they are only used in an
+// / appropriate context.
+// /
+// / To invoke this function, use the following pattern, typically in the
+// / relevant Widget's build method:
+// /
+// / ```dart
+// / assert(debugCheckHasDirectionality(context));
+// / ```
+// /
+// / Does nothing if asserts are disabled. Always returns true.
+fun debugCheckHasDirectionality(context: BuildContext): Boolean {
+    assert {
+        if (context.widget !is Directionality &&
+                context.ancestorWidgetOfExactType(Type(Directionality::class.java)) == null) {
+        val element = context as Element
+        throw FlutterError(
+                "No Directionality widget found.\n" +
+                "${context.widget.runtimeType()} widgets require a Directionality widget " +
+                "ancestor.\n" +
+                "The specific widget that could not find a Directionality ancestor was:\n" +
+                "  ${context.widget}\n" +
+                "The ownership chain for the affected widget is:\n" +
+                "  ${element.debugGetCreatorChain(10)}\n" +
+                "Typically, the Directionality widget is introduced by the MaterialApp " +
+                "or WidgetsApp widget at the top of your application widget tree. It " +
+                "determines the ambient reading direction and is used, for example, to " +
+                "determine how to lay out text, how to interpret 'start'' and 'end' " +
+                "values, and to resolve EdgeInsetsDirectional, " +
+                "AlignmentDirectional, and other *Directional objects."
+        )
+    }
+        true
+    }
+    return true
 }

@@ -25,7 +25,7 @@ class SingleChildRenderObjectElement(
         _child = null
     }
 
-    override fun mount(parent: Element, newSlot: Any?) {
+    override fun mount(parent: Element?, newSlot: Any?) {
         val singleChildWidget = widget as SingleChildRenderObjectWidget
         super.mount(parent, newSlot)
         _child = updateChild(_child, singleChildWidget, null)

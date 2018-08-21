@@ -18,7 +18,7 @@ abstract class ComponentElement(widget: Widget) : Element(widget) {
 
     var _child: Element? = null
 
-    override fun mount(parent: Element, newSlot: Any?) {
+    override fun mount(parent: Element?, newSlot: Any?) {
         super.mount(parent, newSlot)
         assert(_child == null)
         assert(_active)

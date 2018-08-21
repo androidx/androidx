@@ -203,7 +203,7 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
         return null
     }
 
-    override fun mount(parent: Element, newSlot: Any?) {
+    override fun mount(parent: Element?, newSlot: Any?) {
         val renderWidget = widget as RenderObjectWidget
 
         super.mount(parent, newSlot)

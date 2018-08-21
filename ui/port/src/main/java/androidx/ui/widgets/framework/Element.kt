@@ -310,7 +310,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     // / This method transitions the element from the "initial" lifecycle state to
     // / the "active" lifecycle state.
     @CallSuper
-    open fun mount(parent: Element, newSlot: Any?) {
+    open fun mount(parent: Element?, newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.initial)
         assert(widget != null)
         assert(_parent == null)
