@@ -407,8 +407,17 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
-            // TODO(xbhatnag): Period Start Time is confusing for non-periodic work. Rename.
             mWorkSpecDao.setPeriodStartTime(mWorkSpecId, System.currentTimeMillis());
+            if (Build.VERSION.SDK_INT < WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
+                // We only need to reset the schedule_requested_at bit for the AlarmManager
+                // implementation because AlarmManager does not know about periodic WorkRequests.
+                // Otherwise we end up double scheduling the Worker with an identical jobId, and
+                // JobScheduler treats it as the first schedule for a PeriodicWorker. With the
+                // AlarmManager implementation, this is not an problem as AlarmManager only cares
+                // about the actual alarm itself.
+
+                mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+            }
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
