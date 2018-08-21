@@ -30,16 +30,14 @@ public interface Scheduler {
 
     /**
      * The maximum number of {@link WorkSpec}s that can be scheduled at a given point in time.
-     * @hide
      */
-    int MAX_SCHEDULER_LIMIT = 100;
+    int MAX_SCHEDULER_LIMIT = 50;
 
     /**
      * Schedule the given {@link WorkSpec}s for background execution.  The Scheduler does NOT need
      * to check if there are any dependencies.
      *
      * @param workSpecs The array of {@link WorkSpec}s to schedule
-     * @hide
      */
     void schedule(WorkSpec... workSpecs);
 
@@ -47,7 +45,6 @@ public interface Scheduler {
      * Cancel the work identified by the given {@link WorkSpec} id.
      *
      * @param workSpecId The id of the work to stopWork
-     * @hide
      */
     void cancel(@NonNull String workSpecId);
 }
