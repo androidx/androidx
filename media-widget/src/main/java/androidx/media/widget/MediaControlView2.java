@@ -1929,7 +1929,7 @@ public class MediaControlView2 extends BaseLayout {
         }
 
         DataSourceDesc2 dsd = currentMediaItem.getDataSourceDesc();
-        Uri uri = (dsd != null && dsd.getType() == DataSourceDesc2.TYPE_URI)
+        Uri uri = (dsd != null && dsd instanceof UriDataSourceDesc2)
                 ? ((UriDataSourceDesc2) dsd).getUri() : null;
         if (uri == null) {
             // Something wrong.
