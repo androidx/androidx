@@ -26,12 +26,12 @@ import java.io.IOException;
  *
  * <p class="note">Methods of this interface may be called on multiple different
  * threads. There will be a thread synchronization point between each call to ensure that
- * modifications to the state of your CallbackDataSource2 are visible to future calls. This means
+ * modifications to the state of your DataSourceCallback2 are visible to future calls. This means
  * you don't need to do your own synchronization unless you're modifying the
- * CallbackDataSource2 from another thread while it's being used by the media library.</p>
+ * DataSourceCallback2 from another thread while it's being used by the media library.</p>
  *
  */
-public abstract class CallbackDataSource2 implements Closeable {
+public abstract class DataSourceCallback2 implements Closeable {
     /**
      * Called to request data from the given position.
      *

@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A CallbackDataSource2 that reads from a byte array for use in tests.
+ * A DataSourceCallback2 that reads from a byte array for use in tests.
  */
-public class TestCallbackDataSource2 extends CallbackDataSource2 {
-    private static final String TAG = "TestCallbackDataSource2";
+public class TestDataSourceCallback2 extends DataSourceCallback2 {
+    private static final String TAG = "TestDataSourceCallback2";
 
     private byte[] mData;
 
@@ -37,7 +37,7 @@ public class TestCallbackDataSource2 extends CallbackDataSource2 {
     private boolean mIsClosed;
 
     // Read an asset fd into a new byte array data source. Closes afd.
-    public static TestCallbackDataSource2 fromAssetFd(AssetFileDescriptor afd) throws IOException {
+    public static TestDataSourceCallback2 fromAssetFd(AssetFileDescriptor afd) throws IOException {
         try {
             InputStream in = afd.createInputStream();
             final int size = (int) afd.getDeclaredLength();
@@ -48,13 +48,13 @@ public class TestCallbackDataSource2 extends CallbackDataSource2 {
                 numRead = in.read(data, writeIndex, size - writeIndex);
                 writeIndex += numRead;
             } while (numRead >= 0);
-            return new TestCallbackDataSource2(data);
+            return new TestDataSourceCallback2(data);
         } finally {
             afd.close();
         }
     }
 
-    public TestCallbackDataSource2(byte[] data) {
+    public TestDataSourceCallback2(byte[] data) {
         mData = data;
     }
 
