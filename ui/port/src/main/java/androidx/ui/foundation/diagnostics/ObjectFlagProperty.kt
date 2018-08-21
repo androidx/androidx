@@ -62,7 +62,7 @@ class ObjectFlagProperty<T : Any>(
         // / The [name] and [level] arguments must not be null.
         fun <T : Any> has(
             name: String,
-            value: T,
+            value: T?,
             level: DiagnosticLevel = DiagnosticLevel.info
         ): ObjectFlagProperty<T>
         {

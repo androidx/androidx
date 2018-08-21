@@ -1623,6 +1623,6 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DiagnosticsProperty("size", _size, missingIfNull = true))
+        properties.add(DiagnosticsProperty.create("size", _size, missingIfNull = true))
     }
 }

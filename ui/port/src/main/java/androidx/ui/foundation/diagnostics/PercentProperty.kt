@@ -17,11 +17,11 @@ import androidx.ui.toStringAsFixed
 // / The [showName] and [level] arguments must not be null.
 class PercentProperty(
     name: String,
-    fraction: Double,
-    ifNull: String,
-    unit: String?,
+    fraction: Double?,
+    ifNull: String? = null,
+    unit: String? = null,
     showName: Boolean = true,
-    tooltip: String,
+    tooltip: String? = null,
     level: DiagnosticLevel = DiagnosticLevel.info
 ) : DoubleProperty(
         name = name,

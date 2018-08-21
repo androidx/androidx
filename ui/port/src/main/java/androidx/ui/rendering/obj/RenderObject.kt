@@ -1768,15 +1768,21 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
     }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        properties.add(DiagnosticsProperty("creator", debugCreator, defaultValue = null,
+        properties.add(DiagnosticsProperty.create("creator",
+                debugCreator,
+                defaultValue = null,
                 level = DiagnosticLevel.debug))
-        properties.add(DiagnosticsProperty("parentData", parentData,
+        properties.add(DiagnosticsProperty.create("parentData", parentData,
                 tooltip = if (debugCanParentUseSize) "can use size" else null,
                 missingIfNull = true))
-        properties.add(DiagnosticsProperty("constraints", constraints, missingIfNull = true))
+        properties.add(DiagnosticsProperty.create("constraints",
+                constraints,
+                missingIfNull = true))
         // don't access it via the "layer" getter since that's only valid when we don't need paint
-        properties.add(DiagnosticsProperty("layer", _layer, defaultValue = null))
-        properties.add(DiagnosticsProperty("semantics node", _semantics, defaultValue = null))
+        properties.add(DiagnosticsProperty.create("layer", _layer, defaultValue = null))
+        properties.add(DiagnosticsProperty.create("semantics node",
+                _semantics,
+                defaultValue = null))
         properties.add(FlagProperty(
                 name = "isBlockingSemanticsOfPreviouslyPaintedNodes",
                 value = _semanticsConfiguration.isBlockingSemanticsOfPreviouslyPaintedNodes,

@@ -8,12 +8,12 @@ import androidx.ui.toStringAsFixed
 open class DoubleProperty protected constructor(
     name: String,
     value: Double? = null,
-    computeValue: ComputePropertyValueCallback<Double>? = null,
-    ifNull: String,
-    unit: String?,
+    computeValue: ComputePropertyValueCallback<Double?>? = null,
+    ifNull: String? = null,
+    unit: String? = null,
     showName: Boolean = true,
     defaultValue: Any = kNoDefaultValue,
-    tooltip: String,
+    tooltip: String? = null,
     level: DiagnosticLevel = DiagnosticLevel.info
 ) : _NumProperty<Double>(
         name = name,
@@ -34,12 +34,12 @@ open class DoubleProperty protected constructor(
         // / The [showName] and [level] arguments must not be null.
         fun create(
             name: String,
-            value: Double,
-            ifNull: String,
-            unit: String?,
+            value: Double? = null,
+            ifNull: String? = null,
+            unit: String? = null,
             showName: Boolean = true,
             defaultValue: Any = kNoDefaultValue,
-            tooltip: String,
+            tooltip: String? = null,
             level: DiagnosticLevel = DiagnosticLevel.info
         ): DoubleProperty {
             return DoubleProperty(
@@ -62,12 +62,12 @@ open class DoubleProperty protected constructor(
         // / The [showName] and [level] arguments must not be null.
         fun createLazy(
             name: String,
-            computeValue: ComputePropertyValueCallback<Double>,
-            ifNull: String,
-            unit: String?,
+            computeValue: ComputePropertyValueCallback<Double?>,
+            ifNull: String? = null,
+            unit: String? = null,
             showName: Boolean = true,
             defaultValue: Any = kNoDefaultValue,
-            tooltip: String,
+            tooltip: String? = null,
             level: DiagnosticLevel = DiagnosticLevel.info
         ): DoubleProperty {
             return DoubleProperty(

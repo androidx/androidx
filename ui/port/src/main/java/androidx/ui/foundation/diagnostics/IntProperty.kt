@@ -10,11 +10,11 @@ package androidx.ui.foundation.diagnostics
 // / The [showName] and [level] arguments must not be null.
 class IntProperty(
     name: String,
-    value: Int,
-    ifNull: String,
-    unit: String?,
+    value: Int?,
+    ifNull: String? = null,
+    unit: String? = null,
     showName: Boolean = true,
-    defaultValue: Any = kNoDefaultValue,
+    defaultValue: Any? = kNoDefaultValue,
     level: DiagnosticLevel = DiagnosticLevel.info
 ) : _NumProperty<Int>(
         name = name,

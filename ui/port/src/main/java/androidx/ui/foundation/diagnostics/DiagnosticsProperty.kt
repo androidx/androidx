@@ -1,6 +1,7 @@
 package androidx.ui.foundation.diagnostics
 
 import androidx.ui.Type
+import androidx.ui.runtimeType
 
 typealias ComputePropertyValueCallback<T> = () -> T
 
@@ -11,10 +12,10 @@ typealias ComputePropertyValueCallback<T> = () -> T
 // /
 // / The [showSeparator] property indicates whether a separator should be placed
 // / between the property [name] and its [value].
-open class DiagnosticsProperty<T : Any> internal constructor(
+open class DiagnosticsProperty<T : Any> protected constructor(
     name: String,
     value: T? = null,
-    private val computeValue: ComputePropertyValueCallback<T>? = null,
+    private val computeValue: ComputePropertyValueCallback<T?>? = null,
     val description: String? = null,
         // / Description if the property [value] is null.
     var ifNull: String? = null,
@@ -119,14 +120,14 @@ open class DiagnosticsProperty<T : Any> internal constructor(
         // / will always return [DiagnosticLevel.error].
         fun <T : Any> createLazy(
             name: String,
-            computeValue: ComputePropertyValueCallback<T>,
+            computeValue: ComputePropertyValueCallback<T?>,
             description: String? = null,
-            ifNull: String,
+            ifNull: String? = null,
             ifEmpty: String? = null,
             showName: Boolean = true,
             showSeparator: Boolean = true,
-            defaultValue: Any = kNoDefaultValue,
-            tooltip: String,
+            defaultValue: Any? = kNoDefaultValue,
+            tooltip: String? = null,
             missingIfNull: Boolean = false,
             style: DiagnosticsTreeStyle = DiagnosticsTreeStyle.singleLine,
             level: DiagnosticLevel = DiagnosticLevel.info
@@ -200,7 +201,7 @@ open class DiagnosticsProperty<T : Any> internal constructor(
             return addTooltip(_description)
 
         if (_exception != null)
-            return "EXCEPTION (${getException()})"; // TODO(Filip): is toString enough?
+            return "EXCEPTION (${_exception!!.runtimeType()})"
 
         if (ifNull != null && getValue() == null)
             return addTooltip(ifNull!!)

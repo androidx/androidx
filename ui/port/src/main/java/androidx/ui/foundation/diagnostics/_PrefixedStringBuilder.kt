@@ -59,7 +59,7 @@ class _PrefixedStringBuilder(
         }
         val parts = s.split('\n')
         _buffer.append(parts[0])
-        for (i in 1..parts.size) {
+        for (i in 1 until parts.size) {
             _buffer.apply {
                 append("\n")
                 append(prefixOtherLines)

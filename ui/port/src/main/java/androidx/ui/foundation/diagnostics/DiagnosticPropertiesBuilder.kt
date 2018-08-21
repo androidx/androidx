@@ -10,7 +10,7 @@ class DiagnosticPropertiesBuilder {
     val properties = mutableListOf<DiagnosticsNode>()
 
     // / Description to show if the node has no displayed properties or children.
-    var emptyBodyDescription: String = "" // TODO(Filip): Not sure what is the default here
+    var emptyBodyDescription: String? = null
 
     // / Add a property to the list of properties.
     fun add(property: DiagnosticsNode) {

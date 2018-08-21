@@ -126,7 +126,7 @@ class RenderConstrainedBox(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DiagnosticsProperty("additionalConstraints",
+        properties.add(DiagnosticsProperty.create("additionalConstraints",
                 additionalConstraints))
     }
 }

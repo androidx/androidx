@@ -13,11 +13,11 @@ package androidx.ui.foundation.diagnostics
 // / The [showName], [quoted], and [level] arguments must not be null.
 class StringProperty(
     name: String,
-    value: String,
+    value: String?,
     description: String? = null,
     ifEmpty: String? = null,
     showName: Boolean = true,
-    defaultValue: Any = kNoDefaultValue,
+    defaultValue: Any? = kNoDefaultValue,
         // / Whether the value is enclosed in double quotes.
     val quoted: Boolean = true,
     tooltip: String? = null,
