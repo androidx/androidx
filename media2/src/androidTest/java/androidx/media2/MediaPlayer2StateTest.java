@@ -82,7 +82,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final int MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE = 400001;
 
     private static final DataSourceDesc2 sDummyDataSource = new CallbackDataSourceDesc2.Builder(
-            new CallbackDataSource2() {
+            new DataSourceCallback2() {
                 @Override
                 public int readAt(long position, byte[] buffer, int offset, int size)
                         throws IOException {
@@ -1036,7 +1036,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
         }
 
         if (mTestState == PLAYER_STATE_ERROR) {
-            CallbackDataSource2 invalidDataSource = new CallbackDataSource2() {
+            DataSourceCallback2 invalidDataSource = new DataSourceCallback2() {
                 @Override
                 public int readAt(long position, byte[] buffer, int offset, int size)
                         throws IOException {

@@ -1,18 +1,18 @@
 package androidx.media2 {
 
-  public abstract class CallbackDataSource2 implements java.io.Closeable {
-    ctor public CallbackDataSource2();
-    method public abstract long getSize() throws java.io.IOException;
-    method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
-  }
-
   public class CallbackDataSourceDesc2 extends androidx.media2.DataSourceDesc2 {
-    method public androidx.media2.CallbackDataSource2 getCallbackDataSource2();
+    method public androidx.media2.DataSourceCallback2 getDataSourceCallback2();
   }
 
   public static final class CallbackDataSourceDesc2.Builder extends androidx.media2.DataSourceDesc2.Builder {
-    ctor public CallbackDataSourceDesc2.Builder(androidx.media2.CallbackDataSource2);
+    ctor public CallbackDataSourceDesc2.Builder(androidx.media2.DataSourceCallback2);
     method public androidx.media2.CallbackDataSourceDesc2 build();
+  }
+
+  public abstract class DataSourceCallback2 implements java.io.Closeable {
+    ctor public DataSourceCallback2();
+    method public abstract long getSize() throws java.io.IOException;
+    method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
   }
 
   public abstract class DataSourceDesc2 {
