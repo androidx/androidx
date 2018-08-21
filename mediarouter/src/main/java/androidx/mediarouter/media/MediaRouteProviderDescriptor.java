@@ -15,12 +15,9 @@
  */
 package androidx.mediarouter.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -216,10 +213,7 @@ public final class MediaRouteProviderDescriptor {
 
         /**
          * Sets if this provider supports dynamic group route.
-         *
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public Builder setSupportsDynamicGroupRoute(boolean value) {
             mSupportsDynamicGroupRoute = value;
             return this;
