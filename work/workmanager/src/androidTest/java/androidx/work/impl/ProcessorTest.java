@@ -19,6 +19,8 @@ package androidx.work.impl;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 
@@ -39,17 +41,20 @@ import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
 public class ProcessorTest extends DatabaseTest {
+
+    private Scheduler mMockScheduler;
     private Processor mProcessor;
 
     @Before
     public void setUp() {
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         Configuration configuration = new Configuration.Builder().build();
+        mMockScheduler = mock(Scheduler.class);
         mProcessor = new Processor(
                 appContext,
                 configuration,
                 mDatabase,
-                Collections.singletonList(mock(Scheduler.class)),
+                Collections.singletonList(mMockScheduler),
                 Executors.newSingleThreadScheduledExecutor()) {
         };
     }
@@ -80,5 +85,12 @@ public class ProcessorTest extends DatabaseTest {
         assertThat(mProcessor.hasWork(), is(false));
         mProcessor.startWork(work.getStringId());
         assertThat(mProcessor.hasWork(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    public void testDontCancelWhenNeedsReschedule() {
+        mProcessor.onExecuted("dummy", true, true);
+        verify(mMockScheduler, never()).cancel("dummy");
     }
 }
