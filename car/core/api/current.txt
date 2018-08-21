@@ -399,7 +399,7 @@ package androidx.car.widget {
     method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean);
     method public deprecated void setSupplementalIcon(android.graphics.drawable.Drawable, boolean, android.view.View.OnClickListener);
     method public void setSupplementalIconListener(android.view.View.OnClickListener);
-    method public void setText(java.lang.String);
+    method public void setText(java.lang.CharSequence);
   }
 
   public static class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
@@ -414,13 +414,13 @@ package androidx.car.widget {
   }
 
   public class SubheaderListItem extends androidx.car.widget.ListItem {
-    ctor public SubheaderListItem(android.content.Context, java.lang.String);
+    ctor public SubheaderListItem(android.content.Context, java.lang.CharSequence);
     method public static androidx.car.widget.SubheaderListItem.ViewHolder createViewHolder(android.view.View);
     method public int getViewType();
     method protected void onBind(androidx.car.widget.SubheaderListItem.ViewHolder);
     method protected void resolveDirtyState();
     method public void setEnabled(boolean);
-    method public void setText(java.lang.String);
+    method public void setText(java.lang.CharSequence);
     method public void setTextStartMarginType(int);
     field public static final int TEXT_START_MARGIN_TYPE_LARGE = 2; // 0x2
     field public static final int TEXT_START_MARGIN_TYPE_NONE = 0; // 0x0

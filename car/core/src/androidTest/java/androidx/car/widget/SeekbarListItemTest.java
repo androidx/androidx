@@ -119,6 +119,22 @@ public class SeekbarListItemTest {
     }
 
     @Test
+    public void testSettingTextToNull_nullHidesText() {
+        // First set text and make sure it's visible.
+        SeekbarListItem item = initSeekbarListItem();
+        item.setText("Text");
+        setupPagedListView(Arrays.asList(item));
+
+        assertThat(getViewHolderAtPosition(0).getText().getVisibility(), is(equalTo(View.VISIBLE)));
+
+        // Verify null will hide text.
+        item.setText(null);
+        refreshUi();
+
+        assertThat(getViewHolderAtPosition(0).getText().getVisibility(), is(equalTo(View.GONE)));
+    }
+
+    @Test
     public void testSupplementalIconVisible() {
         SeekbarListItem item = initSeekbarListItem();
         item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
