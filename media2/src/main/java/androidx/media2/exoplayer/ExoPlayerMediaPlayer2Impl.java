@@ -262,7 +262,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             void process() {
                 DataSourceDesc2 dataSourceDescription = getCurrentDataSource();
                 MediaSource mediaSource;
-                if (dataSourceDescription.getType() == DataSourceDesc2.TYPE_URI) {
+                if (dataSourceDescription instanceof UriDataSourceDesc2) {
                     // TODO(b/111150876): Add support for HLS streams.
                     Uri uri = ((UriDataSourceDesc2) dataSourceDescription).getUri();
                     mediaSource =

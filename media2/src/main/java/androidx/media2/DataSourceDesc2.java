@@ -25,12 +25,6 @@ import androidx.annotation.Nullable;
  * @see MediaItem2
  */
 public abstract class DataSourceDesc2 {
-    /* data source is type of MediaDataSource */
-    public static final int TYPE_CALLBACK = 1;
-    /* data source is type of FileDescriptor */
-    public static final int TYPE_FD       = 2;
-    /* data source is type of Uri */
-    public static final int TYPE_URI      = 3;
 
     // intentionally less than long.MAX_VALUE.
     // Declare this first to avoid 'illegal forward reference'.
@@ -85,12 +79,6 @@ public abstract class DataSourceDesc2 {
     public long getEndPosition() {
         return mEndPositionMs;
     }
-
-    /**
-     * Return the type of data source.
-     * @return the type of data source
-     */
-    public abstract int getType();
 
     /**
      * Builder class for {@link DataSourceDesc2} objects.

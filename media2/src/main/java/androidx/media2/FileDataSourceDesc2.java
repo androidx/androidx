@@ -51,15 +51,6 @@ public class FileDataSourceDesc2 extends DataSourceDesc2 {
     }
 
     /**
-     * Return the type of data source.
-     * @return the type of data source
-     */
-    @Override
-    public int getType() {
-        return TYPE_FD;
-    }
-
-    /**
      * Return the FileDescriptor of this data source.
      * @return the FileDescriptor of this data source
      */

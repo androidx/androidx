@@ -338,7 +338,7 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     }
 
     private void playInternal() {
-        if (mDsd.getType() != DataSourceDesc2.TYPE_URI) {
+        if (!(mDsd instanceof UriDataSourceDesc2)) {
             Log.w(TAG, "Data source type is not Uri." + mDsd);
             return;
         }
