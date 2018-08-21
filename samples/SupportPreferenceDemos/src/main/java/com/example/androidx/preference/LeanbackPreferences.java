@@ -70,11 +70,6 @@ public class LeanbackPreferences extends FragmentActivity {
             return true;
         }
 
-        /**
-         * This callback is used to handle navigation between nested preference screens. If you only
-         * have one screen of preferences or are using separate fragments for different screens you
-         * do not need to implement this.
-         */
         @Override
         public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller,
                 PreferenceScreen pref) {

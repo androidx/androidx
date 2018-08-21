@@ -24,9 +24,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceScreen;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -34,8 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * uses a car specific theme defined in styles.xml.
  */
 @RequiresApi(LOLLIPOP)
-public class CarPreferences extends AppCompatActivity
-        implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+public class CarPreferences extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,23 +43,6 @@ public class CarPreferences extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().replace(android.R.id.content,
                     new DemoFragment()).commitNow();
         }
-    }
-
-    /**
-     * This callback is used to handle navigation between nested preference screens. If you only
-     * have one screen of preferences or are using separate fragments for different screens you
-     * do not need to implement this.
-     */
-    @Override
-    public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref) {
-        Fragment fragment = new DemoFragment();
-        Bundle args = new Bundle();
-        args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, pref.getKey());
-        fragment.setArguments(args);
-        getSupportFragmentManager().beginTransaction()
-                .replace(android.R.id.content, fragment)
-                .commitNow();
-        return true;
     }
 
     /**
