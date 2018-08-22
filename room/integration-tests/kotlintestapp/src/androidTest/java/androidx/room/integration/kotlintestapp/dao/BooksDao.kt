@@ -17,8 +17,22 @@
 package androidx.room.integration.kotlintestapp.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
-import androidx.room.integration.kotlintestapp.vo.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.TypeConverters
+import androidx.room.Update
+import androidx.room.integration.kotlintestapp.vo.Author
+import androidx.room.integration.kotlintestapp.vo.Book
+import androidx.room.integration.kotlintestapp.vo.BookAuthor
+import androidx.room.integration.kotlintestapp.vo.BookWithJavaEntity
+import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
+import androidx.room.integration.kotlintestapp.vo.Lang
+import androidx.room.integration.kotlintestapp.vo.Publisher
+import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
+import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
 import com.google.common.base.Optional
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Flowable
@@ -29,10 +43,19 @@ import io.reactivex.Single
 interface BooksDao {
 
     @Insert
-    fun addPublishers(vararg publishers: Publisher)
+    fun addPublishers(vararg publishers: Publisher): List<Long>
 
     @Delete
     fun deletePublishers(vararg publishers: Publisher)
+
+    @Delete
+    fun deletePublishersCount(vararg publishers: Publisher): Int
+
+    @Update
+    fun updatePublishers(vararg publishers: Publisher)
+
+    @Update
+    fun updatePublishersCount(vararg publishers: Publisher): Int
 
     @Insert
     fun addAuthors(vararg authors: Author)
@@ -121,8 +144,11 @@ interface BooksDao {
     fun getWithJavaEntities(bookId: String): BookWithJavaEntity
 
     @Transaction
-    fun deleteAndAddPublisher(oldPublisher: Publisher, newPublisher: Publisher,
-            fail: Boolean = false) {
+    fun deleteAndAddPublisher(
+        oldPublisher: Publisher,
+        newPublisher: Publisher,
+        fail: Boolean = false
+    ) {
         deletePublishers(oldPublisher)
         if (fail) {
             throw RuntimeException()

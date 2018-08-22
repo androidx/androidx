@@ -65,6 +65,15 @@ import androidx.room.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room.solver.types.StatementValueBinder
 import androidx.room.solver.types.StringColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
+import androidx.room.vo.ShortcutQueryParameter
+import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
+import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
+import androidx.room.solver.shortcut.binder.InsertMethodBinder
+import androidx.room.solver.shortcut.binder.InstantDeleteOrUpdateMethodBinder
+import androidx.room.solver.shortcut.binder.InstantInsertMethodBinder
+import androidx.room.solver.shortcut.binderprovider.InstantDeleteOrUpdateMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.InstantInsertMethodBinderProvider
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
@@ -146,6 +155,14 @@ class TypeAdapterStore private constructor(
             DataSourceQueryResultBinderProvider(context),
             DataSourceFactoryQueryResultBinderProvider(context),
             InstantQueryResultBinderProvider(context)
+    )
+
+    val insertBinderProviders = listOf(
+            InstantInsertMethodBinderProvider()
+    )
+
+    val deleteOrUpdateBinderProvider = listOf(
+            InstantDeleteOrUpdateMethodBinderProvider()
     )
 
     // type mirrors that be converted into columns w/o an extra converter
@@ -245,7 +262,7 @@ class TypeAdapterStore private constructor(
         val intoStatement = findTypeConverter(out, targetTypes) ?: return null
         // ok found a converter, try the reverse now
         val fromCursor = reverse(intoStatement) ?: findTypeConverter(intoStatement.to, out)
-                ?: return null
+        ?: return null
         return CompositeAdapter(out, getAllColumnAdapters(intoStatement.to).first(), intoStatement,
                 fromCursor)
     }
@@ -263,6 +280,33 @@ class TypeAdapterStore private constructor(
         return findTypeConverter(listOf(input), listOf(output))
     }
 
+    fun findDeleteOrUpdateMethodBinder(typeMirror: TypeMirror): DeleteOrUpdateMethodBinder {
+        val adapter = findDeleteOrUpdateAdapter(typeMirror)
+        return if (typeMirror.kind == TypeKind.DECLARED) {
+            val declared = MoreTypes.asDeclared(typeMirror)
+            deleteOrUpdateBinderProvider.first {
+                it.matches(declared)
+            }.provide(declared, adapter)
+        } else {
+            InstantDeleteOrUpdateMethodBinder(adapter)
+        }
+    }
+
+    fun findInsertMethodBinder(
+        typeMirror: TypeMirror,
+        params: List<ShortcutQueryParameter>
+    ): InsertMethodBinder {
+        val adapter = findInsertAdapter(typeMirror, params)
+        return if (typeMirror.kind == TypeKind.DECLARED) {
+            val declared = MoreTypes.asDeclared(typeMirror)
+            insertBinderProviders.first {
+                it.matches(declared)
+            }.provide(declared, adapter)
+        } else {
+            InstantInsertMethodBinder(adapter)
+        }
+    }
+
     fun findQueryResultBinder(typeMirror: TypeMirror, query: ParsedQuery): QueryResultBinder {
         return if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
@@ -272,6 +316,17 @@ class TypeAdapterStore private constructor(
         } else {
             InstantQueryResultBinder(findQueryResultAdapter(typeMirror, query))
         }
+    }
+
+    fun findDeleteOrUpdateAdapter(typeMirror: TypeMirror): DeleteOrUpdateMethodAdapter? {
+        return DeleteOrUpdateMethodAdapter.create(typeMirror)
+    }
+
+    fun findInsertAdapter(
+        typeMirror: TypeMirror,
+        params: List<ShortcutQueryParameter>
+    ): InsertMethodAdapter? {
+        return InsertMethodAdapter.create(typeMirror, params)
     }
 
     fun findQueryResultAdapter(typeMirror: TypeMirror, query: ParsedQuery): QueryResultAdapter? {
@@ -404,7 +459,7 @@ class TypeAdapterStore private constructor(
     fun findQueryParameterAdapter(typeMirror: TypeMirror): QueryParameterAdapter? {
         if (MoreTypes.isType(typeMirror) &&
                 (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror) ||
-                MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
+                        MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
             val declared = MoreTypes.asDeclared(typeMirror)
             val binder = findStatementValueBinder(declared.typeArguments.first(),
                     null)
@@ -503,12 +558,12 @@ class TypeAdapterStore private constructor(
             types.isAssignable(input, converter.from) &&
                     !excludes.any { types.isSameType(it, converter.to) }
         }.sortedByDescending {
-                    // if it is the same, prioritize
-                    if (types.isSameType(it.from, input)) {
-                        2
-                    } else {
-                        1
-                    }
-                }
+            // if it is the same, prioritize
+            if (types.isSameType(it.from, input)) {
+                2
+            } else {
+                1
+            }
+        }
     }
 }

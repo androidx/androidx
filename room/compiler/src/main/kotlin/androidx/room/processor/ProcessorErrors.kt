@@ -40,19 +40,8 @@ object ProcessorErrors {
     val MISSING_RAWQUERY_ANNOTATION = "RawQuery methods must be annotated with" +
             " ${RawQuery::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
-    val INVALID_INSERTION_METHOD_RETURN_TYPE = "Methods annotated with @Insert can return either" +
-            " void, long, Long, long[], Long[] or List<Long>."
     val TRANSACTION_REFERENCE_DOCS = "https://developer.android.com/reference/android/arch/" +
             "persistence/room/Transaction.html"
-
-    fun insertionMethodReturnTypeMismatch(
-        definedReturn: TypeName,
-        expectedReturnTypes: List<TypeName>
-    ): String {
-        return "Method returns $definedReturn but it should return one of the following: `" +
-                expectedReturnTypes.joinToString(", ") + "`. If you want to return the list of" +
-                " row ids from the query, your insertion method can receive only 1 parameter."
-    }
 
     val ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION = "Abstract method in DAO must be annotated" +
             " with ${Query::class.java} AND ${Insert::class.java}"
@@ -131,6 +120,16 @@ object ProcessorErrors {
     val DELETION_MISSING_PARAMS = "Method annotated with" +
             " @Delete but does not have any parameters to delete."
 
+    val CANNOT_FIND_DELETE_RESULT_ADAPTER = "Not sure how to handle delete method's " +
+            "return type. Currently the supported return types are void, int or Int."
+
+    val CANNOT_FIND_UPDATE_RESULT_ADAPTER = "Not sure how to handle update method's " +
+            "return type. Currently the supported return types are void, int or Int."
+
+    val CANNOT_FIND_INSERT_RESULT_ADAPTER = "Not sure how to handle insert method's " +
+            "return type. Currently, the supported return types are: void, long, Long, long[], " +
+            "Long[] or List<Long>."
+
     val UPDATE_MISSING_PARAMS = "Method annotated with" +
             " @Update but does not have any parameters to update."
 
@@ -203,9 +202,6 @@ object ProcessorErrors {
 
     val DELETION_METHODS_MUST_RETURN_VOID_OR_INT = "Deletion methods must either return void or" +
             " return int (the number of deleted rows)."
-
-    val UPDATE_METHODS_MUST_RETURN_VOID_OR_INT = "Update methods must either return void or" +
-            " return int (the number of updated rows)."
 
     val DAO_METHOD_CONFLICTS_WITH_OTHERS = "Dao method has conflicts."
 

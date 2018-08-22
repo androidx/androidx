@@ -17,8 +17,7 @@ package androidx.room.processor
 
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
-import androidx.room.processor.ProcessorErrors
-        .UPDATE_METHODS_MUST_RETURN_VOID_OR_INT
+import androidx.room.processor.ProcessorErrors.CANNOT_FIND_UPDATE_RESULT_ADAPTER
 import androidx.room.processor.ProcessorErrors.UPDATE_MISSING_PARAMS
 import androidx.room.vo.UpdateMethod
 import org.hamcrest.CoreMatchers.`is`
@@ -32,12 +31,15 @@ import javax.lang.model.type.DeclaredType
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
 class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Update::class) {
-    override fun invalidReturnTypeError(): String = UPDATE_METHODS_MUST_RETURN_VOID_OR_INT
+    override fun invalidReturnTypeError(): String = CANNOT_FIND_UPDATE_RESULT_ADAPTER
 
     override fun noParamsError(): String = UPDATE_MISSING_PARAMS
 
-    override fun process(baseContext: Context, containing: DeclaredType,
-                         executableElement: ExecutableElement): UpdateMethod {
+    override fun process(
+        baseContext: Context,
+        containing: DeclaredType,
+        executableElement: ExecutableElement
+    ): UpdateMethod {
         return UpdateMethodProcessor(baseContext, containing, executableElement).process()
     }
 

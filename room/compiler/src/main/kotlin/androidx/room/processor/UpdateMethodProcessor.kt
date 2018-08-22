@@ -26,9 +26,10 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
 class UpdateMethodProcessor(
-        baseContext: Context,
-        val containing: DeclaredType,
-        val executableElement: ExecutableElement) {
+    baseContext: Context,
+    val containing: DeclaredType,
+    val executableElement: ExecutableElement
+) {
     val context = baseContext.fork(executableElement)
 
     fun process(): UpdateMethod {
@@ -40,16 +41,18 @@ class UpdateMethodProcessor(
         context.checker.check(onConflict <= IGNORE && onConflict >= REPLACE,
                 executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
 
-        val returnTypeName = delegate.extractReturnType().typeName()
-        context.checker.check(
-                returnTypeName == TypeName.VOID || returnTypeName == TypeName.INT,
-                executableElement,
-                ProcessorErrors.UPDATE_METHODS_MUST_RETURN_VOID_OR_INT
+        val (entities, params) = delegate.extractParams(
+                missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS
         )
 
-        val (entities, params) = delegate.extractParams(
-                missingParamError = ProcessorErrors
-                        .UPDATE_MISSING_PARAMS
+        val methodBinder = context.typeAdapterStore
+                .findDeleteOrUpdateMethodBinder(executableElement.returnType)
+
+        val returnTypeName = delegate.extractReturnType().typeName()
+        context.checker.check(
+                methodBinder.adapter != null,
+                executableElement,
+                ProcessorErrors.CANNOT_FIND_UPDATE_RESULT_ADAPTER
         )
 
         return UpdateMethod(
@@ -58,6 +61,7 @@ class UpdateMethodProcessor(
                 entities = entities,
                 onConflictStrategy = onConflict,
                 returnCount = returnTypeName == TypeName.INT,
+                methodBinder = methodBinder,
                 parameters = params
         )
     }
