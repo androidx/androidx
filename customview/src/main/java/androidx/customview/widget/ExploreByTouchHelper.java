@@ -568,7 +568,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
             if (parent != null) {
                 // Send events up the hierarchy so they can be coalesced.
                 final AccessibilityEvent event = createEvent(virtualViewId,
-                        AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
+                        AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
                 AccessibilityEventCompat.setContentChangeTypes(event, changeTypes);
                 ViewParentCompat.requestSendAccessibilityEvent(parent, mHost, event);
             }
