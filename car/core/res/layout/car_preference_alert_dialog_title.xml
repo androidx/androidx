@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- layout from frameworks/base/core/res/res/layout/alert_dialog_title_material.xml.
+     Used to override alert dialog layout for preferences.
+     Cannot change structure as UI components are used by AlertController.java -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topPanel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- If the client uses a customTitle, it will be added here. -->
+
+    <LinearLayout
+        android:id="@+id/title_template"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|start"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/car_keyline_1"
+        android:paddingRight="@dimen/car_keyline_1"
+        android:paddingTop="@dimen/car_padding_4">
+
+        <ImageView
+            android:id="@android:id/icon"
+            android:layout_width="@dimen/car_app_icon_size"
+            android:layout_height="@dimen/car_app_icon_size"
+            android:layout_marginEnd="@dimen/car_padding_4"
+            android:scaleType="fitCenter"
+            android:src="@null"/>
+
+        <androidx.appcompat.widget.DialogTitle
+            android:id="@+id/alertTitle"
+            style="?android:attr/windowTitleStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textAlignment="viewStart"/>
+
+    </LinearLayout>
+
+    <android.widget.Space
+        android:id="@+id/titleDividerNoCustom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/car_list_divider_height"
+        android:visibility="gone"/>
+</LinearLayout>
