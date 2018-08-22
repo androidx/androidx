@@ -20,6 +20,7 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.isEntityElement
 import androidx.room.ext.toListOfClassTypes
 import androidx.room.ext.typeName
 import androidx.room.parser.SqlParser
@@ -85,9 +86,9 @@ class RawQueryMethodProcessor(
                     MoreTypes.asTypeElement(it)
                 }
                 .flatMap {
-                    if (it.hasAnnotation(androidx.room.Entity::class)) {
+                    if (it.isEntityElement()) {
                         val entity = EntityProcessor(
-                                baseContext = context,
+                                context = context,
                                 element = it
                         ).process()
                         arrayListOf(entity.tableName)
