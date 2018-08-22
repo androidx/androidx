@@ -54,7 +54,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     }
 
     FragmentHostCallback(@NonNull FragmentActivity activity) {
-        this(activity, activity /*context*/, activity.mHandler, 0 /*windowAnimations*/);
+        this(activity, activity /*context*/, new Handler(), 0 /*windowAnimations*/);
     }
 
     FragmentHostCallback(@Nullable Activity activity, @NonNull Context context,
