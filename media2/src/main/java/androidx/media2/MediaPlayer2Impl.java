@@ -80,6 +80,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private static final int SOURCE_STATE_PREPARED = 2;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final PlaybackParams DEFAULT_PLAYBACK_PARAMS =
+            new PlaybackParams().allowDefaults();
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sInfoEventMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sErrorEventMap;
@@ -705,7 +709,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_SET_PLAYBACK_PARAMS, false) {
             @Override
             void process() {
-                setPlaybackParamsInternal(params.getPlaybackParams());
+                mPlayer.setPlaybackParams(params.getPlaybackParams());
             }
         });
     }
@@ -1366,25 +1370,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void setPlaybackParamsInternal(final PlaybackParams params) {
-        PlaybackParams current = null;
-        try {
-            current = mPlayer.getPlaybackParams();
-        } catch (IllegalStateException e) {
-            // Do nothing.
-        }
-        mPlayer.setPlaybackParams(params);
-        if (current != null && current.getSpeed() != params.getSpeed()) {
-            notifyPlayerEvent(new PlayerEventNotifier() {
-                @Override
-                public void notify(PlayerEventCallback cb) {
-                    cb.onPlaybackSpeedChanged(mMediaPlayerConnectorImpl, params.getSpeed());
-                }
-            });
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifyMediaPlayer2Event(final Mp2EventNotifier notifier) {
         final Pair<Executor, EventCallback> record;
         synchronized (mLock) {
@@ -1963,7 +1948,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     private class MediaPlayerSourceQueue {
-
         List<MediaPlayerSource> mQueue = new ArrayList<>();
         Float mVolume = 1.0f;
         Surface mSurface;
@@ -1972,8 +1956,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         AudioAttributesCompat mAudioAttributes;
         Integer mAudioSessionId;
         SyncParams mSyncParams;
-        PlaybackParams mPlaybackParams;
-        PlaybackParams mPlaybackParamsToSetAfterSetDataSource;
+        PlaybackParams mPlaybackParams = DEFAULT_PLAYBACK_PARAMS;
+        PlaybackParams mPlaybackParamsToSetWhenStarting;
         boolean mLooping;
 
         MediaPlayerSourceQueue() {
@@ -1996,11 +1980,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 setUpListeners(mQueue.get(0));
             }
             handleDataSource(mQueue.get(0));
-            if (mPlaybackParamsToSetAfterSetDataSource != null) {
-                getCurrentPlayer().setPlaybackParams(mPlaybackParamsToSetAfterSetDataSource);
-                mPlaybackParams = mPlaybackParamsToSetAfterSetDataSource;
-                mPlaybackParamsToSetAfterSetDataSource = null;
-            }
             notifyPlayerEvent(new PlayerEventNotifier() {
                 @Override
                 public void notify(PlayerEventCallback cb) {
@@ -2043,6 +2022,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         synchronized void play() {
             final MediaPlayerSource src = mQueue.get(0);
             if (src.mSourceState == SOURCE_STATE_PREPARED) {
+                if (mPlaybackParamsToSetWhenStarting != null) {
+                    src.getPlayer().setPlaybackParams(mPlaybackParamsToSetWhenStarting);
+                    mPlaybackParamsToSetWhenStarting = null;
+                }
                 src.getPlayer().start();
                 setMp2State(src.getPlayer(), PLAYER_STATE_PLAYING);
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
@@ -2308,7 +2291,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             if (mSyncParams != null) {
                 src.getPlayer().setSyncParams(mSyncParams);
             }
-            if (mPlaybackParams != null) {
+            if (mPlaybackParams != DEFAULT_PLAYBACK_PARAMS) {
                 src.getPlayer().setPlaybackParams(mPlaybackParams);
             }
         }
@@ -2359,15 +2342,30 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             mLooping = loop;
         }
 
-        synchronized void setPlaybackParams(PlaybackParams playbackParams) {
-            try {
-                getCurrentPlayer().setPlaybackParams(playbackParams);
-            } catch (IllegalStateException e) {
-                // Keep the value so that it can be set later.
-                mPlaybackParamsToSetAfterSetDataSource = playbackParams;
-                return;
+        synchronized void setPlaybackParams(final PlaybackParams params) {
+            if (params == null || params.getSpeed() == 0f) {
+                throw new IllegalArgumentException();
             }
-            mPlaybackParams = playbackParams;
+            PlaybackParams current = getPlaybackParams();
+            MediaPlayerSource firstPlayer = mPlayer.getFirst();
+            if (firstPlayer.mMp2State != PLAYER_STATE_PLAYING) {
+                // MediaPlayer1 may start the playback on setPlaybackParams. Store the value here
+                // so that it can be applied later when starting the playback.
+                mPlaybackParamsToSetWhenStarting = params;
+            } else {
+                firstPlayer.mPlayer.setPlaybackParams(params);
+                mPlaybackParamsToSetWhenStarting = null;
+            }
+
+            if (current != null && current.getSpeed() != params.getSpeed()) {
+                notifyPlayerEvent(new PlayerEventNotifier() {
+                    @Override
+                    public void notify(PlayerEventCallback cb) {
+                        cb.onPlaybackSpeedChanged(mMediaPlayerConnectorImpl, params.getSpeed());
+                    }
+                });
+            }
+            mPlaybackParams = params;
         }
 
         synchronized float getVolume() {
@@ -2397,7 +2395,13 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized PlaybackParams getPlaybackParams() {
-            return getCurrentPlayer().getPlaybackParams();
+            // PlaybackParams is mutable. Make a copy of mPlaybackParams and return.
+            Parcel parcel = Parcel.obtain();
+            mPlaybackParams.writeToParcel(parcel, 0);
+            parcel.setDataPosition(0);
+            PlaybackParams ret = PlaybackParams.CREATOR.createFromParcel(parcel);
+            parcel.recycle();
+            return ret;
         }
 
         synchronized void setSyncParams(SyncParams params) {
@@ -2424,7 +2428,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             mAudioAttributes = null;
             mAudioSessionId = null;
             mSyncParams = null;
-            mPlaybackParams = null;
+            mPlaybackParams = DEFAULT_PLAYBACK_PARAMS;
+            mPlaybackParamsToSetWhenStarting = null;
             mLooping = false;
 
             setMp2State(src.getPlayer(), PLAYER_STATE_IDLE);
