@@ -1,6 +1,7 @@
 package androidx.ui.widgets.framework
 
 import androidx.annotation.CallSuper
+import androidx.ui.assert
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
 import androidx.ui.foundation.diagnostics.EnumProperty
@@ -489,18 +490,20 @@ abstract class State<T : StatefulWidget>(
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
 
-        // TODO(Migration/Filip): This used to be in assert block
-        properties.add(EnumProperty(
-                "lifecycle state",
-                _debugLifecycleState,
-                defaultValue = _StateLifecycle.ready
-        ))
-        properties.add(ObjectFlagProperty("_widget", widget, ifNull = "no widget"))
-        properties.add(ObjectFlagProperty(
-                "_element",
-                _element,
-                ifNull = "not mounted"
-        ))
+        assert {
+            properties.add(EnumProperty(
+                    "lifecycle state",
+                    _debugLifecycleState,
+                    defaultValue = _StateLifecycle.ready
+            ))
+            properties.add(ObjectFlagProperty("_widget", widget, ifNull = "no widget"))
+            properties.add(ObjectFlagProperty(
+                    "_element",
+                    _element,
+                    ifNull = "not mounted"
+            ))
+            true
+        }
     }
 
     override fun toString() = toStringDiagnostic()

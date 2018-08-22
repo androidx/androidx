@@ -218,7 +218,7 @@ data class Offset(override val dx: Double, override val dy: Double) : OffsetBase
     // / // same as: new Rect.fromLTWH(0.0, 0.0, 100.0, 100.0)
     // / ```
     // TODO(Migration/Filip): Original operator & could not be overriden in Kotlin
-    fun and(other: Size): Rect = Rect.fromLTWH(dx, dy, other.width, other.height)
+    infix fun and(other: Size): Rect = Rect.fromLTWH(dx, dy, other.width, other.height)
 
     override fun toString() = "Offset(${dx?.toStringAsFixed(1)}, ${dy?.toStringAsFixed(1)})"
 

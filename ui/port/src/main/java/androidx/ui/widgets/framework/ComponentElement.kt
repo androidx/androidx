@@ -1,5 +1,7 @@
 package androidx.ui.widgets.framework
 
+import androidx.ui.widgets.debugWidgetBuilderValue
+
 // / Signature for the callback to [BuildContext.visitChildElements].
 // /
 // / The argument is the child being visited.
@@ -37,38 +39,40 @@ abstract class ComponentElement(widget: Widget) : Element(widget) {
     // / Called automatically during [mount] to generate the first build, and by
     // / [rebuild] when the element needs updating.
     override fun performRebuild() {
-//        assert(() {
+        // TODO(Migration/Filip): Fix timeline
+//        assert {
 //            if (debugProfileBuildsEnabled)
-//                Timeline.startSync('${widget.runtimeType}');
-//            return true;
-//        }());
-//
-//        assert(_debugSetAllowIgnoredCallsToMarkNeedsBuild(true));
-//        var built: Widget
-//        try {
-//            built = build();
-//            debugWidgetBuilderValue(widget, built);
-//        } catch (e, stack) {
-//        built = ErrorWidget.builder(_debugReportException('building $this', e, stack));
-//    } finally {
-//        // We delay marking the element as clean until after calling build() so
-//        // that attempts to markNeedsBuild() during build() will be ignored.
-//        _dirty = false;
-//        assert(_debugSetAllowIgnoredCallsToMarkNeedsBuild(false));
-//    }
-//        try {
-//            _child = updateChild(_child, built, slot);
-//            assert(_child != null);
-//        } catch (e, stack) {
-//        built = ErrorWidget.builder(_debugReportException('building $this', e, stack));
-//        _child = updateChild(null, built, slot);
-//    }
-//
-//        assert(() {
+//                Timeline.startSync("${widget.runtimeType()}");
+//            true;
+//        };
+
+        assert(_debugSetAllowIgnoredCallsToMarkNeedsBuild(true))
+        var built: Widget
+        try {
+            built = build()
+            debugWidgetBuilderValue(widget, built)
+        } catch (e: Throwable) {
+            built = ErrorWidget.builder(_debugReportException("building $this", e, e.stackTrace))
+        } finally {
+            // We delay marking the element as clean until after calling build() so
+            // that attempts to markNeedsBuild() during build() will be ignored.
+            dirty = false
+            assert(_debugSetAllowIgnoredCallsToMarkNeedsBuild(false))
+        }
+        try {
+            _child = updateChild(_child, built, slot)
+            assert(_child != null)
+        } catch (e: Throwable) {
+            built = ErrorWidget.builder(_debugReportException("building $this", e, e.stackTrace))
+            _child = updateChild(null, built, slot)
+        }
+
+        // TODO(Migration/Filip): Fix timeline
+//        assert {
 //            if (debugProfileBuildsEnabled)
 //                Timeline.finishSync();
-//            return true;
-//        }());
+//            true;
+//        };
     }
 
     // / Subclasses should override this function to actually call the appropriate

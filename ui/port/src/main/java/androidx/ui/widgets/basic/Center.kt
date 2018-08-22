@@ -22,7 +22,7 @@ import androidx.ui.widgets.framework.Widget
 // /  * [Container], a convenience widget that combines common painting,
 // /    positioning, and sizing widgets.
 // /  * The [catalog of layout widgets](https://flutter.io/widgets/layout/).
-/* TODO: Remove abstract once methods are not missing */ abstract class Center(
+class Center(
     key: Key,
     widthFactor: Double?,
     heightFactor: Double?,

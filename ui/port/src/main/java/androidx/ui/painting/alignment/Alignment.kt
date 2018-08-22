@@ -1,5 +1,8 @@
 package androidx.ui.painting.alignment
 
+import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.geometry.Size
 import androidx.ui.lerpDouble
 import androidx.ui.text.TextDirection
 import androidx.ui.toStringAsFixed
@@ -185,31 +188,31 @@ class Alignment(
     override operator fun mod(other: Double): Alignment {
         return Alignment(x % other, y % other)
     }
-//
-//    /// Returns the offset that is this fraction in the direction of the given offset.
-//    Offset alongOffset(Offset other) {
-//        final double centerX = other.dx / 2.0;
-//        final double centerY = other.dy / 2.0;
-//        return new Offset(centerX + x * centerX, centerY + y * centerY);
-//    }
-//
-//    /// Returns the offset that is this fraction within the given size.
-//    Offset alongSize(Size other) {
-//        final double centerX = other.width / 2.0;
-//        final double centerY = other.height / 2.0;
-//        return new Offset(centerX + x * centerX, centerY + y * centerY);
-//    }
-//
-//    /// Returns the point that is this fraction within the given rect.
-//    Offset withinRect(Rect rect) {
-//        final double halfWidth = rect.width / 2.0;
-//        final double halfHeight = rect.height / 2.0;
-//        return new Offset(
-//                rect.left + halfWidth + x * halfWidth,
-//        rect.top + halfHeight + y * halfHeight,
-//        );
-//    }
-//
+
+    // / Returns the offset that is this fraction in the direction of the given offset.
+    fun alongOffset(other: Offset): Offset {
+        val centerX = other.dx / 2.0
+        val centerY = other.dy / 2.0
+        return Offset(centerX + x * centerX, centerY + y * centerY)
+    }
+
+    // / Returns the offset that is this fraction within the given size.
+    fun alongSize(other: Size): Offset {
+        val centerX = other.width / 2.0
+        val centerY = other.height / 2.0
+        return Offset(centerX + x * centerX, centerY + y * centerY)
+    }
+
+    // / Returns the point that is this fraction within the given rect.
+    fun withinRect(rect: Rect): Offset {
+        val halfWidth = rect.width / 2.0
+        val halfHeight = rect.height / 2.0
+        return Offset(
+            rect.left + halfWidth + x * halfWidth,
+            rect.top + halfHeight + y * halfHeight
+        )
+    }
+
 //    /// Returns a rect of the given size, aligned within given rect as specified
 //    /// by this alignment.
 //    ///

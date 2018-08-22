@@ -1,6 +1,7 @@
 package androidx.ui.widgets.framework
 
 import androidx.ui.rendering.obj.RenderObject
+import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 
 // / An [Element] that uses a [SingleChildRenderObjectWidget] as its configuration.
 // /
@@ -39,12 +40,11 @@ class SingleChildRenderObjectElement(
     }
 
     override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
-        TODO("Remove once RenderObjectWithChildMixin is migrated")
-//        val renderObject = this.renderObject as RenderObjectWithChildMixin<RenderObject>
-//        assert(slot == null);
-//        assert(renderObject.debugValidateChild(child));
-//        renderObject.child = child;
-//        assert(renderObject == this.renderObject);
+        val renderObject = this.renderObject as RenderObjectWithChildMixin<RenderObject>
+        assert(slot == null)
+        assert(renderObject.debugValidateChild(child))
+        renderObject.child = child
+        assert(renderObject == this.renderObject)
     }
 
     override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
@@ -52,10 +52,9 @@ class SingleChildRenderObjectElement(
     }
 
     override fun removeChildRenderObject(child: RenderObject?) {
-        TODO("Remove once RenderObjectWithChildMixin is migrated")
-//        val renderObject = this.renderObject as RenderObjectWithChildMixin<RenderObject>
-//        assert(renderObject.child == child);
-//        renderObject.child = null;
-//        assert(renderObject == this.renderObject);
+        val renderObject = this.renderObject as RenderObjectWithChildMixin<RenderObject>
+        assert(renderObject.child == child)
+        renderObject.child = null
+        assert(renderObject == this.renderObject)
     }
 }

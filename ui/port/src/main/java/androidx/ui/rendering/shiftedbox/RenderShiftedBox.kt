@@ -24,7 +24,7 @@ import androidx.ui.rendering.obj.PaintingContext
 // / Abstract class for one-child-layout render boxes that provide control over
 // / the child's position.
 abstract class RenderShiftedBox(
-    child: RenderBox
+    child: RenderBox?
 ) : RenderBox() /*with RenderObjectWithChildMixin<RenderBox>*/ {
 
     init {

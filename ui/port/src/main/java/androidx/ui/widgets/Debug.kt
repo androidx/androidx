@@ -152,3 +152,26 @@ fun debugCheckHasDirectionality(context: BuildContext): Boolean {
     }
     return true
 }
+
+// / Asserts that the `built` widget is not null.
+// /
+// / Used when the given `widget` calls a builder function to check that the
+// / function returned a non-null value, as typically required.
+// /
+// / Does nothing when asserts are disabled.
+fun debugWidgetBuilderValue(widget: Widget, built: Widget) {
+    assert {
+        if (built == null) {
+            throw FlutterError(
+                "A build function returned null.\n" +
+                "The offending widget is: $widget\n" +
+                "Build functions must never return null. " +
+                "To return an empty space that causes the building widget to fill available room," +
+                " return 'new Container()'. " +
+                "To return an empty space that takes as little room as possible, " +
+                "return 'new Container(width: 0.0, height: 0.0)'."
+            )
+        }
+        true
+    }
+}

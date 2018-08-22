@@ -141,6 +141,11 @@ open class Size(val width: Double, val height: Double) : OffsetBase {
         throw IllegalArgumentException(other.toString())
     }
 
+    // TODO(Migration/Filip): Had to introduce this to reduce unsafe castings
+    operator fun minus(other: Size): Offset {
+        return Offset(width - other.width, height - other.height)
+    }
+
     /**
      * Binary addition operator for adding an [Offset] to a [Size].
      *

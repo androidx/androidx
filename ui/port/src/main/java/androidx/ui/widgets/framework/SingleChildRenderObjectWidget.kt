@@ -9,7 +9,7 @@ abstract class SingleChildRenderObjectWidget(
         // / The widget below this widget in the tree.
         // /
         // / {@macro flutter.widgets.child}
-    child: Widget
+    val child: Widget
 ) : RenderObjectWidget(key) {
 
     override fun createElement(): SingleChildRenderObjectElement =

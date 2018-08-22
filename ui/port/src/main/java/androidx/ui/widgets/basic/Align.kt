@@ -1,7 +1,13 @@
 package androidx.ui.widgets.basic
 
 import androidx.ui.foundation.Key
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.foundation.diagnostics.DoubleProperty
 import androidx.ui.painting.alignment.Alignment
+import androidx.ui.rendering.obj.RenderObject
+import androidx.ui.rendering.shiftedbox.RenderPositionedBox
+import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.SingleChildRenderObjectWidget
 import androidx.ui.widgets.framework.Widget
 
@@ -29,7 +35,7 @@ import androidx.ui.widgets.framework.Widget
 // /  * [FractionallySizedBox], which sizes its child based on a fraction of its
 // /    own size and positions the child according to an [Alignment] value.
 // /  * The [catalog of layout widgets](https://flutter.io/widgets/layout/).
-open /* TODO: Remove abstract once methods are not missing */ abstract class Align(
+open class Align(
     key: Key,
         // / How to align the child.
         // /
@@ -47,15 +53,15 @@ open /* TODO: Remove abstract once methods are not missing */ abstract class Ali
         // /    common positions.
         // /  * [AlignmentDirectional], which has a horizontal coordinate orientation
         // /    that depends on the [TextDirection].
-    alignment: Alignment = Alignment.center,
+    val alignment: Alignment = Alignment.center,
         // / If non-null, sets its width to the child's width multiplied by this factor.
         // /
         // / Can be both greater and less than 1.0 but must be positive.
-    widthFactor: Double?,
+    val widthFactor: Double?,
         // / If non-null, sets its height to the child's height multiplied by this factor.
         // /
         // / Can be both greater and less than 1.0 but must be positive.
-    heightFactor: Double?,
+    val heightFactor: Double?,
     child: Widget
 ) : SingleChildRenderObjectWidget(key = key, child = child) {
 
@@ -65,28 +71,29 @@ open /* TODO: Remove abstract once methods are not missing */ abstract class Ali
         assert(heightFactor == null || heightFactor >= 0.0)
     }
 
-//    override fun createRenderObject(context: BuildContext): RenderPositionedBox {
-//        return new RenderPositionedBox(
-//                alignment: alignment,
-//        widthFactor: widthFactor,
-//        heightFactor: heightFactor,
-//        textDirection: Directionality.of(context),
-//        );
-//    }
-//
-//    @override
-//    void updateRenderObject(BuildContext context, RenderPositionedBox renderObject) {
-//        renderObject
-//        ..alignment = alignment
-//        ..widthFactor = widthFactor
-//        ..heightFactor = heightFactor
-//        ..textDirection = Directionality.of(context);
-//    }
+    override fun createRenderObject(context: BuildContext): RenderPositionedBox {
+        return RenderPositionedBox(
+                alignment = alignment,
+                widthFactor = widthFactor,
+                heightFactor = heightFactor,
+                textDirection = Directionality.of(context)
+        )
+    }
 
-//    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-//        super.debugFillProperties(properties);
-//        properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
-//        properties.add(DoubleProperty('widthFactor', widthFactor, defaultValue: null));
-//        properties.add(DoubleProperty('heightFactor', heightFactor, defaultValue: null));
-//    }
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) {
+        renderObject as RenderPositionedBox
+        renderObject.let {
+            it.alignment = alignment
+            it.widthFactor = widthFactor
+            it.heightFactor = heightFactor
+            it.textDirection = Directionality.of(context!!)
+        }
+    }
+
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        super.debugFillProperties(properties)
+        properties.add(DiagnosticsProperty.create("alignment", alignment))
+        properties.add(DoubleProperty.create("widthFactor", widthFactor, defaultValue = null))
+        properties.add(DoubleProperty.create("heightFactor", heightFactor, defaultValue = null))
+    }
 }
