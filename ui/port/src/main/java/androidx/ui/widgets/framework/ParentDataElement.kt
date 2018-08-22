@@ -10,7 +10,7 @@ class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>)
     // Replacement for original overriden getter
     val parentDataWidget get() = widget as ParentDataWidget<RenderObjectWidget>
 
-    override fun mount(parent: Element, newSlot: Any?) {
+    override fun mount(parent: Element?, newSlot: Any?) {
         assert {
             val parentDataWidget = widget as ParentDataWidget<T>
             val badAncestors = mutableListOf<Widget>()
@@ -34,7 +34,7 @@ class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>)
                     "Incorrect use of ParentDataWidget.\n" +
                             parentDataWidget.debugDescribeInvalidAncestorChain(
                                     description = "$this",
-                                    ownershipChain = parent.debugGetCreatorChain(10),
+                                    ownershipChain = parent!!.debugGetCreatorChain(10),
                                     foundValidAncestor = ancestor != null,
                                     badAncestors = badAncestors
                             )

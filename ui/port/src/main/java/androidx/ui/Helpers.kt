@@ -15,7 +15,15 @@ fun Double.toStringAsFixed(digits: Int) = java.lang.String.format("%.${digits}f"
 // Copied from Dart
 fun Double.truncDiv(other: Double) = truncate(this / other).toInt()
 
+// Dart spec: If both operands are ints then a ~/ b performs the truncating integer division.
+fun Int.truncDiv(other: Int) = this / other
+
 fun Double.clamp(min: Double, max: Double) = Math.max(min, Math.min(max, this))
+
+fun Int.clamp(min: Int, max: Int) = Math.max(min, Math.min(max, this))
+
+// TODO(Migration/Filip): Start supporting size if needed
+fun Int.toRadixString(size: Int) = java.lang.Integer.toHexString(this)
 
 // This is our wrapper for Dart's type to reduce the amount of refactoring
 data class Type(val clazz: Class<out Any>) {

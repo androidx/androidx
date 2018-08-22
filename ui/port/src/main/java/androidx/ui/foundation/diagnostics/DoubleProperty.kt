@@ -12,7 +12,7 @@ open class DoubleProperty protected constructor(
     ifNull: String? = null,
     unit: String? = null,
     showName: Boolean = true,
-    defaultValue: Any = kNoDefaultValue,
+    defaultValue: Any? = kNoDefaultValue,
     tooltip: String? = null,
     level: DiagnosticLevel = DiagnosticLevel.info
 ) : _NumProperty<Double>(
@@ -38,7 +38,7 @@ open class DoubleProperty protected constructor(
             ifNull: String? = null,
             unit: String? = null,
             showName: Boolean = true,
-            defaultValue: Any = kNoDefaultValue,
+            defaultValue: Any? = kNoDefaultValue,
             tooltip: String? = null,
             level: DiagnosticLevel = DiagnosticLevel.info
         ): DoubleProperty {

@@ -14,7 +14,7 @@ import androidx.ui.describeEnum
 class EnumProperty<T : Any>(
     name: String,
     value: T?,
-    defaultValue: Any = kNoDefaultValue,
+    defaultValue: Any? = kNoDefaultValue,
     level: DiagnosticLevel = DiagnosticLevel.info
 ) : DiagnosticsProperty<T>(
         name = name,
