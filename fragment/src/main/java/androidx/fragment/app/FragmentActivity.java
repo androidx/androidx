@@ -25,8 +25,6 @@ import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -77,22 +75,6 @@ public class FragmentActivity extends ComponentActivity implements
     static final String REQUEST_FRAGMENT_WHO_TAG = "android:support:request_fragment_who";
     static final int MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS = 0xffff - 1;
 
-    static final int MSG_RESUME_PENDING = 2;
-
-    final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_RESUME_PENDING:
-                    onResumeFragments();
-                    mFragments.execPendingActions();
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-
-    };
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
 
     private ViewModelStore mViewModelStore;
@@ -469,10 +451,6 @@ public class FragmentActivity extends ComponentActivity implements
     protected void onPause() {
         super.onPause();
         mResumed = false;
-        if (mHandler.hasMessages(MSG_RESUME_PENDING)) {
-            mHandler.removeMessages(MSG_RESUME_PENDING);
-            onResumeFragments();
-        }
         mFragments.dispatchPause();
     }
 
@@ -512,7 +490,6 @@ public class FragmentActivity extends ComponentActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        mHandler.sendEmptyMessage(MSG_RESUME_PENDING);
         mResumed = true;
         mFragments.execPendingActions();
     }
@@ -523,9 +500,7 @@ public class FragmentActivity extends ComponentActivity implements
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        mHandler.removeMessages(MSG_RESUME_PENDING);
         onResumeFragments();
-        mFragments.execPendingActions();
     }
 
     /**
