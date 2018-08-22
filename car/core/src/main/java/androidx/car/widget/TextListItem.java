@@ -776,7 +776,9 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param showDivider whether to display a vertical bar that separates {@code Text} and
      *                    {@code Action Button}.
      * @param listener the callback that will run when action button is clicked.
+     * @deprecated Use {@link ActionListItem} for a {@code ListItem} with action buttons.
      */
+    @Deprecated
     public void setAction(String text, boolean showDivider, View.OnClickListener listener) {
         if (TextUtils.isEmpty(text)) {
             throw new IllegalArgumentException("Action text cannot be empty.");
@@ -800,7 +802,9 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      *
      * @param action1Text button text to display - this button will be closer to item end.
      * @param action2Text button text to display.
+     * @deprecated Use {@link ActionListItem} for a {@code ListItem} with action buttons.
      */
+    @Deprecated
     public void setActions(String action1Text, boolean showAction1Divider,
             View.OnClickListener action1OnClickListener,
             String action2Text, boolean showAction2Divider,
