@@ -241,12 +241,23 @@ public class WorkerWrapper implements Runnable {
 
         // Avoiding synthetic accessors
         // All calls to Schedulers.schedule() should always happen on the TaskExecutor thread.
+        final String workSpecId = mWorkSpecId;
+        final boolean isFinished = mWorkSpec.state.isFinished();
         final Configuration configuration = mConfiguration;
         final WorkDatabase workDatabase = mWorkDatabase;
         final List<Scheduler> schedulers = mSchedulers;
         WorkManagerTaskExecutor.getInstance().executeOnBackgroundThread(new Runnable() {
             @Override
             public void run() {
+                // Cancel this work in other schedulers.  For example, if this work was
+                // completed by GreedyScheduler, we should make sure JobScheduler is informed
+                // that it should remove this job and AlarmManager should remove all related alarms.
+                if (isFinished) {
+                    for (Scheduler scheduler : schedulers) {
+                        scheduler.cancel(workSpecId);
+                    }
+                }
+
                 Schedulers.schedule(configuration, workDatabase, schedulers);
             }
         });

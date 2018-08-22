@@ -21,7 +21,6 @@ import android.support.annotation.RestrictTo;
 
 import androidx.work.Configuration;
 import androidx.work.Logger;
-import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -217,27 +216,6 @@ public class Processor implements ExecutionListener {
             for (ExecutionListener executionListener : mOuterListeners) {
                 executionListener.onExecuted(workSpecId, isSuccessful, needsReschedule);
             }
-        }
-
-        if (!needsReschedule) {
-            // Avoiding a synthetic accessor
-            final List<Scheduler> schedulers = mSchedulers;
-
-            // IMPORTANT: This step must not be synchronized because InstantTaskExecutorRule
-            // moves a lot of our work in the TaskExecutor thread to the same thread that the test
-            // uses.
-
-            // Schedulers race to complete the work. So if the Work was completed in one scheduler,
-            // other schedulers need to cancel that work. Otherwise we will exceed scheduling limits
-            // if the rate of enqueue >>> rate of execution of work.
-            WorkManagerTaskExecutor.getInstance().executeOnBackgroundThread(new Runnable() {
-                @Override
-                public void run() {
-                    for (Scheduler scheduler : schedulers) {
-                        scheduler.cancel(workSpecId);
-                    }
-                }
-            });
         }
     }
 }
