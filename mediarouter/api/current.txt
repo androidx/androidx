@@ -305,6 +305,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder addRoute(androidx.mediarouter.media.MediaRouteDescriptor);
     method public androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder addRoutes(java.util.Collection<androidx.mediarouter.media.MediaRouteDescriptor>);
     method public androidx.mediarouter.media.MediaRouteProviderDescriptor build();
+    method public androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder setSupportsDynamicGroupRoute(boolean);
   }
 
   public abstract class MediaRouteProviderService extends android.app.Service {
