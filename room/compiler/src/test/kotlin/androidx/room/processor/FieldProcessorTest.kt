@@ -368,8 +368,10 @@ class FieldProcessorTest {
                                     }
                                     .first { it.second != null }
                             val entityContext =
-                                    EntityProcessor(invocation.context, MoreElements.asType(owner))
-                                            .context
+                                    TableEntityProcessor(
+                                            baseContext = invocation.context,
+                                            element = MoreElements.asType(owner)
+                                    ).context
                             val parser = FieldProcessor(
                                     baseContext = entityContext,
                                     containing = MoreTypes.asDeclared(owner.asType()),

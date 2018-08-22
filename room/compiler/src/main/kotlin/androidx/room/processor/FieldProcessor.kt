@@ -18,7 +18,6 @@ package androidx.room.processor
 
 import androidx.room.ColumnInfo
 import androidx.room.ext.getAsBoolean
-import androidx.room.ext.getAsInt
 import androidx.room.ext.getAsString
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
@@ -30,10 +29,14 @@ import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.type.DeclaredType
 
-class FieldProcessor(baseContext: Context, val containing: DeclaredType, val element: Element,
-                     val bindingScope: BindingScope,
+class FieldProcessor(
+    baseContext: Context,
+    val containing: DeclaredType,
+    val element: Element,
+    val bindingScope: BindingScope,
                      // pass only if this is processed as a child of Embedded field
-                     val fieldParent: EmbeddedField?) {
+    val fieldParent: EmbeddedField?
+) {
     val context = baseContext.fork(element)
     fun process(): Field {
         val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
@@ -57,16 +60,12 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
             }
 
             affinity = try {
-                val userDefinedAffinity = AnnotationMirrors
-                        .getAnnotationValue(columnInfoAnnotation.get(), "typeAffinity")
-                        .getAsInt(ColumnInfo.UNDEFINED)!!
-                SQLTypeAffinity.fromAnnotationValue(userDefinedAffinity)
+                SQLTypeAffinity.fromAnnotation(columnInfoAnnotation.get(), "typeAffinity")
             } catch (ex: NumberFormatException) {
                 null
             }
 
-            collate = Collate.fromAnnotationValue(AnnotationMirrors.getAnnotationValue(
-                    columnInfoAnnotation.get(), "collate").getAsInt(ColumnInfo.UNSPECIFIED)!!)
+            collate = Collate.fromAnnotation(columnInfoAnnotation.get(), "collate")
 
             indexed = AnnotationMirrors
                     .getAnnotationValue(columnInfoAnnotation.get(), "index")

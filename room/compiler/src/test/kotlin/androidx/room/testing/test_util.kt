@@ -20,7 +20,7 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RxJava2TypeNames
-import androidx.room.processor.EntityProcessor
+import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -130,7 +130,7 @@ fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
 
 fun createVerifierFromEntities(invocation: TestInvocation): DatabaseVerifier {
     val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
-        EntityProcessor(invocation.context, MoreElements.asType(it)).process()
+        TableEntityProcessor(invocation.context, MoreElements.asType(it)).process()
     }
     return DatabaseVerifier.create(invocation.context, Mockito.mock(Element::class.java),
             entities)!!

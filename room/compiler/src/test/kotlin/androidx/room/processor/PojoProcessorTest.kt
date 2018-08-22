@@ -54,7 +54,7 @@ import javax.lang.model.element.Element
 import javax.tools.JavaFileObject
 
 /**
- * Some of the functionality is tested via EntityProcessor.
+ * Some of the functionality is tested via TableEntityProcessor.
  */
 @RunWith(JUnit4::class)
 class PojoProcessorTest {

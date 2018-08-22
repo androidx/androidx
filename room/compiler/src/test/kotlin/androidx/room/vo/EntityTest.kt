@@ -68,8 +68,9 @@ class EntityTest {
     }
 
     private fun createEntity(
-            tableName: String,
-            foreignKeys: List<ForeignKey> = emptyList()): Entity {
+        tableName: String,
+        foreignKeys: List<ForeignKey> = emptyList()
+    ): Entity {
         return Entity(
                 element = mock(TypeElement::class.java),
                 tableName = tableName,
@@ -79,13 +80,15 @@ class EntityTest {
                 primaryKey = PrimaryKey(mock(Element::class.java), emptyList(), false),
                 indices = emptyList(),
                 foreignKeys = foreignKeys,
-                constructor = Constructor(mock(ExecutableElement::class.java), emptyList()))
+                constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
+                shadowTableName = null)
     }
 
     private fun createForeignKey(
-            parentTable: String,
-            onDelete: ForeignKeyAction,
-            deferred: Boolean): ForeignKey {
+        parentTable: String,
+        onDelete: ForeignKeyAction,
+        deferred: Boolean
+    ): ForeignKey {
         return ForeignKey(
                 parentTable = parentTable,
                 parentColumns = emptyList(),

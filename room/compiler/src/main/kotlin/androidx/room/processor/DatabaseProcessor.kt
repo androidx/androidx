@@ -116,7 +116,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
     private fun validateForeignKeys(element: TypeElement, entities: List<Entity>) {
         val byTableName = entities.associateBy { it.tableName }
         entities.forEach { entity ->
-            entity.foreignKeys.forEach foreignKeyLoop@ { foreignKey ->
+            entity.foreignKeys.forEach foreignKeyLoop@{ foreignKey ->
                 val parent = byTableName[foreignKey.parentTable]
                 if (parent == null) {
                     context.logger.e(element, ProcessorErrors
@@ -173,8 +173,11 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                 }
     }
 
-    private fun validateUniqueDaoClasses(dbElement: TypeElement, daoMethods: List<DaoMethod>,
-                                         entities: List<Entity>) {
+    private fun validateUniqueDaoClasses(
+        dbElement: TypeElement,
+        daoMethods: List<DaoMethod>,
+        entities: List<Entity>
+    ) {
         val entityTypeNames = entities.map { it.typeName }.toSet()
         daoMethods.groupBy { it.dao.typeName }
                 .forEach {
@@ -188,8 +191,11 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                         context.logger.e(dbElement, error)
                     }
                 }
-        val check = fun(element: Element, dao: Dao,
-                        typeName: TypeName?) {
+        val check = fun(
+            element: Element,
+            dao: Dao,
+            typeName: TypeName?
+        ) {
             typeName?.let {
                 if (!entityTypeNames.contains(typeName)) {
                     context.logger.e(element,

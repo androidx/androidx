@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.FunnyNamedDao;
+import androidx.room.integration.testapp.dao.MailDao;
 import androidx.room.integration.testapp.dao.PetCoupleDao;
 import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.RawDao;
@@ -49,6 +50,7 @@ public abstract class TestDatabaseTest {
     protected FunnyNamedDao mFunnyNamedDao;
     protected RawDao mRawDao;
     protected UserHouseDao mUserHouseDao;
+    protected MailDao mMailDao;
 
     @Before
     public void createDb() {
@@ -65,5 +67,6 @@ public abstract class TestDatabaseTest {
         mFunnyNamedDao = mDatabase.getFunnyNamedDao();
         mRawDao = mDatabase.getRawDao();
         mUserHouseDao = mDatabase.getUserHouseDao();
+        mMailDao = mDatabase.getMailDao();
     }
 }

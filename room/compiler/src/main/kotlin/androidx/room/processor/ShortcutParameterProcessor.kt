@@ -16,9 +16,8 @@
 
 package androidx.room.processor
 
-import androidx.room.Entity
 import androidx.room.ext.extendsBound
-import androidx.room.ext.hasAnnotation
+import androidx.room.ext.isEntityElement
 import androidx.room.vo.ShortcutQueryParameter
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.TypeElement
@@ -31,9 +30,11 @@ import javax.lang.model.util.ElementFilter
 /**
  * Processes parameters of methods that are annotated with Insert, Delete.
  */
-class ShortcutParameterProcessor(baseContext: Context,
-                                 val containing: DeclaredType,
-                                 val element: VariableElement) {
+class ShortcutParameterProcessor(
+    baseContext: Context,
+    val containing: DeclaredType,
+    val element: VariableElement
+) {
     val context = baseContext.fork(element)
     fun process(): ShortcutQueryParameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
@@ -68,7 +69,7 @@ class ShortcutParameterProcessor(baseContext: Context,
                 } ?: Pair(null, isMultiple)
             }
             val entityElement = MoreTypes.asElement(entityType)
-            return if (entityElement.hasAnnotation(Entity::class)) {
+            return if (entityElement.isEntityElement()) {
                 Pair(entityType, isMultiple)
             } else {
                 Pair(null, isMultiple)
