@@ -535,6 +535,7 @@ limitations under the License.
     <style name="AlertDialog" parent="AlertDialog.AppCompat">
         <item name="multiChoiceItemLayout">@layout/select_dialog_multichoice_car</item>
         <item name="singleChoiceItemLayout">@layout/select_dialog_singlechoice_car</item>
+        <item name="android:layout">@layout/car_preference_alert_dialog</item>
     </style>
 
 </resources>
