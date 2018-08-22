@@ -21,6 +21,7 @@ import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("kotlin-android")
 }
 
 android {
@@ -37,9 +38,13 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
 
-    androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(project(":navigation:navigation-testing-ktx"))
     androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(KOTLIN_STDLIB)
 }
 
 supportLibrary {
