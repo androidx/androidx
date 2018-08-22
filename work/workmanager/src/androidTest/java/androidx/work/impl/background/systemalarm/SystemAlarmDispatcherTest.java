@@ -456,6 +456,65 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(capturedIds.contains(succeeded.getStringId()), is(false));
     }
 
+    @Test
+    public void testConstraintsChanged_withFutureWork() throws InterruptedException {
+        // Use a mocked scheduler in this test.
+        Scheduler scheduler = mock(Scheduler.class);
+        doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();
+        when(mWorkManager.getApplicationContext()).thenReturn(mContext);
+        when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
+
+        OneTimeWorkRequest failed = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialState(State.FAILED)
+                .build();
+
+        OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialState(State.SUCCEEDED)
+                .build();
+
+        OneTimeWorkRequest noConstraints = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .build();
+
+        OneTimeWorkRequest workWithConstraints = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiresCharging(true)
+                        .build())
+                .build();
+
+        long hourFromNow = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
+        OneTimeWorkRequest workInTheFuture = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(hourFromNow, TimeUnit.MILLISECONDS)
+                .build();
+
+        insertWork(failed);
+        insertWork(succeeded);
+        insertWork(noConstraints);
+        insertWork(workWithConstraints);
+        insertWork(workInTheFuture);
+
+        Intent reschedule = CommandHandler.createConstraintsChangedIntent(mContext);
+        mSpyDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, reschedule, START_ID));
+
+        mLatch.await();
+        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+        List<String> intentActions = mSpyDispatcher.getIntentActions();
+        // Assert order of events
+        assertThat(intentActions,
+                IsIterableContainingInOrder.contains(
+                        CommandHandler.ACTION_CONSTRAINTS_CHANGED,
+                        CommandHandler.ACTION_DELAY_MET,
+                        CommandHandler.ACTION_DELAY_MET,
+                        CommandHandler.ACTION_EXECUTION_COMPLETED,
+                        CommandHandler.ACTION_EXECUTION_COMPLETED,
+                        // Update proxies
+                        CommandHandler.ACTION_CONSTRAINTS_CHANGED));
+    }
+
     // Marking it public for mocking
     public static class CommandInterceptingSystemDispatcher extends SystemAlarmDispatcher {
         private final List<Intent> mCommands;
