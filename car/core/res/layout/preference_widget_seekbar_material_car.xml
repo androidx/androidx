@@ -73,10 +73,11 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:paddingStart="@dimen/preference_seekbar_padding_start"
-                android:paddingEnd="@dimen/preference_seekbar_padding_end"
+                android:paddingStart="@dimen/car_seekbar_thumb_radius"
+                android:paddingEnd="@dimen/car_seekbar_thumb_radius"
                 android:focusable="false"
                 android:clickable="false"
+                android:splitTrack="false"
                 android:background="@null" />
 
             <TextView
