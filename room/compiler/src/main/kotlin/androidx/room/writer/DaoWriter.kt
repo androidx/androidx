@@ -369,69 +369,39 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         method: InsertionMethod,
         insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>
     ): CodeBlock {
-        val insertionType = method.insertionType
-        if (insertionAdapters.isEmpty() || insertionType == null) {
+        if (insertionAdapters.isEmpty()) {
             return CodeBlock.builder().build()
         }
+
         val scope = CodeGenScope(this)
 
-        return scope.builder().apply {
-            // TODO assert thread
-            // TODO collect results
-            addStatement("$N.beginTransaction()", dbField)
-            val needsReturnType = insertionType != InsertionMethod.Type.INSERT_VOID
-            val resultVar = if (needsReturnType) {
-                scope.getTmpVar("_result")
-            } else {
-                null
-            }
-
-            beginControlFlow("try").apply {
-                method.parameters.forEach { param ->
-                    val insertionAdapter = insertionAdapters[param.name]?.first
-                    if (needsReturnType) {
-                        // if it has more than 1 parameter, we would've already printed the error
-                        // so we don't care about re-declaring the variable here
-                        addStatement("$T $L = $N.$L($L)",
-                                insertionType.returnTypeName, resultVar,
-                                insertionAdapter, insertionType.methodName,
-                                param.name)
-                    } else {
-                        addStatement("$N.$L($L)", insertionAdapter, insertionType.methodName,
-                                param.name)
-                    }
-                }
-                addStatement("$N.setTransactionSuccessful()", dbField)
-                if (needsReturnType) {
-                    addStatement("return $L", resultVar)
-                }
-            }
-            nextControlFlow("finally").apply {
-                addStatement("$N.endTransaction()", dbField)
-            }
-            endControlFlow()
-        }.build()
+        method.methodBinder.convertAndReturn(
+                parameters = method.parameters,
+                insertionAdapters = insertionAdapters,
+                scope = scope
+        )
+        return scope.builder().build()
     }
 
     /**
      * Creates EntityUpdateAdapter for each deletion method.
      */
     private fun createDeletionMethods(): List<PreparedStmtQuery> {
-        return createShortcutMethods(dao.deletionMethods, "deletion", { _, entity ->
+        return createShortcutMethods(dao.deletionMethods, "deletion") { _, entity ->
             EntityDeletionAdapterWriter(entity)
                     .createAnonymous(this@DaoWriter, dbField.name)
-        })
+        }
     }
 
     /**
      * Creates EntityUpdateAdapter for each @Update method.
      */
     private fun createUpdateMethods(): List<PreparedStmtQuery> {
-        return createShortcutMethods(dao.updateMethods, "update", { update, entity ->
+        return createShortcutMethods(dao.updateMethods, "update") { update, entity ->
             val onConflict = OnConflictProcessor.onConflictText(update.onConflictStrategy)
             EntityUpdateAdapterWriter(entity, onConflict)
                     .createAnonymous(this@DaoWriter, dbField.name)
-        })
+        }
     }
 
     private fun <T : ShortcutMethod> createShortcutMethods(
@@ -462,37 +432,18 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         method: ShortcutMethod,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>
     ): CodeBlock {
-        if (adapters.isEmpty()) {
+        if (adapters.isEmpty() || method.methodBinder == null) {
             return CodeBlock.builder().build()
         }
         val scope = CodeGenScope(this)
-        val resultVar = if (method.returnCount) {
-            scope.getTmpVar("_total")
-        } else {
-            null
-        }
-        return scope.builder().apply {
-            if (resultVar != null) {
-                addStatement("$T $L = 0", TypeName.INT, resultVar)
-            }
-            addStatement("$N.beginTransaction()", dbField)
-            beginControlFlow("try").apply {
-                method.parameters.forEach { param ->
-                    val adapter = adapters[param.name]?.first
-                    addStatement("$L$N.$L($L)",
-                            if (resultVar == null) "" else "$resultVar +=",
-                            adapter, param.handleMethodName(), param.name)
-                }
-                addStatement("$N.setTransactionSuccessful()", dbField)
-                if (resultVar != null) {
-                    addStatement("return $L", resultVar)
-                }
-            }
-            nextControlFlow("finally").apply {
-                addStatement("$N.endTransaction()", dbField)
-            }
-            endControlFlow()
-        }.build()
+
+        method.methodBinder.convertAndReturn(
+                returnCount = method.returnCount,
+                parameters = method.parameters,
+                adapters = adapters,
+                scope = scope
+        )
+        return scope.builder().build()
     }
 
     /**
