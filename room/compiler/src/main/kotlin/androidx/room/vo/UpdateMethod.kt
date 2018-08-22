@@ -17,10 +17,15 @@
 package androidx.room.vo
 
 import androidx.room.OnConflictStrategy
+import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import javax.lang.model.element.ExecutableElement
 
-class UpdateMethod(element: ExecutableElement, name: String,
-                   entities: Map<String, Entity>, returnCount: Boolean,
-                   parameters: List<ShortcutQueryParameter>,
-                   @OnConflictStrategy val onConflictStrategy: Int) : ShortcutMethod(
-        element, name, entities, returnCount, parameters)
+class UpdateMethod(
+    element: ExecutableElement,
+    name: String,
+    entities: Map<String, Entity>,
+    returnCount: Boolean,
+    parameters: List<ShortcutQueryParameter>,
+    methodBinder: DeleteOrUpdateMethodBinder?,
+    @OnConflictStrategy val onConflictStrategy: Int
+) : ShortcutMethod(element, name, entities, returnCount, parameters, methodBinder)
