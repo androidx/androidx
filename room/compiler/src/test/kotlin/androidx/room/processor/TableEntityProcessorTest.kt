@@ -36,7 +36,7 @@ import org.junit.runners.JUnit4
 import javax.lang.model.type.TypeKind.INT
 
 @RunWith(JUnit4::class)
-class EntityProcessorTest : BaseEntityParserTest() {
+class TableEntityProcessorTest : BaseEntityParserTest() {
     @Test
     fun simple() {
         singleEntity("""

@@ -17,6 +17,9 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
+import androidx.room.FtsOptions
+import androidx.room.ext.getAsInt
+import com.google.auto.common.AnnotationMirrors
 import org.antlr.v4.runtime.ANTLRInputStream
 import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
@@ -25,6 +28,7 @@ import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
@@ -240,6 +244,11 @@ enum class SQLTypeAffinity {
 
     companion object {
         // converts from ColumnInfo#SQLiteTypeAffinity
+        fun fromAnnotation(annotation: AnnotationMirror, elementName: String): SQLTypeAffinity? {
+            return fromAnnotationValue(AnnotationMirrors.getAnnotationValue(annotation, elementName)
+                    .getAsInt(ColumnInfo.UNDEFINED)!!)
+        }
+
         fun fromAnnotationValue(value: Int): SQLTypeAffinity? {
             return when (value) {
                 ColumnInfo.BLOB -> BLOB
@@ -260,6 +269,11 @@ enum class Collate {
     UNICODE;
 
     companion object {
+        fun fromAnnotation(annotation: AnnotationMirror, elementName: String): Collate? {
+            return fromAnnotationValue(AnnotationMirrors.getAnnotationValue(annotation, elementName)
+                    .getAsInt(ColumnInfo.UNSPECIFIED)!!)
+        }
+
         fun fromAnnotationValue(value: Int): Collate? {
             return when (value) {
                 ColumnInfo.BINARY -> BINARY
@@ -268,6 +282,70 @@ enum class Collate {
                 ColumnInfo.LOCALIZED -> LOCALIZED
                 ColumnInfo.UNICODE -> UNICODE
                 else -> null
+            }
+        }
+    }
+}
+
+enum class FtsVersion {
+    FTS3,
+    FTS4;
+
+    companion object {
+        fun fromAnnotation(annotation: AnnotationMirror, elementName: String): FtsVersion {
+            return fromAnnotationValue(AnnotationMirrors.getAnnotationValue(annotation, elementName)
+                    .getAsInt(androidx.room.FtsOptions.FTS4)!!)
+        }
+
+        fun fromAnnotationValue(value: Int): FtsVersion {
+            return when (value) {
+                FtsOptions.FTS3 -> FTS3
+                FtsOptions.FTS4 -> FTS4
+                else -> FTS4
+            }
+        }
+    }
+}
+
+enum class Tokenizer {
+    SIMPLE,
+    PORTER,
+    ICU,
+    UNICODE61;
+
+    companion object {
+        fun fromAnnotation(annotation: AnnotationMirror, elementName: String): Tokenizer {
+            return fromAnnotationValue(AnnotationMirrors.getAnnotationValue(annotation, elementName)
+                    .getAsInt(FtsOptions.SIMPLE)!!)
+        }
+
+        fun fromAnnotationValue(value: Int): Tokenizer {
+            return when (value) {
+                FtsOptions.SIMPLE -> SIMPLE
+                FtsOptions.PORTER -> PORTER
+                FtsOptions.ICU -> ICU
+                FtsOptions.UNICODE61 -> UNICODE61
+                else -> SIMPLE
+            }
+        }
+    }
+}
+
+enum class FtsOrder {
+    ASC,
+    DESC;
+
+    companion object {
+        fun fromAnnotation(annotation: AnnotationMirror, elementName: String): FtsOrder {
+            return fromAnnotationValue(AnnotationMirrors.getAnnotationValue(annotation, elementName)
+                    .getAsInt(FtsOptions.ASC)!!)
+        }
+
+        fun fromAnnotationValue(value: Int): FtsOrder {
+            return when (value) {
+                FtsOptions.ASC -> ASC
+                FtsOptions.DESC -> DESC
+                else -> ASC
             }
         }
     }

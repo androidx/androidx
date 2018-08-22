@@ -222,7 +222,8 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 indices = emptyList(),
                 primaryKey = PrimaryKey(null, fields.take(1), false),
                 foreignKeys = emptyList(),
-                constructor = Constructor(mock(ExecutableElement::class.java), emptyList())
+                constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
+                shadowTableName = null
         )
     }
 

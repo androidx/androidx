@@ -19,6 +19,7 @@ package androidx.room.integration.testapp.test;
 import androidx.room.integration.testapp.vo.Address;
 import androidx.room.integration.testapp.vo.Coordinates;
 import androidx.room.integration.testapp.vo.House;
+import androidx.room.integration.testapp.vo.Mail;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.School;
 import androidx.room.integration.testapp.vo.Toy;
@@ -114,6 +115,15 @@ public class TestUtil {
             houses[i] = new House(houseStartId++, uid, createAddress());
         }
         return houses;
+    }
+
+    public static Mail createMail(int id, String subject, String body) {
+        Mail mail = new Mail();
+        mail.rowId = id;
+        mail.subject = subject;
+        mail.body = body;
+        mail.datetime = System.currentTimeMillis();
+        return mail;
     }
 
     private TestUtil() {
