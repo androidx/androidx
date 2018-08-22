@@ -201,7 +201,6 @@ limitations under the License.
         <item name="android:listPreferredItemPaddingStart">@dimen/car_keyline_1</item>
         <item name="android:listPreferredItemPaddingEnd">@dimen/car_keyline_1</item>
         <item name="android:textAppearanceLarge">@style/TextAppearance.Car.Body2</item>
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body2</item>
         <item name="alertDialogStyle">@style/AlertDialog</item>
         <item name="android:colorControlNormal">@color/car_body2</item>
         <item name="android:colorControlActivated">@color/car_accent</item>
