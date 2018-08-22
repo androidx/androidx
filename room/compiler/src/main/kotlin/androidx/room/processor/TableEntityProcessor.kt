@@ -23,7 +23,7 @@ import androidx.room.ext.getAsStringList
 import androidx.room.ext.toType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
-import androidx.room.processor.BaseEntityProcessor.Companion.extractTableName
+import androidx.room.processor.EntityProcessor.Companion.extractTableName
 import androidx.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import androidx.room.processor.cache.Cache
@@ -52,7 +52,7 @@ class TableEntityProcessor internal constructor(
     baseContext: Context,
     val element: TypeElement,
     private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
-) : BaseEntityProcessor {
+) : EntityProcessor {
     val context = baseContext.fork(element)
 
     override fun process(): Entity {
