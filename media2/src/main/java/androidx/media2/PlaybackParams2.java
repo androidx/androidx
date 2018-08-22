@@ -134,7 +134,7 @@ public final class PlaybackParams2 {
                 return null;
             }
         } else {
-            return mPitch;
+            return mSpeed;
         }
     }
 

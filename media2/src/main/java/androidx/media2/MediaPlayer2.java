@@ -536,13 +536,12 @@ public abstract class MediaPlayer2 {
     public abstract PersistableBundle getMetrics();
 
     /**
-     * Sets playback rate using {@link PlaybackParams2}. The object sets its internal
-     * PlaybackParams2 to the input, except that the object remembers previous speed
-     * when input speed is zero. This allows the object to resume at previous speed
-     * when play() is called. Calling it before the object is prepared does not change
-     * the object state. After the object is prepared, calling it with zero speed is
-     * equivalent to calling pause(). After the object is prepared, calling it with
-     * non-zero speed is equivalent to calling play().
+     * Sets playback rate using {@link PlaybackParams2}. The player sets its internal
+     * PlaybackParams2 to the given input. This does not change the player state. For example,
+     * if this is called with the speed of 2.0f in {@link #PLAYER_STATE_PAUSED}, the player will
+     * just update internal property and stay paused. Once the client calls {@link #play()}
+     * afterwards, the player will start playback with the given speed. Calling this with zero
+     * speed is not allowed.
      *
      * @param params the playback params.
      */
