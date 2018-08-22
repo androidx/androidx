@@ -25,7 +25,7 @@ import androidx.room.parser.FtsOrder
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.Tokenizer
-import androidx.room.processor.BaseEntityProcessor.Companion.extractTableName
+import androidx.room.processor.EntityProcessor.Companion.extractTableName
 import androidx.room.processor.cache.Cache
 import androidx.room.vo.Field
 import androidx.room.vo.FtsEntity
@@ -42,7 +42,7 @@ class FtsTableEntityProcessor internal constructor(
     baseContext: Context,
     val element: TypeElement,
     private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
-) : BaseEntityProcessor {
+) : EntityProcessor {
 
     val context = baseContext.fork(element)
 
