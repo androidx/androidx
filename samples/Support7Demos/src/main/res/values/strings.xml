@@ -256,6 +256,7 @@
     <string name="text_plain_disabled">Plain disabled</string>
     <string name="text_link_enabled">With <a href="http://www.google.com">link</a> enabled</string>
     <string name="text_link_disabled">With <a href="http://www.google.com">link</a> disabled</string>
+    <string name="text_compound_compat">Compound vectors</string>
 
     <string name="menu_item_icon_tinting">AppCompat/Menu Item Icons</string>
     <string name="popup_group_dividers">Display group dividers</string>
