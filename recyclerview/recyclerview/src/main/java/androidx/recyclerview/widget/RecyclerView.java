@@ -3279,7 +3279,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLayoutFrozen) {
             return false;
         }
-        if (event.getAction() == MotionEventCompat.ACTION_SCROLL) {
+        if (event.getAction() == MotionEvent.ACTION_SCROLL) {
             final float vScroll, hScroll;
             if ((event.getSource() & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
                 if (mLayout.canScrollVertically()) {
@@ -3492,7 +3492,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mEatenAccessibilityChangeFlags = 0;
         if (flags != 0 && isAccessibilityEnabled()) {
             final AccessibilityEvent event = AccessibilityEvent.obtain();
-            event.setEventType(AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
+            event.setEventType(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
             AccessibilityEventCompat.setContentChangeTypes(event, flags);
             sendAccessibilityEventUnchecked(event);
         }
