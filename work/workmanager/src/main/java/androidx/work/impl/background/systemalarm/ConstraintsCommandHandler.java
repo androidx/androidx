@@ -43,7 +43,6 @@ class ConstraintsCommandHandler {
     private final Context mContext;
     private final int mStartId;
     private final SystemAlarmDispatcher mDispatcher;
-    private final List<WorkSpec> mEligibleWorkSpecs;
     private final WorkConstraintsTracker mWorkConstraintsTracker;
 
     ConstraintsCommandHandler(
@@ -55,7 +54,6 @@ class ConstraintsCommandHandler {
         mStartId = startId;
         mDispatcher = dispatcher;
         mWorkConstraintsTracker = new WorkConstraintsTracker(mContext, null);
-        mEligibleWorkSpecs = new ArrayList<>();
     }
 
     @WorkerThread
@@ -69,30 +67,26 @@ class ConstraintsCommandHandler {
                 .workSpecDao()
                 .getEligibleWorkForScheduling(schedulerLimit);
 
-        // Filter candidates that are marked as SCHEDULE_NOT_REQUESTED_AT
-        List<WorkSpec> eligibleWorkSpecs = new ArrayList<>(candidates.size());
-        for (WorkSpec candidate: candidates) {
-            if (candidate.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET) {
-                eligibleWorkSpecs.add(candidate);
-            }
-        }
-
         // Update constraint proxy to potentially disable proxies for previously
         // completed WorkSpecs.
-        ConstraintProxy.updateAll(mContext, eligibleWorkSpecs);
-        // This needs to be done to populate matching WorkSpec ids in every constraint
-        // controller.
-        mWorkConstraintsTracker.replace(eligibleWorkSpecs);
+        ConstraintProxy.updateAll(mContext, candidates);
 
-        for (WorkSpec workSpec : eligibleWorkSpecs) {
+        // This needs to be done to populate matching WorkSpec ids in every constraint controller.
+        mWorkConstraintsTracker.replace(candidates);
+
+        List<WorkSpec> eligibleWorkSpecs = new ArrayList<>(candidates.size());
+        // Filter candidates should have already been scheduled.
+        long now = System.currentTimeMillis();
+        for (WorkSpec workSpec : candidates) {
             String workSpecId = workSpec.id;
-            if (!workSpec.hasConstraints()
-                    || mWorkConstraintsTracker.areAllConstraintsMet(workSpecId)) {
-                mEligibleWorkSpecs.add(workSpec);
+            long triggerAt = workSpec.calculateNextRunTime();
+            if (now >= triggerAt && (!workSpec.hasConstraints()
+                    || mWorkConstraintsTracker.areAllConstraintsMet(workSpecId))) {
+                eligibleWorkSpecs.add(workSpec);
             }
         }
 
-        for (WorkSpec workSpec : mEligibleWorkSpecs) {
+        for (WorkSpec workSpec : eligibleWorkSpecs) {
             String workSpecId = workSpec.id;
             Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
             Logger.debug(TAG, String.format(
@@ -100,6 +94,7 @@ class ConstraintsCommandHandler {
             mDispatcher.postOnMainThread(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));
         }
+
         mWorkConstraintsTracker.reset();
     }
 }
