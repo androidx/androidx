@@ -16,12 +16,10 @@
 
 package androidx.ui.painting
 
-import android.graphics.Color
-
 // TODO(Migration/Andrey): Copy the class here
 class Paint {
 
     var style: PaintingStyle = PaintingStyle.fill
     var strokeWidth: Double = 0.0
-    var color: Int = Color.BLACK
+    var color: Color = Color(0xFF000000.toInt())
 }

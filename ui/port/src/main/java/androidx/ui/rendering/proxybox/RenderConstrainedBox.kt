@@ -21,6 +21,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
@@ -116,7 +117,7 @@ class RenderConstrainedBox(
         assert {
             if (child == null || child!!.size!!.isEmpty()) {
                 val paint = Paint().apply {
-                    color = 0x90909090.toInt()
+                    color = Color(0x90909090.toInt())
                 }
                 context.canvas.drawRect(offset.and(size!!), paint)
             }

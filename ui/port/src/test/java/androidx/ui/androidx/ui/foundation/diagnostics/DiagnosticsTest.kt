@@ -16,7 +16,6 @@
 
 package androidx.ui.androidx.ui.foundation.diagnostics
 
-import android.graphics.Color
 import androidx.ui.describeEnum
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.assertions.FlutterError
@@ -39,6 +38,7 @@ import androidx.ui.foundation.diagnostics.StringProperty
 import androidx.ui.foundation.diagnostics.kNoDefaultValue
 import androidx.ui.matchers.EqualsIgnoringHashCodes
 import androidx.ui.matchers.HasGoodToStringDeep
+import androidx.ui.painting.Color
 import androidx.ui.runtimeType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -1409,31 +1409,18 @@ class DiagnosticsTest {
 
     @Test
     fun `color property test`() {
-        val color = Color.argb(255, 255, 255, 255)
-        val simple = IntProperty(
+        // Add more tests if colorProperty becomes more than a wrapper around
+        // objectProperty.
+        val color = Color.fromARGB(255, 255, 255, 255)
+        val simple = DiagnosticsProperty.create(
                 "name",
                 color
         )
         validatePropertyJsonSerialization(simple)
         assertFalse(simple.isFiltered(DiagnosticLevel.info))
         assertEquals(color, simple.getValue())
-        assertEquals("name: 0", simple.toString())
+        assertEquals("name: Color(0xffffffff)", simple.toString())
         validatePropertyJsonSerialization(simple)
-
-        // TODO(Migration/Andrey): Reimplement it if we decide to port Color class
-//        // Add more tests if colorProperty becomes more than a wrapper around
-//        // objectProperty.
-//        const Color color = Color.fromARGB(255, 255, 255, 255);
-//        final DiagnosticsProperty < Color > simple = new DiagnosticsProperty<Color>(
-//                'name',
-//                color,
-//                );
-//        validatePropertyJsonSerialization(simple);
-//        expect(simple.isFiltered(DiagnosticLevel.info), isFalse);
-//        expect(simple.value, equals(color));
-//        expect(simple.propertyType, equals(Color));
-//        expect(simple.toString(), equals('name: Color(0xffffffff)'));
-//        validatePropertyJsonSerialization(simple);
     }
 
     @Test
@@ -1533,7 +1520,7 @@ class DiagnosticsTest {
         // TODO(Migration/Andrey): Replaced Color class usages with ColorInt
         val objects = listOf(
                 Rect.fromLTRB(0.0, 0.0, 20.0, 20.0),
-                Color.argb(255, 255, 255, 255)
+                Color.fromARGB(255, 255, 255, 255)
         )
         val objectsProperty = IterableProperty(
                 "Objects",
@@ -1543,7 +1530,7 @@ class DiagnosticsTest {
         assertFalse(objectsProperty.isFiltered(DiagnosticLevel.info))
         assertEquals(
                 objectsProperty.toString(),
-                "Objects: Rect.fromLTRB(0.0, 0.0, 20.0, 20.0), 0"
+                "Objects: Rect.fromLTRB(0.0, 0.0, 20.0, 20.0), Color(0xffffffff)"
         )
         validateIterablePropertyJsonSerialization(objectsProperty)
 
@@ -1559,7 +1546,7 @@ class DiagnosticsTest {
 
                 "Objects:\n" +
                         "Rect.fromLTRB(0.0, 0.0, 20.0, 20.0)\n" +
-                        "0"
+                        "Color(0xffffffff)"
 
         )
         assertEquals(
@@ -1567,7 +1554,7 @@ class DiagnosticsTest {
 
                 "Objects:\n" +
                         "  Rect.fromLTRB(0.0, 0.0, 20.0, 20.0)\n" +
-                        "  0\n"
+                        "  Color(0xffffffff)\n"
 
         )
         validateIterablePropertyJsonSerialization(multiLineProperty)
@@ -1576,19 +1563,20 @@ class DiagnosticsTest {
                 EqualsIgnoringHashCodes("TestTree#00000\n" +
                         "   Objects:\n" +
                         "     Rect.fromLTRB(0.0, 0.0, 20.0, 20.0)\n" +
-                        "     0\n"))
+                        "     Color(0xffffffff)\n"))
 
         assertThat(TestTree(
                 properties = listOf(objectsProperty, IntProperty("foo", 42)),
                 style = DiagnosticsTreeStyle.singleLine
         ).toStringDeep(),
-                EqualsIgnoringHashCodes("TestTree#00000" +
-                        "(Objects: [Rect.fromLTRB(0.0, 0.0, 20.0, 20.0), 0], foo: 42)"))
+                EqualsIgnoringHashCodes("TestTree#00000(Objects: " +
+                        "[Rect.fromLTRB(0.0, 0.0, 20.0, 20.0), " +
+                        "Color(0xffffffff)], foo: 42)"))
 
         // Iterable with a single entry. Verify that rendering is sensible and that
         // multi line rendering isn"t used even though it is not helpful.
         val singleElementList = listOf<Any>(
-                Color.argb(255, 255, 255, 255))
+                Color.fromARGB(255, 255, 255, 255))
 
         val objectProperty = IterableProperty(
                 "Object",
@@ -1599,18 +1587,18 @@ class DiagnosticsTest {
         assertFalse(objectProperty.isFiltered(DiagnosticLevel.info))
         assertEquals(
                 objectProperty.toString(),
-                "Object: 0"
+                "Object: Color(0xffffffff)"
         )
         assertEquals(
                 objectProperty.toStringDeep(),
-                "Object: 0\n"
+                "Object: Color(0xffffffff)\n"
         )
         validateIterablePropertyJsonSerialization(objectProperty)
         assertThat(TestTree(
                 name = "root",
                 properties = listOf(objectProperty)
         ).toStringDeep(),
-                EqualsIgnoringHashCodes("TestTree#00000\n   Object: 0\n"))
+                EqualsIgnoringHashCodes("TestTree#00000\n   Object: Color(0xffffffff)\n"))
     }
 
     @Test

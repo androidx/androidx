@@ -21,6 +21,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.Path
@@ -126,7 +127,7 @@ class RenderPositionedBox(
                 paint = Paint().let {
                     it.style = PaintingStyle.stroke
                     it.strokeWidth = 1.0
-                    it.color = 0xFFFFFF00.toInt()
+                    it.color = Color(0xFFFFFF00.toInt())
                     it
                 }
 
@@ -172,7 +173,7 @@ class RenderPositionedBox(
                 }
             } else {
                 paint = Paint().let {
-                    it.color = 0x90909090.toInt()
+                    it.color = Color(0x90909090.toInt())
                     it
                 }
                 context.canvas.drawRect(offset and size!!, paint)

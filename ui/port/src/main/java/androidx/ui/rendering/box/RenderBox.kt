@@ -8,6 +8,7 @@ import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.rendering.debugCheckIntrinsicSizes
@@ -1556,7 +1557,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
             val paint = Paint().apply {
                 style = PaintingStyle.stroke
                 strokeWidth = 1.0
-                color = 0xFF00FFFF.toInt()
+                color = Color(0xFF00FFFF.toInt())
             }
             context.canvas.drawRect((offset.and(size!!)).deflate(0.5), paint)
             true
@@ -1613,7 +1614,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
             if (_debugActivePointers > 0) {
                 val paint = Paint().apply {
                     // new Color(0x00BBBB | ((0x04000000 * depth) & 0xFF000000));
-                    color = (0x00BBBB or ((0x04000000 * depth) and 0xFF000000.toInt()))
+                    color = Color(0x00BBBB or ((0x04000000 * depth) and 0xFF000000.toInt()))
                 }
                 context.canvas.drawRect(offset.and(size!!), paint)
             }
