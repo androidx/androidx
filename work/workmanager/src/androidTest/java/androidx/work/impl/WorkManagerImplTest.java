@@ -63,6 +63,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
@@ -109,6 +110,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -1555,6 +1557,40 @@ public class WorkManagerImplTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(maxSdkVersion = 22)    // We can't force JobScheduler to run quicker than 15 mins.
+    public void testPeriodicWork_ExecutesRepeatedly() throws InterruptedException {
+        PeriodicWorkRequest work = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                15,
+                TimeUnit.MINUTES)
+                .build();
+        WorkSpec workSpec = work.getWorkSpec();
+        workSpec.intervalDuration = 1L;     // Manually override this to a smaller value for tests.
+        workSpec.flexDuration = 1L;         // Manually override this to a smaller value for tests.
+
+        final CountDownLatch latch = new CountDownLatch(5);
+        TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
+
+        LiveData<WorkStatus> status = mWorkManagerImpl.getStatusById(work.getId());
+        status.observe(testLifecycleOwner, new Observer<WorkStatus>() {
+            @Override
+            public void onChanged(@Nullable WorkStatus workStatus) {
+                if (workStatus != null) {
+                    if (workStatus.getState() == RUNNING) {
+                        latch.countDown();
+                    }
+                }
+            }
+        });
+
+        mWorkManagerImpl.enqueue(work);
+        latch.await(1000L, TimeUnit.MILLISECONDS);
+        assertThat(latch.getCount(), is(0L));
+        status.removeObservers(testLifecycleOwner);
     }
 
     private void insertWorkSpecAndTags(WorkRequest work) {
