@@ -1179,7 +1179,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             mPlayer.seekTo(0, MediaPlayer2.SEEK_PREVIOUS_SYNC);
             Thread.sleep(1000);
             int playTime = 4000;  // The testing clip is about 10 second long.
+            int privState = mPlayer.getState();
             mPlayer.setPlaybackParams(new PlaybackParams2.Builder().setSpeed(playbackRate).build());
+            labelReached.reset();
+            mPlayer.notifyWhenCommandLabelReached(new Object());
+            labelReached.waitForSignal();
+            assertTrue("setPlaybackParams() should not change player state. " + mPlayer.getState(),
+                    mPlayer.getState() == privState);
+
             mPlayer.play();
             Thread.sleep(playTime);
 
@@ -1205,7 +1212,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             labelReached.waitForSignal();
 
             pbp = mPlayer.getPlaybackParams();
-            assertEquals(0.f, pbp.getSpeed(), FLOAT_TOLERANCE);
+            assertEquals("pause() should not change the playback rate property.",
+                    playbackRate, pbp.getSpeed(), FLOAT_TOLERANCE);
         }
         mPlayer.reset();
     }
