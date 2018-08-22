@@ -16,28 +16,40 @@
   -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@android:id/background">
-        <shape android:shape="line">
+    <item android:id="@android:id/background"
+        android:height="@dimen/car_seekbar_height"
+        android:gravity="center_vertical">
+        <shape android:shape="rectangle">
             <stroke
-                android:width="@dimen/car_seekbar_height"
+                android:width="@dimen/car_seekbar_thumb_stroke"
                 android:color="?android:attr/progressBackgroundTint" />
+            <corners
+                android:radius="@dimen/car_seekbar_thumb_radius"/>
         </shape>
     </item>
-    <item android:id="@android:id/secondaryProgress">
+    <item android:id="@android:id/secondaryProgress"
+        android:height="@dimen/car_seekbar_height"
+        android:gravity="center_vertical">
         <clip>
-            <shape android:shape="line">
+            <shape android:shape="rectangle">
                 <stroke
-                    android:width="@dimen/car_seekbar_height"
+                    android:width="@dimen/car_seekbar_thumb_stroke"
                     android:color="?android:attr/secondaryProgressTint" />
+                <corners
+                    android:radius="@dimen/car_seekbar_thumb_radius"/>
             </shape>
         </clip>
     </item>
-    <item android:id="@android:id/progress">
+    <item android:id="@android:id/progress"
+        android:height="@dimen/car_seekbar_height"
+        android:gravity="center_vertical">
         <clip>
-            <shape android:shape="line">
+            <shape android:shape="rectangle">
                 <stroke
-                    android:width="@dimen/car_seekbar_height"
+                    android:width="@dimen/car_seekbar_thumb_stroke"
                     android:color="?android:attr/colorControlActivated" />
+                <corners
+                    android:radius="@dimen/car_seekbar_thumb_radius"/>
             </shape>
         </clip>
     </item>
