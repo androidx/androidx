@@ -1,5 +1,6 @@
 package androidx.ui.rendering.view
 
+import androidx.ui.core.Duration
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -95,10 +96,11 @@ class RenderView(
         child?.layout(BoxConstraints.tight(size))
     }
 
-    // TODO(Migration/andrey): Needs Duration. And comment int RenderObject saying rotation is not implemented yet.
-//    override fun rotate(oldAngle: Int, newAngle: Int, time: Duration?) {
-//        assert(false); // nobody tells the screen to rotate, the whole rotate() dance is started from our performResize()
-//    }
+    override fun rotate(oldAngle: Int, newAngle: Int, time: Duration?) {
+        assert(false)
+        // nobody tells the screen to rotate, the whole rotate() dance
+        // is started from our performResize()
+    }
 
     // TODO(Migration/andrey): Needs HitTestResult
 //    /// Determines the set of render objects located at the given position.

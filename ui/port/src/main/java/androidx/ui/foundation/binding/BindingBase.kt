@@ -18,7 +18,11 @@ typealias ServiceExtensionCallback = (Map<String, String>) -> Deferred<Map<Strin
 
 interface BindingBase {
 
+    fun reassembleApplication(): Deferred<Unit>
+
     fun performReassemble(): Deferred<Unit>
+
+    fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit>
 
     // / Registers a service extension method with the given name (full
     // / name "ext.flutter.name"), which takes no arguments and returns
@@ -99,7 +103,7 @@ object BindingBaseImpl : BindingBase {
     // /
     // /  * <https://github.com/dart-lang/sdk/blob/master/runtime/vm/service/service.md#rpcs-requests-and-responses>
     init { // was initServiceExtensions
-        TODO("migration/popam/Implement this")
+        // TODO(migration/popam): Implement this
 //        registerSignalServiceExtension(
 //                name: 'reassemble',
 //        callback: reassembleApplication,
@@ -153,7 +157,8 @@ object BindingBaseImpl : BindingBase {
     // / Events should be flushed when [unlocked] is called.
     val locked
         get() = _lockCount > 0
-    var _lockCount = 0
+    @Volatile // TODO(Migration/Andrey): Ask Flutter team how it works in Dart w/o volatile!
+    private var _lockCount = 0
 
     // / Locks the dispatching of asynchronous events and callbacks until the
     // / callback's future completes.
@@ -164,7 +169,8 @@ object BindingBaseImpl : BindingBase {
     // / (which it partially does asynchronously).
     // /
     // / The [Future] returned by the `callback` argument is returned by [lockEvents].
-    fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit> {
+    override fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit> {
+        // TODO(Migration/Andrey): Needs Timeline
 //        developer.Timeline.startSync('Lock events');
 
         assert(callback != null)
@@ -175,6 +181,7 @@ object BindingBaseImpl : BindingBase {
         future.invokeOnCompletion {
             _lockCount -= 1
             if (!locked) {
+                // TODO(Migration/Andrey): Needs Timeline
 //                developer.Timeline.finishSync();
                 unlocked()
             }
@@ -208,7 +215,7 @@ object BindingBaseImpl : BindingBase {
     // /
     // / Subclasses (binding classes) should override [performReassemble] to react
     // / to this method being called. This method itself should not be overridden.
-    fun reassembleApplication(): Deferred<Unit> {
+    override fun reassembleApplication(): Deferred<Unit> {
         return lockEvents(::performReassemble)
     }
 
@@ -292,12 +299,12 @@ object BindingBaseImpl : BindingBase {
     // /
     // / Calls the `setter` callback with the new value when the
     // / service extension method is called with a new value.
-//    @protected
-//    void registerNumericServiceExtension({
-//        @required String name,
-//        @required AsyncValueGetter<double> getter,
-//        @required AsyncValueSetter<double> setter
-//    }) {
+// //    @protected
+//    fun registerNumericServiceExtension(
+//        name: String,
+//        getter : AsyncValueGetter<Double>,
+//        setter : AsyncValueSetter<Double>
+//    ) {
 //        assert(name != null);
 //        assert(getter != null);
 //        assert(setter != null);

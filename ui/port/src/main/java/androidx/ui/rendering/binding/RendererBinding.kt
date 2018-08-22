@@ -1,10 +1,12 @@
 package androidx.ui.rendering.binding
 
 import androidx.ui.assert
+import androidx.ui.core.Duration
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.binding.BindingBase
 import androidx.ui.foundation.binding.BindingBaseImpl
 import androidx.ui.rendering.obj.PipelineOwner
+import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.SemanticsHandle
 import androidx.ui.rendering.view.RenderView
 import androidx.ui.rendering.view.ViewConfiguration
@@ -38,14 +40,19 @@ object RendererBindingImpl : RendererMixinsWrapper(
 ), RendererBinding {
 /*with ServicesBinding, HitTestable*/
 
-    // was initInstances
-    init {
-        TODO("Migration/Andrey): needs SchedulerBinding mixin and semantic methods")
-//        pipelineOwner = PipelineOwner(
-//                onNeedVisualUpdate= ensureVisualUpdate,
-//        onSemanticsOwnerCreated= _handleSemanticsOwnerCreated,
-//        onSemanticsOwnerDisposed= _handleSemanticsOwnerDisposed
-//        );
+    /**
+     * The render tree's owner, which maintains dirty state for layout,
+     * composite, paint, and accessibility semantics
+     */
+    var pipelineOwner: PipelineOwner? = null
+        internal set
+
+    init { // was initInstances
+        pipelineOwner = PipelineOwner(
+                onNeedVisualUpdate = { ensureVisualUpdate() },
+                onSemanticsOwnerCreated = { _handleSemanticsOwnerCreated() },
+                onSemanticsOwnerDisposed = { _handleSemanticsOwnerDisposed() }
+        )
         with(Window) {
             onMetricsChanged = { handleMetricsChanged() }
             onTextScaleFactorChanged = { handleTextScaleFactorChanged() }
@@ -59,14 +66,13 @@ object RendererBindingImpl : RendererMixinsWrapper(
         initRenderView()
         handleSemanticsEnabledChanged()
         assert(renderView != null)
-        TODO("Migration/Andrey): needs SchedulerBinding mixin")
-//        addPersistentFrameCallback { handlePersistentFrameCallback() };
+        addPersistentFrameCallback { _handlePersistentFrameCallback() }
     }
 
     // was initServiceExtensions
     init {
         assert {
-            TODO("Migration/Andrey): do we need this debug logic?")
+        // TODO("Migration/Andrey): do we need this debug logic?")
             // these service extensions only work in checked mode
 //            registerBoolServiceExtension(
 //                    name: 'debugPaint',
@@ -102,7 +108,7 @@ object RendererBindingImpl : RendererMixinsWrapper(
             true
         }
 
-        TODO("Migration/Andrey): do we need this debug logic?")
+        // TODO("Migration/Andrey): do we need this debug logic?")
 //        registerSignalServiceExtension(
 //                name = "debugDumpRenderTree",
 //        callback= async { debugDumpRenderTree(); return debugPrintDone; }
@@ -139,16 +145,9 @@ object RendererBindingImpl : RendererMixinsWrapper(
     }
 
     /**
-     * The render tree's owner, which maintains dirty state for layout,
-     * composite, paint, and accessibility semantics
-     */
-    var pipelineOwner: PipelineOwner? = null
-        internal set
-
-    /**
      * The render tree that's attached to the output surface.
      */
-    var renderView: RenderView? get() = pipelineOwner!!.rootNode as RenderView
+    var renderView: RenderView? get() = pipelineOwner!!.rootNode as? RenderView
     /**
      * Sets the given [RenderView] object (which must not be null), and its tree, to
      * be the new render tree to display. The previous tree, if any, is detached.
@@ -167,8 +166,7 @@ object RendererBindingImpl : RendererMixinsWrapper(
     override fun handleMetricsChanged() {
         assert(renderView != null)
         renderView!!.configuration = createViewConfiguration()
-        TODO("Migration/Andrey: needs  SchedulerBinding mixin")
-//        scheduleForcedFrame();
+        scheduleForcedFrame()
     }
 
     /**
@@ -229,20 +227,20 @@ object RendererBindingImpl : RendererMixinsWrapper(
 //        );
 //    }
 
-    // TODO(Migration/Andrey): needs semantics code from RenderOwner
-//    fun _handleSemanticsOwnerCreated() {
+    private fun _handleSemanticsOwnerCreated() {
+        TODO("Migration/Andrey: needs semantics code from RenderOwner")
 //        renderView.scheduleInitialSemantics();
-//    }
+    }
 
     // TODO(Migration/Andrey): needs semantics code from RenderOwner
-//    fun _handleSemanticsOwnerDisposed() {
+    private fun _handleSemanticsOwnerDisposed() {
+        TODO("Migration/Andrey: needs semantics code from RenderOwner")
 //        renderView.clearSemantics();
-//    }
+    }
 
-    // TODO(Migration/Andrey): needs Duration
-//    fun _handlePersistentFrameCallback(timeStamp : Duration) {
-//        drawFrame();
-//    }
+    private fun _handlePersistentFrameCallback(timeStamp: Duration? = null) {
+        drawFrame()
+    }
 
     /**
      * Pump the rendering pipeline to generate a frame.
@@ -319,15 +317,16 @@ object RendererBindingImpl : RendererMixinsWrapper(
     override fun performReassembleRenderer(superCall: () -> Deferred<Unit>): Deferred<Unit> {
         return async {
             superCall().await()
-            TODO("Migration/Andrey: needs Timeline and SchedulerBinding mixin")
+            // TODO("Migration/Andrey: needs Timeline
 //            Timeline.startSync('Dirty Render Tree', arguments: timelineWhitelistArguments);
-//            try {
-//                renderView!!.reassemble();
-//            } finally {
+            try {
+                renderView!!.reassemble()
+            } finally {
+                // TODO("Migration/Andrey: needs Timeline
 //                Timeline.finishSync();
-//            }
-//            scheduleWarmUpFrame();
-//            endOfFrame.await
+            }
+            scheduleWarmUpFrame()
+            endOfFrame().await()
         }
     }
 
@@ -340,14 +339,13 @@ object RendererBindingImpl : RendererMixinsWrapper(
 //        super.hitTest(result, position); // ignore: abstract_super_member_reference
 //    }
 
-    // TODO(Migration/Andrey): needs SchedulerBinding mixin
-//    fun _forceRepaint(): Deferred<Unit>  {
-//        RenderObjectVisitor visitor;
-//        visitor = (RenderObject child) {
-//            child.markNeedsPaint();
-//            child.visitChildren(visitor);
-//        };
-//        instance?.renderView?.visitChildren(visitor);
-//        return endOfFrame;
-//    }
+    private fun _forceRepaintVisitor(child: RenderObject) {
+        child.markNeedsPaint()
+        child.visitChildren { _forceRepaintVisitor(it) }
+    }
+
+    private fun _forceRepaint(): Deferred<Unit> {
+        renderView?.visitChildren { _forceRepaintVisitor(it) }
+        return endOfFrame()
+    }
 }

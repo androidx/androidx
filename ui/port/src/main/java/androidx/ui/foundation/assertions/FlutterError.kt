@@ -177,7 +177,8 @@ class FlutterError(
 //        /// [StackTrace.toString()]. The output of this function is similar to that
 //        /// format but the frame numbers will not be consecutive (frames are elided)
 //        /// and the final line may be prose rather than a stack frame.
-//        static Iterable<String> defaultStackFilter(Iterable<String> frames) {
+        fun defaultStackFilter(frames: Iterable<String>): Iterable<String> {
+            TODO()
 //            const List<String> filteredPackages = const <String>[
 //                    'dart:async-patch',
 //                    'dart:async',
@@ -225,7 +226,7 @@ class FlutterError(
 //                }
 //            }
 //            return result;
-//        }
+        }
 
         // / Calls [onError] with the given details, unless it is null.
         fun reportError(details: FlutterErrorDetails) {

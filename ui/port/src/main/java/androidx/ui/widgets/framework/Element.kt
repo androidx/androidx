@@ -14,6 +14,7 @@ import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.ObjectFlagProperty
+import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.runtimeType
 import androidx.ui.widgets.debugPrintGlobalKeyedWidgetLifecycle
@@ -665,21 +666,21 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
 
     override val size: Size?
         get() = run {
-            TODO("Remove once RenderBox is migrated")
-//            val renderObject = findRenderObject();
-//            assert {
-//                if (renderObject == null) {
-//                    throw FlutterError(
-//                            "Cannot get size without a render object.\n" +
-//                            "In order for an element to have a valid size, the element must have " +
-//                            "an associated render object. This element does not have an associated " +
-//                            "render object, which typically means that the size getter was called " +
-//                            "too early in the pipeline (e.g., during the build phase) before the " +
-//                            "framework has created the render tree.\n" +
-//                            "The size getter was called for the following element:\n" +
-//                            "  $this\n"
-//                    );
-//                }
+            val renderObject = findRenderObject()
+            assert {
+                if (renderObject == null) {
+                    throw FlutterError(
+                        "Cannot get size without a render object.\n" +
+                                "In order for an element to have a valid size, the element must " +
+                                "have an associated render object. This element does not have an " +
+                                "associated render object, which typically means that the size " +
+                                "getter was called too early in the pipeline (e.g., during the " +
+                                "build phase) before the framework has created the render tree.\n" +
+                                "The size getter was called for the following element:\n" +
+                                "  $this\n"
+                    )
+                }
+                // (Migration|Andrey): needs RenderSliver
 //                if (renderObject is RenderSliver) {
 //                    throw FlutterError(
 //                            "Cannot get size from a RenderSliver.\n" +
@@ -695,55 +696,58 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
 //                            "  ${renderObject.toStringShallow(joiner = "\n  ")}"
 //                    );
 //                }
-//                if (renderObject !is RenderBox) {
-//                    throw FlutterError(
-//                            "Cannot get size from a render object that is not a RenderBox.\n" +
-//                            "Instead of being a subtype of RenderBox, the render object associated " +
-//                            "with this element is a ${renderObject.runtimeType()}. If this type of " +
-//                            "render object does have a size, consider calling findRenderObject " +
-//                            "and extracting its size manually.\n" +
-//                            "The size getter was called for the following element:\n" +
-//                            "  $this\n" +
-//                            "The associated render object was:\n" +
-//                            "  ${renderObject.toStringShallow(joiner = "\n  ")}"
-//                    );
-//                }
-//                val box = renderObject as RenderBox;
-//                if (!box.hasSize) {
-//                    throw FlutterError(
-//                            "Cannot get size from a render object that has not been through layout.\n" +
-//                            "The size of this render object has not yet been determined because " +
-//                            "this render object has not yet been through layout, which typically " +
-//                            "means that the size getter was called too early in the pipeline " +
-//                            "(e.g., during the build phase) before the framework has determined " +
-//                            "the size and position of the render objects during layout.\n" +
-//                            "The size getter was called for the following element:\n" +
-//                            "  $this\n" +
-//                            "The render object from which the size was to be obtained was:\n" +
-//                            "  ${box.toStringShallow(joiner = "\n  ")}"
-//                    );
-//                }
-//                if (box.debugNeedsLayout) {
-//                    throw FlutterError(
-//                            "Cannot get size from a render object that has been marked dirty for layout.\n" +
-//                            "The size of this render object is ambiguous because this render object has " +
-//                            "been modified since it was last laid out, which typically means that the size " +
-//                            "getter was called too early in the pipeline (e.g., during the build phase) " +
-//                            "before the framework has determined the size and position of the render " +
-//                            "objects during layout.\n" +
-//                            "The size getter was called for the following element:\n" +
-//                            "  $this\n" +
-//                            "The render object from which the size was to be obtained was:\n" +
-//                            "  ${box.toStringShallow(joiner = "\n  ")}\n" +
-//                            "Consider using debugPrintMarkNeedsLayoutStacks to determine why the render " +
-//                            "object in question is dirty, if you did not expect this."
-//                    );
-//                }
-//                true;
-//            };
-//            if (renderObject is RenderBox)
-//                return renderObject.size;
-//            return null;
+                if (renderObject !is RenderBox) {
+                    throw FlutterError(
+                        "Cannot get size from a render object that is not a RenderBox.\n" +
+                                "Instead of being a subtype of RenderBox, the render object " +
+                                "associated with this element is a ${renderObject.runtimeType()}." +
+                                " If this type of render object does have a size, consider " +
+                                "calling findRenderObject and extracting its size manually.\n" +
+                                "The size getter was called for the following element:\n" +
+                                "  $this\n" +
+                                "The associated render object was:\n" +
+                                "  ${renderObject.toStringShallow(joiner = "\n  ")}"
+                    )
+                }
+                val box = renderObject as RenderBox
+                if (!box.hasSize) {
+                    throw FlutterError(
+                        "Cannot get size from a render object that has not been through layout.\n" +
+                                "The size of this render object has not yet been determined " +
+                                "because this render object has not yet been through layout, " +
+                                "which typically means that the size getter was called too early " +
+                                "in the pipeline (e.g., during the build phase) before the " +
+                                "framework has determined the size and position of the render " +
+                                "objects during layout.\n The size getter was called for the " +
+                                "following element:\n" +
+                                "  $this\n" +
+                                "The render object from which the size was to be obtained was:\n" +
+                                "  ${box.toStringShallow(joiner = "\n  ")}"
+                    )
+                }
+                if (box.debugNeedsLayout) {
+                    throw FlutterError(
+                        "Cannot get size from a render object that has been marked dirty " +
+                                "for layout.\n" +
+                                "The size of this render object is ambiguous because this " +
+                                "render object has been modified since it was last laid out, " +
+                                "which typically means that the size getter was called too early " +
+                                "in the pipeline (e.g., during the build phase) before the " +
+                                "framework has determined the size and position of the render " +
+                                "objects during layout.\n" +
+                                "The size getter was called for the following element:\n" +
+                                "  $this\n" +
+                                "The render object from which the size was to be obtained was:\n" +
+                                "  ${box.toStringShallow(joiner = "\n  ")}\n" +
+                                "Consider using debugPrintMarkNeedsLayoutStacks to determine why " +
+                                "the render object in question is dirty, if you did not expect this"
+                    )
+                }
+                true
+            }
+            if (renderObject is RenderBox)
+                return renderObject.size
+            return null
     }
 
     private var _inheritedWidgets: Map<Type, InheritedElement>? = null

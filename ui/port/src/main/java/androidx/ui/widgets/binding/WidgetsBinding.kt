@@ -14,12 +14,15 @@ import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.scheduler.binding.SchedulerBinding
 import androidx.ui.services.ServicesBinding
+import androidx.ui.services.SystemChannels
 import androidx.ui.services.SystemNavigator
 import androidx.ui.widgets.framework.BuildOwner
 import androidx.ui.widgets.framework.Element
 import androidx.ui.widgets.framework.Widget
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.experimental.launch
 
 interface WidgetsBinding : RendererBinding, SchedulerBinding, ServicesBinding
 
@@ -40,6 +43,15 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
         Window.onLocaleChanged = ::handleLocaleChanged
 //        SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);
 //        SystemChannels.system.setMessageHandler(_handleSystemMessage);
+
+        // TODO(Migration/Andrey): we are subscribing to lifecycle events both
+        // here and in SchedulerBindingImpl as its impossible to override method
+        // with the delegation approach we are using for bindings.
+        launch {
+            SystemChannels.lifecycle
+                    .openSubscription()
+                    .consumeEach { handleAppLifecycleStateChanged(it) }
+        }
     }
 
     // was initServiceExtensions
@@ -239,8 +251,7 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
 //        return new Future<Null>.value();
 //    }
 
-    override fun handleAppLifecycleStateChanged(state: AppLifecycleState) {
-        super.handleAppLifecycleStateChanged(state)
+    private fun handleAppLifecycleStateChanged(state: AppLifecycleState) {
         for (observer in _observers) {
             observer.didChangeAppLifecycleState(state)
         }
@@ -313,7 +324,7 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
     fun _handleBuildScheduled() {
         // If we're in the process of building dirty elements, then changes
         // should not trigger a new frame.
-        assert({
+        assert {
             if (debugBuildingDirtyElements) {
                 throw FlutterError(
                         "Build scheduled during frame.\n" +
@@ -334,7 +345,7 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
                 )
             }
             true
-            })
+            }
         ensureVisualUpdate()
     }
 

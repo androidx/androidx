@@ -48,7 +48,6 @@ fun runApp(app: Widget) {
 
     WidgetsBindingImpl.let {
         it.attachRootWidget(app)
-        // TODO(Migration/Filip):
-        // it.scheduleWarmUpFrame()
+        it.scheduleWarmUpFrame()
     }
 }

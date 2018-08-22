@@ -1,6 +1,7 @@
 package androidx.ui.rendering.obj
 
 import androidx.ui.assert
+import androidx.ui.core.Duration
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -822,15 +823,15 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
 //        }
 //    }
 
-//   /**
-//    * Rotate this render object(not yet implemented).
-//    */
-//    void rotate({
-//        int oldAngle, // 0..3
-//        int newAngle, // 0..3
-//        Duration time
-//    }) { }
-//
+    /**
+     * Rotate this render object(not yet implemented).
+     */
+    open fun rotate(
+        oldAngle: Int, // 0..3
+        newAngle: Int, // 0..3
+        time: Duration?
+    ) { }
+
 //    // when the parent has rotated (e.g. when the screen has been turned
 //    // 90 degrees), immediately prior to layout() being called for the
 //    // new dimensions, rotate() is called with the old and new angles.
