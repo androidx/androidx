@@ -154,6 +154,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     /**
      * Creates a {@link TextListItem.ViewHolder}.
      */
+    @NonNull
     public static ViewHolder createViewHolder(View itemView) {
         return new ViewHolder(itemView);
     }
@@ -692,7 +693,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     /**
      * Holds views of TextListItem.
      */
-    public static class ViewHolder extends ListItem.ViewHolder {
+    public static final class ViewHolder extends ListItem.ViewHolder {
 
         private final View[] mWidgetViews;
 

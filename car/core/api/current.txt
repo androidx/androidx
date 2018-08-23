@@ -291,6 +291,7 @@ package androidx.car.widget {
   public class ListItemAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter implements androidx.car.widget.PagedListView.DividerVisibilityManager androidx.car.widget.PagedListView.ItemCap {
     ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider);
     ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider, int);
+    method public android.content.Context getContext();
     method public int getItemCount();
     method public boolean getShowDivider(int);
     method public void onBindViewHolder(androidx.car.widget.ListItem.ViewHolder, int);
@@ -430,6 +431,36 @@ package androidx.car.widget {
     method public boolean isAtStart(androidx.recyclerview.widget.RecyclerView.LayoutManager);
   }
 
+  public class RadioButtonListItem extends androidx.car.widget.ListItem {
+    ctor public RadioButtonListItem(android.content.Context);
+    method public static androidx.car.widget.RadioButtonListItem.ViewHolder createViewHolder(android.view.View);
+    method protected android.content.Context getContext();
+    method public int getViewType();
+    method public boolean isChecked();
+    method protected void onBind(androidx.car.widget.RadioButtonListItem.ViewHolder);
+    method protected void resolveDirtyState();
+    method public void setChecked(boolean);
+    method public void setEnabled(boolean);
+    method public void setOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener);
+    method public void setPrimaryActionIcon(android.graphics.drawable.Icon, int);
+    method public void setShowRadioButtonDivider(boolean);
+    method public void setText(java.lang.CharSequence);
+    method public void setTextStartMargin(int);
+    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
+    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
+    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
+  }
+
+  public static final class RadioButtonListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+    ctor public RadioButtonListItem.ViewHolder(android.view.View);
+    method public android.view.ViewGroup getContainerLayout();
+    method public android.widget.ImageView getPrimaryIcon();
+    method public android.widget.RadioButton getRadioButton();
+    method public android.view.View getRadioButtonDivider();
+    method public android.widget.TextView getText();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
+  }
+
   public class SeekbarListItem extends androidx.car.widget.ListItem {
     ctor public SeekbarListItem(android.content.Context);
     method public static androidx.car.widget.SeekbarListItem.ViewHolder createViewHolder(android.view.View);
@@ -453,7 +484,7 @@ package androidx.car.widget {
     method public void setText(java.lang.CharSequence);
   }
 
-  public static class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
+  public static final class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
     ctor public SeekbarListItem.ViewHolder(android.view.View);
     method public android.view.ViewGroup getContainerLayout();
     method public android.widget.ImageView getPrimaryIcon();
@@ -482,7 +513,7 @@ package androidx.car.widget {
   public static abstract class SubheaderListItem.TextStartMarginType implements java.lang.annotation.Annotation {
   }
 
-  public static class SubheaderListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+  public static final class SubheaderListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
     ctor public SubheaderListItem.ViewHolder(android.view.View);
     method public android.widget.TextView getText();
     method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
@@ -514,7 +545,7 @@ package androidx.car.widget {
     field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
   }
 
-  public static class TextListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+  public static final class TextListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
     ctor public TextListItem.ViewHolder(android.view.View);
     method public android.widget.TextView getBody();
     method public android.view.ViewGroup getContainerLayout();

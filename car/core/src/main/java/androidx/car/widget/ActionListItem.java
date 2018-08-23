@@ -137,6 +137,7 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
     /**
      * Creates a {@link ActionListItem.ViewHolder}.
      */
+    @NonNull
     public static ViewHolder createViewHolder(View itemView) {
         return new ViewHolder(itemView);
     }
