@@ -21,6 +21,7 @@ import android.support.annotation.RestrictTo;
 
 import androidx.work.Configuration;
 import androidx.work.Logger;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ public class Processor implements ExecutionListener {
 
     private Context mAppContext;
     private Configuration mConfiguration;
+    private TaskExecutor mWorkTaskExecutor;
     private WorkDatabase mWorkDatabase;
     private Map<String, WorkerWrapper> mEnqueuedWorkMap;
     private List<Scheduler> mSchedulers;
@@ -55,11 +57,13 @@ public class Processor implements ExecutionListener {
     public Processor(
             Context appContext,
             Configuration configuration,
+            TaskExecutor workTaskExecutor,
             WorkDatabase workDatabase,
             List<Scheduler> schedulers,
             Executor executor) {
         mAppContext = appContext;
         mConfiguration = configuration;
+        mWorkTaskExecutor = workTaskExecutor;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
         mSchedulers = schedulers;
@@ -96,7 +100,12 @@ public class Processor implements ExecutionListener {
             }
 
             WorkerWrapper workWrapper =
-                    new WorkerWrapper.Builder(mAppContext, mConfiguration, mWorkDatabase, id)
+                    new WorkerWrapper.Builder(
+                            mAppContext,
+                            mConfiguration,
+                            mWorkTaskExecutor,
+                            mWorkDatabase,
+                            id)
                             .withListener(this)
                             .withSchedulers(mSchedulers)
                             .withRuntimeExtras(runtimeExtras)

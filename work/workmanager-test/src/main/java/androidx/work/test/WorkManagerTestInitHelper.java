@@ -22,8 +22,6 @@ import android.support.annotation.NonNull;
 import androidx.work.Configuration;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
-import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +55,6 @@ public final class WorkManagerTestInitHelper {
             @NonNull Context context,
             @NonNull Configuration configuration) {
 
-        setupSynchronousTaskExecutor();
         final TestScheduler scheduler = new TestScheduler();
         WorkManagerImpl workManager = new TestWorkManagerImpl(context, configuration) {
             @NonNull
@@ -89,20 +86,5 @@ public final class WorkManagerTestInitHelper {
     }
 
     private WorkManagerTestInitHelper() {
-    }
-
-    private static void setupSynchronousTaskExecutor() {
-        WorkManagerTaskExecutor.getInstance()
-                .setTaskExecutor(new TaskExecutor() {
-                    @Override
-                    public void postToMainThread(Runnable runnable) {
-                        runnable.run();
-                    }
-
-                    @Override
-                    public void executeOnBackgroundThread(Runnable runnable) {
-                        runnable.run();
-                    }
-                });
     }
 }

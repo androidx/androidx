@@ -24,6 +24,7 @@ import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.List;
 
@@ -41,7 +42,21 @@ abstract class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver
 
         // Note: This implies that the call to ForceStopRunnable() actually does nothing.
         // This is okay when testing.
-        super(context, configuration, true);
+        super(
+                context,
+                configuration,
+                new TaskExecutor() {
+                    @Override
+                    public void postToMainThread(Runnable runnable) {
+                        runnable.run();
+                    }
+
+                    @Override
+                    public void executeOnBackgroundThread(Runnable runnable) {
+                        runnable.run();
+                    }
+                },
+                true);
     }
 
     /**

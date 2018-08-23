@@ -30,6 +30,7 @@ import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.InfiniteTestWorker;
 
 import org.junit.Before;
@@ -53,6 +54,7 @@ public class ProcessorTest extends DatabaseTest {
         mProcessor = new Processor(
                 appContext,
                 configuration,
+                new InstantWorkTaskExecutor(),
                 mDatabase,
                 Collections.singletonList(mMockScheduler),
                 Executors.newSingleThreadScheduledExecutor()) {

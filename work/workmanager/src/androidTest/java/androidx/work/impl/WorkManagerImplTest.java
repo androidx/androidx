@@ -95,7 +95,7 @@ import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.Preferences;
 import androidx.work.impl.utils.RepeatRule;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.StopAwareWorker;
@@ -128,9 +128,6 @@ public class WorkManagerImplTest {
     private WorkManagerImpl mWorkManagerImpl;
 
     @Rule
-    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
-
-    @Rule
     public RepeatRule mRepeatRule = new RepeatRule();
 
     @Before
@@ -155,7 +152,8 @@ public class WorkManagerImplTest {
         mConfiguration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
-        mWorkManagerImpl = new WorkManagerImpl(mContext, mConfiguration);
+        mWorkManagerImpl =
+                new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
         Logger.setMinimumLoggingLevel(Log.DEBUG);
@@ -1437,7 +1435,8 @@ public class WorkManagerImplTest {
                 return packageManager;
             }
         };
-        mWorkManagerImpl = new WorkManagerImpl(mContext, mConfiguration);
+        mWorkManagerImpl =
+                new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         // Call getSchedulers() so WM calls createBestAvailableBackgroundScheduler()
         // which in turn initializes the right System(*)Service.
