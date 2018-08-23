@@ -137,9 +137,12 @@
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
     <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
+    <string name="recycler_view_stableid">RecyclerView/Stable Ids</string>
     <string name="pager_recycler_view">RecyclerView/PagerRecyclerViewActivity</string>
     <string name="animated_recycler_view">RecyclerView/Animated RecyclerView</string>
     <string name="nested_recycler_view">RecyclerView/Nested RecyclerView</string>
+    <string name="rv_in_nestedScrollView">RecyclerView/RV in NestedScrollView</string>
+    <string name="rv_in_2_nestedScrollViews">RecyclerView/RV in 2 NestedScrollViews</string>
     <string name="linear_layout_manager">RecyclerView/Linear Layout Manager</string>
     <string name="linear_layout_manager_jank">RecyclerView/Janky Linear Layout Manager</string>
     <string name="grid_layout_manager">RecyclerView/Grid Layout Manager</string>
