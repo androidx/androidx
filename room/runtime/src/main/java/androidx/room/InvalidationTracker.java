@@ -29,12 +29,14 @@ import androidx.annotation.WorkerThread;
 import androidx.arch.core.internal.SafeIterableMap;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
+import androidx.collection.SparseArrayCompat;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -93,8 +95,11 @@ public class InvalidationTracker {
 
     @NonNull
     @VisibleForTesting
-    ArrayMap<String, Integer> mTableIdLookup;
+    final ArrayMap<String, Integer> mTableIdLookup;
     final String[] mTableNames;
+    @NonNull
+    @VisibleForTesting
+    final SparseArrayCompat<String> mShadowTableLookup;
 
     @NonNull
     @VisibleForTesting
@@ -133,15 +138,32 @@ public class InvalidationTracker {
     @SuppressWarnings("WeakerAccess")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public InvalidationTracker(RoomDatabase database, String... tableNames) {
+        this(database, new HashMap<String, String>(), tableNames);
+    }
+
+    /**
+     * Used by the generated code.
+     *
+     * @hide
+     */
+    @SuppressWarnings("WeakerAccess")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public InvalidationTracker(RoomDatabase database, Map<String, String> shadowTablesMap,
+            String... tableNames) {
         mDatabase = database;
         mObservedTableTracker = new ObservedTableTracker(tableNames.length);
         mTableIdLookup = new ArrayMap<>();
+        mShadowTableLookup = new SparseArrayCompat<>(shadowTablesMap.size());
         final int size = tableNames.length;
         mTableNames = new String[size];
         for (int id = 0; id < size; id++) {
             final String tableName = tableNames[id].toLowerCase(Locale.US);
             mTableIdLookup.put(tableName, id);
             mTableNames[id] = tableName;
+            if (shadowTablesMap.containsKey(tableNames[id])) {
+                final String shadowTableName = shadowTablesMap.get(tableNames[id]);
+                mShadowTableLookup.append(id, shadowTableName.toLowerCase(Locale.US));
+            }
         }
         mTableVersions = new long[tableNames.length];
         Arrays.fill(mTableVersions, 0);
@@ -197,7 +219,7 @@ public class InvalidationTracker {
     }
 
     private void stopTrackingTable(SupportSQLiteDatabase writableDb, int tableId) {
-        final String tableName = mTableNames[tableId];
+        final String tableName = mShadowTableLookup.get(tableId, mTableNames[tableId]);
         StringBuilder stringBuilder = new StringBuilder();
         for (String trigger : TRIGGERS) {
             stringBuilder.setLength(0);
@@ -208,7 +230,7 @@ public class InvalidationTracker {
     }
 
     private void startTrackingTable(SupportSQLiteDatabase writableDb, int tableId) {
-        final String tableName = mTableNames[tableId];
+        final String tableName = mShadowTableLookup.get(tableId, mTableNames[tableId]);
         StringBuilder stringBuilder = new StringBuilder();
         for (String trigger : TRIGGERS) {
             stringBuilder.setLength(0);
