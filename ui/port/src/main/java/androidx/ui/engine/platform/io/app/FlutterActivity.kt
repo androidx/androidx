@@ -9,7 +9,7 @@ import androidx.ui.engine.platform.io.plugin.common.PluginRegistry
 import androidx.ui.engine.platform.io.view.FlutterNativeView
 import androidx.ui.engine.platform.io.view.FlutterView
 
-class FlutterActivity
+open class FlutterActivity
     : ComponentActivity(), FlutterView.Provider, PluginRegistry,
     FlutterActivityDelegate.ViewFactory {
 
