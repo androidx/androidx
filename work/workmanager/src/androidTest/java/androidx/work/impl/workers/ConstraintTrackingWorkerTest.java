@@ -48,14 +48,14 @@ import androidx.work.impl.constraints.trackers.NetworkStateTracker;
 import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.EchoingWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,9 +68,6 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class ConstraintTrackingWorkerTest extends DatabaseTest implements ExecutionListener {
-
-    @Rule
-    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
     private static final long DELAY_IN_MILLIS = 100;
     private static final long TEST_TIMEOUT_IN_SECONDS = 6;
@@ -86,6 +83,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     private ConstraintTrackingWorker mWorker;
     private WorkManagerImpl mWorkManagerImpl;
     private Configuration mConfiguration;
+    private TaskExecutor mWorkTaskExecutor;
     private Scheduler mScheduler;
     private Extras.RuntimeExtras mRuntimeExtras;
     private Trackers mTracker;
@@ -101,6 +99,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         mExecutorService = Executors.newSingleThreadScheduledExecutor();
         mLatch = new CountDownLatch(1);
         mConfiguration = new Configuration.Builder().build();
+        mWorkTaskExecutor = new InstantWorkTaskExecutor();
         mRuntimeExtras = new Extras.RuntimeExtras();
         mRuntimeExtras.mExecutionListener = this;
 
@@ -136,8 +135,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
         setupDelegateForExecution(EchoingWorker.class.getName());
 
-        WorkerWrapper.Builder builder =
-                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, mWork.getStringId());
+        WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker)
                 .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
@@ -157,8 +155,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     public void testConstraintTrackingWorker_onConstraintsNotMet() throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(false);
         setupDelegateForExecution(TestWorker.class.getName());
-        WorkerWrapper.Builder builder =
-                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, mWork.getStringId());
+        WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker)
                 .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
@@ -176,8 +173,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     public void testConstraintTrackingWorker_onConstraintsChanged() throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
         setupDelegateForExecution(SleepTestWorker.class.getName());
-        WorkerWrapper.Builder builder =
-                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, mWork.getStringId());
+        WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker)
                 .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
@@ -204,8 +200,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
         setupDelegateForExecution(SleepTestWorker.class.getName());
 
-        WorkerWrapper.Builder builder =
-                new WorkerWrapper.Builder(mContext, mConfiguration, mDatabase, mWork.getStringId());
+        WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker)
                 .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
@@ -274,4 +269,12 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
     }
 
+    private WorkerWrapper.Builder createWorkerWrapperBuilder() {
+        return new WorkerWrapper.Builder(
+                mContext,
+                mConfiguration,
+                mWorkTaskExecutor,
+                mDatabase,
+                mWork.getStringId());
+    }
 }

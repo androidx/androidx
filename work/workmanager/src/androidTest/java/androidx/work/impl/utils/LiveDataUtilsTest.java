@@ -30,6 +30,8 @@ import android.support.annotation.Nullable;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.TestLifecycleOwner;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,13 +41,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class LiveDataUtilsTest {
 
-    @Rule
-    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+    private TaskExecutor mInstantWorkTaskExecutor = new InstantWorkTaskExecutor();
 
     @Rule
-    public androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule
-            instantWorkManagerTaskExecutorRule =
-            new androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule();
+    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     @Test
     public void testDedupedMappedLiveData_dedupesValues() {
@@ -57,8 +56,10 @@ public class LiveDataUtilsTest {
         };
 
         MutableLiveData<String> originalLiveData = new MutableLiveData<>();
-        LiveData<String> dedupedLiveData =
-                LiveDataUtils.dedupedMappedLiveDataFor(originalLiveData, identityMapping);
+        LiveData<String> dedupedLiveData = LiveDataUtils.dedupedMappedLiveDataFor(
+                originalLiveData,
+                identityMapping,
+                mInstantWorkTaskExecutor);
         assertThat(dedupedLiveData.getValue(), is(nullValue()));
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
@@ -95,7 +96,8 @@ public class LiveDataUtilsTest {
         MutableLiveData<Integer> originalLiveData = new MutableLiveData<>();
         LiveData<String> mappedLiveData = LiveDataUtils.dedupedMappedLiveDataFor(
                 originalLiveData,
-                intToStringMapping);
+                intToStringMapping,
+                mInstantWorkTaskExecutor);
         assertThat(mappedLiveData.getValue(), is(nullValue()));
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
