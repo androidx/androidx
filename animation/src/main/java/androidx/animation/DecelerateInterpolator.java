@@ -46,7 +46,7 @@ public class DecelerateInterpolator implements Interpolator {
         this(context.getResources(), context.getTheme(), attrs);
     }
 
-    private DecelerateInterpolator(Resources res, Theme theme, AttributeSet attrs) {
+    DecelerateInterpolator(Resources res, Theme theme, AttributeSet attrs) {
         TypedArray a;
         if (theme != null) {
             a = theme.obtainStyledAttributes(attrs,

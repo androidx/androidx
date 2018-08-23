@@ -36,7 +36,7 @@ public class CycleInterpolator implements Interpolator {
         this(context.getResources(), context.getTheme(), attrs);
     }
 
-    private CycleInterpolator(Resources resources, Theme theme, AttributeSet attrs) {
+    CycleInterpolator(Resources resources, Theme theme, AttributeSet attrs) {
         TypedArray a;
         if (theme != null) {
             a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_CYCLE_INTERPOLATOR,

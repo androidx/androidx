@@ -91,7 +91,7 @@ public class PathInterpolator implements Interpolator {
         this(context.getResources(), context.getTheme(), attrs);
     }
 
-    private PathInterpolator(Resources res, Theme theme, AttributeSet attrs) {
+    PathInterpolator(Resources res, Theme theme, AttributeSet attrs) {
         TypedArray a;
         if (theme != null) {
             a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR,
