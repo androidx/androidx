@@ -63,6 +63,7 @@ limitations under the License.
         <item name="pagedListViewStyle">@style/Widget.Car.List.Light</item>
         <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar.Light</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
+        <item name="switchStyle">@style/Widget.Car.Switch</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
         <item name="toolbarStyle">@style/Widget.Car.Toolbar.Light</item>
@@ -110,6 +111,7 @@ limitations under the License.
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
         <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar</item>
+        <item name="switchStyle">@style/Widget.Car.Switch</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
         <item name="toolbarStyle">@style/Widget.Car.Toolbar</item>

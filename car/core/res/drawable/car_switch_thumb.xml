@@ -15,9 +15,11 @@
   ~ limitations under the License.
   -->
 
-<!-- This layout is inflated by android.R.layout.preference so the id cannot change -->
-<androidx.appcompat.widget.SwitchCompat
+<shape
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/switchWidget"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"/>
+    android:shape="oval">
+    <solid android:color="@color/car_switch" />
+    <size
+        android:width="@dimen/car_seekbar_thumb_size"
+        android:height="@dimen/car_seekbar_thumb_size" />
+</shape>
