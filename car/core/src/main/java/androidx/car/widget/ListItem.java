@@ -142,20 +142,6 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
     }
 
     /**
-     * Whether hide the item divider coming after this {@code ListItem}.
-     *
-     * <p>Note: For this to work, one must invoke
-     * {@code PagedListView.setDividerVisibilityManager(adapter} for {@link ListItemAdapter} and
-     * have dividers enabled on {@link PagedListView}.
-     *
-     * @deprecated Use {@link #setShowDivider(boolean)}.
-     */
-    @Deprecated
-    public void setHideDivider(boolean hideDivider) {
-        setShowDivider(!hideDivider);
-    }
-
-    /**
      * Whether to show the item divider coming after this {@code ListItem}.
      *
      * <p>Note: For this to work, one must invoke
@@ -166,17 +152,6 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
         mShowDivider = showDivider;
         markDirty();
     }
-
-    /**
-     * @return {@code true} if the divider that comes after this {@code ListItem} should be hidden.
-     * Defaults to false.
-     *
-     * @deprecated Use {@link #getShowDivider()}.
-     */
-    @Deprecated
-    public boolean shouldHideDivider() {
-        return !mShowDivider;
-    };
 
     /**
      * Returns whether or not the divider that comes after this ListItem should be shown.

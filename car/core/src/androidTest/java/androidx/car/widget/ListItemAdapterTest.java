@@ -17,6 +17,7 @@
 package androidx.car.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.car.drivingstate.CarUxRestrictions;
@@ -166,12 +167,12 @@ public final class ListItemAdapterTest {
     }
 
     @Test
-    public void testHideDivider_respectsListItemsHideDivider() {
+    public void testShowDivider_respectsListItemsHideDivider() {
         TextListItem hiddenDividerItem = new TextListItem(mContext);
-        hiddenDividerItem.setHideDivider(true);
+        hiddenDividerItem.setShowDivider(false);
 
         TextListItem dividerItem = new TextListItem(mContext);
-        dividerItem.setHideDivider(false);
+        dividerItem.setShowDivider(true);
 
         List<ListItem> items = Arrays.asList(
                 hiddenDividerItem,
@@ -180,8 +181,8 @@ public final class ListItemAdapterTest {
         ListItemAdapter adapter = new ListItemAdapter(mContext,
                 new ListItemProvider.ListProvider(items));
 
-        assertEquals(true, adapter.shouldHideDivider(0));
-        assertEquals(false, adapter.shouldHideDivider(1));
+        assertFalse(adapter.getShowDivider(0));
+        assertTrue(adapter.getShowDivider(1));
     }
 
     /** An extension of {@link ListItem} to be used for testing custom extensions. */
