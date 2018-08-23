@@ -58,7 +58,7 @@ public class AnticipateOvershootInterpolator implements Interpolator {
         this(context.getResources(), context.getTheme(), attrs);
     }
 
-    private AnticipateOvershootInterpolator(Resources res, Theme theme, AttributeSet attrs) {
+    AnticipateOvershootInterpolator(Resources res, Theme theme, AttributeSet attrs) {
         TypedArray a;
         if (theme != null) {
             a = theme.obtainStyledAttributes(attrs,
