@@ -43,6 +43,13 @@
     <string name="mixed_volume_route_group_name">Mixed Volume Route Group</string>
     <string name="sample_route_description">Sample route from Support7Demos</string>
 
+    <string name="sample_dynamic_group_mrp_service">Media Route Provider Service Support Library Sample (supporting dynamic group)</string>
+    <string name="dg_fixed_volume_route_name">DG Route 1 (Fixed Volume)</string>
+    <string name="dg_variable_volume_route_name">DG Route 2 (Variable Volume)</string>
+    <string name="dg_not_groupable_route_name">DG Not Groupable Route</string>
+    <string name="dg_variable_volume_route_group_name">DG Variable Volume Route Group</string>
+    <string name="dg_mixed_volume_route_group_name">DG Mixed Volume Route Group</string>
+
     <!-- GridLayout -->
 
     <string name="grid_layout_1">GridLayout/1. Simple Form</string>
