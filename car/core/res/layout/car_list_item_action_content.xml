@@ -68,7 +68,7 @@
         android:layout_height="wrap_content"
         app:barrierDirection="start"
         app:barrierAllowsGoneWidgets="false"
-        app:constraint_referenced_ids="secondary_action_divider,secondary_action,primary_action_divider,primary_action" />
+        app:constraint_referenced_ids="secondary_action_barrier,primary_action_barrier" />
 
     <!-- A view that will be underneath all the supplemental icons and action buttons. It is meant
          to intercept clicks if the icon or buttons are clickable, preventing accidental touches
@@ -87,12 +87,33 @@
     <View
         android:id="@+id/secondary_action_divider"
         android:background="?attr/listItemActionDividerColor"
-        android:layout_marginEnd="@dimen/car_padding_4"
+        android:layout_marginEnd="@dimen/car_padding_1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/secondary_action"
+        app:layout_constraintEnd_toStartOf="@+id/secondary_action_barrier"
         style="@style/CarListVerticalDivider"/>
 
+    <!-- A barrier before secondary actions. -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/secondary_action_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:barrierAllowsGoneWidgets="false"
+        app:constraint_referenced_ids="secondary_action_borderless,secondary_action" />
+
+    <Button
+        android:id="@+id/secondary_action_borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/car_padding_4"
+        android:ellipsize="end"
+        android:maxLength="@integer/car_borderless_button_text_length_limit"
+        android:maxLines="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
+        style="?android:attr/borderlessButtonStyle"/>
     <Button
         android:id="@+id/secondary_action"
         android:layout_width="wrap_content"
@@ -103,16 +124,39 @@
         android:maxLines="1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/primary_action_divider"
-        style="?android:attr/borderlessButtonStyle"/>
+        app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
+        style="?android:attr/buttonStyle"/>
+
     <View
         android:id="@+id/primary_action_divider"
         android:background="?attr/listItemActionDividerColor"
-        android:layout_marginEnd="@dimen/car_padding_4"
+        android:layout_marginEnd="@dimen/car_padding_1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/primary_action"
+        app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
         style="@style/CarListVerticalDivider"/>
+
+    <!-- A barrier before primary actions. -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/primary_action_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:barrierAllowsGoneWidgets="false"
+        app:constraint_referenced_ids="primary_action_borderless,primary_action" />
+
+    <Button
+        android:id="@+id/primary_action_borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/car_keyline_1"
+        android:ellipsize="end"
+        android:maxLength="@integer/car_borderless_button_text_length_limit"
+        android:maxLines="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        style="?android:attr/borderlessButtonStyle"/>
     <Button
         android:id="@+id/primary_action"
         android:layout_width="wrap_content"
@@ -124,5 +168,5 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        style="?android:attr/borderlessButtonStyle"/>
+        style="?android:attr/buttonStyle"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
