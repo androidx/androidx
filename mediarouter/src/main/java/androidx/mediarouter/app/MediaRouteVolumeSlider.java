@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -30,12 +31,12 @@ import androidx.appcompat.widget.AppCompatSeekBar;
  */
 class MediaRouteVolumeSlider extends AppCompatSeekBar {
     private static final String TAG = "MediaRouteVolumeSlider";
-
     private final float mDisabledAlpha;
 
     private boolean mHideThumb;
     private Drawable mThumb;
-    private int mColor;
+    private int mProgressAndThumbColor;
+    private int mBackgroundColor;
 
     public MediaRouteVolumeSlider(Context context) {
         this(context, null);
@@ -53,15 +54,21 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
+
         int alpha = isEnabled() ? 0xFF : (int) (0xFF * mDisabledAlpha);
 
         // The thumb drawable is a collection of drawables and its current drawables are changed per
         // state. Apply the color filter and alpha on every state change.
-        mThumb.setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
+        mThumb.setColorFilter(mProgressAndThumbColor, PorterDuff.Mode.SRC_IN);
         mThumb.setAlpha(alpha);
 
-        getProgressDrawable().setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
-        getProgressDrawable().setAlpha(alpha);
+        LayerDrawable ld = (LayerDrawable) getProgressDrawable();
+        Drawable progressDrawable = ld.findDrawableByLayerId(android.R.id.progress);
+        Drawable backgroundDrawable = ld.findDrawableByLayerId(android.R.id.background);
+
+        progressDrawable.setColorFilter(mProgressAndThumbColor, PorterDuff.Mode.SRC_IN);
+        backgroundDrawable.setColorFilter(mBackgroundColor, PorterDuff.Mode.SRC_IN);
+        ld.setAlpha(alpha);
     }
 
     @Override
@@ -81,20 +88,35 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
         super.setThumb(mHideThumb ? null : mThumb);
     }
 
+    public void setColor(int color) {
+        setColor(color, color);
+    }
+
     /**
-     * Sets the volume slider color. The change takes effect next time drawable state is changed.
+     * Sets the color of progress/thumb and background of progress bar. The change takes effect
+     * next time drawable state is changed.
      * <p>
      * The color cannot be translucent, otherwise the underlying progress bar will be seen through
      * the thumb.
      * </p>
      */
-    public void setColor(int color) {
-        if (mColor == color) {
-            return;
+    public void setColor(int progressAndThumbColor, int backgroundColor) {
+        // Sets the color of progress part of progress bar and thumb.
+        if (mProgressAndThumbColor != progressAndThumbColor) {
+            if (Color.alpha(progressAndThumbColor) != 0xFF) {
+                Log.e(TAG, "Volume slider progress and thumb color cannot be translucent: #"
+                        + Integer.toHexString(progressAndThumbColor));
+            }
+            mProgressAndThumbColor = progressAndThumbColor;
         }
-        if (Color.alpha(color) != 0xFF) {
-            Log.e(TAG, "Volume slider color cannot be translucent: #" + Integer.toHexString(color));
+
+        // Sets the color of background part of progress bar.
+        if (mBackgroundColor != backgroundColor) {
+            if (Color.alpha(backgroundColor) != 0xFF) {
+                Log.e(TAG, "Volume slider background color cannot be translucent: #"
+                        + Integer.toHexString(backgroundColor));
+            }
+            mBackgroundColor = backgroundColor;
         }
-        mColor = color;
     }
 }

@@ -15,17 +15,9 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="mr_dynamic_dialog_icon_light">#202124</color>
-    <color name="mr_dynamic_dialog_icon_dark">#F8F9FA</color>
-
-    <color name="mr_cast_meta_default_background">#212228</color>
-
-    <color name="mr_cast_route_divider_light">#1425272B</color>
-    <color name="mr_cast_route_divider_dark">#803C4043</color>
-
-    <color name="mr_cast_progressbar_progress_and_thumb_light">#4285F4</color>
-    <color name="mr_cast_progressbar_progress_and_thumb_dark">#5195EA</color>
-    <color name="mr_cast_progressbar_background_light">#CBCCCD</color>
-    <color name="mr_cast_progressbar_background_dark">#5F6368</color>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+       android:shape="oval">
+    <solid android:color="#FFFFFFFF" />
+    <size android:width="@dimen/mr_cast_seekbar_thumb_size"
+          android:height="@dimen/mr_cast_seekbar_thumb_size" />
+</shape>
