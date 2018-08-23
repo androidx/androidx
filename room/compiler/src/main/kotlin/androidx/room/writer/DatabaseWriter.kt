@@ -17,12 +17,14 @@
 package androidx.room.writer
 
 import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
+import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -30,6 +32,7 @@ import com.google.auto.common.MoreElements
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
@@ -115,10 +118,24 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addAnnotation(Override::class.java)
             addModifiers(PROTECTED)
             returns(RoomTypeNames.INVALIDATION_TRACKER)
+            val shadowTablesVar = "_shadowTablesMap"
+            val shadowTablesTypeName = ParameterizedTypeName.get(HashMap::class.typeName(),
+                    CommonTypeNames.STRING, CommonTypeNames.STRING)
             val tableNames = database.entities.joinToString(",") {
                 "\"${it.tableName}\""
             }
-            addStatement("return new $T(this, $L)", RoomTypeNames.INVALIDATION_TRACKER, tableNames)
+            val shadowTableNames = database.entities.filter {
+                it.shadowTableName != null
+            }.map {
+                it.tableName to it.shadowTableName
+            }
+            addStatement("final $T $L = new $T($L)", shadowTablesTypeName, shadowTablesVar,
+                    shadowTablesTypeName, shadowTableNames.size)
+            shadowTableNames.forEach { (tableName, shadowTableName) ->
+                addStatement("$L.put($S, $S)", shadowTablesVar, tableName, shadowTableName)
+            }
+            addStatement("return new $T(this, $L, $L)",
+                    RoomTypeNames.INVALIDATION_TRACKER, shadowTablesVar, tableNames)
         }.build()
     }
 

@@ -22,12 +22,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
 import androidx.room.EmptyResultSetException;
+import androidx.room.integration.testapp.vo.Mail;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
+
+import com.google.common.collect.Lists;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -563,5 +566,35 @@ public class RxJava2Test extends TestDatabaseTest {
         }
         drain();
         userTestSubscriber.assertValueCount(1);
+    }
+
+    @Test
+    public void withFtsTable_Flowable() throws InterruptedException {
+        final TestSubscriber<List<Mail>> subscriber = new TestSubscriber<>();
+
+        mMailDao.getFlowableMail().subscribe(subscriber);
+        drain();
+        subscriber.assertSubscribed();
+        subscriber.assertValue(Collections.emptyList());
+
+        Mail mail0 = TestUtil.createMail(1, "subject0", "body0");
+        mMailDao.insert(mail0);
+        drain();
+        subscriber.assertValueAt(1, new Predicate<List<Mail>>() {
+            @Override
+            public boolean test(List<Mail> mailList) throws Exception {
+                return mailList.equals(Lists.newArrayList(mail0));
+            }
+        });
+
+        Mail mail1 = TestUtil.createMail(2, "subject1", "body1");
+        mMailDao.insert(mail1);
+        drain();
+        subscriber.assertValueAt(2, new Predicate<List<Mail>>() {
+            @Override
+            public boolean test(List<Mail> mailList) throws Exception {
+                return mailList.equals(Lists.newArrayList(mail0, mail1));
+            }
+        });
     }
 }

@@ -28,6 +28,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,12 +48,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -63,29 +69,29 @@ import java.util.concurrent.locks.ReentrantLock;
 @RunWith(JUnit4.class)
 public class InvalidationTrackerTest {
     private InvalidationTracker mTracker;
-    private RoomDatabase mRoomDatabase;
-    private SupportSQLiteOpenHelper mOpenHelper;
+    private @Mock RoomDatabase mRoomDatabase;
+    private @Mock SupportSQLiteDatabase mSqliteDb;
+    private @Mock SupportSQLiteOpenHelper mOpenHelper;
     @Rule
     public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1, true);
 
     @Before
     public void setup() {
-        mRoomDatabase = mock(RoomDatabase.class);
-        SupportSQLiteDatabase sqliteDb = mock(SupportSQLiteDatabase.class);
+        MockitoAnnotations.initMocks(this);
         final SupportSQLiteStatement statement = mock(SupportSQLiteStatement.class);
-        mOpenHelper = mock(SupportSQLiteOpenHelper.class);
-
-        doReturn(statement).when(sqliteDb).compileStatement(eq(InvalidationTracker.CLEANUP_SQL));
-        doReturn(sqliteDb).when(mOpenHelper).getWritableDatabase();
+        doReturn(statement).when(mSqliteDb).compileStatement(eq(InvalidationTracker.CLEANUP_SQL));
+        doReturn(mSqliteDb).when(mOpenHelper).getWritableDatabase();
         doReturn(true).when(mRoomDatabase).isOpen();
         doReturn(ArchTaskExecutor.getIOThreadExecutor()).when(mRoomDatabase).getQueryExecutor();
         ReentrantLock closeLock = new ReentrantLock();
         doReturn(closeLock).when(mRoomDatabase).getCloseLock();
         //noinspection ResultOfMethodCallIgnored
         doReturn(mOpenHelper).when(mRoomDatabase).getOpenHelper();
-
-        mTracker = new InvalidationTracker(mRoomDatabase, "a", "B", "i");
-        mTracker.internalInit(sqliteDb);
+        HashMap<String, String> shadowTables = new HashMap<>();
+        shadowTables.put("C", "D");
+        mTracker = new InvalidationTracker(mRoomDatabase, shadowTables, "a", "B", "i", "C");
+        mTracker.internalInit(mSqliteDb);
+        reset(mSqliteDb);
     }
 
     @Before
@@ -102,6 +108,8 @@ public class InvalidationTrackerTest {
     public void tableIds() {
         assertThat(mTracker.mTableIdLookup.get("a"), is(0));
         assertThat(mTracker.mTableIdLookup.get("b"), is(1));
+        assertThat(mTracker.mTableIdLookup.get("i"), is(2));
+        assertThat(mTracker.mTableIdLookup.get("c"), is(3));
     }
 
     @Test
@@ -149,18 +157,18 @@ public class InvalidationTrackerTest {
     public void refreshReadValues() throws Exception {
         setVersions(1, 0, 2, 1);
         refreshSync();
-        assertThat(mTracker.mTableVersions, is(new long[]{1, 2, 0}));
+        assertThat(mTracker.mTableVersions, is(new long[]{1, 2, 0, 0}));
 
         setVersions(3, 1);
         refreshSync();
-        assertThat(mTracker.mTableVersions, is(new long[]{1, 3, 0}));
+        assertThat(mTracker.mTableVersions, is(new long[]{1, 3, 0, 0}));
 
         setVersions(7, 0);
         refreshSync();
-        assertThat(mTracker.mTableVersions, is(new long[]{7, 3, 0}));
+        assertThat(mTracker.mTableVersions, is(new long[]{7, 3, 0, 0}));
 
         refreshSync();
-        assertThat(mTracker.mTableVersions, is(new long[]{7, 3, 0}));
+        assertThat(mTracker.mTableVersions, is(new long[]{7, 3, 0, 0}));
     }
 
     private void refreshSync() throws InterruptedException {
@@ -245,6 +253,39 @@ public class InvalidationTrackerTest {
         doThrow(new IllegalStateException("foo")).when(mOpenHelper).getWritableDatabase();
         mTracker.addObserver(new LatchObserver(1, "a", "b"));
         mTracker.mRefreshRunnable.run();
+    }
+
+    @Test
+    public void createTriggerOnShadowTable() {
+        LatchObserver observer = new LatchObserver(1, "C");
+        String[] triggers = new String[]{"UPDATE", "DELETE", "INSERT"};
+        ArgumentCaptor<String> sqlArgCaptor;
+        List<String> sqlCaptorValues;
+
+        mTracker.addObserver(observer);
+        sqlArgCaptor = ArgumentCaptor.forClass(String.class);
+        verify(mSqliteDb, times(3)).execSQL(sqlArgCaptor.capture());
+        sqlCaptorValues = sqlArgCaptor.getAllValues();
+        for (int i = 0; i < triggers.length; i++) {
+            assertThat(sqlCaptorValues.get(i),
+                    is("CREATE TEMP TRIGGER IF NOT EXISTS "
+                            + "`room_table_modification_trigger_d_" + triggers[i] + "` AFTER "
+                            + triggers[i] + " ON `d` BEGIN INSERT OR REPLACE INTO "
+                            + "room_table_modification_log VALUES(null, 3); END"
+            ));
+        }
+
+        reset(mSqliteDb);
+
+        mTracker.removeObserver(observer);
+        sqlArgCaptor = ArgumentCaptor.forClass(String.class);
+        verify(mSqliteDb, times(3)).execSQL(sqlArgCaptor.capture());
+        sqlCaptorValues = sqlArgCaptor.getAllValues();
+        for (int i = 0; i < triggers.length; i++) {
+            assertThat(sqlCaptorValues.get(i),
+                    is("DROP TRIGGER IF EXISTS `room_table_modification_trigger_d_"
+                            + triggers[i] + "`"));
+        }
     }
 
     // @Test - disabled due to flakiness b/65257997

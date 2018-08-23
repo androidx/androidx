@@ -88,7 +88,8 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
 
     @Override
     protected InvalidationTracker createInvalidationTracker() {
-        return new InvalidationTracker(this, "User");
+        final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
+        return new InvalidationTracker(this, _shadowTablesMap, "User");
     }
 
     @Override
