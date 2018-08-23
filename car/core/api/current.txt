@@ -250,9 +250,7 @@ package androidx.car.widget {
     method public boolean removeViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>);
     method protected abstract void resolveDirtyState();
     method public abstract void setEnabled(boolean);
-    method public deprecated void setHideDivider(boolean);
     method public void setShowDivider(boolean);
-    method public deprecated boolean shouldHideDivider();
   }
 
   public static abstract interface ListItem.ViewBinder<VH> {
@@ -275,7 +273,6 @@ package androidx.car.widget {
     method public androidx.car.widget.ListItem.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method public void registerListItemViewType(int, int, java.util.function.Function<android.view.View, androidx.car.widget.ListItem.ViewHolder>);
     method public void setMaxItems(int);
-    method public deprecated boolean shouldHideDivider(int);
     method public void start();
     method public void stop();
   }
@@ -345,7 +342,6 @@ package androidx.car.widget {
 
   public static abstract interface PagedListView.DividerVisibilityManager {
     method public abstract boolean getShowDivider(int);
-    method public abstract deprecated boolean shouldHideDivider(int);
   }
 
   public static abstract class PagedListView.Gutter implements java.lang.annotation.Annotation {

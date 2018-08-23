@@ -68,7 +68,7 @@ public class SubheaderListItemActivity extends Activity {
             subheaderItem = new SubheaderListItem(mContext,
                     "subheader matching items without start margin");
             subheaderItem.setTextStartMarginType(SubheaderListItem.TEXT_START_MARGIN_TYPE_NONE);
-            subheaderItem.setHideDivider(true);
+            subheaderItem.setShowDivider(false);
             mItems.add(subheaderItem);
 
             item = new TextListItem(mContext);
@@ -81,7 +81,7 @@ public class SubheaderListItemActivity extends Activity {
 
             item = new TextListItem(mContext);
             item.setTitle("item - hides following divider");
-            item.setHideDivider(true);
+            item.setShowDivider(false);
             mItems.add(item);
 
             // ========================
@@ -90,14 +90,14 @@ public class SubheaderListItemActivity extends Activity {
             item.setPrimaryActionEmptyIcon();
             item.setTitle("Header");
             item.setBody("header text with more words");
-            item.setHideDivider(true);
+            item.setShowDivider(false);
             mItems.add(item);
 
             subheaderItem = new SubheaderListItem(mContext,
                     "subheader matching items with no icon");
             subheaderItem.setTextStartMarginType(
                     SubheaderListItem.TEXT_START_MARGIN_TYPE_SMALL);
-            subheaderItem.setHideDivider(true);
+            subheaderItem.setShowDivider(false);
             mItems.add(subheaderItem);
 
             item = new TextListItem(mContext);
@@ -113,7 +113,7 @@ public class SubheaderListItemActivity extends Activity {
             item = new TextListItem(mContext);
             item.setPrimaryActionEmptyIcon();
             item.setTitle("item - hides following divider");
-            item.setHideDivider(true);
+            item.setShowDivider(false);
             mItems.add(item);
 
             // ========================

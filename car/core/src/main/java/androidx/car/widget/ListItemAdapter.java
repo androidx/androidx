@@ -324,12 +324,6 @@ public class ListItemAdapter extends
     }
 
     @Override
-    @Deprecated
-    public boolean shouldHideDivider(int position) {
-        return !getShowDivider(position);
-    }
-
-    @Override
     public boolean getShowDivider(@IntRange(from = 0) int position) {
         // By default we should show the divider i.e. return true.
 
