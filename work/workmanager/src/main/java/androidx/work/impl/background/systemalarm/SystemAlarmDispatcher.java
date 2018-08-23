@@ -36,8 +36,6 @@ import androidx.work.impl.utils.WakeLocks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * The dispatcher used by the background processor which is based on
@@ -64,8 +62,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final List<Intent> mIntents;
     Intent mCurrentIntent;
-    // The executor service responsible for dispatching all the commands.
-    private final ExecutorService mCommandExecutorService;
 
     @Nullable
     private CommandsCompletedListener mCompletedListener;
@@ -91,9 +87,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         // the current intent (command) being processed.
         mCurrentIntent = null;
         mMainHandler = new Handler(Looper.getMainLooper());
-        // Use a single thread executor for handling the actual
-        // execution of the commands themselves
-        mCommandExecutorService = Executors.newSingleThreadExecutor();
     }
 
     void onDestroy() {
@@ -238,9 +231,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                 WakeLocks.newWakeLock(mContext, PROCESS_COMMAND_TAG);
         try {
             processCommandLock.acquire();
-            // Process commands on the actual executor service,
-            // so we are no longer blocking the main thread.
-            mCommandExecutorService.submit(new Runnable() {
+            // Process commands on the background thread.
+            mWorkManager.getWorkTaskExecutor().executeOnBackgroundThread(new Runnable() {
                 @Override
                 public void run() {
                     synchronized (mIntents) {

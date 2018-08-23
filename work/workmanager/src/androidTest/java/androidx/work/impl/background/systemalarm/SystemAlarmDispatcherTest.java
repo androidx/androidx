@@ -53,6 +53,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.RepeatRule;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
 
@@ -122,6 +123,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mConfiguration = new Configuration.Builder().build();
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
+        TaskExecutor instantTaskExecutor = new InstantWorkTaskExecutor();
+        when(mWorkManager.getWorkTaskExecutor()).thenReturn(instantTaskExecutor);
         mExecutorService = Executors.newSingleThreadExecutor();
         mProcessor = new Processor(
                 mContext,
