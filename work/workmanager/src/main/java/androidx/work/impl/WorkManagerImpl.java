@@ -73,7 +73,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     private Context mContext;
     private Configuration mConfiguration;
     private WorkDatabase mWorkDatabase;
-    private TaskExecutor mTaskExecutor;
+    private TaskExecutor mWorkTaskExecutor;
     private List<Scheduler> mSchedulers;
     private Processor mProcessor;
     private Preferences mPreferences;
@@ -130,7 +130,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
             if (sDelegatedInstance == null) {
                 context = context.getApplicationContext();
                 if (sDefaultInstance == null) {
-                    sDefaultInstance = new WorkManagerImpl(context, configuration);
+                    sDefaultInstance = new WorkManagerImpl(
+                            context,
+                            configuration,
+                            WorkManagerTaskExecutor.getInstance());
                 }
                 sDelegatedInstance = sDefaultInstance;
             }
@@ -140,16 +143,20 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     /**
      * Create an instance of {@link WorkManagerImpl}.
      *
-     * @param context       The application {@link Context}
-     * @param configuration The {@link Configuration} configuration.
+     * @param context The application {@link Context}
+     * @param configuration The {@link Configuration} configuration
+     * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
+     *                         enqueueing, scheduling, cancellation, etc.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkManagerImpl(
             @NonNull Context context,
-            @NonNull Configuration configuration) {
+            @NonNull Configuration configuration,
+            @NonNull TaskExecutor workTaskExecutor) {
         this(context,
                 configuration,
+                workTaskExecutor,
                 context.getResources().getBoolean(R.bool.workmanager_test_configuration));
     }
 
@@ -165,16 +172,18 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     public WorkManagerImpl(
             @NonNull Context context,
             @NonNull Configuration configuration,
+            @NonNull TaskExecutor workTaskExecutor,
             boolean useTestDatabase) {
 
         context = context.getApplicationContext();
         mContext = context;
         mConfiguration = configuration;
         mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
-        mTaskExecutor = WorkManagerTaskExecutor.getInstance();
+        mWorkTaskExecutor = workTaskExecutor;
         mProcessor = new Processor(
                 context,
                 mConfiguration,
+                mWorkTaskExecutor,
                 mWorkDatabase,
                 getSchedulers(),
                 configuration.getExecutor());
@@ -184,7 +193,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         Logger.setMinimumLoggingLevel(mConfiguration.getMinimumLoggingLevel());
 
         // Checks for app force stops.
-        mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
+        mWorkTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
     }
 
     /**
@@ -245,8 +254,8 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull TaskExecutor getTaskExecutor() {
-        return mTaskExecutor;
+    public @NonNull TaskExecutor getWorkTaskExecutor() {
+        return mWorkTaskExecutor;
     }
 
     /**
@@ -331,7 +340,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public void cancelWorkById(@NonNull UUID id) {
-        mTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forId(id, this));
+        mWorkTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forId(id, this));
     }
 
     @Override
@@ -343,7 +352,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public void cancelAllWorkByTag(@NonNull final String tag) {
-        mTaskExecutor.executeOnBackgroundThread(
+        mWorkTaskExecutor.executeOnBackgroundThread(
                 CancelWorkRunnable.forTag(tag, this));
     }
 
@@ -356,7 +365,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public void cancelUniqueWork(@NonNull String uniqueWorkName) {
-        mTaskExecutor.executeOnBackgroundThread(
+        mWorkTaskExecutor.executeOnBackgroundThread(
                 CancelWorkRunnable.forName(uniqueWorkName, this, true));
     }
 
@@ -369,7 +378,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public void cancelAllWork() {
-        mTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forAll(this));
+        mWorkTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forAll(this));
     }
 
     @Override
@@ -391,7 +400,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public void pruneWork() {
-        mTaskExecutor.executeOnBackgroundThread(new PruneWorkRunnable(this));
+        mWorkTaskExecutor.executeOnBackgroundThread(new PruneWorkRunnable(this));
     }
 
     @Override
@@ -416,7 +425,8 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
                         }
                         return workStatus;
                     }
-                });
+                },
+                mWorkTaskExecutor);
     }
 
     @Override
@@ -437,7 +447,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForTag(tag);
-        return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData, WorkSpec.WORK_STATUS_MAPPER);
+        return LiveDataUtils.dedupedMappedLiveDataFor(
+                inputLiveData,
+                WorkSpec.WORK_STATUS_MAPPER,
+                mWorkTaskExecutor);
     }
 
     @Override
@@ -454,7 +467,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForName(uniqueWorkName);
-        return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData, WorkSpec.WORK_STATUS_MAPPER);
+        return LiveDataUtils.dedupedMappedLiveDataFor(
+                inputLiveData,
+                WorkSpec.WORK_STATUS_MAPPER,
+                mWorkTaskExecutor);
     }
 
     @Override
@@ -474,7 +490,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 dao.getWorkStatusPojoLiveDataForIds(workSpecIds);
-        return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData, WorkSpec.WORK_STATUS_MAPPER);
+        return LiveDataUtils.dedupedMappedLiveDataFor(
+                inputLiveData,
+                WorkSpec.WORK_STATUS_MAPPER,
+                mWorkTaskExecutor);
     }
 
     List<WorkStatus> getStatusesByIdSync(@NonNull List<String> workSpecIds) {
@@ -500,7 +519,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void startWork(String workSpecId, Extras.RuntimeExtras runtimeExtras) {
-        mTaskExecutor.executeOnBackgroundThread(
+        mWorkTaskExecutor.executeOnBackgroundThread(
                 new StartWorkRunnable(this, workSpecId, runtimeExtras));
     }
 
@@ -510,7 +529,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopWork(String workSpecId) {
-        mTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId));
+        mWorkTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId));
     }
 
     /**

@@ -52,7 +52,7 @@ import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.RepeatRule;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
 
@@ -79,9 +79,6 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class SystemAlarmDispatcherTest extends DatabaseTest {
-
-    @Rule
-    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
     @Rule
     public RepeatRule mRepeatRule = new RepeatRule();
@@ -129,6 +126,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mProcessor = new Processor(
                 mContext,
                 mConfiguration,
+                new InstantWorkTaskExecutor(),
                 mDatabase,
                 Collections.singletonList(mScheduler),
                 // simulate real world use-case

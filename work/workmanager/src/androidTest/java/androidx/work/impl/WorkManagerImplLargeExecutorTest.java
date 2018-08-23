@@ -43,12 +43,11 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkStatus;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.RandomSleepTestWorker;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -83,9 +82,6 @@ public class WorkManagerImplLargeExecutorTest {
     private WorkManagerImpl mWorkManagerImplSpy;
     private TestLifecycleOwner mLifecycleOwner;
 
-    @Rule
-    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
-
     @Before
     public void setUp() {
         ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
@@ -113,11 +109,13 @@ public class WorkManagerImplLargeExecutorTest {
                 .setExecutor(executor)
                 .setMaxSchedulerLimit(TEST_SCHEDULER_LIMIT)
                 .build();
-        mWorkManagerImplSpy = spy(new WorkManagerImpl(context, configuration, true));
+        mWorkManagerImplSpy = spy(
+                new WorkManagerImpl(context, configuration, new InstantWorkTaskExecutor(), true));
 
         TrackingScheduler trackingScheduler = new TrackingScheduler(context, mWorkManagerImplSpy);
         Processor processor = new Processor(context,
                 configuration,
+                mWorkManagerImplSpy.getWorkTaskExecutor(),
                 mWorkManagerImplSpy.getWorkDatabase(),
                 Collections.singletonList((Scheduler) trackingScheduler),
                 executor);

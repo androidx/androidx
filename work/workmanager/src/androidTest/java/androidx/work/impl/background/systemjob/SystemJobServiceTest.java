@@ -50,12 +50,11 @@ import androidx.work.Worker;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.InfiniteTestWorker;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,9 +63,6 @@ import java.util.concurrent.Executors;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 public class SystemJobServiceTest extends WorkManagerTest {
-
-    @Rule
-    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
     private WorkManagerImpl mWorkManagerImpl;
     private WorkDatabase mDatabase;
@@ -100,7 +96,8 @@ public class SystemJobServiceTest extends WorkManagerTest {
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
-        mWorkManagerImpl = new WorkManagerImpl(context, configuration);
+        mWorkManagerImpl =
+                new WorkManagerImpl(context, configuration, new InstantWorkTaskExecutor());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
         mSystemJobServiceSpy = spy(new SystemJobService());

@@ -45,7 +45,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.PackageManagerHelper;
-import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -74,6 +74,7 @@ public class WorkerWrapper implements Runnable {
     NonBlockingWorker mWorker;
 
     private Configuration mConfiguration;
+    private TaskExecutor mWorkTaskExecutor;
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
@@ -86,6 +87,7 @@ public class WorkerWrapper implements Runnable {
 
     WorkerWrapper(Builder builder) {
         mAppContext = builder.mAppContext;
+        mWorkTaskExecutor = builder.mWorkTaskExecutor;
         mWorkSpecId = builder.mWorkSpecId;
         mListener = builder.mListener;
         mSchedulers = builder.mSchedulers;
@@ -246,7 +248,7 @@ public class WorkerWrapper implements Runnable {
         final Configuration configuration = mConfiguration;
         final WorkDatabase workDatabase = mWorkDatabase;
         final List<Scheduler> schedulers = mSchedulers;
-        WorkManagerTaskExecutor.getInstance().executeOnBackgroundThread(new Runnable() {
+        mWorkTaskExecutor.executeOnBackgroundThread(new Runnable() {
             @Override
             public void run() {
                 // Cancel this work in other schedulers.  For example, if this work was
@@ -323,7 +325,7 @@ public class WorkerWrapper implements Runnable {
                 PackageManagerHelper.setComponentEnabled(
                         mAppContext, RescheduleReceiver.class, false);
             }
-            WorkManagerTaskExecutor.getInstance().postToMainThread(new Runnable() {
+            mWorkTaskExecutor.postToMainThread(new Runnable() {
                 @Override
                 public void run() {
                     mListener.onExecuted(mWorkSpecId, isSuccessful, needsReschedule);
@@ -567,21 +569,24 @@ public class WorkerWrapper implements Runnable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Builder {
-        Context mAppContext;
-        @Nullable
-        NonBlockingWorker mWorker;
-        Configuration mConfiguration;
-        WorkDatabase mWorkDatabase;
-        String mWorkSpecId;
+
+        @NonNull Context mAppContext;
+        @Nullable NonBlockingWorker mWorker;
+        @NonNull TaskExecutor mWorkTaskExecutor;
+        @NonNull Configuration mConfiguration;
+        @NonNull WorkDatabase mWorkDatabase;
+        @NonNull String mWorkSpecId;
         ExecutionListener mListener;
         List<Scheduler> mSchedulers;
         Extras.RuntimeExtras mRuntimeExtras;
 
         public Builder(@NonNull Context context,
                 @NonNull Configuration configuration,
+                @NonNull TaskExecutor workTaskExecutor,
                 @NonNull WorkDatabase database,
                 @NonNull String workSpecId) {
             mAppContext = context.getApplicationContext();
+            mWorkTaskExecutor = workTaskExecutor;
             mConfiguration = configuration;
             mWorkDatabase = database;
             mWorkSpecId = workSpecId;

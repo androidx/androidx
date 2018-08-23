@@ -24,7 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
-import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * Utility methods for {@link LiveData}.
@@ -42,18 +42,21 @@ public class LiveDataUtils {
      * @param inputLiveData An input {@link LiveData}
      * @param mappingMethod A {@link Function} that maps input of type {@code In} to output of type
      *                      {@code Out}
+     * @param workTaskExecutor The {@link TaskExecutor} that will run this operation on a background
+     *                         thread
      * @param <In> The type of data for {@code inputLiveData}
      * @param <Out> The type of data to output
      * @return A new {@link LiveData} of type {@code Out}
      */
     public static <In, Out> LiveData<Out> dedupedMappedLiveDataFor(
             @NonNull LiveData<In> inputLiveData,
-            @NonNull final Function<In, Out> mappingMethod) {
+            @NonNull final Function<In, Out> mappingMethod,
+            @NonNull final TaskExecutor workTaskExecutor) {
         final MediatorLiveData<Out> outputLiveData = new MediatorLiveData<>();
         outputLiveData.addSource(inputLiveData, new Observer<In>() {
             @Override
             public void onChanged(@Nullable final In input) {
-                WorkManagerTaskExecutor.getInstance().executeOnBackgroundThread(new Runnable() {
+                workTaskExecutor.executeOnBackgroundThread(new Runnable() {
                     @Override
                     public void run() {
                         synchronized (outputLiveData) {

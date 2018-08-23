@@ -177,7 +177,7 @@ public class WorkContinuationImpl extends WorkContinuation
         if (!mEnqueued) {
             // The runnable walks the hierarchy of the continuations
             // and marks them enqueued using the markEnqueued() method, parent first.
-            mWorkManagerImpl.getTaskExecutor()
+            mWorkManagerImpl.getWorkTaskExecutor()
                     .executeOnBackgroundThread(new EnqueueRunnable(this));
         } else {
             Logger.warning(TAG,
