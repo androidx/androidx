@@ -24,42 +24,51 @@ import static org.mockito.Mockito.when;
 
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
+import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.FirebaseInfiniteTestWorker;
 
 import com.firebase.jobdispatcher.JobParameters;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
 public class FirebaseJobServiceTest {
 
-    @Rule
-    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
-
+    private WorkManagerImpl mWorkManagerImpl;
     private WorkDatabase mDatabase;
     private FirebaseJobService mFirebaseJobService;
 
     @Before
     public void setUp() {
-        mDatabase = WorkManagerImpl.getInstance().getWorkDatabase();
+        Context context = InstrumentationRegistry.getTargetContext();
+        Configuration configuration = new Configuration.Builder()
+                .setExecutor(Executors.newSingleThreadExecutor())
+                .build();
+        mWorkManagerImpl =
+                new WorkManagerImpl(context, configuration, new InstantWorkTaskExecutor());
+        WorkManagerImpl.setDelegate(mWorkManagerImpl);
+        mDatabase = mWorkManagerImpl.getWorkDatabase();
         mFirebaseJobService = new FirebaseJobService();
         mFirebaseJobService.onCreate();
 
@@ -83,8 +92,9 @@ public class FirebaseJobServiceTest {
 
     @After
     public void tearDown() {
-        ArchTaskExecutor.getInstance().setDelegate(null);
         mFirebaseJobService.onDestroy();
+        WorkManagerImpl.setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test

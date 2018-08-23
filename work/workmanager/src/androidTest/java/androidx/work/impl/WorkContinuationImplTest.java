@@ -48,12 +48,11 @@ import androidx.work.WorkManagerTest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.TestWorker;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -76,9 +75,6 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
     private Scheduler mScheduler;
-
-    @Rule
-    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
     @Before
     public void setUp() {
@@ -108,7 +104,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
 
-        mWorkManagerImpl = spy(new WorkManagerImpl(context, mConfiguration));
+        mWorkManagerImpl =
+                spy(new WorkManagerImpl(context, mConfiguration, new InstantWorkTaskExecutor()));
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
@@ -308,7 +305,12 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         // TODO(sumir): I can't seem to get this kicked off automatically, so I'm running it myself.
         // Figure out what's going on here.
         Context context = InstrumentationRegistry.getTargetContext();
-        new WorkerWrapper.Builder(context, mConfiguration, mDatabase, joinId)
+        new WorkerWrapper.Builder(
+                context,
+                mConfiguration,
+                new InstantWorkTaskExecutor(),
+                mDatabase,
+                joinId)
                 .build()
                 .run();
 
