@@ -544,13 +544,15 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         final ImageButton mMuteButton;
         final MediaRouteVolumeSlider mVolumeSlider;
 
-        MediaRouteVolumeSliderHolder(View itemView) {
+        MediaRouteVolumeSliderHolder(
+                View itemView, ImageButton muteButton, MediaRouteVolumeSlider volumeSlider) {
             super(itemView);
-            Drawable muteButtonIcon = MediaRouterThemeHelper.getMuteButtonDrawableIcon(mContext);
+            mMuteButton = muteButton;
+            mVolumeSlider = volumeSlider;
 
-            mMuteButton = itemView.findViewById(R.id.mr_cast_mute_button);
+            Drawable muteButtonIcon = MediaRouterThemeHelper.getMuteButtonDrawableIcon(mContext);
             mMuteButton.setImageDrawable(muteButtonIcon);
-            mVolumeSlider = itemView.findViewById(R.id.mr_cast_volume_slider);
+            MediaRouterThemeHelper.setVolumeSliderColor(mContext, mVolumeSlider);
         }
 
         @CallSuper
@@ -583,7 +585,6 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             });
 
             mVolumeSlider.setTag(mRoute);
-            mVolumeSlider.setColor(mVolumeSliderColor);
             mVolumeSlider.setMax(route.getVolumeMax());
             mVolumeSlider.setProgress(volume);
             mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
@@ -859,7 +860,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             private final TextView mTextView;
 
             GroupVolumeViewHolder(View itemView) {
-                super(itemView);
+                super(itemView, (ImageButton) itemView.findViewById(R.id.mr_cast_mute_button),
+                        (MediaRouteVolumeSlider) itemView.findViewById(R.id.mr_cast_volume_slider));
                 mTextView = itemView.findViewById(R.id.mr_group_volume_route_name);
             }
 
@@ -916,14 +918,16 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             };
 
             RouteViewHolder(View itemView) {
-                super(itemView);
-                Drawable checkBoxIcon = MediaRouterThemeHelper.getCheckBoxDrawableIcon(mContext);
-
+                super(itemView, (ImageButton) itemView.findViewById(R.id.mr_cast_mute_button),
+                        (MediaRouteVolumeSlider) itemView.findViewById(R.id.mr_cast_volume_slider));
                 mImageView = itemView.findViewById(R.id.mr_cast_route_icon);
                 mProgressBar = itemView.findViewById(R.id.mr_cast_progress_bar);
                 mTextView = itemView.findViewById(R.id.mr_cast_route_name);
                 mVolumeSliderLayout = itemView.findViewById(R.id.mr_cast_volume_layout);
                 mCheckBox = itemView.findViewById(R.id.mr_cast_checkbox);
+
+                Drawable checkBoxIcon = MediaRouterThemeHelper.getCheckBoxDrawableIcon(mContext);
+                MediaRouterThemeHelper.setIndeterminateProgressBarColor(mContext, mProgressBar);
                 mCheckBox.setButtonDrawable(checkBoxIcon);
             }
 

@@ -75,5 +75,4 @@
         <item name="mediaRouteAudioTrackDrawable">@drawable/mr_vol_type_audiotrack_light</item>
         <item name="mediaRouteDividerColor">@color/mr_cast_route_divider_light</item>
     </style>
-
 </resources>
