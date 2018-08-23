@@ -296,4 +296,14 @@ data class Rect(
             "${top.toStringAsFixed(1)}, " +
             "${right.toStringAsFixed(1)}, " +
             "${bottom.toStringAsFixed(1)})"
+
+    fun toFrameworkRect() : android.graphics.Rect {
+        return android.graphics.Rect(
+                left.toInt(),
+                top.toInt(),
+                right.toInt(),
+                bottom.toInt()
+
+        );
+    }
 }
