@@ -21,7 +21,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * A class for rating expressed as a percentage.
+ * A class for rating expressed as the number of stars.
  */
 @VersionedParcelize
 public final class StarRating2 implements Rating2 {
