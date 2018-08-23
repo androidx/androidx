@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.widget;
+package androidx.recyclerview.widget;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,6 +33,7 @@ import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -48,7 +49,6 @@ import androidx.testutils.FlingData;
 import androidx.testutils.MotionEventData;
 import androidx.testutils.SimpleGestureGeneratorKt;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -59,67 +59,76 @@ import org.mockito.stubbing.Answer;
 import java.util.List;
 
 /**
- * Small integration tests that verifies that {@link NestedScrollView} interacts with the latest
+ * Small integration tests that verifies that {@link RecyclerView} interacts with the latest
  * version of the nested scroll parents correctly.
-*/
+ */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class NestedScrollViewNestedScrollingChildTest {
+public class RecyclerViewNestedScrollingChildTest {
 
     private NestedScrollingSpyView mParentSpy;
-    private NestedScrollView mNestedScrollView;
+    private RecyclerView mRecyclerView;
 
-    @Before
-    public void setup() {
+    private void setup(boolean vertical, int scrollDistance, boolean parentAccepts) {
+
+        Context context = InstrumentationRegistry.getContext();
 
         // Create views
 
-        View child = new View(InstrumentationRegistry.getContext());
-        child.setMinimumWidth(1000);
-        child.setMinimumHeight(1100);
+        mRecyclerView = new RecyclerView(context);
+        mRecyclerView.setMinimumWidth(1000);
+        mRecyclerView.setMinimumHeight(1000);
 
-        mNestedScrollView = new NestedScrollView(InstrumentationRegistry.getContext());
-        mNestedScrollView.setMinimumWidth(1000);
-        mNestedScrollView.setMinimumHeight(1000);
-
-        mParentSpy = Mockito.spy(new NestedScrollingSpyView(InstrumentationRegistry.getContext()));
+        mParentSpy = Mockito.spy(new NestedScrollingSpyView(context));
         mParentSpy.setMinimumWidth(1000);
         mParentSpy.setMinimumHeight(1000);
 
-        // Create view hierarchy
+        // Setup RecyclerView
+        int orientation = vertical ? RecyclerView.VERTICAL : RecyclerView.HORIZONTAL;
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(context, orientation, false));
+        mRecyclerView.setAdapter(new TestAdapter(context, 1000 + scrollDistance, 1, vertical));
 
-        mNestedScrollView.addView(child);
-        mParentSpy.addView(mNestedScrollView);
+        // Create view hierarchy
+        mParentSpy.addView(mRecyclerView);
 
         //  Measure and layout
-
-        int measureSpecWidth =
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY);
-        int measureSpecHeight =
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY);
+        int measureSpecWidth = View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY);
+        int measureSpecHeight = View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY);
         mParentSpy.measure(measureSpecWidth, measureSpecHeight);
         mParentSpy.layout(0, 0, 1000, 1000);
+
+        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
+                .thenReturn(parentAccepts);
     }
 
     @Test
-    public void uiFingerDown_parentHasNestedScrollingChildWithTypeTouch() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+    public void uiFingerDown_vertical_parentHasNestedScrollingChildWithTypeTouch() {
+        setup(true, 100, true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
 
-        mNestedScrollView.dispatchTouchEvent(down);
+        mRecyclerView.dispatchTouchEvent(down);
 
         assertThat(mParentSpy.axesForTypeTouch, is(ViewCompat.SCROLL_AXIS_VERTICAL));
         assertThat(mParentSpy.axesForTypeNonTouch, is(ViewCompat.SCROLL_AXIS_NONE));
     }
 
     @Test
-    public void uiFingerDown_parentRejects_parentDoesNotHaveNestedScrollingChild() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(false);
+    public void uiFingerDown_horizontal_parentHasNestedScrollingChildWithTypeTouch() {
+        setup(false, 100, true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
 
-        mNestedScrollView.dispatchTouchEvent(down);
+        mRecyclerView.dispatchTouchEvent(down);
+
+        assertThat(mParentSpy.axesForTypeTouch, is(ViewCompat.SCROLL_AXIS_HORIZONTAL));
+        assertThat(mParentSpy.axesForTypeNonTouch, is(ViewCompat.SCROLL_AXIS_NONE));
+    }
+
+    @Test
+    public void uiFingerDown_parentRejects_parentDoesNotHaveNestedScrollingChild() {
+        setup(true, 100, false);
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+
+        mRecyclerView.dispatchTouchEvent(down);
 
         assertThat(mParentSpy.axesForTypeTouch, is(ViewCompat.SCROLL_AXIS_NONE));
         assertThat(mParentSpy.axesForTypeNonTouch, is(ViewCompat.SCROLL_AXIS_NONE));
@@ -127,121 +136,218 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void uiFingerUp_afterFingerDown_parentDoesNotHaveNestedScrollingChild() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        setup(true, 100, true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent up = MotionEvent.obtain(0, 100, MotionEvent.ACTION_UP, 500, 500, 0);
-        mNestedScrollView.dispatchTouchEvent(down);
+        mRecyclerView.dispatchTouchEvent(down);
 
-        mNestedScrollView.dispatchTouchEvent(up);
+        mRecyclerView.dispatchTouchEvent(up);
 
         assertThat(mParentSpy.axesForTypeTouch, is(ViewCompat.SCROLL_AXIS_NONE));
         assertThat(mParentSpy.axesForTypeNonTouch, is(ViewCompat.SCROLL_AXIS_NONE));
     }
 
     @Test
-    public void uiFingerScroll_parentOnNestedPreScrollCalledCorrectly() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+    public void uiFingerScroll_vertical_parentOnNestedPreScrollCalledCorrectly() {
+        setup(true, 100, true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
 
-        mNestedScrollView.dispatchTouchEvent(down);
-        mNestedScrollView.dispatchTouchEvent(move);
+        mRecyclerView.dispatchTouchEvent(down);
+        mRecyclerView.dispatchTouchEvent(move);
 
-        verify(mParentSpy).onNestedPreScroll(mNestedScrollView, 0, 200, new int[]{0, 0},
-                ViewCompat.TYPE_TOUCH);
+        // Can't verify 'consumed' parameter values due to mutation, so instead capturing actual
+        // values manually in the the NestedScrollingSpyView object.
+        verify(mParentSpy).onNestedPreScroll(eq(mRecyclerView), eq(0), eq(200), any(int[].class),
+                eq(ViewCompat.TYPE_TOUCH));
+        assertThat(mParentSpy.onNestedPreScrollConsumedX, is(0));
+        assertThat(mParentSpy.onNestedPreScrollConsumedY, is(0));
     }
 
     @Test
-    public void uiFingerScroll_scrollsBeyondLimit_parentOnNestedScrollCalledCorrectly() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+    public void uiFingerScroll_horizontal_parentOnNestedPreScrollCalledCorrectly() {
+        setup(false, 100, true);
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move =
+                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 300, 500, 0);
+
+        mRecyclerView.dispatchTouchEvent(down);
+        mRecyclerView.dispatchTouchEvent(move);
+
+        // Can't verify 'consumed' parameter values due to mutation, so instead capturing actual
+        // values manually in the the NestedScrollingSpyView object.
+        verify(mParentSpy).onNestedPreScroll(eq(mRecyclerView), eq(200), eq(0), any(int[].class),
+                eq(ViewCompat.TYPE_TOUCH));
+        assertThat(mParentSpy.onNestedPreScrollConsumedX, is(0));
+        assertThat(mParentSpy.onNestedPreScrollConsumedY, is(0));
+    }
+
+    @Test
+    public void uiFingerScroll_scrollsBeyondLimitVertical_parentOnNestedScrollCalledCorrectly() {
+        setup(true, 100, true);
         int touchSlop =
                 ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300 - touchSlop, 0);
 
-        mNestedScrollView.dispatchTouchEvent(down);
-        mNestedScrollView.dispatchTouchEvent(move);
+        mParentSpy.dispatchTouchEvent(down);
+        mParentSpy.dispatchTouchEvent(move);
 
-        verify(mParentSpy).onNestedScroll(mNestedScrollView, 0, 100, 0, 100, ViewCompat.TYPE_TOUCH,
+        verify(mParentSpy).onNestedScroll(mRecyclerView, 0, 100, 0, 100, ViewCompat.TYPE_TOUCH,
                 new int[]{0, 0});
     }
 
     @Test
-    public void uiFingerScroll_scrollsWithinLimit_parentOnNestedScrollCalledCorrectly() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+    public void uiFingerScroll_scrollsBeyondLimitHorizontal_parentOnNestedScrollCalledCorrectly() {
+        setup(false, 100, true);
+        int touchSlop =
+                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move =
+                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 300 - touchSlop, 500, 0);
+
+        mParentSpy.dispatchTouchEvent(down);
+        mParentSpy.dispatchTouchEvent(move);
+
+        verify(mParentSpy).onNestedScroll(mRecyclerView, 100, 0, 100, 0, ViewCompat.TYPE_TOUCH,
+                new int[]{0, 0});
+    }
+
+    @Test
+    public void uiFingerScroll_scrollsWithinLimitVertical_parentOnNestedScrollCalledCorrectly() {
+        setup(true, 100, true);
         int touchSlop =
                 ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 450 - touchSlop, 0);
 
-        mNestedScrollView.dispatchTouchEvent(down);
-        mNestedScrollView.dispatchTouchEvent(move);
+        mParentSpy.dispatchTouchEvent(down);
+        mParentSpy.dispatchTouchEvent(move);
 
-        verify(mParentSpy).onNestedScroll(mNestedScrollView, 0, 50, 0, 0, ViewCompat.TYPE_TOUCH,
+        verify(mParentSpy).onNestedScroll(mRecyclerView, 0, 50, 0, 0, ViewCompat.TYPE_TOUCH,
                 new int[]{0, 0});
     }
 
     @Test
-    public void uiFingerScroll_preSelfPostChainWorks() {
+    public void uiFingerScroll_scrollsWithinLimitHorizontal_parentOnNestedScrollCalledCorrectly() {
+        setup(false, 100, true);
+        int touchSlop =
+                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move =
+                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 450 - touchSlop, 500, 0);
+
+        mParentSpy.dispatchTouchEvent(down);
+        mParentSpy.dispatchTouchEvent(move);
+
+        verify(mParentSpy).onNestedScroll(mRecyclerView, 50, 0, 0, 0, ViewCompat.TYPE_TOUCH,
+                new int[]{0, 0});
+    }
+
+    @Test
+    public void uiFingerScroll_vertical_preSelfPostChainWorks() {
+        setup(true, 100, true);
         doAnswer(new Answer() {
             public Object answer(InvocationOnMock invocation) {
                 Object[] args = invocation.getArguments();
                 ((int[]) args[3])[1] = 50;
-                return null; // void method, so return null
+                return null;
             }
         }).when(mParentSpy)
                 .onNestedPreScroll(any(View.class), anyInt(), anyInt(), any(int[].class), anyInt());
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
         int touchSlop =
                 ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
 
-        mNestedScrollView.dispatchTouchEvent(down);
-        mNestedScrollView.dispatchTouchEvent(move);
+        mRecyclerView.dispatchTouchEvent(down);
+        mRecyclerView.dispatchTouchEvent(move);
 
-        verify(mParentSpy).onNestedPreScroll(mNestedScrollView, 0, 200, new int[]{0, 0},
-                ViewCompat.TYPE_TOUCH);
-        verify(mParentSpy).onNestedScroll(mNestedScrollView, 0, 100, 0, 50 - touchSlop,
+        // Can't verify 'consumed' parameter values due to mutation, so instead capturing actual
+        // values manually in the the NestedScrollingSpyView object.
+        verify(mParentSpy).onNestedPreScroll(eq(mRecyclerView), eq(0), eq(200), any(int[].class),
+                eq(ViewCompat.TYPE_TOUCH));
+        assertThat(mParentSpy.onNestedPreScrollConsumedX, is(0));
+        assertThat(mParentSpy.onNestedPreScrollConsumedY, is(0));
+
+        verify(mParentSpy).onNestedScroll(mRecyclerView, 0, 100, 0, 50 - touchSlop,
                 ViewCompat.TYPE_TOUCH, new int[]{0, 0});
     }
 
     @Test
-    public void uiFling_parentHasNestedScrollingChildWithTypeFling() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+    public void uiFingerScroll_horizontal_preSelfPostChainWorks() {
+        setup(false, 100, true);
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                ((int[]) args[3])[0] = 50;
+                return null;
+            }
+        }).when(mParentSpy)
+                .onNestedPreScroll(any(View.class), anyInt(), anyInt(), any(int[].class), anyInt());
+        int touchSlop =
+                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move =
+                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 300, 500, 0);
+
+        mRecyclerView.dispatchTouchEvent(down);
+        mRecyclerView.dispatchTouchEvent(move);
+
+        // Can't verify 'consumed' parameter values due to mutation, so instead capturing actual
+        // values manually in the the NestedScrollingSpyView object.
+        verify(mParentSpy).onNestedPreScroll(eq(mRecyclerView), eq(200), eq(0), any(int[].class),
+                eq(ViewCompat.TYPE_TOUCH));
+        assertThat(mParentSpy.onNestedPreScrollConsumedX, is(0));
+        assertThat(mParentSpy.onNestedPreScrollConsumedY, is(0));
+
+        verify(mParentSpy).onNestedScroll(mRecyclerView, 100, 0, 50 - touchSlop, 0,
+                ViewCompat.TYPE_TOUCH, new int[]{0, 0});
+    }
+
+    @Test
+    public void uiFling_vertical_parentHasNestedScrollingChildWithTypeFling() {
+        setup(true, 100, true);
         long startTime = SystemClock.uptimeMillis();
+
         SimpleGestureGeneratorKt
-                .simulateFling(mNestedScrollView, startTime, 500, 500, Direction.UP);
+                .simulateFling(mRecyclerView, startTime, 500, 500, Direction.UP);
 
         assertThat(mParentSpy.axesForTypeTouch, is(ViewCompat.SCROLL_AXIS_NONE));
         assertThat(mParentSpy.axesForTypeNonTouch, is(ViewCompat.SCROLL_AXIS_VERTICAL));
     }
 
     @Test
-    public void uiFling_callsNestedFlingsCorrectly() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+    public void uiFling_horizontal_parentHasNestedScrollingChildWithTypeFling() {
+        setup(false, 100, true);
         long startTime = SystemClock.uptimeMillis();
+
         SimpleGestureGeneratorKt
-                .simulateFling(mNestedScrollView, startTime, 500, 500, Direction.UP);
+                .simulateFling(mRecyclerView, startTime, 500, 500, Direction.LEFT);
+
+        assertThat(mParentSpy.axesForTypeTouch, is(ViewCompat.SCROLL_AXIS_NONE));
+        assertThat(mParentSpy.axesForTypeNonTouch, is(ViewCompat.SCROLL_AXIS_HORIZONTAL));
+    }
+
+    @Test
+    public void uiFling_callsNestedFlingsCorrectly() {
+        setup(true, 100, true);
+        long startTime = SystemClock.uptimeMillis();
+
+        SimpleGestureGeneratorKt
+                .simulateFling(mRecyclerView, startTime, 500, 500, Direction.UP);
 
         InOrder inOrder = Mockito.inOrder(mParentSpy);
         inOrder.verify(mParentSpy).onNestedPreFling(
-                eq(mNestedScrollView),
+                eq(mRecyclerView),
                 eq(0f),
                 anyFloat());
         inOrder.verify(mParentSpy).onNestedFling(
-                eq(mNestedScrollView),
+                eq(mRecyclerView),
                 eq(0f),
                 anyFloat(),
                 eq(true));
@@ -252,8 +358,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
         // Arrange
 
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        setup(true, 1000, true);
 
         final Context context = InstrumentationRegistry.getContext();
         FlingData flingData = SimpleGestureGeneratorKt.generateFlingData(context);
@@ -265,11 +370,11 @@ public class NestedScrollViewNestedScrollingChildTest {
         List<MotionEventData> motionEventData = SimpleGestureGeneratorKt
                 .generateFlingMotionEventData(flingData, 500, 500, Direction.UP);
         SimpleGestureGeneratorKt
-                .dispatchTouchEvents(mNestedScrollView, firstDownTime, motionEventData);
+                .dispatchTouchEvents(mRecyclerView, firstDownTime, motionEventData);
 
         // Sanity check that onStopNestedScroll has not yet been called of type TYPE_NON_TOUCH.
         verify(mParentSpy, never())
-                .onStopNestedScroll(mNestedScrollView, ViewCompat.TYPE_NON_TOUCH);
+                .onStopNestedScroll(mRecyclerView, ViewCompat.TYPE_NON_TOUCH);
 
         // Act
 
@@ -280,11 +385,11 @@ public class NestedScrollViewNestedScrollingChildTest {
                 500,
                 500,
                 0);
-        mNestedScrollView.dispatchTouchEvent(down);
+        mRecyclerView.dispatchTouchEvent(down);
 
         // Assert
 
-        verify(mParentSpy).onStopNestedScroll(mNestedScrollView, ViewCompat.TYPE_NON_TOUCH);
+        verify(mParentSpy).onStopNestedScroll(mRecyclerView, ViewCompat.TYPE_NON_TOUCH);
     }
 
     @Test
@@ -299,18 +404,16 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     private void uiFlings_returnValueOfOnNestedPreFlingDeterminesCallToOnNestedFling(
             boolean returnValue, boolean onNestedFlingCalled) {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
-        when(mParentSpy.onNestedPreFling(eq(mNestedScrollView), anyFloat(), anyFloat()))
+        setup(true, 100, true);
+        when(mParentSpy.onNestedPreFling(eq(mRecyclerView), anyFloat(), anyFloat()))
                 .thenReturn(returnValue);
 
         long startTime = SystemClock.uptimeMillis();
         SimpleGestureGeneratorKt
-                .simulateFling(mNestedScrollView, startTime, 500, 500, Direction.UP);
+                .simulateFling(mRecyclerView, startTime, 500, 500, Direction.UP);
 
         if (onNestedFlingCalled) {
-            verify(mParentSpy).onNestedFling(eq(mNestedScrollView), anyFloat(), anyFloat(),
-                    eq(true));
+            verify(mParentSpy).onNestedFling(eq(mRecyclerView), anyFloat(), anyFloat(), eq(true));
         } else {
             verify(mParentSpy, never()).onNestedFling(any(View.class), anyFloat(), anyFloat(),
                     anyBoolean());
@@ -319,25 +422,10 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void smoothScrollBy_doesNotStartNestedScrolling() {
-        mNestedScrollView.smoothScrollBy(0, 100);
+        setup(true, 100, true);
+        mRecyclerView.smoothScrollBy(0, 100);
         verify(mParentSpy, never()).onStartNestedScroll(
                 any(View.class), any(View.class), anyInt(), anyInt());
-    }
-
-    @Test
-    public void smoothScrollBy_stopsInProgressNestedScroll() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
-        mNestedScrollView.fling(100);
-        mNestedScrollView.smoothScrollBy(0, 100);
-        verify(mParentSpy).onStopNestedScroll(mNestedScrollView, ViewCompat.TYPE_NON_TOUCH);
-    }
-
-    @Test
-    public void fling_startsNestedScrolling() {
-        mNestedScrollView.fling(100);
-        verify(mParentSpy).onStartNestedScroll(mNestedScrollView, mNestedScrollView,
-                View.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
     }
 
     public class NestedScrollingSpyView extends FrameLayout implements NestedScrollingChild3,
@@ -345,6 +433,8 @@ public class NestedScrollViewNestedScrollingChildTest {
 
         public int axesForTypeTouch;
         public int axesForTypeNonTouch;
+        public int onNestedPreScrollConsumedX;
+        public int onNestedPreScrollConsumedY;
 
         public NestedScrollingSpyView(Context context) {
             super(context);
@@ -384,7 +474,8 @@ public class NestedScrollViewNestedScrollingChildTest {
         @Override
         public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
                 int type) {
-
+            onNestedPreScrollConsumedX = consumed[0];
+            onNestedPreScrollConsumedY = consumed[1];
         }
 
         @Override
@@ -512,6 +603,58 @@ public class NestedScrollViewNestedScrollingChildTest {
         @Override
         public int getNestedScrollAxes() {
             return 0;
+        }
+    }
+
+    private class TestAdapter extends RecyclerView.Adapter<TestViewHolder> {
+
+        private Context mContext;
+        private int mOrientationSize;
+        private int mItemCount;
+        private boolean mVertical;
+
+        TestAdapter(Context context, float orientationSize, int itemCount, boolean vertical) {
+            mContext = context;
+            mOrientationSize = (int) Math.floor(orientationSize / itemCount);
+            mItemCount = itemCount;
+            mVertical = vertical;
+        }
+
+        @Override
+        public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                int viewType) {
+            View view = new View(mContext);
+
+            int width;
+            int height;
+            if (mVertical) {
+                width = ViewGroup.LayoutParams.MATCH_PARENT;
+                height = mOrientationSize;
+            } else {
+                width = mOrientationSize;
+                height = ViewGroup.LayoutParams.MATCH_PARENT;
+            }
+
+            view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
+            view.setMinimumHeight(mOrientationSize);
+            return new TestViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(TestViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return mItemCount;
+        }
+    }
+
+    private class TestViewHolder extends RecyclerView.ViewHolder {
+
+        TestViewHolder(View itemView) {
+            super(itemView);
         }
     }
 }
