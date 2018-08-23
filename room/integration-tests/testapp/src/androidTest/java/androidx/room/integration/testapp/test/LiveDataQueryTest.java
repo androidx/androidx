@@ -33,6 +33,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.room.InvalidationTrackerTrojan;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
+import androidx.room.integration.testapp.vo.Mail;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetsToys;
 import androidx.room.integration.testapp.vo.Toy;
@@ -277,6 +278,24 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         observe(actual, lifecycleOwner, observer);
         expected.add("Six");
         assertThat(observer.get(), is(expected));
+    }
+
+    @Test
+    public void withFtsTable() throws ExecutionException, InterruptedException, TimeoutException {
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+
+        final TestObserver<List<Mail>> observer = new TestObserver<>();
+        LiveData<List<Mail>> liveData = mMailDao.getLiveDataMail();
+
+        observe(liveData, lifecycleOwner, observer);
+        assertThat(observer.get(), is(Collections.emptyList()));
+
+        observer.reset();
+
+        Mail mail = TestUtil.createMail(1, "subject", "body");
+        mMailDao.insert(mail);
+        assertThat(observer.get().get(0), is(mail));
     }
 
     @MediumTest
