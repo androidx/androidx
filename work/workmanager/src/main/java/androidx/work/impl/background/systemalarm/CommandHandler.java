@@ -199,7 +199,6 @@ public class CommandHandler implements ExecutionListener {
         WorkManagerImpl workManager = dispatcher.getWorkManager();
         WorkDatabase workDatabase = workManager.getWorkDatabase();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-
         WorkSpec workSpec = workSpecDao.getWorkSpec(workSpecId);
         long triggerAt = workSpec.calculateNextRunTime();
 
@@ -291,9 +290,6 @@ public class CommandHandler implements ExecutionListener {
         Logger.debug(TAG, String.format("Handling onExecutionCompleted %s, %s", intent, startId));
         // Delegate onExecuted() to the command handler.
         onExecuted(workSpecId, isSuccessful, needsReschedule);
-        // Check if we need to stop service.
-        dispatcher.postOnMainThread(
-                new SystemAlarmDispatcher.DequeueAndCheckForCompletion(dispatcher));
     }
 
     private static boolean hasKeys(@Nullable Bundle bundle, @NonNull String... keys) {
