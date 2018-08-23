@@ -118,8 +118,8 @@
     <include
         layout="@layout/car_switch_widget"
         android:id="@+id/switch_widget"
-        android:layout_width="@dimen/car_primary_icon_size"
-        android:layout_height="@dimen/car_primary_icon_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/car_keyline_1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

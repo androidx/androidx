@@ -14,10 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<!-- This layout is inflated by android.R.layout.preference so the id cannot change -->
-<androidx.appcompat.widget.SwitchCompat
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/switchWidget"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"/>
+<!-- Default text colors for car switch when enabled/disabled. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:color="?attr/colorControlActivated"
+        android:state_checked="true"/>
+    <item
+        android:color="?attr/colorSwitchThumbNormal"/>
+</selector>
