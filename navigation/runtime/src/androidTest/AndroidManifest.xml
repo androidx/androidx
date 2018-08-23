@@ -18,4 +18,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.navigation.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+
+    <application>
+        <activity android:name="androidx.navigation.ActivityNavigatorActivity"/>
+        <activity android:name="androidx.navigation.TargetActivity"/>
+    </application>
 </manifest>
