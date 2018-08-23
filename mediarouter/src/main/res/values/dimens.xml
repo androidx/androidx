@@ -45,4 +45,13 @@
     <integer name="mr_controller_volume_group_list_fade_in_duration_ms">400</integer>
     <!-- Group list fade out animation duration. -->
     <integer name="mr_controller_volume_group_list_fade_out_duration_ms">200</integer>
+
+    <!-- MediaRouteCastDialog's seekbar -->
+    <eat-comment />
+    <!-- Height of seekbar for route volume. -->
+    <dimen name="mr_cast_route_volume_seekbar_height">2dp</dimen>
+    <!-- Height of seekbar for group volume. -->
+    <dimen name="mr_cast_group_volume_seekbar_height">4dp</dimen>
+    <!-- Size of a seekbar thumb for both route volume and group volume. -->
+    <dimen name="mr_cast_seekbar_thumb_size">8dp</dimen>
 </resources>
