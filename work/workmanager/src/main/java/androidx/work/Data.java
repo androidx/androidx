@@ -329,7 +329,7 @@ public final class Data {
 
         if (outputStream.size() > MAX_DATA_BYTES) {
             throw new IllegalStateException(
-                    "Data cannot occupy more than " + MAX_DATA_BYTES + "KB when serialized");
+                    "Data cannot occupy more than " + MAX_DATA_BYTES + " bytes when serialized");
         }
         return outputStream.toByteArray();
     }
@@ -347,7 +347,7 @@ public final class Data {
     public static @NonNull Data fromByteArray(@NonNull byte[] bytes) throws IllegalStateException {
         if (bytes.length > MAX_DATA_BYTES) {
             throw new IllegalStateException(
-                    "Data cannot occupy more than " + MAX_DATA_BYTES + "KB when serialized");
+                    "Data cannot occupy more than " + MAX_DATA_BYTES + " bytes when serialized");
         }
 
         Map<String, Object> map = new HashMap<>();
