@@ -63,6 +63,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
@@ -76,6 +77,7 @@ import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.TestLifecycleOwner;
@@ -92,6 +94,7 @@ import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.Preferences;
+import androidx.work.impl.utils.RepeatRule;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.worker.InfiniteTestWorker;
@@ -115,6 +118,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest {
 
+    private static final String TAG = "WorkManagerImplTest";
+
     private static final long SLEEP_DURATION_SMALL_MILLIS = 500L;
 
     private Context mContext;
@@ -124,6 +129,9 @@ public class WorkManagerImplTest {
 
     @Rule
     public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
+
+    @Rule
+    public RepeatRule mRepeatRule = new RepeatRule();
 
     @Before
     public void setUp() {
@@ -150,6 +158,7 @@ public class WorkManagerImplTest {
         mWorkManagerImpl = new WorkManagerImpl(mContext, mConfiguration);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
+        Logger.setMinimumLoggingLevel(Log.DEBUG);
     }
 
     @After
@@ -1556,6 +1565,49 @@ public class WorkManagerImplTest {
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
     }
+
+    // TODO (rahulrav@)  Before this test can be added to this test suite, we need to clean up our
+    // TaskExecutor so it's not a singleton.
+    // Right now, these tests fail because we don't seem to clean up correctly.
+
+    /*
+    @Test
+    @SmallTest
+    @RepeatRule.Repeat(times = 10)
+    @SdkSuppress(maxSdkVersion = 22)    // We can't force JobScheduler to run quicker than 15 mins.
+    public void testPeriodicWork_ExecutesRepeatedly() throws InterruptedException {
+        PeriodicWorkRequest work = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                15,
+                TimeUnit.MINUTES)
+                .build();
+        WorkSpec workSpec = work.getWorkSpec();
+        workSpec.intervalDuration = 100L; // Manually override this to a smaller value for tests.
+        workSpec.flexDuration = 0L;         // Manually override this to a smaller value for tests.
+
+        final CountDownLatch latch = new CountDownLatch(3);
+        TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
+
+        LiveData<WorkStatus> status = mWorkManagerImpl.getStatusById(work.getId());
+        status.observe(testLifecycleOwner, new Observer<WorkStatus>() {
+            @Override
+            public void onChanged(@Nullable WorkStatus workStatus) {
+                if (workStatus != null) {
+                    if (workStatus.getState() == RUNNING) {
+                        latch.countDown();
+                    }
+                }
+            }
+        });
+
+        mWorkManagerImpl.enqueueSync(work);
+        // latch.await();
+        latch.await(20, TimeUnit.SECONDS);
+        assertThat(latch.getCount(), is(0L));
+        status.removeObservers(testLifecycleOwner);
+        mWorkManagerImpl.cancelWorkById(work.getId());
+    }
+    */
 
     private void insertWorkSpecAndTags(WorkRequest work) {
         mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
