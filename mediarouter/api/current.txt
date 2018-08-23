@@ -271,7 +271,7 @@ package androidx.mediarouter.media {
   }
 
   public static abstract interface MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener {
-    method public abstract void onRoutesChanged(java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor>);
+    method public abstract void onRoutesChanged(androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController, java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor>);
   }
 
   public static final class MediaRouteProvider.ProviderMetadata {
@@ -419,7 +419,7 @@ package androidx.mediarouter.media {
     method public int getVolumeHandling();
     method public int getVolumeMax();
     method public boolean isBluetooth();
-    method public boolean isConnecting();
+    method public deprecated boolean isConnecting();
     method public boolean isDefault();
     method public boolean isDeviceSpeaker();
     method public boolean isEnabled();
