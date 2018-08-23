@@ -13,8 +13,7 @@ data class ViewConfiguration(
 
     // / Creates a transformation matrix that applies the [devicePixelRatio].
     fun toMatrix(): Matrix4 {
-//        return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 1.0);
-        TODO("Migration/Andrey: port Matrix4")
+        return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 1.0)
     }
 
     override fun toString(): String {

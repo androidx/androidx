@@ -14,4 +14,8 @@ class SceneBuilder {
     ) {
         TODO()
     }
+
+    fun build(): Scene {
+        TODO()
+    }
 }

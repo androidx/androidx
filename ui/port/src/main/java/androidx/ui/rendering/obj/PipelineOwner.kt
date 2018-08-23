@@ -3,6 +3,7 @@ package androidx.ui.rendering.obj
 import androidx.ui.VoidCallback
 import androidx.ui.assert
 import androidx.ui.foundation.AbstractNode
+import androidx.ui.foundation.profile
 
 // / The pipeline owner manages the rendering pipeline.
 // /
@@ -198,40 +199,41 @@ class PipelineOwner(
     // /
     // / See [RendererBinding] for an example of how this function is used.
     fun flushPaint() {
-        TODO()
-//        profile(() { Timeline.startSync('Paint', arguments: timelineWhitelistArguments); });
-//        assert {
-//            debugDoingPaint = true;
-//            true;
-//        };
-//        try {
-//            var dirtyNodes = _nodesNeedingPaint.toMutableList();
-//            _nodesNeedingPaint = mutableListOf();
-//            // Sort the dirty nodes in reverse order (deepest first).
-//            // TODO(Migration/Filip): Verify correctness of this rewrite
-//            // sort((RenderObject a, RenderObject b) => b.depth - a.depth))
-//            dirtyNodes.apply {
-//                sort()
-//                reverse()
-//            }
-//            for (node in dirtyNodes) {
-//                assert(node._layer != null);
-//                if (node._needsPaint && node.owner == this) {
-//                    if (node._layer.attached) {
-//                        PaintingContext.repaintCompositedChild(node);
-//                    } else {
-//                        node._skippedPaintingOnLayer();
-//                    }
-//                }
-//            }
-//            assert(_nodesNeedingPaint.isEmpty());
-//        } finally {
-//            assert {
-//                debugDoingPaint = false;
-//                true;
-//            };
-//            profile(() { Timeline.finishSync(); });
-//        }
+        profile {
+            // TODO(Migration/Andrey): Needs Timeline
+//            Timeline.startSync('Paint', arguments: timelineWhitelistArguments);
+        }
+        assert {
+            debugDoingPaint = true
+            true
+        }
+
+        try {
+            val dirtyNodes = _nodesNeedingPaint
+            _nodesNeedingPaint = mutableListOf()
+            // Sort the dirty nodes in reverse order (deepest first).
+            dirtyNodes.sortWith(Comparator { a, b -> b.depth - a.depth })
+            for (node in dirtyNodes) {
+                assert(node._layer != null)
+                if (node._needsPaint && node.owner == this) {
+                    if (node._layer!!.attached) {
+                        PaintingContext.repaintCompositedChild(node)
+                    } else {
+                        node._skippedPaintingOnLayer()
+                    }
+                }
+            }
+            assert(_nodesNeedingPaint.isEmpty())
+        } finally {
+            assert {
+                debugDoingPaint = false
+                true
+            }
+            profile {
+                // TODO(Migration/Andrey): Needs Timeline
+//                Timeline.finishSync();
+            }
+        }
     }
 
 //    /// The object that is managing semantics for this pipeline owner, if any.

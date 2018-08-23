@@ -1,6 +1,7 @@
 package androidx.ui.engine.window
 
 import androidx.ui.VoidCallback
+import androidx.ui.async.Timer
 import androidx.ui.async.Zone
 import androidx.ui.compositing.Scene
 import androidx.ui.engine.geometry.Size
@@ -323,7 +324,11 @@ object Window {
      *    scheduling of frames.
      */
     val scheduleFrame get() = {
-        TODO()
+        // TODO(Migration/Andrey): Temp logic added. Originally just execute some native code.
+        Timer.run {
+            onBeginFrame?.invoke()
+            onDrawFrame?.invoke()
+        }
         // native 'Window_scheduleFrame';
     }
 

@@ -1,12 +1,18 @@
 package androidx.ui.rendering.view
 
+import androidx.ui.assert
+import androidx.ui.compositing.Scene
+import androidx.ui.compositing.SceneBuilder
 import androidx.ui.core.Duration
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
+import androidx.ui.engine.window.Window
 import androidx.ui.painting.matrixutils.transformRect
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
+import androidx.ui.rendering.debugRepaintRainbowEnabled
+import androidx.ui.rendering.debugRepaintTextRainbowEnabled
 import androidx.ui.rendering.layer.OffsetLayer
 import androidx.ui.rendering.layer.TransformLayer
 import androidx.ui.rendering.obj.PaintingContext
@@ -138,22 +144,25 @@ class RenderView(
      * Actually causes the output of the rendering pipeline to appear on screen.
      */
     fun compositeFrame() {
-        TODO("Migration/andrey: Needs Timeline")
+        // TODO(Migration/Andrey): Needs Timeline
 //        Timeline.startSync('Compositing', arguments = timelineWhitelistArguments);
-//        try {
-//            val builder : ui.SceneBuilder = ui.SceneBuilder();
-//            layer.addToScene(builder, Offset.zero);
-//            val scene : ui.Scene = builder.build();
-//            ui.window.render(scene);
-//            scene.dispose();
-//            assert {
-//                if (debugRepaintRainbowEnabled || debugRepaintTextRainbowEnabled)
+        try {
+            val builder = SceneBuilder()
+            layer!!.addToScene(builder, Offset.zero)
+            val scene: Scene = builder.build()
+            Window.render(scene)
+            scene.dispose()
+            assert {
+                if (debugRepaintRainbowEnabled || debugRepaintTextRainbowEnabled) {
+                    TODO("Migration/Andrey): Needs HSVColor")
 //                    debugCurrentRepaintColor = debugCurrentRepaintColor.withHue(debugCurrentRepaintColor.hue + 2.0);
-//                true;
-//            }
-//        } finally {
+                }
+                true
+            }
+        } finally {
+            // TODO(Migration/Andrey): Needs Timeline
 //            Timeline.finishSync();
-//        }
+        }
     }
 
     override val paintBounds: Rect? = Offset.zero.and(size * configuration.devicePixelRatio)
