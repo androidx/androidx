@@ -2081,9 +2081,14 @@ public class MediaSessionCompat {
                 if (mHandler != null) {
                     Message msg = mHandler.obtainMessage(what, arg1, arg2, obj);
                     Bundle data = new Bundle();
-                    data.putString(DATA_CALLING_PACKAGE, LEGACY_CONTROLLER);
+
+                    int uid = Binder.getCallingUid();
+                    // Note: Different apps can have same uid, but only when they are signed with
+                    // the same private key. This means those apps are from the same developer.
+                    // Session apps can allow/reject controller by reading one of their names.
+                    data.putString(DATA_CALLING_PACKAGE, getPackageNameForUid(uid));
                     data.putInt(DATA_CALLING_PID, Binder.getCallingPid());
-                    data.putInt(DATA_CALLING_UID, Binder.getCallingUid());
+                    data.putInt(DATA_CALLING_UID, uid);
                     if (extras != null) {
                         data.putBundle(DATA_EXTRAS, extras);
                     }
@@ -2091,6 +2096,14 @@ public class MediaSessionCompat {
                     msg.sendToTarget();
                 }
             }
+        }
+
+        String getPackageNameForUid(int uid) {
+            String result = mContext.getPackageManager().getNameForUid(uid);
+            if (TextUtils.isEmpty(result)) {
+                result = LEGACY_CONTROLLER;
+            }
+            return result;
         }
 
         @Override
@@ -2682,8 +2695,9 @@ public class MediaSessionCompat {
                     }
                     return;
                 }
+                final int uid = getCallingUid();
                 RemoteUserInfo info = new RemoteUserInfo(
-                        RemoteUserInfo.LEGACY_CONTROLLER, getCallingPid(), getCallingUid());
+                        getPackageNameForUid(uid), getCallingPid(), getCallingUid());
                 mControllerCallbacks.register(cb, info);
             }
 
