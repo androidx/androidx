@@ -16,52 +16,30 @@
 
 package androidx.work.impl.utils.taskexecutor;
 
-import android.support.annotation.Nullable;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.RestrictTo;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
- * A static class that serves as a central point to execute common tasks in WorkManager.
- * This is used for business logic internal to WorkManager and NOT for worker processing.
- * Adapted from {@link android.arch.core.executor.ArchTaskExecutor}
+ * Default Task Executor for executing common tasks in WorkManager
  * @hide
  */
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerTaskExecutor implements TaskExecutor {
-    private static WorkManagerTaskExecutor sInstance;
-    private final TaskExecutor mDefaultTaskExecutor = new DefaultTaskExecutor();
-    private TaskExecutor mTaskExecutor = mDefaultTaskExecutor;
-
-    /**
-     * Returns an instance of the task executor.
-     * @return The singleton WorkManagerTaskExecutor.
-     */
-    public static synchronized WorkManagerTaskExecutor getInstance() {
-        if (sInstance == null) {
-            sInstance = new WorkManagerTaskExecutor();
-        }
-        return sInstance;
-    }
-
-    private WorkManagerTaskExecutor() {
-    }
-
-    /**
-     * Overrides the task executor used by {@link androidx.work.impl.WorkManagerImpl}.
-     *
-     * @param taskExecutor The instance of the {@link TaskExecutor}.
-     */
-    public void setTaskExecutor(@Nullable TaskExecutor taskExecutor) {
-        mTaskExecutor = taskExecutor == null ? mDefaultTaskExecutor : taskExecutor;
-    }
+    private final ExecutorService mBackgroundExecutor = Executors.newSingleThreadExecutor();
+    private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
     @Override
     public void postToMainThread(Runnable r) {
-        mTaskExecutor.postToMainThread(r);
+        mMainThreadHandler.post(r);
     }
 
     @Override
     public void executeOnBackgroundThread(Runnable r) {
-        mTaskExecutor.executeOnBackgroundThread(r);
+        mBackgroundExecutor.execute(r);
     }
 }

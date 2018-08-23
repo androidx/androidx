@@ -133,7 +133,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
                     sDefaultInstance = new WorkManagerImpl(
                             context,
                             configuration,
-                            WorkManagerTaskExecutor.getInstance());
+                            new WorkManagerTaskExecutor());
                 }
                 sDelegatedInstance = sDefaultInstance;
             }
