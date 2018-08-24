@@ -161,4 +161,16 @@ public static class Next implements NavDirections {
         result = 31 * result + getActionId();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Next(actionId=" + getActionId() + "){"
+                + "main=" + main
+                + ", mainInt=" + mainInt
+                + ", optional=" + optional
+                + ", optionalInt=" + optionalInt
+                + ", optionalParcelable=" + optionalParcelable
+                + ", parcelable=" + parcelable
+                + "}";
+    }
 }

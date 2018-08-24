@@ -16,6 +16,9 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.ext.BEGIN_STMT
+import androidx.navigation.safe.args.generator.ext.END_STMT
+import androidx.navigation.safe.args.generator.ext.L
 import androidx.navigation.safe.args.generator.ext.N
 import androidx.navigation.safe.args.generator.ext.S
 import androidx.navigation.safe.args.generator.ext.T
@@ -208,6 +211,27 @@ private class ClassWithArgsSpecs(
         returns(TypeName.INT)
     }.build()
 
+    fun toStringMethod(
+        className: ClassName,
+        toStringHeaderBlock: CodeBlock? = null
+    ) = MethodSpec.methodBuilder("toString").apply {
+        addAnnotation(Override::class.java)
+        addModifiers(Modifier.PUBLIC)
+        addCode(CodeBlock.builder().apply {
+            if (toStringHeaderBlock != null) {
+                add("${BEGIN_STMT}return $L", toStringHeaderBlock)
+            } else {
+                add("${BEGIN_STMT}return $S", "${className.simpleName()}{")
+            }
+            args.forEachIndexed { index, (_, _, _, _, sanitizedName) ->
+                val prefix = if (index == 0) "" else ", "
+                add("\n+ $S + $L", "$prefix$sanitizedName=", sanitizedName)
+            }
+            add("\n+ $S;\n$END_STMT", "}")
+        }.build())
+        returns(ClassName.get(String::class.java))
+    }.build()
+
     private fun generateParameterSpec(arg: Argument): ParameterSpec {
         return ParameterSpec.builder(arg.type.typeName(), arg.sanitizedName).apply {
             if (arg.type.allowsNullable()) {
@@ -255,6 +279,7 @@ fun generateDestinationDirectionsTypeSpec(
 fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
     val annotations = Annotations.getInstance(useAndroidX)
     val specs = ClassWithArgsSpecs(action.args, annotations)
+    val className = ClassName.get("", action.id.javaIdentifier.toCamelCase())
 
     val getDestIdMethod = MethodSpec.methodBuilder("getActionId")
             .addModifiers(Modifier.PUBLIC)
@@ -273,7 +298,10 @@ fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
         addStatement("result = 31 * result + $N()", getDestIdMethod)
     }.build()
 
-    val className = ClassName.get("", action.id.javaIdentifier.toCamelCase())
+    val toStringHeaderBlock = CodeBlock.builder().apply {
+        add("$S + $L() + $S", "${className.simpleName()}(actionId=", getDestIdMethod.name, "){")
+    }.build()
+
     return TypeSpec.classBuilder(className)
             .addSuperinterface(NAV_DIRECTION_CLASSNAME)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -284,6 +312,7 @@ fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
             .addMethod(getDestIdMethod)
             .addMethod(specs.equalsMethod(className, additionalEqualsBlock))
             .addMethod(specs.hashCodeMethod(additionalHashCodeBlock))
+            .addMethod(specs.toStringMethod(className, toStringHeaderBlock))
             .build()
 }
 
@@ -358,6 +387,7 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
             .addMethod(specs.toBundleMethod("toBundle"))
             .addMethod(specs.equalsMethod(className))
             .addMethod(specs.hashCodeMethod())
+            .addMethod(specs.toStringMethod(className))
             .addType(builderTypeSpec)
             .build()
 

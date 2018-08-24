@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
+import java.lang.String;
 
 public class SanitizedMainFragmentArgs {
     private int nameWithDot;
@@ -87,6 +88,15 @@ public class SanitizedMainFragmentArgs {
         result = 31 * result + nameWithUnderscore;
         result = 31 * result + nameWithSpaces;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "SanitizedMainFragmentArgs{"
+                + "nameWithDot=" + nameWithDot
+                + ", nameWithUnderscore=" + nameWithUnderscore
+                + ", nameWithSpaces=" + nameWithSpaces
+                + "}";
     }
 
     public static class Builder {
