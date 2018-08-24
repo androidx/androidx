@@ -266,12 +266,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>
      * Namely, the lifecycle of the Fragment's View is:
      * <ol>
-     * <li>{@link Lifecycle.Event#ON_CREATE created} in {@link #onViewStateRestored(Bundle)}</li>
-     * <li>{@link Lifecycle.Event#ON_START started} in {@link #onStart()}</li>
-     * <li>{@link Lifecycle.Event#ON_RESUME resumed} in {@link #onResume()}</li>
-     * <li>{@link Lifecycle.Event#ON_PAUSE paused} in {@link #onPause()}</li>
-     * <li>{@link Lifecycle.Event#ON_STOP stopped} in {@link #onStop()}</li>
-     * <li>{@link Lifecycle.Event#ON_DESTROY destroyed} in {@link #onDestroyView()}</li>
+     * <li>{@link Lifecycle.Event#ON_CREATE created} after {@link #onViewStateRestored(Bundle)}</li>
+     * <li>{@link Lifecycle.Event#ON_START started} after {@link #onStart()}</li>
+     * <li>{@link Lifecycle.Event#ON_RESUME resumed} after {@link #onResume()}</li>
+     * <li>{@link Lifecycle.Event#ON_PAUSE paused} before {@link #onPause()}</li>
+     * <li>{@link Lifecycle.Event#ON_STOP stopped} before {@link #onStop()}</li>
+     * <li>{@link Lifecycle.Event#ON_DESTROY destroyed} before {@link #onDestroyView()}</li>
      * </ol>
      *
      * The first method where it is safe to access the view lifecycle is
@@ -499,6 +499,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onViewStateRestored()");
+        }
+        if (mView != null) {
+            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         }
     }
 
@@ -1607,9 +1610,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         mCalled = true;
-        if (mView != null) {
-            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-        }
     }
 
     /**
@@ -1718,9 +1718,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onDestroyView() {
         mCalled = true;
-        if (mView != null) {
-            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-        }
     }
 
     /**
@@ -2654,6 +2651,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performStop() {
+        if (mView != null) {
+            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchStop();
@@ -2668,6 +2668,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performDestroyView() {
+        if (mView != null) {
+            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        }
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchDestroyView();
         }

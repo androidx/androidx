@@ -21,14 +21,19 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.test.R;
+import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -157,6 +162,64 @@ public class FragmentViewLifecycleTest {
     }
 
     @Test
+    public void testViewLifecycleInFragmentLifecycle() throws Throwable {
+        final FragmentTestActivity activity = mActivityRule.getActivity();
+        final FragmentManager fm = activity.getSupportFragmentManager();
+
+        final StrictViewFragment fragment = new StrictViewFragment();
+        fragment.setLayoutId(R.layout.fragment_a);
+        final GenericLifecycleObserver lifecycleObserver = mock(GenericLifecycleObserver.class);
+        final LifecycleOwner[] viewLifecycleOwner = new LifecycleOwner[1];
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragment.getViewLifecycleOwnerLiveData().observe(activity,
+                        new Observer<LifecycleOwner>() {
+                            @Override
+                            public void onChanged(LifecycleOwner lifecycleOwner) {
+                                if (lifecycleOwner != null) {
+                                    viewLifecycleOwner[0] = lifecycleOwner;
+                                    lifecycleOwner.getLifecycle().addObserver(lifecycleObserver);
+                                }
+                            }
+                        });
+                fragment.getLifecycle().addObserver(lifecycleObserver);
+                fm.beginTransaction().add(R.id.content, fragment).commitNow();
+                // Now remove the Fragment to trigger the destruction of the view
+                fm.beginTransaction().remove(fragment).commitNow();
+            }
+        });
+
+        // The Fragment's lifecycle should change first, followed by the fragment's view lifecycle
+        verify(lifecycleObserver)
+                .onStateChanged(fragment, Lifecycle.Event.ON_CREATE);
+        verify(lifecycleObserver)
+                .onStateChanged(viewLifecycleOwner[0], Lifecycle.Event.ON_CREATE);
+        verify(lifecycleObserver)
+                .onStateChanged(fragment, Lifecycle.Event.ON_START);
+        verify(lifecycleObserver)
+                .onStateChanged(viewLifecycleOwner[0], Lifecycle.Event.ON_START);
+        verify(lifecycleObserver)
+                .onStateChanged(fragment, Lifecycle.Event.ON_RESUME);
+        verify(lifecycleObserver)
+                .onStateChanged(viewLifecycleOwner[0], Lifecycle.Event.ON_RESUME);
+        // Now the order reverses as things unwind
+        verify(lifecycleObserver)
+                .onStateChanged(viewLifecycleOwner[0], Lifecycle.Event.ON_PAUSE);
+        verify(lifecycleObserver)
+                .onStateChanged(fragment, Lifecycle.Event.ON_PAUSE);
+        verify(lifecycleObserver)
+                .onStateChanged(viewLifecycleOwner[0], Lifecycle.Event.ON_STOP);
+        verify(lifecycleObserver)
+                .onStateChanged(fragment, Lifecycle.Event.ON_STOP);
+        verify(lifecycleObserver)
+                .onStateChanged(viewLifecycleOwner[0], Lifecycle.Event.ON_DESTROY);
+        verify(lifecycleObserver)
+                .onStateChanged(fragment, Lifecycle.Event.ON_DESTROY);
+        verifyNoMoreInteractions(lifecycleObserver);
+    }
+
+    @Test
     @UiThreadTest
     public void testFragmentViewLifecycleDetach() {
         final FragmentTestActivity activity = mActivityRule.getActivity();
@@ -224,7 +287,7 @@ public class FragmentViewLifecycleTest {
         };
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             mLiveData.observe(getViewLifecycleOwner(), mOnCreateViewObserver);
             assertTrue("LiveData should have observers after onCreateView observe",
