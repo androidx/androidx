@@ -137,6 +137,18 @@ public class MainFragmentArgs {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "MainFragmentArgs{"
+                + "main=" + main
+                + ", optional=" + optional
+                + ", reference=" + reference
+                + ", floatArg=" + floatArg
+                + ", boolArg=" + boolArg
+                + ", optionalParcelable=" + optionalParcelable
+                + "}";
+    }
+
     public static class Builder {
         @NonNull
         private String main;
