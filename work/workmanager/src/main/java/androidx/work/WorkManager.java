@@ -177,8 +177,8 @@ public abstract class WorkManager {
     public abstract void enqueue(@NonNull List<? extends WorkRequest> workRequests);
 
     /**
-     * Begins a chain of {@link OneTimeWorkRequest}, which can be enqueued together in the future
-     * using {@link WorkContinuation#enqueue()}.
+     * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
+     * in the future using {@link WorkContinuation#enqueue()}.
      *
      * @param work One or more {@link OneTimeWorkRequest} to start a chain of work
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
@@ -189,8 +189,8 @@ public abstract class WorkManager {
     }
 
     /**
-     * Begins a chain of {@link OneTimeWorkRequest}, which can be enqueued together in the future
-     * using {@link WorkContinuation#enqueue()}.
+     * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
+     * in the future using {@link WorkContinuation#enqueue()}.
      *
      * @param work One or more {@link OneTimeWorkRequest} to start a chain of work
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
