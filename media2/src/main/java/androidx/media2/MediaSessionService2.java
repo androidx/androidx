@@ -137,7 +137,8 @@ public abstract class MediaSessionService2 extends Service {
      * Called when notification UI needs update. Override this method to show or cancel your own
      * notification UI.
      * <p>
-     * This would be called when player state is changed.
+     * This would be called on {@link MediaSession2}'s callback executor when player state is
+     * changed.
      * <p>
      * With the notification returned here, the service becomes foreground service when the playback
      * is started. Apps targeting API {@link android.os.Build.VERSION_CODES#P} or later must request
@@ -179,6 +180,12 @@ public abstract class MediaSessionService2 extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return mImpl.onBind(intent);
+    }
+
+    @CallSuper
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return mImpl.onStartCommand(intent, flags, startId);
     }
 
     /**
@@ -227,6 +234,7 @@ public abstract class MediaSessionService2 extends Service {
 
     interface MediaSessionService2Impl {
         void onCreate(MediaSessionService2 service);
+        int onStartCommand(Intent intent, int flags, int startId);
         IBinder onBind(Intent intent);
         MediaNotification onUpdateNotification();
         MediaSession2 getSession();
