@@ -488,8 +488,10 @@ public class WorkManagerImplTest {
         final String uniqueName = "myname";
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        mWorkManagerImpl.beginUniqueWork(uniqueName, REPLACE)
-                .then(work)
+        OneTimeWorkRequest next = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+
+        mWorkManagerImpl.beginUniqueWork(uniqueName, REPLACE, work)
+                .then(next)
                 .synchronous()
                 .enqueueSync();
 

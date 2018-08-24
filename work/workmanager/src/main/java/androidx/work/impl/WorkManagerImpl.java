@@ -269,22 +269,34 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     public void enqueue(@NonNull List<? extends WorkRequest> workRequests) {
+        if (workRequests.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "enqueue needs at least one WorkRequest.");
+        }
         new WorkContinuationImpl(this, workRequests).enqueue();
     }
 
     @Override
-    public void enqueueSync(@NonNull WorkRequest... workRequest) {
-        enqueueSync(Arrays.asList(workRequest));
+    public void enqueueSync(@NonNull WorkRequest... workRequests) {
+        enqueueSync(Arrays.asList(workRequests));
     }
 
     @Override
-    public void enqueueSync(@NonNull List<? extends WorkRequest> workRequest) {
+    public void enqueueSync(@NonNull List<? extends WorkRequest> workRequests) {
         assertBackgroundThread("Cannot enqueueSync on main thread!");
-        new WorkContinuationImpl(this, workRequest).enqueueSync();
+        if (workRequests.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "enqueue needs at least one WorkRequest.");
+        }
+        new WorkContinuationImpl(this, workRequests).enqueueSync();
     }
 
     @Override
     public @NonNull WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
+        if (work.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "beginWith needs at least one OneTimeWorkRequest.");
+        }
         return new WorkContinuationImpl(this, work);
     }
 
@@ -293,6 +305,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work) {
+        if (work.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "beginUniqueWork needs at least one OneTimeWorkRequest.");
+        }
         return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work);
     }
 
