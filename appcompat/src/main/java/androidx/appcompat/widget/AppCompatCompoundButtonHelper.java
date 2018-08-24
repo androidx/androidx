@@ -56,7 +56,14 @@ class AppCompatCompoundButtonHelper {
         TypedArray a = mView.getContext().obtainStyledAttributes(attrs, R.styleable.CompoundButton,
                 defStyleAttr, 0);
         try {
-            if (a.hasValue(R.styleable.CompoundButton_android_button)) {
+            if (a.hasValue(R.styleable.CompoundButton_buttonCompat)) {
+                final int resourceId = a.getResourceId(
+                        R.styleable.CompoundButton_buttonCompat, 0);
+                if (resourceId != 0) {
+                    mView.setButtonDrawable(
+                            AppCompatResources.getDrawable(mView.getContext(), resourceId));
+                }
+            } else if (a.hasValue(R.styleable.CompoundButton_android_button)) {
                 final int resourceId = a.getResourceId(
                         R.styleable.CompoundButton_android_button, 0);
                 if (resourceId != 0) {

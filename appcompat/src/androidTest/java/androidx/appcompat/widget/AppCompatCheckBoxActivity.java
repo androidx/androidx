@@ -24,4 +24,3 @@ public class AppCompatCheckBoxActivity extends BaseTestActivity {
         return R.layout.appcompat_checkbox_activity;
     }
 }
-

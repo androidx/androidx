@@ -64,6 +64,8 @@
     <string name="app_compat_image_view_activity">AppCompat image view</string>
     <string name="app_compat_button_activity">AppCompat button</string>
     <string name="app_compat_checkbox_activity">AppCompat checkbox</string>
+    <string name="app_compat_radio_button_activity">AppCompat radio button</string>
+
     <string-array name="planets_array">
         <item>Mercury</item>
         <item>Venus</item>
