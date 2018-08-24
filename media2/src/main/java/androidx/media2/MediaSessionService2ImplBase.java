@@ -16,13 +16,14 @@
 
 package androidx.media2;
 
-import android.app.Notification;
+import static android.app.Service.START_STICKY;
+
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import androidx.annotation.GuardedBy;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.MediaSessionService2.MediaNotification;
 import androidx.media2.MediaSessionService2.MediaSessionService2Impl;
@@ -37,6 +38,7 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private MediaSession2 mSession;
+    private MediaNotificationHandler mNotificationHandler;
 
     MediaSessionService2ImplBase() {
     }
@@ -49,35 +51,14 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
         }
         if (session == null) {
             session = service.onCreateSession();
+            if (session == null) {
+                throw new RuntimeException("Session shouldn't be null");
+            }
             synchronized (mLock) {
                 mSession = session;
             }
         }
-
-        session.getCallback().setOnHandleForegroundServiceListener(
-                new MediaSession2.SessionCallback.OnHandleForegroundServiceListener() {
-                    @Override
-                    public void onHandleForegroundService(int state) {
-                        if (state == MediaPlayerConnector.PLAYER_STATE_IDLE
-                                || state == MediaPlayerConnector.PLAYER_STATE_ERROR) {
-                            service.stopForeground(false /* removeNotification */);
-                            return;
-                        }
-
-                        // state is PLAYER_STATE_PLAYING or PLAYER_STATE_PAUSE.
-                        MediaNotification mediaNotification = service.onUpdateNotification();
-                        if (mediaNotification == null) {
-                            return;
-                        }
-
-                        int notificationId = mediaNotification.getNotificationId();
-                        Notification notification = mediaNotification.getNotification();
-
-                        NotificationManagerCompat manager = NotificationManagerCompat.from(service);
-                        manager.notify(notificationId, notification);
-                        service.startForeground(notificationId, notification);
-                    }
-                });
+        mNotificationHandler = new MediaNotificationHandler(service);
     }
 
     @Override
@@ -97,9 +78,31 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null || intent.getAction() == null) {
+            return START_STICKY;
+        }
+
+        switch (intent.getAction()) {
+            case Intent.ACTION_MEDIA_BUTTON: {
+                final MediaSession2 session = getSession();
+                if (session == null) {
+                    Log.w(TAG, "Session hasn't created");
+                    break;
+                }
+                KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                if (keyEvent != null) {
+                    session.getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
+                }
+                break;
+            }
+        }
+        return START_STICKY;
+    }
+
+    @Override
     public MediaNotification onUpdateNotification() {
-        // May supply default implementation later
-        return null;
+        return mNotificationHandler.onUpdateNotification();
     }
 
     @Override

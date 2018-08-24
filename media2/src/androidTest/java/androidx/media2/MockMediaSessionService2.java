@@ -16,11 +16,6 @@
 
 package androidx.media2;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.Context;
-
 import androidx.media2.MediaSession2.SessionCallback;
 import androidx.media2.TestUtils.SyncHandler;
 
@@ -35,18 +30,12 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
      */
     public static final String ID = "TestSession";
 
-    private static final String DEFAULT_MEDIA_NOTIFICATION_CHANNEL_ID = "media_session_service";
-    private static final int DEFAULT_MEDIA_NOTIFICATION_ID = 1001;
-
-    private NotificationChannel mDefaultNotificationChannel;
     private MediaSession2 mSession;
-    private NotificationManager mNotificationManager;
 
     @Override
     public void onCreate() {
         TestServiceRegistry.getInstance().setServiceInstance(this);
         super.onCreate();
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Override
@@ -67,7 +56,8 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
         mSession = new MediaSession2.Builder(this)
                 .setPlayer(player)
                 .setSessionCallback(executor, sessionCallback)
-                .setId(ID).build();
+                .setId(ID)
+                .build();
         return mSession;
     }
 
@@ -75,24 +65,5 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
     public void onDestroy() {
         super.onDestroy();
         TestServiceRegistry.getInstance().cleanUp();
-    }
-
-    @Override
-    public MediaNotification onUpdateNotification() {
-        // TODO: Branch this logic according to the build version, since the APIs for using
-        // Notification differs. (e.g. NotificationChannel is introduced from Android O).
-        if (mDefaultNotificationChannel == null) {
-            mDefaultNotificationChannel = new NotificationChannel(
-                    DEFAULT_MEDIA_NOTIFICATION_CHANNEL_ID,
-                    DEFAULT_MEDIA_NOTIFICATION_CHANNEL_ID,
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            mNotificationManager.createNotificationChannel(mDefaultNotificationChannel);
-        }
-        Notification notification = new Notification.Builder(
-                this, DEFAULT_MEDIA_NOTIFICATION_CHANNEL_ID)
-                .setContentTitle(getPackageName())
-                .setContentText("Dummy test notification")
-                .setSmallIcon(android.R.drawable.sym_def_app_icon).build();
-        return new MediaNotification(DEFAULT_MEDIA_NOTIFICATION_ID, notification);
     }
 }
