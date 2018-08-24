@@ -116,8 +116,8 @@ public class VideoViewTest extends FragmentActivity {
     public boolean onTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             int screenWidth = getResources().getDisplayMetrics().widthPixels;
+            mSpeed = mVideoView.getSpeed();
             if (ev.getRawX() < (screenWidth / 2.0f)) {
-                // TODO: getSpeed() not needed?
                 mSpeed -= 0.1f;
             } else {
                 mSpeed += 0.1f;
