@@ -227,7 +227,7 @@ public class MediaControlView2Test {
                                 }
                                 break;
                             case 1:
-                                if (position <= FFWD_MS - REW_MS) {
+                                if (position == FFWD_MS - REW_MS) {
                                     latch.countDown();
                                 }
                         }
