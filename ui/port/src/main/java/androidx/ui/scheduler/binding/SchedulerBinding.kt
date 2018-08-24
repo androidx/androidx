@@ -21,6 +21,7 @@ import androidx.ui.services.ServicesBindingImpl
 import androidx.ui.services.SystemChannels
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.launch
 import java.util.concurrent.TimeUnit
@@ -65,12 +66,14 @@ object SchedulerBindingImpl : SchedulerMixinsWrapper(
 ), SchedulerBinding {
 
     init { // was initInstances()
-        Window.onBeginFrame = { _handleBeginFrame() }
-        Window.onDrawFrame = { _handleDrawFrame() }
-        launch {
-            SystemChannels.lifecycle
-                .openSubscription()
-                .consumeEach { handleAppLifecycleStateChanged(it) }
+        launch(Unconfined) {
+            Window.onBeginFrame.consumeEach { _handleBeginFrame() }
+        }
+        launch(Unconfined) {
+            Window.onDrawFrame.consumeEach { _handleDrawFrame() }
+        }
+        launch(Unconfined) {
+            SystemChannels.lifecycle.consumeEach { handleAppLifecycleStateChanged(it) }
         }
     }
 
@@ -106,7 +109,7 @@ object SchedulerBindingImpl : SchedulerMixinsWrapper(
      *
      * This method exposes notifications from [SystemChannels.lifecycle].
      */
-    fun handleAppLifecycleStateChanged(state: AppLifecycleState) {
+    private fun handleAppLifecycleStateChanged(state: AppLifecycleState) {
         assert(state != null)
         lifecycleState = state
         when (state) {
@@ -661,12 +664,12 @@ object SchedulerBindingImpl : SchedulerMixinsWrapper(
 
         // Lock events so touch events etc don't insert themselves until the
         // scheduled frame has finished.
-        launch {
+        launch(Unconfined) {
             lockEvents {
                 endOfFrame()
                 // TODO(Migration/Andrey): port Timeline
 //                Timeline.finishSync();
-            }
+            }.await()
         }
     }
 

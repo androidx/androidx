@@ -14,13 +14,12 @@ import androidx.ui.scheduler.binding.SchedulerBinding
 import androidx.ui.scheduler.binding.SchedulerBindingImpl
 import androidx.ui.services.ServicesBinding
 import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.experimental.launch
 
 interface RendererBinding : SchedulerBinding, ServicesBinding {
-    fun handleMetricsChanged()
-
-    fun handleTextScaleFactorChanged()
-
     fun drawFrame()
 
     fun performReassembleRenderer(superCall: () -> Deferred<Unit>): Deferred<Unit>
@@ -53,11 +52,18 @@ object RendererBindingImpl : RendererMixinsWrapper(
                 onSemanticsOwnerCreated = { _handleSemanticsOwnerCreated() },
                 onSemanticsOwnerDisposed = { _handleSemanticsOwnerDisposed() }
         )
-        with(Window) {
-            onMetricsChanged = { handleMetricsChanged() }
-            onTextScaleFactorChanged = { handleTextScaleFactorChanged() }
-            onSemanticsEnabledChanged = { handleSemanticsEnabledChanged() }
-            onSemanticsAction = {
+
+        launch(Unconfined) {
+            Window.onMetricsChanged.consumeEach { handleMetricsChanged() }
+        }
+        launch(Unconfined) {
+            Window.onTextScaleFactorChanged.consumeEach { handleTextScaleFactorChanged() }
+        }
+        launch(Unconfined) {
+            Window.onSemanticsEnabledChanged.consumeEach { handleSemanticsEnabledChanged() }
+        }
+        launch(Unconfined) {
+            Window.onSemanticsAction.consumeEach {
                 TODO("Migration/Andrey): needs SemanticsAction")
 //                handleSemanticsAction()
             }
@@ -163,7 +169,7 @@ object RendererBindingImpl : RendererMixinsWrapper(
      *
      * See [Window.onMetricsChanged].
      */
-    override fun handleMetricsChanged() {
+    private fun handleMetricsChanged() {
         assert(renderView != null)
         renderView!!.configuration = createViewConfiguration()
         scheduleForcedFrame()
@@ -174,7 +180,7 @@ object RendererBindingImpl : RendererMixinsWrapper(
      *
      * See [Window.onTextScaleFactorChanged].
      */
-    override fun handleTextScaleFactorChanged() { }
+    private fun handleTextScaleFactorChanged() { }
 
     /**
      * Returns a [ViewConfiguration] configured for the [RenderView] based on the

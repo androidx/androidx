@@ -18,7 +18,6 @@ package androidx.ui.services
 
 import androidx.ui.engine.window.AppLifecycleState
 import kotlinx.coroutines.experimental.channels.BroadcastChannel
-import kotlinx.coroutines.experimental.channels.Channel
 
 /**
  * Platform channels used by the Flutter system.
@@ -36,6 +35,6 @@ class SystemChannels {
          *  * [WidgetsBindingObserver.didChangeAppLifecycleState], which triggers
          *    whenever a message is received on this channel.
          */
-        val lifecycle: BroadcastChannel<AppLifecycleState> = BroadcastChannel(Channel.CONFLATED)
+        val lifecycle: BroadcastChannel<AppLifecycleState> = BroadcastChannel(1)
     }
 }

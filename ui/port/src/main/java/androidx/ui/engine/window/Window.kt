@@ -1,11 +1,10 @@
 package androidx.ui.engine.window
 
-import androidx.ui.VoidCallback
 import androidx.ui.async.Timer
-import androidx.ui.async.Zone
 import androidx.ui.compositing.Scene
 import androidx.ui.engine.geometry.Size
 import androidx.ui.semantics.SemanticsUpdate
+import kotlinx.coroutines.experimental.channels.BroadcastChannel
 
 /**
  * The most basic interface to the host operating system's user interface.
@@ -106,7 +105,7 @@ object Window {
         internal set
 
     /**
-     * A callback that is invoked whenever the [devicePixelRatio],
+     * A channel that produces events whenever the [devicePixelRatio],
      * [physicalSize], [padding], or [viewInsets] values change, for example
      * when the device is rotated or when the application is resized (e.g. when
      * showing applications side-by-side on Android).
@@ -123,12 +122,7 @@ object Window {
      *    register for notifications when this is called.
      *  * [MediaQuery.of], a simpler mechanism for the same.
      */
-    private var onMetricsChangedZone: Zone? = null
-    var onMetricsChanged: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onMetricsChangedZone = Zone.current
-        }
+    val onMetricsChanged: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     /**
      * The system-reported locale.
@@ -147,7 +141,7 @@ object Window {
         internal set
 
     /**
-     * A callback that is invoked whenever [locale] changes value.
+     * A channel that produces events whenever [locale] changes value.
      *
      * The framework invokes this callback in the same zone in which the
      * callback was set.
@@ -157,12 +151,7 @@ object Window {
      *  * [WidgetsBindingObserver], for a mechanism at the widgets layer to
      *    observe when this callback is invoked.
      */
-    private var onLocaleChangedZone: Zone? = null
-    var onLocaleChanged: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onLocaleChangedZone = Zone.current
-        }
+    val onLocaleChanged: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     /**
      * The system-reported text scale.
@@ -191,7 +180,7 @@ object Window {
         internal set
 
     /**
-     * A callback that is invoked whenever [textScaleFactor] changes value.
+     * A channel that produces events whenever [textScaleFactor] changes value.
      *
      * The framework invokes this callback in the same zone in which the
      * callback was set.
@@ -201,15 +190,10 @@ object Window {
      *  * [WidgetsBindingObserver], for a mechanism at the widgets layer to
      *    observe when this callback is invoked.
      */
-    private var onTextScaleFactorChangedZone: Zone? = null
-    var onTextScaleFactorChanged: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onTextScaleFactorChangedZone = Zone.current
-        }
+    val onTextScaleFactorChanged: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     /**
-     * A callback that is invoked to notify the application that it is an
+     * A channel that produces events to notify the application that it is an
      * appropriate time to provide a scene using the [SceneBuilder] API and the
      * [render] method. When possible, this is driven by the hardware VSync
      * signal. This is only called if [scheduleFrame] has been called since the
@@ -229,15 +213,10 @@ object Window {
      *  * [RendererBinding], the Flutter framework class which manages layout and
      *    painting.
      */
-    private var onBeginFrameZone: Zone? = null
-    var onBeginFrame: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onBeginFrameZone = Zone.current
-        }
+    val onBeginFrame: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     /**
-     * A callback that is invoked for each frame after [onBeginFrame] has
+     * A channel that produces events for each frame after [onBeginFrame] has
      * completed and after the microtask queue has been drained. This can be
      * used to implement a second phase of frame rendering that happens
      * after any deferred work queued by the [onBeginFrame] phase.
@@ -252,15 +231,10 @@ object Window {
      *  * [RendererBinding], the Flutter framework class which manages layout and
      *    painting.
      */
-    private var onDrawFrameZone: Zone? = null
-    var onDrawFrame: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onDrawFrameZone = Zone.current
-        }
+    val onDrawFrame: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     /**
-     * A callback that is invoked when pointer data is available.
+     * A channel that produces events when pointer data is available.
      *
      * The framework invokes this callback in the same zone in which the
      * callback was set.
@@ -270,12 +244,7 @@ object Window {
      *  * [GestureBinding], the Flutter framework class which manages pointer
      *    events.
      */
-    private var onPointerDataPacketZone: Zone? = null
-    var onPointerDataPacket: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onPointerDataPacketZone = Zone.current
-        }
+    val onPointerDataPacket: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     /**
      * The route or path that the embedder requested when the application was
@@ -326,8 +295,8 @@ object Window {
     val scheduleFrame get() = {
         // TODO(Migration/Andrey): Temp logic added. Originally just execute some native code.
         Timer.run {
-            onBeginFrame?.invoke()
-            onDrawFrame?.invoke()
+            onBeginFrame.offer(Unit)
+            onDrawFrame.offer(Unit)
         }
         // native 'Window_scheduleFrame';
     }
@@ -358,7 +327,7 @@ object Window {
      *  * [RendererBinding], the Flutter framework class which manages layout and
      *    painting.
      */
-    fun render(scene: Scene) = {
+    fun render(scene: Scene) {
         TODO()
         // native 'Window_render';
     }
@@ -374,20 +343,15 @@ object Window {
         internal set
 
     /**
-     * A callback that is invoked when the value of [semanticsEnabled] changes.
+     * A channel that produces events when the value of [semanticsEnabled] changes.
      *
      * The framework invokes this callback in the same zone in which the
      * callback was set.
      */
-    private var onSemanticsEnabledChangedZone: Zone? = null
-    var onSemanticsEnabledChanged: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onSemanticsEnabledChangedZone = Zone.current
-        }
+    val onSemanticsEnabledChanged: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     /**
-     * A callback that is invoked whenever the user requests an action to be
+     * A channel that produces events whenever the user requests an action to be
      * performed.
      *
      * This callback is used when the user expresses the action they wish to
@@ -396,12 +360,7 @@ object Window {
      * The framework invokes this callback in the same zone in which the
      * callback was set.
      */
-    private var onSemanticsActionZone: Zone? = null
-    var onSemanticsAction: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onSemanticsActionZone = Zone.current
-        }
+    val onSemanticsAction: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     /**
      * Change the retained semantics data about this window.
@@ -444,12 +403,7 @@ object Window {
      * The framework invokes this callback in the same zone in which the
      * callback was set.
      */
-    private var onPlatformMessageZone: Zone? = null
-    var onPlatformMessage: VoidCallback? = null
-        internal set(value) {
-            field = value
-            onPlatformMessageZone = Zone.current
-        }
+    val onPlatformMessage: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     // TODO(Migration/Andrey): needs ByteData and native code inside
 //    /**

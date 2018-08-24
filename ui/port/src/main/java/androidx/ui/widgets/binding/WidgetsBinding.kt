@@ -20,6 +20,7 @@ import androidx.ui.widgets.framework.BuildOwner
 import androidx.ui.widgets.framework.Element
 import androidx.ui.widgets.framework.Widget
 import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.launch
@@ -44,17 +45,24 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
     // was initInstances
     init {
         buildOwner.onBuildScheduled = ::_handleBuildScheduled
-        Window.onLocaleChanged = ::handleLocaleChanged
+        launch(Unconfined) {
+            Window.onLocaleChanged.consumeEach { handleLocaleChanged() }
+        }
 //        SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);
 //        SystemChannels.system.setMessageHandler(_handleSystemMessage);
 
-        // TODO(Migration/Andrey): we are subscribing to lifecycle events both
-        // here and in SchedulerBindingImpl as its impossible to override method
-        // with the delegation approach we are using for bindings.
-        launch {
-            SystemChannels.lifecycle
-                    .openSubscription()
-                    .consumeEach { handleAppLifecycleStateChanged(it) }
+        // TODO(Migration/Andrey): we are subscribing to onTextScaleFactorChanged and
+        // onMetricsChanged like in RenderingBindingImpl here as well and to lifecycle events
+        // like in SchedulerBindingImpl as its impossible to override a method with the delegation
+        // approach we are using for bindings.
+        launch(Unconfined) {
+            Window.onTextScaleFactorChanged.consumeEach { handleTextScaleFactorChanged() }
+        }
+        launch(Unconfined) {
+            Window.onMetricsChanged.consumeEach { handleMetricsChanged() }
+        }
+        launch(Unconfined) {
+            SystemChannels.lifecycle.consumeEach { handleAppLifecycleStateChanged(it) }
         }
     }
 
@@ -155,15 +163,13 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
     // /  * [WidgetsBindingObserver], which has an example of using this method.
     fun removeObserver(observer: WidgetsBindingObserver): Boolean = _observers.remove(observer)
 
-    override fun handleMetricsChanged() {
-        super.handleMetricsChanged()
+    private fun handleMetricsChanged() {
         for (observer in _observers) {
             observer.didChangeMetrics()
         }
     }
 
-    override fun handleTextScaleFactorChanged() {
-        super.handleTextScaleFactorChanged()
+    private fun handleTextScaleFactorChanged() {
         for (observer in _observers) {
             observer.didChangeTextScaleFactor()
         }
