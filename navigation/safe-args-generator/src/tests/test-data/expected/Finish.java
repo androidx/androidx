@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import java.lang.Object;
 import java.lang.Override;
+import java.lang.String;
 
 public static class Finish implements NavDirections {
     public Finish() {
@@ -56,5 +57,11 @@ public static class Finish implements NavDirections {
         int result = super.hashCode();
         result = 31 * result + getActionId();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Finish(actionId=" + getActionId() + "){"
+                + "}";
     }
 }

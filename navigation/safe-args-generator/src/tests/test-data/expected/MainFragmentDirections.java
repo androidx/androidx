@@ -112,6 +112,14 @@ public class MainFragmentDirections {
             result = 31 * result + getActionId();
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "Previous(actionId=" + getActionId() + "){"
+                    + "arg1=" + arg1
+                    + ", arg2=" + arg2
+                    + "}";
+        }
     }
 
     public static class Next implements NavDirections {
@@ -186,6 +194,14 @@ public class MainFragmentDirections {
             result = 31 * result + (optional != null ? optional.hashCode() : 0);
             result = 31 * result + getActionId();
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Next(actionId=" + getActionId() + "){"
+                    + "main=" + main
+                    + ", optional=" + optional
+                    + "}";
         }
     }
 }
