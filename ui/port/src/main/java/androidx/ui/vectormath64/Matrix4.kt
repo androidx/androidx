@@ -4,4 +4,12 @@ package androidx.ui.vectormath64
 class Matrix4 {
     fun multiply(_rootTransform: Matrix4?) { TODO() }
     fun getRow(i: Int): Vector4 { TODO() }
+
+    companion object {
+
+        fun diagonal3Values(x: Double, y: Double, z: Double): Matrix4 {
+            // TODO(Migration/Andrey): port a real logic
+            return Matrix4()
+        }
+    }
 }

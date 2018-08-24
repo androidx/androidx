@@ -47,10 +47,10 @@ val debugPaintBaselinesEnabled = false
 val debugPaintPointersEnabled = false
 //
 // /// Overlay a rotating set of colors when repainting layers in checked mode.
-// bool debugRepaintRainbowEnabled = false;
-//
+val debugRepaintRainbowEnabled = false
+// /
 // /// Overlay a rotating set of colors when repainting text in checked mode.
-// bool debugRepaintTextRainbowEnabled = false;
+val debugRepaintTextRainbowEnabled = false
 //
 // /// The current color to overlay when repainting a layer.
 // ///

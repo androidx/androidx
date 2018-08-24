@@ -37,6 +37,10 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
         RendererBindingImpl
 ), WidgetsBinding /* with GestureBinding */ {
 
+    // / The [BuildOwner] in charge of executing the build pipeline for the
+    // / widget tree rooted at this binding.
+    val buildOwner = BuildOwner()
+
     // was initInstances
     init {
         buildOwner.onBuildScheduled = ::_handleBuildScheduled
@@ -111,12 +115,6 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
 //        return async {};
 //    }
 
-    // / The [BuildOwner] in charge of executing the build pipeline for the
-    // / widget tree rooted at this binding.
-    val buildOwner
-        get() = _buildOwner
-    val _buildOwner = BuildOwner()
-
     // / The object in charge of the focus tree.
     // /
     // / Rarely used directly. Instead, consider using [FocusScope.of] to obtain
@@ -124,7 +122,7 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
     // /
     // / See [FocusManager] for more details.
     val focusManager
-        get() = _buildOwner.focusManager
+        get() = buildOwner.focusManager
 
     val _observers = mutableListOf<WidgetsBindingObserver>()
 

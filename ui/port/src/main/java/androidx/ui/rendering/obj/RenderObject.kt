@@ -140,10 +140,6 @@ import androidx.ui.widgets.framework._debugReportException
 // TODO(Migration/xbhatnag): implements HitTestTarget
 abstract class RenderObject : AbstractNode(), DiagnosticableTree {
 
-//    init {
-//        needsCompositing = isRepaintBoundary || alwaysNeedsCompositing;
-//    }
-
     companion object {
         var debugActiveLayout: RenderObject? = null
             private set
@@ -973,33 +969,33 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
             owner!!._nodesNeedingCompositingBitsUpdate.add(this)
     }
 
+    private var _needsCompositing: Boolean = isRepaintBoundary || alwaysNeedsCompositing
     /**
      * Whether we or one of our descendants has a compositing layer.
      *
      * Only legal to call after [PipelineOwner.flushLayout] and
      * [PipelineOwner.flushCompositingBits] have been called.
      */
-    var needsCompositing: Boolean = false // initialized in the constructor
-        get() {
+    // TODO(Migration/Andrey): We need a backing field to have private get() without an assertion.
+    val needsCompositing: Boolean get() {
             // make sure we don't use this bit when it is dirty
             assert(!needsCompositingBitsUpdate)
-            return field
+            return _needsCompositing
         }
-        private set
 
     internal fun updateCompositingBits() {
         if (!needsCompositingBitsUpdate)
             return
-        val oldNeedsCompositing = needsCompositing
-        needsCompositing = false
+        val oldNeedsCompositing = _needsCompositing
+        _needsCompositing = false
         visitChildren { child ->
             child.updateCompositingBits()
             if (child.needsCompositing)
-                needsCompositing = true
+                _needsCompositing = true
         }
         if (isRepaintBoundary || alwaysNeedsCompositing)
-            needsCompositing = true
-        if (oldNeedsCompositing != needsCompositing)
+            _needsCompositing = true
+        if (oldNeedsCompositing != _needsCompositing)
             markNeedsPaint()
         needsCompositingBitsUpdate = false
     }
@@ -1096,26 +1092,25 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
     // even in the case where some ancestor layer is itself never marked dirty, we
     // have to mark our entire detached subtree as dirty and needing to be
     // repainted. That way, we'll eventually be repainted.
-//    private fun skippedPaintingOnLayer() {
-//        assert(attached)
-//        assert(isRepaintBoundary)
-//        assert(_needsPaint)
-//        assert(_layer != null)
-//        assert(!_layer!!.attached)
-//        var ancestor: AbstractNode? = parent
-//        while (ancestor is RenderObject) {
-//            val node: RenderObject = ancestor
-//            if (node.isRepaintBoundary) {
-//                val layer = node._layer
-//                if (layer == null)
-//                    break // looks like the subtree here has never been painted. let it handle itself.
-//                if (layer.attached)
-//                    break // it's the one that detached us, so it's the one that will decide to repaint us.
-//                node._needsPaint = true
-//            }
-//            ancestor = node.parent
-//        }
-//    }
+    internal fun _skippedPaintingOnLayer() {
+        assert(attached)
+        assert(isRepaintBoundary)
+        assert(_needsPaint)
+        assert(_layer != null)
+        assert(!_layer!!.attached)
+        var ancestor: AbstractNode? = parent
+        while (ancestor is RenderObject) {
+            if (ancestor.isRepaintBoundary) {
+                val layer = ancestor._layer
+                if (layer == null)
+                    break // looks like the subtree here has never been painted. let it handle itself.
+                if (layer.attached)
+                    break // it's the one that detached us, so it's the one that will decide to repaint us.
+                ancestor._needsPaint = true
+            }
+            ancestor = ancestor.parent
+        }
+    }
 
     /**
      * Bootstrap the rendering pipeline by scheduling the very first paint.

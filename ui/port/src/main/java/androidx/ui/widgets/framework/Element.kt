@@ -111,8 +111,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     }
 
     override fun equals(other: Any?): Boolean {
-        // TODO(Migration/Filip): Not super sure with this
-        return this == other // identical(this, other)
+        return this === other // identical(this, other)
     }
 
     override fun hashCode(): Int {
@@ -317,7 +316,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         assert(_parent == null)
         assert(parent == null || parent._debugLifecycleState == _ElementLifecycle.active)
         assert(slot == null)
-        assert(depth == null)
+        assert(depth == 0)
         assert(!_active)
         _parent = parent
         slot = newSlot

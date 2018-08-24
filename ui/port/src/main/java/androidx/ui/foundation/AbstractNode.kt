@@ -70,7 +70,7 @@ abstract class AbstractNode : Comparable<AbstractNode> {
     // / The owner for this node (null if unattached).
     // /
     // / The entire subtree that this node belongs to will have the same owner.
-    open val owner: Any? = _owner
+    open val owner: Any? get() = _owner
 
     // / Whether this node is in a tree whose root is attached to something.
     // /
