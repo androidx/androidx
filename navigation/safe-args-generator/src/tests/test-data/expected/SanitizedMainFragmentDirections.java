@@ -96,6 +96,14 @@ public class SanitizedMainFragmentDirections {
             result = 31 * result + getActionId();
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "PreviousAction(actionId=" + getActionId() + "){"
+                    + "arg1=" + arg1
+                    + ", arg2=" + arg2
+                    + "}";
+        }
     }
 
     public static class NextAction implements NavDirections {
@@ -170,6 +178,14 @@ public class SanitizedMainFragmentDirections {
             result = 31 * result + (optionalArg != null ? optionalArg.hashCode() : 0);
             result = 31 * result + getActionId();
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "NextAction(actionId=" + getActionId() + "){"
+                    + "mainArg=" + mainArg
+                    + ", optionalArg=" + optionalArg
+                    + "}";
         }
     }
 }

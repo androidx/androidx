@@ -16,6 +16,9 @@
 
 package androidx.navigation.safe.args.generator.ext
 
+const val L = "\$L"
 const val N = "\$N"
 const val T = "\$T"
 const val S = "\$S"
+const val BEGIN_STMT = "\$["
+const val END_STMT = "\$]"
