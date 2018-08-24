@@ -4,6 +4,7 @@ import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -14,6 +15,7 @@ dependencies {
     api(project(":loader"))
     api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
 
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
