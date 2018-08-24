@@ -84,5 +84,8 @@
 
     <!-- String with a link in it. -->
     <string name="test_link">Click to visit <a href="https://www.google.com">Google</a>.</string>
+
+    <!-- Strings for CarToolbarActivity Demo. -->
+    <string name="car_toolbar_title">CarToolbar demo title</string>
 </resources>
 
