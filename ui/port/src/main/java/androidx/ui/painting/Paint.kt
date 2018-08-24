@@ -25,6 +25,7 @@ class Paint {
     private var porterDuffMode = android.graphics.PorterDuff.Mode.SRC_OVER
     private var blurStyle = android.graphics.BlurMaskFilter.Blur.NORMAL
     private var blurRadius = 0.0f
+    private var internalShader: Shader? = null
 
     companion object {
         // Paint objects are encoded in two buffers:
@@ -334,6 +335,7 @@ class Paint {
             }
 
             // radius is equivalent to roughly twice the sigma: radius = sigma * 2
+            // TODO(Migration/njawad: Add support for framework EmbossMaskFilter?)
             internalPaint.maskFilter = BlurMaskFilter((value.sigma * 2).toFloat(), blur)
         }
 
@@ -359,26 +361,22 @@ class Paint {
             internalPaint.isFilterBitmap = value != FilterQuality.none
         }
 
-//    // The shader to use when stroking or filling a shape.
-//    //
-//    // When this is null, the [color] is used instead.
-//    //
-//    // See also:
-//    //
-//    //  * [Gradient], a shader that paints a color gradient.
-//    //  * [ImageShader], a shader that tiles an [Image].
-//    //  * [colorFilter], which overrides [shader].
-//    //  * [color], which is used if [shader] and [colorFilter] are null.
-    // TODO(Migration/njawad: port over Shader implementations + add Shader support)
-//    Shader get shader {
-//        if (_objects == null)
-//            return null;
-//        return _objects[SHADER_INDEX];
-//    }
-//    set shader(Shader value) {
-//        _objects ??= new List<dynamic>(OBJECT_COUNT);
-//        _objects[SHADER_INDEX] = value;
-//    }
+    // The shader to use when stroking or filling a shape.
+    //
+    // When this is null, the [color] is used instead.
+    //
+    // See also:
+    //
+    //  * [Gradient], a shader that paints a color gradient.
+    //  * [ImageShader], a shader that tiles an [Image].
+    //  * [colorFilter], which overrides [shader].
+    //  * [color], which is used if [shader] and [colorFilter] are null.
+    var shader: Shader?
+        get() = internalShader
+        set(value) {
+            internalShader = value
+            internalPaint.shader = internalShader?.toFrameworkShader()
+        }
 //
 //    // A color filter to apply when a shape is drawn or when a layer is
 //    // composited.

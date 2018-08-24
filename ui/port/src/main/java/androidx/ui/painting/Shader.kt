@@ -18,8 +18,10 @@ package androidx.ui.painting
 
 // Base class for objects such as [Gradient] and [ImageShader] which
 // correspond to shaders as used by [Paint.shader].
-class Shader /*extends NativeFieldWrapperClass2*/ {
+abstract class Shader /*extends NativeFieldWrapperClass2*/ {
     // This class is created by the engine, and should not be instantiated
     // or extended directly.
     // Shader._();
+
+    internal abstract fun toFrameworkShader(): android.graphics.Shader
 }
