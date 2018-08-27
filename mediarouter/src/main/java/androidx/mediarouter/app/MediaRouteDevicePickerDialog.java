@@ -199,11 +199,10 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
     /**
      * Sets the width of the dialog. Also called when configuration changes.
      */
-    // TODO: Support different size for tablets(use MediaRouteDialogHelper)
     void updateLayout() {
-        // Set layout width and height to MATCH_PARENT to make full screen dialog
-        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
+        int width = MediaRouteDialogHelper.getDialogWidth(mContext);
+        int height = MediaRouteDialogHelper.getDialogHeight(mContext);
+        getWindow().setLayout(width, height);
     }
 
     @CallSuper

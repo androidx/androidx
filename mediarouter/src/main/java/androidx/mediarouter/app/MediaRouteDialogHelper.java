@@ -22,6 +22,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,11 +37,22 @@ import java.util.List;
 import java.util.Set;
 
 final class MediaRouteDialogHelper {
+    private static final boolean USE_SUPPORT_DYNAMIC_GROUP =
+            Log.isLoggable("UseSupportDynamicGroup", Log.DEBUG);
+
     /**
      * The framework should set the dialog width properly, but somehow it doesn't work, hence
      * duplicating a similar logic here to determine the appropriate dialog width.
      */
     public static int getDialogWidth(Context context) {
+        boolean isTablet = context.getResources().getBoolean(R.bool.is_tablet);
+
+        // Returns parameter MATCH_PARENT since dialogs supporting dynamic group have to be
+        // full-screen for handset devices.
+        if (USE_SUPPORT_DYNAMIC_GROUP && !isTablet) {
+            return ViewGroup.LayoutParams.MATCH_PARENT;
+        }
+
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         boolean isPortrait = metrics.widthPixels < metrics.heightPixels;
 
@@ -51,6 +63,20 @@ final class MediaRouteDialogHelper {
             return (int) value.getDimension(metrics);
         } else if (value.type == TypedValue.TYPE_FRACTION) {
             return (int) value.getFraction(metrics.widthPixels, metrics.widthPixels);
+        }
+        return ViewGroup.LayoutParams.WRAP_CONTENT;
+    }
+
+    /**
+     * Returns appropriate height for dialogs supporting dynamic group.
+     */
+    public static int getDialogHeight(Context context) {
+        boolean isTablet = context.getResources().getBoolean(R.bool.is_tablet);
+
+        // Returns parameter MATCH_PARENT since dialogs supporting dynamic group have to be
+        // full-screen for handset devices.
+        if (!isTablet) {
+            return ViewGroup.LayoutParams.MATCH_PARENT;
         }
         return ViewGroup.LayoutParams.WRAP_CONTENT;
     }
