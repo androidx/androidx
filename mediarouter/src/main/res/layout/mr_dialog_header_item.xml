@@ -18,7 +18,7 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/mr_dialog_header_name"
           android:layout_width="match_parent"
-          android:layout_height="48dp"
+          android:layout_height="@dimen/mr_dynamic_dialog_row_height"
           android:paddingStart="16dp"
           android:paddingEnd="16dp"
           android:paddingTop="24dp"
