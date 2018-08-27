@@ -3102,6 +3102,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final int secondTargetPosition = 1;
 
         final RecyclerView rv = new RecyclerView(getActivity());
+        rv.setLayoutParams(new ViewGroup.LayoutParams(400, 400));
 
         LinearLayoutManager llm =
                 new LinearLayoutManager(getActivity(), LinearLayout.HORIZONTAL, false);
@@ -3150,7 +3151,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
 
         assertTrue("Failed to reach target view in time.",
-                goToTargetLatch.await(1, TimeUnit.SECONDS));
+                goToTargetLatch.await(2, TimeUnit.SECONDS));
     }
 
     @Test
