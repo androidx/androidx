@@ -106,6 +106,14 @@
             </intent-filter>
         </service>
 
+        <service android:name=".media.SampleDynamicGroupMrpService"
+            android:label="@string/sample_media_route_provider_service"
+            android:process=":dynamic_mrp">
+            <intent-filter>
+                <action android:name="android.media.MediaRouteProviderService" />
+            </intent-filter>
+        </service>
+
         <!-- GridLayout Support Samples -->
 
         <activity android:name=".view.GridLayout1"

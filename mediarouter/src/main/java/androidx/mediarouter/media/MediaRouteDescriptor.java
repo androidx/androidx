@@ -471,6 +471,26 @@ public final class MediaRouteDescriptor {
         }
 
         /**
+         * Removes a group member id from the route's member list.
+         * <p>
+         * A route descriptor that has one or more group member route ids
+         * represents a route group. A member route may belong to another group.
+         * </p>
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public Builder removeGroupMemberId(String memberRouteId) {
+            if (TextUtils.isEmpty(memberRouteId)) {
+                throw new IllegalArgumentException("memberRouteId must not be empty");
+            }
+
+            if (mGroupMemberIds != null) {
+                mGroupMemberIds.remove(memberRouteId);
+            }
+            return this;
+        }
+
+        /**
          * Sets the user-visible name of the route.
          * <p>
          * The route name identifies the destination represented by the route.
