@@ -332,7 +332,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         final SliceItem titleItem = mRowContent.getTitleItem();
         if (titleItem != null) {
-            mPrimaryText.setText(titleItem.getText());
+            mPrimaryText.setText(titleItem.getSanitizedText());
         }
         if (mSliceStyle != null) {
             mPrimaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
@@ -446,7 +446,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         super.setLastUpdated(lastUpdated);
         if (mRowContent != null) {
             addSubtitle(mRowContent.getTitleItem() != null
-                    && TextUtils.isEmpty(mRowContent.getTitleItem().getText()));
+                    && TextUtils.isEmpty(mRowContent.getTitleItem().getSanitizedText()));
         }
     }
 
@@ -465,7 +465,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                         getResources().getString(R.string.abc_slice_updated, relativeTime);
             }
         }
-        CharSequence subtitle = subtitleItem != null ? subtitleItem.getText() : null;
+        CharSequence subtitle = subtitleItem != null ? subtitleItem.getSanitizedText() : null;
         boolean subtitleExists = !TextUtils.isEmpty(subtitle)
                         || (subtitleItem != null && subtitleItem.hasHint(HINT_PARTIAL));
         if (subtitleExists) {

@@ -167,7 +167,7 @@ public class SliceActionImpl implements SliceAction {
         SliceItem titleItem = SliceQuery.find(actionItem.getSlice(), FORMAT_TEXT, HINT_TITLE,
                 null /* nonHints */);
         if (titleItem != null) {
-            mTitle = titleItem.getText();
+            mTitle = titleItem.getSanitizedText();
         }
         SliceItem cdItem = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_TEXT,
                 SUBTYPE_CONTENT_DESCRIPTION);
