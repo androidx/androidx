@@ -632,6 +632,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 } catch (InterruptedException ex) {
                     fail("waitFor interrupted");
                 }
+                animator.endAnimations();
             }
         });
     }
@@ -671,6 +672,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 } catch (InterruptedException ex) {
                     fail("waitFor interrupted");
                 }
+                animator.endAnimations();
             }
         });
     }
