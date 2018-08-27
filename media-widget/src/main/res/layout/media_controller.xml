@@ -172,6 +172,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_toRightOf="@id/bottom_bar_left"
+            android:visibility="invisible"
             android:gravity="center"
             android:paddingLeft="10dp"
             android:paddingRight="10dp">
