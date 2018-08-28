@@ -56,12 +56,12 @@ public class LiveDataUtils {
         outputLiveData.addSource(inputLiveData, new Observer<In>() {
             @Override
             public void onChanged(@Nullable final In input) {
+                final Out previousOutput = outputLiveData.getValue();
                 workTaskExecutor.executeOnBackgroundThread(new Runnable() {
                     @Override
                     public void run() {
                         synchronized (outputLiveData) {
                             Out newOutput = mappingMethod.apply(input);
-                            Out previousOutput = outputLiveData.getValue();
                             if (previousOutput == null && newOutput != null) {
                                 outputLiveData.postValue(newOutput);
                             } else if (
