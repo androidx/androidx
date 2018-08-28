@@ -107,12 +107,12 @@ class Alignment(
         // /
         // / Values for `t` are usually obtained from an [Animation<double>], such as
         // / an [AnimationController].
-        fun lerp(a: Alignment, b: Alignment, t: Double): Alignment? {
+        fun lerp(a: Alignment?, b: Alignment?, t: Double): Alignment? {
             assert(t != null)
             if (a == null && b == null)
                 return null
             if (a == null)
-                return Alignment(lerpDouble(0.0, b.x, t), lerpDouble(0.0, b.y, t))
+                return Alignment(lerpDouble(0.0, b!!.x, t), lerpDouble(0.0, b.y, t))
             if (b == null)
                 return Alignment(lerpDouble(a.x, 0.0, t), lerpDouble(a.y, 0.0, t))
             return Alignment(lerpDouble(a.x, b.x, t), lerpDouble(a.y, b.y, t))
@@ -185,7 +185,7 @@ class Alignment(
     }
 
     // / Computes the remainder in each dimension by the given factor.
-    override operator fun mod(other: Double): Alignment {
+    override operator fun rem(other: Double): Alignment {
         return Alignment(x % other, y % other)
     }
 
@@ -230,8 +230,7 @@ class Alignment(
 //        );
 //    }
 
-    override fun resolve(direction: TextDirection?): Alignment? = this
+    override fun resolve(direction: TextDirection?): Alignment = this
 
-//    @override
-//    String toString() => _stringify(x, y);
+    override fun toString() = _stringify(x, y)
 }

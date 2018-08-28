@@ -59,7 +59,7 @@ class _MixedAlignment(x: Double, start: Double, y: Double) : AlignmentGeometry()
         )
     }
 
-    override operator fun mod(other: Double): _MixedAlignment {
+    override operator fun rem(other: Double): _MixedAlignment {
         return _MixedAlignment(
                 _x % other,
                 _start % other,
@@ -67,13 +67,12 @@ class _MixedAlignment(x: Double, start: Double, y: Double) : AlignmentGeometry()
         )
     }
 
-    override fun resolve(direction: TextDirection?): Alignment? {
+    override fun resolve(direction: TextDirection?): Alignment {
         assert(direction != null)
 
-        return when (direction) {
+        return when (direction!!) {
             TextDirection.RTL -> Alignment(_x - _start, _y)
             TextDirection.LTR -> Alignment(_x + _start, _y)
-            else -> null
         }
     }
 }
