@@ -18,7 +18,6 @@ package androidx.car.widget;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -35,6 +34,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
+import androidx.car.uxrestrictions.CarUxRestrictions;
+import androidx.car.uxrestrictions.OnUxRestrictionsChangedListener;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.lang.annotation.Retention;
@@ -521,7 +522,8 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     /**
      * Holds views of SeekbarListItem.
      */
-    public static class ViewHolder extends ListItem.ViewHolder {
+    public static class ViewHolder extends ListItem.ViewHolder implements
+            OnUxRestrictionsChangedListener {
 
         private final View[] mWidgetViews;
 
@@ -562,9 +564,16 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
                     mSupplementalIcon, mSupplementalIconDivider};
         }
 
+        /**
+         * Updates child views with current car UX restrictions.
+         *
+         * <p>{@code Text} might be truncated to meet length limit required by regulation.
+         *
+         * @param restrictionsInfo current car UX restrictions.
+         */
         @Override
-        protected void applyUxRestrictions(@NonNull CarUxRestrictions restrictions) {
-            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictions, getText());
+        public void onUxRestrictionsChanged(CarUxRestrictions restrictionsInfo) {
+            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictionsInfo, getText());
         }
 
         @NonNull

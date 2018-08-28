@@ -17,7 +17,6 @@
 package androidx.car.widget;
 
 import android.app.Activity;
-import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -36,6 +35,7 @@ import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsHelper;
 import androidx.car.util.ListItemBackgroundResolver;
+import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -144,7 +144,7 @@ public class ListItemAdapter extends
 
         mUxRestrictionsHelper =
                 new CarUxRestrictionsHelper(context, carUxRestrictions -> {
-                    mCurrentUxRestrictions = carUxRestrictions;
+                    mCurrentUxRestrictions = new CarUxRestrictions(carUxRestrictions);
                     notifyDataSetChanged();
                 });
     }
@@ -301,7 +301,7 @@ public class ListItemAdapter extends
 
         // Car may not be initialized thus current UXR will not be available.
         if (mCurrentUxRestrictions != null) {
-            holder.applyUxRestrictions(mCurrentUxRestrictions);
+            holder.onUxRestrictionsChanged(mCurrentUxRestrictions);
         }
 
         ListItem item = mItemProvider.get(position);

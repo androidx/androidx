@@ -18,7 +18,6 @@ package androidx.car.widget;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -37,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
+import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.lang.annotation.Retention;
@@ -635,7 +635,7 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
         }
 
         @Override
-        protected void applyUxRestrictions(@NonNull CarUxRestrictions restrictions) {
+        public void onUxRestrictionsChanged(@NonNull CarUxRestrictions restrictions) {
             CarUxRestrictionsUtils.apply(itemView.getContext(), restrictions, getBody());
         }
 
