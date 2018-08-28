@@ -173,4 +173,9 @@ function splitJvmOpts() {
 eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
 JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
 
-exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+# TODO(jeffrygaston): remove this numWorkers computation either if it doesn't help or if we figure out b/113335284
+# numWorkers = (numCores / 4) rounded up to the next multiple of 4
+numCores=$(grep -c ^processor /proc/cpuinfo)
+numWorkers=$(( ( ($numCores + 3) / 4 + 3) / 4 * 4))
+
+exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain --max-workers="${numWorkers}" "$@"
