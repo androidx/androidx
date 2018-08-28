@@ -199,17 +199,16 @@ class AlignmentDirectional(
     }
 
     // / Computes the remainder in each dimension by the given factor.
-    override operator fun mod(other: Double): AlignmentGeometry {
+    override operator fun rem(other: Double): AlignmentGeometry {
         return AlignmentDirectional(start % other, y % other)
     }
 
-    override fun resolve(direction: TextDirection?): Alignment? {
+    override fun resolve(direction: TextDirection?): Alignment {
         assert(direction != null)
 
-        return when (direction) {
+        return when (direction!!) {
             TextDirection.RTL -> Alignment(-start, y)
             TextDirection.LTR -> Alignment(start, y)
-            else -> null
         }
     }
 
