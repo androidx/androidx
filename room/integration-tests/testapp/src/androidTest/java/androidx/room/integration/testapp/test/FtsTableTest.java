@@ -19,12 +19,21 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.content.Context;
+import android.os.Build;
+
+import androidx.room.Room;
+import androidx.room.integration.testapp.FtsTestDatabase;
+import androidx.room.integration.testapp.dao.MailDao;
 import androidx.room.integration.testapp.vo.Mail;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.google.common.collect.Lists;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,7 +41,18 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 public class FtsTableTest extends TestDatabaseTest {
+
+    private FtsTestDatabase mDatabase;
+    private MailDao mMailDao;
+
+    @Before
+    public void setup() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        mDatabase = Room.inMemoryDatabaseBuilder(context, FtsTestDatabase.class).build();
+        mMailDao = mDatabase.getMailDao();
+    }
 
     @Test
     public void readWrite() {

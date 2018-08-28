@@ -16,19 +16,25 @@
 
 package androidx.room.integration.autovaluetestapp;
 
+import androidx.room.Dao;
 import androidx.room.Database;
+import androidx.room.Insert;
+import androidx.room.Query;
 import androidx.room.RoomDatabase;
-import androidx.room.integration.autovaluetestapp.dao.ParcelableEntityDao;
-import androidx.room.integration.autovaluetestapp.dao.PersonDao;
-import androidx.room.integration.autovaluetestapp.dao.PetDao;
-import androidx.room.integration.autovaluetestapp.vo.ParcelableEntity;
-import androidx.room.integration.autovaluetestapp.vo.Person;
-import androidx.room.integration.autovaluetestapp.vo.Pet;
+import androidx.room.integration.autovaluetestapp.vo.Mail;
 
-@Database(entities = {Person.class, Pet.Cat.class, Pet.Dog.class, ParcelableEntity.class},
-        version = 1, exportSchema = false)
-public abstract class TestDatabase extends RoomDatabase {
-    public abstract PersonDao getPersonDao();
-    public abstract PetDao getPetDao();
-    public abstract ParcelableEntityDao getParcelableEntityDao();
+import java.util.List;
+
+@Database(entities = {Mail.class}, version = 1, exportSchema = false)
+public abstract class FtsTestDatabase extends RoomDatabase {
+    public abstract MailDao getMailDao();
+
+    @Dao
+    public interface MailDao {
+        @Insert
+        void insert(Mail mail);
+
+        @Query("SELECT * FROM mail WHERE mail MATCH :searchQuery")
+        List<Mail> getMail(String searchQuery);
+    }
 }

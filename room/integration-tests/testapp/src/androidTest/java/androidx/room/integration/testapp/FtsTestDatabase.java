@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.room.integration.autovaluetestapp.vo;
+package androidx.room.integration.testapp;
 
-import androidx.room.Fts4Entity;
+import androidx.room.Database;
+import androidx.room.RoomDatabase;
+import androidx.room.integration.testapp.dao.MailDao;
+import androidx.room.integration.testapp.vo.Mail;
 
-import com.google.auto.value.AutoValue;
-
-@AutoValue
-@Fts4Entity
-public abstract class Mail {
-    public abstract String getSubject();
-    public abstract String getBody();
-
-    public static Mail create(String subject, String body) {
-        return new AutoValue_Mail(subject, body);
-    }
+@Database(entities = {Mail.class}, version = 1, exportSchema = false)
+public abstract class FtsTestDatabase extends RoomDatabase  {
+    public abstract MailDao getMailDao();
 }
