@@ -1,6 +1,7 @@
 package androidx.ui.foundation.binding
 
 import androidx.annotation.CallSuper
+import androidx.ui.developer.timeline.Timeline
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.runtimeType
 import kotlinx.coroutines.experimental.Deferred
@@ -74,12 +75,11 @@ object BindingBaseImpl : BindingBase {
     // / [initServiceExtensions] to have bindings initialize their
     // / observatory service extensions, if any.
     init {
-        // TODO(migration/popam): see what to do with this
-//        developer.Timeline.startSync('Framework initialization');
+        Timeline.startSync("BindingBase initialization")
 
 //        developer.postEvent('Flutter.FrameworkInitialization', <String, String>{});
 
-//        developer.Timeline.finishSync();
+        Timeline.finishSync()
     }
 
     // / Called when the binding is initialized, to register service
@@ -170,8 +170,7 @@ object BindingBaseImpl : BindingBase {
     // /
     // / The [Future] returned by the `callback` argument is returned by [lockEvents].
     override fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit> {
-        // TODO(Migration/Andrey): Needs Timeline
-//        developer.Timeline.startSync('Lock events');
+        Timeline.startSync("Lock events")
 
         assert(callback != null)
         _lockCount += 1
@@ -181,8 +180,7 @@ object BindingBaseImpl : BindingBase {
         future.invokeOnCompletion {
             _lockCount -= 1
             if (!locked) {
-                // TODO(Migration/Andrey): Needs Timeline
-//                developer.Timeline.finishSync();
+                Timeline.finishSync()
                 unlocked()
             }
         }

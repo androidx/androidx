@@ -1,12 +1,15 @@
 package androidx.ui.rendering.obj
 
 import androidx.ui.assert
+import androidx.ui.developer.timeline.Timeline
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.foundation.timelineWhitelistArguments
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PictureRecorder
 import androidx.ui.rendering.box.RenderBox
+import androidx.ui.rendering.debugProfilePaintsEnabled
 import androidx.ui.rendering.layer.ContainerLayer
 import androidx.ui.rendering.layer.Layer
 import androidx.ui.rendering.layer.OffsetLayer
@@ -96,9 +99,9 @@ class PaintingContext(
      */
     fun paintChild(child: RenderBox, offset: Offset) {
         assert {
-            // TODO(Migration/andrey): Needs Timeline
-//            if (debugProfilePaintsEnabled)
-//                Timeline.startSync('${child.runtimeType}', arguments: timelineWhitelistArguments);
+            if (debugProfilePaintsEnabled) {
+                Timeline.startSync("${child.runtimeType()}", timelineWhitelistArguments)
+            }
             true
         }
 
@@ -110,9 +113,9 @@ class PaintingContext(
         }
 
         assert {
-            // TODO(Migration/andrey): Needs Timeline
-//            if (debugProfilePaintsEnabled)
-//                Timeline.finishSync();
+            if (debugProfilePaintsEnabled) {
+                Timeline.finishSync()
+            }
             true
         }
     }

@@ -2,6 +2,7 @@ package androidx.ui.widgets.binding
 
 import androidx.annotation.CallSuper
 import androidx.ui.assert
+import androidx.ui.developer.timeline.Timeline
 import androidx.ui.engine.window.AppLifecycleState
 import androidx.ui.engine.window.Locale
 import androidx.ui.engine.window.Window
@@ -445,8 +446,8 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
         // TODO(ianh): Following code should not be included in release mode, only profile and debug modes.
         // See https://github.com/dart-lang/sdk/issues/27192
         if (_needToReportFirstFrame && _reportFirstFrame) {
+            Timeline.instantSync("Widgets completed first useful frame")
             TODO("migration/popam/Implement this")
-//            developer.Timeline.instantSync('Widgets completed first useful frame');
 //            developer.postEvent('Flutter.FirstFrame', <String, dynamic>{});
             _needToReportFirstFrame = false
         }

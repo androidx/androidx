@@ -4,10 +4,16 @@ import androidx.ui.assert
 import androidx.ui.compositing.Scene
 import androidx.ui.compositing.SceneBuilder
 import androidx.ui.core.Duration
+import androidx.ui.developer.timeline.Timeline
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.window.Window
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.foundation.diagnostics.DiagnosticsNode
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.timelineWhitelistArguments
 import androidx.ui.painting.matrixutils.transformRect
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
@@ -144,8 +150,7 @@ class RenderView(
      * Actually causes the output of the rendering pipeline to appear on screen.
      */
     fun compositeFrame() {
-        // TODO(Migration/Andrey): Needs Timeline
-//        Timeline.startSync('Compositing', arguments = timelineWhitelistArguments);
+        Timeline.startSync("Compositing", timelineWhitelistArguments)
         try {
             val builder = SceneBuilder()
             layer!!.addToScene(builder, Offset.zero)
@@ -160,8 +165,7 @@ class RenderView(
                 true
             }
         } finally {
-            // TODO(Migration/Andrey): Needs Timeline
-//            Timeline.finishSync();
+            Timeline.finishSync()
         }
     }
 
@@ -173,20 +177,23 @@ class RenderView(
             return _rootTransform!!.transformRect(Offset.zero.and(size))
         }
 
-    // TODO(Migration/andrey): probably not important for us
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//        // call to ${super.debugFillProperties(description)} is omitted because the
-//        // root superclasses don't include any interesting information for this
-//        // class
-//        assert(() {
-//            properties.add(new DiagnosticsNode.message('debug mode enabled - ${Platform.operatingSystem}'));
-//            return true;
-//        }());
-//        properties.add(new DiagnosticsProperty<Size>('window size', ui.window.physicalSize, tooltip: 'in physical pixels'));
-//        properties.add(new DoubleProperty('device pixel ratio', ui.window.devicePixelRatio, tooltip: 'physical pixels per logical pixel'));
-//        properties.add(new DiagnosticsProperty<ViewConfiguration>('configuration', configuration, tooltip: 'in logical pixels'));
-//        if (ui.window.semanticsEnabled)
-//            properties.add(new DiagnosticsNode.message('semantics enabled'));
-//    }
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        // call to ${super.debugFillProperties(description)} is omitted because the
+        // root superclasses don't include any interesting information for this
+        // class
+        assert {
+            // TODO(Migration/Andrey): Replaced ${Platform.operatingSystem} with Android
+            properties.add(DiagnosticsNode.message("debug mode enabled - Android"))
+            true
+        }
+        properties.add(DiagnosticsProperty.create("window size",
+                Window.physicalSize, tooltip = "in physical pixels"))
+        properties.add(DoubleProperty.create("device pixel ratio",
+                Window.devicePixelRatio, tooltip = "physical pixels per logical pixel"))
+        properties.add(DiagnosticsProperty.create("configuration",
+                configuration, tooltip = "in logical pixels"))
+        if (Window.semanticsEnabled) {
+            properties.add(DiagnosticsNode.message("semantics enabled"))
+        }
+    }
 }

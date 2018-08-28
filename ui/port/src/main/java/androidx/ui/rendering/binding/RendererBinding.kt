@@ -2,9 +2,11 @@ package androidx.ui.rendering.binding
 
 import androidx.ui.assert
 import androidx.ui.core.Duration
+import androidx.ui.developer.timeline.Timeline
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.binding.BindingBase
 import androidx.ui.foundation.binding.BindingBaseImpl
+import androidx.ui.foundation.timelineWhitelistArguments
 import androidx.ui.rendering.obj.PipelineOwner
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.SemanticsHandle
@@ -323,13 +325,11 @@ object RendererBindingImpl : RendererMixinsWrapper(
     override fun performReassembleRenderer(superCall: () -> Deferred<Unit>): Deferred<Unit> {
         return async {
             superCall().await()
-            // TODO("Migration/Andrey: needs Timeline
-//            Timeline.startSync('Dirty Render Tree', arguments: timelineWhitelistArguments);
+            Timeline.startSync("Dirty Render Tree", timelineWhitelistArguments)
             try {
                 renderView!!.reassemble()
             } finally {
-                // TODO("Migration/Andrey: needs Timeline
-//                Timeline.finishSync();
+                Timeline.finishSync()
             }
             scheduleWarmUpFrame()
             endOfFrame().await()

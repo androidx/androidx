@@ -1,5 +1,9 @@
 package androidx.ui.widgets.framework
 
+import androidx.ui.assert
+import androidx.ui.developer.timeline.Timeline
+import androidx.ui.runtimeType
+import androidx.ui.widgets.debugProfileBuildsEnabled
 import androidx.ui.widgets.debugWidgetBuilderValue
 
 // / Signature for the callback to [BuildContext.visitChildElements].
@@ -39,12 +43,12 @@ abstract class ComponentElement(widget: Widget) : Element(widget) {
     // / Called automatically during [mount] to generate the first build, and by
     // / [rebuild] when the element needs updating.
     override fun performRebuild() {
-        // TODO(Migration/Filip): Fix timeline
-//        assert {
-//            if (debugProfileBuildsEnabled)
-//                Timeline.startSync("${widget.runtimeType()}");
-//            true;
-//        };
+        assert {
+            if (debugProfileBuildsEnabled) {
+                Timeline.startSync("${widget.runtimeType()}")
+            }
+            true
+        }
 
         assert(_debugSetAllowIgnoredCallsToMarkNeedsBuild(true))
         var built: Widget
@@ -67,12 +71,12 @@ abstract class ComponentElement(widget: Widget) : Element(widget) {
             _child = updateChild(null, built, slot)
         }
 
-        // TODO(Migration/Filip): Fix timeline
-//        assert {
-//            if (debugProfileBuildsEnabled)
-//                Timeline.finishSync();
-//            true;
-//        };
+        assert {
+            if (debugProfileBuildsEnabled) {
+                Timeline.finishSync()
+            }
+            true
+        }
     }
 
     // / Subclasses should override this function to actually call the appropriate

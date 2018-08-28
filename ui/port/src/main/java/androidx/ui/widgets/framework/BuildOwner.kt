@@ -2,9 +2,11 @@ package androidx.ui.widgets.framework
 
 import androidx.ui.VoidCallback
 import androidx.ui.assert
+import androidx.ui.developer.timeline.Timeline
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.assertions.debugPrintStack
 import androidx.ui.foundation.debugPrint
+import androidx.ui.foundation.timelineWhitelistArguments
 import androidx.ui.widgets.debugPrintBuildScope
 import androidx.ui.widgets.debugPrintScheduleBuildForStacks
 import androidx.ui.widgets.focusmanager.FocusManager
@@ -177,8 +179,7 @@ class BuildOwner(
             debugBuilding = true
             true
         }
-        // TODO(Migration/Filip): Not need now
-        // Timeline.startSync('Build', arguments: timelineWhitelistArguments);
+        Timeline.startSync("Build", timelineWhitelistArguments)
         try {
             _scheduledFlushDirtyElements = true
             if (callback != null) {
@@ -263,8 +264,7 @@ class BuildOwner(
             _dirtyElements.clear()
             _scheduledFlushDirtyElements = false
             _dirtyElementsNeedsResorting = null
-            // TODO(Migration/Filip): Not need now
-            // Timeline.finishSync();
+            Timeline.finishSync()
             assert(debugBuilding)
             assert {
                 debugBuilding = false
@@ -306,8 +306,7 @@ class BuildOwner(
     // / After the current call stack unwinds, a microtask that notifies listeners
     // / about changes to global keys will run.
     fun finalizeTree() {
-        // TODO(Migration/Filip): Not need now
-        // Timeline.startSync('Finalize tree', arguments: timelineWhitelistArguments);
+        Timeline.startSync("Finalize tree", timelineWhitelistArguments)
         try {
             lockState {
                 _inactiveElements._unmountAll(); // this unregisters the GlobalKeys
@@ -410,8 +409,7 @@ class BuildOwner(
         } catch (e: Throwable) {
             _debugReportException("while finalizing the widget tree", e, e.stackTrace)
         } finally {
-            // TODO(Migration/Filip): Not need now
-            // Timeline.finishSync();
+            Timeline.finishSync()
         }
     }
 
@@ -422,15 +420,13 @@ class BuildOwner(
     // /
     // / This is expensive and should not be called except during development.
     fun reassemble(root: Element) {
-        // TODO(Migration/Filip): Not need now
-        // Timeline.startSync('Dirty Element Tree');
+        Timeline.startSync("Dirty Element Tree")
         try {
             assert(root._parent == null)
             assert(root.owner == this)
             root._reassemble()
         } finally {
-            // TODO(Migration/Filip): Not need now
-            // Timeline.finishSync();
+            Timeline.finishSync()
         }
     }
 }
