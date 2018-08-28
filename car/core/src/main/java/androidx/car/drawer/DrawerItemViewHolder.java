@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
 import androidx.car.uxrestrictions.CarUxRestrictions;
@@ -39,7 +40,27 @@ public class DrawerItemViewHolder extends RecyclerView.ViewHolder implements
     private final TextView mBody;
     private final ImageView mEndIcon;
 
-    DrawerItemViewHolder(View view) {
+    /**
+     * Create a new {@code ViewHolder} that will parse the given view that is meant to displaying
+     * items in a drawer.
+     *
+     * <p>The given view is required to have a title and icon view with an optional body and end
+     * icon view. These views are looked up via ids, specifically:
+     *
+     * <ul>
+     *     <li>Icon - R.id.icon
+     *     <li>Title - R.id.title
+     *     <li>Body - R.id.body
+     *     <li>End Icon - R.id.end_icon
+     * </ul>
+     *
+     * <p>This method is exposed for testing purposes. The {@code DrawerItemViewHolder} is
+     * automatically created by the {@link CarDrawerAdapter}.
+     *
+     * @param view The view that will represent an item in a drawer.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public DrawerItemViewHolder(@NonNull View view) {
         super(view);
         mIcon = view.findViewById(R.id.icon);
         if (mIcon == null) {

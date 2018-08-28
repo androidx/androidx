@@ -92,6 +92,7 @@ package androidx.car.drawer {
   }
 
   public class DrawerItemViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
+    ctor public DrawerItemViewHolder(android.view.View);
     method public android.widget.TextView getBodyView();
     method public android.widget.ImageView getEndIconView();
     method public android.widget.ImageView getIconView();
