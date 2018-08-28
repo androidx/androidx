@@ -36,6 +36,43 @@ package androidx.car.cluster.navigation {
     enum_constant public static final androidx.car.cluster.navigation.Distance.Unit YARDS;
   }
 
+  public final class Lane implements androidx.versionedparcelable.VersionedParcelable {
+    method public java.util.List<androidx.car.cluster.navigation.LaneDirection> getDirections();
+  }
+
+  public static final class Lane.Builder {
+    ctor public Lane.Builder();
+    method public androidx.car.cluster.navigation.Lane.Builder addDirection(androidx.car.cluster.navigation.LaneDirection);
+    method public androidx.car.cluster.navigation.Lane build();
+  }
+
+  public final class LaneDirection implements androidx.versionedparcelable.VersionedParcelable {
+    method public androidx.car.cluster.navigation.LaneDirection.Shape getShape();
+    method public boolean isHighlighted();
+  }
+
+  public static final class LaneDirection.Builder {
+    ctor public LaneDirection.Builder();
+    method public androidx.car.cluster.navigation.LaneDirection build();
+    method public androidx.car.cluster.navigation.LaneDirection.Builder setHighlighted(boolean);
+    method public androidx.car.cluster.navigation.LaneDirection.Builder setShape(androidx.car.cluster.navigation.LaneDirection.Shape, androidx.car.cluster.navigation.LaneDirection.Shape...);
+  }
+
+  public static final class LaneDirection.Shape extends java.lang.Enum {
+    method public static androidx.car.cluster.navigation.LaneDirection.Shape valueOf(java.lang.String);
+    method public static final androidx.car.cluster.navigation.LaneDirection.Shape[] values();
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape NORMAL_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape NORMAL_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SHARP_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SHARP_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SLIGHT_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SLIGHT_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape STRAIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape UNKNOWN;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape U_TURN_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape U_TURN_RIGHT;
+  }
+
   public final class Maneuver implements androidx.versionedparcelable.VersionedParcelable {
     method public int getRoundaboutExitNumber();
     method public androidx.car.cluster.navigation.Maneuver.Type getType();
@@ -123,11 +160,13 @@ package androidx.car.cluster.navigation {
 
   public final class Step implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.car.cluster.navigation.Distance getDistance();
+    method public java.util.List<androidx.car.cluster.navigation.Lane> getLanes();
     method public androidx.car.cluster.navigation.Maneuver getManeuver();
   }
 
   public static final class Step.Builder {
     ctor public Step.Builder();
+    method public androidx.car.cluster.navigation.Step.Builder addLane(androidx.car.cluster.navigation.Lane);
     method public androidx.car.cluster.navigation.Step build();
     method public androidx.car.cluster.navigation.Step.Builder setDistance(androidx.car.cluster.navigation.Distance);
     method public androidx.car.cluster.navigation.Step.Builder setManeuver(androidx.car.cluster.navigation.Maneuver);
