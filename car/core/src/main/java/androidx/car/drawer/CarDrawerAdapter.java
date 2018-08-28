@@ -17,7 +17,6 @@
 package androidx.car.drawer;
 
 import android.app.Activity;
-import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -29,6 +28,7 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsHelper;
+import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.car.widget.PagedListView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -102,7 +102,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
 
         mUxRestrictionsHelper =
                 new CarUxRestrictionsHelper(context, carUxRestrictions -> {
-                    mCurrentUxRestrictions = carUxRestrictions;
+                    mCurrentUxRestrictions = new CarUxRestrictions(carUxRestrictions);
                     notifyDataSetChanged();
                 });
     }
@@ -188,7 +188,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
     public final void onBindViewHolder(DrawerItemViewHolder holder, int position) {
         // Car may not be initialized thus current UXR will not be available.
         if (mCurrentUxRestrictions != null) {
-            holder.applyUxRestrictions(mCurrentUxRestrictions);
+            holder.onUxRestrictionsChanged(mCurrentUxRestrictions);
         }
 
         if (shouldShowDisabledListItem()) {
