@@ -29,6 +29,8 @@
     </declare-styleable>
 
     <attr name="mediaRouteButtonStyle" format="reference" />
+    <attr name="mediaRouteHeaderTextAppearance" format="reference" />
+    <attr name="mediaRouteBodyTextAppearance" format="reference" />
     <attr name="mediaRouteCloseDrawable" format="reference" />
     <attr name="mediaRoutePlayDrawable" format="reference" />
     <attr name="mediaRoutePauseDrawable" format="reference" />

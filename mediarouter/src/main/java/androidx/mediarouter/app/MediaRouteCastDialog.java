@@ -932,7 +932,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             public void bindHeaderViewHolder(Item item) {
                 String headerName = item.getData().toString();
 
-                mTextView.setText(headerName.toUpperCase());
+                mTextView.setText(headerName);
             }
         }
 
