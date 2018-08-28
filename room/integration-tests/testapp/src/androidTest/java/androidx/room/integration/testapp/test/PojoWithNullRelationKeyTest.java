@@ -29,6 +29,7 @@ import androidx.room.Query;
 import androidx.room.Relation;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.Transaction;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -106,6 +107,7 @@ public class PojoWithNullRelationKeyTest {
         @Insert
         void insert(ChildEntity childEntity);
 
+        @Transaction
         @Query("SELECT * FROM ParentEntity")
         List<ParentWithChildren> getAllParentWithChildren();
     }
