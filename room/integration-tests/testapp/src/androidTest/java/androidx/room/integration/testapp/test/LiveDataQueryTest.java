@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.Nullable;
@@ -32,6 +33,9 @@ import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.room.InvalidationTrackerTrojan;
+import androidx.room.Room;
+import androidx.room.integration.testapp.FtsTestDatabase;
+import androidx.room.integration.testapp.dao.MailDao;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.Mail;
 import androidx.room.integration.testapp.vo.Pet;
@@ -281,12 +285,17 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void withFtsTable() throws ExecutionException, InterruptedException, TimeoutException {
+        final Context context = InstrumentationRegistry.getTargetContext();
+        final FtsTestDatabase db = Room.inMemoryDatabaseBuilder(context, FtsTestDatabase.class)
+                .build();
+        final MailDao mailDao = db.getMailDao();
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
 
         final TestObserver<List<Mail>> observer = new TestObserver<>();
-        LiveData<List<Mail>> liveData = mMailDao.getLiveDataMail();
+        LiveData<List<Mail>> liveData = mailDao.getLiveDataMail();
 
         observe(liveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(Collections.emptyList()));
@@ -294,7 +303,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         observer.reset();
 
         Mail mail = TestUtil.createMail(1, "subject", "body");
-        mMailDao.insert(mail);
+        mailDao.insert(mail);
         assertThat(observer.get().get(0), is(mail));
     }
 
