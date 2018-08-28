@@ -15,29 +15,29 @@
  */
 package androidx.ui.vectormath64
 
-data class Vector2(var x: Float = 0.0f, var y: Float = 0.0f) {
+data class Vector2(var x: Double = 0.0, var y: Double = 0.0) {
     constructor(v: Vector2) : this(v.x, v.y)
 
-    inline val v2storage: List<Float>
+    inline val v2storage: List<Double>
         get() = listOf(x, y)
 
-    inline var r: Float
+    inline var r: Double
         get() = x
         set(value) {
             x = value
         }
-    inline var g: Float
+    inline var g: Double
         get() = y
         set(value) {
             y = value
         }
 
-    inline var s: Float
+    inline var s: Double
         get() = x
         set(value) {
             x = value
         }
-    inline var t: Float
+    inline var t: Double
         get() = y
         set(value) {
             y = value
@@ -80,54 +80,49 @@ data class Vector2(var x: Float = 0.0f, var y: Float = 0.0f) {
 
     operator fun get(index1: Int, index2: Int) = Vector2(get(index1), get(index2))
 
-    inline operator fun invoke(index: Int) = get(index - 1)
-
-    operator fun set(index: Int, v: Float) = when (index) {
+    operator fun set(index: Int, v: Double) = when (index) {
         0 -> x = v
         1 -> y = v
         else -> throw IllegalArgumentException("index must be in 0..1")
     }
 
-    operator fun set(index1: Int, index2: Int, v: Float) {
+    operator fun set(index1: Int, index2: Int, v: Double) {
         set(index1, v)
         set(index2, v)
     }
 
-    operator fun set(index: VectorComponent, v: Float) = when (index) {
+    operator fun set(index: VectorComponent, v: Double) = when (index) {
         VectorComponent.X, VectorComponent.R, VectorComponent.S -> x = v
         VectorComponent.Y, VectorComponent.G, VectorComponent.T -> y = v
         else -> throw IllegalArgumentException("index must be X, Y, R, G, S or T")
     }
 
-    operator fun set(index1: VectorComponent, index2: VectorComponent, v: Float) {
+    operator fun set(index1: VectorComponent, index2: VectorComponent, v: Double) {
         set(index1, v)
         set(index2, v)
     }
 
     operator fun unaryMinus() = Vector2(-x, -y)
-    operator fun inc(): Vector2 {
-        x += 1.0f
-        y += 1.0f
-        return this
+    operator fun inc() = Vector2(this).apply {
+        ++x
+        ++y
+    }
+    operator fun dec() = Vector2(this).apply {
+        --x
+        --y
     }
 
-    operator fun dec(): Vector2 {
-        x -= 1.0f
-        y -= 1.0f
-        return this
-    }
-
-    inline operator fun plus(v: Float) = Vector2(x + v, y + v)
-    inline operator fun minus(v: Float) = Vector2(x - v, y - v)
-    inline operator fun times(v: Float) = Vector2(x * v, y * v)
-    inline operator fun div(v: Float) = Vector2(x / v, y / v)
+    inline operator fun plus(v: Double) = Vector2(x + v, y + v)
+    inline operator fun minus(v: Double) = Vector2(x - v, y - v)
+    inline operator fun times(v: Double) = Vector2(x * v, y * v)
+    inline operator fun div(v: Double) = Vector2(x / v, y / v)
 
     inline operator fun plus(v: Vector2) = Vector2(x + v.x, y + v.y)
     inline operator fun minus(v: Vector2) = Vector2(x - v.x, y - v.y)
     inline operator fun times(v: Vector2) = Vector2(x * v.x, y * v.y)
     inline operator fun div(v: Vector2) = Vector2(x / v.x, y / v.y)
 
-    inline fun transform(block: (Float) -> Float): Vector2 {
+    inline fun transform(block: (Double) -> Double): Vector2 {
         x = block(x)
         y = block(y)
         return this
