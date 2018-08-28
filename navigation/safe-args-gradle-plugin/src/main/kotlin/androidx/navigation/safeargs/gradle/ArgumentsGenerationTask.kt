@@ -52,7 +52,7 @@ open class ArgumentsGenerationTask : DefaultTask() {
 
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
         val output = generateSafeArgs(rFilePackage, applicationId, file, out, useAndroidX)
-        Mapping(file.relativeTo(project.projectDir).path, output.files) to output.errors
+        Mapping(file.relativeTo(project.projectDir).path, output.fileNames) to output.errors
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
     private fun writeMappings(mappings: List<Mapping>) {
