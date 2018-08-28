@@ -134,7 +134,7 @@ class RenderView(
 
     override fun applyPaintTransform(child: RenderObject, transform: Matrix4) {
         assert(_rootTransform != null)
-        transform.multiply(_rootTransform)
+        transform *= _rootTransform!!
         super.applyPaintTransform(child, transform)
     }
 
