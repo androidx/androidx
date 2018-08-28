@@ -73,7 +73,8 @@ public class AppBarActivity extends AppCompatActivity {
                 throw new IndexOutOfBoundsException();
             }
             TextListItem item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             item.setTitle("title");
             return item;
         }
