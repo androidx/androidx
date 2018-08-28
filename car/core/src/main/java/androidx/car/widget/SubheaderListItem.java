@@ -73,17 +73,15 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     public @interface TextStartMarginType {}
 
     /**
-     * Sets start margin of text the same as {@link TextListItem#setPrimaryActionNoIcon()}.
+     * No starting margin before the subheader text.
      */
     public static final int TEXT_START_MARGIN_TYPE_NONE = 0;
     /**
-     * Sets start margin of text the same as {@link TextListItem#setPrimaryActionIcon(int)}
-     * with {@code useLargeIcon} set to {@code false}.
+     * A small starting margin before the subheader text.
      */
     public static final int TEXT_START_MARGIN_TYPE_SMALL = 1;
     /**
-     * Sets start margin of text the same as {@link TextListItem#setPrimaryActionIcon(int)}
-     * with {@code useLargeIcon} set to {@code true}.
+     * A large starting margin before the subheader text.
      */
     public static final int TEXT_START_MARGIN_TYPE_LARGE = 2;
     @TextStartMarginType private int mTextStartMarginType;

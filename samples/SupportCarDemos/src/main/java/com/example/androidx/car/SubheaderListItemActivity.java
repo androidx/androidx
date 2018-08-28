@@ -125,12 +125,14 @@ public class SubheaderListItemActivity extends Activity {
             mItems.add(subheaderItem);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             item.setTitle("item");
             mItems.add(item);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             item.setTitle("item");
             mItems.add(item);
 
@@ -143,14 +145,14 @@ public class SubheaderListItemActivity extends Activity {
             mItems.add(subheaderItem);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
-            item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             item.setTitle("item");
             mItems.add(item);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
-            item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             item.setTitle("item");
             mItems.add(item);
 
