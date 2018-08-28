@@ -44,7 +44,7 @@ class FileIo(object):
   def copyFile(self, fromPath, toPath):
     self.ensureDirExists(os.path.dirname(toPath))
     self.removePath(toPath)
-    shutil.copyfile(fromPath, toPath)
+    shutil.copy2(fromPath, toPath)
 
   def removePath(self, filePath):
     if len(os.path.split(filePath)) < 2:
@@ -53,6 +53,9 @@ class FileIo(object):
       shutil.rmtree(filePath)
     elif os.path.isfile(filePath):
       os.remove(filePath)
+
+  def join(self, path1, path2):
+    return os.path.normpath(os.path.join(path1, path2))
 fileIo = FileIo()
 
 # Runs a shell command
@@ -105,7 +108,7 @@ class MissingFile_FileContent(FileContent):
     return isinstance(other, MissingFile_FileContent)
 
   def __str__(self):
-    return "None"
+    return "Empty"
 
 # A FileContent describing a directory
 class Directory_FileContent(FileContent):
@@ -128,7 +131,7 @@ class FilesState(object):
 
   def apply(self, filePath):
     for relPath, state in self.fileStates.iteritems():
-      state.apply(os.path.join(filePath, relPath))
+      state.apply(fileIo.join(filePath, relPath))
 
   def add(self, filePath, fileContent):
     self.fileStates[filePath] = fileContent
@@ -169,11 +172,29 @@ class FilesState(object):
         result.add(filePath, fileContent)
     return result
 
+  # returns a set of paths to all of the dirs in <self> that are implied by any files in <self>
+  def listImpliedDirs(self):
+    dirs = set()
+    keys = self.fileStates.keys()[:]
+    i = 0
+    while i < len(keys):
+      path = keys[i]
+      parent, child = os.path.split(path)
+      if parent == "":
+        parent = "."
+      if not parent in dirs:
+        dirs.add(parent)
+        keys.append(parent)
+      i += 1
+    return dirs
+
   # returns a FilesState having all of the entries from <self>, plus empty entries for any keys in <other> not in <self>
   def expandedWithEmptyEntriesFor(self, other):
+    impliedDirs = self.listImpliedDirs()
+    # now look for entries in <other> not present in <self>
     result = self.clone()
     for filePath in other.fileStates:
-      if filePath not in result.fileStates:
+      if filePath not in result.fileStates and filePath not in impliedDirs:
         result.fileStates[filePath] = MissingFile_FileContent()
     return result
 
@@ -219,7 +240,7 @@ def filesStateFromTree(rootPath):
       paths.append(relPath)
       states[relPath] = Directory_FileContent()
     for filePath in filePaths:
-      fullPath = os.path.join(root, filePath)
+      fullPath = fileIo.join(root, filePath)
       relPath = os.path.relpath(fullPath, rootPath)
       paths.append(relPath)
       states[relPath] = FileBacked_FileContent(fullPath)
@@ -235,8 +256,8 @@ class DiffRunner(object):
   def __init__(self, failingPath, passingPath, shellCommand, tempPath, assumeNoSideEffects):
     # some simple params
     self.tempPath = tempPath
-    self.workPath = os.path.join(tempPath, "work")
-    self.bestState_path = os.path.join(tempPath, "bestResults")
+    self.workPath = fileIo.join(tempPath, "work")
+    self.bestState_path = fileIo.join(tempPath, "bestResults")
     self.shellCommand = shellCommand
     self.originalPassingPath = os.path.abspath(passingPath)
     self.originalFailingPath = os.path.abspath(failingPath)
@@ -256,7 +277,6 @@ class DiffRunner(object):
     self.originalNumDifferences = self.resetTo_state.size()
     # state we're trying to reach
     self.targetState = self.resetTo_state.withConflictsFrom(self.originalFailingState.expandedWithEmptyEntriesFor(self.resetTo_state))
-
     self.windowSize = self.resetTo_state.size()
 
   def test(self, filesState):
@@ -287,6 +307,7 @@ class DiffRunner(object):
     self.originalPassingState.apply(self.bestState_path)
 
     print("Starting")
+    print("(You can inspect " + self.bestState_path + " while this process runs, to observe the best state discovered so far)")
     print("")
 
     # decrease the window size until it reaches 0
@@ -294,6 +315,7 @@ class DiffRunner(object):
       # scan the state until reaching the end
       windowMax = self.resetTo_state.size()
       failedDuringThisScan = False
+      succeededDuringThisScan = False
       # if we encounter only successes for this window size, then check all windows except the last (because if all other windows pass, then the last must fail)
       # if we encounter any failure for this window size, then check all windows
       while (windowMax > self.windowSize) or (windowMax > 0 and failedDuringThisScan):
@@ -312,10 +334,11 @@ class DiffRunner(object):
           print("Accepted updated state having " + str(currentWindowSize) + " changes")
           # success! keep these changes
           testState.apply(self.bestState_path)
-          self.full_resetTo_state = self.full_resetTo_state.withConflictsFrom(testState).withoutEmptyEntries()
+          self.full_resetTo_state = self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState).withoutEmptyEntries()
           # remove these changes from the set of changes to reconsider
           self.targetState = self.targetState.withoutDuplicatesFrom(testState)
           self.resetTo_state = self.targetState.withConflictsFrom(self.resetTo_state)
+          succeededDuringThisScan = True
         else:
           print("Rejected updated state having " + str(currentWindowSize) + " changes")
           failedDuringThisScan = True
@@ -323,15 +346,26 @@ class DiffRunner(object):
         windowMax -= self.windowSize
       # we checked every file once; now shrink the window
       oldWindowSize = self.windowSize
-      if self.windowSize == 1:
-        self.windowSize = 0
+      if self.windowSize >= 3:
+        self.windowSize = int(self.windowSize / 3 + 1)
       else:
-        if self.windowSize == 2:
+        if self.windowSize > 1:
           self.windowSize = 1
         else:
-          self.windowSize = int(self.windowSize / 2 + 1)
+          if not succeededDuringThisScan:
+            # only stop if we confirmed that no files could be reverted (if one file was reverted, it's possible that that unblocks another file)
+            self.windowSize = 0
       print("Decreased window size from " + str(oldWindowSize) + " to " + str(self.windowSize))
       print("")
+
+    print("double-checking results")
+    fileIo.removePath(self.workPath)
+    if not self.test(filesStateFromTree(self.bestState_path)):
+      message = "Error: expected best state at " + self.bestState_path + " did not pass the second time. Could the test be non-deterministic?"
+      if self.assumeNoSideEffects:
+        message += " (it may help to remove the --assume-no-side-effects flag)"
+      print(message)
+      return False
 
     print("")
     print("Done trying to transform the contents of passing path:\n " + self.originalPassingPath + "\ninto the contents of failing path:\n " + self.originalFailingPath)
@@ -356,8 +390,10 @@ def main(args):
   success = DiffRunner(failingPath, passingPath, shellCommand, tempPath, assumeNoSideEffects).run()
   endTime = datetime.datetime.now()
   duration = endTime - startTime
-  print("Completed in " + str(duration))
-  if not success:
+  if success:
+    print("Succeeded in " + str(duration))
+  else:
+    print("Failed in " + str(duration))
     sys.exit(1)
 
 main(sys.argv[1:])
