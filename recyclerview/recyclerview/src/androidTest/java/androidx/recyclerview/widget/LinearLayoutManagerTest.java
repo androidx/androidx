@@ -851,6 +851,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         adapter.setHasStableIds(false);
         config.adapter(adapter);
         setupByConfig(config, true);
+        // Using DummyItemAnimator so we must end all animations manually at the end of the test.
         final DummyItemAnimator itemAnimator = new DummyItemAnimator();
         mRecyclerView.setItemAnimator(itemAnimator);
 
@@ -914,6 +915,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         adapter.setHasStableIds(false);
         config.adapter(adapter);
         setupByConfig(config, true);
+        // Using DummyItemAnimator so we must end all animations manually at the end of the test.
         final DummyItemAnimator itemAnimator = new DummyItemAnimator();
         mRecyclerView.setItemAnimator(itemAnimator);
 
