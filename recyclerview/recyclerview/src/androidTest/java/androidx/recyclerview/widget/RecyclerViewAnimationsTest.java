@@ -599,6 +599,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         setupBasic(4, 0, 3);
         waitForAnimations(2);
         final View[] targetChild = new View[1];
+        // Using DummyItemAnimator so we must end all animations manually at the end of the test.
         final DummyItemAnimator animator = new DummyItemAnimator();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -642,6 +643,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     public void scrollPassRemoveAdditionView() throws Throwable {
         setupBasic(4, 0, 3);
         waitForAnimations(2);
+        // Using DummyItemAnimator so we must end all animations manually at the end of the test.
         final DummyItemAnimator animator = new DummyItemAnimator();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
