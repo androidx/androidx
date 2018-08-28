@@ -167,6 +167,18 @@ data class Rect(
         )
     }
 
+    fun join(other: Rect): Rect {
+        if (other.isEmpty()) {
+            // return this if the other params are empty
+            return this
+        }
+        if (isEmpty()) {
+            // if we are empty, just take other
+            return other
+        }
+        return expandToInclude(other)
+    }
+
     // / Whether `other` has a nonzero area of overlap with this rectangle.
     fun overlaps(other: Rect): Boolean {
         if (right <= other.left || other.right <= left)
@@ -297,13 +309,22 @@ data class Rect(
             "${right.toStringAsFixed(1)}, " +
             "${bottom.toStringAsFixed(1)})"
 
-    fun toFrameworkRect() : android.graphics.Rect {
+    fun toFrameworkRect(): android.graphics.Rect {
         return android.graphics.Rect(
                 left.toInt(),
                 top.toInt(),
                 right.toInt(),
                 bottom.toInt()
 
-        );
+        )
+    }
+
+    fun toFrameworkRectF(): android.graphics.RectF {
+        return android.graphics.RectF(
+                left.toFloat(),
+                top.toFloat(),
+                right.toFloat(),
+                bottom.toFloat()
+        )
     }
 }

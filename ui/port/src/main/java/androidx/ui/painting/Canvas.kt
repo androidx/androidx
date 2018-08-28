@@ -6,6 +6,7 @@ import androidx.ui.Vertices
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.skia.SkMatrix
 
 // TODO(Migration/njawad): Copy the class here
 // / An interface for recording graphical operations.
@@ -42,17 +43,15 @@ class Canvas {
 
     private val internalCanvas: android.graphics.Canvas
 
-    constructor (recorder: PictureRecorder, cullRect: Rect? = null): this(
-        android.graphics.Canvas(),
-        recorder,
-        cullRect
+    constructor(
+        recorder: PictureRecorder,
+        cullRect: Rect = Rect.largest
+    ) : this(recorder.frameworkPicture.beginRecording(
+            cullRect.width.toInt(),
+            cullRect.height.toInt())
     )
 
-    internal constructor(
-        frameworkCanvas: android.graphics.Canvas,
-        recorder: PictureRecorder,
-        cullRect: Rect? = null
-    ) {
+    constructor(frameworkCanvas: android.graphics.Canvas) {
         internalCanvas = frameworkCanvas
     }
 
@@ -507,16 +506,18 @@ class Canvas {
 //    double dstBottom,
 //    List<dynamic> paintObjects,
 //    ByteData paintData) native 'Canvas_drawImageNine';
-//
-//    /// Draw the given picture onto the canvas. To create a picture, see
-//    /// [PictureRecorder].
-    // TODO(Migration/njawad update after porting Picture class)
-//    void drawPicture(Picture picture) {
-//        assert(picture != null); // picture is checked on the engine side
-//        _drawPicture(picture);
-//    }
-//    void _drawPicture(Picture picture) native 'Canvas_drawPicture';
-//
+
+    // / Draw the given picture onto the canvas. To create a picture, see
+    // / [PictureRecorder].
+    fun drawPicture(picture: Picture) {
+        assert(picture != null) // picture is checked on the engine side
+        _drawPicture(picture.frameworkPicture)
+    }
+
+    private fun _drawPicture(picture: android.graphics.Picture) {
+        internalCanvas.drawPicture(picture)
+    }
+
 //    /// Draws the text in the given [Paragraph] into this canvas at the given
 //    /// [Offset].
 //    ///
@@ -686,6 +687,10 @@ class Canvas {
                 vertices.indices.size,
                 paint.toFrameworkPaint()
         )
+    }
+
+    fun concat(matrix: SkMatrix) {
+        internalCanvas.concat(matrix.frameworkMatrix)
     }
 
 //    //

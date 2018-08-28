@@ -8,8 +8,9 @@ package androidx.ui.painting
 // / Creates a new idle PictureRecorder. To associate it with a
 // / [Canvas] and begin recording, pass this [PictureRecorder] to the
 // / [Canvas] constructor.
-// TODO(Migration/Andrey): Real logic is in the native code. What should we do?
-class PictureRecorder /*extends NativeFieldWrapperClass2*/ {
+class PictureRecorder {
+
+    internal val frameworkPicture = android.graphics.Picture()
 
     // / Whether this object is currently recording commands.
     // /
@@ -32,7 +33,6 @@ class PictureRecorder /*extends NativeFieldWrapperClass2*/ {
     // /
     // / Returns null if the PictureRecorder is not associated with a canvas.
     fun endRecording(): Picture {
-        TODO()
-//    native 'PictureRecorder_endRecording';
+        return Picture(frameworkPicture)
     }
 }

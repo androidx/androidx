@@ -30,6 +30,7 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.ColorFilter
 import androidx.ui.painting.Image
 import androidx.ui.painting.ImageRepeat
+import androidx.ui.painting.Paint
 import androidx.ui.painting.alignment.Alignment
 import androidx.ui.painting.alignment.AlignmentGeometry
 import androidx.ui.rendering.box.BoxConstraints
@@ -350,7 +351,9 @@ class RenderImage(
         _resolve()
         assert(_resolvedAlignment != null)
         assert(_flipHorizontally != null)
-        TODO("Migration/Filip: Paint it!")
+        // TODO("Migration/Andrey: Paint it with paintImage helper method applying all the params")
+        context.canvas.drawImage(_image, offset, Paint())
+
 //        paintImage(
 //            canvas: context.canvas,
 //            rect: offset & size,

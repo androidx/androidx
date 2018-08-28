@@ -903,14 +903,14 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
      * To access the layer in debug code, even when it might be inappropriate to
      * access it (e.g. because it is dirty), consider [debugLayer].
      */
-    val layer: OffsetLayer? = null
+    val layer: OffsetLayer?
         get() {
             assert(isRepaintBoundary) {
                 "You can only access RenderObject.layer for render objects that are " +
                         "repaint boundaries."
             }
             assert(!_needsPaint)
-            return field
+            return _layer
         }
 
     /**

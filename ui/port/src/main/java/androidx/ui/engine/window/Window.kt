@@ -328,9 +328,13 @@ object Window {
      *    painting.
      */
     fun render(scene: Scene) {
-        TODO()
+        renderDelegate?.invoke(scene)
         // native 'Window_render';
     }
+
+    // TODO(Migration/Andrey): Added for a hello world. I think later every Flutter view should
+    // have their own instance of Window instead of a one singleton Window
+    var renderDelegate: ((Scene) -> Unit)? = null
 
     /**
      * Whether the user has requested that [updateSemantics] be called when

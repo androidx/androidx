@@ -314,8 +314,8 @@ object RendererBindingImpl : RendererMixinsWrapper(
         pipelineOwner!!.flushLayout()
         pipelineOwner!!.flushCompositingBits()
         pipelineOwner!!.flushPaint()
-        renderView!!.compositeFrame(); // this sends the bits to the GPU
-        pipelineOwner!!.flushSemantics(); // this also sends the semantics to the OS.
+        renderView!!.compositeFrame() // this sends the bits to the GPU
+        pipelineOwner!!.flushSemantics() // this also sends the semantics to the OS.
     }
 
     override fun performReassemble(): Deferred<Unit> {

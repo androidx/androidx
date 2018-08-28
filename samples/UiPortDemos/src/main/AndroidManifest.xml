@@ -23,7 +23,7 @@
         android:label="Ui port sample"
         android:supportsRtl="true">
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".SimpleFlutterActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.VIEW"/>
