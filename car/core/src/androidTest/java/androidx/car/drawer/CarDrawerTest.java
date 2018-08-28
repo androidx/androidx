@@ -119,7 +119,7 @@ public final class CarDrawerTest {
         DrawerItemViewHolder vh = getViewHolderAtPositionInDrawer(0);
         final String originalText = (String) vh.getBodyView().getText();
 
-        vh.applyUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
+        vh.onUxRestrictionsChanged(CarUxRestrictionsTestUtils.getFullyRestricted());
         refreshUi();
 
         assumeThat(vh.getBodyView().getText().length(), is(lessThan(originalText.length())));

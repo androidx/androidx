@@ -91,11 +91,12 @@ package androidx.car.drawer {
     method public void syncState();
   }
 
-  public class DrawerItemViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+  public class DrawerItemViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
     method public android.widget.TextView getBodyView();
     method public android.widget.ImageView getEndIconView();
     method public android.widget.ImageView getIconView();
     method public android.widget.TextView getTitleView();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
 }
@@ -135,6 +136,44 @@ package androidx.car.util {
     method public int getNumOfColumns();
     method public int getNumOfGutters();
     method public int getSizeForColumnSpan(int);
+  }
+
+}
+
+package androidx.car.uxrestrictions {
+
+  public final class CarUxRestrictions {
+    ctor public CarUxRestrictions(androidx.car.uxrestrictions.CarUxRestrictions);
+    method public int getActiveRestrictions();
+    method public int getMaxContentDepth();
+    method public int getMaxCumulativeContentItems();
+    method public int getMaxRestrictedStringLength();
+    method public long getTimestamp();
+    method public boolean hasSameRestrictionsAs(androidx.car.uxrestrictions.CarUxRestrictions);
+    method public boolean isDistractionOptimizationRequired();
+    field public static final int UX_RESTRICTIONS_BASELINE = 0; // 0x0
+    field public static final int UX_RESTRICTIONS_FULLY_RESTRICTED = 511; // 0x1ff
+    field public static final int UX_RESTRICTIONS_LIMIT_CONTENT = 32; // 0x20
+    field public static final int UX_RESTRICTIONS_LIMIT_STRING_LENGTH = 4; // 0x4
+    field public static final int UX_RESTRICTIONS_NO_DIALPAD = 1; // 0x1
+    field public static final int UX_RESTRICTIONS_NO_FILTERING = 2; // 0x2
+    field public static final int UX_RESTRICTIONS_NO_KEYBOARD = 8; // 0x8
+    field public static final int UX_RESTRICTIONS_NO_SETUP = 64; // 0x40
+    field public static final int UX_RESTRICTIONS_NO_TEXT_MESSAGE = 128; // 0x80
+    field public static final int UX_RESTRICTIONS_NO_VIDEO = 16; // 0x10
+    field public static final int UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION = 256; // 0x100
+  }
+
+  public static final class CarUxRestrictions.Builder {
+    ctor public CarUxRestrictions.Builder(boolean, int, long);
+    method public androidx.car.uxrestrictions.CarUxRestrictions build();
+    method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxContentDepth(int);
+    method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxCumulativeContentItems(int);
+    method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxStringLength(int);
+  }
+
+  public abstract interface OnUxRestrictionsChangedListener {
+    method public abstract void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
 }
@@ -181,7 +220,6 @@ package androidx.car.widget {
 
   public static final class ActionListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
     ctor public ActionListItem.ViewHolder(android.view.View);
-    method protected void applyUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public android.widget.TextView getBody();
     method public android.widget.Button getPrimaryAction();
     method public android.view.View getPrimaryActionDivider();
@@ -189,6 +227,7 @@ package androidx.car.widget {
     method public android.widget.Button getSecondaryAction();
     method public android.view.View getSecondaryActionDivider();
     method public android.widget.TextView getTitle();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
   public class AlphaJumpBucketer {
@@ -272,10 +311,9 @@ package androidx.car.widget {
     method public abstract void bind(VH);
   }
 
-  public static abstract class ListItem.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+  public static abstract class ListItem.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
     ctor public ListItem.ViewHolder(android.view.View);
     method public final void addCleanUp(androidx.car.widget.ListItem.ViewBinder<androidx.car.widget.ListItem.ViewHolder>);
-    method protected abstract void applyUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public final void cleanUp();
   }
 
@@ -446,15 +484,15 @@ package androidx.car.widget {
     method public void setText(java.lang.CharSequence);
   }
 
-  public static class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+  public static class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
     ctor public SeekbarListItem.ViewHolder(android.view.View);
-    method protected void applyUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public android.view.ViewGroup getContainerLayout();
     method public android.widget.ImageView getPrimaryIcon();
     method public android.widget.SeekBar getSeekBar();
     method public android.widget.ImageView getSupplementalIcon();
     method public android.view.View getSupplementalIconDivider();
     method public android.widget.TextView getText();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
   public class SubheaderListItem extends androidx.car.widget.ListItem {
@@ -476,8 +514,8 @@ package androidx.car.widget {
 
   public static class SubheaderListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
     ctor public SubheaderListItem.ViewHolder(android.view.View);
-    method protected void applyUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public android.widget.TextView getText();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
   public class TextListItem extends androidx.car.widget.ListItem {
@@ -510,7 +548,6 @@ package androidx.car.widget {
 
   public static class TextListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
     ctor public TextListItem.ViewHolder(android.view.View);
-    method protected void applyUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public android.widget.Button getAction1();
     method public android.view.View getAction1Divider();
     method public android.widget.Button getAction2();
@@ -523,6 +560,7 @@ package androidx.car.widget {
     method public android.widget.Switch getSwitch();
     method public android.view.View getSwitchDivider();
     method public android.widget.TextView getTitle();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
 }

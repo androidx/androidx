@@ -16,14 +16,13 @@
 
 package androidx.car.widget;
 
-import android.car.drivingstate.CarUxRestrictions;
 import android.view.View;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
+import androidx.car.uxrestrictions.OnUxRestrictionsChangedListener;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -249,7 +248,8 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
     /**
      * ViewHolder that supports {@link ViewBinder}.
      */
-    public abstract static class ViewHolder extends RecyclerView.ViewHolder {
+    public abstract static class ViewHolder extends RecyclerView.ViewHolder implements
+            OnUxRestrictionsChangedListener {
         private final List<ViewBinder> mCleanUps = new ArrayList<>();
 
         public ViewHolder(View itemView) {
@@ -274,12 +274,5 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
                 mCleanUps.add(cleanUp);
             }
         }
-
-        /**
-         * Applies UX restriction changes to child views.
-         *
-         * @param restrictions current car UX restrictions.
-         */
-        protected abstract void applyUxRestrictions(@NonNull CarUxRestrictions restrictions);
     }
 }

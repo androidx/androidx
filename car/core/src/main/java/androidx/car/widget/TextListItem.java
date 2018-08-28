@@ -18,7 +18,6 @@ package androidx.car.widget;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -40,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
+import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.lang.annotation.Retention;
@@ -867,15 +867,15 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         }
 
         /**
-         * Applies car UX restrictions to child views.
+         * Updates child views with current car UX restrictions.
          *
-         * <p>{@code Body} text might be truncated to meet length limit required by regulation.
+         * <p>{@code Text} might be truncated to meet length limit required by regulation.
          *
-         * @param restrictions current car UX restrictions.
+         * @param restrictionsInfo current car UX restrictions.
          */
         @Override
-        protected void applyUxRestrictions(@NonNull CarUxRestrictions restrictions) {
-            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictions, getBody());
+        public void onUxRestrictionsChanged(CarUxRestrictions restrictionsInfo) {
+            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictionsInfo, getBody());
         }
 
         @NonNull

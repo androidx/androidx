@@ -18,12 +18,12 @@ package androidx.car.util;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.text.InputFilter;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
+import androidx.car.uxrestrictions.CarUxRestrictions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
