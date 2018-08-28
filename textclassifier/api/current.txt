@@ -47,18 +47,6 @@ package androidx.textclassifier {
     field public static final int INVOCATION_UNKNOWN = 0; // 0x0
   }
 
-  public final class SmartLinkifyParams {
-  }
-
-  public static final class SmartLinkifyParams.Builder {
-    ctor public SmartLinkifyParams.Builder();
-    method public androidx.textclassifier.SmartLinkifyParams build();
-    method public androidx.textclassifier.SmartLinkifyParams.Builder setApplyStrategy(int);
-    method public androidx.textclassifier.SmartLinkifyParams.Builder setDefaultLocales(androidx.core.os.LocaleListCompat);
-    method public androidx.textclassifier.SmartLinkifyParams.Builder setEntityConfig(androidx.textclassifier.TextClassifier.EntityConfig);
-    method public androidx.textclassifier.SmartLinkifyParams.Builder setReferenceTime(java.lang.Long);
-  }
-
   public final class TextClassification {
     method public static androidx.textclassifier.TextClassification createFromBundle(android.os.Bundle);
     method public java.util.List<androidx.core.app.RemoteActionCompat> getActions();
@@ -170,6 +158,8 @@ package androidx.textclassifier {
   }
 
   public final class TextLinks {
+    method public int apply(android.widget.TextView, androidx.textclassifier.TextLinksParams);
+    method public int apply(android.content.Context, android.text.Spannable, androidx.textclassifier.TextLinksParams);
     method public static androidx.textclassifier.TextLinks createFromBundle(android.os.Bundle);
     method public java.util.Collection<androidx.textclassifier.TextLinks.TextLink> getLinks();
     method public android.os.Bundle toBundle();
@@ -183,7 +173,7 @@ package androidx.textclassifier {
   }
 
   public static final class TextLinks.Builder {
-    ctor public TextLinks.Builder(java.lang.String);
+    ctor public TextLinks.Builder(java.lang.CharSequence);
     method public androidx.textclassifier.TextLinks.Builder addLink(int, int, java.util.Map<java.lang.String, java.lang.Float>);
     method public androidx.textclassifier.TextLinks build();
     method public androidx.textclassifier.TextLinks.Builder clearTextLinks();
@@ -222,6 +212,19 @@ package androidx.textclassifier {
 
   public static class TextLinks.TextLinkSpanData {
     method public androidx.textclassifier.TextLinks.TextLink getTextLink();
+  }
+
+  public final class TextLinksParams {
+    field public static final androidx.textclassifier.TextLinksParams DEFAULT_PARAMS;
+  }
+
+  public static final class TextLinksParams.Builder {
+    ctor public TextLinksParams.Builder();
+    method public androidx.textclassifier.TextLinksParams build();
+    method public androidx.textclassifier.TextLinksParams.Builder setApplyStrategy(int);
+    method public androidx.textclassifier.TextLinksParams.Builder setDefaultLocales(androidx.core.os.LocaleListCompat);
+    method public androidx.textclassifier.TextLinksParams.Builder setEntityConfig(androidx.textclassifier.TextClassifier.EntityConfig);
+    method public androidx.textclassifier.TextLinksParams.Builder setReferenceTime(java.lang.Long);
   }
 
   public final class TextSelection {

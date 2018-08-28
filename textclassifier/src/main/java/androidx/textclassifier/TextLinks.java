@@ -20,8 +20,13 @@ import static androidx.textclassifier.ConvertUtils.toPlatformEntityConfig;
 import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.util.Log;
@@ -34,6 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
@@ -153,6 +159,65 @@ public final class TextLinks {
         return new TextLinks(
                 bundle.getString(EXTRA_FULL_TEXT),
                 BundleUtils.getTextLinkListOrThrow(bundle, EXTRA_LINKS));
+    }
+
+    /**
+     * Similar to {@link #apply(Context, Spannable, TextLinksParams)}, except the links are applied
+     * to a TextView directly. This also adds a LinkMovementMethod to the TextView if necessary.
+     *
+     * @see #apply(Context, Spannable, TextLinksParams)
+     */
+    @UiThread
+    @Status
+    public int apply(@NonNull TextView textView, TextLinksParams textLinksParams) {
+        Preconditions.checkNotNull(textView);
+
+        addLinkMovementMethod(textView);
+
+        SpannableString spannableString = SpannableString.valueOf(textView.getText());
+        int status = apply(textView.getContext(), spannableString, textLinksParams);
+        if (status == TextLinks.STATUS_LINKS_APPLIED) {
+            textView.setText(spannableString);
+        }
+        return status;
+    }
+
+    /**
+     * Annotates the given text with the generated links.
+     *
+     * <p> A text classifier returned by {@link TextClassificationManager#getTextClassifier()} is
+     * used.
+     *
+     * <p><strong>NOTE: </strong>It may be necessary to set a LinkMovementMethod on the TextView
+     * widget to properly handle links. See {@link TextView#setMovementMethod(MovementMethod)}
+     *
+     * @param context context
+     * @param text the text to apply the links to. Must match the original text
+     * @param textLinksParams the param that specifies how the links should be applied.
+     *
+     * @return the status code which indicates the operation is success or not.
+     */
+    @Status
+    public int apply(
+            @NonNull Context context,
+            @NonNull Spannable text,
+            @NonNull TextLinksParams textLinksParams) {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(text);
+        Preconditions.checkNotNull(textLinksParams);
+
+        TextClassifier textClassifier = TextClassificationManager.of(context).getTextClassifier();
+
+        return textLinksParams.apply(text, this, textClassifier);
+    }
+
+    private void addLinkMovementMethod(@NonNull TextView textView) {
+        MovementMethod method = textView.getMovementMethod();
+        if (!(method instanceof LinkMovementMethod)) {
+            if (textView.getLinksClickable()) {
+                textView.setMovementMethod(LinkMovementMethod.getInstance());
+            }
+        }
     }
 
     /**
@@ -561,8 +626,7 @@ public final class TextLinks {
          *
          * @param fullText The full text to annotate with links.
          */
-        // TODO: Change API to take a CharSequence instead.
-        public Builder(@NonNull String fullText) {
+        public Builder(@NonNull CharSequence fullText) {
             mFullText = Preconditions.checkNotNull(fullText);
             mLinks = new ArrayList<>();
         }
