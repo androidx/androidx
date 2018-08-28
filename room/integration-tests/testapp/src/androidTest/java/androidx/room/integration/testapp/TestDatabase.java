@@ -22,7 +22,6 @@ import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
 import androidx.room.integration.testapp.dao.BlobEntityDao;
 import androidx.room.integration.testapp.dao.FunnyNamedDao;
-import androidx.room.integration.testapp.dao.MailDao;
 import androidx.room.integration.testapp.dao.PetCoupleDao;
 import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.ProductDao;
@@ -38,7 +37,6 @@ import androidx.room.integration.testapp.vo.BlobEntity;
 import androidx.room.integration.testapp.vo.Day;
 import androidx.room.integration.testapp.vo.FunnyNamedEntity;
 import androidx.room.integration.testapp.vo.House;
-import androidx.room.integration.testapp.vo.Mail;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetCouple;
 import androidx.room.integration.testapp.vo.Product;
@@ -51,7 +49,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Database(entities = {User.class, Pet.class, School.class, PetCouple.class, Toy.class,
-        BlobEntity.class, Product.class, FunnyNamedEntity.class, House.class, Mail.class},
+        BlobEntity.class, Product.class, FunnyNamedEntity.class, House.class},
         version = 1, exportSchema = false)
 @TypeConverters(TestDatabase.Converters.class)
 public abstract class TestDatabase extends RoomDatabase {
@@ -68,7 +66,6 @@ public abstract class TestDatabase extends RoomDatabase {
     public abstract FunnyNamedDao getFunnyNamedDao();
     public abstract RawDao getRawDao();
     public abstract UserHouseDao getUserHouseDao();
-    public abstract MailDao getMailDao();
 
     @SuppressWarnings("unused")
     public static class Converters {
