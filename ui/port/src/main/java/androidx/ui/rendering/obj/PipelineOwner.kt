@@ -2,8 +2,10 @@ package androidx.ui.rendering.obj
 
 import androidx.ui.VoidCallback
 import androidx.ui.assert
+import androidx.ui.developer.timeline.Timeline
 import androidx.ui.foundation.AbstractNode
 import androidx.ui.foundation.profile
+import androidx.ui.foundation.timelineWhitelistArguments
 
 // / The pipeline owner manages the rendering pipeline.
 // /
@@ -109,9 +111,9 @@ class PipelineOwner(
     // /
     // / See [RendererBinding] for an example of how this function is used.
     fun flushLayout() {
-// TODO        profile(() {
-//            Timeline.startSync('Layout', arguments: timelineWhitelistArguments);
-//        });
+        profile {
+            Timeline.startSync("Layout", arguments = timelineWhitelistArguments)
+        }
         assert {
             debugDoingLayout = true
             true
@@ -133,9 +135,9 @@ class PipelineOwner(
                 debugDoingLayout = false
                 true
             }
-//            profile(() {
-//                Timeline.finishSync();
-//            };
+            profile {
+                Timeline.finishSync()
+            }
         }
     }
 
@@ -171,14 +173,14 @@ class PipelineOwner(
     // / Called as part of the rendering pipeline after [flushLayout] and before
     // / [flushPaint].
     fun flushCompositingBits() {
-        // TODO: profile( { Timeline.startSync('Compositing bits'); });
+        profile { Timeline.startSync("Compositing bits") }
         _nodesNeedingCompositingBitsUpdate.sort()
         for (node in _nodesNeedingCompositingBitsUpdate) {
             if (node.needsCompositingBitsUpdate && node.owner == this)
                 node.updateCompositingBits()
         }
         _nodesNeedingCompositingBitsUpdate.clear()
-        // TODO: profile(() { Timeline.finishSync(); });
+        profile { Timeline.finishSync() }
     }
 
     internal var _nodesNeedingPaint = mutableListOf<RenderObject>()
@@ -200,8 +202,7 @@ class PipelineOwner(
     // / See [RendererBinding] for an example of how this function is used.
     fun flushPaint() {
         profile {
-            // TODO(Migration/Andrey): Needs Timeline
-//            Timeline.startSync('Paint', arguments: timelineWhitelistArguments);
+            Timeline.startSync("Paint", timelineWhitelistArguments)
         }
         assert {
             debugDoingPaint = true
@@ -230,8 +231,7 @@ class PipelineOwner(
                 true
             }
             profile {
-                // TODO(Migration/Andrey): Needs Timeline
-//                Timeline.finishSync();
+                Timeline.finishSync()
             }
         }
     }
@@ -305,7 +305,7 @@ class PipelineOwner(
         TODO()
 //        if (semanticsOwner == null)
 //            return;
-//        //TODO profile(() { Timeline.startSync('Semantics'); });
+//        profile { Timeline.startSync("Semantics") }
 //        assert(semanticsOwner != null);
 //        assert { _debugDoingSemantics = true; true; };
 //        try {
@@ -319,7 +319,7 @@ class PipelineOwner(
 //        } finally {
 //            assert(_nodesNeedingSemantics.isEmpty());
 //            assert { _debugDoingSemantics = false; true; };
-//            // TODO: profile(() { Timeline.finishSync(); });
+//            profile { Timeline.finishSync() }
 //        }
     }
 }

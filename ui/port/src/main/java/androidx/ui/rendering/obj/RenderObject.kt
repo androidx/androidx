@@ -17,6 +17,8 @@ import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.describeIdentity
 import androidx.ui.rendering.box.RenderBox
+import androidx.ui.rendering.debugPrintLayouts
+import androidx.ui.rendering.debugPrintMarkNeedsLayoutStacks
 import androidx.ui.rendering.debugPrintMarkNeedsPaintStacks
 import androidx.ui.rendering.layer.ContainerLayer
 import androidx.ui.rendering.layer.OffsetLayer

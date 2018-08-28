@@ -20,36 +20,43 @@ package androidx.ui.rendering
 // // function below.
 //
 // const HSVColor _kDebugDefaultRepaintColor = const HSVColor.fromAHSV(0.4, 60.0, 1.0, 1.0);
-//
-// /// Causes each RenderBox to paint a box around its bounds, and some extra
-// /// boxes, such as [RenderPadding], to draw construction lines.
-// ///
-// /// The edges of the boxes are painted as a one-pixel-thick `const Color(0xFF00FFFF)` outline.
-// ///
-// /// Spacing is painted as a solid `const Color(0x90909090)` area.
-// ///
-// /// Padding is filled in solid `const Color(0x900090FF)`, with the inner edge
-// /// outlined in `const Color(0xFF0090FF)`, using [debugPaintPadding].
+
+/**
+ * Causes each RenderBox to paint a box around its bounds, and some extra
+ * boxes, such as [RenderPadding], to draw construction lines.
+ *
+ * The edges of the boxes are painted as a one-pixel-thick `const Color(0xFF00FFFF)` outline.
+ *
+ * Spacing is painted as a solid `const Color(0x90909090)` area.
+ *
+ * Padding is filled in solid `const Color(0x900090FF)`, with the inner edge
+ * outlined in `const Color(0xFF0090FF)`, using [debugPaintPadding].
+ */
 val debugPaintSizeEnabled = false
-//
-// /// Causes each RenderBox to paint a line at each of its baselines.
+/**
+ * Causes each RenderBox to paint a line at each of its baselines.
+ */
 val debugPaintBaselinesEnabled = false
-//
-// /// Causes each Layer to paint a box around its bounds.
-// bool debugPaintLayerBordersEnabled = false;
-//
-// /// Causes objects like [RenderPointerListener] to flash while they are being
-// /// tapped. This can be useful to see how large the hit box is, e.g. when
-// /// debugging buttons that are harder to hit than expected.
-// ///
-// /// For details on how to support this in your [RenderBox] subclass, see
-// /// [RenderBox.debugHandleEvent].
+/**
+ * Causes each Layer to paint a box around its bounds.
+ */
+val debugPaintLayerBordersEnabled = false
+/**
+ * Causes objects like [RenderPointerListener] to flash while they are being
+ * tapped. This can be useful to see how large the hit box is, e.g. when
+ * debugging buttons that are harder to hit than expected.
+ *
+ * For details on how to support this in your [RenderBox] subclass, see
+ * [RenderBox.debugHandleEvent].
+ */
 val debugPaintPointersEnabled = false
-//
-// /// Overlay a rotating set of colors when repainting layers in checked mode.
+/**
+ * Overlay a rotating set of colors when repainting layers in checked mode.
+ */
 val debugRepaintRainbowEnabled = false
-// /
-// /// Overlay a rotating set of colors when repainting text in checked mode.
+/*
+ * Overlay a rotating set of colors when repainting text in checked mode.
+ */
 val debugRepaintTextRainbowEnabled = false
 //
 // /// The current color to overlay when repainting a layer.
@@ -61,65 +68,74 @@ val debugRepaintTextRainbowEnabled = false
 // /// flags is enabled.
 // HSVColor debugCurrentRepaintColor = _kDebugDefaultRepaintColor;
 //
-// /// Log the call stacks that mark render objects as needing layout.
-// ///
-// /// For sanity, this only logs the stack traces of cases where an object is
-// /// added to the list of nodes needing layout. This avoids printing multiple
-// /// redundant stack traces as a single [RenderObject.markNeedsLayout] call walks
-// /// up the tree.
-// bool debugPrintMarkNeedsLayoutStacks = false;
-//
-// /// Log the call stacks that mark render objects as needing paint.
-var debugPrintMarkNeedsPaintStacks = false
-//
-// /// Log the dirty render objects that are laid out each frame.
-// ///
-// /// Combined with [debugPrintBeginFrameBanner], this allows you to distinguish
-// /// layouts triggered by the initial mounting of a render tree (e.g. in a call
-// /// to [runApp]) from the regular layouts triggered by the pipeline.
-// ///
-// /// Combined with [debugPrintMarkNeedsLayoutStacks], this lets you watch a
-// /// render object's dirty/clean lifecycle.
-// ///
-// /// See also:
-// ///
-// ///  * [debugProfilePaintsEnabled], which does something similar for
-// ///    painting but using the timeline view.
-// ///
-// ///  * [debugPrintRebuildDirtyWidgets], which does something similar for widgets
-// ///    being rebuilt.
-// ///
-// ///  * The discussion at [RendererBinding.drawFrame].
-// bool debugPrintLayouts = false;
+/**
+ * Log the call stacks that mark render objects as needing layout.
+ *
+ * For sanity, this only logs the stack traces of cases where an object is
+ * added to the list of nodes needing layout. This avoids printing multiple
+ * redundant stack traces as a single [RenderObject.markNeedsLayout] call walks
+ * up the tree.
+ */
+var debugPrintMarkNeedsLayoutStacks: Boolean = false
 
-// / Check the intrinsic sizes of each [RenderBox] during layout.
-// /
-// / By default this is turned off since these checks are expensive, but it is
-// / enabled by the test framework.
+/**
+ * Log the call stacks that mark render objects as needing paint.
+ */
+var debugPrintMarkNeedsPaintStacks = false
+/**
+ * Log the dirty render objects that are laid out each frame.
+ *
+ * Combined with [debugPrintBeginFrameBanner], this allows you to distinguish
+ * layouts triggered by the initial mounting of a render tree (e.g. in a call
+ * to [runApp]) from the regular layouts triggered by the pipeline.
+ *
+ * Combined with [debugPrintMarkNeedsLayoutStacks], this lets you watch a
+ * render object's dirty/clean lifecycle.
+ *
+ * See also:
+ *
+ *  * [debugProfilePaintsEnabled], which does something similar for
+ *    painting but using the timeline view.
+ *
+ *  * [debugPrintRebuildDirtyWidgets], which does something similar for widgets
+ *    being rebuilt.
+ *
+ *  * The discussion at [RendererBinding.drawFrame].
+ */
+var debugPrintLayouts: Boolean = false
+
+/**
+ * Check the intrinsic sizes of each [RenderBox] during layout.
+ *
+ * By default this is turned off since these checks are expensive, but it is
+ * enabled by the test framework.
+ */
 var debugCheckIntrinsicSizes = false
 
-// /// Adds [dart:developer.Timeline] events for every [RenderObject] painted.
-// ///
-// /// This is only enabled in debug builds. The timing information this exposes is
-// /// not representative of actual paints. However, it can expose unexpected
-// /// painting in the timeline.
-// ///
-// /// For details on how to use [dart:developer.Timeline] events in the Dart
-// /// Observatory to optimize your app, see:
-// /// <https://fuchsia.googlesource.com/sysui/+/master/docs/performance.md>
-// ///
-// /// See also:
-// ///
-// ///  * [debugPrintLayouts], which does something similar for layout but using
-// ///    console output.
-// ///
-// ///  * [debugProfileBuildsEnabled], which does something similar for widgets
-// ///    being rebuilt, and [debugPrintRebuildDirtyWidgets], its console
-// ///    equivalent.
-// ///
-// ///  * The discussion at [RendererBinding.drawFrame].
-// bool debugProfilePaintsEnabled = false;
-//
+/**
+ * Adds [dart:developer.Timeline] events for every [RenderObject] painted.
+ *
+ * This is only enabled in debug builds. The timing information this exposes is
+ * not representative of actual paints. However, it can expose unexpected
+ * painting in the timeline.
+ *
+ * For details on how to use [dart:developer.Timeline] events in the Dart
+ * Observatory to optimize your app, see:
+ * <https://fuchsia.googlesource.com/sysui/+/master/docs/performance.md>
+ *
+ * See also:
+ *
+ *  * [debugPrintLayouts], which does something similar for layout but using
+ *    console output.
+ *
+ *  * [debugProfileBuildsEnabled], which does something similar for widgets
+ *    being rebuilt, and [debugPrintRebuildDirtyWidgets], its console
+ *    equivalent.
+ *
+ *  * The discussion at [RendererBinding.drawFrame].
+ */
+var debugProfilePaintsEnabled: Boolean = false
+
 // /// Setting to true will cause all clipping effects from the layer tree to be
 // /// ignored.
 // ///
