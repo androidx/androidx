@@ -30,8 +30,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This is a dummy ItemAnimator class that does not depends on Duration, Tests would use this class
- * to control whenever they want the Animator to finish.
+ * This is a dummy ItemAnimator implementation that does not actually run any animations. Tests that
+ * utilize this class must manually end animations during (or at the end of) test execution.
+ *
  * 1. Test MUST call endAnimation(ViewHolder) on UI thread to finish animation of a given ViewHolder
  *    Or Test calls endAnimations() on UI thread to end animations for all.
  * 2. Test can call getAddAnimations() etc. to get ViewHolders that currently running animation.
