@@ -52,6 +52,11 @@ package androidx.preference {
     method public void setText(java.lang.String);
   }
 
+  public static final class EditTextPreference.DefaultProvider implements androidx.preference.Preference.SummaryProvider {
+    method public static androidx.preference.EditTextPreference.DefaultProvider getInstance();
+    method public java.lang.CharSequence provideSummary(androidx.preference.EditTextPreference);
+  }
+
   public deprecated class EditTextPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
     ctor public deprecated EditTextPreferenceDialogFragment();
     method public static deprecated androidx.preference.EditTextPreferenceDialogFragment newInstance(java.lang.String);
@@ -81,6 +86,11 @@ package androidx.preference {
     method public void setEntryValues(int);
     method public void setValue(java.lang.String);
     method public void setValueIndex(int);
+  }
+
+  public static final class ListPreference.DefaultProvider implements androidx.preference.Preference.SummaryProvider {
+    method public static androidx.preference.ListPreference.DefaultProvider getInstance();
+    method public java.lang.CharSequence provideSummary(androidx.preference.ListPreference);
   }
 
   public deprecated class ListPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
@@ -157,6 +167,7 @@ package androidx.preference {
     method public android.content.SharedPreferences getSharedPreferences();
     method public boolean getShouldDisableView();
     method public java.lang.CharSequence getSummary();
+    method public final androidx.preference.Preference.SummaryProvider getSummaryProvider();
     method public java.lang.CharSequence getTitle();
     method public final int getWidgetLayoutResource();
     method public boolean hasKey();
@@ -213,6 +224,7 @@ package androidx.preference {
     method public void setSingleLineTitle(boolean);
     method public void setSummary(java.lang.CharSequence);
     method public void setSummary(int);
+    method public final void setSummaryProvider(androidx.preference.Preference.SummaryProvider);
     method public void setTitle(java.lang.CharSequence);
     method public void setTitle(int);
     method public void setViewId(int);
@@ -235,6 +247,10 @@ package androidx.preference {
 
   public static abstract interface Preference.OnPreferenceClickListener {
     method public abstract boolean onPreferenceClick(androidx.preference.Preference);
+  }
+
+  public static abstract interface Preference.SummaryProvider<T extends androidx.preference.Preference> {
+    method public abstract java.lang.CharSequence provideSummary(T);
   }
 
   public class PreferenceCategory extends androidx.preference.PreferenceGroup {

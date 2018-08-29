@@ -106,6 +106,9 @@ public abstract class TwoStatePreference extends Preference {
     /**
      * Sets the summary to be shown when checked.
      *
+     * <p>For more complex configuration of this preference's summary, you should use a
+     * {@link Preference.SummaryProvider}
+     *
      * @param summary The summary to be shown when checked
      */
     public void setSummaryOn(CharSequence summary) {
@@ -134,6 +137,9 @@ public abstract class TwoStatePreference extends Preference {
 
     /**
      * Sets the summary to be shown when unchecked.
+     *
+     * <p>For more complex configuration of this preference's summary, you should use a
+     * {@link Preference.SummaryProvider}
      *
      * @param summary The summary to be shown when unchecked
      */

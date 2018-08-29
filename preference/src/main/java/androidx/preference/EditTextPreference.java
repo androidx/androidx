@@ -37,6 +37,16 @@ public class EditTextPreference extends DialogPreference {
     public EditTextPreference(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+
+        TypedArray a = context.obtainStyledAttributes(
+                attrs, R.styleable.EditTextPreference, defStyleAttr, defStyleRes);
+
+        if (TypedArrayUtils.getBoolean(a, R.styleable.EditTextPreference_setDefaultSummaryProvider,
+                R.styleable.EditTextPreference_setDefaultSummaryProvider, false)) {
+            setSummaryProvider(DefaultProvider.getInstance());
+        }
+
+        a.recycle();
     }
 
     public EditTextPreference(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -68,6 +78,8 @@ public class EditTextPreference extends DialogPreference {
         if (isBlocking != wasBlocking) {
             notifyDependencyChange(isBlocking);
         }
+
+        notifyChanged();
     }
 
     /**
@@ -149,6 +161,42 @@ public class EditTextPreference extends DialogPreference {
         public void writeToParcel(Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
             dest.writeString(mText);
+        }
+    }
+
+    /**
+     * A default {@link androidx.preference.Preference.SummaryProvider} implementation for an
+     * {@link EditTextPreference}. If no value has been set, the summary displayed will be 'Not
+     * set', otherwise the summary displayed will be the value set for this preference.
+     */
+    public static final class DefaultProvider implements SummaryProvider<EditTextPreference> {
+
+        private static DefaultProvider sDefaultProvider;
+
+        private DefaultProvider() {
+        }
+
+        /**
+         * Retrieve a singleton instance of the default
+         * {@link androidx.preference.Preference.SummaryProvider} for a {@link EditTextPreference}.
+         *
+         * @return a singleton instance of the default
+         * {@link androidx.preference.Preference.SummaryProvider} for a {@link EditTextPreference}
+         */
+        public static DefaultProvider getInstance() {
+            if (sDefaultProvider == null) {
+                sDefaultProvider = new DefaultProvider();
+            }
+            return sDefaultProvider;
+        }
+
+        @Override
+        public CharSequence provideSummary(EditTextPreference preference) {
+            if (TextUtils.isEmpty(preference.getText())) {
+                return (preference.getContext().getString(R.string.not_set));
+            } else {
+                return preference.getText();
+            }
         }
     }
 
