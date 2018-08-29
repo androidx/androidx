@@ -231,8 +231,10 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
-    public @NonNull SessionToken2 getSessionToken() {
-        return mToken;
+    public @Nullable SessionToken2 getConnectedSessionToken() {
+        synchronized (mLock) {
+            return mConnected ? mToken : null;
+        }
     }
 
     @Override

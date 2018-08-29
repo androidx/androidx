@@ -118,7 +118,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     public void testGetPackageName() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
-        assertEquals(SERVICE_PACKAGE_NAME, mController.getSessionToken().getPackageName());
+        assertEquals(SERVICE_PACKAGE_NAME, mController.getConnectedSessionToken().getPackageName());
     }
 
     @Test

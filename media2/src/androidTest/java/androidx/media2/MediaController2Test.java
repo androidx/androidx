@@ -816,7 +816,8 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGetPackageName() {
         prepareLooper();
-        assertEquals(mContext.getPackageName(), mController.getSessionToken().getPackageName());
+        assertEquals(mContext.getPackageName(),
+                mController.getConnectedSessionToken().getPackageName());
     }
 
     @Test

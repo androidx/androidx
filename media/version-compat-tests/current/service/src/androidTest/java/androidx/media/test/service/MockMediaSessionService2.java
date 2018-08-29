@@ -33,7 +33,7 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
     public static final String ID = "TestSession";
 
     @Override
-    public MediaSession2 onCreateSession() {
+    public MediaSession2 onGetSession() {
         return new MediaSession2.Builder(MockMediaSessionService2.this)
                 .setId(ID)
                 .setPlayer(new MockPlayerConnector(0))

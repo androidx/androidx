@@ -46,6 +46,9 @@ import java.util.concurrent.Executor;
  *     &lt;action android:name="android.media.MediaLibraryService2" /&gt;
  *   &lt;/intent-filter&gt;
  * &lt;/service&gt;</pre>
+ * <p>
+ * You may also declare <pre>android.media.browse.MediaBrowserService</pre> for compatibility with
+ * {@link android.support.v4.media.MediaBrowserCompat}. This service can handle it automatically.
  *
  * @see MediaSessionService2
  */
@@ -57,7 +60,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
     /**
      * Session for the {@link MediaLibraryService2}. Build this object with
-     * {@link Builder} and return in {@link #onCreateSession()}.
+     * {@link Builder} and return in {@link #onGetSession()}.
      */
     public static final class MediaLibrarySession extends MediaSession2 {
         /**
@@ -371,35 +374,24 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-
-        MediaSession2 session = getSession();
-        if (!(session instanceof MediaLibrarySession)) {
-            throw new RuntimeException("Expected MediaLibrarySession, but returned MediaSession2");
-        }
-    }
-
-    @Override
     public IBinder onBind(Intent intent) {
         return super.onBind(intent);
     }
 
     /**
-     * Called when another app requested to start this service.
+     * Called when another app has requested to get {@link MediaLibrarySession}.
      * <p>
-     * Library service will accept or reject the connection with the
-     * {@link MediaLibrarySessionCallback} in the created session.
+     * Session returned here will be added to this service automatically. You don't need to call
+     * {@link #addSession(MediaSession2)} for that.
      * <p>
      * This method will be called on the main thread.
      *
      * @return a new library session
      * @see Builder
-     * @see #getSession()
-     * @throws RuntimeException if returned session is invalid
+     * @see #getSessions()
      */
     @Override
-    public @NonNull abstract MediaLibrarySession onCreateSession();
+    public @NonNull abstract MediaLibrarySession onGetSession();
 
     /**
      * Contains information that the library service needs to send to the client when

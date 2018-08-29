@@ -86,7 +86,7 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
                     // Do this on the callback executor to set the looper of MediaBrowserCompat's
                     // callback handler to this looper.
                     MediaBrowserCompat newBrowser = new MediaBrowserCompat(getContext(),
-                            getSessionToken().getComponentName(),
+                            getConnectedSessionToken().getComponentName(),
                             new GetLibraryRootCallback(extras), extras);
                     synchronized (mLock) {
                         mBrowserCompats.put(extras, newBrowser);

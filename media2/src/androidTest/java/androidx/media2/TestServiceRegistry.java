@@ -24,6 +24,8 @@ import androidx.annotation.GuardedBy;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.TestUtils.SyncHandler;
 
+import java.util.List;
+
 /**
  * Keeps the instance of currently running {@link MockMediaSessionService2}. And also provides
  * a way to control them in one place.
@@ -41,6 +43,8 @@ public class TestServiceRegistry {
     private MediaLibrarySessionCallback mSessionCallback;
     @GuardedBy("TestServiceRegistry.class")
     private SessionServiceCallback mSessionServiceCallback;
+    @GuardedBy("TestServiceRegistry.class")
+    private OnGetSessionHandler mOnGetSessionHandler;
 
     /**
      * Callback for session service's lifecyle (onCreate() / onDestroy())
@@ -56,6 +60,18 @@ public class TestServiceRegistry {
                 sInstance = new TestServiceRegistry();
             }
             return sInstance;
+        }
+    }
+
+    public void setOnGetSessionHandler(OnGetSessionHandler onGetSessionHandler) {
+        synchronized (TestServiceRegistry.class) {
+            mOnGetSessionHandler = onGetSessionHandler;
+        }
+    }
+
+    public OnGetSessionHandler getOnGetSessionHandler() {
+        synchronized (TestServiceRegistry.class) {
+            return mOnGetSessionHandler;
         }
     }
 
@@ -112,7 +128,10 @@ public class TestServiceRegistry {
         synchronized (TestServiceRegistry.class) {
             if (mService != null) {
                 // TODO(jaewan): Remove this, and override SessionService#onDestroy() to do this
-                mService.getSession().close();
+                List<MediaSession2> sessions = mService.getSessions();
+                for (int i = 0; i < sessions.size(); i++) {
+                    sessions.get(i).close();
+                }
                 // stopSelf() would not kill service while the binder connection established by
                 // bindService() exists, and close() above will do the job instead.
                 // So stopSelf() isn't really needed, but just for sure.
@@ -127,6 +146,11 @@ public class TestServiceRegistry {
                 mSessionServiceCallback.onDestroyed();
                 mSessionServiceCallback = null;
             }
+            mOnGetSessionHandler = null;
         }
+    }
+
+    public interface OnGetSessionHandler {
+        MediaSession2 onGetSession();
     }
 }

@@ -42,7 +42,7 @@ import javax.annotation.concurrent.GuardedBy;
  */
 public class MockMediaLibraryService2 extends MediaLibraryService2 {
     /**
-     * ID of the session that this service will create.
+     * ID of the session that this service will create
      */
     public static final String ID = "TestLibrary";
 
@@ -103,16 +103,22 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     }
 
     @Override
-    public MediaLibrarySession onCreateSession() {
+    public MediaLibrarySession onGetSession() {
+        TestServiceRegistry registry = TestServiceRegistry.getInstance();
+        TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
+                registry.getOnGetSessionHandler();
+        if (onGetSessionHandler != null) {
+            return (MediaLibrarySession) onGetSessionHandler.onGetSession();
+        }
         final MockPlayer player = new MockPlayer(1);
-        final SyncHandler handler = (SyncHandler) TestServiceRegistry.getInstance().getHandler();
+        final SyncHandler handler = (SyncHandler) registry.getHandler();
         final Executor executor = new Executor() {
             @Override
             public void execute(Runnable runnable) {
                 handler.post(runnable);
             }
         };
-        SessionCallback callback = TestServiceRegistry.getInstance().getSessionCallback();
+        SessionCallback callback = registry.getSessionCallback();
         MediaLibrarySessionCallback librarySessionCallback;
         if (callback instanceof MediaLibrarySessionCallback) {
             librarySessionCallback = (MediaLibrarySessionCallback) callback;

@@ -41,6 +41,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 
+import java.util.List;
+
 /**
  * Provides default media notification for {@link MediaSessionService2}, and set the service as
  * foreground/background according to the player state.
@@ -49,8 +51,8 @@ import androidx.media.app.NotificationCompat.MediaStyle;
  */
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class MediaNotificationHandler implements
-        MediaSession2.SessionCallback.OnHandleForegroundServiceListener {
+public class MediaNotificationHandler extends
+        MediaSession2.SessionCallback.ForegroundServiceEventCallback {
     private static final int NOTIFICATION_ID = 1001;
     private static final String NOTIFICATION_CHANNEL_ID = "default_channel_id";
 
@@ -81,8 +83,6 @@ public class MediaNotificationHandler implements
                 R.string.skip_to_previous_item_button_content_description, ACTION_SKIP_TO_PREVIOUS);
         mSkipToNextAction = createNotificationAction(R.drawable.ic_skip_to_next,
                 R.string.skip_to_next_item_button_content_description, ACTION_SKIP_TO_NEXT);
-
-        service.getSession().getCallback().setOnHandleForegroundServiceListener(this);
     }
 
     /**
@@ -92,9 +92,10 @@ public class MediaNotificationHandler implements
      * @param state player state
      */
     @Override
-    public void onHandleForegroundService(@MediaPlayerConnector.PlayerState int state) {
+    public void onPlayerStateChanged(MediaSession2 session,
+            @MediaPlayerConnector.PlayerState int state) {
         MediaSessionService2.MediaNotification mediaNotification =
-                mServiceInstance.onUpdateNotification();
+                mServiceInstance.onUpdateNotification(session);
         if (mediaNotification == null) {
             // The service implementation doesn't want to use the automatic start/stopForeground
             // feature.
@@ -104,14 +105,8 @@ public class MediaNotificationHandler implements
         int id = mediaNotification.getNotificationId();
         Notification notification = mediaNotification.getNotification();
 
-        if (state == MediaPlayerConnector.PLAYER_STATE_PAUSED
-                || state == MediaPlayerConnector.PLAYER_STATE_IDLE
-                || state == MediaPlayerConnector.PLAYER_STATE_ERROR) {
-            // Calling stopForeground(true) is a workaround for pre-L devices which prevents
-            // the media notification from being undismissable.
-            boolean shouldRemoveNotification =
-                    Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
-            mServiceInstance.stopForeground(shouldRemoveNotification);
+        if (isPlaybackStopped(state)) {
+            stopForegroundServiceIfNeeded();
             mNotificationManager.notify(id, notification);
             return;
         }
@@ -121,20 +116,34 @@ public class MediaNotificationHandler implements
         mServiceInstance.startForeground(id, notification);
     }
 
+    @Override
+    public void onSessionClosed(MediaSession2 session) {
+        mServiceInstance.removeSession(session);
+        stopForegroundServiceIfNeeded();
+    }
+
+    private void stopForegroundServiceIfNeeded() {
+        List<MediaSession2> sessions = mServiceInstance.getSessions();
+        for (int i = 0; i < sessions.size(); i++) {
+            if (!isPlaybackStopped(sessions.get(i).getPlayerState())) {
+                return;
+            }
+        }
+        // Calling stopForeground(true) is a workaround for pre-L devices which prevents
+        // the media notification from being undismissable.
+        boolean shouldRemoveNotification =
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+        mServiceInstance.stopForeground(shouldRemoveNotification);
+    }
+
     /**
      * Creates a default media style notification for {@link MediaSessionService2}.
      */
-    public MediaSessionService2.MediaNotification onUpdateNotification() {
+    public MediaSessionService2.MediaNotification onUpdateNotification(MediaSession2 session) {
         ensureNotificationChannel();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 mServiceInstance, NOTIFICATION_CHANNEL_ID);
-
-        MediaSession2 session = mServiceInstance.getSession();
-        if (session == null) {
-            // Session is not created yet.
-            return null;
-        }
 
         // TODO: Filter actions when SessionPlayer#getSupportedActions() is introduced.
         builder.addAction(mSkipToPrevAction);
@@ -217,5 +226,12 @@ public class MediaNotificationHandler implements
             // App icon is not set.
             return R.drawable.ic_music_note;
         }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean isPlaybackStopped(int state) {
+        return state == MediaPlayerConnector.PLAYER_STATE_PAUSED
+                || state == MediaPlayerConnector.PLAYER_STATE_IDLE
+                || state == MediaPlayerConnector.PLAYER_STATE_ERROR;
     }
 }
