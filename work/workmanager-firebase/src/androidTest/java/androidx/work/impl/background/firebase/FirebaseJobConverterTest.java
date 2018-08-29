@@ -20,10 +20,13 @@ import static androidx.work.NetworkType.CONNECTED;
 import static androidx.work.NetworkType.METERED;
 import static androidx.work.NetworkType.NOT_ROAMING;
 import static androidx.work.NetworkType.UNMETERED;
+import static androidx.work.impl.background.firebase.FirebaseJobConverter
+        .FIREBASE_MIN_BACKOFF_DURATION;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 
 import android.content.Context;
@@ -63,14 +66,15 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
 public class FirebaseJobConverterTest {
+    private FirebaseJobDispatcher mDispatcher;
     private FirebaseJobConverter mConverter;
 
     @Before
     public void setUp() {
         Context context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         PackageManagerHelper.setComponentEnabled(context, FirebaseJobService.class, true);
-        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
-        mConverter = new FirebaseJobConverter(dispatcher);
+        mDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+        mConverter = new FirebaseJobConverter(mDispatcher);
     }
 
     @Test
@@ -85,6 +89,7 @@ public class FirebaseJobConverterTest {
 
         JobTrigger.ImmediateTrigger trigger = (JobTrigger.ImmediateTrigger) job.getTrigger();
         assertThat(trigger, is(Trigger.NOW));
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -96,10 +101,28 @@ public class FirebaseJobConverterTest {
         workSpec.backoffPolicy = BackoffPolicy.LINEAR;
         Job job = mConverter.convert(workSpec);
 
-        int expectedBackoffDelayDuration = (int) TimeUnit.SECONDS
-                .convert(givenBackoffDelayDuration, TimeUnit.MILLISECONDS);
+        int expectedBackoffDelayDuration =
+                (int) TimeUnit.MILLISECONDS.toSeconds(givenBackoffDelayDuration);
         assertThat(job.getRetryStrategy().getInitialBackoff(), is(expectedBackoffDelayDuration));
         assertThat(job.getRetryStrategy().getPolicy(), is(RetryStrategy.RETRY_POLICY_LINEAR));
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_backoffPolicyBelowMinimumSize() {
+        long givenBackoffDelayDuration = 1L;
+        WorkSpec workSpec = new WorkSpec("id", FirebaseTestWorker.class.getName());
+        workSpec.setBackoffDelayDuration(givenBackoffDelayDuration);
+        workSpec.backoffPolicy = BackoffPolicy.LINEAR;
+        Job job = mConverter.convert(workSpec);
+
+        int expectedBackoffDelayDuration =
+                (int) TimeUnit.MILLISECONDS.toSeconds(FIREBASE_MIN_BACKOFF_DURATION);
+        assertThat(job.getRetryStrategy().getInitialBackoff(), is(expectedBackoffDelayDuration));
+        assertThat(job.getRetryStrategy().getPolicy(), is(RetryStrategy.RETRY_POLICY_LINEAR));
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
+        assertThat(mDispatcher.getValidator().validate(job.getRetryStrategy()), is(nullValue()));
     }
 
     @Test
@@ -112,6 +135,7 @@ public class FirebaseJobConverterTest {
 
         // Initial delay is handled via an AlarmManager broadcast
         assertThat(job.getTrigger(), is(instanceOf(JobTrigger.ImmediateTrigger.class)));
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -132,6 +156,7 @@ public class FirebaseJobConverterTest {
         JobTrigger.ContentUriTrigger trigger = (JobTrigger.ContentUriTrigger) job.getTrigger();
         List<ObservedUri> observedUriList = trigger.getUris();
         MatcherAssert.assertThat(observedUriList, contains(expectedObservedUri));
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -145,6 +170,7 @@ public class FirebaseJobConverterTest {
                 .getWorkSpec();
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.DEVICE_CHARGING);
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -153,9 +179,8 @@ public class FirebaseJobConverterTest {
         long testInterval = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS;
         long testFlex = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS;
 
-        int expectedWindowEndSeconds =
-                FirebaseJobConverter.convertMillisecondsToSeconds(testInterval);
-        int flexSeconds = FirebaseJobConverter.convertMillisecondsToSeconds(testFlex);
+        int expectedWindowEndSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(testInterval);
+        int flexSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(testFlex);
         int expectedWindowStartSeconds = expectedWindowEndSeconds - flexSeconds;
 
         WorkSpec workSpec = new WorkSpec("id", FirebaseTestWorker.class.getName());
@@ -166,6 +191,7 @@ public class FirebaseJobConverterTest {
                 (JobTrigger.ExecutionWindowTrigger) job.getTrigger();
         assertThat(trigger.getWindowEnd(), is(expectedWindowEndSeconds));
         assertThat(trigger.getWindowStart(), is(expectedWindowStartSeconds));
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -180,6 +206,7 @@ public class FirebaseJobConverterTest {
                 .getWorkSpec();
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.DEVICE_IDLE);
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -193,6 +220,7 @@ public class FirebaseJobConverterTest {
                 .getWorkSpec();
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -206,6 +234,7 @@ public class FirebaseJobConverterTest {
                 .getWorkSpec();
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -219,6 +248,7 @@ public class FirebaseJobConverterTest {
                 .getWorkSpec();
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     @Test
@@ -232,6 +262,7 @@ public class FirebaseJobConverterTest {
                 .getWorkSpec();
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.ON_UNMETERED_NETWORK);
+        assertThat(mDispatcher.getValidator().validate(job), is(nullValue()));
     }
 
     private void assertHasIntInArray(int[] array, int expectedItem) {
