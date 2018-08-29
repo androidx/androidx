@@ -27,56 +27,30 @@ import com.google.testing.compile.JavaSourcesSubject
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
-import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
-import org.hamcrest.MatcherAssert
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import java.nio.charset.Charset
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class NavWriterTest {
 
-    @get:Rule
-    @Suppress("MemberVisibilityCanBePrivate")
-    val workingDir = TemporaryFolder()
-
-    private fun load(fullClassName: String, folder: String): JavaFileObject {
-        val folderPath = "src/tests/test-data/${if (folder.isEmpty()) "" else folder + "/"}"
-        val split = fullClassName.split(".")
-        val code = File("$folderPath/${split.last()}.java").readText(Charset.defaultCharset())
-        return JavaFileObjects.forSourceString(fullClassName, code)
-    }
-
     private fun id(id: String) = ResReference("a.b", "id", id)
 
     private fun wrappedInnerClass(spec: TypeSpec): JavaFileObject {
         val wrappedSpec = TypeSpec.classBuilder("BoringWrapper").addType(spec).build()
-        return toJavaFileObject(JavaFile.builder("a.b", wrappedSpec).build())
-    }
-
-    private fun toJavaFileObject(javaFile: JavaFile): JavaFileObject {
-        val destination = workingDir.newFolder()
-        javaFile.writeTo(destination)
-        val path = javaFile.packageName.replace('.', '/')
-        val generated = File(destination, "$path/${javaFile.typeSpec.name}.java")
-        MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
-        return JavaFileObjects.forResource(generated.toURI().toURL())
+        return JavaFile.builder("a.b", wrappedSpec).build().toJavaFileObject()
     }
 
     private fun toJavaFileObject(spec: TypeSpec) =
-            toJavaFileObject(JavaFile.builder("a.b", spec).build())
+            JavaFile.builder("a.b", spec).build().toJavaFileObject()
 
     private fun assertCompilesWithoutError(javaFileObject: JavaFileObject) {
         JavaSourcesSubject.assertThat(
-                load("a.b.R", "a/b"),
+                loadSourceFile("a.b.R", "a/b"),
                 JavaFileObjects.forSourceString("android.support.annotation.NonNull",
                         "package android.support.annotation; public @interface NonNull {}"),
                 JavaFileObjects.forSourceString("android.support.annotation.Nullable",
@@ -86,10 +60,10 @@ class NavWriterTest {
     }
 
     private fun JavaSourcesSubject.parsesAs(fullClassName: String) =
-            this.parsesAs(load(fullClassName, "expected"))
+            this.parsesAs(fullClassName, "expected/nav_writer_test")
 
     private fun compileFiles(vararg javaFileObject: JavaFileObject) = javac()
-            .compile(load("a.b.R", "a/b"),
+            .compile(loadSourceFile("a.b.R", "a/b"),
                     JavaFileObjects.forSourceString("android.support.annotation.NonNull",
                             "package android.support.annotation; public @interface NonNull {}"),
                     JavaFileObjects.forSourceString("android.support.annotation.Nullable",
@@ -144,7 +118,7 @@ class NavWriterTest {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
                 listOf(prevAction, nextAction))
 
-        val actual = toJavaFileObject(generateDirectionsJavaFile(dest, false))
+        val actual = generateDirectionsJavaFile(dest, null, false).toJavaFileObject()
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragmentDirections")
         assertCompilesWithoutError(actual)
     }
@@ -164,7 +138,7 @@ class NavWriterTest {
         val dest = Destination(null, ClassName.get("a.b", "SanitizedMainFragment"),
                 "fragment", listOf(), listOf(prevAction, nextAction))
 
-        val actual = toJavaFileObject(generateDirectionsJavaFile(dest, false))
+        val actual = generateDirectionsJavaFile(dest, null, false).toJavaFileObject()
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.SanitizedMainFragmentDirections")
         assertCompilesWithoutError(actual)
     }
@@ -186,7 +160,7 @@ class NavWriterTest {
                 )),
                 listOf())
 
-        val actual = toJavaFileObject(generateArgsJavaFile(dest, false))
+        val actual = generateArgsJavaFile(dest, false).toJavaFileObject()
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragmentArgs")
         assertCompilesWithoutError(actual)
     }
@@ -200,7 +174,7 @@ class NavWriterTest {
                 Argument("name with spaces", IntType)),
                 listOf())
 
-        val actual = toJavaFileObject(generateArgsJavaFile(dest, false))
+        val actual = generateArgsJavaFile(dest, false).toJavaFileObject()
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.SanitizedMainFragmentArgs")
         assertCompilesWithoutError(actual)
     }
@@ -211,7 +185,7 @@ class NavWriterTest {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
                 listOf(nextAction))
 
-        val actual = toJavaFileObject(generateDirectionsJavaFile(dest, false))
+        val actual = generateDirectionsJavaFile(dest, null, false).toJavaFileObject()
 
         val generatedFiles = compileFiles(actual).generatedFiles()
         val loader = InMemoryGeneratedClassLoader(generatedFiles)
