@@ -147,6 +147,21 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     // TODO: Consider refactoring to share implementation with MediaPlayer2Impl.
 
     @Override
+    public void notifyWhenCommandLabelReached(final Object label) {
+        addTask(new Task(CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED, false) {
+            @Override
+            void process() {
+                notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                    @Override
+                    public void notify(EventCallback cb) {
+                        cb.onCommandLabelReached(ExoPlayerMediaPlayer2Impl.this, label);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
     public void clearPendingCommands() {
         synchronized (mTaskLock) {
             mPendingTasks.clear();
