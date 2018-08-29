@@ -408,6 +408,18 @@ public class DatePicker extends Picker {
     }
 
     /**
+     * Update the current date in milliseconds since January 1, 1970 00:00:00 in
+     * {@link TimeZone#getDefault()} time zone.
+     *
+     * @param timeInMilliseconds current date value in milliseconds.
+     */
+    public void setDate(long timeInMilliseconds) {
+        mTempDate.setTimeInMillis(timeInMilliseconds);
+        setDate(mTempDate.get(Calendar.YEAR), mTempDate.get(Calendar.MONTH),
+                mTempDate.get(Calendar.DAY_OF_MONTH), false);
+    }
+
+    /**
      * Update the current date.
      *
      * @param year The year.
