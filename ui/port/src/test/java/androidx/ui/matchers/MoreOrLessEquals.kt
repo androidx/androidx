@@ -54,7 +54,7 @@ import kotlin.math.absoluteValue
  */
 class MoreOrLessEquals(
     private val value: Double,
-    private val epsilon: Double = 1e-10
+    private val epsilon: Double = 1e-7
 ) : BaseMatcher<Double>() {
 
     override fun matches(item: Any?): Boolean {
