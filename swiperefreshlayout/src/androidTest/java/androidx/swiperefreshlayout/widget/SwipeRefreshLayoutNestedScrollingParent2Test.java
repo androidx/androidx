@@ -34,8 +34,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.NestedScrollingChild2;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
 import androidx.test.InstrumentationRegistry;
@@ -49,10 +47,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 /**
- * So far these tests only cover {@code NestedScrollView}'s implementation of
- * {@link NestedScrollingParent2} and the backwards compatibility of {@code NestedScrollView}'s
- * implementation of {@link androidx.core.view.NestedScrollingParent} for the methods that
- * {@link NestedScrollingParent2} overloads.
+ * Small integration tests that verifies correctness of {@link SwipeRefreshLayout}'s
+ * NestedScrollingParent2 implementation.
  */
 
 @RunWith(AndroidJUnit4.class)
@@ -74,36 +70,24 @@ public class SwipeRefreshLayoutNestedScrollingParent2Test {
     public void onStartNestedScroll_scrollAxisIncludesVerticalAndTypeTouch_returnsTrue() {
         int vertical = ViewCompat.SCROLL_AXIS_VERTICAL;
         int both = ViewCompat.SCROLL_AXIS_VERTICAL | ViewCompat.SCROLL_AXIS_HORIZONTAL;
-
-        onStartNestedScrollV1(vertical, true);
-        onStartNestedScrollV1(both, true);
-
-        onStartNestedScrollV2(vertical, ViewCompat.TYPE_TOUCH, true);
-        onStartNestedScrollV2(both, ViewCompat.TYPE_TOUCH, true);
+        onStartNestedScroll(vertical, ViewCompat.TYPE_TOUCH, true);
+        onStartNestedScroll(both, ViewCompat.TYPE_TOUCH, true);
     }
 
     @Test
     public void onStartNestedScroll_typeIsNotTouch_returnsFalse() {
         int vertical = ViewCompat.SCROLL_AXIS_VERTICAL;
         int both = ViewCompat.SCROLL_AXIS_VERTICAL | ViewCompat.SCROLL_AXIS_HORIZONTAL;
-
-        onStartNestedScrollV1(vertical, true);
-        onStartNestedScrollV1(both, true);
-
-        onStartNestedScrollV2(vertical, ViewCompat.TYPE_NON_TOUCH, false);
-        onStartNestedScrollV2(both, ViewCompat.TYPE_NON_TOUCH, false);
+        onStartNestedScroll(vertical, ViewCompat.TYPE_NON_TOUCH, false);
+        onStartNestedScroll(both, ViewCompat.TYPE_NON_TOUCH, false);
     }
 
     @Test
     public void onStartNestedScroll_scrollAxisExcludesVertical_returnsFalse() {
         int horizontal = ViewCompat.SCROLL_AXIS_HORIZONTAL;
         int neither = ViewCompat.SCROLL_AXIS_NONE;
-
-        onStartNestedScrollV1(horizontal, false);
-        onStartNestedScrollV1(neither, false);
-
-        onStartNestedScrollV2(horizontal, ViewCompat.TYPE_TOUCH, false);
-        onStartNestedScrollV2(neither, ViewCompat.TYPE_TOUCH, false);
+        onStartNestedScroll(horizontal, ViewCompat.TYPE_TOUCH, false);
+        onStartNestedScroll(neither, ViewCompat.TYPE_TOUCH, false);
     }
 
     @Test
@@ -202,7 +186,7 @@ public class SwipeRefreshLayoutNestedScrollingParent2Test {
                 .when(mParent)
                 .onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt());
         mSwipeRefreshLayout.onNestedScrollAccepted(mChild, mChild,
-                    ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
+                ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
 
         mSwipeRefreshLayout.onStopNestedScroll(mChild, ViewCompat.TYPE_TOUCH);
 
@@ -341,8 +325,7 @@ public class SwipeRefreshLayoutNestedScrollingParent2Test {
         doAnswer(new Answer() {
             public Object answer(InvocationOnMock invocation) {
                 int[] consumed = (int[]) invocation.getArguments()[3];
-                consumed[0] = 0;
-                consumed[1] = 5;
+                consumed[1] += 5;
                 return null;
             }}).when(mParent)
                 .onNestedPreScroll(any(View.class), anyInt(), anyInt(), any(int[].class), anyInt());
@@ -369,12 +352,7 @@ public class SwipeRefreshLayoutNestedScrollingParent2Test {
         assertThat(consumed, is(new int[]{0, 25}));
     }
 
-    private void onStartNestedScrollV1(int iScrollAxis, boolean oRetValue) {
-        boolean retVal = mSwipeRefreshLayout.onStartNestedScroll(mChild, mChild, iScrollAxis);
-        assertThat(retVal, is(oRetValue));
-    }
-
-    private void onStartNestedScrollV2(int iScrollAxis, int type, boolean oRetValue) {
+    private void onStartNestedScroll(int iScrollAxis, int type, boolean oRetValue) {
         boolean retVal = mSwipeRefreshLayout.onStartNestedScroll(mChild, mChild, iScrollAxis,
                 type);
         assertThat(retVal, is(oRetValue));
@@ -399,8 +377,7 @@ public class SwipeRefreshLayoutNestedScrollingParent2Test {
         mParent.layout(0, 0, 100, 100);
     }
 
-    public class NestedScrollingSpyView extends FrameLayout implements NestedScrollingChild2,
-            NestedScrollingParent2 {
+    public class NestedScrollingSpyView extends FrameLayout implements NestedScrollingParent2 {
 
         public NestedScrollingSpyView(Context context) {
             super(context);
@@ -433,80 +410,6 @@ public class SwipeRefreshLayoutNestedScrollingParent2Test {
         public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
                 int type) {
 
-        }
-
-        @Override
-        public boolean startNestedScroll(int axes, int type) {
-            return false;
-        }
-
-        @Override
-        public void stopNestedScroll(int type) {
-
-        }
-
-        @Override
-        public boolean hasNestedScrollingParent(int type) {
-            return false;
-        }
-
-        @Override
-        public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed, @Nullable int[] offsetInWindow, int type) {
-            return false;
-        }
-
-        @Override
-        public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed,
-                @Nullable int[] offsetInWindow, int type) {
-            return false;
-        }
-
-        @Override
-        public void setNestedScrollingEnabled(boolean enabled) {
-
-        }
-
-        @Override
-        public boolean isNestedScrollingEnabled() {
-            return false;
-        }
-
-        @Override
-        public boolean startNestedScroll(int axes) {
-            return false;
-        }
-
-        @Override
-        public void stopNestedScroll() {
-
-        }
-
-        @Override
-        public boolean hasNestedScrollingParent() {
-            return false;
-        }
-
-        @Override
-        public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed, int[] offsetInWindow) {
-            return false;
-        }
-
-        @Override
-        public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed,
-                int[] offsetInWindow) {
-            return false;
-        }
-
-        @Override
-        public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-            return false;
-        }
-
-        @Override
-        public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
-            return false;
         }
 
         @Override
