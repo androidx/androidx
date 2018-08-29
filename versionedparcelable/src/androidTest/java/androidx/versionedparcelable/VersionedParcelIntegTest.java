@@ -447,6 +447,14 @@ public class VersionedParcelIntegTest {
         assertTrue(TextUtils.equals(obj.mCharSequence, other.mCharSequence));
     }
 
+    @Test
+    public void testGenerics() {
+        ParcelizableImpl obj = new ParcelizableImpl();
+        obj.mGenericType = new GenericType<>("xxxx");
+        ParcelizableImpl other = parcelCopy(obj);
+        assertEquals(obj.mGenericType.mValue, other.mGenericType.mValue);
+    }
+
     @VersionedParcelize(allowSerialization = true,
             ignoreParcelables = true,
             isCustom = true,
@@ -519,6 +527,8 @@ public class VersionedParcelIntegTest {
         public Map<String, Float> mStringFloatMap;
         @ParcelField(32)
         public CharSequence mCharSequence;
+        @ParcelField(33)
+        public GenericType<String> mGenericType;
 
         @NonParcelField
         private boolean mPreParcelled;
@@ -533,6 +543,20 @@ public class VersionedParcelIntegTest {
         @Override
         public void onPostParceling() {
             mPostParcelled = true;
+        }
+    }
+
+    @VersionedParcelize(allowSerialization = true)
+    public static final class GenericType<T> implements VersionedParcelable {
+        @ParcelField(1)
+        public String mValue;
+
+        /** Used by {@link VersionedParcelable} */
+        GenericType() {
+        }
+
+        GenericType(T value) {
+            mValue = value.toString();
         }
     }
 }
