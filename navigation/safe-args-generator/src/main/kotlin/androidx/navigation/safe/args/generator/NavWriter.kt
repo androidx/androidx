@@ -247,6 +247,7 @@ private class ClassWithArgsSpecs(
 
 fun generateDestinationDirectionsTypeSpec(
     className: ClassName,
+    superclassName: TypeName?,
     destination: Destination,
     useAndroidX: Boolean
 ): TypeSpec {
@@ -270,6 +271,7 @@ fun generateDestinationDirectionsTypeSpec(
             }
 
     return TypeSpec.classBuilder(className)
+            .superclass(superclassName ?: ClassName.OBJECT)
             .addModifiers(Modifier.PUBLIC)
             .addTypes(actionTypes.map { (_, actionType) -> actionType })
             .addMethods(getters)
@@ -408,10 +410,15 @@ private fun MethodSpec.Builder.addNullCheck(
     }
 }
 
-fun generateDirectionsJavaFile(destination: Destination, useAndroidX: Boolean): JavaFile {
+fun generateDirectionsJavaFile(
+    destination: Destination,
+    parentDirectionName: ClassName?,
+    useAndroidX: Boolean
+): JavaFile {
     val destName = destination.name
             ?: throw IllegalStateException("Destination with actions must have name")
     val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Directions")
-    val typeSpec = generateDestinationDirectionsTypeSpec(className, destination, useAndroidX)
+    val typeSpec = generateDestinationDirectionsTypeSpec(className, parentDirectionName,
+            destination, useAndroidX)
     return JavaFile.builder(className.packageName(), typeSpec).build()
 }

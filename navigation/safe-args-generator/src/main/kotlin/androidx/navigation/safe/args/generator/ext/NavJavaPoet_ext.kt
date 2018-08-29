@@ -16,9 +16,14 @@
 
 package androidx.navigation.safe.args.generator.ext
 
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.JavaFile
+
 const val L = "\$L"
 const val N = "\$N"
 const val T = "\$T"
 const val S = "\$S"
 const val BEGIN_STMT = "\$["
 const val END_STMT = "\$]"
+
+fun JavaFile.toClassName(): ClassName = ClassName.get(this.packageName, this.typeSpec.name)

@@ -16,7 +16,9 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.ext.toClassName
 import androidx.navigation.safe.args.generator.models.Destination
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import java.io.File
 
@@ -32,17 +34,28 @@ fun generateSafeArgs(
             context)
     val resolvedDestination = resolveArguments(rawDestination)
     val javaFiles = mutableSetOf<JavaFile>()
-    fun writeJavaFiles(destination: Destination) {
-        if (destination.actions.isNotEmpty()) {
-            javaFiles.add(generateDirectionsJavaFile(destination, useAndroidX))
+    fun writeJavaFiles(
+        destination: Destination,
+        parentDirectionName: ClassName?
+    ) {
+        val directionsJavaFile = if (destination.actions.isNotEmpty() ||
+                parentDirectionName != null) {
+            generateDirectionsJavaFile(destination, parentDirectionName, useAndroidX)
+        } else {
+            null
         }
-        if (destination.args.isNotEmpty()) {
-            javaFiles.add(generateArgsJavaFile(destination, useAndroidX))
+        val argsJavaFile = if (destination.args.isNotEmpty()) {
+            generateArgsJavaFile(destination, useAndroidX)
+        } else {
+            null
         }
-        destination.nested.forEach(::writeJavaFiles)
+        directionsJavaFile?.let { javaFiles.add(it) }
+        argsJavaFile?.let { javaFiles.add(it) }
+        destination.nested.forEach { it ->
+            writeJavaFiles(it, directionsJavaFile?.toClassName())
+        }
     }
-    writeJavaFiles(resolvedDestination)
+    writeJavaFiles(resolvedDestination, null)
     javaFiles.forEach { javaFile -> javaFile.writeTo(outputDir) }
-    val files = javaFiles.map { javaFile -> "${javaFile.packageName}.${javaFile.typeSpec.name}" }
-    return GeneratorOutput(files, context.logger.allMessages())
+    return GeneratorOutput(javaFiles.toList(), context.logger.allMessages())
 }
