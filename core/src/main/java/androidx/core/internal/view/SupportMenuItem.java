@@ -376,4 +376,14 @@ public interface SupportMenuItem extends android.view.MenuItem {
      */
     @Override
     PorterDuff.Mode getIconTintMode();
+
+    /**
+     * Returns true if {@link #setShowAsAction(int)} was set to {@link #SHOW_AS_ACTION_ALWAYS}.
+     */
+    boolean requiresActionButton();
+
+    /**
+     * Returns true if {@link #setShowAsAction(int)} was set to {@link #SHOW_AS_ACTION_NEVER}.
+     */
+    boolean requiresOverflow();
 }
