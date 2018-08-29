@@ -65,7 +65,8 @@ package androidx.ui.painting
 // /
 // /  * [Paint.blendMode], which uses [BlendMode] to define the compositing
 // /    strategy.
-enum class BlendMode {
+enum class BlendMode(private val porterDuffMode: android.graphics.PorterDuff.Mode?) {
+
     // This list comes from Skia's SkXfermode.h and the values (order) should be
     // kept in sync.
     // See: https://skia.org/user/api/skpaint#SkXfermode
@@ -75,7 +76,7 @@ enum class BlendMode {
     // / This corresponds to the "clear" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_clear.png)
-    clear,
+    clear(android.graphics.PorterDuff.Mode.CLEAR),
 
     // / Drop the destination image, only paint the source image.
     // /
@@ -85,7 +86,7 @@ enum class BlendMode {
     // / This corresponds to the "Copy" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_src.png)
-    src,
+    src(android.graphics.PorterDuff.Mode.SRC),
 
     // / Drop the source image, only paint the destination image.
     // /
@@ -95,7 +96,7 @@ enum class BlendMode {
     // / This corresponds to the "Destination" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dst.png)
-    dst,
+    dst(android.graphics.PorterDuff.Mode.DST),
 
     // / Composite the source image over the destination image.
     // /
@@ -107,7 +108,7 @@ enum class BlendMode {
     // / also known as the Painter's Algorithm.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_srcOver.png)
-    srcOver,
+    srcOver(android.graphics.PorterDuff.Mode.SRC_OVER),
 
     // / Composite the source image under the destination image.
     // /
@@ -119,7 +120,7 @@ enum class BlendMode {
     // /
     // / This is useful when the source image should have been painted before the
     // / destination image, but could not be.
-    dstOver,
+    dstOver(android.graphics.PorterDuff.Mode.DST_OVER),
 
     // / Show the source image, but only where the two images overlap. The
     // / destination image is not rendered, it is treated merely as a mask. The
@@ -135,7 +136,7 @@ enum class BlendMode {
     // / This corresponds to the "Source in Destination" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_srcIn.png)
-    srcIn,
+    srcIn(android.graphics.PorterDuff.Mode.SRC_IN),
 
     // / Show the destination image, but only where the two images overlap. The
     // / source image is not rendered, it is treated merely as a mask. The color
@@ -149,7 +150,7 @@ enum class BlendMode {
     // / This corresponds to the "Destination in Source" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dstIn.png)
-    dstIn,
+    dstIn(android.graphics.PorterDuff.Mode.DST_IN),
 
     // / Show the source image, but only where the two images do not overlap. The
     // / destination image is not rendered, it is treated merely as a mask. The color
@@ -163,7 +164,7 @@ enum class BlendMode {
     // / This corresponds to the "Source out Destination" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_srcOut.png)
-    srcOut,
+    srcOut(android.graphics.PorterDuff.Mode.SRC_OUT),
 
     // / Show the destination image, but only where the two images do not overlap. The
     // / source image is not rendered, it is treated merely as a mask. The color
@@ -177,7 +178,7 @@ enum class BlendMode {
     // / This corresponds to the "Destination out Source" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dstOut.png)
-    dstOut,
+    dstOut(android.graphics.PorterDuff.Mode.DST_OUT),
 
     // / Composite the source image over the destination image, but only where it
     // / overlaps the destination.
@@ -192,7 +193,7 @@ enum class BlendMode {
     // / [dstATop].
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_srcATop.png)
-    srcATop,
+    srcATop(android.graphics.PorterDuff.Mode.SRC_ATOP),
 
     // / Composite the destination image over the source image, but only where it
     // / overlaps the source.
@@ -207,7 +208,7 @@ enum class BlendMode {
     // / [srcATop].
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dstATop.png)
-    dstATop,
+    dstATop(android.graphics.PorterDuff.Mode.DST_ATOP),
 
     // / Apply a bitwise `xor` operator to the source and destination images. This
     // / leaves transparency where they would overlap.
@@ -215,7 +216,7 @@ enum class BlendMode {
     // / This corresponds to the "Source xor Destination" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_xor.png)
-    xor,
+    xor(android.graphics.PorterDuff.Mode.XOR),
 
     // / Sum the components of the source and destination images.
     // /
@@ -226,7 +227,7 @@ enum class BlendMode {
     // / This corresponds to the "Source plus Destination" Porter-Duff operator.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_plus.png)
-    plus,
+    plus(android.graphics.PorterDuff.Mode.ADD),
 
     // / Multiply the color components of the source and destination images.
     // /
@@ -247,7 +248,7 @@ enum class BlendMode {
     // /    destination image.
     // /  * [hardLight], which combines [modulate] and [screen] to favor the
     // /    source image.
-    modulate,
+    modulate(null), // Not supported
 
     // Following blend modes are defined in the CSS Compositing standard.
 
@@ -279,7 +280,7 @@ enum class BlendMode {
     // /    destination image.
     // /  * [hardLight], which combines [modulate] and [screen] to favor the
     // /    source image.
-    screen, // The last coeff mode.
+    screen(android.graphics.PorterDuff.Mode.SCREEN), // The last coeff mode.
 
     // / Multiply the components of the source and destination images after
     // / adjusting them to favor the destination.
@@ -301,7 +302,7 @@ enum class BlendMode {
     // /  * [screen], which always multiplies the inverses of the values.
     // /  * [hardLight], which is similar to [overlay] but favors the source image
     // /    instead of the destination image.
-    overlay,
+    overlay(android.graphics.PorterDuff.Mode.OVERLAY),
 
     // / Composite the source and destination image by choosing the lowest value
     // / from each color channel.
@@ -310,7 +311,7 @@ enum class BlendMode {
     // / [srcOver].
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_darken.png)
-    darken,
+    darken(android.graphics.PorterDuff.Mode.DARKEN),
 
     // / Composite the source and destination image by choosing the highest value
     // / from each color channel.
@@ -319,7 +320,7 @@ enum class BlendMode {
     // / [srcOver].
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_lighten.png)
-    lighten,
+    lighten(android.graphics.PorterDuff.Mode.LIGHTEN),
 
     // / Divide the destination by the inverse of the source.
     // /
@@ -328,7 +329,7 @@ enum class BlendMode {
     // / (black, transparent) are treated as 1.0.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_colorDodge.png)
-    colorDodge,
+    colorDodge(null), // Not supported
 
     // / Divide the inverse of the destination by the the source, and inverse the result.
     // /
@@ -337,7 +338,7 @@ enum class BlendMode {
     // / (black, transparent) are treated as 1.0.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_colorBurn.png)
-    colorBurn,
+    colorBurn(null), // Not supported
 
     // / Multiply the components of the source and destination images after
     // / adjusting them to favor the source.
@@ -359,7 +360,7 @@ enum class BlendMode {
     // /  * [screen], which always multiplies the inverses of the values.
     // /  * [overlay], which is similar to [hardLight] but favors the destination
     // /    image instead of the source image.
-    hardLight,
+    hardLight(null), // Not supported
 
     // / Use [colorDodge] for source values below 0.5 and [colorBurn] for source
     // / values above 0.5.
@@ -371,7 +372,7 @@ enum class BlendMode {
     // / See also:
     // /
     // /  * [color], which is a more subtle tinting effect.
-    softLight,
+    softLight(null), // Not supported
 
     // / Subtract the smaller value from the bigger value for each channel.
     // /
@@ -384,7 +385,7 @@ enum class BlendMode {
     // / The effect is similar to [exclusion] but harsher.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_difference.png)
-    difference,
+    difference(null), // Not supported
 
     // / Subtract double the product of the two images from the sum of the two
     // / images.
@@ -398,7 +399,7 @@ enum class BlendMode {
     // / The effect is similar to [difference] but softer.
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_exclusion.png)
-    exclusion,
+    exclusion(null), // Not supported
 
     // / Multiply the components of the source and destination images, including
     // / the alpha channel.
@@ -414,7 +415,7 @@ enum class BlendMode {
     // / channel, consider [modulate].
     // /
     // / ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_multiply.png)
-    multiply, // The last separable mode.
+    multiply(android.graphics.PorterDuff.Mode.MULTIPLY), // The last separable mode.
 
     // / Take the hue of the source image, and the saturation and luminosity of the
     // / destination image.
@@ -433,7 +434,7 @@ enum class BlendMode {
     // /    saturation of the source image.
     // /  * [HSVColor], which allows colors to be expressed using Hue rather than
     // /    the red/green/blue channels of [Color].
-    hue,
+    hue(null), // Not Supported
 
     // / Take the saturation of the source image, and the hue and luminosity of the
     // / destination image.
@@ -449,7 +450,7 @@ enum class BlendMode {
     // /  * [color], which also applies the hue of the source image.
     // /  * [luminosity], which applies the luminosity of the source image to the
     // /    destination.
-    saturation,
+    saturation(null), // Not supported
 
     // / Take the hue and saturation of the source image, and the luminosity of the
     // / destination image.
@@ -467,7 +468,7 @@ enum class BlendMode {
     // /  * [hue], which is a similar but weaker effect.
     // /  * [softLight], which is a similar tinting effect but also tints white.
     // /  * [saturation], which only applies the saturation of the source image.
-    color,
+    color(null), // Not supported
 
     // / Take the luminosity of the source image, and the hue and saturation of the
     // / destination image.
@@ -484,5 +485,13 @@ enum class BlendMode {
     // /    destination.
     // /  * [ImageFilter.blur], which can be used with [BackdropFilter] for a
     // /    related effect.
-    luminosity
+    luminosity(null); // Not supported
+
+    fun toPorterDuffMode(): android.graphics.PorterDuff.Mode {
+        if (porterDuffMode == null) {
+            TODO("Migration/njawad: " + this + " does not have equivalent PorterDuff mode")
+        } else {
+            return porterDuffMode
+        }
+    }
 }
