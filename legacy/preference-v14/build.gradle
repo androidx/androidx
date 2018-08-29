@@ -32,4 +32,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.LEGACY
     inceptionYear = "2015"
     description = "Android Support Preference v14"
+    useMetalava = false
 }

@@ -1,3 +1,4 @@
+// Signature format: 2.0
 package androidx.localbroadcastmanager.content {
 
   public final class LocalBroadcastManager {
