@@ -16,6 +16,10 @@
 
 package androidx.media.test.service.tests;
 
+import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
+
+import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -23,7 +27,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.os.Process;
+import android.os.Build;
 import android.support.mediacompat.service.R;
 import android.view.KeyEvent;
 
@@ -49,17 +53,29 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaSession2} whether it handles key events correctly.
  */
-// Note: Test fails on pre-P for now because ControllerInfo isn't available for key event, and fails
-//       to pass permission check.
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
+    private static String sExpectedControllerPackageName;
+
     private AudioManager mAudioManager;
     private MediaSession2 mSession;
     private MockPlayerConnector mPlayer;
     private MockPlaylistAgent mMockAgent;
     private TestSessionCallback mSessionCallback;
+
+    static {
+        if (Build.VERSION.SDK_INT >= 28) {
+            sExpectedControllerPackageName = SERVICE_PACKAGE_NAME;
+        } else if (Build.VERSION.SDK_INT >= 24) {
+            // KeyEvent from system service has the package name "android".
+            sExpectedControllerPackageName = "android";
+        } else {
+            // In API 21+, MediaSessionCompat#getCurrentControllerInfo always returns dummy info.
+            sExpectedControllerPackageName = LEGACY_CONTROLLER;
+        }
+    }
 
     @Before
     @Override
@@ -213,7 +229,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
 
         @Override
         public SessionCommandGroup2 onConnect(MediaSession2 session, ControllerInfo controller) {
-            if (Process.myUid() == controller.getUid()) {
+            if (sExpectedControllerPackageName.equals(controller.getPackageName())) {
                 return super.onConnect(session, controller);
             }
             return null;
