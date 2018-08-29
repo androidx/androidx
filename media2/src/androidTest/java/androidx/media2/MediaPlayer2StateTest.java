@@ -54,7 +54,7 @@ import androidx.media2.MediaPlayer2.MediaPlayer2State;
 import androidx.media2.MediaPlayer2.TrackInfo;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.test.R;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
@@ -1103,7 +1103,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testOperation() throws Exception {
         if (!CHECK_INVALID_STATE && !mIsValidOperation) {
             return;
