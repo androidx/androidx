@@ -79,6 +79,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     private final Executor mCallbackExecutor;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SessionCallback mCallback;
+    private final String mSessionId;
     private final SessionToken2 mSessionToken;
     private final AudioManager mAudioManager;
     private final MediaPlayerConnector.PlayerEventCallback mPlayerEventCallback;
@@ -87,7 +88,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     final AudioFocusHandler mAudioFocusHandler;
     private final MediaSession2 mInstance;
     private final PendingIntent mSessionActivity;
-    private final MediaBrowserServiceCompat mBrowserServiceLegacyStub;
 
     final Object mLock = new Object();
 
@@ -103,6 +103,8 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     private SessionPlaylistAgentImplBase mSessionPlaylistAgent;
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
+    @GuardedBy("mLock")
+    private MediaBrowserServiceCompat mBrowserServiceLegacyStub;
 
     MediaSession2ImplBase(MediaSession2 instance, Context context, String id,
             MediaPlayerConnector player, MediaPlaylistAgent playlistAgent,
@@ -124,6 +126,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         mPlaylistEventCallback = new MyPlaylistEventCallback(this);
         mAudioFocusHandler = new AudioFocusHandler(context, instance);
 
+        mSessionId = id;
         mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
                 TYPE_SESSION, context.getPackageName(), mSession2Stub));
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
@@ -137,17 +140,12 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
                 | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
                 | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        mSessionCompat.setActive(true);
-        // Note: Session may be registered to the {@link MediaSessionService2} later, so create
-        //       browser service instance in advance. We may do this when it's really needed but
-        //       it needs removing final from the member variable.
-        mBrowserServiceLegacyStub = createLegacyBrowserService(context, mSessionToken,
-                mSessionCompat.getSessionToken());
 
         updatePlayer(player, playlistAgent);
-        // Do this at the last moment. Otherwise commands through framework would be sent to this
-        // session while initializing, and end up with unexpected situation.
+        // Do followings at the last moment. Otherwise commands through framework would be sent to
+        // this session while initializing, and end up with unexpected situation.
         mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
+        mSessionCompat.setActive(true);
     }
 
     @Override
@@ -227,7 +225,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                 mCallbackExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        mCallback.onHandleForegroundService(state);
+                        mCallback.onPlayerStateChanged(getInstance(), state);
                     }
                 });
                 notifyPlayerUpdatedNotLocked(oldPlayer);
@@ -316,6 +314,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             mPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
             mPlayer = null;
             mSessionCompat.release();
+            mCallback.onSessionClosed(mInstance);
             notifyToAllControllers(new NotifyRunnable() {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
@@ -345,6 +344,11 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         synchronized (mLock) {
             return mPlaylistAgent;
         }
+    }
+
+    @Override
+    public String getId() {
+        return mSessionId;
     }
 
     @Override
@@ -905,11 +909,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public @NonNull IBinder getSessionBinder() {
-        return mSession2Stub.asBinder();
-    }
-
-    @Override
     public Context getContext() {
         return mContext;
     }
@@ -988,13 +987,34 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
+    public void connectFromService(IMediaController2 caller, String packageName, int pid, int uid) {
+        mSession2Stub.connect(caller, packageName, pid, uid);
+    }
+
+    /**
+     * Gets the service binder from the MediaBrowserServiceCompat. Should be only called by the
+     * thread with a Looper.
+     *
+     * @return
+     */
+    @Override
     public IBinder getLegacyBrowserServiceBinder() {
+        MediaBrowserServiceCompat legacyStub;
+        synchronized (mLock) {
+            if (mBrowserServiceLegacyStub == null) {
+                mBrowserServiceLegacyStub = createLegacyBrowserService(mContext, mSessionToken,
+                        mSessionCompat.getSessionToken());
+            }
+            legacyStub = mBrowserServiceLegacyStub;
+        }
         Intent intent = new Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE);
-        return mBrowserServiceLegacyStub.onBind(intent);
+        return legacyStub.onBind(intent);
     }
 
     MediaBrowserServiceCompat getLegacyBrowserService() {
-        return mBrowserServiceLegacyStub;
+        synchronized (mLock) {
+            return mBrowserServiceLegacyStub;
+        }
     }
 
     private boolean isInPlaybackState(@Nullable MediaPlayerConnector player) {
@@ -1338,7 +1358,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                     // Order is important here. AudioFocusHandler should be called at the first
                     // for testing purpose.
                     session.mAudioFocusHandler.onPlayerStateChanged(state);
-                    session.getCallback().onHandleForegroundService(state);
+                    session.getCallback().onPlayerStateChanged(session.getInstance(), state);
                     session.getCallback().onPlayerStateChanged(
                             session.getInstance(), player, state);
                     session.notifyToAllControllers(new NotifyRunnable() {
