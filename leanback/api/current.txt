@@ -3066,6 +3066,7 @@ package androidx.leanback.widget.picker {
     method public long getMaxDate();
     method public long getMinDate();
     method public final void onColumnValueChanged(int, int);
+    method public void setDate(long);
     method public void setDate(int, int, int, boolean);
     method public void setDatePickerFormat(java.lang.String);
     method public void setMaxDate(long);
