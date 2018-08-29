@@ -24,7 +24,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 
 /**
  * Fragment used to show how to navigate to another destination
@@ -45,6 +46,9 @@ class MainFragment : Fragment() {
         tv.text = arguments?.getString("myarg")
 
         val b = view.findViewById<Button>(R.id.next_button)
-        b.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.next))
+        b.setOnClickListener {
+            findNavController().navigate(R.id.next, null, null,
+                    FragmentNavigatorExtras(b to "next"))
+        }
     }
 }

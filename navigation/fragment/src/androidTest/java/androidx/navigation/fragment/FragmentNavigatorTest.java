@@ -78,7 +78,7 @@ public class FragmentNavigatorTest {
         destination.setId(INITIAL_FRAGMENT);
         destination.setFragmentClass(EmptyFragment.class);
 
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -105,7 +105,7 @@ public class FragmentNavigatorTest {
         destination.setId(INITIAL_FRAGMENT);
         destination.setFragmentClass(EmptyFragment.class);
 
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -120,7 +120,7 @@ public class FragmentNavigatorTest {
 
         // Now push a second fragment
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -150,7 +150,7 @@ public class FragmentNavigatorTest {
         destination.setFragmentClass(EmptyFragment.class);
 
         // Push initial fragment
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -159,7 +159,7 @@ public class FragmentNavigatorTest {
 
         // Push a second fragment
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -174,7 +174,7 @@ public class FragmentNavigatorTest {
                 Navigator.BACK_STACK_DESTINATION_POPPED);
         destination.setId(THIRD_FRAGMENT);
         fragmentNavigator.navigate(destination, null,
-                new NavOptions.Builder().setPopUpTo(INITIAL_FRAGMENT, false).build());
+                new NavOptions.Builder().setPopUpTo(INITIAL_FRAGMENT, false).build(), null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -207,7 +207,7 @@ public class FragmentNavigatorTest {
         destination.setFragmentClass(EmptyFragment.class);
 
         // Push initial fragment
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -216,7 +216,7 @@ public class FragmentNavigatorTest {
 
         // Push a second fragment
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -231,7 +231,7 @@ public class FragmentNavigatorTest {
                 Navigator.BACK_STACK_DESTINATION_POPPED);
         destination.setId(THIRD_FRAGMENT);
         fragmentNavigator.navigate(destination, null,
-                new NavOptions.Builder().setPopUpTo(INITIAL_FRAGMENT, false).build());
+                new NavOptions.Builder().setPopUpTo(INITIAL_FRAGMENT, false).build(), null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -259,13 +259,13 @@ public class FragmentNavigatorTest {
         FragmentNavigator.Destination destination = fragmentNavigator.createDestination();
         destination.setFragmentClass(EmptyFragment.class);
 
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         Fragment fragment = mFragmentManager.findFragmentById(R.id.container);
         assertThat("Fragment should be added", fragment, is(notNullValue()));
 
         fragmentNavigator.navigate(destination, null,
-                new NavOptions.Builder().setLaunchSingleTop(true).build());
+                new NavOptions.Builder().setLaunchSingleTop(true).build(), null);
         mFragmentManager.executePendingTransactions();
         Fragment replacementFragment = mFragmentManager.findFragmentById(R.id.container);
         assertThat("Replacement Fragment should be added", replacementFragment,
@@ -289,16 +289,16 @@ public class FragmentNavigatorTest {
         destination.setFragmentClass(EmptyFragment.class);
 
         // First push an initial Fragment
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
 
         // Now push the Fragment that we want to replace with a singleTop operation
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         Fragment fragment = mFragmentManager.findFragmentById(R.id.container);
         assertThat("Fragment should be added", fragment, is(notNullValue()));
 
         fragmentNavigator.navigate(destination, null,
-                new NavOptions.Builder().setLaunchSingleTop(true).build());
+                new NavOptions.Builder().setLaunchSingleTop(true).build(), null);
         mFragmentManager.executePendingTransactions();
         Fragment replacementFragment = mFragmentManager.findFragmentById(R.id.container);
         assertThat("Replacement Fragment should be added", replacementFragment,
@@ -326,7 +326,7 @@ public class FragmentNavigatorTest {
         destination.setFragmentClass(EmptyFragment.class);
 
         // First push an initial Fragment
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
                 INITIAL_FRAGMENT,
@@ -356,7 +356,7 @@ public class FragmentNavigatorTest {
         destination.setFragmentClass(EmptyFragment.class);
 
         // First push an initial Fragment
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -367,7 +367,7 @@ public class FragmentNavigatorTest {
 
         // Now push the Fragment that we want to pop
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -408,7 +408,7 @@ public class FragmentNavigatorTest {
         destination.setFragmentClass(EmptyFragment.class);
 
         // First push an initial Fragment
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -419,7 +419,7 @@ public class FragmentNavigatorTest {
 
         // Now push the Fragment that we want to pop
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -457,13 +457,13 @@ public class FragmentNavigatorTest {
         destination.setFragmentClass(EmptyFragment.class);
 
         // First push two Fragments as our 'deep link'
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
                 INITIAL_FRAGMENT,
                 Navigator.BACK_STACK_DESTINATION_ADDED);
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
                 SECOND_FRAGMENT,
@@ -471,7 +471,7 @@ public class FragmentNavigatorTest {
 
         // Now push the Fragment that we want to pop
         destination.setId(THIRD_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -510,13 +510,13 @@ public class FragmentNavigatorTest {
         destination.setFragmentClass(EmptyFragment.class);
 
         // First push two Fragments as our 'deep link'
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
                 INITIAL_FRAGMENT,
                 Navigator.BACK_STACK_DESTINATION_ADDED);
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
                 SECOND_FRAGMENT,
@@ -524,7 +524,7 @@ public class FragmentNavigatorTest {
 
         // Now push the Fragment that we want to pop
         destination.setId(THIRD_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -570,7 +570,7 @@ public class FragmentNavigatorTest {
         destination.setId(INITIAL_FRAGMENT);
         destination.setFragmentClass(EmptyFragment.class);
 
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -585,7 +585,7 @@ public class FragmentNavigatorTest {
 
         // Now push a second fragment
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -609,7 +609,7 @@ public class FragmentNavigatorTest {
 
         // Now push a third fragment after the state save
         destination.setId(THIRD_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
         verify(listener).onNavigatorNavigated(
                 fragmentNavigator,
@@ -649,11 +649,11 @@ public class FragmentNavigatorTest {
 
         // Push 4 fragments without executing pending transactions.
         destination.setId(INITIAL_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         destination.setId(THIRD_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
 
         // Now pop the Fragment
         boolean popped = mFragmentManager.popBackStackImmediate();
@@ -678,13 +678,13 @@ public class FragmentNavigatorTest {
 
         // Push 4 fragments
         destination.setId(INITIAL_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         destination.setId(SECOND_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         destination.setId(THIRD_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         destination.setId(FOURTH_FRAGMENT);
-        fragmentNavigator.navigate(destination, null, null);
+        fragmentNavigator.navigate(destination, null, null, null);
         mFragmentManager.executePendingTransactions();
 
         // Pop 2 fragments without executing pending transactions.

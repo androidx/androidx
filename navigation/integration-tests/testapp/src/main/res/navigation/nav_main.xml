@@ -23,7 +23,11 @@
                   android:name=".MainFragment"
                   android:label="@string/home">
             <argument android:name="myarg" android:defaultValue="Home" />
-            <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+            <action android:id="@+id/next" app:destination="@+id/first_screen"
+                app:enterAnim="@anim/nav_default_enter_anim"
+                app:exitAnim="@anim/nav_default_exit_anim"
+                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+                app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
         </fragment>
     </navigation>
     <fragment android:id="@+id/android"
@@ -36,12 +40,20 @@
     <fragment android:id="@+id/first_screen"
         android:name="androidx.navigation.testapp.MainFragment">
         <argument android:name="myarg" android:defaultValue="one" />
-        <action android:id="@+id/next" app:destination="@+id/next_fragment"/>
+        <action android:id="@+id/next" app:destination="@+id/next_fragment"
+                app:enterAnim="@anim/nav_default_enter_anim"
+                app:exitAnim="@anim/nav_default_exit_anim"
+                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+                app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
     <fragment android:id="@+id/next_fragment"
         android:name="androidx.navigation.testapp.MainFragment">
         <argument android:name="myarg" android:defaultValue="two" />
-        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+        <action android:id="@+id/next" app:destination="@+id/first_screen"
+                app:enterAnim="@anim/nav_default_enter_anim"
+                app:exitAnim="@anim/nav_default_exit_anim"
+                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+                app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
     <activity android:id="@+id/settings_activity"
               app:action="android.settings.APPLICATION_DETAILS_SETTINGS"
