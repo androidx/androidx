@@ -16,18 +16,21 @@
 
 package androidx.media2;
 
-import android.content.Intent;
-import android.os.IBinder;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.net.Uri;
+
+import androidx.media2.IMediaController2;
+import androidx.versionedparcelable.ParcelImpl;
 
 /**
- * Implementation of {@link MediaLibraryService2}.
+ * Interface from MediaController2 to MediaSessionService2.
+ * <p>
+ * Keep this interface oneway. Otherwise a malicious app may implement fake version of this,
+ * and holds calls from session to make session owner(s) frozen.
+ * @hide
  */
-class MediaLibraryService2ImplBase extends MediaSessionService2ImplBase {
-    @Override
-    public IBinder onBind(Intent intent) {
-        if (MediaLibraryService2.SERVICE_INTERFACE.equals(intent.getAction())) {
-            return getServiceBinder();
-        }
-        return super.onBind(intent);
-    }
+oneway interface IMediaSessionService2 {
+    void connect(IMediaController2 caller, String callingPackage) = 0;
+    // Next Id : 1
 }

@@ -48,6 +48,7 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROU
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
+import static androidx.media2.SessionToken2.TYPE_SESSION;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -97,6 +98,8 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     final MediaController2Stub mControllerStub;
 
+    @GuardedBy("mLock")
+    private SessionToken2 mConnectedToken;
     @GuardedBy("mLock")
     private SessionServiceConnection mServiceConnection;
     @GuardedBy("mLock")
@@ -166,7 +169,7 @@ class MediaController2ImplBase implements MediaController2Impl {
         if (mToken.getType() == SessionToken2.TYPE_SESSION) {
             // Session
             mServiceConnection = null;
-            connectToSession(iSession2);
+            connectToSession();
         } else {
             mServiceConnection = new SessionServiceConnection();
             connectToService();
@@ -210,8 +213,10 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     @Override
-    public SessionToken2 getSessionToken() {
-        return mToken;
+    public SessionToken2 getConnectedSessionToken() {
+        synchronized (mLock) {
+            return isConnected() ? mConnectedToken : null;
+        }
     }
 
     @Override
@@ -799,7 +804,7 @@ class MediaController2ImplBase implements MediaController2Impl {
         //    startForegroundService().
         // 3. Future support for UI-less playback
         //    If a service wants to keep running, it should be either foreground service or
-        //    bounded service. But there had been request for the feature for system apps
+        //    bound service. But there had been request for the feature for system apps
         //    and using bindService() will be better fit with it.
         synchronized (mLock) {
             boolean result = mContext.bindService(
@@ -812,10 +817,10 @@ class MediaController2ImplBase implements MediaController2Impl {
         }
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void connectToSession(IMediaSession2 sessionBinder) {
+    private void connectToSession() {
+        IMediaSession2 iSession2 = IMediaSession2.Stub.asInterface((IBinder) mToken.getBinder());
         try {
-            sessionBinder.connect(mControllerStub, mContext.getPackageName());
+            iSession2.connect(mControllerStub, mContext.getPackageName());
         } catch (RemoteException e) {
             Log.w(TAG, "Failed to call connection request. Framework will retry"
                     + " automatically");
@@ -1090,6 +1095,8 @@ class MediaController2ImplBase implements MediaController2Impl {
                     close = true;
                     return;
                 }
+                mConnectedToken = new SessionToken2(new SessionToken2ImplBase(
+                        mToken.getUid(), TYPE_SESSION, mToken.getPackageName(), sessionBinder));
             }
             mCallbackExecutor.execute(new Runnable() {
                 @Override
@@ -1154,7 +1161,17 @@ class MediaController2ImplBase implements MediaController2Impl {
                         + " connected to " + name);
                 return;
             }
-            connectToSession(IMediaSession2.Stub.asInterface(service));
+            IMediaSessionService2 iService = IMediaSessionService2.Stub.asInterface(service);
+            if (iService == null) {
+                Log.wtf(TAG, "Service interface is missing.");
+                return;
+            }
+            try {
+                iService.connect(mControllerStub, getContext().getPackageName());
+            } catch (RemoteException e) {
+                Log.w(TAG, "Service " + name + " has died prematurely");
+                mInstance.close();
+            }
         }
 
         @Override

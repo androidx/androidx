@@ -236,13 +236,17 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Returns SessionToken2 of the connected session.
+     * Returns {@link SessionToken2} of the connected session.
      * If it is not connected yet, it returns {@code null}.
+     * <p>
+     * This may differ with the {@link SessionToken2} from the constructor. For example, if the
+     * controller is created with the token for {@link MediaSessionService2}, this would return
+     * token for the {@link MediaSession2} in the service.
      *
      * @return SessionToken2 of the connected session, or {@code null} if not connected
      */
-    public @Nullable SessionToken2 getSessionToken() {
-        return isConnected() ? getImpl().getSessionToken() : null;
+    public @Nullable SessionToken2 getConnectedSessionToken() {
+        return isConnected() ? getImpl().getConnectedSessionToken() : null;
     }
 
     /**
@@ -924,7 +928,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     interface MediaController2Impl extends AutoCloseable {
-        SessionToken2 getSessionToken();
+        @Nullable SessionToken2 getConnectedSessionToken();
         boolean isConnected();
         void play();
         void pause();

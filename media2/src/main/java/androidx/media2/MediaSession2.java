@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -55,7 +54,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Allows a media app to expose its transport controls and playback information in a process to
@@ -328,6 +326,15 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      */
     public @NonNull MediaPlaylistAgent getPlaylistAgent() {
         return mImpl.getPlaylistAgent();
+    }
+
+    /**
+     * Gets the session ID
+     *
+     * @return
+     */
+    public @NonNull String getId() {
+        return mImpl.getId();
     }
 
     /**
@@ -866,8 +873,17 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         return mImpl.getSessionCompat();
     }
 
-    IBinder getSessionBinder() {
-        return mImpl.getSessionBinder();
+    /**
+     * Handles the controller's connection request from {@link MediaSessionService2}.
+     *
+     * @param controller controller aidl
+     * @param packageName controller package name
+     * @param pid controller pid
+     * @param uid controller uid
+     */
+    void handleControllerConnectionFromService(IMediaController2 controller, String packageName,
+            int pid, int uid) {
+        mImpl.connectFromService(controller, packageName, pid, uid);
     }
 
     IBinder getLegacyBrowerServiceBinder() {
@@ -906,7 +922,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      * default.
      */
     public abstract static class SessionCallback {
-        OnHandleForegroundServiceListener mOnHandleForegroundServiceListener;
+        ForegroundServiceEventCallback mForegroundServiceEventCallback;
 
         /**
          * Called when a controller is created for this session. Return allowed commands for
@@ -1308,18 +1324,25 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * Called when the player state is changed. Used internally for setting the
          * {@link MediaSessionService2} as foreground/background.
          */
-        final void onHandleForegroundService(@PlayerState int state) {
-            if (mOnHandleForegroundServiceListener != null) {
-                mOnHandleForegroundServiceListener.onHandleForegroundService(state);
+        final void onPlayerStateChanged(MediaSession2 session, @PlayerState int state) {
+            if (mForegroundServiceEventCallback != null) {
+                mForegroundServiceEventCallback.onPlayerStateChanged(session, state);
             }
         }
 
-        void setOnHandleForegroundServiceListener(OnHandleForegroundServiceListener listener) {
-            mOnHandleForegroundServiceListener = listener;
+        final void onSessionClosed(MediaSession2 session) {
+            if (mForegroundServiceEventCallback != null) {
+                mForegroundServiceEventCallback.onSessionClosed(session);
+            }
         }
 
-        interface OnHandleForegroundServiceListener {
-            void onHandleForegroundService(@PlayerState int state);
+        void setForegroundServiceEventCallback(ForegroundServiceEventCallback callback) {
+            mForegroundServiceEventCallback = callback;
+        }
+
+        abstract static class ForegroundServiceEventCallback {
+            public void onPlayerStateChanged(MediaSession2 session, @PlayerState int state) { }
+            public void onSessionClosed(MediaSession2 session) { }
         }
     }
 
@@ -1720,6 +1743,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         @NonNull
         MediaPlayerConnector getPlayer();
         @NonNull MediaPlaylistAgent getPlaylistAgent();
+        @NonNull String getId();
         @NonNull SessionToken2 getToken();
         @NonNull List<ControllerInfo> getConnectedControllers();
         boolean isConnected(@NonNull ControllerInfo controller);
@@ -1737,7 +1761,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
 
         // Internally used methods
         MediaSession2 getInstance();
-        IBinder getSessionBinder();
         MediaSessionCompat getSessionCompat();
         Context getContext();
         Executor getCallbackExecutor();
@@ -1748,6 +1771,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         AudioFocusHandler getAudioFocusHandler();
         PendingIntent getSessionActivity();
         IBinder getLegacyBrowserServiceBinder();
+        void connectFromService(IMediaController2 caller, String packageName, int pid, int uid);
     }
 
     /**
@@ -1879,20 +1903,5 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          *      package.
          */
         @NonNull abstract T build();
-    }
-
-    static class MainHandlerExecutor implements Executor {
-        private final Handler mHandler;
-
-        MainHandlerExecutor(Context context) {
-            mHandler = new Handler(context.getMainLooper());
-        }
-
-        @Override
-        public void execute(Runnable command) {
-            if (!mHandler.post(command)) {
-                throw new RejectedExecutionException(mHandler + " is shutting down");
-            }
-        }
     }
 }

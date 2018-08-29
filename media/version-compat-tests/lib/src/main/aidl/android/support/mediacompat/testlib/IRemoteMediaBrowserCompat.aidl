@@ -29,7 +29,7 @@ interface IRemoteMediaBrowserCompat {
     ComponentName getServiceComponent(String browserId);
     String getRoot(String browserId);
     Bundle getExtras(String browserId);
-    Bundle getSessionToken(String browserId);
+    Bundle getConnectedSessionToken(String browserId);
     void subscribe(String browserId, String parentId, in Bundle options);
     void unsubscribe(String browserId, String parentId);
     void getItem(String browserId, String mediaId);
