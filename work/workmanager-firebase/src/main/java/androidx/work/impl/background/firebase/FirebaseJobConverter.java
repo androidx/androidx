@@ -44,7 +44,13 @@ import java.util.concurrent.TimeUnit;
  */
 
 class FirebaseJobConverter {
+
     private static final String TAG = "FirebaseJobConverter";
+
+    // FJD enforces its own min backoff duration at 30 seconds.  We will silently enforce this as
+    // the lower bound.
+    static final long FIREBASE_MIN_BACKOFF_DURATION = 30 * 1000L;
+
     private FirebaseJobDispatcher mDispatcher;
 
     FirebaseJobConverter(FirebaseJobDispatcher dispatcher) {
@@ -90,25 +96,21 @@ class FirebaseJobConverter {
      * {@link com.firebase.jobdispatcher.GooglePlayJobWriter#writeExecutionWindowTriggerToBundle}
      */
     private static JobTrigger.ExecutionWindowTrigger createPeriodicTrigger(WorkSpec workSpec) {
-        int windowEndSeconds = convertMillisecondsToSeconds(workSpec.intervalDuration);
-        int flexDurationSeconds = convertMillisecondsToSeconds(workSpec.flexDuration);
+        int windowEndSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(workSpec.intervalDuration);
+        int flexDurationSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(workSpec.flexDuration);
         int windowStartSeconds = windowEndSeconds - flexDurationSeconds;
 
         return Trigger.executionWindow(windowStartSeconds, windowEndSeconds);
     }
 
-    static int convertMillisecondsToSeconds(long milliseconds) {
-        return (int) TimeUnit.SECONDS.convert(milliseconds, TimeUnit.MILLISECONDS);
-    }
-
     private RetryStrategy createRetryStrategy(WorkSpec workSpec) {
         int policy = workSpec.backoffPolicy == BackoffPolicy.LINEAR
                 ? RetryStrategy.RETRY_POLICY_LINEAR : RetryStrategy.RETRY_POLICY_EXPONENTIAL;
-        int initialBackoff = (int) TimeUnit.SECONDS
-                .convert(workSpec.backoffDelayDuration, TimeUnit.MILLISECONDS);
-        int maxBackoff = (int) TimeUnit.SECONDS
-                .convert(WorkRequest.MAX_BACKOFF_MILLIS, TimeUnit.MILLISECONDS);
-        return mDispatcher.newRetryStrategy(policy, initialBackoff, maxBackoff);
+        int initialBackoffSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(
+                Math.max(FIREBASE_MIN_BACKOFF_DURATION, workSpec.backoffDelayDuration));
+        int maxBackoffSeconds =
+                (int) TimeUnit.MILLISECONDS.toSeconds(WorkRequest.MAX_BACKOFF_MILLIS);
+        return mDispatcher.newRetryStrategy(policy, initialBackoffSeconds, maxBackoffSeconds);
     }
 
     private static ObservedUri convertContentUriTrigger(
