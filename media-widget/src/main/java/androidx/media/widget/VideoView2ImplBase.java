@@ -106,6 +106,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private List<MediaItem2> mPlayList;
     MediaControlView2 mMediaControlView;
     MediaSession2 mMediaSession;
+    VideoView2Player mVideoView2Player;
     private String mTitle;
     Executor mCallbackExecutor;
 
@@ -536,13 +537,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         // and closed in onDetachedFromWindow().
         if (mMediaPlayer == null) {
             mMediaPlayer = MediaPlayer2.create(mInstance.getContext());
+            mVideoView2Player = new VideoView2Player(mMediaPlayer);
 
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
             mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer);
 
             if (mMediaSession != null) {
-                mMediaSession.updatePlayerConnector(mMediaPlayer.getMediaPlayerConnector(),
+                mMediaSession.updatePlayerConnector(mVideoView2Player,
                         mMediaSession.getPlaylistAgent());
             }
         } else {
@@ -554,7 +556,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         if (mMediaSession == null) {
             final Context context = mInstance.getContext();
             mMediaSession = new MediaSession2.Builder(context)
-                    .setPlayer(mMediaPlayer.getMediaPlayerConnector())
+                    .setPlayer(mVideoView2Player)
                     .setId("VideoView2_" + mInstance.toString())
                     .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                     .build();
@@ -573,6 +575,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mMediaPlayer.close();
         mMediaSession.close();
         mMediaPlayer = null;
+        mVideoView2Player = null;
         mMediaSession = null;
     }
 
@@ -719,6 +722,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         try {
             if (mMediaPlayer == null) {
                 mMediaPlayer = MediaPlayer2.create(mInstance.getContext());
+                mVideoView2Player = new VideoView2Player(mMediaPlayer);
             }
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
@@ -731,12 +735,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (mMediaSession == null) {
                 final Context context = mInstance.getContext();
                 mMediaSession = new MediaSession2.Builder(context)
-                        .setPlayer(mMediaPlayer.getMediaPlayerConnector())
+                        .setPlayer(mVideoView2Player)
                         .setId("VideoView2_" + mInstance.toString())
                         .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                         .build();
             } else {
-                mMediaSession.updatePlayerConnector(mMediaPlayer.getMediaPlayerConnector(),
+                mMediaSession.updatePlayerConnector(mVideoView2Player,
                         mMediaSession.getPlaylistAgent());
             }
             mMediaSession.setPlaylist(mPlayList, null);
