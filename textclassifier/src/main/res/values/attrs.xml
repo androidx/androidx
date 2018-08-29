@@ -19,5 +19,12 @@
     <declare-styleable name="TextClassifier">
         <attr name="packageName" format="string"/>
         <attr name="certificate" format="string"/>
+
+        <!-- ============ -->
+        <!-- Floating toolbar styles -->
+        <!-- ============ -->
+        <eat-comment />
+        <attr name="floatingToolbarForegroundColor" format="reference|color" />
+        <attr name="floatingToolbarPopupBackgroundDrawable" format="reference" />
     </declare-styleable>
 </resources>
