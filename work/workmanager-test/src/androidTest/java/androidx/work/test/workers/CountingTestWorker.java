@@ -17,19 +17,22 @@
 package androidx.work.test.workers;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import androidx.work.Worker;
 
-/**
- * A test {@link Worker} that prints a log and returns a successful result.
- */
-public class TestWorker extends Worker {
-    private static final String TAG = "TestWorker";
+import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * A test {@link Worker} that increments a static counter.
+ */
+public class CountingTestWorker extends Worker {
+
+    public static AtomicInteger COUNT = new AtomicInteger(0);
+
+    @NonNull
     @Override
-    public @NonNull Result doWork() {
-        Log.i(TAG, "Doing work.");
+    public Result doWork() {
+        COUNT.incrementAndGet();
         return Result.SUCCESS;
     }
 }

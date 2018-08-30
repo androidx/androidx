@@ -67,6 +67,16 @@ public final class WorkManagerTestInitHelper {
             public void setAllConstraintsMet(@NonNull UUID workSpecId) {
                 scheduler.setAllConstraintsMet(workSpecId);
             }
+
+            @Override
+            public void setInitialDelayMet(@NonNull UUID workSpecId) {
+                scheduler.setInitialDelayMet(workSpecId);
+            }
+
+            @Override
+            public void setPeriodDelayMet(@NonNull UUID workSpecId) {
+                scheduler.setPeriodDelayMet(workSpecId);
+            }
         };
         workManager.getProcessor().addExecutionListener(scheduler);
         WorkManagerImpl.setDelegate(workManager);

@@ -27,15 +27,19 @@ import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
+import androidx.work.test.workers.CountingTestWorker;
 import androidx.work.test.workers.TestWorker;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -48,10 +52,11 @@ public class TestSchedulerTest {
         Context context = InstrumentationRegistry.getTargetContext();
         WorkManagerTestInitHelper.initializeTestWorkManager(context);
         mTestDriver = WorkManagerTestInitHelper.getTestDriver();
+        CountingTestWorker.COUNT.set(0);
     }
 
     @Test
-    public void testTestWorkerShouldSucceedSynchronously() {
+    public void testWorker_shouldSucceedSynchronously() {
         WorkRequest request = createWorkRequest();
         WorkManager workManager = WorkManager.getInstance();
         workManager.synchronous().enqueueSync(request);
@@ -60,7 +65,7 @@ public class TestSchedulerTest {
     }
 
     @Test
-    public void testTestWorkerShouldSucceedSynchronously_withDependentWork() {
+    public void testWorker_withDependentWork_shouldSucceedSynchronously() {
         OneTimeWorkRequest request = createWorkRequest();
         OneTimeWorkRequest dependentRequest = createWorkRequest();
         WorkManager workManager = WorkManager.getInstance();
@@ -77,7 +82,7 @@ public class TestSchedulerTest {
     }
 
     @Test
-    public void testTestWorkerWithConstraintsShouldNoOp() {
+    public void testWorker_withConstraints_shouldNoOp() {
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
@@ -86,7 +91,7 @@ public class TestSchedulerTest {
     }
 
     @Test
-    public void testTestWorkerWithConstraints_succeedAfterSetConstraints() {
+    public void testWorker_withConstraints_shouldSucceedAfterSetConstraints() {
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
@@ -98,13 +103,44 @@ public class TestSchedulerTest {
     }
 
     @Test
-    public void testTestWorkerWithConstraints_succeedAfterSetConstraints_beforeEnqueue() {
-        OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
-        mTestDriver.setAllConstraintsMet(request.getId());
+    public void testWorker_withInitialDelay_shouldNoOp() {
+        OneTimeWorkRequest request = createWorkRequestWithInitialDelay();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
         WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+        assertThat(requestStatus.getState().isFinished(), is(false));
+    }
+
+    @Test
+    public void testWorker_withInitialDelay_shouldSucceedAfterSetInitialDelay() {
+        OneTimeWorkRequest request = createWorkRequestWithInitialDelay();
+        WorkManager workManager = WorkManager.getInstance();
+        workManager.enqueue(request);
+        mTestDriver.setInitialDelayMet(request.getId());
+        WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
         assertThat(requestStatus.getState().isFinished(), is(true));
+    }
+
+    @Test
+    public void testWorker_withPeriodDelay_shouldRun() {
+        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        WorkManager workManager = WorkManager.getInstance();
+        workManager.enqueue(request);
+        assertThat(CountingTestWorker.COUNT.get(), is(1));
+    }
+
+    @Test
+    public void testWorker_withPeriodDelay_shouldRunAfterEachSetPeriodDelay() {
+        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        WorkManager workManager = WorkManager.getInstance();
+        workManager.enqueue(request);
+        assertThat(CountingTestWorker.COUNT.get(), is(1));
+        for (int i = 0; i < 5; ++i) {
+            mTestDriver.setPeriodDelayMet(request.getId());
+            assertThat(CountingTestWorker.COUNT.get(), is(i + 2));
+            WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+            assertThat(requestStatus.getState().isFinished(), is(false));
+        }
     }
 
     private static OneTimeWorkRequest createWorkRequest() {
@@ -115,6 +151,17 @@ public class TestSchedulerTest {
         return new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .build();
+    }
+
+    private static OneTimeWorkRequest createWorkRequestWithInitialDelay() {
+        return new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialDelay(10L, TimeUnit.DAYS)
+                .build();
+    }
+
+    private static PeriodicWorkRequest createWorkRequestWithPeriodDelay() {
+        return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 10L, TimeUnit.DAYS)
                 .build();
     }
 }
