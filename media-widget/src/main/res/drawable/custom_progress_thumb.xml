@@ -13,10 +13,14 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval" >
-    <solid android:color="#ffffff" />
-    <size
-        android:height="@dimen/mcv2_custom_progress_thumb_size"
-        android:width="@dimen/mcv2_custom_progress_thumb_size" />
-</shape>
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+       android:scaleWidth="100%"
+       android:scaleHeight="100%"
+       android:scaleGravity="center"
+       android:level="10000">
+    <shape android:shape="oval" >
+        <solid android:color="#ffffff" />
+        <size android:height="@dimen/mcv2_custom_progress_thumb_size"
+              android:width="@dimen/mcv2_custom_progress_thumb_size" />
+    </shape>
+</scale>
