@@ -60,7 +60,7 @@ import javax.tools.Diagnostic;
 @SupportedAnnotationTypes({VersionedParcelProcessor.VERSIONED_PARCELIZE,
         VersionedParcelProcessor.PARCEL_FIELD,
         VersionedParcelProcessor.NON_PARCEL_FIELD})
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class VersionedParcelProcessor extends AbstractProcessor {
 
     static final String VERSIONED_PARCELIZE = "androidx.versionedparcelable.VersionedParcelize";
@@ -127,7 +127,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         Set<Element> nonFields = new HashSet<>();
 
         if (cls == null) {
-            mMessager.printMessage(Diagnostic.Kind.ERROR, "Can't find class annotation");
+            error("Can't find class annotation");
             return true;
         }
         if (field == null) {
@@ -148,8 +148,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
             }
             Element clsElement = findClass(element);
             if (!versionedParcelables.contains(clsElement)) {
-                mMessager.printMessage(Diagnostic.Kind.ERROR,
-                        cls + " must be added to classes containing " + field);
+                error(cls + " must be added to classes containing " + field);
             } else {
                 fields.computeIfAbsent(clsElement.toString(), (s) -> new HashSet<Element>())
                         .add(element);
@@ -230,10 +229,15 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         ArrayList<VariableElement> parcelFields = new ArrayList<>();
         findFields(fields, parcelFields);
 
-        TypeName type = TypeName.get(versionedParcelable.asType());
+        TypeName type = ClassName.get((TypeElement) versionedParcelable);
+        AnnotationSpec suppressUncheckedWarning = AnnotationSpec.builder(
+                ClassName.get("java.lang", "SuppressWarnings"))
+                .addMember("value", "$S", "unchecked")
+                .build();
         MethodSpec.Builder readBuilder = MethodSpec
                 .methodBuilder(READ)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addAnnotation(suppressUncheckedWarning)
                 .returns(type)
                 .addParameter(VERSIONED_PARCEL, "parcel");
         if (factoryClass != null && factoryClass.length() != 0) {
@@ -252,6 +256,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         MethodSpec.Builder writeBuilder = MethodSpec
                 .methodBuilder(WRITE)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addAnnotation(suppressUncheckedWarning)
                 .addParameter(type, "obj")
                 .addParameter(VERSIONED_PARCEL, "parcel")
                 .addStatement("parcel.setSerializationFlags($L, $L)", allowSerialization,
@@ -354,17 +359,19 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         String m = getMethod(type);
         if (m != null) return m;
         TypeElement te = (TypeElement) mEnv.getTypeUtils().asElement(type);
-        if (te != null) {
+        while (te != null) {
             for (TypeMirror t: te.getInterfaces()) {
                 m = getMethod(t);
                 if (m != null) return m;
             }
+            te = te.getSuperclass() != null ? (TypeElement) mEnv.getTypeUtils()
+                    .asElement(te.getSuperclass()) : null;
         }
         // Manual handling for generic arrays to go last.
         if (type.toString().contains("[]")) {
             return "Array";
         }
-        mMessager.printMessage(Diagnostic.Kind.ERROR, "Can't find type for " + e);
+        error("Can't find type for " + e + " (type: " + type + ")");
         return null;
     }
 
@@ -431,8 +438,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                     }
                 }
                 if (i == annotations.size()) {
-                    mMessager.printMessage(Diagnostic.Kind.ERROR,
-                            clsName + "." + element.getSimpleName() + " is not annotated with "
+                    error(clsName + "." + element.getSimpleName() + " is not annotated with "
                                     + "@ParcelField or @NonParcelField");
                     return;
                 }
@@ -524,7 +530,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
     }
 
     private void error(String error) {
-        mMessager.printMessage(Diagnostic.Kind.ERROR, error);
+        mMessager.printMessage(Diagnostic.Kind.ERROR, "VersionedParcelProcessor - " + error);
     }
 }
 
