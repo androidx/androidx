@@ -23,6 +23,12 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
+android {
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
+
 dependencies {
     compileOnly(CHECKER_FRAMEWORK)
 }
