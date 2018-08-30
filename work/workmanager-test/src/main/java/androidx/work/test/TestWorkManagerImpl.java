@@ -27,6 +27,7 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * A concrete implementation of {@link WorkManager} which can be used for testing.
@@ -46,6 +47,9 @@ abstract class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver
                 context,
                 configuration,
                 new TaskExecutor() {
+
+                    Executor mSynchronousExecutor = new SynchronousExecutor();
+
                     @Override
                     public void postToMainThread(Runnable runnable) {
                         runnable.run();
@@ -54,6 +58,11 @@ abstract class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver
                     @Override
                     public void executeOnBackgroundThread(Runnable runnable) {
                         runnable.run();
+                    }
+
+                    @Override
+                    public Executor getBackgroundExecutor() {
+                        return mSynchronousExecutor;
                     }
                 },
                 true);
