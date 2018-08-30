@@ -20,7 +20,14 @@ import androidx.annotation.RestrictTo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import java.io.Closeable;
 import java.io.File;
@@ -49,7 +56,11 @@ public class SchemaBundle implements SchemaEquality<SchemaBundle> {
     public static final int LATEST_FORMAT = 1;
 
     static {
-        GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+        GSON = new GsonBuilder()
+                .setPrettyPrinting()
+                .disableHtmlEscaping()
+                .registerTypeAdapterFactory(new EntityTypeAdapterFactory())
+                .create();
     }
 
     public SchemaBundle(int formatVersion, DatabaseBundle database) {
@@ -109,5 +120,59 @@ public class SchemaBundle implements SchemaEquality<SchemaBundle> {
     public boolean isSchemaEqual(SchemaBundle other) {
         return SchemaEqualityUtil.checkSchemaEquality(mDatabase, other.mDatabase)
                 && mFormatVersion == other.mFormatVersion;
+    }
+
+    private static class EntityTypeAdapterFactory implements TypeAdapterFactory {
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            if (!EntityBundle.class.isAssignableFrom(type.getRawType())) {
+                return null;
+            }
+
+            TypeAdapter<JsonElement> jsonElementAdapter = gson.getAdapter(JsonElement.class);
+            TypeAdapter<EntityBundle> entityBundleAdapter = gson.getDelegateAdapter(this,
+                    TypeToken.get(EntityBundle.class));
+            TypeAdapter<FtsEntityBundle> ftsEntityBundleAdapter = gson.getDelegateAdapter(this,
+                    TypeToken.get(FtsEntityBundle.class));
+            return (TypeAdapter<T>) new EntityTypeAdapter(
+                    jsonElementAdapter, entityBundleAdapter, ftsEntityBundleAdapter);
+        }
+
+        private static class EntityTypeAdapter extends TypeAdapter<EntityBundle> {
+
+            private final TypeAdapter<JsonElement> mJsonElementAdapter;
+            private final TypeAdapter<EntityBundle> mEntityBundleAdapter;
+            private final TypeAdapter<FtsEntityBundle> mFtsEntityBundleAdapter;
+
+            EntityTypeAdapter(
+                    TypeAdapter<JsonElement> jsonElementAdapter,
+                    TypeAdapter<EntityBundle> entityBundleAdapter,
+                    TypeAdapter<FtsEntityBundle> ftsEntityBundleAdapter) {
+                this.mJsonElementAdapter = jsonElementAdapter;
+                this.mEntityBundleAdapter = entityBundleAdapter;
+                this.mFtsEntityBundleAdapter = ftsEntityBundleAdapter;
+            }
+
+            @Override
+            public void write(JsonWriter out, EntityBundle value) throws IOException {
+                if (value.getClass().isAssignableFrom(FtsEntityBundle.class)) {
+                    mFtsEntityBundleAdapter.write(out, (FtsEntityBundle) value);
+                } else {
+                    mEntityBundleAdapter.write(out, value);
+                }
+            }
+
+            @Override
+            public EntityBundle read(JsonReader in) throws IOException {
+                JsonObject jsonObject = mJsonElementAdapter.read(in).getAsJsonObject();
+                if (jsonObject.has("ftsVersion")) {
+                    return mFtsEntityBundleAdapter.fromJsonTree(jsonObject);
+                } else {
+                    return mEntityBundleAdapter.fromJsonTree(jsonObject);
+                }
+            }
+        }
     }
 }
