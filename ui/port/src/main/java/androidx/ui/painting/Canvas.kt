@@ -438,61 +438,41 @@ class Canvas {
         internalCanvas.drawPath(path.toFrameworkPath(), paint.toFrameworkPaint())
     }
 
-//    /// Draws the given [Image] into the canvas with its top-left corner at the
-//    /// given [Offset]. The image is composited into the canvas using the given [Paint].
-    // TODO(Migration/njawad implement drawImage after porting Image w/ Bitmap wrapper
-//    void drawImage(Image image, Offset p, Paint paint) {
-//        assert(image != null); // image is checked on the engine side
-//        assert(_offsetIsValid(p));
-//        assert(paint != null);
-//        _drawImage(image, p.dx, p.dy, paint._objects, paint._data);
-//    }
+    // / Draws the given [Image] into the canvas with its top-left corner at the
+    // / given [Offset]. The image is composited into the canvas using the given [Paint].
+    fun drawImage(image: Image, p: Offset, paint: Paint) {
+        internalCanvas.drawBitmap(
+                image.bitmap,
+                p.dx.toFloat(),
+                p.dy.toFloat(),
+                paint.toFrameworkPaint()
+        )
+    }
+
 //    void _drawImage(Image image,
 //    double x,
 //    double y,
 //    List<dynamic> paintObjects,
 //    ByteData paintData) native 'Canvas_drawImage';
 //
-//    /// Draws the subset of the given image described by the `src` argument into
-//    /// the canvas in the axis-aligned rectangle given by the `dst` argument.
-//    ///
-//    /// This might sample from outside the `src` rect by up to half the width of
-//    /// an applied filter.
-//    ///
-//    /// Multiple calls to this method with different arguments (from the same
-//    /// image) can be batched into a single call to [drawAtlas] to improve
-//    /// performance.
-    // TODO(Migration/njawad implement drawImageRect after porting Image w/ Bitmap wrapper
+    // / Draws the subset of the given image described by the `src` argument into
+    // / the canvas in the axis-aligned rectangle given by the `dst` argument.
+    // /
+    // / This might sample from outside the `src` rect by up to half the width of
+    // / an applied filter.
+    // /
+    // / Multiple calls to this method with different arguments (from the same
+    // / image) can be batched into a single call to [drawAtlas] to improve
+    // / performance.
+    fun drawImageRect(image: Image, src: Rect, dst: Rect, paint: Paint) {
+        internalCanvas.drawBitmap(
+                image.bitmap,
+                src.toFrameworkRect(),
+                dst.toFrameworkRect(),
+                paint.toFrameworkPaint()
+        )
+    }
 
-//    void drawImageRect(Image image, Rect src, Rect dst, Paint paint) {
-//        assert(image != null); // image is checked on the engine side
-//        assert(_rectIsValid(src));
-//        assert(_rectIsValid(dst));
-//        assert(paint != null);
-//        _drawImageRect(image,
-//                src.left,
-//                src.top,
-//                src.right,
-//                src.bottom,
-//                dst.left,
-//                dst.top,
-//                dst.right,
-//                dst.bottom,
-//                paint._objects,
-//                paint._data);
-//    }
-//    void _drawImageRect(Image image,
-//    double srcLeft,
-//    double srcTop,
-//    double srcRight,
-//    double srcBottom,
-//    double dstLeft,
-//    double dstTop,
-//    double dstRight,
-//    double dstBottom,
-//    List<dynamic> paintObjects,
-//    ByteData paintData) native 'Canvas_drawImageRect';
-//
 //    /// Draws the given [Image] into the canvas using the given [Paint].
 //    ///
 //    /// The image is drawn in nine portions described by splitting the image by
