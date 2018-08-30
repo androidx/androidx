@@ -16,15 +16,16 @@
  */
 package androidx.ui.vectormath64
 
+import androidx.ui.clamp
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
-inline operator fun Float.plus(v: Vector2) = Vector2(this + v.x, this + v.y)
-inline operator fun Float.minus(v: Vector2) = Vector2(this - v.x, this - v.y)
-inline operator fun Float.times(v: Vector2) = Vector2(this * v.x, this * v.y)
-inline operator fun Float.div(v: Vector2) = Vector2(this / v.x, this / v.y)
+inline operator fun Double.plus(v: Vector2) = Vector2(this + v.x, this + v.y)
+inline operator fun Double.minus(v: Vector2) = Vector2(this - v.x, this - v.y)
+inline operator fun Double.times(v: Vector2) = Vector2(this * v.x, this * v.y)
+inline operator fun Double.div(v: Vector2) = Vector2(this / v.x, this / v.y)
 
 inline fun abs(v: Vector2) = Vector2(abs(v.x), abs(v.y))
 inline fun length(v: Vector2) = sqrt(v.x * v.x + v.y * v.y)
@@ -32,30 +33,30 @@ inline fun length2(v: Vector2) = v.x * v.x + v.y * v.y
 inline fun distance(a: Vector2, b: Vector2) = length(a - b)
 inline fun dot(a: Vector2, b: Vector2) = a.x * b.x + a.y * b.y
 fun normalize(v: Vector2): Vector2 {
-    val l = 1.0f / length(v)
+    val l = 1.0 / length(v)
     return Vector2(v.x * l, v.y * l)
 }
 
-inline fun reflect(i: Vector2, n: Vector2) = i - 2.0f * dot(n, i) * n
-fun refract(i: Vector2, n: Vector2, eta: Float): Vector2 {
+inline fun reflect(i: Vector2, n: Vector2) = i - 2.0 * dot(n, i) * n
+fun refract(i: Vector2, n: Vector2, eta: Double): Vector2 {
     val d = dot(n, i)
-    val k = 1.0f - eta * eta * (1.0f - sqr(d))
-    return if (k < 0.0f) Vector2(0.0f) else eta * i - (eta * d + sqrt(k)) * n
+    val k = 1.0 - eta * eta * (1.0 - sqr(d))
+    return if (k < 0.0) Vector2(0.0) else eta * i - (eta * d + sqrt(k)) * n
 }
 
-inline fun clamp(v: Vector2, min: Float, max: Float): Vector2 {
+inline fun clamp(v: Vector2, min: Double, max: Double): Vector2 {
     return Vector2(
-            clamp(v.x, min, max),
-            clamp(v.y, min, max))
+            v.x.clamp(min, max),
+            v.y.clamp(min, max))
 }
 
 inline fun clamp(v: Vector2, min: Vector2, max: Vector2): Vector2 {
     return Vector2(
-            clamp(v.x, min.x, max.x),
-            clamp(v.y, min.y, max.y))
+            v.x.clamp(min.x, max.x),
+            v.y.clamp(min.y, max.y))
 }
 
-inline fun mix(a: Vector2, b: Vector2, x: Float): Vector2 {
+inline fun mix(a: Vector2, b: Vector2, x: Double): Vector2 {
     return Vector2(
             mix(a.x, b.x, x),
             mix(a.y, b.y, x))
@@ -72,12 +73,12 @@ inline fun min(a: Vector2, b: Vector2) = Vector2(min(a.x, b.x), min(a.y, b.y))
 inline fun max(v: Vector2) = max(v.x, v.y)
 inline fun max(a: Vector2, b: Vector2) = Vector2(max(a.x, b.x), max(a.y, b.y))
 
-inline fun transform(v: Vector2, block: (Float) -> Float) = v.copy().transform(block)
+inline fun transform(v: Vector2, block: (Double) -> Double) = v.copy().transform(block)
 
-inline operator fun Float.plus(v: Vector3) = Vector3(this + v.x, this + v.y, this + v.z)
-inline operator fun Float.minus(v: Vector3) = Vector3(this - v.x, this - v.y, this - v.z)
-inline operator fun Float.times(v: Vector3) = Vector3(this * v.x, this * v.y, this * v.z)
-inline operator fun Float.div(v: Vector3) = Vector3(this / v.x, this / v.y, this / v.z)
+inline operator fun Double.plus(v: Vector3) = Vector3(this + v.x, this + v.y, this + v.z)
+inline operator fun Double.minus(v: Vector3) = Vector3(this - v.x, this - v.y, this - v.z)
+inline operator fun Double.times(v: Vector3) = Vector3(this * v.x, this * v.y, this * v.z)
+inline operator fun Double.div(v: Vector3) = Vector3(this / v.x, this / v.y, this / v.z)
 
 inline fun abs(v: Vector3) = Vector3(abs(v.x), abs(v.y), abs(v.z))
 inline fun length(v: Vector3) = sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
@@ -91,32 +92,32 @@ inline infix fun Vector3.x(v: Vector3): Vector3 {
     return Vector3(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x)
 }
 fun normalize(v: Vector3): Vector3 {
-    val l = 1.0f / length(v)
+    val l = 1.0 / length(v)
     return Vector3(v.x * l, v.y * l, v.z * l)
 }
 
-inline fun reflect(i: Vector3, n: Vector3) = i - 2.0f * dot(n, i) * n
-fun refract(i: Vector3, n: Vector3, eta: Float): Vector3 {
+inline fun reflect(i: Vector3, n: Vector3) = i - 2.0 * dot(n, i) * n
+fun refract(i: Vector3, n: Vector3, eta: Double): Vector3 {
     val d = dot(n, i)
-    val k = 1.0f - eta * eta * (1.0f - sqr(d))
-    return if (k < 0.0f) Vector3(0.0f) else eta * i - (eta * d + sqrt(k)) * n
+    val k = 1.0 - eta * eta * (1.0 - sqr(d))
+    return if (k < 0.0) Vector3(0.0) else eta * i - (eta * d + sqrt(k)) * n
 }
 
-inline fun clamp(v: Vector3, min: Float, max: Float): Vector3 {
+inline fun clamp(v: Vector3, min: Double, max: Double): Vector3 {
     return Vector3(
-            clamp(v.x, min, max),
-            clamp(v.y, min, max),
-            clamp(v.z, min, max))
+            v.x.clamp(min, max),
+            v.y.clamp(min, max),
+            v.z.clamp(min, max))
 }
 
 inline fun clamp(v: Vector3, min: Vector3, max: Vector3): Vector3 {
     return Vector3(
-            clamp(v.x, min.x, max.x),
-            clamp(v.y, min.y, max.y),
-            clamp(v.z, min.z, max.z))
+            v.x.clamp(min.x, max.x),
+            v.y.clamp(min.y, max.y),
+            v.z.clamp(min.z, max.z))
 }
 
-inline fun mix(a: Vector3, b: Vector3, x: Float): Vector3 {
+inline fun mix(a: Vector3, b: Vector3, x: Double): Vector3 {
     return Vector3(
             mix(a.x, b.x, x),
             mix(a.y, b.y, x),
@@ -135,14 +136,15 @@ inline fun min(a: Vector3, b: Vector3) = Vector3(min(a.x, b.x), min(a.y, b.y), m
 inline fun max(v: Vector3) = max(v.x, max(v.y, v.z))
 inline fun max(a: Vector3, b: Vector3) = Vector3(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z))
 
-inline fun transform(v: Vector3, block: (Float) -> Float) = v.copy().transform(block)
+inline fun transform(v: Vector3, block: (Double) -> Double) = v.copy().transform(block)
 
-inline operator fun Float.plus(v: Vector4) = Vector4(this + v.x, this + v.y, this + v.z, this + v.w)
-inline operator fun Float.minus(v: Vector4) = Vector4(this - v.x, this - v.y,
+inline operator fun Double.plus(v: Vector4) = Vector4(this + v.x, this + v.y,
+        this + v.z, this + v.w)
+inline operator fun Double.minus(v: Vector4) = Vector4(this - v.x, this - v.y,
         this - v.z, this - v.w)
-inline operator fun Float.times(v: Vector4) = Vector4(this * v.x, this * v.y,
+inline operator fun Double.times(v: Vector4) = Vector4(this * v.x, this * v.y,
         this * v.z, this * v.w)
-inline operator fun Float.div(v: Vector4) = Vector4(this / v.x, this / v.y, this / v.z, this / v.w)
+inline operator fun Double.div(v: Vector4) = Vector4(this / v.x, this / v.y, this / v.z, this / v.w)
 
 inline fun abs(v: Vector4) = Vector4(abs(v.x), abs(v.y), abs(v.z), abs(v.w))
 inline fun length(v: Vector4) = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w)
@@ -150,27 +152,27 @@ inline fun length2(v: Vector4) = v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w
 inline fun distance(a: Vector4, b: Vector4) = length(a - b)
 inline fun dot(a: Vector4, b: Vector4) = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w
 fun normalize(v: Vector4): Vector4 {
-    val l = 1.0f / length(v)
+    val l = 1.0 / length(v)
     return Vector4(v.x * l, v.y * l, v.z * l, v.w * l)
 }
 
-inline fun clamp(v: Vector4, min: Float, max: Float): Vector4 {
+inline fun clamp(v: Vector4, min: Double, max: Double): Vector4 {
     return Vector4(
-            clamp(v.x, min, max),
-            clamp(v.y, min, max),
-            clamp(v.z, min, max),
-            clamp(v.w, min, max))
+            v.x.clamp(min, max),
+            v.y.clamp(min, max),
+            v.z.clamp(min, max),
+            v.w.clamp(min, max))
 }
 
 inline fun clamp(v: Vector4, min: Vector4, max: Vector4): Vector4 {
     return Vector4(
-            clamp(v.x, min.x, max.x),
-            clamp(v.y, min.y, max.y),
-            clamp(v.z, min.z, max.z),
-            clamp(v.w, min.w, max.w))
+            v.x.clamp(min.x, max.x),
+            v.y.clamp(min.y, max.y),
+            v.z.clamp(min.z, max.z),
+            v.w.clamp(min.w, max.w))
 }
 
-inline fun mix(a: Vector4, b: Vector4, x: Float): Vector4 {
+inline fun mix(a: Vector4, b: Vector4, x: Double): Vector4 {
     return Vector4(
             mix(a.x, b.x, x),
             mix(a.y, b.y, x),
@@ -195,4 +197,4 @@ inline fun max(a: Vector4, b: Vector4): Vector4 {
     return Vector4(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z), max(a.w, b.w))
 }
 
-inline fun transform(v: Vector4, block: (Float) -> Float) = v.copy().transform(block)
+inline fun transform(v: Vector4, block: (Double) -> Double) = v.copy().transform(block)

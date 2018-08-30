@@ -131,7 +131,7 @@ fun inverse(m: Matrix4): Matrix4 {
 fun scale(s: Vector3) = Matrix4(Vector4(x = s.x), Vector4(y = s.y), Vector4(z = s.z))
 fun scale(m: Matrix4) = scale(m.scale)
 
-fun translation(t: Vector3) = Matrix4(w = Vector4(t, 1.0f))
+fun translation(t: Vector3) = Matrix4(w = Vector4(t, 1.0))
 fun translation(m: Matrix4) = translation(m.translation)
 
 fun rotation(m: Matrix4) = Matrix4(normalize(m.right), normalize(m.up), normalize(m.forward))
@@ -141,13 +141,13 @@ fun rotation(d: Vector3): Matrix4 {
     val s = transform(r, { x -> sin(x) })
 
     return Matrix4.of(
-            c.y * c.z, -c.x * s.z + s.x * s.y * c.z, s.x * s.z + c.x * s.y * c.z, 0.0f,
-            c.y * s.z, c.x * c.z + s.x * s.y * s.z, -s.x * c.z + c.x * s.y * s.z, 0.0f,
-            -s.y, s.x * c.y, c.x * c.y, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
+            c.y * c.z, -c.x * s.z + s.x * s.y * c.z, s.x * s.z + c.x * s.y * c.z, 0.0,
+            c.y * s.z, c.x * c.z + s.x * s.y * s.z, -s.x * c.z + c.x * s.y * s.z, 0.0,
+            -s.y, s.x * c.y, c.x * c.y, 0.0,
+            0.0, 0.0, 0.0, 1.0
     )
 }
-fun rotation(axis: Vector3, angle: Float): Matrix4 {
+fun rotation(axis: Vector3, angle: Double): Matrix4 {
     val x = axis.x
     val y = axis.y
     val z = axis.z
@@ -158,38 +158,38 @@ fun rotation(axis: Vector3, angle: Float): Matrix4 {
     val d = 1.0f - c
 
     return Matrix4.of(
-            x * x * d + c, x * y * d - z * s, x * y * d + y * s, 0.0f,
-            y * x * d + z * s, y * y * d + c, y * z * d - x * s, 0.0f,
-            z * x * d - y * s, z * y * d + x * s, z * z * d + c, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
+            x * x * d + c, x * y * d - z * s, x * y * d + y * s, 0.0,
+            y * x * d + z * s, y * y * d + c, y * z * d - x * s, 0.0,
+            z * x * d - y * s, z * y * d + x * s, z * z * d + c, 0.0,
+            0.0, 0.0, 0.0, 1.0
     )
 }
 
-fun normal(m: Matrix4) = scale(1.0f / Vector3(length2(m.right),
+fun normal(m: Matrix4) = scale(1.0 / Vector3(length2(m.right),
         length2(m.up), length2(m.forward))) * m
 
-fun lookAt(eye: Vector3, target: Vector3, up: Vector3 = Vector3(z = 1.0f)): Matrix4 {
+fun lookAt(eye: Vector3, target: Vector3, up: Vector3 = Vector3(z = 1.0)): Matrix4 {
     return lookTowards(eye, target - eye, up)
 }
 
-fun lookTowards(eye: Vector3, forward: Vector3, up: Vector3 = Vector3(z = 1.0f)): Matrix4 {
+fun lookTowards(eye: Vector3, forward: Vector3, up: Vector3 = Vector3(z = 1.0)): Matrix4 {
     val f = normalize(forward)
     val r = normalize(f x up)
     val u = normalize(r x f)
-    return Matrix4(Vector4(r), Vector4(u), Vector4(f), Vector4(eye, 1.0f))
+    return Matrix4(Vector4(r), Vector4(u), Vector4(f), Vector4(eye, 1.0))
 }
 
-fun perspective(fov: Float, ratio: Float, near: Float, far: Float): Matrix4 {
+fun perspective(fov: Double, ratio: Double, near: Double, far: Double): Matrix4 {
     val t = 1.0f / tan(radians(fov) * 0.5f)
     val a = (far + near) / (far - near)
     val b = (2.0f * far * near) / (far - near)
     val c = t / ratio
-    return Matrix4(Vector4(x = c), Vector4(y = t), Vector4(z = a, w = 1.0f), Vector4(z = -b))
+    return Matrix4(Vector4(x = c), Vector4(y = t), Vector4(z = a, w = 1.0), Vector4(z = -b))
 }
 
-fun ortho(l: Float, r: Float, b: Float, t: Float, n: Float, f: Float) = Matrix4(
+fun ortho(l: Double, r: Double, b: Double, t: Double, n: Double, f: Double) = Matrix4(
         Vector4(x = 2.0f / (r - 1.0f)),
         Vector4(y = 2.0f / (t - b)),
         Vector4(z = -2.0f / (f - n)),
-        Vector4(-(r + l) / (r - l), -(t + b) / (t - b), -(f + n) / (f - n), 1.0f)
+        Vector4(-(r + l) / (r - l), -(t + b) / (t - b), -(f + n) / (f - n), 1.0)
 )
