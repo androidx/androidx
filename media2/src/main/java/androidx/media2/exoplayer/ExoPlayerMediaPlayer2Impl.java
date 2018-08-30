@@ -134,7 +134,9 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 new DefaultLoadControl(),
                 /* drmSessionManager= */ null,
                 looper);
-        mPlayer.addListener(new ComponentListener());
+        ComponentListener listener = new ComponentListener();
+        mPlayer.addListener(listener);
+        mPlayer.addVideoListener(listener);
         mPlayerLock = new Object();
 
         mExecutorByPlayerEventCallback = new ArrayMap<>();
@@ -143,6 +145,21 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     // Command queue and events implementation.
     // TODO: Consider refactoring to share implementation with MediaPlayer2Impl.
+
+    @Override
+    public void notifyWhenCommandLabelReached(final Object label) {
+        addTask(new Task(CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED, false) {
+            @Override
+            void process() {
+                notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                    @Override
+                    public void notify(EventCallback cb) {
+                        cb.onCommandLabelReached(ExoPlayerMediaPlayer2Impl.this, label);
+                    }
+                });
+            }
+        });
+    }
 
     @Override
     public void clearPendingCommands() {
@@ -603,14 +620,24 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
         @Override
         public void onVideoSizeChanged(
-                int width,
-                int height,
+                final int width,
+                final int height,
                 int unappliedRotationDegrees,
                 float pixelWidthHeightRatio) {
+            final DataSourceDesc2 dataSourceDesc2;
             synchronized (mLock) {
+                // TODO(b/80232248): get the active data source from a data source queue.
+                dataSourceDesc2 = mDataSourceDescription;
                 mVideoWidth = width;
                 mVideoHeight = height;
             }
+            notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                @Override
+                public void notify(EventCallback callback) {
+                    callback.onVideoSizeChanged(
+                            ExoPlayerMediaPlayer2Impl.this, dataSourceDesc2, width, height);
+                }
+            });
         }
 
         @Override
