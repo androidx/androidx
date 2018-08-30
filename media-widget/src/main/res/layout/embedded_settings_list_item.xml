@@ -37,19 +37,19 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:gravity="center|left">
+        android:gravity="center|start">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center|left"
+            android:gravity="center|start"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/main_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="2dp"
+                android:paddingStart="2dp"
                 android:textColor="@color/white"
                 android:textSize="@dimen/mcv2_settings_main_text_size"/>
 
@@ -57,7 +57,7 @@
                 android:id="@+id/sub_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="2dp"
+                android:paddingStart="2dp"
                 android:textColor="@color/white_opacity_70"
                 android:textSize="@dimen/mcv2_settings_sub_text_size"/>
         </LinearLayout>
