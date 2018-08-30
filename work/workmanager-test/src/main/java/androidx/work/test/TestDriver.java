@@ -18,23 +18,41 @@ package androidx.work.test;
 
 import android.support.annotation.NonNull;
 
-import androidx.work.Worker;
-
 import java.util.UUID;
 
 /**
- * Additional functionality exposed for {@link androidx.work.WorkManager}
- * that are useful in the context of testing.
+ * Additional functionality exposed for {@link androidx.work.WorkManager} that are useful in the
+ * context of testing.
  */
 public interface TestDriver {
 
     /**
      * Tells {@link TestDriver} to pretend that all constraints on the
-     * {@link Worker} with the given {@code workSpecId} are met.
+     * {@link androidx.work.WorkRequest} with the given {@code workSpecId} are met.  This may
+     * trigger execution of the work.
      *
-     * The {@link Worker} is scheduled for execution.
-     *
-     * @param workSpecId is the {@link Worker}s id.
+     * @param workSpecId The {@link androidx.work.WorkRequest}'s id
+     * @throws IllegalArgumentException if {@code workSpecId} is not enqueued
      */
     void setAllConstraintsMet(@NonNull UUID workSpecId);
+
+    /**
+     * Tells {@link TestDriver} to pretend that the initial delay the
+     * {@link androidx.work.OneTimeWorkRequest} with the given {@code workSpecId} is met.  This may
+     * trigger execution of the work.
+     *
+     * @param workSpecId The {@link androidx.work.OneTimeWorkRequest}'s id
+     * @throws IllegalArgumentException if {@code workSpecId} is not enqueued
+     */
+    void setInitialDelayMet(@NonNull UUID workSpecId);
+
+    /**
+     * Tells {@link TestDriver} to pretend that the period delay on the
+     * {@link androidx.work.PeriodicWorkRequest} with the given {@code workSpecId} is met.  This may
+     * trigger execution of the work.
+     *
+     * @param workSpecId The {@link androidx.work.PeriodicWorkRequest}'s id
+     * @throws IllegalArgumentException if {@code workSpecId} is not enqueued
+     */
+    void setPeriodDelayMet(@NonNull UUID workSpecId);
 }
