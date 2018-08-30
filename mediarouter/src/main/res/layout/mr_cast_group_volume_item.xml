@@ -30,7 +30,7 @@
               android:textColor="#80868B" />
     <RelativeLayout android:id="@+id/mr_cast_volume_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp">
+                    android:layout_height="@dimen/mr_dynamic_dialog_row_height">
         <ImageButton android:id="@+id/mr_cast_mute_button"
                      android:layout_width="24dp"
                      android:layout_height="24dp"

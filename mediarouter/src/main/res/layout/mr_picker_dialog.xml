@@ -20,7 +20,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
     <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="48dp"
+                  android:layout_height="@dimen/mr_dynamic_dialog_row_height"
                   android:gravity="start"
                   android:paddingStart="24dp"
                   android:orientation="horizontal">
