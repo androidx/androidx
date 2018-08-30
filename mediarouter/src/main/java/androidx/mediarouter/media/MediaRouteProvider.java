@@ -516,11 +516,14 @@ public abstract class MediaRouteProvider {
          */
         public interface OnDynamicRoutesChangedListener {
             /**
+             * @param controller the {@link DynamicGroupRouteController} which keeps this listener.
              * @param routes the collection of routes contains selected routes
              *               (can be unselectable or not)
              *               and unselected routes (can be groupable or transferable or not).
              */
-            void onRoutesChanged(Collection<DynamicRouteDescriptor> routes);
+            void onRoutesChanged(
+                    DynamicGroupRouteController controller,
+                    Collection<DynamicRouteDescriptor> routes);
         }
 
         /**
