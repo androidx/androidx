@@ -50,6 +50,7 @@
                 android:layout_toRightOf="@id/back"
                 android:maxLines="1"
                 android:paddingStart="@dimen/mcv2_embedded_icon_padding"
+                android:paddingEnd="@dimen/mcv2_embedded_icon_padding"
                 android:textSize="15sp"
                 android:textColor="#FFFFFFFF"/>
         </LinearLayout>
@@ -131,6 +132,7 @@
             android:padding="0dp"
             android:maxHeight="@dimen/mcv2_custom_progress_max_size"
             android:minHeight="@dimen/mcv2_custom_progress_max_size"
+            android:splitTrack="false"
             android:elevation="10dp"/>
 
         <View
