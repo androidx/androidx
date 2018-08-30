@@ -49,6 +49,7 @@ import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
 import androidx.media2.exoplayer.external.source.MediaSource;
+import androidx.media2.exoplayer.external.source.TrackGroupArray;
 import androidx.media2.exoplayer.external.trackselection.DefaultTrackSelector;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.upstream.DefaultDataSourceFactory;
@@ -449,6 +450,15 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
+    public List<TrackInfo> getTrackInfo() {
+        TrackGroupArray trackGroupArray;
+        synchronized (mPlayerLock) {
+            trackGroupArray = mPlayer.getCurrentTrackGroups();
+        }
+        return ExoPlayerUtils.getTrackInfo(trackGroupArray);
+    }
+
+    @Override
     public void skipToNext() {
         throw new UnsupportedOperationException();
     }
@@ -510,11 +520,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void setAuxEffectSendLevel(float level) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<TrackInfo> getTrackInfo() {
         throw new UnsupportedOperationException();
     }
 
