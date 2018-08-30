@@ -28,9 +28,9 @@ dependencies {
     testImplementation(TEST_RUNNER)
     testImplementation(MOCKITO_CORE)
 
-    compileOnly fileTree(dir: 'car-stubs', include: ['android.car.jar'])
+    compileOnly fileTree(dir: '../stubs', include: ['android.car.jar'])
     // androidTest uses android.car APIs to provide test utility.
-    androidTestCompileOnly fileTree(dir: 'car-stubs', include: ['android.car.jar'])
+    androidTestCompileOnly fileTree(dir: '../stubs', include: ['android.car.jar'])
 }
 
 android {
