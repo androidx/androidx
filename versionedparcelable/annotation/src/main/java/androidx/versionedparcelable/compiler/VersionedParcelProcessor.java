@@ -456,15 +456,6 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         for (Element e: element.getEnclosedElements()) {
             if (e.getKind() != ElementKind.CLASS) {
                 checkClass(clsName, e, takenIds);
-            } else {
-                TypeElement te = (TypeElement) mEnv.getTypeUtils().asElement(
-                        element.asType());
-                if (te != null && te.getSuperclass() != null) {
-                    Element s = (TypeElement) mEnv.getTypeUtils().asElement(te.getSuperclass());
-                    if (s != null) {
-                        checkClass(clsName, s, takenIds);
-                    }
-                }
             }
         }
     }
