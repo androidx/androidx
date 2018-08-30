@@ -222,6 +222,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             mRouteDescriptors.put(mRouteId, groupDescriptor);
             publishRoutes();
             mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
+                    SampleDynamicGroupRouteController.this,
                     mDynamicRouteDescriptors.values()));
         }
 
@@ -254,6 +255,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             mRouteDescriptors.put(mRouteId, groupDescriptor);
             publishRoutes();
             mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
+                    SampleDynamicGroupRouteController.this,
                     mDynamicRouteDescriptors.values()));
         }
 

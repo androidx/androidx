@@ -488,7 +488,8 @@ public class MediaRouteButton extends View {
     void refreshRoute() {
         final MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
         final boolean isRemote = !route.isDefaultOrBluetooth() && route.matchesSelector(mSelector);
-        final boolean isConnecting = isRemote && route.isConnecting();
+        final boolean isConnecting = isRemote
+                && route.getConnectionState() == MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING;
         boolean needsRefresh = false;
         if (mRemoteActive != isRemote) {
             mRemoteActive = isRemote;
