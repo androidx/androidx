@@ -1,6 +1,6 @@
 package androidx.coordinatorlayout.widget {
 
-  public class CoordinatorLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingParent2 {
+  public class CoordinatorLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingParent2 androidx.core.view.NestedScrollingParent3 {
     ctor public CoordinatorLayout(android.content.Context);
     ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet);
     ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet, int);
@@ -20,6 +20,7 @@ package androidx.coordinatorlayout.widget {
     method public void onMeasureChild(android.view.View, int, int, int, int);
     method public void onNestedPreScroll(android.view.View, int, int, int[], int);
     method public void onNestedScroll(android.view.View, int, int, int, int, int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
     method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
     method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
     method public void onStopNestedScroll(android.view.View, int);
@@ -54,7 +55,8 @@ package androidx.coordinatorlayout.widget {
     method public deprecated void onNestedPreScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int[]);
     method public void onNestedPreScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int[], int);
     method public deprecated void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int);
-    method public void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, int);
+    method public deprecated void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, int);
+    method public void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, int, int[]);
     method public deprecated void onNestedScrollAccepted(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
     method public void onNestedScrollAccepted(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
     method public boolean onRequestChildRectangleOnScreen(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
