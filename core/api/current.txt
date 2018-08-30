@@ -118,6 +118,10 @@ package androidx.core.app {
     method public static void putBinder(android.os.Bundle, java.lang.String, android.os.IBinder);
   }
 
+  public class DialogCompat {
+    method public static android.view.View requireViewById(android.app.Dialog, int);
+  }
+
   public class FrameMetricsAggregator {
     ctor public FrameMetricsAggregator();
     ctor public FrameMetricsAggregator(int);
