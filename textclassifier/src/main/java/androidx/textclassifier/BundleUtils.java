@@ -140,4 +140,20 @@ import java.util.Map;
         }
         return LocaleListCompat.forLanguageTags(localeTags);
     }
+
+    static void putLong(@NonNull Bundle bundle, @NonNull String key, @Nullable Long value) {
+        if (value == null) {
+            bundle.remove(key);
+            return;
+        }
+        bundle.putLong(key, value);
+    }
+
+    @Nullable
+    static Long getLong(@NonNull Bundle bundle, @NonNull String key) {
+        if (!bundle.containsKey(key)) {
+            return null;
+        }
+        return bundle.getLong(key);
+    }
 }

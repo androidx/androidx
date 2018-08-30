@@ -105,6 +105,20 @@ public final class TextClassificationTest {
     }
 
     @Test
+    public void testMinimalBundleRequest() {
+        TextClassification.Request reference =
+                new TextClassification.Request.Builder(TEXT, START_INDEX, END_INDEX).build();
+        // Serialize/deserialize.
+        TextClassification.Request result = TextClassification.Request.createFromBundle(
+                reference.toBundle());
+
+        assertEquals(TEXT, result.getText());
+        assertEquals(START_INDEX, result.getStartIndex());
+        assertEquals(END_INDEX, result.getEndIndex());
+        assertEquals(null, result.getReferenceTime());
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 28)
     public void testToPlatformRequest() {
         TextClassification.Request request = createTextClassificationRequest();
