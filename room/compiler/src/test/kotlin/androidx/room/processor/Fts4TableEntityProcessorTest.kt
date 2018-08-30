@@ -23,6 +23,7 @@ import androidx.room.vo.CallType
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
+import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -148,6 +149,58 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
         ) { entity, _ ->
             assertThat(entity.ftsOptions.tokenizer, `is`(Tokenizer.PORTER))
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun badExternalContentEntity_notAnEntity() {
+        val contentSrc = JavaFileObjects.forSourceString("foo.bar.Content",
+                """
+                package foo.bar;
+                import androidx.room.*;
+
+                public class Content {
+                    String text;
+                }
+                """)
+        singleEntity("""
+                @PrimaryKey
+                public int rowid;
+                public String text;
+                public String extraData;
+                """,
+                attributes = hashMapOf("contentEntity" to "Content.class"),
+                jfos = listOf(contentSrc)
+        ) { _, _ -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.externalContentNotAnEntity("foo.bar.Content"))
+    }
+
+    @Test
+    fun badExternalContentEntity_missingFields() {
+        val contentSrc = JavaFileObjects.forSourceString("foo.bar.Content",
+                """
+                package foo.bar;
+                import androidx.room.*;
+
+                @Entity
+                public class Content {
+                    @PrimaryKey
+                    int id;
+                    String text;
+                }
+                """)
+        singleEntity("""
+                @PrimaryKey
+                public int rowid;
+                public String text;
+                public String extraData;
+                """,
+                attributes = hashMapOf("contentEntity" to "Content.class"),
+                jfos = listOf(contentSrc)
+        ) { _, _ -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.missingFtsContentField("foo.bar.MyEntity",
+                        "extraData", "foo.bar.Content"))
     }
 
     @Test

@@ -81,6 +81,7 @@ class DatabaseProcessorTest {
                 public class User {
                     @PrimaryKey
                     int uid;
+                    String name;
                 }
                 """)
         val USER_DAO: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.UserDao",
@@ -272,6 +273,26 @@ class DatabaseProcessorTest {
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO +
                         " - test.library.MissingAnnotationsBaseDao")
+    }
+
+    @Test
+    fun detectMissingExternalContentEntity() {
+        val userNameFtsSrc = JavaFileObjects.forSourceString("foo.bar.UserNameFts",
+                """
+                package foo.bar;
+                import androidx.room.*;
+
+                @Fts4Entity(contentEntity = User.class)
+                public class UserNameFts {
+                    String name;
+                }
+                """)
+        singleDb("""
+                @Database(entities = {UserNameFts.class}, version = 1)
+                public abstract class MyDb extends RoomDatabase {}
+                """, USER, userNameFtsSrc) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.missingExternalContentEntity(
+                "foo.bar.UserNameFts", "foo.bar.User"))
     }
 
     @Test

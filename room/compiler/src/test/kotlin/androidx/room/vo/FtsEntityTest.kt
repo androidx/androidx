@@ -57,6 +57,7 @@ class FtsEntityTest {
                 ftsOptions = FtsOptions(
                         tokenizer = Tokenizer.PORTER,
                         tokenizerArgs = emptyList(),
+                        contentEntity = null,
                         languageIdColumnName = "lid",
                         matchInfo = FtsVersion.FTS3,
                         notIndexedColumns = listOf("dontIndexMe1", "dontIndexMe2"),

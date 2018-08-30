@@ -14,19 +14,30 @@
  * limitations under the License.
  */
 
-package androidx.room.integration.testapp;
+package androidx.room.integration.testapp.dao;
 
-import androidx.room.Database;
-import androidx.room.RoomDatabase;
-import androidx.room.integration.testapp.dao.MailDao;
-import androidx.room.integration.testapp.dao.SongDao;
-import androidx.room.integration.testapp.vo.Mail;
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.Query;
 import androidx.room.integration.testapp.vo.Song;
 import androidx.room.integration.testapp.vo.SongDescription;
 
-@Database(entities = {Mail.class, SongDescription.class, Song.class},
-        version = 1, exportSchema = false)
-public abstract class FtsTestDatabase extends RoomDatabase  {
-    public abstract MailDao getMailDao();
-    public abstract SongDao getSongDao();
+import java.util.List;
+
+@Dao
+public interface SongDao {
+
+    @Insert
+    void insert(Song song);
+
+    @Insert
+    void insert(List<Song> songs);
+
+    @Query("SELECT * FROM SongDescription WHERE SongDescription MATCH :searchQuery")
+    List<SongDescription> getSongDescriptions(String searchQuery);
+
+    @Query("SELECT s.mSongId, s.mTitle, s.mArtist, s.mAlbum, s.mLength, s.mReleasedYear FROM "
+            + "Song as s JOIN SongDescription as fts ON (docid = mSongId) "
+            + "WHERE fts.mTitle MATCH :searchQuery")
+    List<Song> getSongs(String searchQuery);
 }

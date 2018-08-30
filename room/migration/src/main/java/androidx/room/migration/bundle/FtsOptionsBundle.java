@@ -39,6 +39,9 @@ public class FtsOptionsBundle implements SchemaEquality<FtsOptionsBundle> {
     @SerializedName("tokenizerArgs")
     private final List<String> mTokenizerArgs;
 
+    @SerializedName("contentTable")
+    private final String mContentTable;
+
     @SerializedName("languageIdColumnName")
     private final String mLanguageIdColumnName;
 
@@ -57,6 +60,7 @@ public class FtsOptionsBundle implements SchemaEquality<FtsOptionsBundle> {
     public FtsOptionsBundle(
             String tokenizer,
             List<String> tokenizerArgs,
+            String contentTable,
             String languageIdColumnName,
             String matchInfo,
             List<String> notIndexedColumns,
@@ -64,6 +68,7 @@ public class FtsOptionsBundle implements SchemaEquality<FtsOptionsBundle> {
             String preferredOrder) {
         mTokenizer = tokenizer;
         mTokenizerArgs = tokenizerArgs;
+        mContentTable = contentTable;
         mLanguageIdColumnName = languageIdColumnName;
         mMatchInfo = matchInfo;
         mNotIndexedColumns = notIndexedColumns;
@@ -71,10 +76,18 @@ public class FtsOptionsBundle implements SchemaEquality<FtsOptionsBundle> {
         mPreferredOrder = preferredOrder;
     }
 
+    /**
+     * @return The external content table name
+     */
+    public String getContentTable() {
+        return mContentTable;
+    }
+
     @Override
     public boolean isSchemaEqual(FtsOptionsBundle other) {
         return mTokenizer.equals(other.mTokenizer)
                 && mTokenizerArgs.equals(other.mTokenizerArgs)
+                && mContentTable.equals(other.mContentTable)
                 && mLanguageIdColumnName.equals(other.mLanguageIdColumnName)
                 && mMatchInfo.equals(other.mMatchInfo)
                 && mNotIndexedColumns.equals(other.mNotIndexedColumns)

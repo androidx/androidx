@@ -23,9 +23,6 @@ plugins {
     id("SupportJavaLibraryPlugin")
 }
 
-sourceSets {
-    test.java.srcDirs += 'src/tests/kotlin'
-}
 dependencies {
     compile(project(":room:room-common"))
     compile(KOTLIN_STDLIB)

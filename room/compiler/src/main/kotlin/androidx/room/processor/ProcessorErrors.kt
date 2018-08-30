@@ -589,4 +589,19 @@ object ProcessorErrors {
     val INVALID_FTS_ENTITY_PREFIX_SIZES = "Prefix sizes to index must non-zero positive values."
 
     val INVALID_FOREIGN_KEY_IN_FTS_ENTITY = "@ForeignKey is not allowed in FtsEntity fields."
+
+    val FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY = "Cannot find external content entity class."
+
+    fun externalContentNotAnEntity(className: String) = "External content entity referenced in " +
+            "a Fts4Entity annotation must be a @Entity class. $className is not an entity"
+
+    fun missingFtsContentField(ftsClassName: String, columnName: String, contentClassName: String) =
+            "External Content FTS Entity '$ftsClassName' has declared field with column name " +
+                    "'$columnName' that was not found in the external content entity " +
+                    "'$contentClassName'."
+
+    fun missingExternalContentEntity(ftsClassName: String, contentClassName: String) =
+            "External Content FTS Entity '$ftsClassName' has a declared content entity " +
+                    "'$contentClassName' that is not present in the same @Database. Maybe you " +
+                    "forgot to add it to the entities section of the @Database?"
 }
