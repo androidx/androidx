@@ -46,6 +46,11 @@
     <!-- Group list fade out animation duration. -->
     <integer name="mr_controller_volume_group_list_fade_out_duration_ms">200</integer>
 
+    <!-- MediaRouteDevicePickerDialog/MediaRouteCastDialog's common dimensions. -->
+    <eat-comment />
+    <!-- Height of row. -->
+    <dimen name="mr_dynamic_dialog_row_height">48dp</dimen>
+
     <!-- MediaRouteCastDialog's seekbar -->
     <eat-comment />
     <!-- Height of seekbar for route volume. -->
@@ -54,4 +59,6 @@
     <dimen name="mr_cast_group_volume_seekbar_height">4dp</dimen>
     <!-- Size of a seekbar thumb for both route volume and group volume. -->
     <dimen name="mr_cast_seekbar_thumb_size">8dp</dimen>
+    <!-- Volume slider layout expand/collapse animation duration. -->
+    <integer name="mr_cast_volume_slider_layout_animation_duration_ms">400</integer>
 </resources>
