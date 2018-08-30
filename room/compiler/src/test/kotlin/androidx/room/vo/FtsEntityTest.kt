@@ -69,11 +69,11 @@ class FtsEntityTest {
                         "`dontIndexMe1` TEXT, " +
                         "`dontIndexMe2` TEXT, " +
                         "tokenize=porter, " +
-                        "languageid=lid, " +
+                        "languageid=`lid`, " +
                         "matchinfo=fts3, " +
-                        "notindexed=dontIndexMe1, " +
-                        "notindexed=dontIndexMe2, " +
-                        "prefix=2,4, " +
+                        "notindexed=`dontIndexMe1`, " +
+                        "notindexed=`dontIndexMe2`, " +
+                        "prefix=`2,4`, " +
                         "order=DESC" +
                         ")"
                 )
