@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.app;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -203,6 +204,14 @@ final class MediaRouterThemeHelper {
                 R.attr.mediaRouteSpeakerIconDrawable,
                 R.attr.mediaRouteSpeakerGroupIconDrawable});
         return styledAttributes;
+    }
+
+    static void setDialogBackgroundColor(Context context, Dialog dialog) {
+        View dialogView = dialog.getWindow().getDecorView();
+        int backgroundColor = ContextCompat.getColor(context, isLightTheme(context)
+                ? R.color.mr_dynamic_dialog_background_light
+                : R.color.mr_dynamic_dialog_background_dark);
+        dialogView.setBackgroundColor(backgroundColor);
     }
 
     static void setMediaControlsBackgroundColor(
