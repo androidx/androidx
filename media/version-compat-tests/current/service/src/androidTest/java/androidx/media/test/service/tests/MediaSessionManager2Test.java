@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service.tests;
+
+import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
+
+import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
+import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_SESSION_SERVICE;
 
 import static org.junit.Assert.assertTrue;
 
@@ -22,6 +27,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.media.test.service.MockMediaBrowserServiceCompat;
+import androidx.media2.MediaSessionManager2;
+import androidx.media2.SessionToken2;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -42,14 +50,8 @@ import java.util.List;
 public class MediaSessionManager2Test extends MediaTestBase {
     private Context mContext;
 
-    private static final String TEST_PACKAGE_NAME = "androidx.media2.test";
-    private static final String MOCK_BROWSER_SERVICE_COMPAT_NAME =
-            androidx.media2.MockMediaBrowserServiceCompat.class.getName();
-    private static final String MOCK_SESSION_SERVICE2_NAME =
-            androidx.media2.MockMediaSessionService2.class.getName();
-    private static final String MOCK_LIBRARY_SERVICE2_NAME =
-            androidx.media2.MockMediaLibraryService2.class.getName();
-
+    private static final ComponentName MOCK_BROWSER_SERVICE_COMPAT_NAME = new ComponentName(
+            SERVICE_PACKAGE_NAME, MockMediaBrowserServiceCompat.class.getCanonicalName());
 
     @Before
     public void setUp() throws Exception {
@@ -66,15 +68,11 @@ public class MediaSessionManager2Test extends MediaTestBase {
         List<SessionToken2> serviceTokens = sessionManager2.getSessionServiceTokens();
         for (SessionToken2 token2 : serviceTokens) {
             ComponentName componentName = token2.getComponentName();
-            if (!TEST_PACKAGE_NAME.equals(componentName.getPackageName())) {
-                continue;
-            }
-            String className = componentName.getClassName();
-            if (MOCK_BROWSER_SERVICE_COMPAT_NAME.equals(className)) {
+            if (MOCK_BROWSER_SERVICE_COMPAT_NAME.equals(componentName)) {
                 hasMockBrowserServiceCompat = true;
-            } else if (MOCK_SESSION_SERVICE2_NAME.equals(className)) {
+            } else if (MOCK_MEDIA_SESSION_SERVICE.equals(componentName)) {
                 hasMockSessionService2 = true;
-            } else if (MOCK_LIBRARY_SERVICE2_NAME.equals(className)) {
+            } else if (MOCK_MEDIA_LIBRARY_SERVICE.equals(componentName)) {
                 hasMockLibraryService2 = true;
             }
         }
