@@ -338,6 +338,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             state = mPlayer.getPlaybackState();
             playWhenReady = mPlayer.getPlayWhenReady();
         }
+        // TODO(b/80232248): Return PLAYER_STATE_PREPARED before playback when we have track groups.
         switch (state) {
             case Player.STATE_IDLE:
             case Player.STATE_ENDED:
@@ -346,6 +347,24 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 return PLAYER_STATE_PAUSED;
             case Player.STATE_READY:
                 return playWhenReady ? PLAYER_STATE_PLAYING : PLAYER_STATE_PAUSED;
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @MediaPlayerConnector.PlayerState int getPlayerState() {
+        int state = getState();
+        switch (state) {
+            case PLAYER_STATE_IDLE:
+                return MediaPlayerConnector.PLAYER_STATE_IDLE;
+            case PLAYER_STATE_PREPARED:
+            case PLAYER_STATE_PAUSED:
+                return MediaPlayerConnector.PLAYER_STATE_PAUSED;
+            case PLAYER_STATE_PLAYING:
+                return MediaPlayerConnector.PLAYER_STATE_PLAYING;
+            case PLAYER_STATE_ERROR:
+                return MediaPlayerConnector.PLAYER_STATE_ERROR;
             default:
                 throw new IllegalStateException();
         }
@@ -756,16 +775,16 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             ExoPlayerMediaPlayer2Impl.this.unregisterPlayerEventCallback(callback);
         }
 
+        @Override
+        public int getPlayerState() {
+            return ExoPlayerMediaPlayer2Impl.this.getPlayerState();
+        }
+
         // TODO: Implement these methods:
 
         @Override
         public void setPlaybackSpeed(float speed) {
             throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int getPlayerState() {
-            return MediaPlayerConnector.PLAYER_STATE_IDLE;
         }
 
         @Override
