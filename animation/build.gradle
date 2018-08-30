@@ -33,7 +33,7 @@ dependencies {
 supportLibrary {
     name = "Android Support Animation"
     publish = false
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.ANIMATION
     mavenGroup = LibraryGroups.ANIMATION
     inceptionYear = "2018"
     description = "This library provides functionalities for creating and manipulating animations for API 14 and above."
