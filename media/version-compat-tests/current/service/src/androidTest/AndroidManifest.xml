@@ -68,5 +68,11 @@
             </intent-filter>
         </service>
 
+        <service android:name="androidx.media.test.service.MockMediaBrowserServiceCompat">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
+
     </application>
 </manifest>
