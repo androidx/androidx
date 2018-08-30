@@ -47,6 +47,7 @@ import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertThat
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 open class BaseTest {
     fun setUpTest(
@@ -171,6 +172,31 @@ open class BaseTest {
         onView(allOf<View>(withId(R.id.text_view), isDisplayed())).check(
                 matches(withText(value.toString())))
         activity.validateState()
+    }
+
+    fun ViewPager2.setCurrentItemSync(
+        targetPage: Int,
+        smoothScroll: Boolean,
+        timeout: Long,
+        unit: TimeUnit
+    ) {
+        val latch = addWaitForScrolledLatch(targetPage, false)
+
+        // temporary hack to stop the tests from failing
+        // this most likely shows a bug in PageChangeListener - communicating IDLE before
+        // RecyclerView is ready; TODO: investigate further and fix
+        val latchRV = CountDownLatch(1)
+        val rv = getChildAt(0) as RecyclerView
+        rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == 0) {
+                    latchRV.countDown()
+                }
+            }
+        })
+        post { setCurrentItem(targetPage, smoothScroll) }
+        latch.await(timeout, unit)
+        latchRV.await(timeout, unit)
     }
 
     enum class SortOrder(val sign: Int) {

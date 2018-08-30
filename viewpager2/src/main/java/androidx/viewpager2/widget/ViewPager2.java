@@ -44,6 +44,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.viewpager2.PageTransformerAdapter;
 import androidx.viewpager2.R;
 import androidx.viewpager2.ScrollEventAdapter;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -65,6 +66,7 @@ public class ViewPager2 extends ViewGroup {
     private LinearLayoutManager mLayoutManager;
     private PagerSnapHelper mPagerSnapHelper;
     private @Nullable ScrollEventAdapter mScrollEventAdapter;
+    private @Nullable PageTransformerAdapter mPageTransformerAdapter;
 
     public ViewPager2(Context context) {
         super(context);
@@ -406,6 +408,27 @@ public class ViewPager2 extends ViewGroup {
         getScrollEventAdapter().clearOnPageChangeListeners();
     }
 
+    private PageTransformerAdapter getPageTransformerAdapter() {
+        if (mPageTransformerAdapter == null) {
+            mPageTransformerAdapter = new PageTransformerAdapter(mLayoutManager);
+            getScrollEventAdapter().setPageTransformerAdapter(mPageTransformerAdapter);
+        }
+        return mPageTransformerAdapter;
+    }
+
+    /**
+     * Sets a {@link androidx.viewpager.widget.ViewPager.PageTransformer} that will be called for
+     * each attached page whenever the scroll position is changed. This allows the application to
+     * apply custom property transformations to each page, overriding the default sliding behavior.
+     *
+     * @param transformer PageTransformer that will modify each page's animation properties
+     */
+    public void setPageTransformer(@Nullable PageTransformer transformer) {
+        // TODO: add support for reverseDrawingOrder: b/112892792
+        // TODO: add support for pageLayerType: b/112893074
+        getPageTransformerAdapter().setPageTransformer(transformer);
+    }
+
     @Retention(CLASS)
     @IntDef({ScrollState.IDLE, ScrollState.DRAGGING, ScrollState.SETTLING})
     public @interface ScrollState {
@@ -444,5 +467,27 @@ public class ViewPager2 extends ViewGroup {
          * or when it is fully stopped/idle.
          */
         void onPageScrollStateChanged(@ScrollState int state);
+    }
+
+    /**
+     * A PageTransformer is invoked whenever a visible/attached page is scrolled.
+     * This offers an opportunity for the application to apply a custom transformation
+     * to the page views using animation properties.
+     *
+     * <p>As property animation is only supported as of Android 3.0 and forward,
+     * setting a PageTransformer on a ViewPager on earlier platform versions will
+     * be ignored.</p>
+     */
+    public interface PageTransformer {
+
+        /**
+         * Apply a property transformation to the given page.
+         *
+         * @param page Apply the transformation to this page
+         * @param position Position of page relative to the current front-and-center
+         *                 position of the pager. 0 is front and center. 1 is one full
+         *                 page position to the right, and -1 is one page position to the left.
+         */
+        void transformPage(@NonNull View page, float position);
     }
 }
