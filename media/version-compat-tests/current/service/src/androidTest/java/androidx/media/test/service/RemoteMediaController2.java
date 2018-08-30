@@ -91,6 +91,15 @@ public class RemoteMediaController2 {
     // MediaController2 methods
     ////////////////////////////////////////////////////////////////////////////////
 
+    public SessionToken2 getConnectedSessionToken() {
+        try {
+            return ParcelUtils.fromParcelable(mBinder.getConnectedSessionToken(mControllerId));
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call getConnectedSessionToken()");
+            return null;
+        }
+    }
+
     public void play() {
         try {
             mBinder.play(mControllerId);

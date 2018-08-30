@@ -81,6 +81,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
 
     @Override
     public void onCreate() {
+        TestServiceRegistry.getInstance().setServiceInstance(this);
         super.onCreate();
         mHandlerThread = new HandlerThread(TAG);
         mHandlerThread.start();
@@ -96,10 +97,18 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             mHandler.getLooper().quit();
         }
         mHandler = null;
+        TestServiceRegistry.getInstance().cleanUp();
     }
 
     @Override
     public MediaLibrarySession onGetSession() {
+        TestServiceRegistry registry = TestServiceRegistry.getInstance();
+        TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
+                registry.getOnGetSessionHandler();
+        if (onGetSessionHandler != null) {
+            return (MediaLibrarySession) onGetSessionHandler.onGetSession();
+        }
+
         final MockPlayerConnector player = new MockPlayerConnector(1);
         final Executor executor = new Executor() {
             @Override
@@ -108,8 +117,12 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             }
         };
 
+        MediaLibrarySessionCallback callback = registry.getSessionCallback();
         mSession = new MediaLibrarySession.Builder(MockMediaLibraryService2.this, executor,
-                new TestLibrarySessionCallback()).setPlayer(player).setId(ID).build();
+                callback != null ? callback : new TestLibrarySessionCallback())
+                .setPlayer(player)
+                .setId(ID)
+                .build();
         return mSession;
     }
 
