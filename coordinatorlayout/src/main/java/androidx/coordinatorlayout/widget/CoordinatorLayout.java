@@ -61,6 +61,7 @@ import androidx.core.util.Pools;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.NestedScrollingParent;
 import androidx.core.view.NestedScrollingParent2;
+import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewCompat.NestedScrollType;
@@ -108,7 +109,8 @@ import java.util.Map;
  * {@link LayoutParams#dodgeInsetEdges} will be moved appropriately so that the
  * views do not overlap.</p>
  */
-public class CoordinatorLayout extends ViewGroup implements NestedScrollingParent2 {
+public class CoordinatorLayout extends ViewGroup implements NestedScrollingParent2,
+        NestedScrollingParent3 {
     static final String TAG = "CoordinatorLayout";
     static final String WIDGET_PACKAGE_NAME;
 
@@ -168,8 +170,16 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
     private final List<View> mTempList1 = new ArrayList<>();
     private final List<View> mTempDependenciesList = new ArrayList<>();
-    private final int[] mTempIntPair = new int[2];
     private Paint mScrimPaint;
+
+    // Array to be mutated by calls to nested scrolling related methods of Behavior to satisfy the
+    // 'consumed' parameter.  This only exist to prevent GC and object instantiation costs that are
+    // present before API 21.
+    private final int[] mBehaviorConsumed = new int[2];
+
+    // Array to be used for calls from v2 version of onNestedScroll to v3 version of onNestedScroll.
+    // This only exist to prevent GC and object instantiation costs that are present before API 21.
+    private final int[] mNestedScrollingV2ConsumedCompat = new int[2];
 
     private boolean mDisallowInterceptReset;
 
@@ -207,9 +217,9 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
         final TypedArray a = (defStyleAttr == 0)
                 ? context.obtainStyledAttributes(attrs, R.styleable.CoordinatorLayout,
-                    0, R.style.Widget_Support_CoordinatorLayout)
+                0, R.style.Widget_Support_CoordinatorLayout)
                 : context.obtainStyledAttributes(attrs, R.styleable.CoordinatorLayout,
-                    defStyleAttr, 0);
+                        defStyleAttr, 0);
         final int keylineArrayRes = a.getResourceId(R.styleable.CoordinatorLayout_keylines, 0);
         if (keylineArrayRes != 0) {
             final Resources res = context.getResources();
@@ -639,7 +649,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 DefaultBehavior defaultBehavior = null;
                 while (childClass != null
                         && (defaultBehavior = childClass.getAnnotation(DefaultBehavior.class))
-                                == null) {
+                        == null) {
                     childClass = childClass.getSuperclass();
                 }
                 if (defaultBehavior != null) {
@@ -648,8 +658,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                                 defaultBehavior.value().getDeclaredConstructor().newInstance());
                     } catch (Exception e) {
                         Log.e(TAG, "Default behavior class " + defaultBehavior.value().getName()
-                                        + " could not be instantiated. Did you forget"
-                                        + " a default constructor?", e);
+                                + " could not be instantiated. Did you forget"
+                                + " a default constructor?", e);
                     }
                 }
                 result.mBehaviorResolved = true;
@@ -1817,8 +1827,18 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
             int dxUnconsumed, int dyUnconsumed, int type) {
+        onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                ViewCompat.TYPE_TOUCH, mNestedScrollingV2ConsumedCompat);
+    }
+
+    @Override
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed, @ViewCompat.NestedScrollType int type,
+            @NonNull int[] consumed) {
         final int childCount = getChildCount();
         boolean accepted = false;
+        int xConsumed = 0;
+        int yConsumed = 0;
 
         for (int i = 0; i < childCount; i++) {
             final View view = getChildAt(i);
@@ -1834,11 +1854,24 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
             final Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null) {
+
+                mBehaviorConsumed[0] = 0;
+                mBehaviorConsumed[1] = 0;
+
                 viewBehavior.onNestedScroll(this, view, target, dxConsumed, dyConsumed,
-                        dxUnconsumed, dyUnconsumed, type);
+                        dxUnconsumed, dyUnconsumed, type, mBehaviorConsumed);
+
+                xConsumed = dxUnconsumed > 0 ? Math.max(xConsumed, mBehaviorConsumed[0])
+                        : Math.min(xConsumed, mBehaviorConsumed[0]);
+                yConsumed = dyUnconsumed > 0 ? Math.max(yConsumed, mBehaviorConsumed[1])
+                        : Math.min(yConsumed, mBehaviorConsumed[1]);
+
                 accepted = true;
             }
         }
+
+        consumed[0] += xConsumed;
+        consumed[1] += yConsumed;
 
         if (accepted) {
             onChildViewsChanged(EVENT_NESTED_SCROLL);
@@ -1871,13 +1904,14 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
             final Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null) {
-                mTempIntPair[0] = mTempIntPair[1] = 0;
-                viewBehavior.onNestedPreScroll(this, view, target, dx, dy, mTempIntPair, type);
+                mBehaviorConsumed[0] = 0;
+                mBehaviorConsumed[1] = 0;
+                viewBehavior.onNestedPreScroll(this, view, target, dx, dy, mBehaviorConsumed, type);
 
-                xConsumed = dx > 0 ? Math.max(xConsumed, mTempIntPair[0])
-                        : Math.min(xConsumed, mTempIntPair[0]);
-                yConsumed = dy > 0 ? Math.max(yConsumed, mTempIntPair[1])
-                        : Math.min(yConsumed, mTempIntPair[1]);
+                xConsumed = dx > 0 ? Math.max(xConsumed, mBehaviorConsumed[0])
+                        : Math.min(xConsumed, mBehaviorConsumed[0]);
+                yConsumed = dy > 0 ? Math.max(yConsumed, mBehaviorConsumed[1])
+                        : Math.min(yConsumed, mBehaviorConsumed[1]);
 
                 accepted = true;
             }
@@ -2446,15 +2480,34 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
         /**
          * @deprecated You should now override
-         * {@link #onNestedScroll(CoordinatorLayout, View, View, int, int, int, int, int)}.
-         * This method will still continue to be called if the type is
+         * {@link #onNestedScroll(CoordinatorLayout, View, View, int, int, int, int, int, int[])}.
+         * This method will still continue to be called if neither
+         * {@link #onNestedScroll(CoordinatorLayout, View, View, int, int, int, int, int, int[])}
+         * nor {@link #onNestedScroll(View, int, int, int, int, int)} are overridden and the type is
          * {@link ViewCompat#TYPE_TOUCH}.
          */
         @Deprecated
         public void onNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull V child,
-                @NonNull View target, int dxConsumed, int dyConsumed,
-                int dxUnconsumed, int dyUnconsumed) {
+                @NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed) {
             // Do nothing
+        }
+
+        /**
+         * @deprecated You should now override
+         * {@link #onNestedScroll(CoordinatorLayout, View, View, int, int, int, int, int, int[])}.
+         * This method will still continue to be called if
+         * {@link #onNestedScroll(CoordinatorLayout, View, View, int, int, int, int, int, int[])}
+         * is not overridden.
+         */
+        @Deprecated
+        public void onNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull V child,
+                @NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed, @NestedScrollType int type) {
+            if (type == ViewCompat.TYPE_TOUCH) {
+                onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed,
+                        dxUnconsumed, dyUnconsumed);
+            }
         }
 
         /**
@@ -2483,16 +2536,21 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * @param dyUnconsumed vertical pixels not consumed by the target's own scrolling operation,
          *                     but requested by the user
          * @param type the type of input which cause this scroll event
+         * @param consumed output. Upon this method returning, should contain the scroll
+         *                 distances consumed by this Behavior
          *
-         * @see NestedScrollingParent2#onNestedScroll(View, int, int, int, int, int)
+         * @see NestedScrollingParent3#onNestedScroll(View, int, int, int, int, int, int[])
          */
         public void onNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull V child,
-                @NonNull View target, int dxConsumed, int dyConsumed,
-                int dxUnconsumed, int dyUnconsumed, @NestedScrollType int type) {
-            if (type == ViewCompat.TYPE_TOUCH) {
-                onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed,
-                        dxUnconsumed, dyUnconsumed);
-            }
+                @NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed, @NestedScrollType int type, @NonNull int[] consumed) {
+            // In the case that this nested scrolling v3 version is not implemented, we call the v2
+            // version in case the v2 version is. We Also consume all of the unconsumed scroll
+            // distances.
+            consumed[0] += dxUnconsumed;
+            consumed[1] += dyUnconsumed;
+            onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed,
+                    dxUnconsumed, dyUnconsumed, type);
         }
 
         /**
