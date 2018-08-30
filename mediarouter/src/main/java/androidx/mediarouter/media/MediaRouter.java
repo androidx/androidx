@@ -1515,6 +1515,26 @@ public final class MediaRouter {
             sGlobal.selectRoute(this);
         }
 
+        /**
+         * Selects this media route as a member of current dynamic group.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void selectIntoGroup() {
+            checkCallingThread();
+            sGlobal.selectRouteIntoGroup(this);
+        }
+
+        /**
+         * Unselects this media route from current dynamic group.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void unselectFromGroup() {
+            checkCallingThread();
+            sGlobal.unselectRouteFromGroup(this);
+        }
+
         @Override
         public String toString() {
             return "MediaRouter.RouteInfo{ uniqueId=" + mUniqueId
@@ -1636,7 +1656,7 @@ public final class MediaRouter {
      */
     @RestrictTo(LIBRARY_GROUP)
     public static class RouteGroup extends RouteInfo {
-        protected List<RouteInfo> mRoutes = new ArrayList<>();
+        protected List<RouteInfo> mMemberRoutes = new ArrayList<>();
 
         RouteGroup(ProviderInfo provider, String descriptorId, String uniqueId) {
             super(provider, descriptorId, uniqueId);
@@ -1647,18 +1667,18 @@ public final class MediaRouter {
          *
          * @return The list of the routes in this group
          */
-        public List<RouteInfo> getRoutes() {
-            return mRoutes;
+        public List<RouteInfo> getMemberRoutes() {
+            return mMemberRoutes;
         }
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder(super.toString());
             sb.append('[');
-            final int count = mRoutes.size();
+            final int count = mMemberRoutes.size();
             for (int i = 0; i < count; i++) {
                 if (i > 0) sb.append(", ");
-                sb.append(mRoutes.get(i));
+                sb.append(mMemberRoutes.get(i));
             }
             sb.append(']');
             return sb.toString();
@@ -1676,20 +1696,20 @@ public final class MediaRouter {
                         Log.w(TAG, "groupMemberIds shouldn't be null.");
                         changed = true;
                     } else {
-                        changed = groupMemberIds.size() != mRoutes.size();
+                        changed = groupMemberIds.size() != mMemberRoutes.size();
                         for (String groupMemberId : groupMemberIds) {
                             String uniqueId = sGlobal.getUniqueId(getProvider(), groupMemberId);
                             RouteInfo groupMember = sGlobal.getRoute(uniqueId);
                             if (groupMember != null) {
                                 routes.add(groupMember);
-                                if (!changed && !mRoutes.contains(groupMember)) {
+                                if (!changed && !mMemberRoutes.contains(groupMember)) {
                                     changed = true;
                                 }
                             }
                         }
                     }
                     if (changed) {
-                        mRoutes = routes;
+                        mMemberRoutes = routes;
                     }
                 }
             }
@@ -1703,13 +1723,15 @@ public final class MediaRouter {
      */
     @RestrictTo(LIBRARY_GROUP)
     public static class DynamicGroupInfo extends RouteGroup {
-        private List<String> mMemberRoutes = new ArrayList<>();
-        private List<String> mUnselectableRoutes = new ArrayList<>();
-        private List<String> mGroupableRoutes = new ArrayList<>();
-        private List<String> mTransferableRoutes = new ArrayList<>();
+        private List<RouteInfo> mUnselectableRoutes = new ArrayList<>();
+        private List<RouteInfo> mGroupableRoutes = new ArrayList<>();
+        private List<RouteInfo> mTransferableRoutes = new ArrayList<>();
+        DynamicGroupRouteController mController;
 
-        DynamicGroupInfo(ProviderInfo provider, String descriptorId, String uniqueId) {
+        DynamicGroupInfo(ProviderInfo provider, String descriptorId, String uniqueId,
+                @Nullable DynamicGroupRouteController controller) {
             super(provider, descriptorId, uniqueId);
+            mController = controller;
         }
 
         void updateDescriptors(
@@ -1724,13 +1746,13 @@ public final class MediaRouter {
                 if (dynamicDescriptor.isGroupable()) {
                     RouteInfo route = findRouteByDynamicRouteDescriptor(dynamicDescriptor);
                     if (route != null) {
-                        mGroupableRoutes.add(route.getId());
+                        mGroupableRoutes.add(route);
                     }
                 }
                 if (dynamicDescriptor.isTransferable()) {
                     RouteInfo route = findRouteByDynamicRouteDescriptor(dynamicDescriptor);
                     if (route != null) {
-                        mTransferableRoutes.add(route.getId());
+                        mTransferableRoutes.add(route);
                     }
                 }
                 if ((dynamicDescriptor.getSelectionState() == DynamicRouteDescriptor.SELECTING)
@@ -1738,29 +1760,29 @@ public final class MediaRouter {
                         == DynamicRouteDescriptor.SELECTED)) {
                     RouteInfo route = findRouteByDynamicRouteDescriptor(dynamicDescriptor);
                     if (route != null) {
-                        mMemberRoutes.add(route.getId());
+                        mMemberRoutes.add(route);
                         if (dynamicDescriptor.isUnselectable()) {
-                            mUnselectableRoutes.add(route.getId());
+                            mUnselectableRoutes.add(route);
                         }
                     }
                 }
             }
         }
 
-        public List<String> getMemberRoutes() {
-            return mMemberRoutes;
-        }
-
-        public List<String> getUnselectableRoutes() {
+        public List<RouteInfo> getUnselectableRoutes() {
             return mUnselectableRoutes;
         }
 
-        public List<String> getGroupableRoutes() {
+        public List<RouteInfo> getGroupableRoutes() {
             return mGroupableRoutes;
         }
 
-        public List<String> getTransferableRoutes() {
+        public List<RouteInfo> getTransferableRoutes() {
             return mTransferableRoutes;
+        }
+
+        public DynamicGroupRouteController getController() {
+            return mController;
         }
 
         RouteInfo findRouteByDynamicRouteDescriptor(DynamicRouteDescriptor dynamicDescriptor) {
@@ -2236,6 +2258,37 @@ public final class MediaRouter {
             selectRoute(route, MediaRouter.UNSELECT_REASON_ROUTE_CHANGED);
         }
 
+        void selectRouteIntoGroup(@NonNull RouteInfo route) {
+            if (!(mSelectedRoute instanceof DynamicGroupInfo)
+                    || (!(mSelectedRouteController instanceof DynamicGroupRouteController))) {
+                throw new IllegalStateException("There is no currently selected "
+                        + "dynamic group route.");
+            }
+            DynamicGroupInfo groupInfo = (DynamicGroupInfo) mSelectedRoute;
+            if (groupInfo.getMemberRoutes().contains(route)
+                    || !groupInfo.getGroupableRoutes().contains(route)) {
+                // route is already a member or not groupable to the current dynamic group.
+                return;
+            }
+            ((DynamicGroupRouteController) mSelectedRouteController)
+                    .onAddMemberRoute(route.getDescriptorId());
+        }
+
+        void unselectRouteFromGroup(@NonNull RouteInfo route) {
+            if (!(mSelectedRoute instanceof DynamicGroupInfo)
+                    || (!(mSelectedRouteController instanceof DynamicGroupRouteController))) {
+                throw new IllegalStateException("There is no currently selected "
+                        + "dynamic group route.");
+            }
+            DynamicGroupInfo groupInfo = (DynamicGroupInfo) mSelectedRoute;
+            if (!groupInfo.getMemberRoutes().contains(route)
+                    || groupInfo.getUnselectableRoutes().contains(route)) {
+                return;
+            }
+            ((DynamicGroupRouteController) mSelectedRouteController)
+                    .onRemoveMemberRoute(route.getDescriptorId());
+        }
+
         void selectRoute(@NonNull RouteInfo route, int unselectReason) {
             if (!mRoutes.contains(route)) {
                 Log.w(TAG, "Ignoring attempt to select removed route: " + route);
@@ -2623,7 +2676,7 @@ public final class MediaRouter {
                 // In case the selected route is a route group, select/unselect route controllers
                 // for the added/removed route members.
                 if (mSelectedRoute instanceof RouteGroup) {
-                    List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getRoutes();
+                    List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getMemberRoutes();
                     // Build a set of descriptor IDs for the new route group.
                     Set<String> idSet = new HashSet<>();
                     for (RouteInfo route : routes) {
@@ -2743,8 +2796,8 @@ public final class MediaRouter {
                             MainHandlerExecutor.getExecutor(mApplicationContext),
                             mDynamicRoutesListener);
                     mSelectedRouteController = controller;
-                    mSelectedRoute = new DynamicGroupInfo(mSelectedRoute.getProvider(),
-                            route.mDescriptorId, uniqueId);
+                    mSelectedRoute = new DynamicGroupInfo(route.getProvider(),
+                            controller.getDynamicGroupRouteId(), uniqueId, controller);
                 } else {
                     mSelectedRouteController = route.getProviderInstance().onCreateRouteController(
                             route.mDescriptorId);
@@ -2759,7 +2812,7 @@ public final class MediaRouter {
                 mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute);
 
                 if (mSelectedRoute instanceof RouteGroup) {
-                    List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getRoutes();
+                    List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getMemberRoutes();
                     mRouteControllerMap.clear();
                     for (RouteInfo r : routes) {
                         RouteController controller =
@@ -2769,7 +2822,6 @@ public final class MediaRouter {
                         mRouteControllerMap.put(r.mUniqueId, controller);
                     }
                 }
-
                 updatePlaybackInfoFromSelectedRoute();
             }
         }

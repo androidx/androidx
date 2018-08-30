@@ -309,7 +309,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
             setItems();
         }
 
-        // Create a list of items with mRoutes and add them to mItems
+        // Create a list of items with mMemberRoutes and add them to mItems
         void setItems() {
             mItems.clear();
 

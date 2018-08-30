@@ -629,7 +629,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int volumeGroupListCount = mGroupMemberRoutes.size();
         // Scale down volume group list items in landscape mode.
         int expandedGroupListHeight = getGroup() == null ? 0 :
-                mVolumeGroupListItemHeight * getGroup().getRoutes().size();
+                mVolumeGroupListItemHeight * getGroup().getMemberRoutes().size();
         if (volumeGroupListCount > 0) {
             expandedGroupListHeight += mVolumeGroupListPaddingTop;
         }
@@ -748,7 +748,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void rebuildVolumeGroupList(boolean animate) {
-        List<MediaRouter.RouteInfo> routes = getGroup() == null ? null : getGroup().getRoutes();
+        List<MediaRouter.RouteInfo> routes =
+                getGroup() == null ? null : getGroup().getMemberRoutes();
         if (routes == null) {
             mGroupMemberRoutes.clear();
             mVolumeGroupAdapter.notifyDataSetChanged();

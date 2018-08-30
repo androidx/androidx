@@ -708,7 +708,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             // If currently casting on a group and route is a member of the group
             if (mSelectedRoute instanceof MediaRouter.RouteGroup) {
                 List<MediaRouter.RouteInfo> memberRoutes =
-                        ((MediaRouter.RouteGroup) mSelectedRoute).getRoutes();
+                        ((MediaRouter.RouteGroup) mSelectedRoute).getMemberRoutes();
 
                 for (MediaRouter.RouteInfo memberRoute : memberRoutes) {
                     if (memberRoute.getId().equals(route.getId())) {
@@ -719,14 +719,14 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             return false;
         }
 
-        // Create a list of items with mRoutes and add them to mItems
+        // Create a list of items with mMemberRoutes and add them to mItems
         void setItems() {
             mItems.clear();
             // Add Group Volume item only when currently casting on a group
             if (mSelectedRoute instanceof MediaRouter.RouteGroup) {
                 mItems.add(new Item(mSelectedRoute, ITEM_TYPE_GROUP_VOLUME));
                 List<MediaRouter.RouteInfo> routes =
-                        ((MediaRouter.RouteGroup) mSelectedRoute).getRoutes();
+                        ((MediaRouter.RouteGroup) mSelectedRoute).getMemberRoutes();
 
                 for (MediaRouter.RouteInfo route: routes) {
                     mItems.add(new Item(route, ITEM_TYPE_ROUTE));
