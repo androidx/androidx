@@ -93,6 +93,8 @@ class Paint {
         const val STROKE_MITER_LIMIT_DEFAULT = 4.0
     }
 
+    internal fun toFrameworkPaint(): android.graphics.Paint = internalPaint
+
     // Whether to apply anti-aliasing to lines and images drawn on the
     // canvas.
     //
@@ -147,54 +149,9 @@ class Paint {
             return porterDuffModeToBlendMode(porterDuffMode)
         }
         set(value) {
-            porterDuffMode = blendModeToPorterDuffMode(value)
+            porterDuffMode = value.toPorterDuffMode()
             internalPaint.xfermode = android.graphics.PorterDuffXfermode(porterDuffMode)
         }
-
-    private fun blendModeToPorterDuffMode(blendmode: BlendMode): android.graphics.PorterDuff.Mode {
-        return when (blendmode) {
-            BlendMode.clear -> android.graphics.PorterDuff.Mode.CLEAR
-            BlendMode.src -> android.graphics.PorterDuff.Mode.SRC
-            BlendMode.dst -> android.graphics.PorterDuff.Mode.DST
-            BlendMode.srcOver -> android.graphics.PorterDuff.Mode.SRC_OVER
-            BlendMode.dstOver -> android.graphics.PorterDuff.Mode.DST_OVER
-            BlendMode.srcIn -> android.graphics.PorterDuff.Mode.SRC_IN
-            BlendMode.dstIn -> android.graphics.PorterDuff.Mode.DST_IN
-            BlendMode.srcOut -> android.graphics.PorterDuff.Mode.SRC_OUT
-            BlendMode.dstOut -> android.graphics.PorterDuff.Mode.DST_OUT
-            BlendMode.srcATop -> android.graphics.PorterDuff.Mode.SRC_ATOP
-            BlendMode.dstATop -> android.graphics.PorterDuff.Mode.DST_ATOP
-            BlendMode.xor -> android.graphics.PorterDuff.Mode.XOR
-            BlendMode.darken -> android.graphics.PorterDuff.Mode.DARKEN
-            BlendMode.lighten -> android.graphics.PorterDuff.Mode.LIGHTEN
-            BlendMode.multiply -> android.graphics.PorterDuff.Mode.MULTIPLY
-            BlendMode.screen -> android.graphics.PorterDuff.Mode.SCREEN
-            BlendMode.overlay -> android.graphics.PorterDuff.Mode.OVERLAY
-            BlendMode.plus -> android.graphics.PorterDuff.Mode.ADD
-            BlendMode.color ->
-                TODO("Migration/njawad: PorterDuff.Mode.COLOR is not supported")
-            BlendMode.colorBurn ->
-                TODO("Migration/njawad: PorterDuff.Mode.COLOR_BURN is not supported")
-            BlendMode.colorDodge ->
-                TODO("Migration/njawad: PorterDuff.Mode.COLOR_DODGE is not supported")
-            BlendMode.difference ->
-                TODO("Migration/njawad: PorterDuff.Mode.DIFFERENCE is not supported")
-            BlendMode.exclusion ->
-                TODO("Migration/njawad: PorterDuff.Mode.EXCLUSION is not supported")
-            BlendMode.hardLight ->
-                TODO("Migration/njawad: PorterDuff.Mode.HARD_LIGHT is not supported")
-            BlendMode.hue ->
-                TODO("Migration/njawad: PorterDuff.Mode.HUE is not supported")
-            BlendMode.luminosity ->
-                TODO("Migration/njawad: PorterDuff.Mode.LUMINOSITY is not supported")
-            BlendMode.modulate ->
-                TODO("Migration/njawad: PorterDuff.Mode.MODULATE is not supported")
-            BlendMode.saturation ->
-                TODO("Migration/njawad: PorterDuff.Mode.SATURATION is not supported")
-            BlendMode.softLight ->
-                TODO("Migration/njawad: PorterDuff.Mode.SOFT_LIGHT is not supported")
-        }
-    }
 
     private fun porterDuffModeToBlendMode(porterDuffMode: android.graphics.PorterDuff.Mode):
             BlendMode {
