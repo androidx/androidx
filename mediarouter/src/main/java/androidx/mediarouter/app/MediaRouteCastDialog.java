@@ -38,10 +38,16 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.Interpolator;
+import android.view.animation.Transformation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -478,6 +484,12 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         }
     }
 
+    static void setLayoutHeight(View view, int height) {
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        lp.height = height;
+        view.setLayoutParams(lp);
+    }
+
     private class VolumeChangeListener implements SeekBar.OnSeekBarChangeListener {
         VolumeChangeListener() {
         }
@@ -893,13 +905,19 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             final TextView mTextView;
             final RelativeLayout mVolumeSliderLayout;
             final CheckBox mCheckBox;
+
+            final int mExpandedLayoutHeight;
+            final int mCollapsedLayoutHeight;
+            private final int mLayoutAnimationDurationMs;
+            private Interpolator mAccelerateDecelerateInterpolator;
+
             final Runnable mSelectRoute = new Runnable() {
                 @Override
                 public void run() {
                     mImageView.setVisibility(View.VISIBLE);
                     mProgressBar.setVisibility(View.INVISIBLE);
                     mCheckBox.setEnabled(true);
-                    mVolumeSliderLayout.setVisibility(View.VISIBLE);
+                    animateLayoutHeight(mVolumeSliderLayout, mExpandedLayoutHeight);
                 }
             };
             final View.OnClickListener mCheckBoxClickListener = new View.OnClickListener() {
@@ -908,13 +926,30 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     if (((CheckBox) v).isChecked()) {
                         mImageView.setVisibility(View.INVISIBLE);
                         mProgressBar.setVisibility(View.VISIBLE);
+                        mCheckBox.setEnabled(false);
                         mCheckBox.postDelayed(mSelectRoute, PROGRESS_BAR_DISPLAY_MS);
                     } else {
-                        mVolumeSliderLayout.setVisibility(View.GONE);
                         mCheckBox.removeCallbacks(mSelectRoute);
+                        animateLayoutHeight(mVolumeSliderLayout, mCollapsedLayoutHeight);
                     }
                 }
             };
+
+            void animateLayoutHeight(final View view, int targetHeight) {
+                final int startValue = view.getLayoutParams().height;
+                final int endValue = targetHeight;
+                Animation anim = new Animation() {
+                    @Override
+                    protected void applyTransformation(float interpolatedTime, Transformation t) {
+                        int deltaHeight = (int) ((endValue - startValue) * interpolatedTime);
+                        setLayoutHeight(view, startValue + deltaHeight);
+                    }
+                };
+
+                anim.setDuration(mLayoutAnimationDurationMs);
+                anim.setInterpolator(mAccelerateDecelerateInterpolator);
+                view.startAnimation(anim);
+            }
 
             RouteViewHolder(View itemView) {
                 super(itemView, (ImageButton) itemView.findViewById(R.id.mr_cast_mute_button),
@@ -928,6 +963,16 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 Drawable checkBoxIcon = MediaRouterThemeHelper.getCheckBoxDrawableIcon(mContext);
                 MediaRouterThemeHelper.setIndeterminateProgressBarColor(mContext, mProgressBar);
                 mCheckBox.setButtonDrawable(checkBoxIcon);
+
+                Resources res = mContext.getResources();
+                DisplayMetrics metrics = res.getDisplayMetrics();
+                TypedValue value = new TypedValue();
+                res.getValue(R.dimen.mr_dynamic_dialog_row_height, value, true);
+                mExpandedLayoutHeight = (int) value.getDimension(metrics);
+                mCollapsedLayoutHeight = 0;
+                mLayoutAnimationDurationMs = res.getInteger(
+                        R.integer.mr_cast_volume_slider_layout_animation_duration_ms);
+                mAccelerateDecelerateInterpolator = new AccelerateDecelerateInterpolator();
             }
 
             public void bindRouteViewHolder(Item item) {
@@ -937,16 +982,10 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 super.bindRouteVolumeSliderHolder(route);
                 mImageView.setImageDrawable(getIconDrawable(route));
                 mTextView.setText(route.getName());
-                mVolumeSliderLayout.setVisibility(selected ? View.VISIBLE : View.GONE);
+                setLayoutHeight(mVolumeSliderLayout, selected
+                        ? mExpandedLayoutHeight : mCollapsedLayoutHeight);
+                mCheckBox.setChecked(selected);
                 mCheckBox.setOnClickListener(mCheckBoxClickListener);
-                // TODO(b/111624415): Make CheckBox works for both selected and unselected routes.
-                if (selected) {
-                    mCheckBox.setChecked(true);
-                    mCheckBox.setEnabled(true);
-                } else {
-                    mCheckBox.setChecked(false);
-                    mCheckBox.setEnabled(false);
-                }
             }
         }
 
