@@ -80,6 +80,7 @@ final class MediaRouterThemeHelper {
 
     private static Drawable getIconByDrawableId(Context context, int drawableId) {
         Drawable icon = ContextCompat.getDrawable(context, drawableId);
+        icon = DrawableCompat.wrap(icon);
 
         if (isLightTheme(context)) {
             int tintColor = ContextCompat.getColor(context, COLOR_DARK_ON_LIGHT_BACKGROUND_RES_ID);
@@ -91,6 +92,7 @@ final class MediaRouterThemeHelper {
     private static Drawable getIconByAttrId(Context context, int attrId) {
         TypedArray styledAttributes = context.obtainStyledAttributes(new int[] { attrId });
         Drawable icon = styledAttributes.getDrawable(0);
+        icon = DrawableCompat.wrap(icon);
 
         // Since Chooser(Controller)Dialog and DevicePicker(Cast)Dialog is using same shape but
         // different color icon for LightTheme, change color of the icon for the latter.
