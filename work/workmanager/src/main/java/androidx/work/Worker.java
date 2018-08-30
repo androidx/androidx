@@ -19,6 +19,10 @@ package androidx.work;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
+import android.support.v4.util.Pair;
+
+import androidx.concurrent.listenablefuture.ListenableFuture;
+import androidx.concurrent.listenablefuture.SettableFuture;
 
 import java.util.concurrent.TimeUnit;
 
@@ -66,8 +70,10 @@ public abstract class Worker extends NonBlockingWorker {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
-    public void onStartWork(@NonNull WorkFinishedCallback callback) {
+    public @NonNull ListenableFuture<Pair<Result, Data>> onStartWork() {
+        SettableFuture<Pair<Result, Data>> future = SettableFuture.create();
         Result result = doWork();
-        callback.onWorkFinished(result);
+        future.set(new Pair<>(result, getOutputData()));
+        return future;
     }
 }

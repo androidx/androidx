@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.RestrictTo;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,6 +31,7 @@ import java.util.concurrent.Executors;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerTaskExecutor implements TaskExecutor {
+
     private final ExecutorService mBackgroundExecutor = Executors.newSingleThreadExecutor();
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
@@ -41,5 +43,10 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     @Override
     public void executeOnBackgroundThread(Runnable r) {
         mBackgroundExecutor.execute(r);
+    }
+
+    @Override
+    public Executor getBackgroundExecutor() {
+        return mBackgroundExecutor;
     }
 }
