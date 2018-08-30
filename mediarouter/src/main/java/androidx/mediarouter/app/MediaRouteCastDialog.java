@@ -779,7 +779,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     view = mInflater.inflate(R.layout.mr_cast_group_volume_item, parent, false);
                     return new GroupVolumeViewHolder(view);
                 case ITEM_TYPE_HEADER:
-                    view = mInflater.inflate(R.layout.mr_dialog_header_item, parent, false);
+                    view = mInflater.inflate(R.layout.mr_cast_header_item, parent, false);
                     return new HeaderViewHolder(view);
                 case ITEM_TYPE_ROUTE:
                     view = mInflater.inflate(R.layout.mr_cast_route_item, parent, false);
@@ -926,7 +926,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
             HeaderViewHolder(View itemView) {
                 super(itemView);
-                mTextView = itemView.findViewById(R.id.mr_dialog_header_name);
+                mTextView = itemView.findViewById(R.id.mr_cast_header_name);
             }
 
             public void bindHeaderViewHolder(Item item) {
