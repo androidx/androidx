@@ -22,6 +22,7 @@
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="@dimen/mr_dynamic_dialog_row_height"
                   android:gravity="start"
+                  android:paddingLeft="16dp"
                   android:paddingStart="16dp"
                   android:orientation="horizontal">
         <ImageButton android:id="@+id/mr_picker_close_button"
