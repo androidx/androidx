@@ -37,7 +37,6 @@ import androidx.work.Data;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
-import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Extras;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
@@ -60,22 +59,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ConstraintTrackingWorkerTest extends DatabaseTest implements ExecutionListener {
+public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     private static final long DELAY_IN_MILLIS = 100;
-    private static final long TEST_TIMEOUT_IN_SECONDS = 6;
+    private static final long TEST_TIMEOUT_IN_MS = 6000L;
     private static final String TEST_ARGUMENT_NAME = "test";
 
     private Context mContext;
     private Handler mHandler;
-    private CountDownLatch mLatch;
     private ExecutorService mExecutorService;
 
     private OneTimeWorkRequest mWork;
@@ -85,7 +81,6 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
     private Configuration mConfiguration;
     private TaskExecutor mWorkTaskExecutor;
     private Scheduler mScheduler;
-    private Extras.RuntimeExtras mRuntimeExtras;
     private Trackers mTracker;
     private BatteryChargingTracker mBatteryChargingTracker;
     private BatteryNotLowTracker mBatteryNotLowTracker;
@@ -97,11 +92,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         mContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mHandler = new Handler(Looper.getMainLooper());
         mExecutorService = Executors.newSingleThreadScheduledExecutor();
-        mLatch = new CountDownLatch(1);
         mConfiguration = new Configuration.Builder().build();
         mWorkTaskExecutor = new InstantWorkTaskExecutor();
-        mRuntimeExtras = new Extras.RuntimeExtras();
-        mRuntimeExtras.mExecutionListener = this;
 
         mWorkManagerImpl = mock(WorkManagerImpl.class);
         mScheduler = mock(Scheduler.class);
@@ -139,12 +131,12 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         builder.withWorker(mWorker)
                 .withListener(null) // set on ConstraintTrackingWorker
                 .withSchedulers(Collections.singletonList(mScheduler));
+
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);
 
-        mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        Thread.sleep(TEST_TIMEOUT_IN_MS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
-        assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.SUCCEEDED));
         Data output = workSpec.output;
         assertThat(output.getBoolean(TEST_ARGUMENT_NAME, false), is(true));
@@ -162,9 +154,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);
-        mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+
+        Thread.sleep(TEST_TIMEOUT_IN_MS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
-        assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.ENQUEUED));
     }
 
@@ -187,9 +179,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
             }
         }, DELAY_IN_MILLIS);
 
-        mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        Thread.sleep(TEST_TIMEOUT_IN_MS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
-        assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.ENQUEUED));
     }
 
@@ -222,23 +213,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
             }
         }, DELAY_IN_MILLIS);
 
-        mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        Thread.sleep(TEST_TIMEOUT_IN_MS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
-        assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.ENQUEUED));
-    }
-
-    @Override
-    public void onExecuted(
-            @NonNull String workSpecId,
-            boolean isSuccessful,
-            boolean needsReschedule) {
-
-        // Complete the execution of the ConstraintTrackingWorker like the real WorkerWrapper would.
-        // TODO (rahulrav@) Once we move to the world where NonBlockingWorker is public, this is
-        // no longer required.
-        mWorkerWrapper.onWorkFinished(mWorker.getResult());
-        mLatch.countDown();
     }
 
     private void setupDelegateForExecution(@NonNull String delegateName) {
@@ -263,7 +240,11 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         mWork.getId(),
-                        new Extras(input, Collections.<String>emptyList(), mRuntimeExtras, 1));
+                        new Extras(
+                                input,
+                                Collections.<String>emptyList(),
+                                new Extras.RuntimeExtras(),
+                                1));
 
         mWorker = spy(worker);
         when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
