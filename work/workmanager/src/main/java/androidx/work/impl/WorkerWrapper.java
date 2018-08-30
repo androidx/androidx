@@ -30,7 +30,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
+import android.support.v4.util.Pair;
 
+import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
@@ -51,6 +53,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
@@ -192,7 +195,17 @@ public class WorkerWrapper implements Runnable {
             }
 
             try {
-                mWorker.onStartWork(mWorker);
+                final ListenableFuture<Pair<Result, Data>> future = mWorker.onStartWork();
+                future.addListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            onWorkFinished(future.get().first);
+                        } catch (InterruptedException | ExecutionException e) {
+                            onWorkFinished(Result.FAILURE);
+                        }
+                    }
+                }, mWorkTaskExecutor.getBackgroundExecutor());
             } catch (Exception | Error e) {
                 Logger.error(TAG,
                         String.format("%s failed because it threw an exception/error",

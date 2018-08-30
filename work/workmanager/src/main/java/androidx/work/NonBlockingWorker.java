@@ -25,7 +25,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
+import android.support.v4.util.Pair;
 
+import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.work.impl.Extras;
 
 import java.util.Set;
@@ -141,12 +143,12 @@ public abstract class NonBlockingWorker implements WorkFinishedCallback {
      * Typical flow involves, starting the execution of work on a background thread, and notifying
      * completion via the completion callback {@code WorkFinishedCallback}.
      *
-     * @param callback The {@code WorkFinishedCallback} that helps signal work completion.
+     * @return A {@link ListenableFuture} with the {@link Worker.Result} and output {@link Data}
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
-    public abstract void onStartWork(@NonNull WorkFinishedCallback callback);
+    public abstract @NonNull ListenableFuture<Pair<Worker.Result, Data>> onStartWork();
 
     /**
      * Returns {@code true} if this Worker has been told to stop.  This could be because of an

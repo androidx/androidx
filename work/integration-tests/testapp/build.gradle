@@ -35,6 +35,7 @@ android {
 dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation project(':work:work-runtime')
+    implementation project(":concurrent:listenable-future")
     implementation project(':work:work-firebase')
     implementation "android.arch.lifecycle:extensions:1.1.0"
     implementation "android.arch.persistence.room:runtime:1.1.1-rc1"
