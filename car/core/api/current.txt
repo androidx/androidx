@@ -230,15 +230,27 @@ package androidx.car.widget {
     method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
+  public abstract interface AlphaJumpAdapter {
+    method public abstract java.util.List<androidx.car.widget.AlphaJumpBucket> getAlphaJumpBuckets();
+    method public abstract void onAlphaJumpEnter();
+    method public abstract void onAlphaJumpLeave(androidx.car.widget.AlphaJumpBucket);
+  }
+
+  public abstract interface AlphaJumpBucket {
+    method public abstract int getIndex();
+    method public abstract java.lang.CharSequence getLabel();
+    method public abstract boolean isEmpty();
+  }
+
   public class AlphaJumpBucketer {
     ctor public AlphaJumpBucketer();
     ctor public AlphaJumpBucketer(androidx.car.widget.AlphaJumpBucketer.Bucket[]);
-    method public java.util.Collection<androidx.car.widget.IAlphaJumpAdapter.Bucket> createBuckets(java.lang.String[]);
-    method public java.util.Collection<androidx.car.widget.IAlphaJumpAdapter.Bucket> createBuckets(java.lang.Iterable<java.lang.String>);
-    method public java.util.Collection<androidx.car.widget.IAlphaJumpAdapter.Bucket> createBuckets(java.util.Iterator<java.lang.String>);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket> createBuckets(java.lang.String[]);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket> createBuckets(java.lang.Iterable<java.lang.String>);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket> createBuckets(java.util.Iterator<java.lang.String>);
   }
 
-  public static class AlphaJumpBucketer.Bucket implements androidx.car.widget.IAlphaJumpAdapter.Bucket {
+  public static class AlphaJumpBucketer.Bucket implements androidx.car.widget.AlphaJumpBucket {
     method public int getIndex();
     method public java.lang.CharSequence getLabel();
     method public boolean isEmpty();
@@ -277,18 +289,6 @@ package androidx.car.widget {
     field public static final int ALWAYS_LIGHT = 2; // 0x2
     field public static final int AUTO = 0; // 0x0
     field public static final int AUTO_INVERSE = 1; // 0x1
-  }
-
-  public abstract interface IAlphaJumpAdapter {
-    method public abstract java.util.Collection<androidx.car.widget.IAlphaJumpAdapter.Bucket> getAlphaJumpBuckets();
-    method public abstract void onAlphaJumpEnter();
-    method public abstract void onAlphaJumpLeave(androidx.car.widget.IAlphaJumpAdapter.Bucket);
-  }
-
-  public static abstract interface IAlphaJumpAdapter.Bucket {
-    method public abstract int getIndex();
-    method public abstract java.lang.CharSequence getLabel();
-    method public abstract boolean isEmpty();
   }
 
   public abstract class ListItem<VH extends androidx.car.widget.ListItem.ViewHolder> {

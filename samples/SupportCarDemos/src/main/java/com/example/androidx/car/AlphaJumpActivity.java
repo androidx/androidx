@@ -24,13 +24,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.car.widget.AlphaJumpAdapter;
+import androidx.car.widget.AlphaJumpBucket;
 import androidx.car.widget.AlphaJumpBucketer;
-import androidx.car.widget.IAlphaJumpAdapter;
 import androidx.car.widget.PagedListView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * An activity with a long list of cheeses, initially in a random order but you can use alpha jump
@@ -84,7 +85,7 @@ public class AlphaJumpActivity extends Activity {
      * Adapter that populates a number of items for demo purposes.
      */
     public static class CheeseAdapter extends RecyclerView.Adapter<CheeseAdapter.ViewHolder>
-            implements IAlphaJumpAdapter {
+            implements AlphaJumpAdapter {
         private String[] mCheeses;
         private boolean mIsSorted;
 
@@ -112,7 +113,7 @@ public class AlphaJumpActivity extends Activity {
         }
 
         @Override
-        public Collection<Bucket> getAlphaJumpBuckets() {
+        public List<AlphaJumpBucket> getAlphaJumpBuckets() {
             if (!mIsSorted) {
                 Log.i(TAG, "Sorting...");
                 // We'll sort the first time we need to populate the buckets.
@@ -132,7 +133,7 @@ public class AlphaJumpActivity extends Activity {
         }
 
         @Override
-        public void onAlphaJumpLeave(Bucket bucket) {
+        public void onAlphaJumpLeave(AlphaJumpBucket bucket) {
             Log.i(TAG, "onAlphaJumpLeave: " + bucket.getLabel());
         }
 
