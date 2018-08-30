@@ -230,7 +230,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
 
     protected void publishRoutes() {
         MediaRouteProviderDescriptor providerDescriptor = new MediaRouteProviderDescriptor.Builder()
-                .setSupportsDynamicGroupRoute(true)
+                .setSupportsDynamicGroupRoute(false)
                 .addRoutes(mRouteDescriptors.values())
                 .build();
         setDescriptor(providerDescriptor);
