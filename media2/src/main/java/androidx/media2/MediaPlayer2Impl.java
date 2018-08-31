@@ -1445,17 +1445,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
         p.setOnInfoListener(new MediaPlayer.OnInfoListener() {
             @Override
-            public boolean onInfo(MediaPlayer mp, int what, int extra) {
+            public boolean onInfo(final MediaPlayer mp, final int what, final int extra) {
                 switch (what) {
-                    case MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
-                        notifyMediaPlayer2Event(new Mp2EventNotifier() {
-                            @Override
-                            public void notify(EventCallback cb) {
-                                cb.onInfo(MediaPlayer2Impl.this, src.getDSD(),
-                                        MEDIA_INFO_VIDEO_RENDERING_START, 0);
-                            }
-                        });
-                        break;
                     case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                         mPlayer.setBufferingState(
                                 mp, MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_STARVED);
@@ -1465,7 +1456,18 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                                 mp, MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
                         break;
                 }
-                return false;
+                notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                    @Override
+                    public void notify(EventCallback cb) {
+                        if (what == MediaPlayer.MEDIA_INFO_STARTED_AS_NEXT) {
+                            mPlayer.onStartedAsNext(mp);
+                            return;
+                        }
+                        int w = sInfoEventMap.getOrDefault(what, MEDIA_INFO_UNKNOWN);
+                        cb.onInfo(MediaPlayer2Impl.this, src.getDSD(), w, extra);
+                    }
+                });
+                return true;
             }
         });
         final MediaPlayer.OnCompletionListener completionListener =
@@ -1541,23 +1543,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         });
                     }
                 });
-        p.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-            @Override
-            public boolean onInfo(final MediaPlayer mp, final int what, final int extra) {
-                notifyMediaPlayer2Event(new Mp2EventNotifier() {
-                    @Override
-                    public void notify(EventCallback cb) {
-                        if (what == MediaPlayer.MEDIA_INFO_STARTED_AS_NEXT) {
-                            mPlayer.onStartedAsNext(mp);
-                            return;
-                        }
-                        int w = sInfoEventMap.getOrDefault(what, MEDIA_INFO_UNKNOWN);
-                        cb.onInfo(MediaPlayer2Impl.this, src.getDSD(), w, extra);
-                    }
-                });
-                return true;
-            }
-        });
         p.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, final int percent) {
