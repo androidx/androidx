@@ -41,7 +41,7 @@ import java.util.UUID;
  * {@link NonBlockingWorker} instance. The {@link NonBlockingWorker} signals work completion
  * by using a {@code WorkFinishedCallback}.
  */
-public abstract class NonBlockingWorker implements WorkFinishedCallback {
+public abstract class NonBlockingWorker {
 
     @SuppressWarnings("NullableProblems")   // Set by internalInit
     private @NonNull Context mAppContext;
@@ -254,29 +254,6 @@ public abstract class NonBlockingWorker implements WorkFinishedCallback {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setResult(@NonNull Worker.Result result) {
         mResult = result;
-    }
-
-    /**
-     * The completion callback for {@link NonBlockingWorker}.
-     *
-     * @param result the {@link Worker.Result} of the {@link NonBlockingWorker}'s execution.
-     * @hide
-     */
-    @WorkerThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Override
-    public void onWorkFinished(@NonNull Worker.Result result) {
-        setResult(result);
-        Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
-        if (runtimeExtras.mExecutionListener != null) {
-            // The ExecutionListener is just a way to communicate with the WorkerWrapper.
-            // The isSuccessful & needsReschedule flags are computed based on the pre and post
-            // completion state of the NonBlockingWorker.
-            boolean isSuccessful = result == Worker.Result.SUCCESS;
-            boolean needsReschedule = result == Worker.Result.RETRY;
-            runtimeExtras.mExecutionListener
-                    .onExecuted(mId.toString(), isSuccessful, needsReschedule);
-        }
     }
 
     @Keep

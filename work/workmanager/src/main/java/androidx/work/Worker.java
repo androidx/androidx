@@ -73,6 +73,7 @@ public abstract class Worker extends NonBlockingWorker {
     public @NonNull ListenableFuture<Pair<Result, Data>> onStartWork() {
         SettableFuture<Pair<Result, Data>> future = SettableFuture.create();
         Result result = doWork();
+        setResult(result);
         future.set(new Pair<>(result, getOutputData()));
         return future;
     }

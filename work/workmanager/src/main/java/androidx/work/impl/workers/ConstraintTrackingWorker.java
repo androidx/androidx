@@ -16,13 +16,20 @@
 
 package androidx.work.impl.workers;
 
+import static androidx.work.Worker.Result.FAILURE;
+import static androidx.work.Worker.Result.RETRY;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
+import androidx.concurrent.listenablefuture.ListenableFuture;
+import androidx.work.Data;
 import androidx.work.Logger;
+import androidx.work.NonBlockingWorker;
 import androidx.work.Worker;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -51,32 +58,35 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
     public static final String ARGUMENT_CLASS_NAME =
             "androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME";
 
+    @Nullable
+    private NonBlockingWorker mDelegate;
+
     private final Object mLock;
-    private boolean mAreConstraintsUnmet;
+    // Marking this volatile as the delegated workers could switch threads.
+    private volatile boolean mAreConstraintsUnmet;
 
     public ConstraintTrackingWorker() {
         mLock = new Object();
         mAreConstraintsUnmet = false;
     }
 
+    @NonNull
     @Override
-    public @NonNull Result doWork() {
+    public Result doWork() {
         String className = getInputData().getString(ARGUMENT_CLASS_NAME);
         if (TextUtils.isEmpty(className)) {
             Logger.debug(TAG, "No worker to delegate to.");
-            return Result.FAILURE;
+            return FAILURE;
         }
-        // Instantiate the delegated worker. Use the same workSpecId, and the same Data
-        // as this Worker's Data are a superset of the delegate's Worker's Data.
-        Worker delegate = WorkerWrapper.workerFromClassName(
+        mDelegate = WorkerWrapper.workerFromClassName(
                 getApplicationContext(),
                 className,
                 getId(),
                 getExtras());
 
-        if (delegate == null) {
+        if (mDelegate == null) {
             Logger.debug(TAG, "No worker to delegate to.");
-            return Result.FAILURE;
+            return FAILURE;
         }
 
         WorkDatabase workDatabase = getWorkDatabase();
@@ -84,7 +94,7 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
         // We need to know what the real constraints are for the delegate.
         WorkSpec workSpec = workDatabase.workSpecDao().getWorkSpec(getId().toString());
         if (workSpec == null) {
-            return Result.FAILURE;
+            return FAILURE;
         }
         WorkConstraintsTracker workConstraintsTracker =
                 new WorkConstraintsTracker(getApplicationContext(), this);
@@ -99,14 +109,14 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
             // that should cause a retry.
             try {
-                Result result = delegate.doWork();
-                synchronized (mLock) {
-                    if (mAreConstraintsUnmet) {
-                        return Result.RETRY;
-                    } else {
-                        setOutputData(delegate.getOutputData());
-                        return result;
-                    }
+                ListenableFuture<Pair<Worker.Result, Data>> innerFuture = mDelegate.onStartWork();
+                if (mAreConstraintsUnmet) {
+                    return RETRY;
+                } else {
+                    Pair<Worker.Result, Data> resultAndData = innerFuture.get();
+                    setResult(resultAndData.first);
+                    setOutputData(resultAndData.second);
+                    return resultAndData.first;
                 }
             } catch (Throwable exception) {
                 Logger.debug(TAG, String.format(
@@ -114,16 +124,16 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
                 synchronized (mLock) {
                     if (mAreConstraintsUnmet) {
                         Logger.debug(TAG, "Constraints were unmet, Retrying.");
-                        return Result.RETRY;
+                        return RETRY;
                     } else {
-                        return Result.FAILURE;
+                        return FAILURE;
                     }
                 }
             }
         } else {
             Logger.debug(TAG, String.format(
                     "Constraints not met for delegate %s. Requesting retry.", className));
-            return Result.RETRY;
+            return RETRY;
         }
     }
 
