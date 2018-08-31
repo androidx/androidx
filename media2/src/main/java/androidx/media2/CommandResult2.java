@@ -23,14 +23,12 @@ import android.os.Build;
 
 import androidx.annotation.RestrictTo;
 
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Result of the asynchrnous APIs
  *
- * @see ListenableFuture
  * @hide
  */
 // TODO(jaewan): Unhide
