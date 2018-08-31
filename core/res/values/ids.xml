@@ -20,10 +20,12 @@
     <item type="id" name="text2"/>
     <item type="id" name="line1"/>
     <item type="id" name="line3"/>
+    <item name="accessibility_action_clickable_span" type="id"/>
     <item name="tag_transition_group" type="id"/>
     <item name="tag_unhandled_key_listeners" type="id"/>
     <item name="tag_unhandled_key_event_manager" type="id"/>
     <item name="tag_screen_reader_focusable" type="id"/>
     <item name="tag_accessibility_heading" type="id"/>
     <item name="tag_accessibility_pane_title" type="id"/>
+    <item name="tag_accessibility_clickable_spans" type="id"/>
 </resources>

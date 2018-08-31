@@ -22,9 +22,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +35,9 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ClickableSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -160,6 +166,50 @@ public class AccessibilityDelegateCompatTest extends
                 ArgumentCaptor.forClass(AccessibilityEvent.class);
         verify(mockDelegate, never()).sendAccessibilityEventUnchecked(
                 eq(mView), argumentCaptor.capture());
+    }
+
+    @Test
+    public void testPerformSpanAction() {
+        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 26) {
+            final ClickableSpan span1 = mock(ClickableSpan.class);
+            final ClickableSpan span2 = mock(ClickableSpan.class);
+            mView.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(View host,
+                        AccessibilityNodeInfo info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    SpannableString clickableSpannedString =
+                            new SpannableString("Spans the whole world");
+                    clickableSpannedString.setSpan(span1, 10, 13, 1);
+                    clickableSpannedString.setSpan(span2, 16, 18, 2);
+                    info.setText(clickableSpannedString);
+                }
+            });
+            ViewCompat.enableAccessibleClickableSpanSupport(mView);
+            AccessibilityNodeInfo nodeInfo = spy(AccessibilityNodeInfo.obtain());
+            mView.onInitializeAccessibilityNodeInfo(nodeInfo);
+            final Spanned text = (Spanned) AccessibilityNodeInfoCompat.wrap(nodeInfo).getText();
+            final ClickableSpan[] spans =
+                    text.getSpans(0, text.length(), ClickableSpan.class);
+
+            doReturn(true).when(nodeInfo).performAction(anyInt(), any(Bundle.class));
+
+            spans[1].onClick(null);
+
+            ArgumentCaptor<Integer> integerArgumentCaptor =
+                    ArgumentCaptor.forClass(Integer.class);
+            ArgumentCaptor<Bundle> bundleArgumentCaptor =
+                    ArgumentCaptor.forClass(Bundle.class);
+            verify(nodeInfo).performAction(
+                    integerArgumentCaptor.capture(), bundleArgumentCaptor.capture());
+            Bundle args = bundleArgumentCaptor.<Bundle>getValue();
+            int actionId = integerArgumentCaptor.<Integer>getValue();
+
+            //The service would end up calling the same thing ViewCompat calls
+            ViewCompat.performAccessibilityAction(mView,
+                    actionId, args);
+            verify(span2).onClick(mView);
+        }
     }
 
     @Test
