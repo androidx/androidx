@@ -22,7 +22,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaDrm;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -43,14 +42,12 @@ import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaTimestamp2;
 import androidx.media2.PlaybackParams2;
-import androidx.media2.UriDataSourceDesc2;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
 import androidx.media2.exoplayer.external.DefaultRenderersFactory;
 import androidx.media2.exoplayer.external.ExoPlayerFactory;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
-import androidx.media2.exoplayer.external.source.ExtractorMediaSource;
 import androidx.media2.exoplayer.external.source.MediaSource;
 import androidx.media2.exoplayer.external.trackselection.DefaultTrackSelector;
 import androidx.media2.exoplayer.external.upstream.DataSource;
@@ -278,16 +275,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             @Override
             void process() {
                 DataSourceDesc2 dataSourceDescription = getCurrentDataSource();
-                MediaSource mediaSource;
-                if (dataSourceDescription instanceof UriDataSourceDesc2) {
-                    // TODO(b/111150876): Add support for HLS streams.
-                    Uri uri = ((UriDataSourceDesc2) dataSourceDescription).getUri();
-                    mediaSource =
-                            new ExtractorMediaSource.Factory(mDataSourceFactory)
-                                    .createMediaSource(uri);
-                } else {
-                    throw new UnsupportedOperationException();
-                }
+                MediaSource mediaSource = ExoPlayerUtils.createMediaSource(
+                        mDataSourceFactory, dataSourceDescription);
                 synchronized (mPlayerLock) {
                     mPlayer.prepare(mediaSource);
                 }
@@ -399,11 +388,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             @Override
             void process() {
                 synchronized (mPlayerLock) {
-                    mPlayer.setAudioAttributes(new AudioAttributes.Builder()
-                            .setContentType(attributes.getContentType())
-                            .setFlags(attributes.getFlags())
-                            .setUsage(attributes.getUsage())
-                            .build());
+                    mPlayer.setAudioAttributes(ExoPlayerUtils.getAudioAttributes(attributes));
                 }
             }
         });
@@ -415,11 +400,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         synchronized (mPlayerLock) {
             exoPlayerAudioAttributes = mPlayer.getAudioAttributes();
         }
-        return new AudioAttributesCompat.Builder()
-                .setContentType(exoPlayerAudioAttributes.contentType)
-                .setFlags(exoPlayerAudioAttributes.flags)
-                .setUsage(exoPlayerAudioAttributes.usage)
-                .build();
+        return ExoPlayerUtils.getAudioAttributesCompat(exoPlayerAudioAttributes);
     }
 
     @Override
