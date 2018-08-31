@@ -46,6 +46,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaPlayerConnector.BuffState;
@@ -1410,7 +1411,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         synchronized (mTaskLock) {
                             if (mCurrentTask != null
                                     && mCurrentTask.mMediaCallType == CALL_COMPLETED_PREPARE
-                                    && mCurrentTask.mDSD == src.getDSD()
+                                    && ObjectsCompat.equals(mCurrentTask.mDSD, src.getDSD())
                                     && mCurrentTask.mNeedToWaitForEventToComplete) {
                                 mCurrentTask.sendCompleteNotification(CALL_STATUS_NO_ERROR);
                                 mCurrentTask = null;
