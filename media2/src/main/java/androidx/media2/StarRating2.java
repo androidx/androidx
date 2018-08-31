@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import androidx.annotation.IntRange;
 import androidx.core.util.ObjectsCompat;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -41,10 +42,14 @@ public final class StarRating2 implements Rating2 {
 
     /**
      * Creates a unrated StarRating2 instance with {@code maxStars}.
+     * If {@code maxStars} is not a positive integer, it will throw IllegalArgumentException.
      *
      * @param maxStars a range of this star rating from 0.0f to {@code maxStars}
      */
-    public StarRating2(int maxStars) {
+    public StarRating2(@IntRange(from = 1) int maxStars) {
+        if (maxStars <= 0) {
+            throw new IllegalArgumentException("maxStars should be a positive integer");
+        }
         mMaxStars = maxStars;
         mStarRating = RATING_NOT_RATED;
     }
@@ -59,7 +64,7 @@ public final class StarRating2 implements Rating2 {
      * @param maxStars the maximum number of stars which this rating can have.
      * @param starRating a number ranging from 0.0f to {@code maxStars}
      */
-    public StarRating2(int maxStars, float starRating) {
+    public StarRating2(@IntRange(from = 1) int maxStars, float starRating) {
         if (maxStars <= 0) {
             throw new IllegalArgumentException("maxStars should be a positive integer");
         } else if (starRating < 0.0f || starRating > maxStars) {
