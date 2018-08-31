@@ -12,7 +12,7 @@ class SemanticsOwner : ChangeNotifier() {
 //  final Set<SemanticsNode> _dirtyNodes = new Set<SemanticsNode>();
 //  final Map<int, SemanticsNode> _nodes = <int, SemanticsNode>{};
 //  final Set<SemanticsNode> _detachedNodes = new Set<SemanticsNode>();
-//  final Map<int, androidx.ui.semantics.CustomSemanticsAction> _actions = <int, androidx.ui.semantics.CustomSemanticsAction>{};
+//  final Map<int, CustomSemanticsAction> _actions = <int, CustomSemanticsAction>{};
 //
 //  /// The root node of the semantics tree, if any.
 //  ///
@@ -69,7 +69,7 @@ class SemanticsOwner : ChangeNotifier() {
 //    }
 //    _dirtyNodes.clear();
 //    for (int actionId in customSemanticsActionIds) {
-//      final androidx.ui.semantics.CustomSemanticsAction action = androidx.ui.semantics.CustomSemanticsAction.getAction(actionId);
+//      final CustomSemanticsAction action = CustomSemanticsAction.getAction(actionId);
 //      builder.updateCustomAction(id: actionId, label: action.label, hint: action.hint, overrideId: action.action?.index ?? -1);
 //    }
 //    ui.window.updateSemantics(builder.build());

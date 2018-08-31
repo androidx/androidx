@@ -133,7 +133,7 @@ class SemanticsProperties(
     // /
     // / See also:
     // /   * [SemanticsFlag.liveRegion], the semantics flag this setting controls.
-    // /   * [androidx.ui.semantics.SemanticsConfiguration.liveRegion], for a full description of a live region.
+    // /   * [SemanticsConfiguration.liveRegion], for a full description of a live region.
     // /   * [UpdateLiveRegionEvent], to trigger a polite announcement of a live region.
     val liveRegion: Boolean? = null,
     // / Provides a textual description of the widget.
@@ -143,7 +143,7 @@ class SemanticsProperties(
     // /
     // / See also:
     // /
-    // /  * [androidx.ui.semantics.SemanticsConfiguration.label] for a description of how this is exposed
+    // /  * [SemanticsConfiguration.label] for a description of how this is exposed
     // /    in TalkBack and VoiceOver.
     val label: String? = null,
     // / Provides a textual description of the value of the widget.
@@ -153,7 +153,7 @@ class SemanticsProperties(
     // /
     // / See also:
     // /
-    // /  * [androidx.ui.semantics.SemanticsConfiguration.value] for a description of how this is exposed
+    // /  * [SemanticsConfiguration.value] for a description of how this is exposed
     // /    in TalkBack and VoiceOver.
     val value: String? = null,
     // / The value that [value] will become after a [SemanticsAction.increase]
@@ -165,7 +165,7 @@ class SemanticsProperties(
     // /
     // / See also:
     // /
-    // /  * [androidx.ui.semantics.SemanticsConfiguration.increasedValue] for a description of how this
+    // /  * [SemanticsConfiguration.increasedValue] for a description of how this
     // /    is exposed in TalkBack and VoiceOver.
     val increasedValue: String? = null,
     // / The value that [value] will become after a [SemanticsAction.decrease]
@@ -177,7 +177,7 @@ class SemanticsProperties(
     // /
     // / See also:
     // /
-    // /  * [androidx.ui.semantics.SemanticsConfiguration.decreasedValue] for a description of how this
+    // /  * [SemanticsConfiguration.decreasedValue] for a description of how this
     // /    is exposed in TalkBack and VoiceOver.
     val decreasedValue: String? = null,
     // / Provides a brief textual description of the result of an action performed
@@ -188,7 +188,7 @@ class SemanticsProperties(
     // /
     // / See also:
     // /
-    // /  * [androidx.ui.semantics.SemanticsConfiguration.hint] for a description of how this is exposed
+    // /  * [SemanticsConfiguration.hint] for a description of how this is exposed
     // /    in TalkBack and VoiceOver.
     val hint: String? = null,
     // / Provides hint values which override the default hints on supported
@@ -392,7 +392,7 @@ class SemanticsProperties(
     // / menu, and VoiceOver users on iOS can trigger this action with a standard
     // / gesture or menu option.
     val onDismiss: VoidCallback? = null,
-    // / A map from each supported [androidx.ui.semantics.CustomSemanticsAction] to a provided handler.
+    // / A map from each supported [CustomSemanticsAction] to a provided handler.
     // /
     // / The handler associated with each custom action is called whenever a
     // / semantics event of type [SemanticsEvent.customEvent] is received. The
@@ -401,7 +401,7 @@ class SemanticsProperties(
     // /
     // / See also:
     // /
-    // /   * [androidx.ui.semantics.CustomSemanticsAction], for an explanation of custom actions.
+    // /   * [CustomSemanticsAction], for an explanation of custom actions.
     val customSemanticsActions: Map<CustomSemanticsAction, VoidCallback>? = null
 ) : DiagnosticableTree {
 //
@@ -414,8 +414,8 @@ class SemanticsProperties(
 //    properties.add(new StringProperty('value', value));
 //    properties.add(new StringProperty('hint', hint));
 //    properties.add(new EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
-//    properties.add(new DiagnosticsProperty<androidx.ui.semantics.SemanticsSortKey>('sortKey', sortKey, defaultValue: null));
-//    properties.add(new DiagnosticsProperty<androidx.ui.semantics.SemanticsHintOverrides>('hintOverrides', hintOverrides));
+//    properties.add(new DiagnosticsProperty<SemanticsSortKey>('sortKey', sortKey, defaultValue: null));
+//    properties.add(new DiagnosticsProperty<SemanticsHintOverrides>('hintOverrides', hintOverrides));
 //  }
 //
 //  @override

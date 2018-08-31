@@ -98,7 +98,7 @@ data class SemanticsData(
     // /  * [ScrollPosition.minScrollExtent], from where this value is usually taken.
     val scrollExtentMin: Double,
 
-    // / The set of [androidx.ui.semantics.SemanticsTag]s associated with this node.
+    // / The set of [SemanticsTag]s associated with this node.
     val tags: Set<SemanticsTag>,
 
     // / The transform from this node's coordinate system to its parent's coordinate system.
@@ -115,7 +115,7 @@ data class SemanticsData(
     // /
     // / See also:
     // /
-    // /   * [androidx.ui.semantics.CustomSemanticsAction], for an explanation of custom actions.
+    // /   * [CustomSemanticsAction], for an explanation of custom actions.
     val customSemanticsActionIds: List<Int>
 ) : Diagnosticable {
 
@@ -160,7 +160,7 @@ data class SemanticsData(
 //        actionSummary.add(describeEnum(action));
 //    }
 //    final List<String> customSemanticsActionSummary = customSemanticsActionIds
-//      .map<String>((int actionId) => androidx.ui.semantics.CustomSemanticsAction.getAction(actionId).label)
+//      .map<String>((int actionId) => CustomSemanticsAction.getAction(actionId).label)
 //      .toList();
 //    properties.add(new IterableProperty<String>('actions', actionSummary, ifEmpty: null));
 //    properties.add(new IterableProperty<String>('customActions', customSemanticsActionSummary, ifEmpty: null));

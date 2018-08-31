@@ -31,7 +31,7 @@ import androidx.ui.foundation.diagnostics.Diagnosticable
 // / See Also:
 // /
 // /  * [SemanticsSortOrder] which manages a list of sort keys.
-// /  * [androidx.ui.semantics.OrdinalSortKey] for a sort key that sorts using an ordinal.
+// /  * [OrdinalSortKey] for a sort key that sorts using an ordinal.
 abstract class SemanticsSortKey(
     // / An optional name that will make this sort key only order itself
     // / with respect to other sort keys of the same [name], as long as

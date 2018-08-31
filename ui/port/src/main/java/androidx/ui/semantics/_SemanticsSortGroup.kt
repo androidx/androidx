@@ -16,7 +16,7 @@ private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
 //  /// The offset from the start edge of the parent [SemanticsNode] in the
 //  /// direction of the traversal.
 //  ///
-//  /// This value is equal to the [androidx.ui.semantics._BoxEdge.offset] of the first node in the
+//  /// This value is equal to the [_BoxEdge.offset] of the first node in the
 //  /// [nodes] list being considered.
 //  final double startOffset;
 //
@@ -35,14 +35,14 @@ private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
 //  /// This method breaks up this group into horizontal [_SemanticsSortGroup]s
 //  /// then sorts them using [sortedWithinKnot].
 //  List<SemanticsNode> sortedWithinVerticalGroup() {
-//    final List<androidx.ui.semantics._BoxEdge> edges = <androidx.ui.semantics._BoxEdge>[];
+//    final List<_BoxEdge> edges = <_BoxEdge>[];
 //    for (SemanticsNode child in nodes) {
-//      edges.add(new androidx.ui.semantics._BoxEdge(
+//      edges.add(new _BoxEdge(
 //        isLeadingEdge: true,
 //        offset: _pointInParentCoordinates(child, child.rect.topLeft).dx,
 //        node: child,
 //      ));
-//      edges.add(new androidx.ui.semantics._BoxEdge(
+//      edges.add(new _BoxEdge(
 //        isLeadingEdge: false,
 //        offset: _pointInParentCoordinates(child, child.rect.bottomRight).dx,
 //        node: child,
@@ -53,7 +53,7 @@ private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
 //    List<_SemanticsSortGroup> horizontalGroups = <_SemanticsSortGroup>[];
 //    _SemanticsSortGroup group;
 //    int depth = 0;
-//    for (androidx.ui.semantics._BoxEdge edge in edges) {
+//    for (_BoxEdge edge in edges) {
 //      if (edge.isLeadingEdge) {
 //        depth += 1;
 //        group ??= new _SemanticsSortGroup(

@@ -1,3 +1,4 @@
+import androidx.ui.text.TextDirection
 import androidx.ui.text.TextSelection
 
 // //import 'dart:math' as math;
@@ -35,26 +36,22 @@ typealias SetSelectionHandler = (selection: TextSelection) -> Unit
 
 typealias _SemanticsActionHandler = (args: Any?) -> Unit
 
-// String _concatStrings({
-//  @required String thisString,
-//  @required String otherString,
-//  @required TextDirection thisTextDirection,
-//  @required TextDirection otherTextDirection
-// }) {
-//  if (otherString.isEmpty)
-//    return thisString;
-//  String nestedLabel = otherString;
-//  if (thisTextDirection != otherTextDirection && otherTextDirection != null) {
-//    switch (otherTextDirection) {
-//      case TextDirection.rtl:
-//        nestedLabel = '${Unicode.RLE}$nestedLabel${Unicode.PDF}';
-//        break;
-//      case TextDirection.ltr:
-//        nestedLabel = '${Unicode.LRE}$nestedLabel${Unicode.PDF}';
-//        break;
-//    }
-//  }
-//  if (thisString.isEmpty)
-//    return nestedLabel;
-//  return '$thisString\n$nestedLabel';
-// }
+fun _concatStrings(
+    thisString: String,
+    otherString: String,
+    thisTextDirection: TextDirection,
+    otherTextDirection: TextDirection
+): String {
+    if (otherString.isEmpty())
+        return thisString
+    var nestedLabel = otherString
+    if (thisTextDirection != otherTextDirection && otherTextDirection != null) {
+        nestedLabel = when (otherTextDirection) {
+            TextDirection.RTL -> "${Unicode.RLE}$nestedLabel${Unicode.PDF}"
+            TextDirection.LTR -> "${Unicode.LRE}$nestedLabel${Unicode.PDF}"
+        }
+    }
+    if (thisString.isEmpty())
+        return nestedLabel
+    return "$thisString\n$nestedLabel"
+}

@@ -1,6 +1,6 @@
 package androidx.ui.semantics
 
-// / A [androidx.ui.semantics.SemanticsSortKey] that sorts simply based on the `double` value it is
+// / A [SemanticsSortKey] that sorts simply based on the `double` value it is
 // / given.
 // /
 // / The [OrdinalSortKey] compares itself with other [OrdinalSortKey]s

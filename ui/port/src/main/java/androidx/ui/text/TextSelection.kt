@@ -8,20 +8,38 @@ package androidx.ui.text
 
 // / A range of text that represents a selection.
 // @immutable
-class TextSelection : TextRange() {
+data class TextSelection(
+    // / The offset at which the selection originates.
+    // /
+    // / Might be larger than, smaller than, or equal to extent.
+    val baseOffset: Int,
+
+    // / The offset at which the selection terminates.
+    // /
+    // / When the user uses the arrow keys to adjust the selection, this is the
+    // / value that changes. Similarly, if the current theme paints a caret on one
+    // / side of the selection, this is the location at which to paint the caret.
+    // /
+    // / Might be larger than, smaller than, or equal to base.
+    val extentOffset: Int,
+
+    // / If the text range is collapsed and has more than one visual location
+    // / (e.g., occurs at a line break), which of the two locations to use when
+    // / painting the caret.
+    val affinity: TextAffinity = TextAffinity.downstream,
+
+    // / Whether this selection has disambiguated its base and extent.
+    // /
+    // / On some platforms, the base and extent are not disambiguated until the
+    // / first time the user adjusts the selection. At that point, either the start
+    // / or the end of the selection becomes the base and the other one becomes the
+    // / extent and is adjusted.
+    val isDirectional: Boolean = false
+) : TextRange(
+    start = if (baseOffset < extentOffset) baseOffset else extentOffset,
+    end = if (baseOffset < extentOffset) extentOffset else baseOffset
+) {
     // TODO(Migration/ryanmentley): Migrate to data class
-//  /// Creates a text selection.
-//  ///
-//  /// The [baseOffset] and [extentOffset] arguments must not be null.
-//  const TextSelection({
-//    @required this.baseOffset,
-//    @required this.extentOffset,
-//    this.affinity = TextAffinity.downstream,
-//    this.isDirectional = false
-//  }) : super(
-//         start: baseOffset < extentOffset ? baseOffset : extentOffset,
-//         end: baseOffset < extentOffset ? extentOffset : baseOffset
-//       );
 //
 //  /// Creates a collapsed selection at the given offset.
 //  ///
@@ -47,32 +65,7 @@ class TextSelection : TextRange() {
 //      isDirectional = false,
 //      super.collapsed(position.offset);
 //
-//  /// The offset at which the selection originates.
-//  ///
-//  /// Might be larger than, smaller than, or equal to extent.
-//  final int baseOffset;
-//
-//  /// The offset at which the selection terminates.
-//  ///
-//  /// When the user uses the arrow keys to adjust the selection, this is the
-//  /// value that changes. Similarly, if the current theme paints a caret on one
-//  /// side of the selection, this is the location at which to paint the caret.
-//  ///
-//  /// Might be larger than, smaller than, or equal to base.
-//  final int extentOffset;
-//
-//  /// If the text range is collapsed and has more than one visual location
-//  /// (e.g., occurs at a line break), which of the two locations to use when
-//  /// painting the caret.
-//  final TextAffinity affinity;
-//
-//  /// Whether this selection has disambiguated its base and extent.
-//  ///
-//  /// On some platforms, the base and extent are not disambiguated until the
-//  /// first time the user adjusts the selection. At that point, either the start
-//  /// or the end of the selection becomes the base and the other one becomes the
-//  /// extent and is adjusted.
-//  final bool isDirectional;
+
 //
 //  /// The position at which the selection originates.
 //  ///

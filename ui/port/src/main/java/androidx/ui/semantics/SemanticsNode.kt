@@ -38,7 +38,7 @@ class SemanticsNode : AbstractNode(),
 //  SemanticsNode.root({
 //    this.key,
 //    VoidCallback showOnScreen,
-//    androidx.ui.semantics.SemanticsOwner owner
+//    SemanticsOwner owner
 //  }) : id = 0,
 //       _showOnScreen = showOnScreen {
 //    attach(owner);
@@ -319,7 +319,7 @@ class SemanticsNode : AbstractNode(),
 //  // AbstractNode OVERRIDES
 //
 //  @override
-//  androidx.ui.semantics.SemanticsOwner get owner => super.owner;
+//  SemanticsOwner get owner => super.owner;
 //
 //  @override
 //  SemanticsNode get parent => super.parent;
@@ -330,7 +330,7 @@ class SemanticsNode : AbstractNode(),
 //  }
 //
 //  @override
-//  void attach(androidx.ui.semantics.SemanticsOwner owner) {
+//  void attach(SemanticsOwner owner) {
 //    super.attach(owner);
 //    assert(!owner._nodes.containsKey(id));
 //    owner._nodes[id] = this;
@@ -380,7 +380,7 @@ class SemanticsNode : AbstractNode(),
 //    }
 //  }
 //
-//  bool _isDifferentFromCurrentSemanticAnnotation(androidx.ui.semantics.SemanticsConfiguration config) {
+//  bool _isDifferentFromCurrentSemanticAnnotation(SemanticsConfiguration config) {
 //    return _label != config.label ||
 //        _hint != config.hint ||
 //        _decreasedValue != config.decreasedValue ||
@@ -400,18 +400,18 @@ class SemanticsNode : AbstractNode(),
 //  // TAGS, LABELS, ACTIONS
 //
 //  Map<SemanticsAction, _SemanticsActionHandler> _actions = _kEmptyConfig._actions;
-//  Map<androidx.ui.semantics.CustomSemanticsAction, VoidCallback> _customSemanticsActions = _kEmptyConfig._customSemanticsActions;
+//  Map<CustomSemanticsAction, VoidCallback> _customSemanticsActions = _kEmptyConfig._customSemanticsActions;
 //
 //  int _actionsAsBits = _kEmptyConfig._actionsAsBits;
 //
-//  /// The [androidx.ui.semantics.SemanticsTag]s this node is tagged with.
+//  /// The [SemanticsTag]s this node is tagged with.
 //  ///
 //  /// Tags are used during the construction of the semantics tree. They are not
 //  /// transferred to the engine.
-//  Set<androidx.ui.semantics.SemanticsTag> tags;
+//  Set<SemanticsTag> tags;
 //
 //  /// Whether this node is tagged with `tag`.
-//  bool isTagged(androidx.ui.semantics.SemanticsTag tag) => tags != null && tags.contains(tag);
+//  bool isTagged(SemanticsTag tag) => tags != null && tags.contains(tag);
 //
 //  int _flags = _kEmptyConfig._flags;
 //
@@ -457,8 +457,8 @@ class SemanticsNode : AbstractNode(),
 //
 //  /// Provides hint values which override the default hints on supported
 //  /// platforms.
-//  androidx.ui.semantics.SemanticsHintOverrides get hintOverrides => _hintOverrides;
-//  androidx.ui.semantics.SemanticsHintOverrides _hintOverrides;
+//  SemanticsHintOverrides get hintOverrides => _hintOverrides;
+//  SemanticsHintOverrides _hintOverrides;
 //
 //  /// The reading direction for [label], [value], [hint], [increasedValue], and
 //  /// [decreasedValue].
@@ -471,8 +471,8 @@ class SemanticsNode : AbstractNode(),
 //  /// This is used to describe the order in which the semantic node should be
 //  /// traversed by the accessibility services on the platform (e.g. VoiceOver
 //  /// on iOS and TalkBack on Android).
-//  androidx.ui.semantics.SemanticsSortKey get sortKey => _sortKey;
-//  androidx.ui.semantics.SemanticsSortKey _sortKey;
+//  SemanticsSortKey get sortKey => _sortKey;
+//  SemanticsSortKey _sortKey;
 //
 //  /// The currently selected text (or the position of the cursor) within [value]
 //  /// if this node represents a text field.
@@ -517,7 +517,7 @@ class SemanticsNode : AbstractNode(),
 //
 //  bool _canPerformAction(SemanticsAction action) => _actions.containsKey(action);
 //
-//  static final androidx.ui.semantics.SemanticsConfiguration _kEmptyConfig = new androidx.ui.semantics.SemanticsConfiguration();
+//  static final SemanticsConfiguration _kEmptyConfig = new SemanticsConfiguration();
 //
 //  /// Reconfigures the properties of this object to describe the configuration
 //  /// provided in the `config` argument and the children listed in the
@@ -526,10 +526,10 @@ class SemanticsNode : AbstractNode(),
 //  /// The arguments may be null; this represents an empty configuration (all
 //  /// values at their defaults, no children).
 //  ///
-//  /// No reference is kept to the [androidx.ui.semantics.SemanticsConfiguration] object, but the child
+//  /// No reference is kept to the [SemanticsConfiguration] object, but the child
 //  /// list is used as-is and should therefore not be changed after this call.
 //  void updateWith({
-//    @required androidx.ui.semantics.SemanticsConfiguration config,
+//    @required SemanticsConfiguration config,
 //    List<SemanticsNode> childrenInInversePaintOrder,
 //  }) {
 //    config ??= _kEmptyConfig;
@@ -546,7 +546,7 @@ class SemanticsNode : AbstractNode(),
 //    _textDirection = config.textDirection;
 //    _sortKey = config.sortKey;
 //    _actions = new Map<SemanticsAction, _SemanticsActionHandler>.from(config._actions);
-//    _customSemanticsActions = new Map<androidx.ui.semantics.CustomSemanticsAction, VoidCallback>.from(config._customSemanticsActions);
+//    _customSemanticsActions = new Map<CustomSemanticsAction, VoidCallback>.from(config._customSemanticsActions);
 //    _actionsAsBits = config._actionsAsBits;
 //    _textSelection = config._textSelection;
 //    _scrollPosition = config._scrollPosition;
@@ -571,7 +571,7 @@ class SemanticsNode : AbstractNode(),
 //  /// If this node has [mergeAllDescendantsIntoThisNode], then the returned data
 //  /// includes the information from this node's descendants. Otherwise, the
 //  /// returned data matches the data on this node.
-//  androidx.ui.semantics.SemanticsData getSemanticsData() {
+//  SemanticsData getSemanticsData() {
 //    int flags = _flags;
 //    int actions = _actionsAsBits;
 //    String label = _label;
@@ -580,28 +580,28 @@ class SemanticsNode : AbstractNode(),
 //    String increasedValue = _increasedValue;
 //    String decreasedValue = _decreasedValue;
 //    TextDirection textDirection = _textDirection;
-//    Set<androidx.ui.semantics.SemanticsTag> mergedTags = tags == null ? null : new Set<androidx.ui.semantics.SemanticsTag>.from(tags);
+//    Set<SemanticsTag> mergedTags = tags == null ? null : new Set<SemanticsTag>.from(tags);
 //    TextSelection textSelection = _textSelection;
 //    double scrollPosition = _scrollPosition;
 //    double scrollExtentMax = _scrollExtentMax;
 //    double scrollExtentMin = _scrollExtentMin;
 //    final Set<int> customSemanticsActionIds = new Set<int>();
-//    for (androidx.ui.semantics.CustomSemanticsAction action in _customSemanticsActions.keys)
-//      customSemanticsActionIds.add(androidx.ui.semantics.CustomSemanticsAction.getIdentifier(action));
+//    for (CustomSemanticsAction action in _customSemanticsActions.keys)
+//      customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action));
 //    if (hintOverrides != null) {
 //      if (hintOverrides.onTapHint != null) {
-//        final androidx.ui.semantics.CustomSemanticsAction action = new androidx.ui.semantics.CustomSemanticsAction.overridingAction(
+//        final CustomSemanticsAction action = new CustomSemanticsAction.overridingAction(
 //          hint: hintOverrides.onTapHint,
 //          action: SemanticsAction.tap,
 //        );
-//        customSemanticsActionIds.add(androidx.ui.semantics.CustomSemanticsAction.getIdentifier(action));
+//        customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action));
 //      }
 //      if (hintOverrides.onLongPressHint != null) {
-//        final androidx.ui.semantics.CustomSemanticsAction action = new androidx.ui.semantics.CustomSemanticsAction.overridingAction(
+//        final CustomSemanticsAction action = new CustomSemanticsAction.overridingAction(
 //          hint: hintOverrides.onLongPressHint,
 //          action: SemanticsAction.longPress,
 //        );
-//        customSemanticsActionIds.add(androidx.ui.semantics.CustomSemanticsAction.getIdentifier(action));
+//        customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action));
 //      }
 //    }
 //
@@ -622,27 +622,27 @@ class SemanticsNode : AbstractNode(),
 //        if (decreasedValue == '' || decreasedValue == null)
 //          decreasedValue = node._decreasedValue;
 //        if (node.tags != null) {
-//          mergedTags ??= new Set<androidx.ui.semantics.SemanticsTag>();
+//          mergedTags ??= new Set<SemanticsTag>();
 //          mergedTags.addAll(node.tags);
 //        }
 //        if (node._customSemanticsActions != null) {
-//          for (androidx.ui.semantics.CustomSemanticsAction action in _customSemanticsActions.keys)
-//            customSemanticsActionIds.add(androidx.ui.semantics.CustomSemanticsAction.getIdentifier(action));
+//          for (CustomSemanticsAction action in _customSemanticsActions.keys)
+//            customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action));
 //        }
 //        if (node.hintOverrides != null) {
 //          if (node.hintOverrides.onTapHint != null) {
-//            final androidx.ui.semantics.CustomSemanticsAction action = new androidx.ui.semantics.CustomSemanticsAction.overridingAction(
+//            final CustomSemanticsAction action = new CustomSemanticsAction.overridingAction(
 //              hint: node.hintOverrides.onTapHint,
 //              action: SemanticsAction.tap,
 //            );
-//            customSemanticsActionIds.add(androidx.ui.semantics.CustomSemanticsAction.getIdentifier(action));
+//            customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action));
 //          }
 //          if (node.hintOverrides.onLongPressHint != null) {
-//            final androidx.ui.semantics.CustomSemanticsAction action = new androidx.ui.semantics.CustomSemanticsAction.overridingAction(
+//            final CustomSemanticsAction action = new CustomSemanticsAction.overridingAction(
 //              hint: node.hintOverrides.onLongPressHint,
 //              action: SemanticsAction.longPress,
 //            );
-//            customSemanticsActionIds.add(androidx.ui.semantics.CustomSemanticsAction.getIdentifier(action));
+//            customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action));
 //          }
 //        }
 //        label = _concatStrings(
@@ -661,7 +661,7 @@ class SemanticsNode : AbstractNode(),
 //      });
 //    }
 //
-//    return new androidx.ui.semantics.SemanticsData(
+//    return new SemanticsData(
 //      flags: flags,
 //      actions: actions,
 //      label: label,
@@ -691,7 +691,7 @@ class SemanticsNode : AbstractNode(),
 //
 //  void _addToUpdate(ui.SemanticsUpdateBuilder builder, Set<int> customSemanticsActionIdsUpdate) {
 //    assert(_dirty);
-//    final androidx.ui.semantics.SemanticsData data = getSemanticsData();
+//    final SemanticsData data = getSemanticsData();
 //    Int32List childrenInTraversalOrder;
 //    Int32List childrenInHitTestOrder;
 //    if (!hasChildren || mergeAllDescendantsIntoThisNode) {
@@ -764,12 +764,12 @@ class SemanticsNode : AbstractNode(),
 //    // first partitioned into groups that have compatible sort keys, i.e. keys
 //    // in the same group can be compared to each other. These groups stay in
 //    // the same place. Only children within the same group are sorted.
-//    final List<androidx.ui.semantics._TraversalSortNode> everythingSorted = <androidx.ui.semantics._TraversalSortNode>[];
-//    final List<androidx.ui.semantics._TraversalSortNode> sortNodes = <androidx.ui.semantics._TraversalSortNode>[];
-//    androidx.ui.semantics.SemanticsSortKey lastSortKey;
+//    final List<_TraversalSortNode> everythingSorted = <_TraversalSortNode>[];
+//    final List<_TraversalSortNode> sortNodes = <_TraversalSortNode>[];
+//    SemanticsSortKey lastSortKey;
 //    for (int position = 0; position < childrenInDefaultOrder.length; position += 1) {
 //      final SemanticsNode child = childrenInDefaultOrder[position];
-//      final androidx.ui.semantics.SemanticsSortKey sortKey = child.sortKey;
+//      final SemanticsSortKey sortKey = child.sortKey;
 //      lastSortKey = position > 0
 //          ? childrenInDefaultOrder[position - 1].sortKey
 //          : null;
@@ -786,7 +786,7 @@ class SemanticsNode : AbstractNode(),
 //        sortNodes.clear();
 //      }
 //
-//      sortNodes.add(new androidx.ui.semantics._TraversalSortNode(
+//      sortNodes.add(new _TraversalSortNode(
 //        node: child,
 //        sortKey: sortKey,
 //        position: position,
@@ -801,7 +801,7 @@ class SemanticsNode : AbstractNode(),
 //    everythingSorted.addAll(sortNodes);
 //
 //    return everythingSorted
-//      .map<SemanticsNode>((androidx.ui.semantics._TraversalSortNode sortNode) => sortNode.node)
+//      .map<SemanticsNode>((_TraversalSortNode sortNode) => sortNode.node)
 //      .toList();
 //  }
 //
@@ -832,7 +832,7 @@ class SemanticsNode : AbstractNode(),
 //      properties.add(new FlagProperty('inDirtyNodes', value: inDirtyNodes, ifTrue: 'dirty', ifFalse: 'STALE'));
 //      hideOwner = inDirtyNodes;
 //    }
-//    properties.add(new DiagnosticsProperty<androidx.ui.semantics.SemanticsOwner>('owner', owner, level: hideOwner ? DiagnosticLevel.hidden : DiagnosticLevel.info));
+//    properties.add(new DiagnosticsProperty<SemanticsOwner>('owner', owner, level: hideOwner ? DiagnosticLevel.hidden : DiagnosticLevel.info));
 //    properties.add(new FlagProperty('isMergedIntoParent', value: isMergedIntoParent, ifTrue: 'merged up ⬆️'));
 //    properties.add(new FlagProperty('mergeAllDescendantsIntoThisNode', value: mergeAllDescendantsIntoThisNode, ifTrue: 'merge boundary ⛔️'));
 //    final Offset offset = transform != null ? MatrixUtils.getAsTranslation(transform) : null;
@@ -851,7 +851,7 @@ class SemanticsNode : AbstractNode(),
 //    }
 //    final List<String> actions = _actions.keys.map((SemanticsAction action) => describeEnum(action)).toList()..sort();
 //    final List<String> customSemanticsActions = _customSemanticsActions.keys
-//      .map<String>((androidx.ui.semantics.CustomSemanticsAction action) => action.label)
+//      .map<String>((CustomSemanticsAction action) => action.label)
 //      .toList();
 //    properties.add(new IterableProperty<String>('actions', actions, ifEmpty: null));
 //    properties.add(new IterableProperty<String>('customActions', customSemanticsActions, ifEmpty: null));
@@ -865,7 +865,7 @@ class SemanticsNode : AbstractNode(),
 //    properties.add(new StringProperty('decreasedValue', _decreasedValue, defaultValue: ''));
 //    properties.add(new StringProperty('hint', _hint, defaultValue: ''));
 //    properties.add(new EnumProperty<TextDirection>('textDirection', _textDirection, defaultValue: null));
-//    properties.add(new DiagnosticsProperty<androidx.ui.semantics.SemanticsSortKey>('sortKey', sortKey, defaultValue: null));
+//    properties.add(new DiagnosticsProperty<SemanticsSortKey>('sortKey', sortKey, defaultValue: null));
 //    if (_textSelection?.isValid == true)
 //      properties.add(new MessageProperty('text selection', '[${_textSelection.start}, ${_textSelection.end}]'));
 //    properties.add(new DoubleProperty('scrollExtentMin', scrollExtentMin, defaultValue: null));
@@ -913,7 +913,7 @@ class SemanticsNode : AbstractNode(),
         childOrder: DebugSemanticsDumpOrder
     ): DiagnosticsNode {
         TODO("Not implemented")
-//    return new androidx.ui.semantics._SemanticsDiagnosticableNode(
+//    return new _SemanticsDiagnosticableNode(
 //      name: name,
 //      value: this,
 //      style: style,
@@ -937,15 +937,15 @@ class SemanticsNode : AbstractNode(),
     }
 
 //  /// Returns the list of direct children of this node in the specified order.
-//  List<SemanticsNode> debugListChildrenInOrder(androidx.ui.semantics.DebugSemanticsDumpOrder childOrder) {
+//  List<SemanticsNode> debugListChildrenInOrder(DebugSemanticsDumpOrder childOrder) {
 //    assert(childOrder != null);
 //    if (_children == null)
 //      return const <SemanticsNode>[];
 //
 //    switch (childOrder) {
-//      case androidx.ui.semantics.DebugSemanticsDumpOrder.inverseHitTest:
+//      case DebugSemanticsDumpOrder.inverseHitTest:
 //        return _children;
-//      case androidx.ui.semantics.DebugSemanticsDumpOrder.traversalOrder:
+//      case DebugSemanticsDumpOrder.traversalOrder:
 //        return _childrenInTraversalOrder();
 //    }
 //    assert(false);

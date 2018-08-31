@@ -15,21 +15,21 @@ package androidx.ui.semantics
 // ///
 // /// The algorithm first breaks up children into groups such that no two nodes
 // /// from different groups overlap vertically. These groups are sorted vertically
-// /// according to their [androidx.ui.semantics._SemanticsSortGroup.startOffset].
+// /// according to their [_SemanticsSortGroup.startOffset].
 // ///
 // /// Within each group, the nodes are sorted using
-// /// [androidx.ui.semantics._SemanticsSortGroup.sortedWithinVerticalGroup].
+// /// [_SemanticsSortGroup.sortedWithinVerticalGroup].
 // ///
 // /// For an illustration of the algorithm see http://bit.ly/flutter-default-traversal.
 // List<SemanticsNode> _childrenInDefaultOrder(List<SemanticsNode> children, TextDirection textDirection) {
-//  final List<androidx.ui.semantics._BoxEdge> edges = <androidx.ui.semantics._BoxEdge>[];
+//  final List<_BoxEdge> edges = <_BoxEdge>[];
 //  for (SemanticsNode child in children) {
-//    edges.add(new androidx.ui.semantics._BoxEdge(
+//    edges.add(new _BoxEdge(
 //      isLeadingEdge: true,
 //      offset: _pointInParentCoordinates(child, child.rect.topLeft).dy,
 //      node: child,
 //    ));
-//    edges.add(new androidx.ui.semantics._BoxEdge(
+//    edges.add(new _BoxEdge(
 //      isLeadingEdge: false,
 //      offset: _pointInParentCoordinates(child, child.rect.bottomRight).dy,
 //      node: child,
@@ -37,13 +37,13 @@ package androidx.ui.semantics
 //  }
 //  edges.sort();
 //
-//  final List<androidx.ui.semantics._SemanticsSortGroup> verticalGroups = <androidx.ui.semantics._SemanticsSortGroup>[];
-//  androidx.ui.semantics._SemanticsSortGroup group;
+//  final List<_SemanticsSortGroup> verticalGroups = <_SemanticsSortGroup>[];
+//  _SemanticsSortGroup group;
 //  int depth = 0;
-//  for (androidx.ui.semantics._BoxEdge edge in edges) {
+//  for (_BoxEdge edge in edges) {
 //    if (edge.isLeadingEdge) {
 //      depth += 1;
-//      group ??= new androidx.ui.semantics._SemanticsSortGroup(
+//      group ??= new _SemanticsSortGroup(
 //        startOffset: edge.offset,
 //        textDirection: textDirection,
 //      );
@@ -59,7 +59,7 @@ package androidx.ui.semantics
 //  verticalGroups.sort();
 //
 //  final List<SemanticsNode> result = <SemanticsNode>[];
-//  for (androidx.ui.semantics._SemanticsSortGroup group in verticalGroups) {
+//  for (_SemanticsSortGroup group in verticalGroups) {
 //    final List<SemanticsNode> sortedGroupNodes = group.sortedWithinVerticalGroup();
 //    result.addAll(sortedGroupNodes);
 //  }
@@ -92,7 +92,7 @@ private class _TraversalSortNode : Comparable<_TraversalSortNode> {
 //  ///
 //  /// Sort keys take precedence over other attributes, such as
 //  /// [position].
-//  final androidx.ui.semantics.SemanticsSortKey sortKey;
+//  final SemanticsSortKey sortKey;
 //
 //  /// Position within the list of siblings as determined by the default sort
 //  /// order.

@@ -21,10 +21,34 @@ package androidx.ui.semantics
 // /
 // / See also:
 // /
-// /   * [androidx.ui.semantics.SemanticsProperties], where the handler for a custom action is provided.
+// /   * [SemanticsProperties], where the handler for a custom action is provided.
 // @immutable
 class CustomSemanticsAction {
-//  /// Creates a new [CustomSemanticsAction].
+    companion object {
+        // Logic to assign a unique id to each custom action without requiring
+        // user specification.
+        var _nextId: Int = 0
+        val _actions: MutableMap<Int, CustomSemanticsAction> = mutableMapOf()
+        val _ids: MutableMap<CustomSemanticsAction, Int> = mutableMapOf()
+
+        // / Get the identifier for a given `action`.
+        fun getIdentifier(action: CustomSemanticsAction): Int {
+            var result = _ids[action]
+            if (result == null) {
+                result = _nextId++
+                _ids[action] = result
+                _actions[result] = action
+            }
+            return result
+        }
+
+        // / Get the `action` for a given identifier.
+        fun getAction(id: Int): CustomSemanticsAction? {
+            return _actions[id]
+        }
+    }
+
+    //  /// Creates a new [CustomSemanticsAction].
 //  ///
 //  /// The [label] must not be null or the empty string.
 //  const CustomSemanticsAction({@required this.label})
@@ -71,26 +95,4 @@ class CustomSemanticsAction {
         TODO("Not implemented")
         // return 'CustomSemanticsAction(${_ids[this]}, label:$label, hint:$hint, action:$action)';
     }
-
-//  // Logic to assign a unique id to each custom action without requiring
-//  // user specification.
-//  static int _nextId = 0;
-//  static final Map<int, CustomSemanticsAction> _actions = <int, CustomSemanticsAction>{};
-//  static final Map<CustomSemanticsAction, int> _ids = <CustomSemanticsAction, int>{};
-//
-//  /// Get the identifier for a given `action`.
-//  static int getIdentifier(CustomSemanticsAction action) {
-//    int result = _ids[action];
-//    if (result == null) {
-//      result = _nextId++;
-//      _ids[action] = result;
-//      _actions[result] = action;
-//    }
-//    return result;
-//  }
-//
-//  /// Get the `action` for a given identifier.
-//  static CustomSemanticsAction getAction(int id) {
-//    return _actions[id];
-//  }
 }
