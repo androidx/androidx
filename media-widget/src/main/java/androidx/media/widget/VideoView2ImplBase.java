@@ -127,7 +127,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     int mTargetState = STATE_IDLE;
     int mCurrentState = STATE_IDLE;
     long mSeekWhenPrepared;  // recording the seek position while preparing
-    float mSpeed;
 
     int mVideoWidth;
     int mVideoHeight;
@@ -178,9 +177,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                             .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                             .build();
                 }
-                if (mSpeed != mMediaSession.getPlaybackSpeed()) {
-                    mMediaSession.setPlaybackSpeed(mSpeed);
-                }
                 if (localPlaybackState == STATE_PLAYING) {
                     mMediaSession.play();
                 }
@@ -219,7 +215,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mVideoWidth = 0;
         mVideoHeight = 0;
         mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
-        mSpeed = 1.0f;
 
         mAudioAttributes = new AudioAttributesCompat.Builder()
                 .setUsage(AudioAttributesCompat.USAGE_MEDIA)
@@ -364,38 +359,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             throw new IllegalStateException("MediaSession2 instance is not available.");
         }
         return mMediaSession.getToken();
-    }
-
-    /**
-     * Sets playback speed.
-     *
-     * It is expressed as a multiplicative factor, where normal speed is 1.0f. If it is less than
-     * or equal to zero, it will be just ignored and nothing will be changed. If it exceeds the
-     * maximum speed that internal engine supports, system will determine best handling or it will
-     * be reset to the normal speed 1.0f.
-     * @param speed the playback speed. It should be positive.
-     */
-    @Override
-    public void setSpeed(float speed) {
-        if (speed <= 0.0f) {
-            Log.e(TAG, "Unsupported speed (" + speed + ") is ignored.");
-            return;
-        }
-        mSpeed = speed;
-        if (isMediaPrepared()) {
-            mMediaSession.setPlaybackSpeed(speed);
-        }
-    }
-
-    /**
-     * Returns playback speed.
-     *
-     * It returns the same value that has been set by {@link #setSpeed}, if it was available value.
-     * If {@link #setSpeed} has not been called before, then the normal speed 1.0f will be returned.
-     */
-    @Override
-    public float getSpeed() {
-        return mSpeed;
     }
 
     /**
@@ -1111,9 +1074,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         extractTracks();
                         extractMetadata();
                         sendMetadata();
-                        if (mSpeed != mMediaSession.getPlaybackSpeed()) {
-                            mMediaSession.setPlaybackSpeed(mSpeed);
-                        }
                     }
 
                     if (mMediaControlView != null) {
@@ -1295,20 +1255,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (DEBUG) {
                 Log.d(TAG, "onMediaPrepared() is called.");
             }
-        }
-
-        @Override
-        public void onPlaybackSpeedChanged(@NonNull MediaSession2 session,
-                 @NonNull MediaPlayerConnector player, float speed) {
-            if (session != mMediaSession) {
-                if (DEBUG) {
-                    Log.w(TAG, "onPlaybackSpeedChanged() is ignored. session is already gone.");
-                }
-            }
-            if (DEBUG) {
-                Log.d(TAG, "onPlaybackSpeedChanged is called. Speed: " + speed);
-            }
-            mSpeed = speed;
         }
     }
 }

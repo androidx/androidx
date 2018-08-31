@@ -35,11 +35,16 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.media.widget.MediaControlView2;
 import androidx.media.widget.VideoView2;
+import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
+import androidx.media2.SessionToken2;
 import androidx.media2.UriDataSourceDesc2;
+
+import java.util.concurrent.Executor;
 
 /**
  * Test application for VideoView2/MediaControlView2
@@ -58,6 +63,7 @@ public class VideoViewTest extends FragmentActivity {
     private float mSpeed = 1.0f;
 
     private MediaControlView2 mMediaControlView = null;
+    private MediaController2 mMediaController = null;
 
     private boolean mUseTextureView = false;
     private int mPrevWidth;
@@ -94,6 +100,10 @@ public class VideoViewTest extends FragmentActivity {
             mMediaControlView = new MediaControlView2(this);
             mVideoView.setMediaControlView2(mMediaControlView, 2000);
             mMediaControlView.setOnFullScreenListener(new FullScreenListener());
+            SessionToken2 token = mVideoView.getMediaSessionToken2();
+            Executor executor = MainHandlerExecutor.getExecutor(this);
+            mMediaController = new MediaController2(
+                    this, token, executor, new ControllerCallback());
         }
         if (errorString != null) {
             showErrorDialog(errorString);
@@ -116,13 +126,13 @@ public class VideoViewTest extends FragmentActivity {
     public boolean onTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             int screenWidth = getResources().getDisplayMetrics().widthPixels;
-            mSpeed = mVideoView.getSpeed();
+            mSpeed = mMediaController.getPlaybackSpeed();
             if (ev.getRawX() < (screenWidth / 2.0f)) {
                 mSpeed -= 0.1f;
             } else {
                 mSpeed += 0.1f;
             }
-            mVideoView.setSpeed(mSpeed);
+            mMediaController.setPlaybackSpeed(mSpeed);
             Toast.makeText(this, "speed rate: " + String.format("%.2f", mSpeed), Toast.LENGTH_SHORT)
                     .show();
         }
@@ -141,6 +151,14 @@ public class VideoViewTest extends FragmentActivity {
                                 finish();
                             }
                         }).show();
+    }
+
+    class ControllerCallback extends MediaController2.ControllerCallback {
+        @Override
+        public void onPlaybackSpeedChanged(
+                @NonNull MediaController2 controller, float speed) {
+            mSpeed = speed;
+        }
     }
 
     private class FullScreenListener
@@ -261,4 +279,5 @@ public class VideoViewTest extends FragmentActivity {
         }
         return "Unknown";
     }
+
 }

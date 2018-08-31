@@ -91,25 +91,6 @@ interface VideoView2Impl {
     SessionToken2 getMediaSessionToken2();
 
     /**
-     * Sets playback speed.
-     *
-     * It is expressed as a multiplicative factor, where normal speed is 1.0f. If it is less than
-     * or equal to zero, it will be just ignored and nothing will be changed. If it exceeds the
-     * maximum speed that internal engine supports, system will determine best handling or it will
-     * be reset to the normal speed 1.0f.
-     * @param speed the playback speed. It should be positive.
-     */
-    void setSpeed(float speed);
-
-    /**
-     * Returns playback speed.
-     *
-     * It returns the same value that has been set by {@link #setSpeed}, if it was available value.
-     * If {@link #setSpeed} has not been called before, then the normal speed 1.0f will be returned.
-     */
-    float getSpeed();
-
-    /**
      * Sets the {@link AudioAttributesCompat} to be used during the playback of the video.
      *
      * @param attributes non-null <code>AudioAttributesCompat</code>.

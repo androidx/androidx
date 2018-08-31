@@ -20,7 +20,6 @@ package androidx.media.widget {
     ctor public VideoView2(android.content.Context, android.util.AttributeSet, int);
     method public androidx.media.widget.MediaControlView2 getMediaControlView2();
     method public androidx.media2.SessionToken2 getMediaSessionToken2();
-    method public float getSpeed();
     method public int getViewType();
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
@@ -28,7 +27,6 @@ package androidx.media.widget {
     method public void setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public void setMediaControlView2(androidx.media.widget.MediaControlView2, long);
     method public void setMediaItem2(androidx.media2.MediaItem2);
-    method public void setSpeed(float);
     method public void setViewType(int);
     field public static final int VIEW_TYPE_SURFACEVIEW = 0; // 0x0
     field public static final int VIEW_TYPE_TEXTUREVIEW = 1; // 0x1

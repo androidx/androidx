@@ -397,7 +397,6 @@ class VideoView2ImplBaseWithMp1
      * be reset to the normal speed 1.0f.
      * @param speed the playback speed. It should be positive.
      */
-    @Override
     public void setSpeed(float speed) {
         if (speed <= 0.0f) {
             Log.e(TAG, "Unsupported speed (" + speed + ") is ignored.");
@@ -416,7 +415,6 @@ class VideoView2ImplBaseWithMp1
      * It returns the same value that has been set by {@link #setSpeed}, if it was available value.
      * If {@link #setSpeed} has not been called before, then the normal speed 1.0f will be returned.
      */
-    @Override
     public float getSpeed() {
         return mSpeed;
     }
