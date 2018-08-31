@@ -34,13 +34,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
+import androidx.activity.ComponentActivity;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.ComponentActivity;
 import androidx.core.app.SharedElementCallback;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -294,16 +294,6 @@ public class FragmentActivity extends ComponentActivity implements
             }
         }
         return mViewModelStore;
-    }
-
-    /**
-     * Returns the Lifecycle of the provider.
-     *
-     * @return The lifecycle of the provider.
-     */
-    @Override
-    public Lifecycle getLifecycle() {
-        return super.getLifecycle();
     }
 
     /**

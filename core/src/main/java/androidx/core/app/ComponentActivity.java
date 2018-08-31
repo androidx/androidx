@@ -19,19 +19,12 @@ package androidx.core.app;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
-import androidx.annotation.CallSuper;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.view.KeyEventDispatcher;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
-import androidx.lifecycle.ReportFragment;
 
 /**
  * Base class for activities that enables composition of higher level components.
@@ -44,7 +37,7 @@ import androidx.lifecycle.ReportFragment;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class ComponentActivity extends Activity
-        implements LifecycleOwner, KeyEventDispatcher.Component {
+        implements KeyEventDispatcher.Component {
     /**
      * Storage for {@link ExtraData} instances.
      *
@@ -52,8 +45,6 @@ public class ComponentActivity extends Activity
      */
     private SimpleArrayMap<Class<? extends ExtraData>, ExtraData> mExtraDataMap =
             new SimpleArrayMap<>();
-
-    private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
 
     /**
      * Store an instance of {@link ExtraData} for later retrieval by class name
@@ -69,20 +60,6 @@ public class ComponentActivity extends Activity
         mExtraDataMap.put(extraData.getClass(), extraData);
     }
 
-    @Override
-    @SuppressWarnings("RestrictedApi")
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ReportFragment.injectIfNeededIn(this);
-    }
-
-    @CallSuper
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
-        super.onSaveInstanceState(outState);
-    }
-
     /**
      * Retrieves a previously set {@link ExtraData} by class name.
      *
@@ -92,11 +69,6 @@ public class ComponentActivity extends Activity
     @RestrictTo(LIBRARY_GROUP)
     public <T extends ExtraData> T getExtraData(Class<T> extraDataClass) {
         return (T) mExtraDataMap.get(extraDataClass);
-    }
-
-    @Override
-    public Lifecycle getLifecycle() {
-        return mLifecycleRegistry;
     }
 
     /**
