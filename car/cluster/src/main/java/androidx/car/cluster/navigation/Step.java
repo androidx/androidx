@@ -21,10 +21,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -38,6 +41,8 @@ public final class Step implements VersionedParcelable {
     Distance mDistance;
     @ParcelField(2)
     Maneuver mManeuver;
+    @ParcelField(3)
+    List<Lane> mLanes;
 
     /**
      * Used by {@link VersionedParcelable}
@@ -52,9 +57,10 @@ public final class Step implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    Step(@Nullable Distance distance, @Nullable Maneuver maneuver) {
+    Step(@Nullable Distance distance, @Nullable Maneuver maneuver, @NonNull List<Lane> lanes) {
         mDistance = distance;
         mManeuver = maneuver;
+        mLanes = new ArrayList<>(lanes);
     }
 
     /**
@@ -63,6 +69,7 @@ public final class Step implements VersionedParcelable {
     public static final class Builder {
         Distance mDistance;
         Maneuver mManeuver;
+        List<Lane> mLanes = new ArrayList<>();
 
         /**
          * Sets the distance from the current position to the point where this navigation step
@@ -89,11 +96,22 @@ public final class Step implements VersionedParcelable {
         }
 
         /**
+         * Adds a road lane configuration to this step. Lanes should be added from left to right.
+         *
+         * @return this object for chaining
+         */
+        @NonNull
+        public Builder addLane(@NonNull Lane lane) {
+            mLanes.add(Preconditions.checkNotNull(lane));
+            return this;
+        }
+
+        /**
          * Returns a {@link Step} built with the provided information.
          */
         @NonNull
         public Step build() {
-            return new Step(mDistance, mManeuver);
+            return new Step(mDistance, mManeuver, mLanes);
         }
     }
 
@@ -115,6 +133,15 @@ public final class Step implements VersionedParcelable {
         return mManeuver;
     }
 
+    /**
+     * Returns the configuration of all road lanes at the point where the driver should execute this
+     * step. Lane configurations are listed from left to right.
+     */
+    @NonNull
+    public List<Lane> getLanes() {
+        return Common.nonNullOrEmpty(mLanes);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -125,16 +152,18 @@ public final class Step implements VersionedParcelable {
         }
         Step step = (Step) o;
         return Objects.equals(getManeuver(), step.getManeuver())
-                && Objects.equals(getDistance(), step.getDistance());
-    }
-
-    @Override
-    public String toString() {
-        return String.format("{maneuver: %s, distance: %s}", getManeuver(), getDistance());
+                && Objects.equals(getDistance(), step.getDistance())
+                && Objects.equals(getLanes(), step.getLanes());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mManeuver, mDistance);
+        return Objects.hash(getManeuver(), getDistance(), getLanes());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{maneuver: %s, distance: %s, lanes: %s}", mManeuver, mDistance,
+                mLanes);
     }
 }
