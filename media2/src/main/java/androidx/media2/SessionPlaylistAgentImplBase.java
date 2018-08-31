@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
+import androidx.core.util.ObjectsCompat;
 import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
 import androidx.media2.MediaSession2.OnDataSourceMissingHelper;
 
@@ -412,7 +413,7 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     public MediaItem2 getMediaItem(DataSourceDesc2 dsd) {
         synchronized (mLock) {
             for (Map.Entry<MediaItem2, DataSourceDesc2> entry : mItemDsdMap.entrySet()) {
-                if (entry.getValue() == dsd) {
+                if (ObjectsCompat.equals(entry.getValue(), dsd)) {
                     return entry.getKey();
                 }
             }
