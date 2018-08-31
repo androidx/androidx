@@ -23,7 +23,6 @@ import android.media.AudioAttributes;
 import android.media.DeniedByServerException;
 import android.media.MediaDataSource;
 import android.media.MediaDrm;
-import android.media.MediaFormat;
 import android.media.MediaPlayer;
 import android.media.MediaTimestamp;
 import android.media.PlaybackParams;
@@ -52,6 +51,7 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaPlayerConnector.BuffState;
 import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
 import androidx.media2.MediaPlayerConnector.PlayerState;
+import androidx.media2.common.TrackInfoImpl;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -877,82 +877,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
         });
     }
-
-    /**
-     * Class for MediaPlayer2 to return each audio/video/subtitle track's metadata.
-     *
-     * @see MediaPlayer2#getTrackInfo
-     */
-    public static final class TrackInfoImpl extends TrackInfo {
-        final int mTrackType;
-        final MediaFormat mFormat;
-
-        /**
-         * Gets the track type.
-         * @return TrackType which indicates if the track is video, audio, timed text.
-         */
-        @Override
-        public int getTrackType() {
-            return mTrackType;
-        }
-
-        /**
-         * Gets the language code of the track.
-         * @return a language code in either way of ISO-639-1 or ISO-639-2.
-         * When the language is unknown or could not be determined,
-         * ISO-639-2 language code, "und", is returned.
-         */
-        @Override
-        public String getLanguage() {
-            String language = mFormat.getString(MediaFormat.KEY_LANGUAGE);
-            return language == null ? "und" : language;
-        }
-
-        /**
-         * Gets the {@link MediaFormat} of the track.  If the format is
-         * unknown or could not be determined, null is returned.
-         */
-        @Override
-        public MediaFormat getFormat() {
-            if (mTrackType == MEDIA_TRACK_TYPE_TIMEDTEXT
-                    || mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
-                return mFormat;
-            }
-            return null;
-        }
-
-        TrackInfoImpl(int type, MediaFormat format) {
-            mTrackType = type;
-            mFormat = format;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder out = new StringBuilder(128);
-            out.append(getClass().getName());
-            out.append('{');
-            switch (mTrackType) {
-                case MEDIA_TRACK_TYPE_VIDEO:
-                    out.append("VIDEO");
-                    break;
-                case MEDIA_TRACK_TYPE_AUDIO:
-                    out.append("AUDIO");
-                    break;
-                case MEDIA_TRACK_TYPE_TIMEDTEXT:
-                    out.append("TIMEDTEXT");
-                    break;
-                case MEDIA_TRACK_TYPE_SUBTITLE:
-                    out.append("SUBTITLE");
-                    break;
-                default:
-                    out.append("UNKNOWN");
-                    break;
-            }
-            out.append(", " + mFormat.toString());
-            out.append("}");
-            return out.toString();
-        }
-    };
 
     /**
      * Returns a List of track information.
