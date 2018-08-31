@@ -48,7 +48,6 @@ public class MainActivityTest {
     @Test
     public void linkify_customTextClassifier() throws InterruptedException {
         selectTextClassifierFromSpinner("Simple textclassifier");
-        onView(withId(R.id.get_tc)).perform(click());
         onView(withId(R.id.button_generate_links)).perform(click());
     }
 

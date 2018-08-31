@@ -25,11 +25,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
 
+import android.content.Context;
+import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
+import android.widget.TextView;
 
 import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -41,6 +46,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +55,10 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public final class TextLinksTest {
 
-    private static final CharSequence FULL_TEXT = new SpannableString("this is just a test");
+    private static final Spannable FULL_TEXT = new SpannableString("this is just a test");
+    private static final int START = 5;
+    private static final int END = 6;
+
     private static final String LANGUAGE_TAGS = "en-US,de-DE";
     private static final LocaleListCompat LOCALE_LIST =
             LocaleListCompat.forLanguageTags(LANGUAGE_TAGS);
@@ -144,6 +153,62 @@ public final class TextLinksTest {
         assertThat(links).hasSize(1);
         TextLinks.TextLink textLink = links.iterator().next();
         assertThat(textLink.getUrlSpan().getURL()).isEqualTo(url);
+    }
+
+    @Test
+    public void testApply_spannable_no_link() {
+        SpannableString text = new SpannableString(FULL_TEXT);
+        TextLinks textLinks = new TextLinks.Builder(text).build();
+
+        Context context = InstrumentationRegistry.getContext();
+        int status = textLinks.apply(context, text, TextLinksParams.DEFAULT_PARAMS);
+        assertThat(status).isEqualTo(TextLinks.STATUS_NO_LINKS_FOUND);
+
+        final TextLinks.TextLinkSpan[] spans =
+                text.getSpans(0, text.length(), TextLinks.TextLinkSpan.class);
+        assertThat(spans).isEmpty();
+    }
+
+    @Test
+    public void testApply_spannable() {
+        SpannableString text = new SpannableString(FULL_TEXT);
+        TextLinks textLinks = new TextLinks.Builder(text)
+                .addLink(START, END, Collections.singletonMap(TextClassifier.TYPE_PHONE, 1.0f))
+                .build();
+
+        Context context = InstrumentationRegistry.getContext();
+        int status = textLinks.apply(context, text, TextLinksParams.DEFAULT_PARAMS);
+        assertThat(status).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
+
+        assertAppliedSpannable(text);
+    }
+
+    @Test
+    public void testApply_textview() {
+        SpannableString text = new SpannableString(FULL_TEXT);
+        TextLinks textLinks = new TextLinks.Builder(text)
+                .addLink(START, END, Collections.singletonMap(TextClassifier.TYPE_PHONE, 1.0f))
+                .build();
+
+        final TextView textView = new TextView(InstrumentationRegistry.getTargetContext());
+        textView.setText(text);
+
+        int status = textLinks.apply(textView, TextLinksParams.DEFAULT_PARAMS);
+        assertThat(status).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
+        assertThat(textView.getMovementMethod()).isInstanceOf(LinkMovementMethod.class);
+
+        assertAppliedSpannable((Spannable) textView.getText());
+    }
+
+    private void assertAppliedSpannable(Spannable spannable) {
+        TextLinks.TextLinkSpan[] spans =
+                spannable.getSpans(0, spannable.length(), TextLinks.TextLinkSpan.class);
+        assertThat(spans).hasLength(1);
+        TextLinks.TextLinkSpan span = spans[0];
+        assertThat(spannable.getSpanStart(span)).isEqualTo(START);
+        assertThat(spannable.getSpanEnd(span)).isEqualTo(END);
+        assertThat(span.getTextLinkSpanData().getTextLink().getEntity(0))
+                .isEqualTo(TextClassifier.TYPE_PHONE);
     }
 
     private TextLinks.Request createTextLinksRequest() {

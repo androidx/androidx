@@ -38,7 +38,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Map;
 
 @SmallTest
-public class SmartLinkifyParamsTest {
+public class TextLinksParamsTest {
 
     private Map<String, Float> mDummyEntityScores;
     @Mock
@@ -77,11 +77,11 @@ public class SmartLinkifyParamsTest {
     public void testApplyDifferentText() {
         SpannableString text = new SpannableString("foo");
         TextLinks links = new TextLinks.Builder("bar").build();
-        SmartLinkifyParams smartLinkifyParams =
-                new SmartLinkifyParams.Builder()
+        TextLinksParams textLinksParams =
+                new TextLinksParams.Builder()
                         .setApplyStrategy(TextLinks.APPLY_STRATEGY_REPLACE)
                         .build();
-        assertThat(smartLinkifyParams.apply(text, links, mTextClassifier))
+        assertThat(textLinksParams.apply(text, links, mTextClassifier))
                 .isEqualTo(TextLinks.STATUS_DIFFERENT_TEXT);
     }
 
@@ -89,11 +89,11 @@ public class SmartLinkifyParamsTest {
     public void testApplyNoLinks() {
         SpannableString text = new SpannableString("foo");
         TextLinks links = new TextLinks.Builder(text.toString()).build();
-        SmartLinkifyParams smartLinkifyParams =
-                new SmartLinkifyParams.Builder()
+        TextLinksParams textLinksParams =
+                new TextLinksParams.Builder()
                         .setApplyStrategy(TextLinks.APPLY_STRATEGY_REPLACE)
                         .build();
-        assertThat(smartLinkifyParams.apply(text, links, mTextClassifier))
+        assertThat(textLinksParams.apply(text, links, mTextClassifier))
                 .isEqualTo(TextLinks.STATUS_NO_LINKS_FOUND);
     }
 
@@ -103,11 +103,11 @@ public class SmartLinkifyParamsTest {
         text.setSpan(new NoOpSpan(), 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         TextLinks links = new TextLinks.Builder(text.toString()).addLink(
                 0, 3, mDummyEntityScores).build();
-        SmartLinkifyParams smartLinkifyParams =
-                new SmartLinkifyParams.Builder()
+        TextLinksParams textLinksParams =
+                new TextLinksParams.Builder()
                         .setApplyStrategy(TextLinks.APPLY_STRATEGY_IGNORE)
                         .build();
-        assertThat(smartLinkifyParams.apply(text, links, mTextClassifier))
+        assertThat(textLinksParams.apply(text, links, mTextClassifier))
                 .isEqualTo(TextLinks.STATUS_NO_LINKS_APPLIED);
     }
 
@@ -117,11 +117,11 @@ public class SmartLinkifyParamsTest {
         TextLinks links = new TextLinks.Builder(text.toString()).addLink(
                 0, 3, mDummyEntityScores).build();
 
-        SmartLinkifyParams smartLinkifyParams =
-                new SmartLinkifyParams.Builder()
+        TextLinksParams textLinksParams =
+                new TextLinksParams.Builder()
                         .setApplyStrategy(TextLinks.APPLY_STRATEGY_IGNORE)
                         .build();
-        assertThat(smartLinkifyParams.apply(text, links, mTextClassifier))
+        assertThat(textLinksParams.apply(text, links, mTextClassifier))
                 .isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
 
 
@@ -137,11 +137,11 @@ public class SmartLinkifyParamsTest {
         TextLinks links = new TextLinks.Builder(text.toString()).addLink(
                 0, 3, mDummyEntityScores).build();
 
-        SmartLinkifyParams smartLinkifyParams =
-                new SmartLinkifyParams.Builder()
+        TextLinksParams textLinksParams =
+                new TextLinksParams.Builder()
                         .setApplyStrategy(TextLinks.APPLY_STRATEGY_REPLACE)
                         .build();
-        assertThat(smartLinkifyParams.apply(text, links, mTextClassifier))
+        assertThat(textLinksParams.apply(text, links, mTextClassifier))
                 .isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
 
         TextLinks.TextLinkSpan[] spans = text.getSpans(0, 3, TextLinks.TextLinkSpan.class);
@@ -155,12 +155,12 @@ public class SmartLinkifyParamsTest {
         TextLinks links = new TextLinks.Builder(text.toString()).addLink(
                 0, 3, mDummyEntityScores).build();
 
-        SmartLinkifyParams smartLinkifyParams =
-                new SmartLinkifyParams.Builder()
+        TextLinksParams textLinksParams =
+                new TextLinksParams.Builder()
                         .setApplyStrategy(TextLinks.APPLY_STRATEGY_IGNORE)
                         .setSpanFactory(new CustomSpanFactory())
                         .build();
-        assertThat(smartLinkifyParams.apply(text, links, mTextClassifier))
+        assertThat(textLinksParams.apply(text, links, mTextClassifier))
                 .isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
 
         TextLinks.TextLinkSpan[] spans = text.getSpans(0, 3, TextLinks.TextLinkSpan.class);
