@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Bitmap;
@@ -509,6 +510,29 @@ public final class MediaMetadata2 implements VersionedParcelable {
     /**
      * @hide
      */
+    // TODO(jaewan): Unhide this, and revisit documentation of putLong()
+    @RestrictTo(LIBRARY)
+    public static final String METADATA_KEY_FLAGS = "android.media.metadata.FLAGS";
+
+    /**
+     * Flag: Indicates that the item has children of its own.
+     * @hide
+     */
+    // TODO(jaewan): Unhide this
+    @RestrictTo(LIBRARY)
+    public static final int FLAG_BROWSABLE = 1 << 0;
+
+    /**
+     * Flag: Indicates that the item is playable.
+     * @hide
+     */
+    // TODO(jaewan): Unhide this
+    @RestrictTo(LIBRARY)
+    public static final int FLAG_PLAYABLE = 1 << 1;
+
+    /**
+     * @hide
+     */
     @RestrictTo(LIBRARY_GROUP)
     @StringDef({METADATA_KEY_TITLE, METADATA_KEY_ARTIST, METADATA_KEY_ALBUM, METADATA_KEY_AUTHOR,
             METADATA_KEY_WRITER, METADATA_KEY_COMPOSER, METADATA_KEY_COMPILATION,
@@ -525,7 +549,7 @@ public final class MediaMetadata2 implements VersionedParcelable {
     @RestrictTo(LIBRARY_GROUP)
     @StringDef({METADATA_KEY_DURATION, METADATA_KEY_YEAR, METADATA_KEY_TRACK_NUMBER,
             METADATA_KEY_NUM_TRACKS, METADATA_KEY_DISC_NUMBER, METADATA_KEY_BT_FOLDER_TYPE,
-            METADATA_KEY_ADVERTISEMENT, METADATA_KEY_DOWNLOAD_STATUS})
+            METADATA_KEY_ADVERTISEMENT, METADATA_KEY_DOWNLOAD_STATUS, METADATA_KEY_FLAGS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface LongKey {}
 
@@ -595,6 +619,7 @@ public final class MediaMetadata2 implements VersionedParcelable {
         METADATA_KEYS_TYPE.put(METADATA_KEY_BT_FOLDER_TYPE, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_ADVERTISEMENT, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DOWNLOAD_STATUS, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_FLAGS, METADATA_TYPE_LONG);
     }
 
     private static final @MediaMetadata2.TextKey
@@ -672,6 +697,7 @@ public final class MediaMetadata2 implements VersionedParcelable {
      * @return media id. Can be {@code null}
      * @see #METADATA_KEY_MEDIA_ID
      */
+    // TODO(jaewan): Hide -- no setMediaId()
     public @Nullable String getMediaId() {
         return getString(METADATA_KEY_MEDIA_ID);
     }

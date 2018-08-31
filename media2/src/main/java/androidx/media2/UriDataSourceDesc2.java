@@ -167,6 +167,7 @@ public class UriDataSourceDesc2 extends DataSourceDesc2 {
         /**
          * @return A new UriDataSourceDesc2 with values supplied by the Builder.
          */
+        @Override
         public UriDataSourceDesc2 build() {
             return new UriDataSourceDesc2(this);
         }
