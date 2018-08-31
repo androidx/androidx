@@ -16,8 +16,12 @@
 
 package androidx.core.view;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Build;
 import android.os.Bundle;
+import android.text.style.ClickableSpan;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.ViewGroup;
@@ -26,8 +30,13 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.R;
+import androidx.core.view.accessibility.AccessibilityClickableSpanCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Helper for accessing {@link AccessibilityDelegate}.
@@ -72,6 +81,7 @@ public class AccessibilityDelegateCompat {
             nodeInfoCompat.setHeading(ViewCompat.isAccessibilityHeading(host));
             nodeInfoCompat.setPaneTitle(ViewCompat.getAccessibilityPaneTitle(host));
             mCompat.onInitializeAccessibilityNodeInfo(host, nodeInfoCompat);
+            nodeInfoCompat.addSpansToExtras(info.getText(), host);
         }
 
         @Override
@@ -111,6 +121,7 @@ public class AccessibilityDelegateCompat {
     }
 
     private static final AccessibilityDelegate DEFAULT_DELEGATE = new AccessibilityDelegate();
+    private final AccessibilityDelegate mOriginalDelegate;
 
     private final AccessibilityDelegate mBridge;
 
@@ -118,6 +129,15 @@ public class AccessibilityDelegateCompat {
      * Creates a new instance.
      */
     public AccessibilityDelegateCompat() {
+        this(DEFAULT_DELEGATE);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public AccessibilityDelegateCompat(AccessibilityDelegate originalDelegate) {
+        mOriginalDelegate = originalDelegate;
         mBridge = new AccessibilityDelegateAdapter(this);
     }
 
@@ -143,7 +163,7 @@ public class AccessibilityDelegateCompat {
      * @see View#sendAccessibilityEvent(int) View#sendAccessibilityEvent(int)
      */
     public void sendAccessibilityEvent(View host, int eventType) {
-        DEFAULT_DELEGATE.sendAccessibilityEvent(host, eventType);
+        mOriginalDelegate.sendAccessibilityEvent(host, eventType);
     }
 
     /**
@@ -165,7 +185,7 @@ public class AccessibilityDelegateCompat {
      *      View#sendAccessibilityEventUnchecked(AccessibilityEvent)
      */
     public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event) {
-        DEFAULT_DELEGATE.sendAccessibilityEventUnchecked(host, event);
+        mOriginalDelegate.sendAccessibilityEventUnchecked(host, event);
     }
 
     /**
@@ -186,7 +206,7 @@ public class AccessibilityDelegateCompat {
      *      View#dispatchPopulateAccessibilityEvent(AccessibilityEvent)
      */
     public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
-        return DEFAULT_DELEGATE.dispatchPopulateAccessibilityEvent(host, event);
+        return mOriginalDelegate.dispatchPopulateAccessibilityEvent(host, event);
     }
 
     /**
@@ -206,7 +226,7 @@ public class AccessibilityDelegateCompat {
      *      ViewCompat#onPopulateAccessibilityEvent(View, AccessibilityEvent)
      */
     public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
-        DEFAULT_DELEGATE.onPopulateAccessibilityEvent(host, event);
+        mOriginalDelegate.onPopulateAccessibilityEvent(host, event);
     }
 
     /**
@@ -226,7 +246,7 @@ public class AccessibilityDelegateCompat {
      *      ViewCompat#onInitializeAccessibilityEvent(View, AccessibilityEvent)
      */
     public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
-        DEFAULT_DELEGATE.onInitializeAccessibilityEvent(host, event);
+        mOriginalDelegate.onInitializeAccessibilityEvent(host, event);
     }
 
     /**
@@ -245,7 +265,7 @@ public class AccessibilityDelegateCompat {
      *      ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)
      */
     public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
-        DEFAULT_DELEGATE.onInitializeAccessibilityNodeInfo(
+        mOriginalDelegate.onInitializeAccessibilityNodeInfo(
                 host, info.unwrap());
     }
 
@@ -270,7 +290,7 @@ public class AccessibilityDelegateCompat {
      */
     public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
             AccessibilityEvent event) {
-        return DEFAULT_DELEGATE.onRequestSendAccessibilityEvent(host, child, event);
+        return mOriginalDelegate.onRequestSendAccessibilityEvent(host, child, event);
     }
 
     /**
@@ -289,7 +309,7 @@ public class AccessibilityDelegateCompat {
      */
     public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {
         if (Build.VERSION.SDK_INT >= 16) {
-            Object provider = DEFAULT_DELEGATE.getAccessibilityNodeProvider(host);
+            Object provider = mOriginalDelegate.getAccessibilityNodeProvider(host);
             if (provider != null) {
                 return new AccessibilityNodeProviderCompat(provider);
             }
@@ -314,8 +334,43 @@ public class AccessibilityDelegateCompat {
      *      View#performAccessibilityAction(int, Bundle)
      */
     public boolean performAccessibilityAction(View host, int action, Bundle args) {
+        boolean success = false;
         if (Build.VERSION.SDK_INT >= 16) {
-            return DEFAULT_DELEGATE.performAccessibilityAction(host, action, args);
+            success = mOriginalDelegate.performAccessibilityAction(host, action, args);
+        }
+        if (!success && action == R.id.accessibility_action_clickable_span) {
+            success = performClickableSpanAction(
+                    args.getInt(AccessibilityClickableSpanCompat.SPAN_ID, -1), host);
+        }
+        return success;
+    }
+
+    private boolean performClickableSpanAction(int clickableSpanId, View host) {
+        SparseArray<WeakReference<ClickableSpan>> spans =
+                (SparseArray<WeakReference<ClickableSpan>>)
+                        host.getTag(R.id.tag_accessibility_clickable_spans);
+        if (spans != null) {
+            WeakReference<ClickableSpan> reference = spans.get(clickableSpanId);
+            if (reference != null) {
+                ClickableSpan span = reference.get();
+                if (isSpanStillValid(span, host)) {
+                    span.onClick(host);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isSpanStillValid(ClickableSpan span, View view) {
+        if (span != null) {
+            AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
+            ClickableSpan[] spans = AccessibilityNodeInfoCompat.getClickableSpans(info.getText());
+            for (int i = 0; spans != null && i < spans.length; i++) {
+                if (span.equals(spans[i])) {
+                    return true;
+                }
+            }
         }
         return false;
     }
