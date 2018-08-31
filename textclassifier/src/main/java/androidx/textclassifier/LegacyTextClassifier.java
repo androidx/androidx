@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.UserManager;
 import android.provider.Browser;
@@ -199,7 +201,11 @@ final class LegacyTextClassifier extends TextClassifier {
             mPermissionsChecker = Preconditions.checkNotNull(permissionsChecker);
         }
 
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
         private static Bundle createUserRestrictions(Context context) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                return Bundle.EMPTY;
+            }
             final Object userManager = context.getSystemService(Context.USER_SERVICE);
             return userManager instanceof UserManager
                     ? ((UserManager) userManager).getUserRestrictions() : new Bundle();
