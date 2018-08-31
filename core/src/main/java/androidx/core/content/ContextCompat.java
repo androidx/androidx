@@ -112,6 +112,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.DropBoxManager;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Process;
 import android.os.UserManager;
@@ -140,6 +141,8 @@ import androidx.core.os.EnvironmentCompat;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Helper for accessing features in {@link android.content.Context}.
@@ -645,6 +648,33 @@ public class ContextCompat {
             return context.isDeviceProtectedStorage();
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Return an {@link Executor} that will run enqueued tasks on the main
+     * thread associated with this context. This is the thread used to dispatch
+     * calls to application components (activities, services, etc).
+     */
+    public static Executor getMainExecutor(Context context) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            return context.getMainExecutor();
+        }
+        return new MainHandlerExecutor(new Handler(context.getMainLooper()));
+    }
+
+    private static class MainHandlerExecutor implements Executor {
+        private final Handler mHandler;
+
+        MainHandlerExecutor(@NonNull Handler handler) {
+            mHandler = handler;
+        }
+
+        @Override
+        public void execute(Runnable command) {
+            if (!mHandler.post(command)) {
+                throw new RejectedExecutionException(mHandler + " is shutting down");
+            }
         }
     }
 
