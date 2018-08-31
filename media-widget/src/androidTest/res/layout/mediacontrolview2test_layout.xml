@@ -21,6 +21,6 @@
 
     <androidx.media.widget.VideoView2
             android:id="@+id/videoview"
-            android:layout_width="300dp"
-            android:layout_height="300dp"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 </LinearLayout>
