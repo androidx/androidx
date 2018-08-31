@@ -70,7 +70,6 @@ public class WorkerWrapper implements Runnable {
     String mWorkSpecId;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     ExecutionListener mListener;
-    NonBlockingListener mWorkerListener;
     private List<Scheduler> mSchedulers;
     private Extras.RuntimeExtras mRuntimeExtras;
     private WorkSpec mWorkSpec;
@@ -95,13 +94,11 @@ public class WorkerWrapper implements Runnable {
         mListener = builder.mListener;
         mSchedulers = builder.mSchedulers;
         mRuntimeExtras = builder.mRuntimeExtras;
-        mWorkerListener = new NonBlockingListener(this);
         if (mRuntimeExtras == null) {
             // Create an instance of RuntimeExtras so we can make the Worker aware of its
             // ExecutionListener.
             mRuntimeExtras = new Extras.RuntimeExtras();
         }
-        mRuntimeExtras.mExecutionListener = mWorkerListener;
         mWorker = builder.mWorker;
 
         mConfiguration = builder.mConfiguration;
@@ -649,28 +646,6 @@ public class WorkerWrapper implements Runnable {
          */
         public WorkerWrapper build() {
             return new WorkerWrapper(this);
-        }
-    }
-
-    /**
-     * An {@link ExecutionListener} that keeps track of {@link androidx.work.NonBlockingWorker}s
-     * execution.
-     */
-    public static class NonBlockingListener implements ExecutionListener {
-
-        private @NonNull WorkerWrapper mWorkerWrapper;
-
-        public NonBlockingListener(@NonNull WorkerWrapper workerWrapper) {
-            mWorkerWrapper = workerWrapper;
-        }
-
-        @Override
-        public void onExecuted(@NonNull String workSpecId,
-                boolean isSuccessful,
-                boolean needsReschedule) {
-
-            Result result = mWorkerWrapper.mWorker.getResult();
-            mWorkerWrapper.onWorkFinished(result);
         }
     }
 }

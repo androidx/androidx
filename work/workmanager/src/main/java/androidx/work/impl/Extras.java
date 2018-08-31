@@ -74,7 +74,6 @@ public class Extras {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class RuntimeExtras {
-        public ExecutionListener mExecutionListener;
         public String[] triggeredContentAuthorities;
         public Uri[] triggeredContentUris;
 
