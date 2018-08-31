@@ -24,6 +24,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -274,6 +275,13 @@ public class NavigationUI {
      * {@link #onNavDestinationSelected(MenuItem, NavController)} when a menu item is selected.
      * The selected item in the NavigationView will automatically be updated when the destination
      * changes.
+     * <p>
+     * If the {@link NavigationView} is directly contained with a {@link DrawerLayout},
+     * the drawer will be closed when a menu item is selected.
+     * <p>
+     * Similarly, if the {@link NavigationView} has a {@link BottomSheetBehavior} associated with
+     * it (as is the case when using a {@link android.support.design.widget.BottomSheetDialog}),
+     * the bottom sheet will be hidden when a menu item is selected.
      *
      * @param navigationView The NavigationView that should be kept in sync with changes to the
      *                       NavController.
@@ -292,6 +300,12 @@ public class NavigationUI {
                             ViewParent parent = navigationView.getParent();
                             if (parent instanceof DrawerLayout) {
                                 ((DrawerLayout) parent).closeDrawer(navigationView);
+                            } else {
+                                BottomSheetBehavior bottomSheetBehavior =
+                                        BottomSheetBehavior.from(navigationView);
+                                if (bottomSheetBehavior != null) {
+                                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                                }
                             }
                         }
                         return handled;
