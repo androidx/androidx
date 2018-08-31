@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
@@ -1394,7 +1395,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         @Override
         public @NonNull MediaSession2 build() {
             if (mCallbackExecutor == null) {
-                mCallbackExecutor = new MainHandlerExecutor(mContext);
+                mCallbackExecutor = ContextCompat.getMainExecutor(mContext);
             }
             if (mCallback == null) {
                 mCallback = new SessionCallback() {};

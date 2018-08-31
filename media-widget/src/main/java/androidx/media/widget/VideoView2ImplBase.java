@@ -44,6 +44,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.BaseRemoteMediaPlayerConnector;
 import androidx.media2.DataSourceDesc2;
@@ -220,7 +221,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 .setUsage(AudioAttributesCompat.USAGE_MEDIA)
                 .setContentType(AudioAttributesCompat.CONTENT_TYPE_MOVIE).build();
 
-        mCallbackExecutor = MainHandlerExecutor.getExecutor(context);
+        mCallbackExecutor = ContextCompat.getMainExecutor(context);
 
         mInstance.setFocusable(true);
         mInstance.setFocusableInTouchMode(true);
