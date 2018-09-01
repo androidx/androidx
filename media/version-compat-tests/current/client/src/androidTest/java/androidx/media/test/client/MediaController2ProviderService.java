@@ -92,8 +92,8 @@ public class MediaController2ProviderService extends Service {
     private class RemoteMediaController2Stub extends IRemoteMediaController2.Stub {
         @Override
         public void create(final boolean isBrowser, final String controllerId,
-                ParcelImpl tokenBundle, boolean waitForConnection) throws RemoteException {
-            final SessionToken2 token = ParcelUtils.fromParcelable(tokenBundle);
+                ParcelImpl tokenParcelable, boolean waitForConnection) throws RemoteException {
+            final SessionToken2 token = ParcelUtils.fromParcelable(tokenParcelable);
             final TestControllerCallback callback = new TestControllerCallback();
 
             try {
@@ -134,6 +134,12 @@ public class MediaController2ProviderService extends Service {
         ////////////////////////////////////////////////////////////////////////////////
         // MediaController2 methods
         ////////////////////////////////////////////////////////////////////////////////
+
+        @Override
+        public ParcelImpl getConnectedSessionToken(String controllerId) throws RemoteException {
+            MediaController2 controller2 = mMediaController2Map.get(controllerId);
+            return (ParcelImpl) ParcelUtils.toParcelable(controller2.getConnectedSessionToken());
+        }
 
         @Override
         public void play(String controllerId) throws RemoteException {
