@@ -28,6 +28,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.media.AudioAttributesCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -195,6 +196,16 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     public abstract @NonNull Future<CommandResult2> setPlaybackSpeed(float playbackSpeed);
 
+    /**
+     * Sets the {@link AudioAttributesCompat} to be used during the playback of the media.
+     * You must call this method in {@link #PLAYER_STATE_IDLE} in order for the audio attributes to
+     * become effective thereafter.
+     *
+     * @param attributes non-null <code>AudioAttributes</code>.
+     */
+    public abstract @NonNull Future<CommandResult2> setAudioAttributes(
+            @NonNull AudioAttributesCompat attributes);
+
     public abstract @PlayerState int getPlayerState();
 
     public abstract long getCurrentPosition();
@@ -210,6 +221,11 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     // APIs from the MediaPlaylistAgent
     public abstract @NonNull Future<CommandResult2> setPlaylist(List<DataSourceDesc2> list,
             MediaMetadata2 metadata);
+
+    /**
+     * Gets the {@link AudioAttributesCompat} that media player has.
+     */
+    public abstract @Nullable AudioAttributesCompat getAudioAttributes();
 
     /**
      * Sets a {@link DataSourceDesc2} for playback. This is helper method for
@@ -322,6 +338,16 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
         public void onPlaybackSpeedChanged(@NonNull SessionPlayer2 player,
                 float playbackSpeed) {
+        }
+
+        /**
+         * Called when players {@link AudioAttributesCompat} has been changed
+         *
+         * @param player player
+         * @param attributes new attributes
+         */
+        public void onAudioAttributeChanged(@NonNull SessionPlayer2 player,
+                @NonNull AudioAttributesCompat attributes) {
         }
 
         public void onSeekCompleted(@NonNull SessionPlayer2 player, long position) {
