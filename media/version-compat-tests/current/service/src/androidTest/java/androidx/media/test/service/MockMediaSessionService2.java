@@ -31,14 +31,39 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
      * ID of the session that this service will create.
      */
     public static final String ID = "TestSession";
+    public MediaSession2 mSession2;
+
+    @Override
+    public void onCreate() {
+        TestServiceRegistry.getInstance().setServiceInstance(this);
+        super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        TestServiceRegistry.getInstance().cleanUp();
+    }
 
     @Override
     public MediaSession2 onGetSession() {
-        return new MediaSession2.Builder(MockMediaSessionService2.this)
-                .setId(ID)
-                .setPlayer(new MockPlayerConnector(0))
-                .setSessionCallback(Executors.newSingleThreadExecutor(), new TestSessionCallback())
-                .build();
+        TestServiceRegistry registry = TestServiceRegistry.getInstance();
+        TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
+                registry.getOnGetSessionHandler();
+        if (onGetSessionHandler != null) {
+            return onGetSessionHandler.onGetSession();
+        }
+
+        if (mSession2 == null) {
+            MediaSession2.SessionCallback callback = registry.getSessionCallback();
+            mSession2 = new MediaSession2.Builder(MockMediaSessionService2.this)
+                    .setId(ID)
+                    .setPlayer(new MockPlayerConnector(0))
+                    .setSessionCallback(Executors.newSingleThreadExecutor(),
+                            callback != null ? callback : new TestSessionCallback())
+                    .build();
+        }
+        return mSession2;
     }
 
     private class TestSessionCallback extends MediaSession2.SessionCallback {
