@@ -27,6 +27,7 @@ interface IRemoteMediaController2 {
             boolean waitForConnection);
 
     // MediaController2 Methods
+    ParcelImpl getConnectedSessionToken(String controllerId);
     void play(String controllerId);
     void pause(String controllerId);
     void reset(String controllerId);

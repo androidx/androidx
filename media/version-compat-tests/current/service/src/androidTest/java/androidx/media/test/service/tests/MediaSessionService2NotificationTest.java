@@ -14,45 +14,60 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service.tests;
+
+import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
+
+import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_SESSION_SERVICE;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.os.Process;
 
 import androidx.annotation.NonNull;
+import androidx.media.test.service.MockPlayerConnector;
+import androidx.media.test.service.MockPlaylistAgent;
+import androidx.media.test.service.RemoteMediaController2;
+import androidx.media.test.service.TestServiceRegistry;
+import androidx.media2.MediaItem2;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayerConnector;
+import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionToken2;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Manual test of {@link MediaSessionService2} for showing/removing notification when the
- * playback is started/ended.
+ * Manual test of {@link androidx.media2.MediaSessionService2} for showing/removing notification
+ * when the playback is started/ended.
  * <p>
  * This test is a manual test, which means the one who runs this test should keep looking at the
  * device and check whether the notification is shown/removed.
  */
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+@Ignore("Comment out this line and manually run the test.")
 public class MediaSessionService2NotificationTest extends MediaSession2TestBase {
     private static final long NOTIFICATION_SHOW_TIME_MS = 15000;
 
     MediaSession2 mSession;
-    MockPlayer mPlayer;
+    MockPlayerConnector mPlayer;
     MockPlaylistAgent mPlaylistAgent;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        mPlayer = new MockPlayer(true);
+        mPlayer = new MockPlayerConnector(true);
         mPlaylistAgent = new MockPlaylistAgent();
         TestServiceRegistry.getInstance().setHandler(sHandler);
     }
@@ -70,7 +85,7 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
             @Override
             public SessionCommandGroup2 onConnect(@NonNull MediaSession2 session,
                     @NonNull ControllerInfo controller) {
-                if (Process.myUid() == controller.getUid()) {
+                if (CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
                     mSession = session;
                     // Change the player and playlist agent with ours.
                     session.updatePlayerConnector(mPlayer, mPlaylistAgent);
@@ -82,13 +97,13 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
         TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
 
         // Create a controller to start the service.
-        MediaController2 controller =
-                createController(TestUtils.getServiceToken(mContext, MockMediaSessionService2.ID));
+        RemoteMediaController2 controller = new RemoteMediaController2(
+                mContext, new SessionToken2(mContext, MOCK_MEDIA_SESSION_SERVICE), true);
 
         // Set current media item.
         final String mediaId = "testMediaId";
         Bitmap albumArt = BitmapFactory.decodeResource(mContext.getResources(),
-                androidx.media2.test.R.drawable.big_buck_bunny);
+                android.support.mediacompat.service.R.drawable.big_buck_bunny);
         MediaMetadata2 metadata = new MediaMetadata2.Builder()
                         .putText(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
                         .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, "Test Song Name")
@@ -103,7 +118,7 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
         // Notification should be shown. Clicking play/pause button will change the player state.
         // When playing, the notification will not be removed by swiping horizontally.
         // When paused, the notification can be swiped away.
-        mPlayer.notifyPlaybackState(MediaPlayerConnector.PLAYER_STATE_PLAYING);
+        mPlayer.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PLAYING);
         Thread.sleep(NOTIFICATION_SHOW_TIME_MS);
     }
 }
