@@ -61,4 +61,9 @@
     <dimen name="mr_cast_seekbar_thumb_size">8dp</dimen>
     <!-- Volume slider layout expand/collapse animation duration. -->
     <integer name="mr_cast_volume_slider_layout_animation_duration_ms">400</integer>
+
+    <!-- Text sizes of MediaRouteDevicePickerDialog/MediaRouteCastDialog -->
+    <dimen name="mr_cast_meta_subtitle_text_size">13sp</dimen>
+    <dimen name="mr_dynamic_dialog_header_text_size">11sp</dimen>
+    <dimen name="mr_dynamic_dialog_route_text_size">12sp</dimen>
 </resources>

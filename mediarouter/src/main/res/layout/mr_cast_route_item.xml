@@ -44,7 +44,7 @@
                   android:layout_weight="1"
                   android:layout_marginLeft="16dp"
                   android:layout_marginRight="16dp"
-                  android:singleLine="true" />
+                  android:textAppearance="?attr/mediaRouteBodyTextAppearance" />
         <CheckBox android:id="@+id/mr_cast_checkbox"
                   android:layout_width="24dp"
                   android:layout_height="24dp"

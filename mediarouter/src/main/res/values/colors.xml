@@ -20,7 +20,14 @@
     <color name="mr_dynamic_dialog_icon_dark">#F8F9FA</color>
 
     <color name="mr_cast_meta_default_background">#25272B</color>
+    <color name="mr_cast_meta_default_text_color">#FFFFFF</color>
     <color name="mr_cast_meta_black_scrim">#99000000</color>
+
+    <color name="mr_dynamic_dialog_header_text_color_light">#80868B</color>
+    <color name="mr_dynamic_dialog_header_text_color_dark">#BDC1C6</color>
+
+    <color name="mr_dynamic_dialog_route_text_color_light">#25272B</color>
+    <color name="mr_dynamic_dialog_route_text_color_dark">#FFFFFF</color>
 
     <color name="mr_cast_route_divider_light">#1425272B</color>
     <color name="mr_cast_route_divider_dark">#803C4043</color>

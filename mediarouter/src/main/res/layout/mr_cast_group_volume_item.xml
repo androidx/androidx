@@ -26,8 +26,7 @@
               android:paddingStart="16dp"
               android:paddingEnd="16dp"
               android:gravity="center_vertical"
-              android:textSize="11sp"
-              android:textColor="#80868B" />
+              android:textAppearance="?attr/mediaRouteHeaderTextAppearance" />
     <RelativeLayout android:id="@+id/mr_cast_volume_layout"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/mr_dynamic_dialog_row_height">

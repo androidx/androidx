@@ -30,4 +30,37 @@
     <style name="TextAppearance.MediaRouter.PrimaryText" parent="TextAppearance.AppCompat.Subhead" />
 
     <style name="TextAppearance.MediaRouter.SecondaryText" parent="TextAppearance.AppCompat.Body1" />
+
+    <!-- TextAppearance for top metadata section of MediaRouteCastDialog -->
+    <style name="TextAppearance.MediaRouter.Dynamic.Metadata.PrimaryText" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textColor">@color/mr_cast_meta_default_text_color</item>
+    </style>
+
+    <style name="TextAppearance.MediaRouter.Dynamic.Metadata.SecondaryText" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textSize">@dimen/mr_cast_meta_subtitle_text_size</item>
+    </style>
+
+    <!-- TextAppearance for header item of MediaRouteDevicePickerDialog/MediaRouteCastDialog-->
+    <style name="TextAppearance.MediaRouter.Dynamic.Header" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">@dimen/mr_dynamic_dialog_header_text_size</item>
+        <item name="android:textColor">@color/mr_dynamic_dialog_header_text_color_dark</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="TextAppearance.MediaRouter.Dynamic.Header.Light">
+        <item name="android:textColor">@color/mr_dynamic_dialog_header_text_color_light</item>
+    </style>
+
+    <!-- TextAppearance for route item of MediaRouteDevicePickerDialog/MediaRouteCastDialog-->
+    <style name="TextAppearance.MediaRouter.Dynamic.Body" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textSize">@dimen/mr_dynamic_dialog_route_text_size</item>
+        <item name="android:textColor">@color/mr_dynamic_dialog_route_text_color_dark</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="TextAppearance.MediaRouter.Dynamic.Body.Light">
+        <item name="android:textColor">@color/mr_dynamic_dialog_route_text_color_light</item>
+    </style>
 </resources>
+
