@@ -62,18 +62,19 @@
                           android:layout_height="wrap_content"
                           android:maxLines="1"
                           android:ellipsize="end"
-                          android:textSize="14sp" />
+                          android:textAppearance="@style/TextAppearance.MediaRouter.Dynamic.Metadata.PrimaryText" />
                 <TextView android:id="@+id/mr_cast_meta_subtitle"
                           android:layout_width="match_parent"
                           android:layout_height="wrap_content"
                           android:maxLines="1"
                           android:ellipsize="end"
-                          android:textSize="13sp" />
+                          android:textAppearance="@style/TextAppearance.MediaRouter.Dynamic.Metadata.SecondaryText" />
             </LinearLayout>
             <Button android:id="@+id/mr_cast_stop_button"
                     android:layout_width="114dp"
                     android:layout_height="36sp"
                     android:background="@drawable/mr_cast_stop"
+                    android:textAppearance="@style/TextAppearance.MediaRouter.Dynamic.Metadata.PrimaryText"
                     android:textAllCaps="false"
                     android:text="@string/mr_controller_stop_casting" />
         </LinearLayout>

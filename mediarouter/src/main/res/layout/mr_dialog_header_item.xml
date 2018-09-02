@@ -22,5 +22,4 @@
           android:paddingStart="16dp"
           android:paddingEnd="16dp"
           android:paddingTop="24dp"
-          android:textSize="11sp"
-          android:textColor="#80868B" />
+          android:textAppearance="?attr/mediaRouteHeaderTextAppearance" />
