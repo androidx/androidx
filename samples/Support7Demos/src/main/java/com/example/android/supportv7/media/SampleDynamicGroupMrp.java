@@ -28,6 +28,7 @@ import android.util.Log;
 
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
+import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 
 import com.example.android.supportv7.R;
@@ -69,7 +70,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         // Create a new media route descriptor for dynamic group route, if it does not exist.
         if (!mRouteDescriptors.containsKey(dynamicGroupRouteId)) {
             MediaRouteDescriptor initMemberDescriptor = mRouteDescriptors.get(initialMemberRouteId);
-            if (initMemberDescriptor != null || !initMemberDescriptor.isValid()) {
+            if (initMemberDescriptor == null || !initMemberDescriptor.isValid()) {
                 Log.w(TAG, "initial route doesn't exist or isn't valid : " + initialMemberRouteId);
                 return null;
             }
@@ -143,6 +144,15 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         mRouteDescriptors.put(routeDescriptor3.getId(), routeDescriptor3);
     }
 
+    @Override
+    protected void publishRoutes() {
+        MediaRouteProviderDescriptor providerDescriptor = new MediaRouteProviderDescriptor.Builder()
+                .setSupportsDynamicGroupRoute(true)
+                .addRoutes(mRouteDescriptors.values())
+                .build();
+        setDescriptor(providerDescriptor);
+    }
+
     final class SampleDynamicGroupRouteController
             extends MediaRouteProvider.DynamicGroupRouteController {
         private final String mRouteId;
@@ -200,8 +210,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         @Override
         public void onAddMemberRoute(String routeId) {
             DynamicRouteDescriptor dynamicDescriptor = mDynamicRouteDescriptors.get(routeId);
-            if (dynamicDescriptor == null || !dynamicDescriptor.isGroupable()
-                    || mMemberRouteIds.contains(routeId)) {
+            if (dynamicDescriptor == null) {
                 Log.d(TAG, "onAddMemberRoute: Ignored for routeId: " + routeId);
                 return;
             }
