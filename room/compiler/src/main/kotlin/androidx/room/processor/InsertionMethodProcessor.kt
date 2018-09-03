@@ -51,7 +51,7 @@ class InsertionMethodProcessor(
         )
 
         val methodBinder = context.typeAdapterStore
-                .findInsertMethodBinder(executableElement.returnType, params)
+                .findInsertMethodBinder(returnType, params)
 
         context.checker.check(
                 methodBinder.adapter != null,

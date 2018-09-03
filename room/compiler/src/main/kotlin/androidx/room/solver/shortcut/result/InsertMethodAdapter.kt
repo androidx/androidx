@@ -41,10 +41,8 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
             returnType: TypeMirror,
             params: List<ShortcutQueryParameter>
         ): InsertMethodAdapter? {
-            val insertionType = getInsertionType(
-                    returnType)
-            if (insertionType != null && isInsertValid(
-                            insertionType, params)) {
+            val insertionType = getInsertionType(returnType)
+            if (insertionType != null && isInsertValid(insertionType, params)) {
                 return InsertMethodAdapter(insertionType)
             }
             return null
@@ -64,12 +62,14 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
                 insertionType in MULTIPLE_ITEM_SET
             } else {
                 insertionType == InsertionType.INSERT_VOID ||
+                        insertionType == InsertionType.INSERT_VOID_OBJECT ||
                         insertionType == InsertionType.INSERT_SINGLE_ID
             }
         }
 
         private val MULTIPLE_ITEM_SET by lazy {
             setOf(InsertionType.INSERT_VOID,
+                    InsertionType.INSERT_VOID_OBJECT,
                     InsertionType.INSERT_ID_ARRAY,
                     InsertionType.INSERT_ID_ARRAY_BOX,
                     InsertionType.INSERT_ID_LIST)
@@ -87,20 +87,25 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
             fun isLongType(typeMirror: TypeMirror) =
                     isLongPrimitiveType(typeMirror) || isLongBoxType(typeMirror)
 
+            fun isList(typeMirror: TypeMirror) = MoreTypes.isType(typeMirror) &&
+                    MoreTypes.isTypeOf(List::class.java, typeMirror)
+
+            fun isVoidObject(typeMirror: TypeMirror) = MoreTypes.isType(typeMirror) &&
+                    MoreTypes.isTypeOf(Void::class.java, typeMirror)
+
             return if (returnType.kind == TypeKind.VOID) {
                 InsertionType.INSERT_VOID
+            } else if (isVoidObject(returnType)) {
+                InsertionType.INSERT_VOID_OBJECT
             } else if (returnType.kind == TypeKind.ARRAY) {
                 val arrayType = MoreTypes.asArray(returnType)
                 val param = arrayType.componentType
-                if (isLongPrimitiveType(param)) {
-                    InsertionType.INSERT_ID_ARRAY
-                } else if (isLongBoxType(param)) {
-                    InsertionType.INSERT_ID_ARRAY_BOX
-                } else {
-                    null
+                when {
+                    isLongPrimitiveType(param) -> InsertionType.INSERT_ID_ARRAY
+                    isLongBoxType(param) -> InsertionType.INSERT_ID_ARRAY_BOX
+                    else -> null
                 }
-            } else if (MoreTypes.isType(returnType) &&
-                    MoreTypes.isTypeOf(List::class.java, returnType)) {
+            } else if (isList(returnType)) {
                 val declared = MoreTypes.asDeclared(returnType)
                 val param = declared.typeArguments.first()
                 if (isLongBoxType(param)) {
@@ -125,8 +130,9 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
             // TODO assert thread
             // TODO collect results
             addStatement("$N.beginTransaction()", DaoWriter.dbField)
-            val needsReturnType = insertionType != InsertionType.INSERT_VOID
-            val resultVar = if (needsReturnType) {
+            val needsResultVar = insertionType != InsertionType.INSERT_VOID &&
+                    insertionType != InsertionType.INSERT_VOID_OBJECT
+            val resultVar = if (needsResultVar) {
                 scope.getTmpVar("_result")
             } else {
                 null
@@ -135,7 +141,7 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
                     val insertionAdapter = insertionAdapters[param.name]?.first
-                    if (needsReturnType) {
+                    if (needsResultVar) {
                         // if it has more than 1 parameter, we would've already printed the error
                         // so we don't care about re-declaring the variable here
                         addStatement("$T $L = $N.$L($L)",
@@ -149,8 +155,10 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
                 }
                 addStatement("$N.setTransactionSuccessful()",
                         DaoWriter.dbField)
-                if (needsReturnType) {
+                if (needsResultVar) {
                     addStatement("return $L", resultVar)
+                } else if (insertionType == InsertionType.INSERT_VOID_OBJECT) {
+                    addStatement("return null")
                 }
             }
             nextControlFlow("finally").apply {
@@ -167,6 +175,7 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
         val returnTypeName: TypeName
     ) {
         INSERT_VOID("insert", TypeName.VOID), // return void
+        INSERT_VOID_OBJECT("insert", TypeName.VOID), // return void
         INSERT_SINGLE_ID("insertAndReturnId", TypeName.LONG), // return long
         INSERT_ID_ARRAY("insertAndReturnIdsArray",
                 ArrayTypeName.of(TypeName.LONG)), // return long[]
