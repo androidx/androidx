@@ -17,6 +17,7 @@
 package androidx.ui.painting
 
 import android.graphics.BlurMaskFilter
+import android.graphics.PorterDuffColorFilter
 import java.nio.ByteBuffer
 
 class Paint {
@@ -26,6 +27,7 @@ class Paint {
     private var blurStyle = android.graphics.BlurMaskFilter.Blur.NORMAL
     private var blurRadius = 0.0f
     private var internalShader: Shader? = null
+    private var internalColorFilter: ColorFilter? = null
 
     companion object {
         // Paint objects are encoded in two buffers:
@@ -334,37 +336,26 @@ class Paint {
             internalShader = value
             internalPaint.shader = internalShader?.toFrameworkShader()
         }
-//
-//    // A color filter to apply when a shape is drawn or when a layer is
-//    // composited.
-//    //
-//    // See [ColorFilter] for details.
-//    //
-//    // When a shape is being drawn, [colorFilter] overrides [color] and [shader].
-    // TODO(Migration/njawad: port over ColorFilter implementations + add ColorFilter support)
 
-//    ColorFilter get colorFilter {
-//        final bool isNull = _data.getInt32(_kColorFilterOffset, _kFakeHostEndian) == 0;
-//        if (isNull)
-//            return null;
-//        return new ColorFilter.mode(
-//                new Color(_data.getInt32(_kColorFilterColorOffset, _kFakeHostEndian)),
-//        BlendMode.values[_data.getInt32(_kColorFilterBlendModeOffset, _kFakeHostEndian)]
-//        );
-//    }
-//    set colorFilter(ColorFilter value) {
-//        if (value == null) {
-//            _data.setInt32(_kColorFilterOffset, 0, _kFakeHostEndian);
-//            _data.setInt32(_kColorFilterColorOffset, 0, _kFakeHostEndian);
-//            _data.setInt32(_kColorFilterBlendModeOffset, 0, _kFakeHostEndian);
-//        } else {
-//            assert(value._color != null);
-//            assert(value._blendMode != null);
-//            _data.setInt32(_kColorFilterOffset, 1, _kFakeHostEndian);
-//            _data.setInt32(_kColorFilterColorOffset, value._color.value, _kFakeHostEndian);
-//            _data.setInt32(_kColorFilterBlendModeOffset, value._blendMode.index, _kFakeHostEndian);
-//        }
-//    }
+    // A color filter to apply when a shape is drawn or when a layer is
+    // composited.
+    //
+    // See [ColorFilter] for details.
+    //
+    // When a shape is being drawn, [colorFilter] overrides [color] and [shader].
+    var colorFilter: ColorFilter?
+        get() = internalColorFilter
+        set(value) {
+            internalColorFilter = value
+            if (value != null) {
+                internalPaint.colorFilter = PorterDuffColorFilter(
+                        value.color.value,
+                        value.blendMode.toPorterDuffMode()
+                )
+            } else {
+                internalPaint.colorFilter = null
+            }
+        }
 
 //    @override
 //    String toString() {

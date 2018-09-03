@@ -477,8 +477,8 @@ class Canvas {
 //    /// five regions are drawn by stretching them to fit such that they exactly
 //    /// cover the destination rectangle while maintaining their relative
 //    /// positions.
-    // TODO(Migration/njawad implement drawImageNine after porting Image w/ Bitmap wrapper
-//    void drawImageNine(Image image, Rect center, Rect dst, Paint paint) {
+    fun drawImageNine(image: Image, center: Rect, dst: Rect, paint: Paint) {
+        TODO("Migration/njawad implement drawImageNine after porting Image w/ Bitmap wrapper")
 //        assert(image != null); // image is checked on the engine side
 //        assert(_rectIsValid(center));
 //        assert(_rectIsValid(dst));
@@ -494,7 +494,7 @@ class Canvas {
 //                dst.bottom,
 //                paint._objects,
 //                paint._data);
-//    }
+    }
 //    void _drawImageNine(Image image,
 //    double centerLeft,
 //    double centerTop,

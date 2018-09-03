@@ -213,22 +213,22 @@ class Alignment(
         )
     }
 
-//    /// Returns a rect of the given size, aligned within given rect as specified
-//    /// by this alignment.
-//    ///
-//    /// For example, a 100×100 size inscribed on a 200×200 rect using
-//    /// [Alignment.topLeft] would be the 100×100 rect at the top left of
-//    /// the 200×200 rect.
-//    Rect inscribe(Size size, Rect rect) {
-//        final double halfWidthDelta = (rect.width - size.width) / 2.0;
-//        final double halfHeightDelta = (rect.height - size.height) / 2.0;
-//        return new Rect.fromLTWH(
-//                rect.left + halfWidthDelta + x * halfWidthDelta,
-//        rect.top + halfHeightDelta + y * halfHeightDelta,
-//        size.width,
-//        size.height,
-//        );
-//    }
+    // / Returns a rect of the given size, aligned within given rect as specified
+    // / by this alignment.
+    // /
+    // / For example, a 100×100 size inscribed on a 200×200 rect using
+    // / [Alignment.topLeft] would be the 100×100 rect at the top left of
+    // / the 200×200 rect.
+    fun inscribe(size: Size, rect: Rect): Rect {
+        val halfWidthDelta = (rect.width - size.width) / 2.0
+        val halfHeightDelta = (rect.height - size.height) / 2.0
+        return Rect.fromLTWH(
+                rect.left + halfWidthDelta + x * halfWidthDelta,
+        rect.top + halfHeightDelta + y * halfHeightDelta,
+        size.width,
+        size.height
+        )
+    }
 
     override fun resolve(direction: TextDirection?): Alignment = this
 

@@ -19,13 +19,8 @@ package com.example.ui.port
 import android.app.Activity
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.Key
-import androidx.ui.painting.BlendMode
-import androidx.ui.painting.BoxFit
-import androidx.ui.painting.Color
 import androidx.ui.painting.Image
-import androidx.ui.painting.ImageRepeat
 import androidx.ui.widgets.basic.RawImage
 
 class SimpleFlutterActivity : Activity() {
@@ -33,17 +28,10 @@ class SimpleFlutterActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
-        val widget = RawImage(image = Image(bitmap),
-                width = 100.0,
-                height = 100.0,
-                centerSlice = Rect.zero,
-                color = Color(0),
-                fit = BoxFit.fitHeight,
-                key = Key.createKey("key"),
-                repeat = ImageRepeat.noRepeat,
-                scale = 1.0,
-                colorBlendMode = BlendMode.color,
-                matchTextDirection = false)
+        val widget = RawImage(
+                image = Image(bitmap),
+                key = Key.createKey("image")
+        )
         setContentView(SimpleFlutterView(this, widget))
     }
 }

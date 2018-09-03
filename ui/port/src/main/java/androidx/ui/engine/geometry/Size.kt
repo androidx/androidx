@@ -133,15 +133,10 @@ open class Size(val width: Double, val height: Double) : OffsetBase {
      * left-hand-side operand minus the [Offset.dy] dimension of the
      * right-hand-side operand.
      */
-    operator fun minus(other: OffsetBase): OffsetBase {
-        if (other is Size)
-            return Offset(width - other.width, height - other.height)
-        if (other is Offset)
-            return Size(width - other.dx, height - other.dy)
-        throw IllegalArgumentException(other.toString())
+    operator fun minus(other: Offset): Size {
+        return Size(width - other.dx, height - other.dy)
     }
 
-    // TODO(Migration/Filip): Had to introduce this to reduce unsafe castings
     operator fun minus(other: Size): Offset {
         return Offset(width - other.width, height - other.height)
     }

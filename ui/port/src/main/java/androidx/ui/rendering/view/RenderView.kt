@@ -57,15 +57,17 @@ class RenderView(
      * passed to the constructor.
      *
      * Always call [scheduleInitialFrame] before changing the configuration.
-        internal set(value) {
-            if (field == value)
-                return
-            field = value
-            replaceRootLayer(_updateMatricesAndCreateNewRootLayer())
-            assert(_rootTransform != null)
-            markNeedsLayout()
-        }
+     */
+    internal set(value) {
+        if (field == value)
+            return
+        field = value
+        replaceRootLayer(_updateMatricesAndCreateNewRootLayer())
+        assert(_rootTransform != null)
+        markNeedsLayout()
+    }
 
+    /**
      * Bootstrap the rendering pipeline by scheduling the first frame.
      *
      * This should only be called once, and must be called before changing

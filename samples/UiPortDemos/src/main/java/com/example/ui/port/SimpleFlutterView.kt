@@ -19,8 +19,11 @@ package com.example.ui.port
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
+import androidx.ui._updateWindowMetrics
 import androidx.ui.compositing.Scene
+import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.window.Window
+import androidx.ui.engine.window.WindowPadding
 import androidx.ui.flow.CompositorContext
 import androidx.ui.painting.Canvas
 import androidx.ui.skia.SkMatrix
@@ -31,16 +34,46 @@ import androidx.ui.widgets.framework.Widget
 @SuppressLint("ViewConstructor")
 class SimpleFlutterView(
     context: Context,
-    widget: Widget
+    private val widget: Widget
 ) : View(context) {
 
     private var scene: Scene? = null
+    private var initialized: Boolean = false
 
-    init {
-        runApp(widget)
-        Window.renderDelegate = { newScene ->
-            scene = newScene
-            invalidate()
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        updateMetrics()
+        if (!initialized) {
+            initialized = true
+            Window.renderDelegate = { newScene ->
+                scene = newScene
+                invalidate()
+            }
+            runApp(widget)
+        }
+    }
+
+    private fun updateMetrics() {
+        val devicePixelRatio = resources.displayMetrics.density.toDouble()
+        val size = Size(measuredWidth.toDouble(), measuredHeight.toDouble())
+        val padding = WindowPadding(paddingLeft.toDouble(), paddingTop.toDouble(),
+                paddingRight.toDouble(), paddingBottom.toDouble())
+        if (Window.devicePixelRatio != devicePixelRatio ||
+                Window.physicalSize != size ||
+                Window.padding != padding) {
+            _updateWindowMetrics(
+                    devicePixelRatio = devicePixelRatio,
+                    width = size.width,
+                    height = size.height,
+                    paddingTop = padding.top,
+                    paddingRight = padding.right,
+                    paddingBottom = padding.bottom,
+                    paddingLeft = padding.left,
+                    viewInsetTop = 0.0,
+                    viewInsetRight = 0.0,
+                    viewInsetBottom = 0.0,
+                    viewInsetLeft = 0.0
+            )
         }
     }
 

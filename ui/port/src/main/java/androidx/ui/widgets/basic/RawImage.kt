@@ -56,18 +56,18 @@ class RawImage(
         // /
         // / If null, the image will pick a size that best preserves its intrinsic
         // / aspect ratio.
-    val width: Double,
+    val width: Double? = null,
         // / If non-null, require the image to have this height.
         // /
         // / If null, the image will pick a size that best preserves its intrinsic
         // / aspect ratio.
-    val height: Double,
+    val height: Double? = null,
         // / Specifies the image's scale.
         // /
         // / Used when determining the best display size for the image.
     val scale: Double = 1.0,
         // / If non-null, this color is blended with each image pixel using [colorBlendMode].
-    val color: Color,
+    val color: Color? = null,
         // / Used to combine [color] with this image.
         // /
         // / The default is [BlendMode.srcIn]. In terms of the blend mode, [color] is
@@ -76,12 +76,12 @@ class RawImage(
         // / See also:
         // /
         // /  * [BlendMode], which includes an illustration of the effect of each blend mode.
-    val colorBlendMode: BlendMode,
+    val colorBlendMode: BlendMode? = null,
         // / How to inscribe the image into the space allocated during layout.
         // /
         // / The default varies based on the other fields. See the discussion at
         // / [paintImage].
-    val fit: BoxFit,
+    val fit: BoxFit? = null,
         // / How to align the image within its bounds.
         // /
         // / The alignment aligns the given position in the image to the given position
@@ -117,7 +117,7 @@ class RawImage(
         // / region of the image above and below the center slice will be stretched
         // / only horizontally and the region of the image to the left and right of
         // / the center slice will be stretched only vertically.
-    val centerSlice: Rect,
+    val centerSlice: Rect? = null,
         // / Whether to paint the image in the direction of the [TextDirection].
         // /
         // / If this is true, then in [TextDirection.ltr] contexts, the image will be

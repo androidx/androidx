@@ -30,9 +30,9 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.ColorFilter
 import androidx.ui.painting.Image
 import androidx.ui.painting.ImageRepeat
-import androidx.ui.painting.Paint
 import androidx.ui.painting.alignment.Alignment
 import androidx.ui.painting.alignment.AlignmentGeometry
+import androidx.ui.painting.paintImage
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
@@ -54,15 +54,15 @@ import androidx.ui.text.TextDirection
 // / [alignment] will need resolving or if [matchTextDirection] is true.
 class RenderImage(
     image: Image,
-    width: Double,
-    height: Double,
+    width: Double?,
+    height: Double?,
     scale: Double = 1.0,
-    color: Color,
+    color: Color?,
     colorBlendMode: BlendMode?,
-    fit: BoxFit,
+    fit: BoxFit?,
     alignment: AlignmentGeometry = Alignment.center,
     repeat: ImageRepeat = ImageRepeat.noRepeat,
-    centerSlice: Rect,
+    centerSlice: Rect?,
     matchTextDirection: Boolean = false,
     textDirection: TextDirection?
 ) : RenderBox() {
@@ -120,7 +120,7 @@ class RenderImage(
     // /
     // / If null, the image will pick a size that best preserves its intrinsic
     // / aspect ratio.
-    var width: Double
+    var width: Double?
         get() = _width
         set(value) = run {
             if (value == _width)
@@ -133,7 +133,7 @@ class RenderImage(
     // /
     // / If null, the image will pick a size that best preserves its intrinsic
     // / aspect ratio.
-    var height: Double
+    var height: Double?
         get() = _height
         set(value) = run {
             if (value == _height)
@@ -161,14 +161,13 @@ class RenderImage(
         if (_color == null)
             _colorFilter = null
         else
-            _colorFilter = ColorFilter(_color, _colorBlendMode ?: BlendMode.srcIn)
+            _colorFilter = ColorFilter(_color!!, _colorBlendMode ?: BlendMode.srcIn)
     }
 
     // / If non-null, this color is blended with each image pixel using [colorBlendMode].
-    var color: Color
+    var color: Color?
         get() = _color
         set(value) = run {
-            assert(value != null)
             if (value == _color)
                 return
             _color = value
@@ -187,7 +186,6 @@ class RenderImage(
     var colorBlendMode: BlendMode?
         get() = _colorBlendMode
         set(value) = run {
-            assert(value != null)
             if (value == _colorBlendMode)
                 return
             _colorBlendMode = value
@@ -199,10 +197,9 @@ class RenderImage(
     // /
     // / The default varies based on the other fields. See the discussion at
     // / [paintImage].
-    var fit: BoxFit
+    var fit: BoxFit?
         get() = _fit
         set(value) = run {
-            assert(value != null)
             if (value == _fit)
                 return
             _fit = value
@@ -241,10 +238,9 @@ class RenderImage(
     // / region of the image above and below the center slice will be stretched
     // / only horizontally and the region of the image to the left and right of
     // / the center slice will be stretched only vertically.
-    var centerSlice: Rect
+    var centerSlice: Rect?
         get() = _centerSlice
         set(value) = run {
-            assert(value != null)
             if (value == _centerSlice)
                 return
             _centerSlice = value
@@ -349,21 +345,20 @@ class RenderImage(
         if (_image == null)
             return
         _resolve()
+        assert(size != null)
         assert(_resolvedAlignment != null)
         assert(_flipHorizontally != null)
-        // TODO("Migration/Andrey: Paint it with paintImage helper method applying all the params")
-        context.canvas.drawImage(_image, offset, Paint())
 
-//        paintImage(
-//            canvas: context.canvas,
-//            rect: offset & size,
-//            image: _image,
-//            colorFilter: _colorFilter,
-//            fit: _fit,
-//            alignment: _resolvedAlignment,
-//            centerSlice: _centerSlice,
-//            repeat: _repeat,
-//            flipHorizontally: _flipHorizontally);
+        paintImage(
+            canvas = context.canvas,
+            rect = offset.and(size!!),
+            image = _image,
+            colorFilter = _colorFilter,
+            fit = _fit,
+            alignment = _resolvedAlignment!!,
+            centerSlice = _centerSlice,
+            repeat = _repeat,
+            flipHorizontally = _flipHorizontally!!)
     }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
