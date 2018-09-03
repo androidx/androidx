@@ -162,6 +162,7 @@ abstract class MediaRouteProviderProtocol {
     public static final String CLIENT_DATA_MEMBER_ROUTE_ID = "memberRouteId";
     public static final String DATA_KEY_GROUPABLE_SECION_TITLE = "groupableTitle";
     public static final String DATA_KEY_TRANSFERABLE_SECTION_TITLE = "transferableTitle";
+    public static final String DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS = "dynamicRoutes";
 
     /*
      * Messages sent from the service to the client.
@@ -220,6 +221,15 @@ abstract class MediaRouteProviderProtocol {
      *       - DATA_KEY_TRANSFERABLE_SECTION_TITLE: (string) transferable section title
      */
     public static final int SERVICE_MSG_DYNAMIC_ROUTE_CREATED = 6;
+
+    /** (service v2)
+     * Dynamic route controller created. Sends back related data.
+     * - arg1    : reserved (0)
+     * - arg2    : controllerId
+     * - obj    : bundle
+     *       - DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS: (list of bundle)
+     */
+    public static final int SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED = 7;
 
     public static final String SERVICE_DATA_ERROR = "error";
 

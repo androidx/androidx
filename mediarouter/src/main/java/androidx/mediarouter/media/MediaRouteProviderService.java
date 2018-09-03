@@ -42,6 +42,8 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_U
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_MEMBER_ROUTES;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_ROUTE_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_1;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol
+        .DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol
         .DATA_KEY_TRANSFERABLE_SECTION_TITLE;
@@ -53,6 +55,8 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DESCRIPTOR_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol
         .SERVICE_MSG_DYNAMIC_ROUTE_CREATED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol
+        .SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
@@ -74,9 +78,11 @@ import android.util.SparseArray;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.ObjectsCompat;
+import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -645,6 +651,17 @@ public abstract class MediaRouteProviderService extends Service {
         private final SparseArray<MediaRouteProvider.RouteController> mControllers =
                 new SparseArray<MediaRouteProvider.RouteController>();
 
+        final DynamicGroupRouteController.OnDynamicRoutesChangedListener
+                mDynamicRoutesChangedListener =
+                new DynamicGroupRouteController.OnDynamicRoutesChangedListener() {
+                    @Override
+                    public void onRoutesChanged(
+                            DynamicGroupRouteController controller,
+                            Collection<DynamicGroupRouteController.DynamicRouteDescriptor> routes) {
+                        sendDynamicRouteDescriptors(controller, routes);
+                    }
+                };
+
         public ClientRecord(Messenger messenger, int version) {
             mMessenger = messenger;
             mVersion = version;
@@ -695,6 +712,9 @@ public abstract class MediaRouteProviderService extends Service {
             if (mControllers.indexOfKey(controllerId) < 0) {
                 MediaRouteProvider.DynamicGroupRouteController controller =
                         mProvider.onCreateDynamicGroupRouteController(initialMemberRouteId);
+                controller.setOnDynamicRoutesChangedListener(
+                        MainHandlerExecutor.getExecutor(getApplicationContext()),
+                        mDynamicRoutesChangedListener);
                 if (controller != null) {
                     mControllers.put(controllerId, controller);
                     Bundle bundle = new Bundle();
@@ -740,6 +760,26 @@ public abstract class MediaRouteProviderService extends Service {
         @Override
         public String toString() {
             return getClientId(mMessenger);
+        }
+
+        void sendDynamicRouteDescriptors(
+                DynamicGroupRouteController controller,
+                Collection<DynamicGroupRouteController.DynamicRouteDescriptor> descriptors) {
+            int index = mControllers.indexOfValue(controller);
+            if (index < 0) {
+                Log.d(TAG, "Ignoring unknown dynamic group route controller: " + controller);
+                return;
+            }
+            int controllerId = mControllers.keyAt(index);
+
+            ArrayList<Bundle> dynamicRouteBundles = new ArrayList<Bundle>();
+            for (DynamicGroupRouteController.DynamicRouteDescriptor descriptor: descriptors) {
+                dynamicRouteBundles.add(descriptor.toBundle());
+            }
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList(DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS, dynamicRouteBundles);
+            sendReply(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED,
+                    0, controllerId, bundle, null);
         }
     }
 

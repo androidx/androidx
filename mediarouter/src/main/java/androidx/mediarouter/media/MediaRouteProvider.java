@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
@@ -531,6 +532,12 @@ public abstract class MediaRouteProvider {
          * This is used in {@link OnDynamicRoutesChangedListener}.
          */
         public static final class DynamicRouteDescriptor {
+            static final String KEY_MEDIA_ROUTE_DESCRIPTOR = "mrDescriptor";
+            static final String KEY_SELECTION_STATE = "selectionState";
+            static final String KEY_IS_UNSELECTABLE = "isUnselectable";
+            static final String KEY_IS_GROUPABLE = "isGroupable";
+            static final String KEY_IS_TRANSFERABLE = "isTransferable";
+
             /**
              * @hide
              */
@@ -572,14 +579,22 @@ public abstract class MediaRouteProvider {
              */
             public static final int SELECTED = 3;
 
-            MediaRouteDescriptor mMediaRouteDescriptor;
+            final MediaRouteDescriptor mMediaRouteDescriptor;
             @SelectionState
-            int mSelectionState;
-            boolean mIsUnselectable;
-            boolean mIsGroupable;
-            boolean mIsTransferable;
+            final int mSelectionState;
+            final boolean mIsUnselectable;
+            final boolean mIsGroupable;
+            final boolean mIsTransferable;
+            Bundle mBundle;
 
-            DynamicRouteDescriptor() {
+            DynamicRouteDescriptor(
+                    MediaRouteDescriptor mediaRouteDescriptor, @SelectionState int selectionState,
+                    boolean isUnselectable, boolean isGroupable, boolean isTransferable) {
+                mMediaRouteDescriptor = mediaRouteDescriptor;
+                mSelectionState = selectionState;
+                mIsUnselectable = isUnselectable;
+                mIsGroupable = isGroupable;
+                mIsTransferable = isTransferable;
             }
 
             /**
@@ -633,6 +648,32 @@ public abstract class MediaRouteProvider {
              */
             public boolean isTransferable() {
                 return mIsTransferable;
+            }
+
+            Bundle toBundle() {
+                if (mBundle == null) {
+                    mBundle = new Bundle();
+                    mBundle.putBundle(KEY_MEDIA_ROUTE_DESCRIPTOR, mMediaRouteDescriptor.asBundle());
+                    mBundle.putInt(KEY_SELECTION_STATE, mSelectionState);
+                    mBundle.putBoolean(KEY_IS_UNSELECTABLE, mIsUnselectable);
+                    mBundle.putBoolean(KEY_IS_GROUPABLE, mIsGroupable);
+                    mBundle.putBoolean(KEY_IS_TRANSFERABLE, mIsTransferable);
+                }
+                return mBundle;
+            }
+
+            static DynamicRouteDescriptor fromBundle(Bundle bundle) {
+                if (bundle == null) {
+                    return null;
+                }
+                MediaRouteDescriptor descriptor = MediaRouteDescriptor.fromBundle(
+                        bundle.getBundle(KEY_MEDIA_ROUTE_DESCRIPTOR));
+                int selectionState = bundle.getInt(KEY_SELECTION_STATE, UNSELECTED);
+                boolean isUnselectable = bundle.getBoolean(KEY_IS_UNSELECTABLE, false);
+                boolean isGroupable = bundle.getBoolean(KEY_IS_GROUPABLE, false);
+                boolean isTransferable = bundle.getBoolean(KEY_IS_TRANSFERABLE, false);
+                return new DynamicRouteDescriptor(descriptor, selectionState, isUnselectable,
+                        isGroupable, isTransferable);
             }
 
             /**
@@ -700,13 +741,9 @@ public abstract class MediaRouteProvider {
                  * Builds the {@link DynamicRouteDescriptor}.
                  */
                 public DynamicRouteDescriptor build() {
-                    DynamicRouteDescriptor descriptor = new DynamicRouteDescriptor();
-                    descriptor.mMediaRouteDescriptor = this.mRouteDescriptor;
-                    descriptor.mSelectionState = this.mSelectionState;
-                    descriptor.mIsUnselectable = this.mIsUnselectable;
-                    descriptor.mIsGroupable = this.mIsGroupable;
-                    descriptor.mIsTransferable = this.mIsTransferable;
-                    return descriptor;
+                    return new DynamicRouteDescriptor(
+                            mRouteDescriptor, mSelectionState, mIsUnselectable, mIsGroupable,
+                            mIsTransferable);
                 }
             }
         }
