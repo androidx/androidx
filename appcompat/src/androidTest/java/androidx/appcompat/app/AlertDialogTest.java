@@ -49,6 +49,8 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Message;
@@ -62,6 +64,7 @@ import android.widget.CheckedTextView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.StringRes;
@@ -75,7 +78,9 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -221,6 +226,23 @@ public class AlertDialogTest {
         onView(withText(dialogInitialMessage)).inRoot(isDialog()).check(doesNotExist());
         // and that the new message is showing
         onView(withText(dialogUpdatedMessage)).inRoot(isDialog()).check(matches(isDisplayed()));
+    }
+
+    // Tests for title
+
+    @Test
+    @SmallTest
+    public void testThemeMainFontIsAppliedToTitle() {
+        final Context context = mActivityTestRule.getActivity();
+        context.setTheme(R.style.Theme_CustomFont);
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
+                .setTitle(R.string.alert_dialog_title);
+        wireBuilder(builder);
+
+        final String title = context.getString(R.string.alert_dialog_title);
+        onView(withId(R.id.test_button)).perform(click());
+        onView(withText(title)).inRoot(isDialog()).check(matches(hasA3emFont()));
     }
 
     // Tests for custom title logic
@@ -1376,5 +1398,43 @@ public class AlertDialogTest {
         public int getIntrinsicHeight() {
             return mHeight;
         }
+    }
+
+    /**
+     * Matcher checking that:
+     * - the View is a TextView
+     * - uses a font with the property that the width of glyph 'a' is triple the width of glyph 'b'
+     */
+    private static class A3emFontMatcher extends TypeSafeMatcher<View> {
+
+        private static float measureText(final String text, final Typeface typeface) {
+            final Paint paint = new Paint();
+
+            paint.setTypeface(typeface);
+            return paint.measureText(text);
+        }
+
+        @Override
+        protected boolean matchesSafely(View item) {
+            if (!(item instanceof TextView)) {
+                return false;
+            }
+
+            final TextView textView = (TextView) item;
+            final Typeface typeface = textView.getTypeface();
+
+            assertEquals(measureText("a", typeface), measureText("bbb", typeface), 0f);
+
+            return true;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("is a TextView and has a specific font applied");
+        }
+    }
+
+    private static Matcher<View> hasA3emFont() {
+        return new A3emFontMatcher();
     }
 }
