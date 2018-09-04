@@ -2712,7 +2712,7 @@ public final class MediaRouter {
                     // Build a set of descriptor IDs for the new route group.
                     Set<String> idSet = new HashSet<>();
                     for (RouteInfo route : routes) {
-                        idSet.add(route.mDescriptorId);
+                        idSet.add(route.mUniqueId);
                     }
                     // Unselect route controllers for the removed routes.
                     Iterator<Map.Entry<String, RouteController>> iter =

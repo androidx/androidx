@@ -54,8 +54,6 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
     SampleDynamicGroupMrp(Context context) {
         super(context);
-        initializeRoutes();
-        publishRoutes();
     }
 
     @Override
@@ -90,7 +88,8 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         return controller;
     }
 
-    private void initializeRoutes() {
+    @Override
+    protected void initializeRoutes() {
         Resources r = getContext().getResources();
         Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
         settingsIntent.setClass(getContext(), SampleMediaRouteSettingsActivity.class)

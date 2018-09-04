@@ -160,7 +160,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         return new SampleRouteController(routeId);
     }
 
-    private void initializeRoutes() {
+    protected void initializeRoutes() {
         Resources r = getContext().getResources();
         Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
         settingsIntent.setClass(getContext(), SampleMediaRouteSettingsActivity.class)
@@ -225,7 +225,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         mRouteDescriptors.put(routeDescriptor1.getId(), routeDescriptor1);
         mRouteDescriptors.put(routeDescriptor2.getId(), routeDescriptor2);
         mRouteDescriptors.put(routeDescriptor3.getId(), routeDescriptor3);
-        mRouteDescriptors.put(routeDescriptor3.getId(), routeDescriptor4);
+        mRouteDescriptors.put(routeDescriptor4.getId(), routeDescriptor4);
     }
 
     protected void publishRoutes() {
