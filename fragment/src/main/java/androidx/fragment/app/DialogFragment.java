@@ -93,7 +93,7 @@ public class DialogFragment extends Fragment
     boolean mShowsDialog = true;
     int mBackStackId = -1;
 
-    Dialog mDialog;
+    @Nullable Dialog mDialog;
     boolean mViewDestroyed;
     boolean mDismissed;
     boolean mShownByMe;
@@ -226,8 +226,30 @@ public class DialogFragment extends Fragment
         }
     }
 
+    /**
+     * Return the {@link Dialog} this fragment is currently controlling.
+     *
+     * @see #requireDialog()
+     */
+    @Nullable
     public Dialog getDialog() {
         return mDialog;
+    }
+
+    /**
+     * Return the {@link Dialog} this fragment is currently controlling.
+     *
+     * @throws IllegalStateException if the Dialog has not yet been created (before
+     * {@link #onCreateDialog(Bundle)}) or has been destroyed (after {@link #onDestroyView()}.
+     * @see #getDialog()
+     */
+    @NonNull
+    public final Dialog requireDialog() {
+        Dialog dialog = getDialog();
+        if (dialog == null) {
+            throw new IllegalStateException("DialogFragment " + this + " does not have a Dialog.");
+        }
+        return dialog;
     }
 
     @StyleRes

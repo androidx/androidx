@@ -537,6 +537,7 @@ public class FragmentActivity extends ComponentActivity implements
      * if you want to retain your own state.
      */
     @Override
+    @Nullable
     public final Object onRetainNonConfigurationInstance() {
         Object custom = onRetainCustomNonConfigurationInstance();
 
@@ -621,6 +622,7 @@ public class FragmentActivity extends ComponentActivity implements
      * Use this instead of {@link #onRetainNonConfigurationInstance()}.
      * Retrieve later with {@link #getLastCustomNonConfigurationInstance()}.
      */
+    @Nullable
     public Object onRetainCustomNonConfigurationInstance() {
         return null;
     }
@@ -630,6 +632,7 @@ public class FragmentActivity extends ComponentActivity implements
      * {@link #onRetainCustomNonConfigurationInstance()}.
      */
     @SuppressWarnings("deprecation")
+    @Nullable
     public Object getLastCustomNonConfigurationInstance() {
         NonConfigurationInstances nc = (NonConfigurationInstances)
                 getLastNonConfigurationInstance();
@@ -661,7 +664,8 @@ public class FragmentActivity extends ComponentActivity implements
      * @param args additional arguments to the dump request.
      */
     @Override
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dump(String prefix, @Nullable FileDescriptor fd, PrintWriter writer,
+            @Nullable String[] args) {
         super.dump(prefix, fd, writer, args);
         writer.print(prefix); writer.print("Local FragmentActivity ");
                 writer.print(Integer.toHexString(System.identityHashCode(this)));
@@ -933,7 +937,8 @@ public class FragmentActivity extends ComponentActivity implements
         }
 
         @Override
-        public void onDump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        public void onDump(String prefix, @Nullable FileDescriptor fd, PrintWriter writer,
+                @Nullable String[] args) {
             FragmentActivity.this.dump(prefix, fd, writer, args);
         }
 
@@ -943,6 +948,7 @@ public class FragmentActivity extends ComponentActivity implements
         }
 
         @Override
+        @NonNull
         public LayoutInflater onGetLayoutInflater() {
             return FragmentActivity.this.getLayoutInflater().cloneInContext(FragmentActivity.this);
         }

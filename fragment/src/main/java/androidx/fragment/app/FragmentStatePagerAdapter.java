@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.PagerAdapter;
 
 import java.util.ArrayList;
@@ -74,13 +75,14 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private ArrayList<Fragment> mFragments = new ArrayList<Fragment>();
     private Fragment mCurrentPrimaryItem = null;
 
-    public FragmentStatePagerAdapter(FragmentManager fm) {
+    public FragmentStatePagerAdapter(@NonNull FragmentManager fm) {
         mFragmentManager = fm;
     }
 
     /**
      * Return the Fragment associated with a specified position.
      */
+    @NonNull
     public abstract Fragment getItem(int position);
 
     @Override
@@ -176,6 +178,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
+    @Nullable
     public Parcelable saveState() {
         Bundle state = null;
         if (mSavedState.size() > 0) {
@@ -198,7 +201,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void restoreState(Parcelable state, ClassLoader loader) {
+    public void restoreState(@Nullable Parcelable state, @Nullable ClassLoader loader) {
         if (state != null) {
             Bundle bundle = (Bundle)state;
             bundle.setClassLoader(loader);

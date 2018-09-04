@@ -130,14 +130,14 @@ public class FragmentTabHost extends TabHost
         };
     }
 
-    public FragmentTabHost(Context context) {
+    public FragmentTabHost(@NonNull Context context) {
         // Note that we call through to the version that takes an AttributeSet,
         // because the simple Context construct can result in a broken object!
         super(context, null);
         initFragmentTabHost(context, null);
     }
 
-    public FragmentTabHost(Context context, AttributeSet attrs) {
+    public FragmentTabHost(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initFragmentTabHost(context, attrs);
     }
@@ -190,7 +190,10 @@ public class FragmentTabHost extends TabHost
                 "Must call setup() that takes a Context and FragmentManager");
     }
 
-    public void setup(Context context, FragmentManager manager) {
+    /**
+     * Set up the FragmentTabHost to use the given FragmentManager
+     */
+    public void setup(@NonNull Context context, @NonNull FragmentManager manager) {
         ensureHierarchy(context);  // Ensure views required by super.setup()
         super.setup();
         mContext = context;
@@ -198,7 +201,11 @@ public class FragmentTabHost extends TabHost
         ensureContent();
     }
 
-    public void setup(Context context, FragmentManager manager, int containerId) {
+    /**
+     * Set up the FragmentTabHost to use the given FragmentManager
+     */
+    public void setup(@NonNull Context context, @NonNull FragmentManager manager,
+            int containerId) {
         ensureHierarchy(context);  // Ensure views required by super.setup()
         super.setup();
         mContext = context;
