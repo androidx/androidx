@@ -21,6 +21,7 @@ import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -41,10 +42,12 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.RemoteActionCompat;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextClassifier.EntityConfig;
 import androidx.textclassifier.TextClassifier.EntityType;
+import androidx.textclassifier.widget.ToolbarController;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -64,7 +67,6 @@ import java.util.concurrent.Executors;
 public final class TextLinks {
 
     private static final String LOG_TAG = "TextLinks";
-
     private static final String EXTRA_FULL_TEXT = "text";
     private static final String EXTRA_LINKS = "links";
 
@@ -567,33 +569,45 @@ public final class TextLinks {
             if (!(text instanceof Spanned)) {
                 return;
             }
+
             final Spanned spanned = (Spanned) text;
             final int start = spanned.getSpanStart(this);
             final int end = spanned.getSpanEnd(this);
+            if (start < 0 || start >= end || end > text.length()) {
+                Log.d(LOG_TAG, "Cannot show link toolbar. Invalid text indices");
+                return;
+            }
+
             final TextClassification.Request request =
                     new TextClassification.Request.Builder(text, start, end)
                             .setReferenceTime(mTextLinkSpanData.getReferenceTime())
                             .setDefaultLocales(getLocales(textView))
                             .build();
             final TextClassifier classifier = mTextLinkSpanData.getTextClassifier();
-
             // TODO: Truncate the text.
             sWorkerExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-
-                    final TextClassification classification = classifier.classifyText(request);
+                    final List<RemoteActionCompat> actions =
+                            classifier.classifyText(request).getActions();
                     sMainThreadExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            if (!classification.getActions().isEmpty()) {
-                                // TODO: Show the toolbar instead.
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                ToolbarController.getInstance(textView).show(actions, start, end);
+                                return;
+                            }
+
+                            if (!actions.isEmpty()) {
                                 try {
-                                    classification.getActions().get(0).getActionIntent().send();
+                                    actions.get(0).getActionIntent().send();
                                 } catch (PendingIntent.CanceledException e) {
                                     Log.e(LOG_TAG, "Error handling TextLinkSpan click", e);
                                 }
+                                return;
                             }
+
+                            Log.d(LOG_TAG, "Cannot trigger link. No actions found.");
                         }
                     });
                 }

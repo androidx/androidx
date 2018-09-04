@@ -18,11 +18,17 @@ package androidx.textclassifier;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.actionWithAssertions;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.textclassifier.widget.FloatingToolbarEspressoUtils.onFloatingToolbar;
+import static androidx.textclassifier.widget.FloatingToolbarEspressoUtils.onFloatingToolbarItem;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.View;
@@ -99,6 +105,7 @@ public final class TextLinkSpanTest {
         final TextView textView = createTextViewWithSpan(span);
 
         performSpanClick(span, textView);
+        maybeClickMenu();
         mReceiver.assertIntentReceived();
     }
 
@@ -126,6 +133,7 @@ public final class TextLinkSpanTest {
         final TextView textView = createTextViewWithSpan(span);
 
         performSpanClick(span, textView);
+        maybeCheckMenuIsDisplayed();
         mReceiver.assertIntentNotReceived();
     }
 
@@ -178,5 +186,17 @@ public final class TextLinkSpanTest {
                 action.run();
             }
         });
+    }
+
+    private static void maybeClickMenu() throws Exception {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            onFloatingToolbarItem(ITEM).perform(click());
+        }
+    }
+
+    private static void maybeCheckMenuIsDisplayed() throws Exception {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            onFloatingToolbar().check(matches(isDisplayed()));
+        }
     }
 }
