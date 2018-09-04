@@ -19,7 +19,7 @@ package androidx.room.vo
 import javax.lang.model.element.Element
 
 /**
- * Represents the 'languageid' column of an FtsEntity
+ * Represents the 'languageid' column of an FTS entity.
  */
 data class LanguageId(val declaredIn: Element?, val field: Field?) {
 

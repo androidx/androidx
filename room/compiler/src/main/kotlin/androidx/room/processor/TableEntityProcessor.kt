@@ -17,12 +17,12 @@
 package androidx.room.processor
 
 import androidx.room.ext.getAsBoolean
-import androidx.room.ext.getAsInt
-import androidx.room.ext.getAsString
 import androidx.room.ext.getAsStringList
-import androidx.room.ext.toType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
+import androidx.room.processor.EntityProcessor.Companion.createIndexName
+import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
+import androidx.room.processor.EntityProcessor.Companion.extractIndices
 import androidx.room.processor.EntityProcessor.Companion.extractTableName
 import androidx.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
@@ -31,22 +31,17 @@ import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Entity
 import androidx.room.vo.Field
 import androidx.room.vo.ForeignKey
-import androidx.room.vo.ForeignKeyAction
 import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import androidx.room.vo.PrimaryKey
 import androidx.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.AnnotationMirrors.getAnnotationValue
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import javax.lang.model.element.AnnotationMirror
-import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.SimpleAnnotationValueVisitor6
 
 class TableEntityProcessor internal constructor(
     baseContext: Context,
@@ -506,106 +501,4 @@ class TableEntityProcessor internal constructor(
         } ?: emptyList()
         return myIndices + loadSuperIndices(parentElement.superclass, tableName, inherit)
     }
-
-    companion object {
-
-        private fun extractIndices(
-            annotation: AnnotationMirror,
-            tableName: String
-        ): List<IndexInput> {
-            val arrayOfIndexAnnotations = AnnotationMirrors.getAnnotationValue(annotation,
-                    "indices")
-            return INDEX_LIST_VISITOR.visit(arrayOfIndexAnnotations, tableName)
-        }
-
-        private val INDEX_LIST_VISITOR = object
-            : SimpleAnnotationValueVisitor6<List<IndexInput>, String>() {
-            override fun visitArray(
-                values: MutableList<out AnnotationValue>?,
-                tableName: String
-            ): List<IndexInput> {
-                return values?.mapNotNull {
-                    INDEX_VISITOR.visit(it, tableName)
-                } ?: emptyList()
-            }
-        }
-
-        private val INDEX_VISITOR = object : SimpleAnnotationValueVisitor6<IndexInput?, String>() {
-            override fun visitAnnotation(a: AnnotationMirror?, tableName: String): IndexInput? {
-                val fieldInput = getAnnotationValue(a, "value").getAsStringList()
-                val unique = getAnnotationValue(a, "unique").getAsBoolean(false)
-                val nameValue = getAnnotationValue(a, "name")
-                        .getAsString("")
-                val name = if (nameValue == null || nameValue == "") {
-                    createIndexName(fieldInput, tableName)
-                } else {
-                    nameValue
-                }
-                return IndexInput(name, unique, fieldInput)
-            }
-        }
-
-        private fun createIndexName(columnNames: List<String>, tableName: String): String {
-            return Index.DEFAULT_PREFIX + tableName + "_" + columnNames.joinToString("_")
-        }
-
-        private fun extractForeignKeys(annotation: AnnotationMirror): List<ForeignKeyInput> {
-            val arrayOfForeignKeyAnnotations = getAnnotationValue(annotation, "foreignKeys")
-            return FOREIGN_KEY_LIST_VISITOR.visit(arrayOfForeignKeyAnnotations)
-        }
-
-        private val FOREIGN_KEY_LIST_VISITOR = object
-            : SimpleAnnotationValueVisitor6<List<ForeignKeyInput>, Void?>() {
-            override fun visitArray(
-                values: MutableList<out AnnotationValue>?,
-                void: Void?
-            ): List<ForeignKeyInput> {
-                return values?.mapNotNull {
-                    FOREIGN_KEY_VISITOR.visit(it)
-                } ?: emptyList()
-            }
-        }
-
-        private val FOREIGN_KEY_VISITOR = object : SimpleAnnotationValueVisitor6<ForeignKeyInput?,
-                Void?>() {
-            override fun visitAnnotation(a: AnnotationMirror?, void: Void?): ForeignKeyInput? {
-                val entityClass = try {
-                    getAnnotationValue(a, "entity").toType()
-                } catch (notPresent: TypeNotPresentException) {
-                    return null
-                }
-                val parentColumns = getAnnotationValue(a, "parentColumns").getAsStringList()
-                val childColumns = getAnnotationValue(a, "childColumns").getAsStringList()
-                val onDeleteInput = getAnnotationValue(a, "onDelete").getAsInt()
-                val onUpdateInput = getAnnotationValue(a, "onUpdate").getAsInt()
-                val deferred = getAnnotationValue(a, "deferred").getAsBoolean(true)
-                val onDelete = ForeignKeyAction.fromAnnotationValue(onDeleteInput)
-                val onUpdate = ForeignKeyAction.fromAnnotationValue(onUpdateInput)
-                return ForeignKeyInput(
-                        parent = entityClass,
-                        parentColumns = parentColumns,
-                        childColumns = childColumns,
-                        onDelete = onDelete,
-                        onUpdate = onUpdate,
-                        deferred = deferred)
-            }
-        }
-    }
-
-    /**
-     * processed Index annotation output
-     */
-    data class IndexInput(val name: String, val unique: Boolean, val columnNames: List<String>)
-
-    /**
-     * ForeignKey, before it is processed in the context of a database.
-     */
-    data class ForeignKeyInput(
-        val parent: TypeMirror,
-        val parentColumns: List<String>,
-        val childColumns: List<String>,
-        val onDelete: ForeignKeyAction?,
-        val onUpdate: ForeignKeyAction?,
-        val deferred: Boolean
-    )
 }

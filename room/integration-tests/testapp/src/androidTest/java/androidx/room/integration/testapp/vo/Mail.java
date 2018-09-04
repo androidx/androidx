@@ -17,10 +17,12 @@
 package androidx.room.integration.testapp.vo;
 
 import androidx.room.ColumnInfo;
-import androidx.room.Fts4Entity;
+import androidx.room.Entity;
+import androidx.room.Fts4;
 import androidx.room.PrimaryKey;
 
-@Fts4Entity
+@Entity
+@Fts4
 public class Mail {
 
     @PrimaryKey

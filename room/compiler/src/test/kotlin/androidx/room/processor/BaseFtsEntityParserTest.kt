@@ -18,6 +18,8 @@ package androidx.room.processor
 
 import androidx.annotation.NonNull
 import androidx.room.Embedded
+import androidx.room.Fts3
+import androidx.room.Fts4
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.FtsEntity
@@ -35,7 +37,8 @@ abstract class BaseFtsEntityParserTest {
             import androidx.room.*;
             import androidx.annotation.NonNull;
             import java.util.*;
-            @Fts%sEntity%s
+            @Entity%s
+            @Fts%s%s
             public class MyEntity %s {
             """
         const val ENTITY_SUFFIX = "}"
@@ -43,36 +46,39 @@ abstract class BaseFtsEntityParserTest {
 
     fun singleEntity(
         input: String,
-        attributes: Map<String, String> = mapOf(),
+        entityAttributes: Map<String, String> = mapOf(),
+        ftsAttributes: Map<String, String> = mapOf(),
         baseClass: String = "",
         jfos: List<JavaFileObject> = emptyList(),
         classLoader: ClassLoader = javaClass.classLoader,
         handler: (FtsEntity, TestInvocation) -> Unit
     ): CompileTester {
         val ftsVersion = getFtsVersion().toString()
-        val attributesReplacement: String
-        if (attributes.isEmpty()) {
-            attributesReplacement = ""
+        val entityAttributesReplacement = if (entityAttributes.isEmpty()) {
+            ""
         } else {
-            attributesReplacement = "(" +
-                    attributes.entries.joinToString(",") { "${it.key} = ${it.value}" } +
-                    ")".trimIndent()
+            "(" + entityAttributes.entries.joinToString(",") { "${it.key} = ${it.value}" } + ")"
         }
-        val baseClassReplacement: String
-        if (baseClass == "") {
-            baseClassReplacement = ""
+        val ftsAttributesReplacement = if (ftsAttributes.isEmpty()) {
+            ""
         } else {
-            baseClassReplacement = " extends $baseClass"
+            "(" + ftsAttributes.entries.joinToString(",") { "${it.key} = ${it.value}" } + ")"
+        }
+        val baseClassReplacement = if (baseClass == "") {
+            ""
+        } else {
+            " extends $baseClass"
         }
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfos + JavaFileObjects.forSourceString("foo.bar.MyEntity",
-                        ENTITY_PREFIX.format(ftsVersion, attributesReplacement,
-                                baseClassReplacement) + input + ENTITY_SUFFIX))
+                        ENTITY_PREFIX.format(entityAttributesReplacement, ftsVersion,
+                                ftsAttributesReplacement, baseClassReplacement) + input +
+                                ENTITY_SUFFIX))
                 .withClasspathFrom(classLoader)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Entity::class,
-                                androidx.room.Fts3Entity::class,
-                                androidx.room.Fts4Entity::class,
+                                Fts3::class,
+                                Fts4::class,
                                 androidx.room.PrimaryKey::class,
                                 androidx.room.Ignore::class,
                                 Embedded::class,
@@ -80,16 +86,16 @@ abstract class BaseFtsEntityParserTest {
                                 NonNull::class)
                         .nextRunHandler { invocation ->
                             val fts3AnnotatedElements = invocation.roundEnv
-                                    .getElementsAnnotatedWith(androidx.room.Fts3Entity::class.java)
+                                    .getElementsAnnotatedWith(Fts3::class.java)
                             val fts4AnnotatedElements = invocation.roundEnv
-                                    .getElementsAnnotatedWith(androidx.room.Fts4Entity::class.java)
+                                    .getElementsAnnotatedWith(Fts4::class.java)
                             val entity = (fts3AnnotatedElements + fts4AnnotatedElements).first {
                                 it.toString() == "foo.bar.MyEntity"
                             }
-                            val parser = FtsTableEntityProcessor(invocation.context,
+                            val processor = FtsTableEntityProcessor(invocation.context,
                                     MoreElements.asType(entity))
-                            val parsedQuery = parser.process()
-                            handler(parsedQuery, invocation)
+                            val processedEntity = processor.process()
+                            handler(processedEntity, invocation)
                             true
                         }
                         .build())

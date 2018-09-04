@@ -17,6 +17,9 @@
 package androidx.room;
 
 import androidx.annotation.RequiresApi;
+import androidx.room.FtsOptions.MatchInfo;
+import androidx.room.FtsOptions.Order;
+import androidx.room.FtsOptions.Tokenizer;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,26 +27,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a class as an entity. This class will have a mapping SQLite FTS4 table in the database.
+ * Marks an {@link Entity} annotated class as a FTS4 entity. This class will have a mapping SQLite
+ * FTS4 table in the database.
  * <p>
  * <a href="https://www.sqlite.org/fts3.html">FTS3 and FTS4</a> are SQLite virtual table modules
  * that allows full-text searches to be performed on a set of documents.
  * <p>
- * An FtsEntity table always has a column named <code>rowid</code> that is the equivalent of an
- * <code>INTEGER PRIMARY KEY</code> index. Therefore, an FtsEntity can only have a single field
+ * An FTS entity table always has a column named <code>rowid</code> that is the equivalent of an
+ * <code>INTEGER PRIMARY KEY</code> index. Therefore, an FTS entity can only have a single field
  * annotated with {@link PrimaryKey}, it must be named <code>rowid</code> and must be of
  * <code>INTEGER</code> affinity. The field can be optionally omitted in the class but can still be
  * used in queries.
  * <p>
- * All fields in an FtsEntity are of <code>TEXT</code> affinity, except the for the 'rowid' and
+ * All fields in an FTS entity are of <code>TEXT</code> affinity, except the for the 'rowid' and
  * 'languageid' fields.
- * <p>
- * Similar to an {@link Entity}, each FtsEntity must either have a no-arg constructor or a
- * constructor whose parameters match fields (based on type and name).
  * <p>
  * Example:
  * <pre>
- * {@literal @}Fts4Entity
+ * {@literal @}Entity
+ * {@literal @}Fts4
  * public class Mail {
  *   {@literal @}PrimaryKey
  *   {@literal @}ColumnInfo(name = "rowid")
@@ -78,35 +80,28 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
 @RequiresApi(16)
-public @interface Fts4Entity {
-
-    /**
-     * The table name in the SQLite database. If not set, defaults to the class name.
-     *
-     * @return The SQLite tableName of the FtsEntity.
-     */
-    String tableName() default "";
+public @interface Fts4 {
 
     /**
      * The tokenizer to be used in the FTS table.
      * <p>
-     * The default value is {@link FtsOptions#SIMPLE}. Tokenizer arguments can be defined with
+     * The default value is {@link Tokenizer#SIMPLE}. Tokenizer arguments can be defined with
      * {@link #tokenizerArgs()}.
      *
-     * @return The tokenizer to use on the FTS table. This is either {@link FtsOptions#SIMPLE},
-     * {@link FtsOptions#PORTER} or {@link FtsOptions#UNICODE61}.
+     * @return The tokenizer to use on the FTS table. This is either {@link Tokenizer#SIMPLE},
+     * {@link Tokenizer#PORTER} or {@link Tokenizer#UNICODE61}.
      * @see #tokenizerArgs()
      * @see <a href="https://www.sqlite.org/fts3.html#tokenizer">SQLite tokernizers
      * documentation</a>
      */
-    @FtsOptions.Tokenizer int tokenizer() default FtsOptions.SIMPLE;
+    Tokenizer tokenizer() default Tokenizer.SIMPLE;
 
     /**
      * Optional arguments to configure the defined tokenizer.
      * <p>
      * Tokenizer arguments consist of an argument name, followed by an "=" character, followed by
      * the option value. For example, <code>separators=.</code> defines the dot character as an
-     * additional separator when using the {@link FtsOptions#UNICODE61} tokenizer.
+     * additional separator when using the {@link Tokenizer#UNICODE61} tokenizer.
      * <p>
      * The available arguments that can be defined depend on the tokenizer defined, see the
      * <a href="https://www.sqlite.org/fts3.html#tokenizer">SQLite tokernizers documentation</a> for
@@ -158,14 +153,14 @@ public @interface Fts4Entity {
     /**
      * The FTS version used to store text matching information.
      * <p>
-     * The default value is {@link FtsOptions#FTS4}. Disk space consumption can be reduced by
+     * The default value is {@link MatchInfo#FTS4}. Disk space consumption can be reduced by
      * setting this option to FTS3, see
      * <a href=https://www.sqlite.org/fts3.html#the_matchinfo_option>the matchinfo= option
      * documentation</a> for details.
      *
-     * @return The match info version, either {@link FtsOptions#FTS4} or {@link FtsOptions#FTS3}.
+     * @return The match info version, either {@link MatchInfo#FTS4} or {@link MatchInfo#FTS3}.
      */
-    @FtsOptions.MatchInfo int matchInfo() default FtsOptions.FTS4;
+    MatchInfo matchInfo() default MatchInfo.FTS4;
 
     /**
      * The list of column names on the FTS table that won't be indexed.
@@ -188,12 +183,12 @@ public @interface Fts4Entity {
     /**
      * The preferred 'rowid' order of the FTS table.
      * <p>
-     * The default value is {@link FtsOptions#ASC}. If many queries are run against the FTS table
-     * use <code>ORDER BY row DESC</code> then it may improve performance to set this option to
-     * {@link FtsOptions#DESC}, enabling the FTS module to store its data in a way that optimizes
+     * The default value is {@link Order#ASC}. If many queries are run against the FTS table use
+     * <code>ORDER BY row DESC</code> then it may improve performance to set this option to
+     * {@link Order#DESC}, enabling the FTS module to store its data in a way that optimizes
      * returning results in descending order by rowid.
      *
-     * @return The preferred order, either {@link FtsOptions#ASC} or {@link FtsOptions#DESC}.
+     * @return The preferred order, either {@link Order#ASC} or {@link Order#DESC}.
      */
-    @FtsOptions.Order int order() default FtsOptions.ASC;
+    Order order() default Order.ASC;
 }

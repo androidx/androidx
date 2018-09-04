@@ -561,18 +561,20 @@ object ProcessorErrors {
         return "@$annotationName is not allowed in this ${elementKind.name.toLowerCase()}."
     }
 
+    val INDICES_IN_FTS_ENTITY = "Indices not allowed in FTS Entity."
+
+    val FOREIGN_KEYS_IN_FTS_ENTITY = "Foreign Keys not allowed in FTS Entity."
+
     val MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID = "The field with column name 'rowid' in " +
-            "an FtsEntity must be annotated with @PrimaryKey."
+            "an FTS entity must be annotated with @PrimaryKey."
 
-    val TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY = "An FtsEntity can only have a single @PrimaryKey " +
-            "annotated field."
+    val TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY = "An FTS entity can only have a single primary key."
 
-    val INVALID_FTS_ENTITY_PRIMARY_KEY_NAME = "The single @PrimaryKey annotated field in an " +
-            "FtsEntity must either be named 'rowid' or must be annotated with " +
-            "@ColumnInfo(name = \"rowid\")"
+    val INVALID_FTS_ENTITY_PRIMARY_KEY_NAME = "The single primary key field in an FTS entity " +
+            "must either be named 'rowid' or must be annotated with @ColumnInfo(name = \"rowid\")"
 
     val INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY = "The single @PrimaryKey annotated field in an " +
-            "FtsEntity must be of INTEGER affinity."
+            "FTS entity must be of INTEGER affinity."
 
     fun missingLanguageIdField(columnName: String) = "The specified 'languageid' column: " +
             "\"$columnName\", was not found."
@@ -586,12 +588,12 @@ object ProcessorErrors {
 
     val INVALID_FTS_ENTITY_PREFIX_SIZES = "Prefix sizes to index must non-zero positive values."
 
-    val INVALID_FOREIGN_KEY_IN_FTS_ENTITY = "@ForeignKey is not allowed in FtsEntity fields."
+    val INVALID_FOREIGN_KEY_IN_FTS_ENTITY = "@ForeignKey is not allowed in an FTS entity fields."
 
     val FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY = "Cannot find external content entity class."
 
     fun externalContentNotAnEntity(className: String) = "External content entity referenced in " +
-            "a Fts4Entity annotation must be a @Entity class. $className is not an entity"
+            "a Fts4 annotation must be a @Entity class. $className is not an entity"
 
     fun missingFtsContentField(ftsClassName: String, columnName: String, contentClassName: String) =
             "External Content FTS Entity '$ftsClassName' has declared field with column name " +
