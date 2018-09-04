@@ -50,7 +50,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
-import androidx.collection.SimpleArrayMap;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.util.DebugUtils;
 import androidx.core.view.LayoutInflaterCompat;
@@ -84,8 +83,6 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner,
         ViewModelStoreOwner {
-    private static final SimpleArrayMap<String, Class<?>> sClassMap =
-            new SimpleArrayMap<String, Class<?>>();
 
     static final Object USE_DEFAULT_TRANSITION = new Object();
 
@@ -382,7 +379,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Thrown by {@link Fragment#instantiate(Context, String, Bundle)} when
+     * Thrown by {@link FragmentFactory#instantiate(ClassLoader, String, Bundle)} when
      * there is an instantiation failure.
      */
     @SuppressWarnings("JavaLangClash")
@@ -413,14 +410,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Like {@link #instantiate(Context, String, Bundle)} but with a null
      * argument Bundle.
+     * @deprecated Use {@link FragmentManager#getFragmentFactory()} and
+     * {@link FragmentFactory#instantiate(ClassLoader, String, Bundle)}
      */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     public static Fragment instantiate(Context context, String fname) {
         return instantiate(context, fname, null);
     }
 
     /**
      * Create a new instance of a Fragment with the given class name.  This is
-     * the same as calling its empty constructor.
+     * the same as calling its empty constructor, setting the {@link ClassLoader} on the
+     * supplied arguments, then calling {@link #setArguments(Bundle)}.
      *
      * @param context The calling context being used to instantiate the fragment.
      * This is currently just used to get its ClassLoader.
@@ -431,25 +433,21 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @throws InstantiationException If there is a failure in instantiating
      * the given fragment class.  This is a runtime exception; it is not
      * normally expected to happen.
+     * @deprecated Use {@link FragmentManager#getFragmentFactory()} and
+     * {@link FragmentFactory#instantiate(ClassLoader, String, Bundle)}, manually calling
+     * {@link #setArguments(Bundle)} on the returned Fragment.
      */
+    @Deprecated
     public static Fragment instantiate(Context context, String fname, @Nullable Bundle args) {
         try {
-            Class<?> clazz = sClassMap.get(fname);
-            if (clazz == null) {
-                // Class not found in the cache, see if it's real, and try to add it
-                clazz = context.getClassLoader().loadClass(fname);
-                sClassMap.put(fname, clazz);
-            }
-            Fragment f = (Fragment) clazz.getConstructor().newInstance();
+            Class<? extends Fragment> clazz = FragmentFactory.loadFragmentClass(
+                    context.getClassLoader(), fname);
+            Fragment f = clazz.getConstructor().newInstance();
             if (args != null) {
                 args.setClassLoader(f.getClass().getClassLoader());
                 f.setArguments(args);
             }
             return f;
-        } catch (ClassNotFoundException e) {
-            throw new InstantiationException("Unable to instantiate fragment " + fname
-                    + ": make sure class name exists, is public, and has an"
-                    + " empty constructor that is public", e);
         } catch (java.lang.InstantiationException e) {
             throw new InstantiationException("Unable to instantiate fragment " + fname
                     + ": make sure class name exists, is public, and has an"
@@ -464,28 +462,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         } catch (InvocationTargetException e) {
             throw new InstantiationException("Unable to instantiate fragment " + fname
                     + ": calling Fragment constructor caused an exception", e);
-        }
-    }
-
-    /**
-     * Determine if the given fragment name is a support library fragment class.
-     *
-     * @param context Context used to determine the correct ClassLoader to use
-     * @param fname Class name of the fragment to test
-     * @return true if <code>fname</code> is <code>androidx.fragment.app.Fragment</code>
-     *         or a subclass, false otherwise.
-     */
-    static boolean isSupportFragmentClass(Context context, String fname) {
-        try {
-            Class<?> clazz = sClassMap.get(fname);
-            if (clazz == null) {
-                // Class not found in the cache, see if it's real, and try to add it
-                clazz = context.getClassLoader().loadClass(fname);
-                sClassMap.put(fname, clazz);
-            }
-            return Fragment.class.isAssignableFrom(clazz);
-        } catch (ClassNotFoundException e) {
-            return false;
         }
     }
 
@@ -2397,11 +2373,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Override
             public boolean onHasView() {
                 return (mView != null);
-            }
-
-            @Override
-            public Fragment instantiate(Context context, String className, Bundle arguments) {
-                return mHost.instantiate(context, className, arguments);
             }
         }, this);
     }
