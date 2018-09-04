@@ -18,7 +18,6 @@ package androidx.car.widget;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -52,25 +51,25 @@ public class AlphaJumpBucketer {
     }
 
     /**
-     * Creates a collection of {@link IAlphaJumpAdapter.Bucket}s from the given list of strings.
+     * Creates a list of {@link AlphaJumpBucket}s from the given list of strings.
      */
-    public Collection<IAlphaJumpAdapter.Bucket> createBuckets(String[] values) {
+    public List<AlphaJumpBucket> createBuckets(String[] values) {
         return createBuckets(Arrays.asList(values));
     }
 
     /**
-     * Creates a collection of {@link IAlphaJumpAdapter.Bucket}s from the given iterable collection
+     * Creates a list of {@link AlphaJumpBucket}s from the given iterable collection
      * of strings.
     */
-    public Collection<IAlphaJumpAdapter.Bucket> createBuckets(Iterable<String> values) {
+    public List<AlphaJumpBucket> createBuckets(Iterable<String> values) {
         return createBuckets(values.iterator());
     }
 
     /**
-     * Creates the collection of {@link IAlphaJumpAdapter.Bucket}s from the given enumeration of
+     * Creates a list of {@link AlphaJumpBucket}s from the given enumeration of
      * values.
      */
-    public Collection<IAlphaJumpAdapter.Bucket> createBuckets(Iterator<String> values) {
+    public List<AlphaJumpBucket> createBuckets(Iterator<String> values) {
         int index = 0;
         while (values.hasNext()) {
             String value = values.next();
@@ -81,7 +80,7 @@ public class AlphaJumpBucketer {
             }
             index++;
         }
-        ArrayList<IAlphaJumpAdapter.Bucket> buckets = new ArrayList<>();
+        ArrayList<AlphaJumpBucket> buckets = new ArrayList<>();
         buckets.addAll(mBuckets);
         return buckets;
     }
@@ -109,9 +108,9 @@ public class AlphaJumpBucketer {
     }
 
     /**
-     * A basic implementation of {@link IAlphaJumpAdapter.Bucket}.
+     * A basic implementation of {@link AlphaJumpBucket}.
      */
-    public static class Bucket implements IAlphaJumpAdapter.Bucket {
+    public static class Bucket implements AlphaJumpBucket {
         private CharSequence mLabel;
         private int mIndex;
         private Predicate<String> mStringMatcher;
