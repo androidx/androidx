@@ -104,4 +104,8 @@
     </style>
 
     <style name="TextAppearance" parent="TextAppearance.AppCompat" />
+
+    <style name="Theme.CustomFont" parent="@style/Theme.AppCompat.Light">
+        <item name="fontFamily">@font/a3em</item>
+    </style>
 </resources>
