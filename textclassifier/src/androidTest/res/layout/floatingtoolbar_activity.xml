@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2018 The Android Open Source Project
+  ~ Copyright 2018 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,15 +14,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.textclassifier.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
-    <application
-        android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat">
-        <activity
-            android:name="androidx.textclassifier.widget.FloatingToolbarActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-    </application>
-</manifest>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textAlignment="center"
+        android:textIsSelectable="true"
+        android:text="Hello world!"/>
+
+</LinearLayout>
