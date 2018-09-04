@@ -64,7 +64,7 @@ public final class MediaRouteDescriptor {
     static final String KEY_MIN_CLIENT_VERSION = "minClientVersion";
     static final String KEY_MAX_CLIENT_VERSION = "maxClientVersion";
 
-    final Bundle mBundle;
+    Bundle mBundle;
     List<IntentFilter> mControlFilters;
 
     MediaRouteDescriptor(Bundle bundle, List<IntentFilter> controlFilters) {

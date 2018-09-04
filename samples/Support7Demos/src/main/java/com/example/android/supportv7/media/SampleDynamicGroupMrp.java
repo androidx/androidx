@@ -26,6 +26,7 @@ import android.media.MediaRouter;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
@@ -230,9 +231,11 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                     .build();
             mRouteDescriptors.put(mRouteId, groupDescriptor);
             publishRoutes();
-            mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
-                    SampleDynamicGroupRouteController.this,
-                    mDynamicRouteDescriptors.values()));
+            if (mListenerExecutor != null) {
+                mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
+                        SampleDynamicGroupRouteController.this,
+                        mDynamicRouteDescriptors.values()));
+            }
         }
 
         @Override
@@ -263,16 +266,28 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                             .build();
             mRouteDescriptors.put(mRouteId, groupDescriptor);
             publishRoutes();
-            mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
-                    SampleDynamicGroupRouteController.this,
-                    mDynamicRouteDescriptors.values()));
+            if (mListenerExecutor != null) {
+                mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
+                        SampleDynamicGroupRouteController.this,
+                        mDynamicRouteDescriptors.values()));
+            }
         }
 
         @Override
         public void setOnDynamicRoutesChangedListener(
-                Executor executor, OnDynamicRoutesChangedListener listener) {
+                @NonNull Executor executor, OnDynamicRoutesChangedListener listener) {
+            if (executor == null) {
+                throw new IllegalArgumentException("Executor shouldn't be null.");
+            }
             mDynamicRoutesChangedListener = listener;
             mListenerExecutor = executor;
+            if (mDynamicRoutesChangedListener == null) {
+                return;
+            }
+            mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
+                    SampleDynamicGroupRouteController.this,
+                    mDynamicRouteDescriptors.values()));
+
         }
 
         //////////////////////////////////////////////
