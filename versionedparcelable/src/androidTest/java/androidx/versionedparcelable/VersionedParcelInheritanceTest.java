@@ -22,8 +22,10 @@ import static androidx.versionedparcelable.ParcelUtils.toOutputStream;
 import static androidx.versionedparcelable.ParcelUtils.toParcelable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.test.filters.SmallTest;
 
@@ -50,7 +52,7 @@ public class VersionedParcelInheritanceTest {
         mUseStream = useStream;
     }
 
-    private ParcelizableSubImpl parcelCopy(ParcelizableSubImpl obj) {
+    private VersionedParcelable parcelCopy(VersionedParcelable obj) {
         if (mUseStream) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             toOutputStream(obj, outputStream);
@@ -71,8 +73,17 @@ public class VersionedParcelInheritanceTest {
         obj.mSubField = "42";
         obj.mBaseField = 42;
 
-        ParcelizableSubImpl other = parcelCopy(obj);
+        ParcelizableSubImpl other = (ParcelizableSubImpl) parcelCopy(obj);
         assertEquals(obj.mSubField, other.mSubField);
+        assertEquals(obj.mBaseField, other.mBaseField);
+    }
+
+    @Test
+    public void testInheritance_withInnerClass() {
+        BuildableParcelizableSubImpl obj = new BuildableParcelizableSubImpl();
+        obj.mBaseField = 42;
+
+        BuildableParcelizableSubImpl other = (BuildableParcelizableSubImpl) parcelCopy(obj);
         assertEquals(obj.mBaseField, other.mBaseField);
     }
 
@@ -81,6 +92,9 @@ public class VersionedParcelInheritanceTest {
     public static class ParcelizableSubImpl extends ParcelizableImplBase {
         @ParcelField(2)
         public String mSubField;
+
+        @NonParcelField
+        public int mSubNonParcelField;
     }
 
     @VersionedParcelize(allowSerialization = true,
@@ -88,5 +102,26 @@ public class VersionedParcelInheritanceTest {
     public static class ParcelizableImplBase implements VersionedParcelable {
         @ParcelField(1)
         public int mBaseField;
+
+        @NonParcelField
+        public String mBaseNonParcelField;
+    }
+
+    @VersionedParcelize(allowSerialization = true,
+            ignoreParcelables = true)
+    public static class BuildableParcelizableSubImpl extends BuildableParcelizableImplBase {
+        public static class Builder extends BuildableParcelizableImplBase.Builder {
+        }
+    }
+
+    @VersionedParcelize(allowSerialization = true,
+            ignoreParcelables = true)
+    public static class BuildableParcelizableImplBase implements VersionedParcelable {
+        @ParcelField(1)
+        int mBaseField;
+
+        public static class Builder {
+            int mBaseField;
+        }
     }
 }
