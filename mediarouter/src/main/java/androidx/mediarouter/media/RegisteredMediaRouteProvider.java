@@ -42,6 +42,8 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_U
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_MEMBER_ROUTES;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_ROUTE_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_CURRENT;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol
+        .DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol
         .DATA_KEY_TRANSFERABLE_SECTION_TITLE;
@@ -53,6 +55,8 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DESCRIPTOR_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol
         .SERVICE_MSG_DYNAMIC_ROUTE_CREATED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol
+        .SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
@@ -76,6 +80,8 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
+        .DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 
 import java.lang.ref.WeakReference;
@@ -359,6 +365,28 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
+    void onDynamicRouteDescriptorChanged(Connection connection, int controllerId,
+            List<DynamicRouteDescriptor> descriptors) {
+        if (mActiveConnection == connection) {
+            if (DEBUG) {
+                Log.d(TAG, this + ": DynamicRouteDescriptors changed, descriptors=" + descriptors);
+            }
+            ControllerConnection controller = findControllerById(controllerId);
+            if (controller instanceof RegisteredDynamicController) {
+                ((RegisteredDynamicController) controller).onDynamicRoutesChanged(descriptors);
+            }
+        }
+    }
+
+    private ControllerConnection findControllerById(int id) {
+        for (ControllerConnection controller: mControllerConnections) {
+            if (controller.getControllerId() == id) {
+                return controller;
+            }
+        }
+        return null;
+    }
+
     private void disconnect() {
         if (mActiveConnection != null) {
             setDescriptor(null);
@@ -390,6 +418,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     }
 
     interface ControllerConnection {
+        int getControllerId();
         void attachConnection(Connection connection);
         void detachConnection();
     }
@@ -406,9 +435,9 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         private int mPendingUpdateVolumeDelta;
 
         private Connection mConnection;
-        private int mControllerId;
+        private int mControllerId = -1;
         private Executor mListenerExecutor;
-        private OnDynamicRoutesChangedListener mDynamicRoutesChangedListener;
+        OnDynamicRoutesChangedListener mDynamicRoutesChangedListener;
 
         RegisteredDynamicController(String initialMemberRouteId) {
             mInitialMemberRouteId = initialMemberRouteId;
@@ -416,6 +445,11 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
         /////////////////////////////////////
         // Implements Controller
+        @Override
+        public int getControllerId() {
+            return mControllerId;
+        }
+
         @Override
         public void attachConnection(Connection connection) {
             ControlRequestCallback callback = new ControlRequestCallback() {
@@ -553,9 +587,26 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         public void setOnDynamicRoutesChangedListener(
                 @NonNull Executor executor,
                 @NonNull OnDynamicRoutesChangedListener listener) {
-            // TODO: implement
             mDynamicRoutesChangedListener = listener;
             mListenerExecutor = executor;
+        }
+
+        ////////////////////////////////////
+        // Other methods
+        void onDynamicRoutesChanged(
+                final List<DynamicRouteDescriptor> routes) {
+            if (mDynamicRoutesChangedListener == null || mListenerExecutor == null) {
+                Log.d(TAG, "No listener exists. Ignore changes: " + routes);
+                return;
+            }
+            mListenerExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mDynamicRoutesChangedListener.onRoutesChanged(
+                            RegisteredDynamicController.this,
+                            routes);
+                }
+            });
         }
     }
 
@@ -574,6 +625,11 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         RegisteredRouteController(String routeId, String routeGroupId) {
             mRouteId = routeId;
             mRouteGroupId = routeGroupId;
+        }
+
+        @Override
+        public int getControllerId() {
+            return mControllerId;
         }
 
         @Override
@@ -749,6 +805,22 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             if (mServiceVersion != 0) {
                 onConnectionDescriptorChanged(this,
                         MediaRouteProviderDescriptor.fromBundle(descriptorBundle));
+                return true;
+            }
+            return false;
+        }
+
+        public boolean onDynamicRouteDescriptorsChanged(
+                int controllerId, Bundle descriptorsBundle) {
+            if (mServiceVersion != 0) {
+                //descriptorsBundle.setClassLoader(ParcelImpl.class.getClassLoader());
+                ArrayList<Bundle> bundles = descriptorsBundle.getParcelableArrayList(
+                        DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS);
+                List<DynamicRouteDescriptor> descriptors = new ArrayList<DynamicRouteDescriptor>();
+                for (Bundle bundle: bundles) {
+                    descriptors.add(DynamicRouteDescriptor.fromBundle(bundle));
+                }
+                onDynamicRouteDescriptorChanged(this, controllerId, descriptors);
                 return true;
             }
             return false;
@@ -972,6 +1044,13 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                 case SERVICE_MSG_DESCRIPTOR_CHANGED:
                     if (obj == null || obj instanceof Bundle) {
                         return connection.onDescriptorChanged((Bundle) obj);
+                    }
+                    break;
+
+                case SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED:
+                    if (obj == null || obj instanceof Bundle) {
+                        return connection.onDynamicRouteDescriptorsChanged(
+                                arg /* controllerId */, (Bundle) obj);
                     }
                     break;
 
