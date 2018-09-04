@@ -340,16 +340,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
                 float playbackSpeed) {
         }
 
-        /**
-         * Called when players {@link AudioAttributesCompat} has been changed
-         *
-         * @param player player
-         * @param attributes new attributes
-         */
-        public void onAudioAttributeChanged(@NonNull SessionPlayer2 player,
-                @NonNull AudioAttributesCompat attributes) {
-        }
-
         public void onSeekCompleted(@NonNull SessionPlayer2 player, long position) {
         }
 
