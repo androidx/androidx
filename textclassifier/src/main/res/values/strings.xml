@@ -43,4 +43,12 @@ limitations under the License.
 
     <!-- Accessibility description for an item in the text selection menu to add the selected detail to contacts [CHAR LIMIT=NONE] -->
     <string name="add_contact_desc">Add to contacts</string>
+
+    <!-- Floating toolbar strings -->
+    <!-- Content description for the button that opens the floating toolbar overflow. [CHAR LIMIT=NONE] -->
+    <string name="floating_toolbar_open_overflow_description">More options</string>
+    <!-- Content description for the button that closes the floating toolbar overflow. [CHAR LIMIT=NONE] -->
+    <string name="floating_toolbar_close_overflow_description">Close overflow</string>
+    <!-- toolbar action to share the current selection [CHAR LIMIT=10] -->
+    <string name="abc_share">Share</string>
 </resources>
