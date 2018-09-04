@@ -16,37 +16,17 @@
 
 package androidx.car.widget;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * An interface that you can implement on your Adapter to enable support for Alpha-Jump.
  */
-public interface IAlphaJumpAdapter {
-    /**
-     * A bucket represents a "button" in the alpha-jump menu.
-     */
-    interface Bucket {
-        /**
-         * Return true if the bucket is empty (and therefore the button should be displayed
-         * disabled).
-         */
-        boolean isEmpty();
-
-        /**
-         * Return the label for this bucket, that is displayed at the text to the user.
-         */
-        CharSequence getLabel();
-
-        /**
-         * Return the index of the first item that this bucket matches in the list.
-         */
-        int getIndex();
-    }
+public interface AlphaJumpAdapter {
 
     /**
      * Generate and populate the buckets used to populate the alpha-jump menu.
      */
-    Collection<Bucket> getAlphaJumpBuckets();
+    List<AlphaJumpBucket> getAlphaJumpBuckets();
 
     /**
      * Called every time the alpha-jump menu is entered.
@@ -56,7 +36,7 @@ public interface IAlphaJumpAdapter {
     /**
      * Called every time the alpha-jump menu is left.
      *
-     * @param bucket The {@link Bucket} that the user clicked on, and should be jumped to.
+     * @param bucket The {@link AlphaJumpBucket} that the user clicked on, and should be jumped to.
      */
-    void onAlphaJumpLeave(Bucket bucket);
+    void onAlphaJumpLeave(AlphaJumpBucket bucket);
 }
