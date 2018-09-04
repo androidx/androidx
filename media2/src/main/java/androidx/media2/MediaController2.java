@@ -17,8 +17,8 @@
 package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.MediaPlayer2.PLAYER_STATE_IDLE;
 import static androidx.media2.MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
+import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_IDLE;
 import static androidx.media2.MediaPlayerConnector.UNKNOWN_TIME;
 import static androidx.media2.MediaPlaylistAgent.REPEAT_MODE_NONE;
 import static androidx.media2.MediaPlaylistAgent.SHUFFLE_MODE_NONE;
