@@ -1160,14 +1160,14 @@ public class PagedListView extends FrameLayout {
     }
 
     private void updateAlphaJump() {
-        boolean supportsAlphaJump = (mAdapter instanceof IAlphaJumpAdapter);
+        boolean supportsAlphaJump = (mAdapter instanceof AlphaJumpAdapter);
         mScrollBarView.setShowAlphaJump(supportsAlphaJump);
     }
 
     void showAlphaJump() {
-        if (mAlphaJumpView == null && mAdapter instanceof IAlphaJumpAdapter) {
+        if (mAlphaJumpView == null && mAdapter instanceof AlphaJumpAdapter) {
             mAlphaJumpView = new AlphaJumpOverlayView(getContext());
-            mAlphaJumpView.init(this, (IAlphaJumpAdapter) mAdapter);
+            mAlphaJumpView.init(this, (AlphaJumpAdapter) mAdapter);
             addView(mAlphaJumpView);
         }
 

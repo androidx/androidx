@@ -21,20 +21,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.Collection;
-
 import androidx.annotation.NonNull;
 import androidx.car.R;
 import androidx.gridlayout.widget.GridLayout;
+
+import java.util.List;
 
 /**
  * This view shows a grid of alphabetic letters that you can tap on to advance a list to the
  * beginning of that list.
  */
 public class AlphaJumpOverlayView extends GridLayout {
-    private IAlphaJumpAdapter mAdapter;
+    private AlphaJumpAdapter mAdapter;
     private PagedListView mPagedListView;
-    private Collection<IAlphaJumpAdapter.Bucket> mBuckets;
+    private List<AlphaJumpBucket> mBuckets;
 
     public AlphaJumpOverlayView(@NonNull Context context) {
         super(context);
@@ -43,7 +43,7 @@ public class AlphaJumpOverlayView extends GridLayout {
         setUseDefaultMargins(false);
     }
 
-    void init(PagedListView plv, IAlphaJumpAdapter adapter) {
+    void init(PagedListView plv, AlphaJumpAdapter adapter) {
         mPagedListView = plv;
         mAdapter = adapter;
         mBuckets = adapter.getAlphaJumpBuckets();
@@ -62,7 +62,7 @@ public class AlphaJumpOverlayView extends GridLayout {
     private void createButtons() {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         removeAllViews();
-        for (IAlphaJumpAdapter.Bucket bucket : mBuckets) {
+        for (AlphaJumpBucket bucket : mBuckets) {
             View container = inflater.inflate(R.layout.car_alpha_jump_button, this, false);
             TextView btn = container.findViewById(R.id.button);
             btn.setText(bucket.getLabel());
@@ -77,7 +77,7 @@ public class AlphaJumpOverlayView extends GridLayout {
 
     private void onButtonClick(View v) {
         setVisibility(View.GONE);
-        IAlphaJumpAdapter.Bucket bucket = (IAlphaJumpAdapter.Bucket) v.getTag();
+        AlphaJumpBucket bucket = (AlphaJumpBucket) v.getTag();
         if (bucket != null) {
             mAdapter.onAlphaJumpLeave(bucket);
 
