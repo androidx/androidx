@@ -23,7 +23,16 @@ package androidx.ui.semantics
 // /
 // /   * [SemanticsProperties], where the handler for a custom action is provided.
 // @immutable
-class CustomSemanticsAction {
+data class CustomSemanticsAction(
+    // / The user-readable name of this custom semantics action.
+    val label: String,
+
+    // / The hint description of this custom semantics action.
+    val hint: String?,
+
+    // / The standard semantics action this action replaces.
+    val action: SemanticsAction?
+) {
     companion object {
         // Logic to assign a unique id to each custom action without requiring
         // user specification.
@@ -46,6 +55,10 @@ class CustomSemanticsAction {
         fun getAction(id: Int): CustomSemanticsAction? {
             return _actions[id]
         }
+
+        fun overridingAction(hint: String, action: SemanticsAction): CustomSemanticsAction {
+            TODO()
+        }
     }
 
     //  /// Creates a new [CustomSemanticsAction].
@@ -67,14 +80,7 @@ class CustomSemanticsAction {
 //      assert(action != null),
 //      label = null;
 //
-//  /// The user readable name of this custom semantics action.
-//  final String label;
-//
-//  /// The hint description of this custom semantics action.
-//  final String hint;
-//
-//  /// The standard semantics action this action replaces.
-//  final SemanticsAction action;
+
 //
     override fun hashCode(): Int {
         TODO("Not implemented")

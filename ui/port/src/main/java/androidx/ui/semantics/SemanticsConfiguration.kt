@@ -85,9 +85,9 @@ class SemanticsConfiguration {
     // / See also:
     // /
     // / * [addAction] to add an action.
-    private val _actions: MutableMap<SemanticsAction, _SemanticsActionHandler> = mutableMapOf()
+    internal val _actions: MutableMap<SemanticsAction, _SemanticsActionHandler> = mutableMapOf()
 
-    private var _actionsAsBits: Int = 0
+    internal var _actionsAsBits: Int = 0
 
     // / Adds an `action` to the semantics tree.
     // /
@@ -779,7 +779,7 @@ class SemanticsConfiguration {
 
     // INTERNAL FLAG MANAGEMENT
 
-    private var _flags = 0
+    internal var _flags = 0
 
     // TODO(Migration/ryanmentley): Should be private, but is internal to avoid a synthetic accessor
     internal fun _setFlag(flag: SemanticsFlag, value: Boolean) {

@@ -17,6 +17,8 @@ package androidx.ui.rendering.obj
 
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.semantics.SemanticsConfiguration
+import androidx.ui.semantics.SemanticsNode
+import androidx.ui.semantics.SemanticsTag
 
 // / Signature for a function that is called during layout.
 // /
@@ -25,20 +27,7 @@ typealias LayoutCallback = (Constraints) -> Unit
 
 // These are just a stubbed class to remove warnings:
 class GlobalKey
-class SemanticsEvent
-class SemanticsOwner
-class SemanticsTag
-class SemanticsNode() {
-    val parent: SemanticsNode? = null
-    val parentPaintClipRect: Rect? = null
-    val parentSemanticsClipRect: Rect? = null
-    val isPartOfNodeMerging = false
-    fun updateWith(
-        config: SemanticsConfiguration?,
-        childrenInInversePaintOrder: Iterable<SemanticsNode>
-    ) {}
-    fun sendEvent(event: SemanticsEvent) {}
-}
+
 open class _SemanticsFragment() {
     val dropsSemanticsOfPreviousSiblings = false
     val interestingFragments = listOf<_InterestingSemanticsFragment>()

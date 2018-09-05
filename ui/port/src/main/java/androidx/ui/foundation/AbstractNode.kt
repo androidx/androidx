@@ -107,9 +107,13 @@ abstract class AbstractNode : Comparable<AbstractNode> {
         assert(parent == null || attached == parent!!.attached)
     }
 
+    // TODO(Migration/ryanmentley): The use of types and overriding here is kind of messy.
+    // It requires private backing properties to get around type requirements, which feels like
+    // a hack.
+    private var _parent: AbstractNode? = null
     // / The parent of this node in the tree.
-    var parent: AbstractNode? = null
-        private set
+    open val parent: AbstractNode?
+        get() = _parent
 
     // / Mark the given node as being a child of this node.
     // /
@@ -125,7 +129,7 @@ abstract class AbstractNode : Comparable<AbstractNode> {
             assert(node != child) // indicates we are about to create a cycle
             true
         }
-        child.parent = this
+        child._parent = this
         if (attached)
             child.attach(owner!!)
         redepthChild(child)
@@ -139,7 +143,7 @@ abstract class AbstractNode : Comparable<AbstractNode> {
         assert(child != null)
         assert(child.parent == this)
         assert(child.attached == attached)
-        child.parent = null
+        child._parent = null
         if (attached)
             child.detach()
     }

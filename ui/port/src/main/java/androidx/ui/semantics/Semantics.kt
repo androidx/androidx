@@ -1,28 +1,13 @@
+import androidx.ui.semantics.SemanticsNode
 import androidx.ui.text.TextDirection
 import androidx.ui.text.TextSelection
 
-// //import 'dart:math' as math;
-// //import 'dart:typed_data';
-// //import 'dart:ui' as ui;
-// //import 'dart:ui' show Offset, Rect, SemanticsAction, SemanticsFlag,
-// //       TextDirection;
-// //
-// //import 'package:flutter/foundation.dart';
-// //import 'package:flutter/painting.dart' show MatrixUtils, TransformProperty;
-// //import 'package:flutter/services.dart';
-// //import 'package:vector_math/vector_math_64.dart';
-// //
-// //import 'semantics_event.dart';
-// //
-// //export 'dart:ui' show SemanticsAction;
-// //export 'semantics_event.dart';
-//
-// /// Signature for a function that is called for each [SemanticsNode].
-// ///
-// /// Return false to stop visiting nodes.
-// ///
-// /// Used by [SemanticsNode.visitChildren].
-// typedef bool SemanticsNodeVisitor(SemanticsNode node);
+// / Signature for a function that is called for each [SemanticsNode].
+// /
+// / Return false to stop visiting nodes.
+// /
+// / Used by [SemanticsNode.visitChildren].
+typealias SemanticsNodeVisitor = (node: SemanticsNode) -> Boolean
 
 // / Signature for [SemanticsAction]s that move the cursor.
 // /
@@ -39,8 +24,8 @@ typealias _SemanticsActionHandler = (args: Any?) -> Unit
 fun _concatStrings(
     thisString: String,
     otherString: String,
-    thisTextDirection: TextDirection,
-    otherTextDirection: TextDirection
+    thisTextDirection: TextDirection?,
+    otherTextDirection: TextDirection?
 ): String {
     if (otherString.isEmpty())
         return thisString

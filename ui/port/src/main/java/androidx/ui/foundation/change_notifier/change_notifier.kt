@@ -1,5 +1,6 @@
 package androidx.ui.foundation.change_notifier
 
+import androidx.annotation.CallSuper
 import androidx.ui.VoidCallback
 
 // import 'package:meta/meta.dart';
@@ -61,7 +62,8 @@ open class ChangeNotifier : Listenable {
     override fun removeListener(listener: VoidCallback) {
         TODO("not implemented")
     }
-//  ObserverList<VoidCallback> _listeners = new ObserverList<VoidCallback>();
+
+    //  ObserverList<VoidCallback> _listeners = new ObserverList<VoidCallback>();
 //
 //  bool _debugAssertNotDisposed() {
 //    assert(() {
@@ -137,11 +139,12 @@ open class ChangeNotifier : Listenable {
 //  /// disposed).
 //  ///
 //  /// This method should only be called by the object's owner.
-//  @mustCallSuper
-//  void dispose() {
+    @CallSuper
+    open fun dispose() {
+        TODO()
 //    assert(_debugAssertNotDisposed());
 //    _listeners = null;
-//  }
+    }
 //
 //  /// Call all the registered listeners.
 //  ///
