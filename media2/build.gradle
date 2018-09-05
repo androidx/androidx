@@ -14,6 +14,7 @@ plugins {
 dependencies {
     api(project(":media"))
     api(project(':versionedparcelable'))
+    api project(":concurrent:listenable-future")
     compileOnly(CHECKER_FRAMEWORK)
     if (System.getProperties()['idea.platform.prefix'] != null) {
         // :media2-exoplayer merges the ExoPlayer JAR into its outputs, but Android Studio can't see
