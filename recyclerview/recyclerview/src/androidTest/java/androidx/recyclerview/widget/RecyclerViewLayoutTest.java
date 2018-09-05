@@ -27,6 +27,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -3152,6 +3154,83 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         assertTrue("Failed to reach target view in time.",
                 goToTargetLatch.await(2, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void smoothScrollToPosition_oppositeDirOfPrevScroll_immediatelyChangesDir()
+            throws Throwable {
+
+        final int adapterSize = 100;
+        final int firstTargetPosition = 99;
+        final int positionAtWhichToChangeDirection = 49;
+        final int secondTargetPosition = 0;
+
+        final RecyclerView rv = new RecyclerView(getActivity());
+        rv.setLayoutParams(new ViewGroup.LayoutParams(400, 400));
+
+        LinearLayoutManager llm =
+                new LinearLayoutManager(getActivity(), LinearLayout.HORIZONTAL, false);
+        rv.setLayoutManager(llm);
+
+        TestAdapter testAdapter = new TestAdapter(adapterSize, new RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        rv.setAdapter(testAdapter);
+
+        final CountDownLatch goToTargetLatch = new CountDownLatch(1);
+
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            boolean mMadeItToFirst = false;
+            boolean mSmoothScrollToSecondCalled = false;
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                // While hunting for the first target, dx should be positive. As soon as we have
+                // started hunting for the second, the dx should be negative.
+                if (!mSmoothScrollToSecondCalled) {
+                    assertThat(dx, greaterThanOrEqualTo(0));
+                } else {
+                    assertThat(dx, lessThanOrEqualTo(0));
+                }
+
+                int childCount = mRecyclerView.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    View child = mRecyclerView.getChildAt(i);
+                    int adapterPosition = mRecyclerView.getChildAdapterPosition(child);
+                    if (!mMadeItToFirst) {
+                        if (adapterPosition >= positionAtWhichToChangeDirection) {
+                            // We have reached the point at which we want to turn around, so
+                            // turn around.
+                            mRecyclerView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mRecyclerView.smoothScrollToPosition(secondTargetPosition);
+                                    mSmoothScrollToSecondCalled = true;
+                                }
+                            });
+                            mMadeItToFirst = true;
+                        }
+                    } else if (adapterPosition == secondTargetPosition && child.getLeft() >= 0) {
+                        // We've made it to the second target position! Success!
+                        goToTargetLatch.countDown();
+                    }
+                }
+            }
+        });
+
+        TestedFrameLayout container = getRecyclerViewContainer();
+        container.expectLayouts(1);
+        setRecyclerView(rv);
+        container.waitForLayout(2);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                rv.smoothScrollToPosition(firstTargetPosition);
+            }
+        });
+
+        assertTrue("Failed to reach target view in time.",
+                goToTargetLatch.await(5, TimeUnit.SECONDS));
     }
 
     @Test
