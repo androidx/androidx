@@ -35,8 +35,8 @@ def includeProject(name, filePath) {
 
 includeProject(":activity", "activity")
 includeProject(":annotation", "annotations")
-includeProject(":animation:animation", "animation")
-includeProject(":animation:animation-testing", "animation/testing")
+includeProject(":animation", "animation")
+includeProject(":animation:testing", "animation/testing")
 includeProject(":animation:integration-tests:testapp", "animation/integration-tests/testapp")
 includeProject(":appcompat", "appcompat")
 includeProject(":arch:core-common", "arch/core-common")
