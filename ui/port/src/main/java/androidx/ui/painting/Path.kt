@@ -27,17 +27,11 @@ import androidx.ui.vectormath64.Matrix4
 class Path {
 
     private val internalPath = android.graphics.Path()
-    private val rectF by lazy {
-        android.graphics.RectF()
-    }
+    private val rectF = android.graphics.RectF()
 
-    private val radii by lazy {
-        FloatArray(8)
-    }
+    private val radii = FloatArray(8)
 
-    private val mMatrix by lazy {
-        android.graphics.Matrix()
-    }
+    private val mMatrix = android.graphics.Matrix()
 
     fun toFrameworkPath(): android.graphics.Path = internalPath
 
