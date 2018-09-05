@@ -56,17 +56,9 @@ class Canvas {
         internalCanvas = frameworkCanvas
     }
 
-    private val internalPath by lazy {
-        Path()
-    }
+    private val internalPath = Path()
 
-    private val internalOffset by lazy {
-        Offset(0.0, 0.0)
-    }
-
-    private val internalRectF by lazy {
-        android.graphics.RectF()
-    }
+    private val internalRectF = android.graphics.RectF()
 
     // / Saves a copy of the current transform and clip on the save stack.
     // /
