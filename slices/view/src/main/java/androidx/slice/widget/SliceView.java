@@ -254,11 +254,14 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         if (mListContent != null && mListContent.getShortcut(getContext()) != null) {
             try {
                 SliceActionImpl sa = (SliceActionImpl) mListContent.getShortcut(getContext());
-                boolean loading = sa.getActionItem().fireActionInternal(getContext(), null);
+                SliceItem actionItem = sa.getActionItem();
+                boolean loading = actionItem != null
+                        && actionItem.fireActionInternal(getContext(), null);
                 if (loading) {
                     mCurrentView.setActionLoading(sa.getSliceItem());
                 }
-                if (mSliceObserver != null && mClickInfo != null && mClickInfo.length > 1) {
+                if (actionItem != null && mSliceObserver != null && mClickInfo != null
+                        && mClickInfo.length > 1) {
                     EventInfo eventInfo = new EventInfo(getMode(),
                             EventInfo.ACTION_TYPE_CONTENT, mClickInfo[0], mClickInfo[1]);
                     mSliceObserver.onSliceAction(eventInfo, sa.getSliceItem());
