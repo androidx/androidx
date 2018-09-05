@@ -17,6 +17,7 @@
 package androidx.work.impl.workers;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -51,6 +52,7 @@ import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.EchoingWorker;
 import androidx.work.worker.SleepTestWorker;
+import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
 
 import org.junit.After;
@@ -216,6 +218,31 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         Thread.sleep(TEST_TIMEOUT_IN_MS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(State.ENQUEUED));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    public void testConstraintTrackingWorker_delegatesInterruption() throws InterruptedException {
+        setupDelegateForExecution(StopAwareWorker.class.getName());
+
+        WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
+        builder.withWorker(mWorker)
+                .withListener(null) // set on ConstraintTrackingWorker
+                .withSchedulers(Collections.singletonList(mScheduler));
+
+        mWorkerWrapper = builder.build();
+        mExecutorService.submit(mWorkerWrapper);
+
+        Thread.sleep(TEST_TIMEOUT_IN_MS);
+
+        mWorkerWrapper.interrupt(true);
+
+        assertThat(mWorker.isStopped(), is(true));
+        assertThat(mWorker.isCancelled(), is(true));
+        assertThat(mWorker.getDelegate(), is(notNullValue()));
+        assertThat(mWorker.getDelegate().isStopped(), is(true));
+        assertThat(mWorker.getDelegate().isCancelled(), is(true));
+
     }
 
     private void setupDelegateForExecution(@NonNull String delegateName) {
