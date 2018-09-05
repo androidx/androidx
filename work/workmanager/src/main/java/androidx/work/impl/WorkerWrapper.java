@@ -33,6 +33,7 @@ import android.support.annotation.WorkerThread;
 import android.support.v4.util.Pair;
 
 import androidx.concurrent.listenablefuture.ListenableFuture;
+import androidx.concurrent.listenablefuture.SettableFuture;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
@@ -191,27 +192,30 @@ public class WorkerWrapper implements Runnable {
                 return;
             }
 
+            final SettableFuture<Pair<Result, Data>> future = SettableFuture.create();
             try {
-                final ListenableFuture<Pair<Result, Data>> future = mWorker.onStartWork();
-                future.addListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            onWorkFinished(future.get().first);
-                        } catch (InterruptedException | ExecutionException e) {
-                            onWorkFinished(Result.FAILURE);
-                        }
-                    }
-                }, mWorkTaskExecutor.getBackgroundExecutor());
-            } catch (Exception | Error e) {
-                Logger.error(TAG,
-                        String.format("%s failed because it threw an exception/error",
-                                mWorkDescription),
-                        e);
-
-                // Mark it as a failure
-                onWorkFinished(Result.FAILURE);
+                final ListenableFuture<Pair<Result, Data>> innerFuture = mWorker.onStartWork();
+                future.setFuture(innerFuture);
+            } catch (Throwable e) {
+                future.setException(e);
             }
+
+            // Avoid synthetic accessors.
+            final String workDescription = mWorkDescription;
+            future.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        onWorkFinished(future.get().first);
+                    } catch (InterruptedException | ExecutionException exception) {
+                        Logger.error(TAG,
+                                String.format("%s failed because it threw an exception/error",
+                                        workDescription),
+                                exception);
+                        onWorkFinished(Result.FAILURE);
+                    }
+                }
+            }, mWorkTaskExecutor.getBackgroundExecutor());
         } else {
             notifyIncorrectStatus();
         }
@@ -222,6 +226,7 @@ public class WorkerWrapper implements Runnable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void onWorkFinished(@NonNull Result result) {
+        assertBackgroundExecutorThread();
         if (!tryCheckForInterruptionAndNotify()) {
             try {
                 mWorkDatabase.beginTransaction();
@@ -247,32 +252,17 @@ public class WorkerWrapper implements Runnable {
         // Try to schedule any newly-unblocked workers, and workers requiring rescheduling (such as
         // periodic work using AlarmManager).  This code runs after runWorker() because it should
         // happen in its own transaction.
-        //
-        // Further investigation: This could also happen as part of the Processor's
-        // ExecutionListener callback.  Does that make more sense?
 
-        // Avoiding synthetic accessors
-        // All calls to Schedulers.schedule() should always happen on the TaskExecutor thread.
-        final String workSpecId = mWorkSpecId;
-        final boolean isFinished = mWorkSpec.state.isFinished();
-        final Configuration configuration = mConfiguration;
-        final WorkDatabase workDatabase = mWorkDatabase;
-        final List<Scheduler> schedulers = mSchedulers;
-        mWorkTaskExecutor.executeOnBackgroundThread(new Runnable() {
-            @Override
-            public void run() {
-                // Cancel this work in other schedulers.  For example, if this work was
-                // completed by GreedyScheduler, we should make sure JobScheduler is informed
-                // that it should remove this job and AlarmManager should remove all related alarms.
-                if (isFinished) {
-                    for (Scheduler scheduler : schedulers) {
-                        scheduler.cancel(workSpecId);
-                    }
-                }
-
-                Schedulers.schedule(configuration, workDatabase, schedulers);
+        boolean isFinished = mWorkSpec.state.isFinished();
+        // Cancel this work in other schedulers.  For example, if this work was
+        // completed by GreedyScheduler, we should make sure JobScheduler is informed
+        // that it should remove this job and AlarmManager should remove all related alarms.
+        if (isFinished) {
+            for (Scheduler scheduler : mSchedulers) {
+                scheduler.cancel(mWorkSpecId);
             }
-        });
+        }
+        Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
     }
 
     /**
@@ -499,6 +489,13 @@ public class WorkerWrapper implements Runnable {
         } finally {
             mWorkDatabase.endTransaction();
             notifyListener(true, false);
+        }
+    }
+
+    private void assertBackgroundExecutorThread() {
+        if (mWorkTaskExecutor.getBackgroundExecutorThread() != Thread.currentThread()) {
+            throw new IllegalStateException(
+                    "Needs to be executed on the Background executor thread.");
         }
     }
 
