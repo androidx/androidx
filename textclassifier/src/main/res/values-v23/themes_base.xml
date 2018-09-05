@@ -17,17 +17,12 @@
 
 <resources>
 
-    <style name="Base.Theme.AppCompat" parent="Base.V23.Theme.AppCompat" />
-    <style name="Base.Theme.AppCompat.Light" parent="Base.V23.Theme.AppCompat.Light" />
-
-    <style name="Base.V23.Theme.AppCompat" parent="Base.V22.Theme.AppCompat">
-        <!-- Floating toolbar styles -->
+    <style name="Theme.TextClassifier.FloatingToolbar" parent="Base.V23.Theme.AppCompat">
         <item name="floatingToolbarForegroundColor">@color/foreground_material_dark</item>
         <item name="floatingToolbarPopupBackgroundDrawable">@drawable/floating_popup_background</item>
     </style>
 
-    <style name="Base.V23.Theme.AppCompat.Light" parent="Base.V22.Theme.AppCompat.Light">
-        <!-- Floating toolbar styles -->
+    <style name="Theme.TextClassifier.FloatingToolbar.Light" parent="Base.V23.Theme.AppCompat.Light">
         <item name="floatingToolbarForegroundColor">@color/foreground_material_light</item>
         <item name="floatingToolbarPopupBackgroundDrawable">@drawable/floating_popup_background</item>
     </style>
