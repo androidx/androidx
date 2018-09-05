@@ -13,6 +13,7 @@ dependencies {
     api(project(":legacy-support-core-utils"))
     api(project(":annotation"))
     api(project(":loader"))
+    api(project(":activity"))
     api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
 
     androidTestImplementation(KOTLIN_STDLIB)

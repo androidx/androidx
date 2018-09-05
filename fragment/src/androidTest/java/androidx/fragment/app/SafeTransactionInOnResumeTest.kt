@@ -73,7 +73,7 @@ class OnResumeTestActivity : FragmentActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         DialogActivity.finish()
     }
