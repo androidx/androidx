@@ -8273,7 +8273,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return mSmoothScroller != null && mSmoothScroller.isRunning();
         }
 
-
         /**
          * Returns the resolved layout direction for this RecyclerView.
          *
@@ -11586,6 +11585,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * stop calling SmoothScroller in each animation step.</p>
          */
         void start(RecyclerView recyclerView, LayoutManager layoutManager) {
+
+            // Stop any previous ViewFlinger animations now because we are about to start a new one.
+            recyclerView.mViewFlinger.stop();
+
             if (mStarted) {
                 Log.w(TAG, "An instance of " + this.getClass().getSimpleName() + " was started "
                         + "more than once. Each instance of" + this.getClass().getSimpleName() + " "
@@ -11708,8 +11711,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             // direction in order to cause the LayoutManager to draw two pages worth of views so
             // that the target view may be found before scrolling any further.  This is done to
             // prevent an initial scroll distance from scrolling past the view, which causes a
-            // jittery looking animation. (This block also necessarily sets mPendingInitialRun to
-            // false if it was true).
+            // jittery looking animation.
             if (mPendingInitialRun && mTargetView == null && mLayoutManager != null) {
                 PointF pointF = computeScrollVectorForPosition(mTargetPosition);
                 if (pointF != null && (pointF.x != 0 || pointF.y != 0)) {
