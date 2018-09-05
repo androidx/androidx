@@ -18,11 +18,13 @@ package androidx.work.impl.utils.taskexecutor;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Default Task Executor for executing common tasks in WorkManager
@@ -32,8 +34,21 @@ import java.util.concurrent.Executors;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerTaskExecutor implements TaskExecutor {
 
-    private final ExecutorService mBackgroundExecutor = Executors.newSingleThreadExecutor();
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+    // Avoiding synthetic accessor.
+    volatile Thread mCurrentBackgroundExecutorThread;
+    private final ThreadFactory mBackgroundThreadFactory = new ThreadFactory() {
+        @Override
+        public Thread newThread(@NonNull Runnable r) {
+            // Delegate to the default factory, but keep track of the current thread being used.
+            Thread thread = Executors.defaultThreadFactory().newThread(r);
+            mCurrentBackgroundExecutorThread = thread;
+            return thread;
+        }
+    };
+
+    private final ExecutorService mBackgroundExecutor =
+            Executors.newSingleThreadExecutor(mBackgroundThreadFactory);
 
     @Override
     public void postToMainThread(Runnable r) {
@@ -48,5 +63,11 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     @Override
     public Executor getBackgroundExecutor() {
         return mBackgroundExecutor;
+    }
+
+    @NonNull
+    @Override
+    public Thread getBackgroundExecutorThread() {
+        return mCurrentBackgroundExecutorThread;
     }
 }
