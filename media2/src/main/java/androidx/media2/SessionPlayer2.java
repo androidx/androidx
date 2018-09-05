@@ -28,6 +28,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.media.AudioAttributesCompat;
 
 import java.lang.annotation.Retention;
@@ -36,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 
 /**
  * Base interface for all media players that want media session
@@ -51,6 +51,64 @@ import java.util.concurrent.Future;
 @RestrictTo(LIBRARY)
 public abstract class SessionPlayer2 implements AutoCloseable {
     private static final String TAG = "SessionPlayer2";
+
+    /**
+     * Result code represents that call is completed without an error.
+     * @see CommandResult2#getResultCode()
+     */
+    public static final int RESULT_CODE_NO_ERROR = 0;
+
+    /**
+     * Result code represents that call is ended with an unknown error.
+     * @see CommandResult2#getResultCode()
+     */
+    public static final int RESULT_CODE_ERROR_UNKNOWN = Integer.MIN_VALUE;
+
+    /**
+     * Result code represents that the player is not in valid state for the operation.
+     * @see CommandResult2#getResultCode()
+     */
+    public static final int RESULT_CODE_INVALID_OPERATION = 1;
+
+    /**
+     * Result code represents that the argument is illegal.
+     * @see CommandResult2#getResultCode()
+     */
+    public static final int RESULT_CODE_BAD_VALUE = 2;
+
+    /**
+     * Result code represents that the operation is not allowed.
+     * @see CommandResult2#getResultCode()
+     */
+    public static final int RESULT_CODE_PERMISSION_DENIED = 3;
+
+    /**
+     * Result code represents a file or network related operation error.
+     * @see CommandResult2#getResultCode()
+     */
+    public static final int RESULT_CODE_ERROR_IO = 4;
+
+    /**
+     * Result code represents that the player skipped the call. For example, a {@link #seekTo}
+     * request may be skipped if it is followed by another {@link #seekTo} request.
+     * @see CommandResult2#getResultCode()
+     */
+    public static final int RESULT_CODE_SKIPPED = 5;
+
+    /**
+     * @hide
+     */
+    @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
+            RESULT_CODE_NO_ERROR,
+            RESULT_CODE_ERROR_UNKNOWN,
+            RESULT_CODE_INVALID_OPERATION,
+            RESULT_CODE_BAD_VALUE,
+            RESULT_CODE_PERMISSION_DENIED,
+            RESULT_CODE_ERROR_IO,
+            RESULT_CODE_SKIPPED})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface ResultCode {}
 
     /**
      * @hide
@@ -186,15 +244,15 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     private final Map<PlayerCallback, Executor> mCallbacks = new HashMap<>();
 
     // APIs from the MediaPlayerConnector
-    public abstract @NonNull Future<CommandResult2> play();
+    public abstract @NonNull ListenableFuture<CommandResult2> play();
 
-    public abstract @NonNull Future<CommandResult2> pause();
+    public abstract @NonNull ListenableFuture<CommandResult2> pause();
 
-    public abstract @NonNull Future<CommandResult2> prepare();
+    public abstract @NonNull ListenableFuture<CommandResult2> prepare();
 
-    public abstract @NonNull Future<CommandResult2> seekTo(long position);
+    public abstract @NonNull ListenableFuture<CommandResult2> seekTo(long position);
 
-    public abstract @NonNull Future<CommandResult2> setPlaybackSpeed(float playbackSpeed);
+    public abstract @NonNull ListenableFuture<CommandResult2> setPlaybackSpeed(float playbackSpeed);
 
     /**
      * Sets the {@link AudioAttributesCompat} to be used during the playback of the media.
@@ -203,7 +261,7 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      *
      * @param attributes non-null <code>AudioAttributes</code>.
      */
-    public abstract @NonNull Future<CommandResult2> setAudioAttributes(
+    public abstract @NonNull ListenableFuture<CommandResult2> setAudioAttributes(
             @NonNull AudioAttributesCompat attributes);
 
     public abstract @PlayerState int getPlayerState();
@@ -219,8 +277,8 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     public abstract float getPlaybackSpeed();
 
     // APIs from the MediaPlaylistAgent
-    public abstract @NonNull Future<CommandResult2> setPlaylist(List<DataSourceDesc2> list,
-            MediaMetadata2 metadata);
+    public abstract @NonNull ListenableFuture<CommandResult2> setPlaylist(
+            List<DataSourceDesc2> list, MediaMetadata2 metadata);
 
     /**
      * Gets the {@link AudioAttributesCompat} that media player has.
@@ -235,31 +293,31 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      * @param item
      * @return
      */
-    public abstract @NonNull Future<CommandResult2> setMediaItem(DataSourceDesc2 item);
+    public abstract @NonNull ListenableFuture<CommandResult2> setMediaItem(DataSourceDesc2 item);
 
-    public abstract @NonNull Future<CommandResult2> addPlaylistItem(int index,
+    public abstract @NonNull ListenableFuture<CommandResult2> addPlaylistItem(int index,
             @NonNull DataSourceDesc2 item);
 
-    public abstract @NonNull Future<CommandResult2> removePlaylistItem(
+    public abstract @NonNull ListenableFuture<CommandResult2> removePlaylistItem(
             @NonNull DataSourceDesc2 item);
 
-    public abstract @NonNull Future<CommandResult2> replacePlaylistItem(int index,
+    public abstract @NonNull ListenableFuture<CommandResult2> replacePlaylistItem(int index,
             @NonNull DataSourceDesc2 item);
 
-    public abstract @NonNull Future<CommandResult2> skipToPreviousItem();
+    public abstract @NonNull ListenableFuture<CommandResult2> skipToPreviousItem();
 
-    public abstract @NonNull Future<CommandResult2> skipToNextItem();
+    public abstract @NonNull ListenableFuture<CommandResult2> skipToNextItem();
 
-    public abstract @NonNull Future<CommandResult2> skipToPlaylistItem(
+    public abstract @NonNull ListenableFuture<CommandResult2> skipToPlaylistItem(
             @NonNull DataSourceDesc2 item);
 
-    public abstract @NonNull Future<CommandResult2> updatePlaylistMetadata(
+    public abstract @NonNull ListenableFuture<CommandResult2> updatePlaylistMetadata(
             @Nullable MediaMetadata2 metadata);
 
-    public abstract @NonNull Future<CommandResult2> setRepeatMode(
+    public abstract @NonNull ListenableFuture<CommandResult2> setRepeatMode(
             @RepeatMode int repeatMode);
 
-    public abstract @NonNull Future<CommandResult2> setShuffleMode(
+    public abstract @NonNull ListenableFuture<CommandResult2> setShuffleMode(
             @ShuffleMode int shuffleMode);
 
     public abstract @Nullable List<DataSourceDesc2> getPlaylist();
