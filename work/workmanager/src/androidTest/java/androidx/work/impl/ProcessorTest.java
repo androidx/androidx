@@ -92,7 +92,7 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDontCancelWhenNeedsReschedule() {
-        mProcessor.onExecuted("dummy", true, true);
+        mProcessor.onExecuted("dummy", true);
         verify(mMockScheduler, never()).cancel("dummy");
     }
 }
