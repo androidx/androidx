@@ -214,16 +214,15 @@ public class Processor implements ExecutionListener {
     @Override
     public void onExecuted(
             @NonNull final String workSpecId,
-            boolean isSuccessful,
             boolean needsReschedule) {
 
         synchronized (mLock) {
             mEnqueuedWorkMap.remove(workSpecId);
-            Logger.debug(TAG, String.format("%s %s executed; isSuccessful = %s, reschedule = %s",
-                    getClass().getSimpleName(), workSpecId, isSuccessful, needsReschedule));
+            Logger.debug(TAG, String.format("%s %s executed; reschedule = %s",
+                    getClass().getSimpleName(), workSpecId, needsReschedule));
 
             for (ExecutionListener executionListener : mOuterListeners) {
-                executionListener.onExecuted(workSpecId, isSuccessful, needsReschedule);
+                executionListener.onExecuted(workSpecId, needsReschedule);
             }
         }
     }
