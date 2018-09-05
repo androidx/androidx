@@ -101,7 +101,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
         mSystemJobServiceSpy = spy(new SystemJobService());
-        doNothing().when(mSystemJobServiceSpy).onExecuted(anyString(), anyBoolean(), anyBoolean());
+        doNothing().when(mSystemJobServiceSpy).onExecuted(anyString(), anyBoolean());
         mSystemJobServiceSpy.onCreate();
     }
 

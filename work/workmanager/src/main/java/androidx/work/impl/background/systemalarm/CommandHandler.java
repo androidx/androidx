@@ -54,7 +54,6 @@ public class CommandHandler implements ExecutionListener {
 
     // keys
     private static final String KEY_WORKSPEC_ID = "KEY_WORKSPEC_ID";
-    private static final String KEY_IS_SUCCESSFUL = "KEY_IS_SUCCESSFUL";
     private static final String KEY_NEEDS_RESCHEDULE = "KEY_NEEDS_RESCHEDULE";
 
     // constants
@@ -97,13 +96,11 @@ public class CommandHandler implements ExecutionListener {
     static Intent createExecutionCompletedIntent(
             @NonNull Context context,
             @NonNull String workSpecId,
-            boolean isSuccessful,
             boolean needsReschedule) {
 
         Intent intent = new Intent(context, SystemAlarmService.class);
         intent.setAction(ACTION_EXECUTION_COMPLETED);
         intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
-        intent.putExtra(KEY_IS_SUCCESSFUL, isSuccessful);
         intent.putExtra(KEY_NEEDS_RESCHEDULE, needsReschedule);
         return intent;
     }
@@ -120,17 +117,14 @@ public class CommandHandler implements ExecutionListener {
     }
 
     @Override
-    public void onExecuted(
-            @NonNull String workSpecId,
-            boolean isSuccessful,
-            boolean needsReschedule) {
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
 
         synchronized (mLock) {
             // This listener is only necessary for knowing when a pending work is complete.
             // Delegate to the underlying execution listener itself.
             ExecutionListener listener = mPendingDelayMet.remove(workSpecId);
             if (listener != null) {
-                listener.onExecuted(workSpecId, isSuccessful, needsReschedule);
+                listener.onExecuted(workSpecId, needsReschedule);
             }
         }
     }
@@ -254,7 +248,7 @@ public class CommandHandler implements ExecutionListener {
         Alarms.cancelAlarm(mContext, dispatcher.getWorkManager(), workSpecId);
 
         // Notify dispatcher, so it can clean up.
-        dispatcher.onExecuted(workSpecId, false, false /* never reschedule */);
+        dispatcher.onExecuted(workSpecId, false /* never reschedule */);
     }
 
     private void handleConstraintsChanged(
@@ -285,11 +279,10 @@ public class CommandHandler implements ExecutionListener {
 
         Bundle extras = intent.getExtras();
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
-        boolean isSuccessful = extras.getBoolean(KEY_IS_SUCCESSFUL);
         boolean needsReschedule = extras.getBoolean(KEY_NEEDS_RESCHEDULE);
         Logger.debug(TAG, String.format("Handling onExecutionCompleted %s, %s", intent, startId));
         // Delegate onExecuted() to the command handler.
-        onExecuted(workSpecId, isSuccessful, needsReschedule);
+        onExecuted(workSpecId, needsReschedule);
     }
 
     private static boolean hasKeys(@Nullable Bundle bundle, @NonNull String... keys) {

@@ -198,12 +198,10 @@ public class WorkManagerImplLargeExecutorTest {
         }
 
         @Override
-        public synchronized void onExecuted(@NonNull String workSpecId,
-                boolean isSuccessful,
-                boolean needsReschedule) {
+        public synchronized void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
             assertThat(mScheduledWorkSpecIds.contains(workSpecId), is(true));
             mScheduledWorkSpecIds.remove(workSpecId);
-            super.onExecuted(workSpecId, isSuccessful, needsReschedule);
+            super.onExecuted(workSpecId, needsReschedule);
         }
     }
 }

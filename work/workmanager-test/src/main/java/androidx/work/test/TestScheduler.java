@@ -136,10 +136,7 @@ class TestScheduler implements Scheduler, ExecutionListener {
     }
 
     @Override
-    public void onExecuted(
-            @NonNull String workSpecId,
-            boolean isSuccessful,
-            boolean needsReschedule) {
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
 
         synchronized (sLock) {
             InternalWorkState internalWorkState = mInternalWorkStates.get(workSpecId);
