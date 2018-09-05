@@ -33,9 +33,7 @@ public interface ExecutionListener {
      * Called when a {@link Worker} has executed.
      *
      * @param workSpecId      work id corresponding to the {@link Worker}
-     * @param isSuccessful    {@code true} if work execution is successful.
-     * @param needsReschedule {@code true} if work should be rescheduled
-     *                        according to backoff policy.
+     * @param needsReschedule {@code true} if work should be rescheduled according to backoff policy
      */
-    void onExecuted(@NonNull String workSpecId, boolean isSuccessful, boolean needsReschedule);
+    void onExecuted(@NonNull String workSpecId, boolean needsReschedule);
 }

@@ -88,10 +88,7 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
     }
 
     @Override
-    public void onExecuted(
-            @NonNull String workSpecId,
-            boolean isSuccessful,
-            boolean needsReschedule) {
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Logger.debug(TAG, String.format("%s executed on FirebaseJobDispatcher", workSpecId));
         JobParameters parameters;
         synchronized (mJobParameters) {

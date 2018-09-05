@@ -127,7 +127,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         verify(mMockWorkConstraintsTracker).replace(Collections.singletonList(workSpec));
         reset(mMockWorkConstraintsTracker);
 
-        mGreedyScheduler.onExecuted(workSpec.id, false, false);
+        mGreedyScheduler.onExecuted(workSpec.id, false);
         verify(mMockWorkConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
     }
 

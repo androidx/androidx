@@ -99,13 +99,9 @@ public class DelayMetCommandHandler implements
     }
 
     @Override
-    public void onExecuted(
-            @NonNull String workSpecId,
-            boolean isSuccessful,
-            boolean needsReschedule) {
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
 
-        Logger.debug(TAG, String.format(
-                "onExecuted %s, %s, %s", workSpecId, isSuccessful, needsReschedule));
+        Logger.debug(TAG, String.format("onExecuted %s, %s", workSpecId, needsReschedule));
 
         cleanUp();
 

@@ -95,10 +95,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     }
 
     @Override
-    public void onExecuted(
-            @NonNull String workSpecId,
-            boolean isSuccessful,
-            boolean needsReschedule) {
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
 
         // When there are lots of workers completing at around the same time,
         // this creates lock contention for the DelayMetCommandHandlers inside the CommandHandler.
@@ -110,7 +107,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                         CommandHandler.createExecutionCompletedIntent(
                                 mContext,
                                 workSpecId,
-                                isSuccessful,
                                 needsReschedule),
                         DEFAULT_START_ID));
     }

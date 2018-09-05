@@ -112,7 +112,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getStringId(), true, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(SUCCEEDED));
     }
 
@@ -151,7 +151,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(invalidWorkSpecId, false, false);
+        verify(mMockListener).onExecuted(invalidWorkSpecId, false);
     }
 
     @Test
@@ -165,7 +165,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withSchedulers(Collections.singletonList(mMockScheduler))
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getStringId(), false, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
         verify(mMockScheduler, never()).schedule(any(WorkSpec[].class));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
@@ -181,7 +181,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getStringId(), false, true);
+        verify(mMockListener).onExecuted(work.getStringId(), true);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getStringId(), false, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(CANCELLED));
     }
 
@@ -209,7 +209,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getStringId(), false, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
@@ -224,7 +224,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getStringId(), false, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
@@ -237,7 +237,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getStringId(), false, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
@@ -253,7 +253,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Thread.sleep(2000L); // Async wait duration.
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(RUNNING));
         Thread.sleep(SleepTestWorker.SLEEP_DURATION);
-        verify(mMockListener).onExecuted(work.getStringId(), true, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
     }
 
     @Test
@@ -267,7 +267,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getStringId(), false, true);
+        verify(mMockListener).onExecuted(work.getStringId(), true);
     }
 
     @Test
@@ -524,7 +524,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
-        verify(mMockListener).onExecuted(periodicWorkId, true, false);
+        verify(mMockListener).onExecuted(periodicWorkId, false);
         assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(0));
         assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
         // SystemAlarmScheduler needs to reschedule the same worker.
@@ -555,7 +555,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
-        verify(mMockListener).onExecuted(periodicWorkId, false, false);
+        verify(mMockListener).onExecuted(periodicWorkId, false);
         assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(0));
         assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
     }
@@ -577,7 +577,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
-        verify(mMockListener).onExecuted(periodicWorkId, false, true);
+        verify(mMockListener).onExecuted(periodicWorkId, true);
         assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(1));
         assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
     }
@@ -715,7 +715,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         verify(mMockScheduler, times(1)).schedule(unscheduled.getWorkSpec());
-        verify(mMockListener).onExecuted(work.getStringId(), true, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(SUCCEEDED));
     }
 
@@ -735,7 +735,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         verify(mMockScheduler, times(1)).schedule(unscheduled.getWorkSpec());
-        verify(mMockListener).onExecuted(work.getStringId(), false, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
@@ -753,7 +753,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Executors.newSingleThreadExecutor().submit(workerWrapper);
         workerWrapper.interrupt(false);
         Thread.sleep(6000L);
-        verify(mMockListener).onExecuted(work.getStringId(), false, true);
+        verify(mMockListener).onExecuted(work.getStringId(), true);
     }
 
     @Test
@@ -846,7 +846,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Executors.newSingleThreadExecutor().submit(workerWrapper);
         mWorkSpecDao.delete(work.getStringId());
         Thread.sleep(6000L);
-        verify(mMockListener).onExecuted(work.getStringId(), false, false);
+        verify(mMockListener).onExecuted(work.getStringId(), false);
     }
 
     @Test
