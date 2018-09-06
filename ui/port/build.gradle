@@ -9,7 +9,7 @@ plugins {
 
 dependencies {
     api(project(":annotation"))
-    api(project(":core"))
+    api(project(":activity"))
     api(KOTLIN_STDLIB)
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.20"
     testImplementation(JUNIT)
