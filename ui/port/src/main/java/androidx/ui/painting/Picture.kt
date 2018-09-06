@@ -1,5 +1,7 @@
 package androidx.ui.painting
 
+import androidx.ui.engine.geometry.Rect
+
 // / An object representing a sequence of recorded graphical operations.
 // /
 // / To create a [Picture], use a [PictureRecorder].
@@ -7,14 +9,9 @@ package androidx.ui.painting
 // / A [Picture] can be placed in a [Scene] using a [SceneBuilder], via
 // / the [SceneBuilder.addPicture] method. A [Picture] can also be
 // / drawn into a [Canvas], using the [Canvas.drawPicture] method.
-// TODO(Migration/Andrey): Real logic is in the native code. What should we do?
-class Picture /*extends NativeFieldWrapperClass2 */ {
-
-    // / This class is created by the engine, and should not be instantiated
-    // / or extended directly.
-    // /
-    // / To create a [Picture], use a [PictureRecorder].
-    private constructor()
+// /
+// / To create a [Picture], use a [PictureRecorder].
+class Picture(val frameworkPicture: android.graphics.Picture) {
 
     // / Creates an image from this picture.
     // /
@@ -33,5 +30,12 @@ class Picture /*extends NativeFieldWrapperClass2 */ {
     fun dispose() {
         TODO()
 //        native 'Picture_dispose';
+    }
+
+    fun cullRect(): Rect {
+        return Rect(0.0,
+                0.0,
+                frameworkPicture.width.toDouble(),
+                frameworkPicture.height.toDouble())
     }
 }

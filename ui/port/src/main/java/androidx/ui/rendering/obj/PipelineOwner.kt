@@ -302,7 +302,7 @@ class PipelineOwner(
     // /
     // / See [RendererBinding] for an example of how this function is used.
     fun flushSemantics() {
-        TODO()
+        // TODO(Migration/Andrey): Mocking it for a hello world
 //        if (semanticsOwner == null)
 //            return;
 //        profile { Timeline.startSync("Semantics") }

@@ -22,7 +22,10 @@ class SemanticsConfiguration {
 //  /// is controlled by [explicitChildNodes].
 //  ///
 //  /// This has to be true if [isMergingDescendantsIntoOneNode] is also true.
-    val isSemanticBoundary: Boolean get() { TODO() }
+    val isSemanticBoundary: Boolean get() {
+        // TODO(Migration/Andrey): Mocking it for a hello world
+        return false
+    }
 //  bool get isSemanticBoundary => _isSemanticBoundary;
 //  bool _isSemanticBoundary = false;
 //  set isSemanticBoundary(bool value) {

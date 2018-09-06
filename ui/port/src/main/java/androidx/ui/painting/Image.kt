@@ -33,7 +33,7 @@ import java.nio.ByteBuffer
 // / or extended directly.
 // /
 // / To obtain an [Image] object, use [instantiateImageCodec].
-class Image internal constructor(
+class Image constructor(
     internal val bitmap: android.graphics.Bitmap
 )/* extends NativeFieldWrapperClass2 */ {
 

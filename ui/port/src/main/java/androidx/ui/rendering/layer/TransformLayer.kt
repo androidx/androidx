@@ -30,20 +30,20 @@ class TransformLayer(
     offset: Offset = Offset.zero
 ) : OffsetLayer(offset) {
 
-    var _lastEffectiveTransform: Matrix4? = null
+    private var _lastEffectiveTransform: Matrix4? = null
 
     override fun addToScene(builder: SceneBuilder, layerOffset: Offset) {
-        // TODO(Migration/andrey): needs Matrix4: translationValues, multiply; SceneBuilder: pushTransform, pop
-        TODO()
-//        _lastEffectiveTransform = transform;
-//        val totalOffset = offset + layerOffset;
-//        if (totalOffset != Offset.zero) {
-//            _lastEffectiveTransform = Matrix4.translationValues(totalOffset.dx, totalOffset.dy, 0.0)
-//            ..multiply(_lastEffectiveTransform);
-//        }
-//        builder.pushTransform(_lastEffectiveTransform.storage);
-//        addChildrenToScene(builder, Offset.zero);
-//        builder.pop();
+        _lastEffectiveTransform = transform
+        val totalOffset = offset + layerOffset
+        if (totalOffset != Offset.zero) {
+            _lastEffectiveTransform!! *= Matrix4.translationValues(
+                    totalOffset.dx,
+                    totalOffset.dy,
+                    0.0)
+        }
+        builder.pushTransform(_lastEffectiveTransform!!)
+        addChildrenToScene(builder, Offset.zero)
+        builder.pop()
     }
 
     override fun applyTransform(child: Layer, transform: Matrix4) {

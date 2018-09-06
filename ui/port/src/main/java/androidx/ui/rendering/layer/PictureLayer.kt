@@ -51,7 +51,7 @@ class PictureLayer(
     var willChangeHint = false
 
     override fun addToScene(builder: SceneBuilder, layerOffset: Offset) {
-        builder.addPicture(layerOffset, picture, isComplexHint, willChangeHint)
+        builder.addPicture(layerOffset, picture!!, isComplexHint, willChangeHint)
     }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
