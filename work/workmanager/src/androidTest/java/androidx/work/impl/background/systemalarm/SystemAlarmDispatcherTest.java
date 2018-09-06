@@ -501,8 +501,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, reschedule, START_ID));
 
-        mLatch.await();
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+        assertThat(mLatch.getCount(), is(0L));
+
         List<String> intentActions = mSpyDispatcher.getIntentActions();
         // Assert order of events
         assertThat(intentActions,

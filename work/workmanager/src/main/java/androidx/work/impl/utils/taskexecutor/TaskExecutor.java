@@ -35,6 +35,11 @@ public interface TaskExecutor {
     void postToMainThread(Runnable runnable);
 
     /**
+     * @return The {@link Executor} for main thread task processing
+     */
+    Executor getMainThreadExecutor();
+
+    /**
      * @param runnable {@link Runnable} to execute on a background thread pool
      */
     void executeOnBackgroundThread(Runnable runnable);
