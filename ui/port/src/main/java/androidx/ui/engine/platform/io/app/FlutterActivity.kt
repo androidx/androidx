@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.core.app.ComponentActivity
+import androidx.activity.ComponentActivity
 import androidx.ui.engine.platform.io.plugin.common.PluginRegistry
 import androidx.ui.engine.platform.io.view.FlutterNativeView
 import androidx.ui.engine.platform.io.view.FlutterView

@@ -18,7 +18,7 @@ import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
-import androidx.core.app.ComponentActivity
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.ui.engine.geometry.Rect
