@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
@@ -71,7 +72,8 @@ public abstract class Visibility extends Transition {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    @IntDef(flag = true, value = {MODE_IN, MODE_OUT})
+    @SuppressLint("UniqueConstants") // because MODE_IN and Fade.IN are aliases.
+    @IntDef(flag = true, value = {MODE_IN, MODE_OUT, Fade.IN, Fade.OUT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Mode {
     }
