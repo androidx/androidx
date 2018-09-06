@@ -1,7 +1,9 @@
 package androidx.ui.widgets.framework
 
 import androidx.annotation.CallSuper
+import androidx.ui.VoidCallback
 import androidx.ui.assert
+import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
 import androidx.ui.foundation.diagnostics.EnumProperty
@@ -265,41 +267,42 @@ abstract class State<T : StatefulWidget>(
     // / It is an error to call this method after the framework calls [dispose].
     // / You can determine whether it is legal to call this method by checking
     // / whether the [mounted] property is true.
-//    protected fun setState(fn: VoidCallback) {
-//        assert(fn != null);
-//        assert(() {
-//            if (_debugLifecycleState == _StateLifecycle.defunct) {
-//                throw new FlutterError(
-//                        'setState() called after dispose(): $this\n'
-//                'This error happens if you call setState() on a State object for a widget that '
-//                'no longer appears in the widget tree (e.g., whose parent widget no longer '
-//                'includes the widget in its build). This error can occur when code calls '
-//                'setState() from a timer or an animation callback. The preferred solution is '
-//                'to cancel the timer or stop listening to the animation in the dispose() '
-//                'callback. Another solution is to check the "mounted" property of this '
-//                'object before calling setState() to ensure the object is still in the '
-//                'tree.\n'
-//                'This error might indicate a memory leak if setState() is being called '
-//                'because another object is retaining a reference to this State object '
-//                'after it has been removed from the tree. To avoid memory leaks, '
-//                'consider breaking the reference to this object during dispose().'
-//                );
-//            }
-//            if (_debugLifecycleState == _StateLifecycle.created && !mounted) {
-//                throw new FlutterError(
-//                        'setState() called in constructor: $this\n'
-//                'This happens when you call setState() on a State object for a widget that '
-//                'hasn\'t been inserted into the widget tree yet. It is not necessary to call '
-//                'setState() in the constructor, since the state is already assumed to be dirty '
-//                'when it is initially created.'
-//                );
-//            }
-//            return true;
-//        }());
-//        final dynamic result = fn() as dynamic;
-//        assert(() {
-//            if (result is Future) {
-//                throw new FlutterError(
+    protected fun setState(fn: VoidCallback) {
+        assert(fn != null)
+        assert({
+            if (_debugLifecycleState == _StateLifecycle.defunct) {
+                throw FlutterError(
+                        "setState() called after dispose(): $this\n" +
+                "This error happens if you call setState() on a State object for a widget that " +
+                "no longer appears in the widget tree (e.g., whose parent widget no longer " +
+                "includes the widget in its build). This error can occur when code calls " +
+                "setState() from a timer or an animation callback. The preferred solution is " +
+                "to cancel the timer or stop listening to the animation in the dispose() " +
+                "callback. Another solution is to check the \"mounted\" property of this " +
+                "object before calling setState() to ensure the object is still in the " +
+                "tree.\n" +
+                "This error might indicate a memory leak if setState() is being called " +
+                "because another object is retaining a reference to this State object " +
+                "after it has been removed from the tree. To avoid memory leaks, " +
+                "consider breaking the reference to this object during dispose()."
+                )
+            }
+            if (_debugLifecycleState == _StateLifecycle.created && !isMounted()) {
+                throw FlutterError(
+                        "setState() called in constructor: $this\n" +
+                "This happens when you call setState() on a State object for a widget that " +
+                "hasn\"t been inserted into the widget tree yet. It is not necessary to call " +
+                "setState() in the constructor, since the state is already assumed to be dirty " +
+                "when it is initially created."
+                )
+            }
+            true
+        }())
+        val result = fn()
+        // TODO(Mihai/migration): currently result cannot be a deferred, leaving this commented
+//        assert({
+//            if (result is Deferred<*>) {
+//                throw FlutterError(
 //                        'setState() callback argument returned a Future.\n'
 //                'The setState() method on $this was called with a closure or method that '
 //                'returned a Future. Maybe it is marked as "async".\n'
@@ -310,10 +313,10 @@ abstract class State<T : StatefulWidget>(
 //            }
 //            // We ignore other types of return values so that you can do things like:
 //            //   setState(() => x = 3);
-//            return true;
+//            true;
 //        }());
-//        _element.markNeedsBuild();
-//    }
+        _element!!.markNeedsBuild()
+    }
 
     // / Called when this object is removed from the tree.
     // /
@@ -468,7 +471,7 @@ abstract class State<T : StatefulWidget>(
     // / See also:
     // /
     // /  * The discussion on performance considerations at [StatefulWidget].
-    internal abstract fun build(context: BuildContext): Widget
+    abstract fun build(context: BuildContext): Widget
 
     // / Called when a dependency of this [State] object changes.
     // /

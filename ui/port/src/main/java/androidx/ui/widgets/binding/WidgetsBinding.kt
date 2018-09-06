@@ -2,6 +2,7 @@ package androidx.ui.widgets.binding
 
 import androidx.annotation.CallSuper
 import androidx.ui.assert
+import androidx.ui.core.Duration
 import androidx.ui.developer.timeline.Timeline
 import androidx.ui.engine.window.AppLifecycleState
 import androidx.ui.engine.window.Locale
@@ -65,6 +66,8 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
         launch(Unconfined) {
             SystemChannels.lifecycle.consumeEach { handleAppLifecycleStateChanged(it) }
         }
+        // NOTE(Migration/Mihai): this was originally in RendererBinding
+        addPersistentFrameCallback { _handlePersistentFrameCallback() }
     }
 
     // was initServiceExtensions
@@ -326,6 +329,10 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
         _deferFirstFrameReportCount -= 1
     }
 
+    private fun _handlePersistentFrameCallback(timeStamp: Duration? = null) {
+        drawFrame()
+    }
+
     fun _handleBuildScheduled() {
         // If we're in the process of building dirty elements, then changes
         // should not trigger a new frame.
@@ -435,7 +442,8 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
         try {
             if (renderViewElement != null)
                 buildOwner.buildScope(renderViewElement!!, null)
-            super.drawFrame()
+            // Call to super
+            RendererBindingImpl.drawFrame()
             buildOwner.finalizeTree()
         } finally {
             assert({
@@ -447,7 +455,7 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
         // See https://github.com/dart-lang/sdk/issues/27192
         if (_needToReportFirstFrame && _reportFirstFrame) {
             Timeline.instantSync("Widgets completed first useful frame")
-            TODO("migration/popam/Implement this")
+//            TODO("migration/popam/Implement this")
 //            developer.postEvent('Flutter.FirstFrame', <String, dynamic>{});
             _needToReportFirstFrame = false
         }

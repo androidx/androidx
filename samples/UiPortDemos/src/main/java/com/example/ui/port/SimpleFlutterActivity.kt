@@ -17,21 +17,65 @@
 package com.example.ui.port
 
 import android.app.Activity
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.ui.foundation.Key
 import androidx.ui.painting.Image
 import androidx.ui.widgets.basic.RawImage
+import androidx.ui.widgets.framework.BuildContext
+import androidx.ui.widgets.framework.State
+import androidx.ui.widgets.framework.StatefulWidget
+import androidx.ui.widgets.framework.Widget
 
 class SimpleFlutterActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
-        val widget = RawImage(
-                image = Image(bitmap),
-                key = Key.createKey("image")
-        )
+
+        val widget = MirrorImageWidget(Key.createKey("jetpack image widget!"), bitmap)
         setContentView(SimpleFlutterView(this, widget))
+    }
+
+    class MirrorImageWidget(key: Key, private val bitmap: Bitmap) : StatefulWidget(key) {
+        override fun createState() =
+                MirrorImageWidgetState(this, bitmap) as State<StatefulWidget>
+    }
+
+    class MirrorImageWidgetState(
+        widget: MirrorImageWidget,
+        private var bitmap: Bitmap
+    ) : State<MirrorImageWidget>(widget) {
+        init {
+            fun mirrorImageDelayed() {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    setState {
+                        val prevBitmap = bitmap
+                        bitmap = bitmap.mirror()
+                        prevBitmap.recycle()
+                    }
+                    mirrorImageDelayed()
+                }, 700 /* 700 milliseconds */)
+            }
+            mirrorImageDelayed()
+        }
+
+        override fun build(context: BuildContext): Widget {
+            return RawImage(
+                    image = Image(bitmap),
+                    key = Key.createKey("jetpack image")
+            )
+        }
+
+        private fun Bitmap.mirror(): Bitmap {
+            val m = Matrix().apply {
+                preScale(-1f, 1f)
+            }
+            return Bitmap.createBitmap(this, 0, 0, width, height, m, false)
+        }
     }
 }
