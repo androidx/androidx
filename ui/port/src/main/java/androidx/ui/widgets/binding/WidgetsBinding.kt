@@ -8,9 +8,7 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.binding.BindingBase
-import androidx.ui.foundation.binding.BindingBaseImpl
 import androidx.ui.rendering.binding.RendererBinding
-import androidx.ui.rendering.binding.RendererBindingImpl
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.scheduler.binding.SchedulerBinding
@@ -26,18 +24,20 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.launch
 
-interface WidgetsBinding : RendererBinding, SchedulerBinding, ServicesBinding
+interface WidgetsBinding : RendererBinding, SchedulerBinding, ServicesBinding {
+    fun attachRootWidget(app: Widget)
+}
 
 open class WidgetsMixinsWrapper(
     base: BindingBase,
     renderer: RendererBinding
 ) : BindingBase by base, RendererBinding by renderer
 
-// TODO(Migration/popam): do mixins
-object WidgetsBindingImpl : WidgetsMixinsWrapper(
-        BindingBaseImpl,
-        RendererBindingImpl
-), WidgetsBinding /* with GestureBinding */ {
+class WidgetsBindingImpl(
+    window: Window,
+    base: BindingBase,
+    renderer: RendererBinding
+) : WidgetsMixinsWrapper(base, renderer), WidgetsBinding /* with GestureBinding */ {
 
     // / The [BuildOwner] in charge of executing the build pipeline for the
     // / widget tree rooted at this binding.
@@ -47,7 +47,7 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
     init {
         buildOwner.onBuildScheduled = ::_handleBuildScheduled
         launch(Unconfined) {
-            Window.onLocaleChanged.consumeEach { handleLocaleChanged() }
+            window.onLocaleChanged.consumeEach { handleLocaleChanged() }
         }
 //        SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);
 //        SystemChannels.system.setMessageHandler(_handleSystemMessage);
@@ -57,10 +57,10 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
         // like in SchedulerBindingImpl as its impossible to override a method with the delegation
         // approach we are using for bindings.
         launch(Unconfined) {
-            Window.onTextScaleFactorChanged.consumeEach { handleTextScaleFactorChanged() }
+            window.onTextScaleFactorChanged.consumeEach { handleTextScaleFactorChanged() }
         }
         launch(Unconfined) {
-            Window.onMetricsChanged.consumeEach { handleMetricsChanged() }
+            window.onMetricsChanged.consumeEach { handleMetricsChanged() }
         }
         launch(Unconfined) {
             SystemChannels.lifecycle.consumeEach { handleAppLifecycleStateChanged(it) }
@@ -467,11 +467,11 @@ object WidgetsBindingImpl : WidgetsMixinsWrapper(
     // / This is called by [runApp] to configure the widget tree.
     // /
     // / See also [RenderObjectToWidgetAdapter.attachToRenderTree].
-    fun attachRootWidget(rootWidget: Widget) {
+    override fun attachRootWidget(rootWidget: Widget) {
         // TODO(migration/popam): complete this
-        _renderViewElement = RenderObjectToWidgetAdapter<RenderBox>(
+        _renderViewElement = RenderObjectToWidgetAdapter(
                 // TODO(Migration/Filip): I'm forced to cast it here
-                container = RendererBindingImpl.renderView as RenderObjectWithChildMixin<RenderBox>,
+                container = renderView as RenderObjectWithChildMixin<RenderBox>,
                 debugShortDescription = "[root]",
                 child = rootWidget
                 // TODO(Migration/Filip): I'm forced to cast it here

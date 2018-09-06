@@ -13,7 +13,7 @@ import kotlinx.coroutines.experimental.channels.BroadcastChannel
  * obtain from the [window] property.
  */
 // TODO(Migration/Andrey): some methods are calling native code here(not ported)
-object Window {
+class Window {
 
     /**
      * The number of device pixels for each logical pixel. This number might not
@@ -332,8 +332,7 @@ object Window {
         // native 'Window_render';
     }
 
-    // TODO(Migration/Andrey): Added for a hello world. I think later every Flutter view should
-    // have their own instance of Window instead of a one singleton Window
+    // TODO(Migration/Andrey): Temporary solution for delegation the rendering to our FlutterView.
     var renderDelegate: ((Scene) -> Unit)? = null
 
     /**

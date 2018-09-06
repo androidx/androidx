@@ -5,7 +5,6 @@ import androidx.ui.core.Duration
 import androidx.ui.developer.timeline.Timeline
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.binding.BindingBase
-import androidx.ui.foundation.binding.BindingBaseImpl
 import androidx.ui.foundation.timelineWhitelistArguments
 import androidx.ui.rendering.obj.PipelineOwner
 import androidx.ui.rendering.obj.RenderObject
@@ -13,7 +12,6 @@ import androidx.ui.rendering.obj.SemanticsHandle
 import androidx.ui.rendering.view.RenderView
 import androidx.ui.rendering.view.ViewConfiguration
 import androidx.ui.scheduler.binding.SchedulerBinding
-import androidx.ui.scheduler.binding.SchedulerBindingImpl
 import androidx.ui.services.ServicesBinding
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Unconfined
@@ -25,6 +23,8 @@ interface RendererBinding : SchedulerBinding, ServicesBinding {
     fun drawFrame()
 
     fun performReassembleRenderer(superCall: () -> Deferred<Unit>): Deferred<Unit>
+
+    val renderView: RenderView?
 }
 
 open class RendererMixinsWrapper(
@@ -35,10 +35,11 @@ open class RendererMixinsWrapper(
 /**
  * The glue between the render tree and the Flutter engine.
  */
-object RendererBindingImpl : RendererMixinsWrapper(
-        BindingBaseImpl,
-        SchedulerBindingImpl
-), RendererBinding {
+class RendererBindingImpl(
+    private val window: Window,
+    base: BindingBase,
+    scheduler: SchedulerBinding
+) : RendererMixinsWrapper(base, scheduler), RendererBinding {
 /*with ServicesBinding, HitTestable*/
 
     /**
@@ -56,16 +57,16 @@ object RendererBindingImpl : RendererMixinsWrapper(
         )
 
         launch(Unconfined) {
-            Window.onMetricsChanged.consumeEach { handleMetricsChanged() }
+            window.onMetricsChanged.consumeEach { handleMetricsChanged() }
         }
         launch(Unconfined) {
-            Window.onTextScaleFactorChanged.consumeEach { handleTextScaleFactorChanged() }
+            window.onTextScaleFactorChanged.consumeEach { handleTextScaleFactorChanged() }
         }
         launch(Unconfined) {
-            Window.onSemanticsEnabledChanged.consumeEach { handleSemanticsEnabledChanged() }
+            window.onSemanticsEnabledChanged.consumeEach { handleSemanticsEnabledChanged() }
         }
         launch(Unconfined) {
-            Window.onSemanticsAction.consumeEach {
+            window.onSemanticsAction.consumeEach {
                 TODO("Migration/Andrey): needs SemanticsAction")
 //                handleSemanticsAction()
             }
@@ -148,14 +149,14 @@ object RendererBindingImpl : RendererMixinsWrapper(
      */
     fun initRenderView() {
         assert(renderView == null)
-        renderView = RenderView(configuration = createViewConfiguration())
+        renderView = RenderView(window, configuration = createViewConfiguration())
         renderView!!.scheduleInitialFrame()
     }
 
     /**
      * The render tree that's attached to the output surface.
      */
-    var renderView: RenderView? get() = pipelineOwner!!.rootNode as? RenderView
+    override var renderView: RenderView? get() = pipelineOwner!!.rootNode as? RenderView
     /**
      * Sets the given [RenderView] object (which must not be null), and its tree, to
      * be the new render tree to display. The previous tree, if any, is detached.
@@ -197,9 +198,9 @@ object RendererBindingImpl : RendererMixinsWrapper(
      * using `flutter run`.
      */
     fun createViewConfiguration(): ViewConfiguration {
-        val devicePixelRatio: Double = Window.devicePixelRatio
+        val devicePixelRatio: Double = window.devicePixelRatio
         return ViewConfiguration(
-                size = Window.physicalSize / devicePixelRatio,
+                size = window.physicalSize / devicePixelRatio,
         devicePixelRatio = devicePixelRatio
         )
     }
@@ -207,7 +208,7 @@ object RendererBindingImpl : RendererMixinsWrapper(
     private var _semanticsHandle: SemanticsHandle? = null
 
     private fun handleSemanticsEnabledChanged() {
-        setSemanticsEnabled(Window.semanticsEnabled)
+        setSemanticsEnabled(window.semanticsEnabled)
     }
 
     /**

@@ -10,7 +10,6 @@ import androidx.ui.foundation.assertions.FlutterErrorDetails
 import androidx.ui.foundation.assertions.InformationCollector
 import androidx.ui.foundation.assertions.debugPrintStack
 import androidx.ui.foundation.binding.BindingBase
-import androidx.ui.foundation.binding.BindingBaseImpl
 import androidx.ui.foundation.debugPrint
 import androidx.ui.foundation.profile
 import androidx.ui.scheduler.debugPrintBeginFrameBanner
@@ -60,17 +59,18 @@ open class SchedulerMixinsWrapper(
  *   priority and are executed in priority order according to a
  *   [schedulingStrategy].
  */
-object SchedulerBindingImpl : SchedulerMixinsWrapper(
-        BindingBaseImpl,
-        ServicesBindingImpl
-), SchedulerBinding {
+class SchedulerBindingImpl(
+    private val window: Window,
+    base: BindingBase,
+    services: ServicesBindingImpl
+) : SchedulerMixinsWrapper(base, services), SchedulerBinding {
 
     init { // was initInstances()
         launch(Unconfined) {
-            Window.onBeginFrame.consumeEach { _handleBeginFrame() }
+            window.onBeginFrame.consumeEach { _handleBeginFrame() }
         }
         launch(Unconfined) {
-            Window.onDrawFrame.consumeEach { _handleDrawFrame() }
+            window.onDrawFrame.consumeEach { _handleDrawFrame() }
         }
         launch(Unconfined) {
             SystemChannels.lifecycle.consumeEach { handleAppLifecycleStateChanged(it) }
@@ -575,7 +575,7 @@ object SchedulerBindingImpl : SchedulerMixinsWrapper(
                 debugPrintStack(label = "scheduleFrame() called. Current phase is $schedulerPhase.")
             true
         }
-        Window.scheduleFrame()
+        window.scheduleFrame()
         hasScheduledFrame = true
     }
 
@@ -609,7 +609,7 @@ object SchedulerBindingImpl : SchedulerMixinsWrapper(
                         "Current phase is $schedulerPhase.")
             true
         }
-        Window.scheduleFrame()
+        window.scheduleFrame()
         hasScheduledFrame = true
     }
 

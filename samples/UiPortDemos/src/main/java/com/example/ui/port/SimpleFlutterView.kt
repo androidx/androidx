@@ -19,7 +19,6 @@ package com.example.ui.port
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
-import androidx.ui._updateWindowMetrics
 import androidx.ui.compositing.Scene
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.window.Window
@@ -27,7 +26,9 @@ import androidx.ui.engine.window.WindowPadding
 import androidx.ui.flow.CompositorContext
 import androidx.ui.painting.Canvas
 import androidx.ui.skia.SkMatrix
+import androidx.ui.updateWindowMetrics
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.widgets.binding.WidgetsFlutterBinding
 import androidx.ui.widgets.binding.runApp
 import androidx.ui.widgets.framework.Widget
 
@@ -39,17 +40,18 @@ class SimpleFlutterView(
 
     private var scene: Scene? = null
     private var initialized: Boolean = false
+    private val window = Window()
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         updateMetrics()
         if (!initialized) {
             initialized = true
-            Window.renderDelegate = { newScene ->
+            window.renderDelegate = { newScene ->
                 scene = newScene
                 invalidate()
             }
-            runApp(widget)
+            runApp(widget, WidgetsFlutterBinding.create(window))
         }
     }
 
@@ -58,10 +60,10 @@ class SimpleFlutterView(
         val size = Size(measuredWidth.toDouble(), measuredHeight.toDouble())
         val padding = WindowPadding(paddingLeft.toDouble(), paddingTop.toDouble(),
                 paddingRight.toDouble(), paddingBottom.toDouble())
-        if (Window.devicePixelRatio != devicePixelRatio ||
-                Window.physicalSize != size ||
-                Window.padding != padding) {
-            _updateWindowMetrics(
+        if (window.devicePixelRatio != devicePixelRatio ||
+                window.physicalSize != size ||
+                window.padding != padding) {
+            window.updateWindowMetrics(
                     devicePixelRatio = devicePixelRatio,
                     width = size.width,
                     height = size.height,
