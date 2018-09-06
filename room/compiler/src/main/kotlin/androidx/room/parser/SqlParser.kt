@@ -17,7 +17,6 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
-import androidx.room.FtsOptions
 import androidx.room.ext.getAsInt
 import com.google.auto.common.AnnotationMirrors
 import org.antlr.v4.runtime.ANTLRInputStream
@@ -290,63 +289,4 @@ enum class Collate {
 enum class FtsVersion {
     FTS3,
     FTS4;
-
-    companion object {
-        fun fromAnnotation(annotation: AnnotationMirror, elementName: String): FtsVersion {
-            return fromAnnotationValue(AnnotationMirrors.getAnnotationValue(annotation, elementName)
-                    .getAsInt(androidx.room.FtsOptions.FTS4)!!)
-        }
-
-        fun fromAnnotationValue(value: Int): FtsVersion {
-            return when (value) {
-                FtsOptions.FTS3 -> FTS3
-                FtsOptions.FTS4 -> FTS4
-                else -> FTS4
-            }
-        }
-    }
-}
-
-enum class Tokenizer {
-    SIMPLE,
-    PORTER,
-    ICU,
-    UNICODE61;
-
-    companion object {
-        fun fromAnnotation(annotation: AnnotationMirror, elementName: String): Tokenizer {
-            return fromAnnotationValue(AnnotationMirrors.getAnnotationValue(annotation, elementName)
-                    .getAsInt(FtsOptions.SIMPLE)!!)
-        }
-
-        fun fromAnnotationValue(value: Int): Tokenizer {
-            return when (value) {
-                FtsOptions.SIMPLE -> SIMPLE
-                FtsOptions.PORTER -> PORTER
-                FtsOptions.ICU -> ICU
-                FtsOptions.UNICODE61 -> UNICODE61
-                else -> SIMPLE
-            }
-        }
-    }
-}
-
-enum class FtsOrder {
-    ASC,
-    DESC;
-
-    companion object {
-        fun fromAnnotation(annotation: AnnotationMirror, elementName: String): FtsOrder {
-            return fromAnnotationValue(AnnotationMirrors.getAnnotationValue(annotation, elementName)
-                    .getAsInt(FtsOptions.ASC)!!)
-        }
-
-        fun fromAnnotationValue(value: Int): FtsOrder {
-            return when (value) {
-                FtsOptions.ASC -> ASC
-                FtsOptions.DESC -> DESC
-                else -> ASC
-            }
-        }
-    }
 }

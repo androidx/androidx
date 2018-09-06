@@ -16,92 +16,81 @@
 
 package androidx.room;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
 
 /**
- * Available option values that can be used with {@link Fts3Entity} & {@link Fts4Entity}.
+ * Available option values that can be used with {@link Fts3} & {@link Fts4}.
  */
 public class FtsOptions {
 
-    /**
-     * Version 3 of the extension module.
-     *
-     * @see Fts4Entity#matchInfo()
-     */
-    public static final int FTS3 = 1;
+    public enum Tokenizer {
+        /**
+         * The name of the default tokenizer used on FTS tables.
+         *
+         * @see Fts4#tokenizer()
+         * @see Fts4#tokenizerArgs()
+         */
+        SIMPLE,
 
-    /**
-     * Version 4 of the extension module.
-     *
-     * @see Fts4Entity#matchInfo()
-     */
-    public static final int FTS4 = 2;
+        /**
+         * The name of the tokenizer based on the Porter Stemming Algorithm.
+         *
+         * @see Fts4#tokenizer()
+         * @see Fts4#tokenizerArgs()
+         */
+        PORTER,
 
-    @IntDef({FTS3, FTS4})
-    @interface FTSVersion {
+        /**
+         * The name of a tokenizer implemented by the ICU library.
+         * <p>
+         * Not available in certain Android builds (e.g. vendor).
+         *
+         * @see Fts4#tokenizer()
+         * @see Fts4#tokenizerArgs()
+         */
+        ICU,
+
+        /**
+         * The name of the tokenizer that extends the {@link #SIMPLE} tokenizer
+         * according to rules in Unicode Version 6.1.
+         *
+         * @see Fts4#tokenizer()
+         * @see Fts4#tokenizerArgs()
+         */
+        @RequiresApi(21)
+        UNICODE61
     }
 
-    /**
-     * The name of the default tokenizer used on FTS tables.
-     *
-     * @see Fts4Entity#tokenizer()
-     * @see Fts4Entity#tokenizerArgs()
-     */
-    public static final int SIMPLE = 0;
+    public enum MatchInfo {
+        /**
+         * Text matching info as version 3 of the extension module.
+         *
+         * @see Fts4#matchInfo()
+         */
+        FTS3,
 
-    /**
-     * The name of the tokenizer based on the Porter Stemming Algorithm.
-     *
-     * @see Fts4Entity#tokenizer()
-     * @see Fts4Entity#tokenizerArgs()
-     */
-    public static final int PORTER = 1;
-
-    /**
-     * The name of a tokenizer implemented by the ICU library.
-     * <p>
-     * Not available in certain Android builds (e.g. vendor).
-     *
-     * @see Fts4Entity#tokenizer()
-     * @see Fts4Entity#tokenizerArgs()
-     */
-    public static final int ICU = 2;
-
-    /**
-     * The name of the tokenizer that extends the {@link #SIMPLE} tokenizer according to rules in
-     * Unicode Version 6.1.
-     *
-     * @see Fts4Entity#tokenizer()
-     * @see Fts4Entity#tokenizerArgs()
-     */
-    @RequiresApi(21)
-    public static final int UNICODE61 = 3;
-
-    @IntDef({SIMPLE, PORTER, UNICODE61})
-    public @interface Tokenizer {
+        /**
+         * Text matching info as version 4 of the extension module.
+         *
+         * @see Fts4#matchInfo()
+         */
+        FTS4
     }
 
-    @IntDef({FTS3})
-    @interface MatchInfo {
-    }
+    public enum Order {
+        /**
+         * Ascending returning order.
+         *
+         * @see Fts4#order()
+         */
+        ASC,
 
-    /**
-     * Ascending returning order.
-     *
-     * @see Fts4Entity#order()
-     */
-    public static final int ASC = 0;
-
-    /**
-     * Descending returning order.
-     *
-     * @see Fts4Entity#order()
-     */
-    public static final int DESC = 1;
-
-    @IntDef({ASC, DESC})
-    public @interface Order {
+        /**
+         * Descending returning order.
+         *
+         * @see Fts4#order()
+         */
+        DESC
     }
 
     private FtsOptions() {

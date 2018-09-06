@@ -16,8 +16,6 @@
 
 package androidx.room.vo
 
-import androidx.room.Fts3Entity
-import androidx.room.Fts4Entity
 import androidx.room.ext.typeName
 import androidx.room.processor.EntityProcessor
 import com.google.auto.common.MoreElements
@@ -44,9 +42,7 @@ open class Pojo(
      */
     fun accessedTableNames(): List<String> {
         val entityAnnotation = MoreElements.getAnnotationMirror(element,
-                androidx.room.Entity::class.java).or(MoreElements.getAnnotationMirror(element,
-                Fts3Entity::class.java)).or(MoreElements.getAnnotationMirror(element,
-                Fts4Entity::class.java)).orNull()
+                androidx.room.Entity::class.java).orNull()
         return if (entityAnnotation != null) {
             listOf(EntityProcessor.extractTableName(element, entityAnnotation))
         } else {

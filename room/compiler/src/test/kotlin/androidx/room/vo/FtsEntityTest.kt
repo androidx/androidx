@@ -16,9 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.room.parser.FtsOrder
 import androidx.room.parser.FtsVersion
-import androidx.room.parser.Tokenizer
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -55,14 +53,14 @@ class FtsEntityTest {
                 shadowTableName = "Mail_context",
                 ftsVersion = FtsVersion.FTS4,
                 ftsOptions = FtsOptions(
-                        tokenizer = Tokenizer.PORTER,
+                        tokenizer = androidx.room.FtsOptions.Tokenizer.PORTER,
                         tokenizerArgs = emptyList(),
                         contentEntity = null,
                         languageIdColumnName = "lid",
-                        matchInfo = FtsVersion.FTS3,
+                        matchInfo = androidx.room.FtsOptions.MatchInfo.FTS3,
                         notIndexedColumns = listOf("dontIndexMe1", "dontIndexMe2"),
                         prefixSizes = listOf(2, 4),
-                        preferredOrder = FtsOrder.DESC))
+                        preferredOrder = androidx.room.FtsOptions.Order.DESC))
 
         assertThat(entity.createTableQuery,
                 `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +

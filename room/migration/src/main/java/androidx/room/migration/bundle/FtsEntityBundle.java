@@ -19,8 +19,8 @@ package androidx.room.migration.bundle;
 import static androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality;
 
 import androidx.annotation.RestrictTo;
-import androidx.room.Fts3Entity;
-import androidx.room.Fts4Entity;
+import androidx.room.Fts3;
+import androidx.room.Fts4;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -30,8 +30,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Data class that holds the schema information about an
- * {@link Fts3Entity Fts3Entity} or {@link Fts4Entity Fts4Entity}.
+ * Data class that holds the schema information about an {@link Fts3 FTS3} or {@link Fts4 FTS4}
+ * entity.
  *
  * @hide
  */

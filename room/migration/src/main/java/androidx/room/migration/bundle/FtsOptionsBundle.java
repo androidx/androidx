@@ -17,16 +17,16 @@
 package androidx.room.migration.bundle;
 
 import androidx.annotation.RestrictTo;
-import androidx.room.Fts3Entity;
-import androidx.room.Fts4Entity;
+import androidx.room.Fts3;
+import androidx.room.Fts4;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
 /**
- * Data class that holds FTS Options of an {@link Fts3Entity Fts3Entity} or
- * {@link Fts4Entity Fts4Entity}.
+ * Data class that holds FTS Options of an {@link Fts3 Fts3} or
+ * {@link Fts4 Fts4}.
  *
  * @hide
  */

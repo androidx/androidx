@@ -282,7 +282,8 @@ class DatabaseProcessorTest {
                 package foo.bar;
                 import androidx.room.*;
 
-                @Fts4Entity(contentEntity = User.class)
+                @Entity
+                @Fts4(contentEntity = User.class)
                 public class UserNameFts {
                     String name;
                 }

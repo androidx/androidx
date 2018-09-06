@@ -16,20 +16,20 @@
 
 package androidx.room.vo
 
+import androidx.room.FtsOptions.MatchInfo
+import androidx.room.FtsOptions.Order
+import androidx.room.FtsOptions.Tokenizer
 import androidx.room.migration.bundle.FtsOptionsBundle
-import androidx.room.parser.FtsOrder
-import androidx.room.parser.FtsVersion
-import androidx.room.parser.Tokenizer
 
 data class FtsOptions(
     val tokenizer: Tokenizer,
     val tokenizerArgs: List<String>,
     val contentEntity: Entity?,
     val languageIdColumnName: String,
-    val matchInfo: FtsVersion,
+    val matchInfo: MatchInfo,
     val notIndexedColumns: List<String>,
     val prefixSizes: List<Int>,
-    val preferredOrder: FtsOrder
+    val preferredOrder: Order
 ) : HasSchemaIdentity {
 
     override fun getIdKey(): String {
@@ -61,7 +61,7 @@ data class FtsOptions(
                 add("languageid=`$languageIdColumnName`")
             }
 
-            if (matchInfo != FtsVersion.FTS4) {
+            if (matchInfo != MatchInfo.FTS4) {
                 add("matchinfo=${matchInfo.name.toLowerCase()}")
             }
 
@@ -73,7 +73,7 @@ data class FtsOptions(
                 add("prefix=`${prefixSizes.joinToString(separator = ",") { it.toString() }}`")
             }
 
-            if (preferredOrder != FtsOrder.ASC) {
+            if (preferredOrder != Order.ASC) {
                 add("order=$preferredOrder")
             }
         }
