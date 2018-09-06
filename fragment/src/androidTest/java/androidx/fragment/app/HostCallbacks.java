@@ -19,6 +19,8 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 class HostCallbacks extends FragmentHostCallback<FragmentActivity> {
     private final FragmentActivity mActivity;
 
@@ -38,6 +40,7 @@ class HostCallbacks extends FragmentHostCallback<FragmentActivity> {
     }
 
     @Override
+    @NonNull
     public LayoutInflater onGetLayoutInflater() {
         return mActivity.getLayoutInflater().cloneInContext(mActivity);
     }

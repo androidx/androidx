@@ -25,6 +25,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -74,7 +76,8 @@ public class FragmentArgumentsSupport extends FragmentActivity {
          * arguments we handle.
          */
         @Override
-        public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+        public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs,
+                @Nullable Bundle savedInstanceState) {
             super.onInflate(context, attrs, savedInstanceState);
 
             TypedArray a = context.obtainStyledAttributes(attrs,

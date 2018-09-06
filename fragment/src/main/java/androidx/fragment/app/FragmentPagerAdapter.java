@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.PagerAdapter;
 
 /**
@@ -68,13 +69,14 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     private FragmentTransaction mCurTransaction = null;
     private Fragment mCurrentPrimaryItem = null;
 
-    public FragmentPagerAdapter(FragmentManager fm) {
+    public FragmentPagerAdapter(@NonNull FragmentManager fm) {
         mFragmentManager = fm;
     }
 
     /**
      * Return the Fragment associated with a specified position.
      */
+    @NonNull
     public abstract Fragment getItem(int position);
 
     @Override
@@ -154,12 +156,13 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     }
 
     @Override
+    @Nullable
     public Parcelable saveState() {
         return null;
     }
 
     @Override
-    public void restoreState(Parcelable state, ClassLoader loader) {
+    public void restoreState(@Nullable Parcelable state, @Nullable ClassLoader loader) {
     }
 
     /**

@@ -1394,7 +1394,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     @CallSuper
-    public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
+    public void onInflate(@NonNull Activity activity, @NonNull AttributeSet attrs,
+            @Nullable Bundle savedInstanceState) {
         mCalled = true;
     }
 
@@ -1451,6 +1452,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                 {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}, or
      *                 0 if neither was called. The value will depend on the current operation.
      */
+    @Nullable
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
         return null;
     }
@@ -1471,6 +1473,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                 {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}, or
      *                 0 if neither was called. The value will depend on the current operation.
      */
+    @Nullable
     public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
         return null;
     }
@@ -2075,6 +2078,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return the Transition to use to move Views into the scene when reentering from a
      *                   previously-started Activity.
      */
+    @Nullable
     public Object getReenterTransition() {
         if (mAnimationInfo == null) {
             return null;
@@ -2291,7 +2295,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * closed for you after you return.
      * @param args additional arguments to the dump request.
      */
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dump(String prefix, @Nullable FileDescriptor fd, PrintWriter writer,
+            @Nullable String[] args) {
         writer.print(prefix); writer.print("mFragmentId=#");
                 writer.print(Integer.toHexString(mFragmentId));
                 writer.print(" mContainerId=#");
@@ -2369,6 +2374,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @Nullable
     Fragment findFragmentByWho(String who) {
         if (who.equals(mWho)) {
             return this;

@@ -74,7 +74,8 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
      *                  for you after you return.
      * @param args additional arguments to the dump request.
      */
-    public void onDump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void onDump(String prefix, @Nullable FileDescriptor fd, PrintWriter writer,
+            @Nullable String[] args) {
     }
 
     /**
