@@ -92,7 +92,7 @@ public class PagedScrollBarView extends ViewGroup {
         super(context, attrs, defStyleAttrs, defStyleRes);
 
         Resources res = context.getResources();
-        mSeparatingMargin = res.getDimensionPixelSize(R.dimen.car_padding_2);
+        mSeparatingMargin = res.getDimensionPixelSize(R.dimen.car_padding_4);
         mScrollBarThumbWidth = res.getDimensionPixelSize(R.dimen.car_scroll_bar_thumb_width);
 
         LayoutInflater.from(context).inflate(R.layout.car_paged_scrollbar_buttons,
