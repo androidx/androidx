@@ -1221,7 +1221,6 @@ public class MediaControlView2 extends BaseLayout {
 
     private void toggleMediaControlViewVisibility() {
         if (shouldNotHideBars() || mShowControllerIntervalMs == 0
-                || mAccessibilityManager.isTouchExplorationEnabled()
                 || mUxState == UX_STATE_ANIMATING) {
             return;
         }
@@ -2061,7 +2060,8 @@ public class MediaControlView2 extends BaseLayout {
     }
 
     boolean shouldNotHideBars() {
-        return mMediaType == MEDIA_TYPE_MUSIC && mSizeType == SIZE_TYPE_FULL;
+        return (mMediaType == MEDIA_TYPE_MUSIC && mSizeType == SIZE_TYPE_FULL)
+                || mAccessibilityManager.isTouchExplorationEnabled();
     }
 
     void seekTo(long newPosition, boolean shouldSeekNow) {
