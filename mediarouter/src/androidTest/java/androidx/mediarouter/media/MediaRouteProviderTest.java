@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Bundle;
+
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -108,6 +109,41 @@ public class MediaRouteProviderTest {
         builder.setRoutes(null);
         descriptor = builder.build();
         assertTrue(descriptor.getRoutes().isEmpty());
+    }
+
+    @Test
+    @SmallTest
+    public void testRouteDescriptorBuilder() {
+        // Tests addGroupMemberId
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
+                FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME_1)
+                .addGroupMemberId(FAKE_MEDIA_ROUTE_ID_2)
+                .build();
+        final List<String> memberIds1 = routeDescriptor.getGroupMemberIds();
+        assertEquals(1, memberIds1.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_2, memberIds1.get(0));
+
+        // Test addGroupMemberIds
+        List<String> addingIds = new ArrayList<>();
+        addingIds.add(FAKE_MEDIA_ROUTE_ID_3);
+        addingIds.add(FAKE_MEDIA_ROUTE_ID_4);
+        routeDescriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
+                .addGroupMemberIds(addingIds)
+                .build();
+        final List<String> memberIds2 = routeDescriptor.getGroupMemberIds();
+        assertEquals(3, memberIds2.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_2, memberIds2.get(0));
+        assertEquals(FAKE_MEDIA_ROUTE_ID_3, memberIds2.get(1));
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, memberIds2.get(2));
+
+        // Test removeGroupMemberId
+        routeDescriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
+                .removeGroupMemberId(FAKE_MEDIA_ROUTE_ID_3)
+                .removeGroupMemberId(FAKE_MEDIA_ROUTE_ID_2)
+                .build();
+        final List<String> memberIds3 = routeDescriptor.getGroupMemberIds();
+        assertEquals(1, memberIds3.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, memberIds3.get(0));
     }
 
     @Test
