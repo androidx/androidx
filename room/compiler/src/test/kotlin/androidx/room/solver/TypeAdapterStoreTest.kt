@@ -36,6 +36,9 @@ import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxFlowableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxObservableQueryResultBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCompletableInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.TestInvocation
@@ -270,6 +273,42 @@ class TypeAdapterStoreTest {
             assertThat(observable, notNullValue())
             assertThat(RxObservableQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(observable.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindSingle() {
+        simpleRun(jfos = *arrayOf(COMMON.SINGLE, COMMON.RX2_ROOM)) {
+            invocation ->
+            val single = invocation.processingEnv.elementUtils
+                    .getTypeElement(RxJava2TypeNames.SINGLE.toString())
+            assertThat(single, notNullValue())
+            assertThat(RxSingleInsertMethodBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(single.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindMaybe() {
+        simpleRun(jfos = *arrayOf(COMMON.MAYBE, COMMON.RX2_ROOM)) {
+            invocation ->
+            val maybe = invocation.processingEnv.elementUtils
+                    .getTypeElement(RxJava2TypeNames.MAYBE.toString())
+            assertThat(maybe, notNullValue())
+            assertThat(RxMaybeInsertMethodBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(maybe.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindCompletable() {
+        simpleRun(jfos = *arrayOf(COMMON.COMPLETABLE, COMMON.RX2_ROOM)) {
+            invocation ->
+            val completable = invocation.processingEnv.elementUtils
+                    .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
+            assertThat(completable, notNullValue())
+            assertThat(RxCompletableInsertMethodBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(completable.asType())), `is`(true))
         }.compilesWithoutError()
     }
 
