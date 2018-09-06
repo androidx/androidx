@@ -116,6 +116,7 @@ class AppCompatTextHelper {
         ColorStateList textColor = null;
         ColorStateList textColorHint = null;
         ColorStateList textColorLink = null;
+        String fontVariation = null;
 
         // First check TextAppearance's textAllCaps value
         if (ap != -1) {
@@ -140,6 +141,10 @@ class AppCompatTextHelper {
                     textColorLink = a.getColorStateList(
                             R.styleable.TextAppearance_android_textColorLink);
                 }
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
+                fontVariation = a.getString(R.styleable.TextAppearance_fontVariationSettings);
             }
             a.recycle();
         }
@@ -166,6 +171,10 @@ class AppCompatTextHelper {
                         R.styleable.TextAppearance_android_textColorLink);
             }
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
+            fontVariation = a.getString(R.styleable.TextAppearance_fontVariationSettings);
+        }
         // In P, when the text size attribute is 0, this would not be set. Fix this here.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                 && a.hasValue(R.styleable.TextAppearance_android_textSize)) {
@@ -191,6 +200,9 @@ class AppCompatTextHelper {
         }
         if (mFontTypeface != null) {
             mView.setTypeface(mFontTypeface, mStyle);
+        }
+        if (fontVariation != null) {
+            mView.setFontVariationSettings(fontVariation);
         }
 
         mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
@@ -338,6 +350,15 @@ class AppCompatTextHelper {
         }
 
         updateTypefaceAndStyle(context, a);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
+            final String fontVariation = a.getString(
+                    R.styleable.TextAppearance_fontVariationSettings);
+            if (fontVariation != null) {
+                mView.setFontVariationSettings(fontVariation);
+            }
+        }
         a.recycle();
         if (mFontTypeface != null) {
             mView.setTypeface(mFontTypeface, mStyle);
