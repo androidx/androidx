@@ -60,8 +60,7 @@ fun Element.isNonNull() =
                 hasAnnotation(androidx.annotation.NonNull::class) ||
                 hasAnnotation(org.jetbrains.annotations.NotNull::class)
 
-fun Element.isEntityElement() = this.hasAnyOf(androidx.room.Entity::class,
-        androidx.room.Fts3Entity::class, androidx.room.Fts4Entity::class)
+fun Element.isEntityElement() = this.hasAnnotation(androidx.room.Entity::class)
 
 /**
  * gets all members including super privates. does not handle duplicate field names!!!
@@ -205,6 +204,16 @@ fun AnnotationValue.getAsBoolean(def: Boolean): Boolean {
 
 fun AnnotationValue.getAsStringList(): List<String> {
     return ANNOTATION_VALUE_STRING_ARR_VISITOR.visit(this)
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T : Enum<T>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
+    return object : SimpleAnnotationValueVisitor6<T, Void>() {
+        override fun visitEnumConstant(value: VariableElement?, p: Void?): T {
+            return enumClass.getDeclaredMethod("valueOf", String::class.java)
+                    .invoke(null, value!!.simpleName.toString()) as T
+        }
+    }.visit(this)
 }
 
 // a variant of Types.isAssignable that ignores variance.

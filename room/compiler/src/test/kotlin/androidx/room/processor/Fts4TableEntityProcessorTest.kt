@@ -16,13 +16,15 @@
 
 package androidx.room.processor
 
+import androidx.room.Fts4
+import androidx.room.FtsOptions
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.parser.Tokenizer
 import androidx.room.vo.CallType
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
+import com.google.auto.common.MoreElements
 import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
@@ -30,6 +32,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import simpleRun
 import javax.lang.model.type.TypeKind
 
 @RunWith(JUnit4::class)
@@ -66,12 +69,80 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
     }
 
     @Test
+    fun missingEntityAnnotation() {
+        simpleRun(JavaFileObjects.forSourceString("foo.bar.MyEntity",
+                """
+                package foo.bar;
+                import androidx.room.*;
+                @Fts4
+                public class MyEntity {
+                    public String content;
+                }
+                """)) { invocation ->
+                    val entity = invocation.roundEnv.getElementsAnnotatedWith(Fts4::class.java)
+                            .first { it.toString() == "foo.bar.MyEntity" }
+                    FtsTableEntityProcessor(invocation.context, MoreElements.asType(entity))
+                            .process()
+                }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
+    }
+
+    @Test
+    fun notAllowedIndex() {
+        singleEntity("""
+                @PrimaryKey
+                @ColumnInfo(name = "rowid")
+                public int rowId;
+                public String content;
+                """,
+                entityAttributes = mapOf("indices" to "{@Index(\"content\")}")
+        ) { _, _ -> }.failsToCompile().withErrorContaining(ProcessorErrors.INDICES_IN_FTS_ENTITY)
+    }
+
+    @Test
+    fun notAllowedForeignKeys() {
+        val foreignEntity = JavaFileObjects.forSourceString("foo.bar.FKEntity",
+                """
+                package foo.bar;
+                import androidx.room.*;
+                @Entity
+                public class FKEntity {
+                    @PrimaryKey
+                    public long id;
+                }
+                """)
+        singleEntity("""
+                @PrimaryKey
+                @ColumnInfo(name = "rowid")
+                public int rowId;
+                public String content;
+                """,
+                entityAttributes = mapOf("foreignKeys" to "{@ForeignKey(entity=FKEntity.class, " +
+                        "parentColumns=\"id\", childColumns=\"rowid\")}"),
+                jfos = listOf(foreignEntity)
+        ) { _, _ -> }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.FOREIGN_KEYS_IN_FTS_ENTITY)
+    }
+
+    @Test
     fun omittedRowId() {
         singleEntity("""
                 private String content;
                 public String getContent() { return content; }
                 public void setContent(String content) { this.content = content; }
             """
+        ) { _, _ -> }.compilesWithoutError()
+    }
+
+    @Test
+    fun primaryKeyInEntityAnnotation() {
+        singleEntity("""
+                @ColumnInfo(name = "rowid")
+                public int rowId;
+                public String content;
+                """,
+                entityAttributes = mapOf("primaryKeys" to "\"rowid\"")
         ) { _, _ -> }.compilesWithoutError()
     }
 
@@ -113,13 +184,25 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
     }
 
     @Test
-    fun multiplePrimaryKeys() {
+    fun multiplePrimaryKeyAnnotations() {
         singleEntity("""
                 @PrimaryKey
                 public int oneId;
                 @PrimaryKey
                 public int twoId;
                 """) { _, _ -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY)
+    }
+
+    @Test
+    fun multiplePrimaryKeysInEntityAnnotation() {
+        singleEntity("""
+                public int oneId;
+                public int twoId;
+                """,
+                entityAttributes = mapOf("primaryKeys" to "{\"oneId\",\"twoId\"}")
+        ) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY)
     }
@@ -145,9 +228,9 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int getRowId() { return rowId; }
                 public void setRowId(int id) { this.rowId = rowId; }
                 """,
-                attributes = hashMapOf("tokenizer" to "FtsOptions.PORTER")
+                ftsAttributes = hashMapOf("tokenizer" to "FtsOptions.Tokenizer.PORTER")
         ) { entity, _ ->
-            assertThat(entity.ftsOptions.tokenizer, `is`(Tokenizer.PORTER))
+            assertThat(entity.ftsOptions.tokenizer, `is`(FtsOptions.Tokenizer.PORTER))
         }.compilesWithoutError()
     }
 
@@ -168,7 +251,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public String text;
                 public String extraData;
                 """,
-                attributes = hashMapOf("contentEntity" to "Content.class"),
+                ftsAttributes = hashMapOf("contentEntity" to "Content.class"),
                 jfos = listOf(contentSrc)
         ) { _, _ -> }
                 .failsToCompile()
@@ -195,7 +278,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public String text;
                 public String extraData;
                 """,
-                attributes = hashMapOf("contentEntity" to "Content.class"),
+                ftsAttributes = hashMapOf("contentEntity" to "Content.class"),
                 jfos = listOf(contentSrc)
         ) { _, _ -> }
                 .failsToCompile()
@@ -211,7 +294,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int rowId;
                 public String body;
                 """,
-                attributes = hashMapOf("languageId" to "\"lid\"")
+                ftsAttributes = hashMapOf("languageId" to "\"lid\"")
         ) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.missingLanguageIdField("lid"))
@@ -226,7 +309,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public String body;
                 public String lid;
                 """,
-                attributes = hashMapOf("languageId" to "\"lid\"")
+                ftsAttributes = hashMapOf("languageId" to "\"lid\"")
         ) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY)
@@ -239,7 +322,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 @ColumnInfo(name = "rowid")
                 public int rowId;
                 """,
-                attributes = hashMapOf("notIndexed" to "{\"body\"}")
+                ftsAttributes = hashMapOf("notIndexed" to "{\"body\"}")
         ) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.missingNotIndexedField(listOf("body")))
@@ -253,7 +336,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int rowId;
                 public String body;
                 """,
-                attributes = hashMapOf("prefix" to "{0,2}")
+                ftsAttributes = hashMapOf("prefix" to "{0,2}")
         ) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES)
@@ -267,7 +350,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int rowId;
                 public String body;
                 """,
-                attributes = hashMapOf("prefix" to "{-2,2}")
+                ftsAttributes = hashMapOf("prefix" to "{-2,2}")
         ) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES)
