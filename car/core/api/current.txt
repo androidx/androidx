@@ -284,13 +284,6 @@ package androidx.car.widget {
     method public void setColumnSpan(int);
   }
 
-  public abstract deprecated class DayNightStyle implements java.lang.annotation.Annotation {
-    field public static final int ALWAYS_DARK = 3; // 0x3
-    field public static final int ALWAYS_LIGHT = 2; // 0x2
-    field public static final int AUTO = 0; // 0x0
-    field public static final int AUTO_INVERSE = 1; // 0x1
-  }
-
   public abstract class ListItem<VH extends androidx.car.widget.ListItem.ViewHolder> {
     ctor public ListItem();
     method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>);
@@ -374,7 +367,6 @@ package androidx.car.widget {
     method public void resetMaxPages();
     method public void scrollToPosition(int);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
-    method public deprecated void setDayNightStyle(int);
     method public void setDefaultMaxPages(int);
     method public void setDividerColor(int);
     method public void setDividerVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager);
@@ -433,7 +425,6 @@ package androidx.car.widget {
     method public void onLayout(boolean, int, int, int, int);
     method public void setButtonRippleBackground(int);
     method public void setButtonTintColor(int);
-    method public deprecated void setDayNightStyle(int);
     method public void setDownButtonIcon(android.graphics.drawable.Drawable);
     method public void setDownEnabled(boolean);
     method public void setPaginationListener(androidx.car.widget.PagedScrollBarView.PaginationListener);
