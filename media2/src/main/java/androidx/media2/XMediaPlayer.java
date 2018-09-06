@@ -460,8 +460,7 @@ public class XMediaPlayer extends SessionPlayer2 {
             // TODO: more handling on listenable future. e.g. Canceling.
             Integer resultCode = sResultCodeMap.get(status);
             pair.second.set(new CommandResult2(
-                    resultCode == null ? RESULT_CODE_ERROR_UNKNOWN : resultCode,
-                    System.currentTimeMillis(), dsd));
+                    resultCode == null ? RESULT_CODE_ERROR_UNKNOWN : resultCode, dsd));
         }
 
         @Override
