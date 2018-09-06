@@ -434,7 +434,8 @@ public abstract class FragmentManager {
      * @param writer A PrintWriter to which the dump is to be set.
      * @param args Additional arguments to the dump request.
      */
-    public abstract void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args);
+    public abstract void dump(String prefix, @Nullable FileDescriptor fd, PrintWriter writer,
+            @Nullable String[] args);
 
     /**
      * Control whether the framework's internal fragment manager debugging
@@ -955,9 +956,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      * @return A list of active fragments in the fragment manager, including those that are in the
      * back stack.
      */
+    @NonNull
     List<Fragment> getActiveFragments() {
         if (mActive == null) {
-            return null;
+            return Collections.emptyList();
         }
         final int count = mActive.size();
         ArrayList<Fragment> fragments = new ArrayList<>(count);
@@ -1014,7 +1016,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dump(String prefix, @Nullable FileDescriptor fd, PrintWriter writer,
+            @Nullable String[] args) {
         String innerPrefix = prefix + "    ";
 
         int N;

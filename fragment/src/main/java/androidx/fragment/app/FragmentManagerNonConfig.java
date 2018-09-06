@@ -19,6 +19,7 @@ package androidx.fragment.app;
 
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelStore;
 
 import java.util.List;
@@ -33,13 +34,13 @@ import java.util.List;
  * {@link FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)}.</p>
  */
 public class FragmentManagerNonConfig {
-    private final List<Fragment> mFragments;
-    private final List<FragmentManagerNonConfig> mChildNonConfigs;
-    private final List<ViewModelStore> mViewModelStores;
+    private final @Nullable List<Fragment> mFragments;
+    private final @Nullable List<FragmentManagerNonConfig> mChildNonConfigs;
+    private final @Nullable List<ViewModelStore> mViewModelStores;
 
-    FragmentManagerNonConfig(List<Fragment> fragments,
-            List<FragmentManagerNonConfig> childNonConfigs,
-            List<ViewModelStore> viewModelStores) {
+    FragmentManagerNonConfig(@Nullable List<Fragment> fragments,
+            @Nullable List<FragmentManagerNonConfig> childNonConfigs,
+            @Nullable List<ViewModelStore> viewModelStores) {
         mFragments = fragments;
         mChildNonConfigs = childNonConfigs;
         mViewModelStores = viewModelStores;
@@ -48,6 +49,7 @@ public class FragmentManagerNonConfig {
     /**
      * @return the retained instance fragments returned by a FragmentManager
      */
+    @Nullable
     List<Fragment> getFragments() {
         return mFragments;
     }
@@ -55,6 +57,7 @@ public class FragmentManagerNonConfig {
     /**
      * @return the FragmentManagerNonConfigs from any applicable fragment's child FragmentManager
      */
+    @Nullable
     List<FragmentManagerNonConfig> getChildNonConfigs() {
         return mChildNonConfigs;
     }
@@ -62,6 +65,7 @@ public class FragmentManagerNonConfig {
     /**
      * @return the ViewModelStores for all fragments associated with the FragmentManager
      */
+    @Nullable
     List<ViewModelStore> getViewModelStores() {
         return mViewModelStores;
     }

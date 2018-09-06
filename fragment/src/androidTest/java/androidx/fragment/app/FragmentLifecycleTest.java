@@ -1419,6 +1419,7 @@ public class FragmentLifecycleTest {
         }
 
         @Override
+        @NonNull
         public LayoutInflater onGetLayoutInflater() {
             return mActivity.getLayoutInflater().cloneInContext(mActivity);
         }
