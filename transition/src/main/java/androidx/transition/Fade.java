@@ -87,7 +87,7 @@ public class Fade extends Visibility {
      * @param fadingMode The behavior of this transition, a combination of
      *                   {@link #IN} and {@link #OUT}.
      */
-    public Fade(int fadingMode) {
+    public Fade(@Mode int fadingMode) {
         setMode(fadingMode);
     }
 
