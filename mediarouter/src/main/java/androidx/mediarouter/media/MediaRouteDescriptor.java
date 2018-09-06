@@ -64,12 +64,12 @@ public final class MediaRouteDescriptor {
     static final String KEY_MIN_CLIENT_VERSION = "minClientVersion";
     static final String KEY_MAX_CLIENT_VERSION = "maxClientVersion";
 
-    Bundle mBundle;
+    final Bundle mBundle;
+    List<String> mGroupMemberIds;
     List<IntentFilter> mControlFilters;
 
-    MediaRouteDescriptor(Bundle bundle, List<IntentFilter> controlFilters) {
+    MediaRouteDescriptor(Bundle bundle) {
         mBundle = bundle;
-        mControlFilters = controlFilters;
     }
 
     /**
@@ -94,7 +94,17 @@ public final class MediaRouteDescriptor {
      */
     @RestrictTo(LIBRARY_GROUP)
     public List<String> getGroupMemberIds() {
-        return mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
+        ensureGroupMemberIds();
+        return mGroupMemberIds;
+    }
+
+    void ensureGroupMemberIds() {
+        if (mGroupMemberIds == null) {
+            mGroupMemberIds = mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
+            if (mGroupMemberIds == null) {
+                mGroupMemberIds = Collections.emptyList();
+            }
+        }
     }
 
     /**
@@ -372,7 +382,7 @@ public final class MediaRouteDescriptor {
      * @return The new instance, or null if the bundle was null.
      */
     public static MediaRouteDescriptor fromBundle(Bundle bundle) {
-        return bundle != null ? new MediaRouteDescriptor(bundle, null) : null;
+        return bundle != null ? new MediaRouteDescriptor(bundle) : null;
     }
 
     /**
@@ -406,8 +416,11 @@ public final class MediaRouteDescriptor {
 
             mBundle = new Bundle(descriptor.mBundle);
 
-            descriptor.ensureControlFilters();
-            if (!descriptor.mControlFilters.isEmpty()) {
+            if (!descriptor.getGroupMemberIds().isEmpty()) {
+                mGroupMemberIds = new ArrayList<String>(descriptor.getGroupMemberIds());
+            }
+
+            if (!descriptor.getControlFilters().isEmpty()) {
                 mControlFilters = new ArrayList<IntentFilter>(descriptor.mControlFilters);
             }
         }
@@ -740,7 +753,7 @@ public final class MediaRouteDescriptor {
             if (mGroupMemberIds != null) {
                 mBundle.putStringArrayList(KEY_GROUP_MEMBER_IDS, mGroupMemberIds);
             }
-            return new MediaRouteDescriptor(mBundle, mControlFilters);
+            return new MediaRouteDescriptor(mBundle);
         }
     }
 }
