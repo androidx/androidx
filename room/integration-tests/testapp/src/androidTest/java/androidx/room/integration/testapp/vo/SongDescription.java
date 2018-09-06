@@ -16,9 +16,11 @@
 
 package androidx.room.integration.testapp.vo;
 
-import androidx.room.Fts4Entity;
+import androidx.room.Entity;
+import androidx.room.Fts4;
 
-@Fts4Entity(contentEntity = Song.class)
+@Entity
+@Fts4(contentEntity = Song.class)
 public class SongDescription {
     public String mTitle;
     public String mArtist;

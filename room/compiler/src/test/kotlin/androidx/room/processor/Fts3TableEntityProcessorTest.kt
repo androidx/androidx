@@ -32,9 +32,9 @@
 
 package androidx.room.processor
 
+import androidx.room.FtsOptions
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.parser.Tokenizer
 import androidx.room.vo.CallType
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
@@ -160,9 +160,9 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int getRowId() { return rowId; }
                 public void setRowId(int id) { this.rowId = rowId; }
                 """,
-                attributes = hashMapOf("tokenizer" to "FtsOptions.PORTER")
+                ftsAttributes = hashMapOf("tokenizer" to "FtsOptions.Tokenizer.PORTER")
         ) { entity, _ ->
-            assertThat(entity.ftsOptions.tokenizer, `is`(Tokenizer.PORTER))
+            assertThat(entity.ftsOptions.tokenizer, `is`(FtsOptions.Tokenizer.PORTER))
         }.compilesWithoutError()
     }
 }

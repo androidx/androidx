@@ -16,12 +16,14 @@
 
 package androidx.room.integration.autovaluetestapp.vo;
 
-import androidx.room.Fts4Entity;
+import androidx.room.Entity;
+import androidx.room.Fts4;
 
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-@Fts4Entity
+@Entity
+@Fts4
 public abstract class Mail {
     public abstract String getSubject();
     public abstract String getBody();
