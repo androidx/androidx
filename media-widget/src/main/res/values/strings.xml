@@ -144,8 +144,8 @@
 
     <!--Content Descriptions -->
     <string name="mcv2_back_button_desc">Back</string>
-    <string name="mcv2_overflow_left_button_desc">See more buttons</string>
-    <string name="mcv2_overflow_right_button_desc">Back to previous button list</string>
+    <string name="mcv2_overflow_left_button_desc">Back to previous button list</string>
+    <string name="mcv2_overflow_right_button_desc">See more buttons</string>
     <string name="mcv2_seek_bar_desc">Playback progress</string>
     <string name="mcv2_settings_button_desc">Settings</string>
     <string name="mcv2_video_quality_button_desc">Video Quality Selection</string>
