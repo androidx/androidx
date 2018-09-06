@@ -65,51 +65,6 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
             Boolean.parseBoolean(
                     System.getProperty("guava.concurrent.generate_cancellation_cause", "false"));
 
-    /**
-     * Tag interface marking trusted subclasses. This enables some optimizations. The implementation
-     * of this interface must also be an AbstractFuture and must not override or expose for
-     * overriding any of the public methods of ListenableFuture.
-     */
-    interface Trusted<V> extends ListenableFuture<V> {
-    }
-
-    /**
-     * A less abstract subclass of AbstractFuture. This can be used to optimize setFuture by
-     * ensuring that {@link #get} calls exactly the implementation of {@link AbstractFuture#get}.
-     */
-    abstract static class TrustedFuture<V> extends AbstractFuture<V> implements Trusted<V> {
-        @Override
-        public final V get() throws InterruptedException, ExecutionException {
-            return super.get();
-        }
-
-        @Override
-        public final V get(long timeout, TimeUnit unit)
-                throws InterruptedException, ExecutionException, TimeoutException {
-            return super.get(timeout, unit);
-        }
-
-        @Override
-        public final boolean isDone() {
-            return super.isDone();
-        }
-
-        @Override
-        public final boolean isCancelled() {
-            return super.isCancelled();
-        }
-
-        @Override
-        public final void addListener(Runnable listener, Executor executor) {
-            super.addListener(listener, executor);
-        }
-
-        @Override
-        public final boolean cancel(boolean mayInterruptIfRunning) {
-            return super.cancel(mayInterruptIfRunning);
-        }
-    }
-
     // Logger to log exceptions caught when running listeners.
     private static final Logger log = Logger.getLogger(AbstractFuture.class.getName());
 
@@ -398,7 +353,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
      * @throws CancellationException {@inheritDoc}
      */
     @Override
-    public V get(long timeout, TimeUnit unit)
+    public final V get(long timeout, TimeUnit unit)
             throws InterruptedException, TimeoutException, ExecutionException {
         // NOTE: if timeout < 0, remainingNanos will be < 0 and we will fall into the while(true)
         // loop at the bottom and throw a timeoutexception.
@@ -512,7 +467,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
      * @throws CancellationException {@inheritDoc}
      */
     @Override
-    public V get() throws InterruptedException, ExecutionException {
+    public final V get() throws InterruptedException, ExecutionException {
         if (Thread.interrupted()) {
             throw new InterruptedException();
         }
@@ -570,13 +525,13 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
     }
 
     @Override
-    public boolean isDone() {
+    public final boolean isDone() {
         final Object localValue = value;
         return localValue != null & !(localValue instanceof SetFuture);
     }
 
     @Override
-    public boolean isCancelled() {
+    public final boolean isCancelled() {
         final Object localValue = value;
         return localValue instanceof Cancellation;
     }
@@ -595,7 +550,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
      * setFuture(cancelledFuture)}.
      */
     @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
+    public final boolean cancel(boolean mayInterruptIfRunning) {
         Object localValue = value;
         boolean rValue = false;
         if (localValue == null | localValue instanceof SetFuture) {
@@ -624,8 +579,8 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
                         // and we don't
                         // care if we are successful or not.
                         ListenableFuture<?> futureToPropagateTo = ((SetFuture) localValue).future;
-                        if (futureToPropagateTo instanceof Trusted) {
-                            // If the future is a TrustedFuture then we specifically avoid
+                        if (futureToPropagateTo instanceof AbstractFuture) {
+                            // If the future is a trusted then we specifically avoid
                             // calling cancel() this has 2 benefits
                             // 1. for long chains of futures strung together with setFuture we
                             // consume less stack
@@ -692,7 +647,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
      * @since 10.0
      */
     @Override
-    public void addListener(Runnable listener, Executor executor) {
+    public final void addListener(Runnable listener, Executor executor) {
         checkNotNull(listener);
         checkNotNull(executor);
         Listener oldHead = listeners;
@@ -839,7 +794,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
      * <p>This is approximately the inverse of {@link #getDoneValue(Object)}
      */
     private static Object getFutureValue(ListenableFuture<?> future) {
-        if (future instanceof Trusted) {
+        if (future instanceof AbstractFuture) {
             // Break encapsulation for TrustedFuture instances since we know that subclasses cannot
             // override .get() (since it is final) and therefore this is equivalent to calling
             // .get() and unpacking the exceptions like we do below (just much faster because it is
@@ -852,9 +807,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
                 // work which cannot propagate the wasInterrupted bit
                 Cancellation c = (Cancellation) v;
                 if (c.wasInterrupted) {
-                    v =
-                            c.cause != null
-                                    ? new Cancellation(/* wasInterrupted= */ false, c.cause)
+                    v = c.cause != null ? new Cancellation(/* wasInterrupted= */ false, c.cause)
                                     : Cancellation.CAUSELESS_CANCELLED;
                 }
             }
