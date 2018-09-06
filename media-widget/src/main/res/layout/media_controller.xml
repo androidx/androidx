@@ -17,8 +17,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layoutDirection="ltr">
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/title_bar"
@@ -37,7 +36,6 @@
             <ImageButton
                 android:id="@+id/back"
                 android:clickable="true"
-                android:layout_alignParentStart="true"
                 android:visibility="visible"
                 style="@style/TitleBarButton.Back"/>
 
@@ -47,7 +45,6 @@
                 android:ellipsize="end"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/back"
                 android:maxLines="1"
                 android:paddingStart="@dimen/mcv2_embedded_icon_padding"
                 android:paddingEnd="@dimen/mcv2_embedded_icon_padding"
@@ -59,7 +56,7 @@
             android:id="@+id/title_bar_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -67,9 +64,9 @@
                 android:clickable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:paddingLeft="5dip"
-                android:paddingRight="10dip"
+                android:layout_alignParentEnd="true"
+                android:paddingStart="5dip"
+                android:paddingEnd="10dip"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
@@ -77,7 +74,7 @@
                     android:id="@+id/ad_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="5dip"
+                    android:paddingEnd="5dip"
                     android:text="@string/MediaControlView2_ad_text"
                     android:textSize="10sp"
                     android:textColor="#FFFFFFFF" />
@@ -104,14 +101,16 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layoutDirection="ltr">
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/minimal_fullscreen_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right">
+        android:gravity="right"
+        android:layoutDirection="ltr">
 
         <ImageButton
             android:id="@+id/minimal_fullscreen"
@@ -122,14 +121,16 @@
     <RelativeLayout
         android:id="@+id/progress_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/mcv2_custom_progress_thumb_size">
+        android:layout_height="@dimen/mcv2_custom_progress_thumb_size"
+        android:layoutDirection="ltr">
 
         <SeekBar
             android:id="@+id/progress"
             android:layout_width="match_parent"
             android:layout_height="@dimen/mcv2_custom_progress_thumb_size"
             android:contentDescription="@string/mcv2_seek_bar_desc"
-            android:padding="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
             android:maxHeight="@dimen/mcv2_custom_progress_max_size"
             android:minHeight="@dimen/mcv2_custom_progress_max_size"
             android:splitTrack="false"
@@ -149,7 +150,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/mcv2_bottom_bar_height"
         android:background="@color/bottom_bar_background"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layoutDirection="ltr">
 
         <LinearLayout
             android:id="@+id/bottom_bar_left"
@@ -162,7 +164,7 @@
                 android:id="@+id/ad_skip_time"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:gravity="center"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
@@ -173,11 +175,11 @@
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_toRightOf="@id/bottom_bar_left"
+            android:layout_toEndOf="@id/bottom_bar_left"
             android:visibility="invisible"
             android:gravity="center"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp">
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
 
             <TextView
                 android:id="@+id/time_current"
@@ -213,7 +215,7 @@
             android:id="@+id/basic_controls"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/bottom_bar_overflow"
+            android:layout_toStartOf="@id/bottom_bar_overflow"
             android:layout_centerVertical="true"
             android:orientation="horizontal">
 

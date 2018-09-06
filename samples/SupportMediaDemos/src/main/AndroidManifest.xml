@@ -20,7 +20,8 @@
 
     <uses-sdk tools:overrideLibrary="androidx.media.widget" />
 
-    <application android:label="Video View Test">
+    <application android:label="Video View Test"
+                 android:supportsRtl="true">
 
         <!-- Video Selection Activity -->
         <activity android:name="VideoSelector"
