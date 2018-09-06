@@ -2302,7 +2302,7 @@ public final class MediaRouter {
             }
             DynamicGroupInfo groupInfo = (DynamicGroupInfo) mSelectedRoute;
             if (!groupInfo.getMemberRoutes().contains(route)
-                    || groupInfo.getUnselectableRoutes().contains(route)) {
+                    || !groupInfo.getUnselectableRoutes().contains(route)) {
                 return;
             }
             ((DynamicGroupRouteController) mSelectedRouteController)
