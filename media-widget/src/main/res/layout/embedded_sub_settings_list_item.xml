@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/mcv2_settings_text_height"
             android:gravity="center"
-            android:paddingLeft="2dp"
+            android:paddingStart="2dp"
             android:textColor="@color/white"
             android:textSize="@dimen/mcv2_settings_main_text_size"/>
     </RelativeLayout>
