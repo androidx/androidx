@@ -55,76 +55,112 @@ class AnimationHandler {
      */
     void onAnimationFrame(long frameTime) {
         AnimationHandler.this.doAnimationFrame(frameTime);
-        if (mAnimationCallbacks.size() > 0) {
-            getProvider().postFrameCallback();
+        if (getAnimationCallbacks().size() > 0) {
+            mProvider.postFrameCallback();
         }
     }
-
-    public static final ThreadLocal<AnimationHandler> sAnimatorHandler = new ThreadLocal<>();
-
     /**
      * Internal per-thread collections used to avoid set collisions as animations start and end
      * while being processed.
      */
-    private final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
-            new SimpleArrayMap<>();
-    private final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
 
-    private AnimationFrameCallbackProvider mProvider;
-    private long mCurrentFrameTime = 0;
-    private boolean mListDirty = false;
-
-    public static AnimationHandler getInstance() {
-        if (sAnimatorHandler.get() == null) {
-            sAnimatorHandler.set(new AnimationHandler());
-        }
-        return sAnimatorHandler.get();
+    static class AnimationCallbackData {
+        final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
+                new SimpleArrayMap<>();
+        final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
+        boolean mListDirty = false;
     }
 
-    public static long getFrameTime() {
-        if (sAnimatorHandler.get() == null) {
-            return 0;
-        }
-        return sAnimatorHandler.get().mCurrentFrameTime;
-    }
+    public static AnimationHandler sAnimationHandler = null;
+    private static AnimationHandler sTestHandler = null;
+    private ThreadLocal<AnimationCallbackData> mAnimationCallbackData = new ThreadLocal<>();
+    private final AnimationFrameCallbackProvider mProvider;
 
-    void setFrameDelay(long frameDelay) {
-        getProvider().setFrameDelay(frameDelay);
-    }
-
-    long getFrameDelay() {
-        return getProvider().getFrameDelay();
-    }
-
-    /**
-     * By default, the Choreographer is used to provide timing for frame callbacks. A custom
-     * provider can be used here to provide different timing pulse.
-     */
-    public void setProvider(AnimationFrameCallbackProvider provider) {
-        mProvider = provider;
-    }
-
-    private AnimationFrameCallbackProvider getProvider() {
-        if (mProvider == null) {
+    AnimationHandler(AnimationFrameCallbackProvider provider) {
+        if (provider == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 mProvider = new FrameCallbackProvider16();
             } else {
                 mProvider = new FrameCallbackProvider14();
             }
+        } else {
+            mProvider = provider;
         }
-        return mProvider;
+    }
+
+    public static AnimationHandler getInstance() {
+        if (sTestHandler != null) {
+            return sTestHandler;
+        }
+        if (sAnimationHandler == null) {
+            sAnimationHandler = new AnimationHandler(null);
+        }
+        return sAnimationHandler;
+    }
+
+    static void setTestHandler(AnimationHandler handler) {
+        sTestHandler = handler;
+    }
+
+    void setFrameDelay(long frameDelay) {
+        mProvider.setFrameDelay(frameDelay);
+    }
+
+    long getFrameDelay() {
+        return mProvider.getFrameDelay();
+    }
+
+    private SimpleArrayMap<AnimationFrameCallback, Long> getDelayedCallbackStartTime() {
+        AnimationCallbackData data = mAnimationCallbackData.get();
+        if (data == null) {
+            data = new AnimationCallbackData();
+            mAnimationCallbackData.set(data);
+        }
+
+        return data.mDelayedCallbackStartTime;
+    }
+
+    private ArrayList<AnimationFrameCallback> getAnimationCallbacks() {
+        AnimationCallbackData data = mAnimationCallbackData.get();
+        if (data == null) {
+            data = new AnimationCallbackData();
+            mAnimationCallbackData.set(data);
+        }
+
+        return data.mAnimationCallbacks;
+    }
+
+    private boolean isListDirty() {
+        AnimationCallbackData data = mAnimationCallbackData.get();
+        if (data == null) {
+            data = new AnimationCallbackData();
+            mAnimationCallbackData.set(data);
+        }
+
+        return data.mListDirty;
+    }
+
+    private void setListDirty(boolean dirty) {
+        AnimationCallbackData data = mAnimationCallbackData.get();
+        if (data == null) {
+            data = new AnimationCallbackData();
+            mAnimationCallbackData.set(data);
+        }
+
+        data.mListDirty = dirty;
     }
 
     /**
      * Register to get a callback on the next frame after the delay.
      */
     void addAnimationFrameCallback(final AnimationFrameCallback callback) {
-        if (mAnimationCallbacks.size() == 0) {
-            getProvider().postFrameCallback();
+        if (getAnimationCallbacks().size() == 0) {
+            mProvider.postFrameCallback();
         }
-        if (!mAnimationCallbacks.contains(callback)) {
-            mAnimationCallbacks.add(callback);
+        if (!getAnimationCallbacks().contains(callback)) {
+            getAnimationCallbacks().add(callback);
         }
+        mProvider.onNewCallbackAdded(callback);
     }
 
     /**
@@ -132,30 +168,30 @@ class AnimationHandler {
      * timing.
      */
     public void removeCallback(AnimationFrameCallback callback) {
-        mDelayedCallbackStartTime.remove(callback);
-        int id = mAnimationCallbacks.indexOf(callback);
+        getDelayedCallbackStartTime().remove(callback);
+        int id = getAnimationCallbacks().indexOf(callback);
         if (id >= 0) {
-            mAnimationCallbacks.set(id, null);
-            mListDirty = true;
+            getAnimationCallbacks().set(id, null);
+            setListDirty(true);
         }
     }
 
     void autoCancelBasedOn(ObjectAnimator objectAnimator) {
-        for (int i = mAnimationCallbacks.size() - 1; i >= 0; i--) {
-            AnimationFrameCallback cb = mAnimationCallbacks.get(i);
+        for (int i = getAnimationCallbacks().size() - 1; i >= 0; i--) {
+            AnimationFrameCallback cb = getAnimationCallbacks().get(i);
             if (cb == null) {
                 continue;
             }
             if (objectAnimator.shouldAutoCancel(cb)) {
-                ((Animator) mAnimationCallbacks.get(i)).cancel();
+                ((Animator) getAnimationCallbacks().get(i)).cancel();
             }
         }
     }
 
     private void doAnimationFrame(long frameTime) {
         long currentTime = SystemClock.uptimeMillis();
-        for (int i = 0; i < mAnimationCallbacks.size(); i++) {
-            final AnimationFrameCallback callback = mAnimationCallbacks.get(i);
+        for (int i = 0; i < getAnimationCallbacks().size(); i++) {
+            final AnimationFrameCallback callback = getAnimationCallbacks().get(i);
             if (callback == null) {
                 continue;
             }
@@ -173,33 +209,33 @@ class AnimationHandler {
      * @return true if they have passed the initial delay or have no delay, false otherwise.
      */
     private boolean isCallbackDue(AnimationFrameCallback callback, long currentTime) {
-        Long startTime = mDelayedCallbackStartTime.get(callback);
+        Long startTime = getDelayedCallbackStartTime().get(callback);
         if (startTime == null) {
             return true;
         }
         if (startTime < currentTime) {
-            mDelayedCallbackStartTime.remove(callback);
+            getDelayedCallbackStartTime().remove(callback);
             return true;
         }
         return false;
     }
 
     private void cleanUpList() {
-        if (mListDirty) {
-            for (int i = mAnimationCallbacks.size() - 1; i >= 0; i--) {
-                if (mAnimationCallbacks.get(i) == null) {
-                    mAnimationCallbacks.remove(i);
+        if (isListDirty()) {
+            for (int i = getAnimationCallbacks().size() - 1; i >= 0; i--) {
+                if (getAnimationCallbacks().get(i) == null) {
+                    getAnimationCallbacks().remove(i);
                 }
             }
-            mListDirty = false;
+            setListDirty(false);
         }
     }
 
     private int getCallbackSize() {
         int count = 0;
-        int size = mAnimationCallbacks.size();
+        int size = getAnimationCallbacks().size();
         for (int i = size - 1; i >= 0; i--) {
-            if (mAnimationCallbacks.get(i) != null) {
+            if (getAnimationCallbacks().get(i) != null) {
                 count++;
             }
         }
@@ -210,7 +246,7 @@ class AnimationHandler {
      * Return the number of callbacks that have registered for frame callbacks.
      */
     public static int getAnimationCount() {
-        AnimationHandler handler = sAnimatorHandler.get();
+        AnimationHandler handler = AnimationHandler.getInstance();
         if (handler == null) {
             return 0;
         }
@@ -224,8 +260,6 @@ class AnimationHandler {
     private class FrameCallbackProvider16 implements AnimationFrameCallbackProvider,
             Choreographer.FrameCallback {
 
-        private final Choreographer mChoreographer = Choreographer.getInstance();
-
         FrameCallbackProvider16() {
         }
 
@@ -235,8 +269,11 @@ class AnimationHandler {
         }
 
         @Override
+        public void onNewCallbackAdded(AnimationFrameCallback callback) {}
+
+        @Override
         public void postFrameCallback() {
-            mChoreographer.postFrameCallback(this);
+            Choreographer.getInstance().postFrameCallback(this);
         }
 
         @Override
@@ -256,12 +293,18 @@ class AnimationHandler {
      */
     private class FrameCallbackProvider14 implements AnimationFrameCallbackProvider, Runnable {
 
-        long mLastFrameTime = -1;
-        private final Handler mHandler;
+        private final ThreadLocal<Handler> mHandler = new ThreadLocal<>();
+        private long mLastFrameTime = -1;
         private long mFrameDelay = 16;
 
         FrameCallbackProvider14() {
-            mHandler = new Handler(Looper.myLooper());
+        }
+
+        Handler getHandler() {
+            if (mHandler.get() == null) {
+                mHandler.set(new Handler(Looper.myLooper()));
+            }
+            return mHandler.get();
         }
 
         @Override
@@ -271,12 +314,17 @@ class AnimationHandler {
         }
 
         @Override
+        public void onNewCallbackAdded(AnimationFrameCallback callback) {}
+
+        @Override
         public void postFrameCallback() {
-            long delay = mFrameDelay - (SystemClock.uptimeMillis() - mLastFrameTime);
+            long delay = mFrameDelay - (SystemClock.uptimeMillis()
+                    - mLastFrameTime);
             delay = Math.max(delay, 0);
-            mHandler.postDelayed(this, delay);
+            getHandler().postDelayed(this, delay);
         }
 
+        // TODO: consider removing frame delay setter/getter from ValueAnimator
         @Override
         public void setFrameDelay(long delay) {
             mFrameDelay = delay > 0 ? delay : 0;
@@ -295,6 +343,8 @@ class AnimationHandler {
      * our timing pulse in the tests.
      */
     interface AnimationFrameCallbackProvider {
+
+        void onNewCallbackAdded(AnimationFrameCallback callback);
 
         void postFrameCallback();
 
