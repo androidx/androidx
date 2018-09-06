@@ -137,12 +137,33 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
         }
     }
 
+    @Override
+    public void onStopped(boolean cancelled) {
+        super.onStopped(cancelled);
+        if (mDelegate != null) {
+            // Stop is the method that sets the stopped and cancelled bits and invokes onStopped.
+            mDelegate.stop(cancelled);
+        }
+    }
+
     /**
-     * @return The instance of {@link WorkDatabase}.
+     * @return The instance of {@link WorkDatabase}
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     public WorkDatabase getWorkDatabase() {
         return WorkManagerImpl.getInstance().getWorkDatabase();
+    }
+
+    /**
+     * @return The {@link Worker} used for delegated work
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @VisibleForTesting
+    public NonBlockingWorker getDelegate() {
+        return mDelegate;
     }
 
     @Override
