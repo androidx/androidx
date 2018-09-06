@@ -24,6 +24,7 @@ import androidx.room.parser.Tokenizer
 data class FtsOptions(
     val tokenizer: Tokenizer,
     val tokenizerArgs: List<String>,
+    val contentEntity: Entity?,
     val languageIdColumnName: String,
     val matchInfo: FtsVersion,
     val notIndexedColumns: List<String>,
@@ -35,6 +36,7 @@ data class FtsOptions(
         val identityKey = SchemaIdentityKey()
         identityKey.append(tokenizer.name)
         identityKey.append(tokenizerArgs.joinToString())
+        identityKey.append(contentEntity?.tableName ?: "")
         identityKey.append(languageIdColumnName)
         identityKey.append(matchInfo.name)
         identityKey.append(notIndexedColumns.joinToString())
@@ -49,6 +51,10 @@ data class FtsOptions(
                 val tokenizeAndArgs = listOf("tokenize=${tokenizer.name.toLowerCase()}") +
                         tokenizerArgs.map { "`$it`" }
                 add(tokenizeAndArgs.joinToString(separator = " "))
+            }
+
+            if (contentEntity != null) {
+                add("content=`${contentEntity.tableName}`")
             }
 
             if (languageIdColumnName.isNotEmpty()) {
@@ -76,6 +82,7 @@ data class FtsOptions(
     fun toBundle() = FtsOptionsBundle(
             tokenizer.name,
             tokenizerArgs,
+            contentEntity?.tableName ?: "",
             languageIdColumnName,
             matchInfo.name,
             notIndexedColumns,

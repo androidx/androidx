@@ -21,6 +21,8 @@ import androidx.annotation.RestrictTo;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +100,7 @@ public class DatabaseBundle implements SchemaEquality<DatabaseBundle> {
      */
     public List<String> buildCreateQueries() {
         List<String> result = new ArrayList<>();
+        Collections.sort(mEntities, new FtsEntityCreateComparator());
         for (EntityBundle entityBundle : mEntities) {
             result.addAll(entityBundle.buildCreateQueries());
         }
@@ -109,5 +112,27 @@ public class DatabaseBundle implements SchemaEquality<DatabaseBundle> {
     public boolean isSchemaEqual(DatabaseBundle other) {
         return SchemaEqualityUtil.checkSchemaEquality(getEntitiesByTableName(),
                 other.getEntitiesByTableName());
+    }
+
+    // Comparator to sort FTS entities after their declared external content entity so that the
+    // content entity table gets created first.
+    static final class FtsEntityCreateComparator implements Comparator<EntityBundle> {
+        @Override
+        public int compare(EntityBundle firstEntity, EntityBundle secondEntity) {
+            if (firstEntity instanceof FtsEntityBundle) {
+                FtsEntityBundle ftsEntity = (FtsEntityBundle) firstEntity;
+                String contentTable = ftsEntity.getFtsOptions().getContentTable();
+                if (contentTable.equals(secondEntity.getTableName())) {
+                    return 1;
+                }
+            } else if (secondEntity instanceof FtsEntityBundle) {
+                FtsEntityBundle ftsEntity = (FtsEntityBundle) secondEntity;
+                String contentTable = ftsEntity.getFtsOptions().getContentTable();
+                if (contentTable.equals(firstEntity.getTableName())) {
+                    return -1;
+                }
+            }
+            return 0;
+        }
     }
 }

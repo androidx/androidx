@@ -2,19 +2,21 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "b9f2306193e83868d3491c76a0810e7d",
+    "identityHash": "0b209e42c3a2203dac5304d58db4bb7d",
     "entities": [
       {
         "ftsVersion": "FTS4",
         "ftsOptions": {
           "tokenizer": "SIMPLE",
           "tokenizerArgs": [],
+          "contentTable": "",
           "languageIdColumnName": "",
           "matchInfo": "FTS3",
           "notIndexedColumns": [],
           "prefixSizes": [],
           "preferredOrder": "ASC"
         },
+        "contentSyncTriggers": [],
         "tableName": "Book",
         "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`title` TEXT, `author` TEXT, `numOfPages` INTEGER NOT NULL, `text` TEXT, matchinfo=fts3)",
         "fields": [
@@ -53,7 +55,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"b9f2306193e83868d3491c76a0810e7d\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"0b209e42c3a2203dac5304d58db4bb7d\")"
     ]
   }
 }

@@ -4,6 +4,7 @@ import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomOpenHelper;
 import androidx.room.RoomOpenHelper.Delegate;
+import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
 import androidx.room.util.TableInfo.Column;
 import androidx.room.util.TableInfo.ForeignKey;
@@ -58,6 +59,15 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                         mCallbacks.get(_i).onOpen(_db);
                     }
                 }
+            }
+
+            @Override
+            public void onPreMigrate(SupportSQLiteDatabase _db) {
+                DBUtil.dropFtsSyncTriggers(_db);
+            }
+
+            @Override
+            public void onPostMigrate(SupportSQLiteDatabase _db) {
             }
 
             @Override

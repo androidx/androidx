@@ -23,7 +23,11 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Database utilities for Room
@@ -63,6 +67,33 @@ public class DBUtil {
         }
 
         return cursor;
+    }
+
+    /**
+     * Drops all FTS content sync triggers created by Room.
+     * <p>
+     * FTS content sync triggers created by Room are those that are found in the sqlite_master table
+     * who's names start with 'room_fts_content_sync_'.
+     *
+     * @param db The database.
+     */
+    public static void dropFtsSyncTriggers(SupportSQLiteDatabase db) {
+        List<String> existingTriggers = new ArrayList<>();
+        Cursor cursor = db.query("SELECT name FROM sqlite_master WHERE type = 'trigger'");
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+            while (cursor.moveToNext()) {
+                existingTriggers.add(cursor.getString(0));
+            }
+        } finally {
+            cursor.close();
+        }
+
+        for (String triggerName : existingTriggers) {
+            if (triggerName.startsWith("room_fts_content_sync_")) {
+                db.execSQL("DROP TRIGGER IF EXISTS " + triggerName);
+            }
+        }
     }
 
     private DBUtil() {
