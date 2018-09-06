@@ -43,6 +43,36 @@ class FtsEntity(
         createTableQuery(tableName)
     }
 
+    val nonHiddenFields by lazy {
+        fields.filterNot {
+            // 'rowid' primary key column and language id column are hidden columns
+            primaryKey.fields.isNotEmpty() && primaryKey.fields.first() == it ||
+                    ftsOptions.languageIdColumnName == it.columnName
+        }
+    }
+
+    val contentSyncTriggerNames by lazy {
+        if (ftsOptions.contentEntity != null) {
+            arrayOf("UPDATE", "DELETE").map { operation ->
+                createTriggerName(tableName, "BEFORE_$operation")
+            } + arrayOf("UPDATE", "INSERT").map { operation ->
+                createTriggerName(tableName, "AFTER_$operation")
+            }
+        } else {
+            emptyList()
+        }
+    }
+
+    // Create trigger queries to keep fts table up to date with the content table as suggested in
+    // https://www.sqlite.org/fts3.html#_external_content_fts4_tables_
+    val contentSyncTriggerCreateQueries by lazy {
+        if (ftsOptions.contentEntity != null) {
+            createSyncTriggers(ftsOptions.contentEntity.tableName)
+        } else {
+            emptyList()
+        }
+    }
+
     override fun getIdKey(): String {
         val identityKey = SchemaIdentityKey()
         identityKey.append(tableName)
@@ -53,18 +83,46 @@ class FtsEntity(
     }
 
     private fun createTableQuery(tableName: String): String {
-        val definitions = fields.mapNotNull {
-            when {
-                // 'rowid' primary key column is omitted from create statement
-                primaryKey.fields.isNotEmpty() && primaryKey.fields.first() == it -> null
-                // language id column is omitted from create statement
-                ftsOptions.languageIdColumnName == it.columnName -> null
-                else -> it.databaseDefinition(false)
-            }
-        } + ftsOptions.databaseDefinition()
+        val definitions = nonHiddenFields.map { it.databaseDefinition(false) } +
+                ftsOptions.databaseDefinition()
         return "CREATE VIRTUAL TABLE IF NOT EXISTS `$tableName` " +
                 "USING ${ftsVersion.name}(${definitions.joinToString(", ")})"
     }
+
+    private fun createSyncTriggers(contentTable: String): List<String> {
+        val contentColumnNames = nonHiddenFields.map { it.columnName }
+        return arrayOf("UPDATE", "DELETE").map { operation ->
+            createBeforeTrigger(operation, tableName, contentTable)
+        } + arrayOf("UPDATE", "INSERT").map { operation ->
+            createAfterTrigger(operation, tableName, contentTable, contentColumnNames)
+        }
+    }
+
+    private fun createBeforeTrigger(
+        triggerOp: String,
+        tableName: String,
+        contentTableName: String
+    ) = "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "BEFORE_$triggerOp")} " +
+            "BEFORE $triggerOp ON `$contentTableName` BEGIN " +
+            "DELETE FROM `$tableName` WHERE `docid`=OLD.`rowid`; " +
+            "END"
+
+    private fun createAfterTrigger(
+        triggerOp: String,
+        tableName: String,
+        contentTableName: String,
+        columnNames: List<String>
+    ) = "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "AFTER_$triggerOp")} " +
+            "AFTER $triggerOp ON `$contentTableName` BEGIN " +
+            "INSERT INTO `$tableName`(" +
+            (listOf("docid") + columnNames).joinToString(separator = ", ") { "`$it`" } + ") " +
+            "VALUES (" +
+            (listOf("rowid") + columnNames).joinToString(separator = ", ") { "NEW.`$it`" } + "); " +
+            "END"
+
+    // If trigger name prefix is changed be sure to update DBUtil#dropFtsSyncTriggers
+    private fun createTriggerName(tableName: String, triggerOp: String) =
+            "room_fts_content_sync_${tableName}_$triggerOp"
 
     override fun toBundle() = FtsEntityBundle(
             tableName,
@@ -72,5 +130,6 @@ class FtsEntity(
             fields.map { it.toBundle() },
             primaryKey.toBundle(),
             ftsVersion.name,
-            ftsOptions.toBundle())
+            ftsOptions.toBundle(),
+            contentSyncTriggerCreateQueries)
 }

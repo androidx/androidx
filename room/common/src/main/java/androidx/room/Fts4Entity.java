@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * that allows full-text searches to be performed on a set of documents.
  * <p>
  * An FtsEntity table always has a column named <code>rowid</code> that is the equivalent of an
- * <code>INTEGER PRIMARY KEY</code> index. Therefore an FtsEntity can only have a single field
+ * <code>INTEGER PRIMARY KEY</code> index. Therefore, an FtsEntity can only have a single field
  * annotated with {@link PrimaryKey}, it must be named <code>rowid</code> and must be of
  * <code>INTEGER</code> affinity. The field can be optionally omitted in the class but can still be
  * used in queries.
@@ -115,6 +115,29 @@ public @interface Fts4Entity {
      * @return A list of tokenizer arguments strings.
      */
     String[] tokenizerArgs() default {};
+
+    /**
+     * The external content entity who's mapping table will be used as content for the FTS table.
+     * <p>
+     * Declaring this value makes the mapping FTS table of this entity operate in "external content"
+     * mode. In such mode the FTS table does not store its own content but instead uses the data in
+     * the entity mapped table defined in this value. This option allows FTS4 to forego storing the
+     * text being indexed which can be used to achieve significant space savings.
+     * <p>
+     * In "external mode" the content table and the FTS table need to be synced. Room will create
+     * the necessary triggers to keep the tables in sync. Therefore, all write operations should
+     * be performed against the content entity table and not the FTS table.
+     * <p>
+     * The content sync triggers created by Room will be removed before migrations are executed and
+     * are re-created once migrations are complete. This prevents the triggers from interfering with
+     * migrations but means that if data needs to be migrated then write operations might need to be
+     * done in both the FTS and content tables.
+     *
+     * @return The external content entity.
+     * @see <a href="https://www.sqlite.org/fts3.html#_external_content_fts4_tables_">External
+     * Content FTS4 Tables</a>
+     */
+    Class contentEntity() default Object.class;
 
     /**
      * The column name to be used as 'languageid'.

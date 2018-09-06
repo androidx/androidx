@@ -28,6 +28,7 @@ import androidx.room.vo.Dao
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
 import androidx.room.vo.Entity
+import androidx.room.vo.FtsEntity
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -63,6 +64,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         val entities = processEntities(dbAnnotation, element)
         validateUniqueTableNames(element, entities)
         validateForeignKeys(element, entities)
+        validateExternalContentFts(element, entities)
 
         val extendsRoomDb = context.processingEnv.typeUtils.isAssignable(
                 MoreElements.asType(element).asType(), baseClassElement)
@@ -237,6 +239,18 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             }
             context.logger.e(dbElement, error)
         }
+    }
+
+    private fun validateExternalContentFts(dbElement: TypeElement, entities: List<Entity>) {
+        // Validate FTS external content entities are present in the same database.
+        entities.filterIsInstance(FtsEntity::class.java)
+                .filterNot { it.ftsOptions.contentEntity == null ||
+                        entities.contains(it.ftsOptions.contentEntity) }
+                .forEach { context.logger.e(dbElement,
+                        ProcessorErrors.missingExternalContentEntity(
+                                it.element.qualifiedName.toString(),
+                                it.ftsOptions.contentEntity!!.element.qualifiedName.toString()))
+                }
     }
 
     private fun processEntities(dbAnnotation: AnnotationMirror?, element: TypeElement):

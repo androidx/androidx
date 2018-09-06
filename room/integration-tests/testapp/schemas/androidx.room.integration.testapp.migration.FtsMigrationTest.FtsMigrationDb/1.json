@@ -9,12 +9,14 @@
         "ftsOptions": {
           "tokenizer": "SIMPLE",
           "tokenizerArgs": [],
+          "contentTable": "",
           "languageIdColumnName": "",
           "matchInfo": "FTS4",
           "notIndexedColumns": [],
           "prefixSizes": [],
           "preferredOrder": "ASC"
         },
+        "contentSyncTriggers": [],
         "tableName": "Book",
         "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS3(`title` TEXT, `author` TEXT, `numOfPages` INTEGER NOT NULL, `text` TEXT)",
         "fields": [

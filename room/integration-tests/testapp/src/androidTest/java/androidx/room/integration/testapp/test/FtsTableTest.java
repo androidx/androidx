@@ -25,7 +25,10 @@ import android.os.Build;
 import androidx.room.Room;
 import androidx.room.integration.testapp.FtsTestDatabase;
 import androidx.room.integration.testapp.dao.MailDao;
+import androidx.room.integration.testapp.dao.SongDao;
 import androidx.room.integration.testapp.vo.Mail;
+import androidx.room.integration.testapp.vo.Song;
+import androidx.room.integration.testapp.vo.SongDescription;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -46,12 +49,14 @@ public class FtsTableTest {
 
     private FtsTestDatabase mDatabase;
     private MailDao mMailDao;
+    private SongDao mSongDao;
 
     @Before
     public void setup() {
         Context context = InstrumentationRegistry.getTargetContext();
         mDatabase = Room.inMemoryDatabaseBuilder(context, FtsTestDatabase.class).build();
         mMailDao = mDatabase.getMailDao();
+        mSongDao = mDatabase.getSongDao();
     }
 
     @Test
@@ -230,5 +235,34 @@ public class FtsTableTest {
 
         mMailDao.insert(item);
         mMailDao.rebuildMail();
+    }
+
+    @Test
+    public void externalContent() {
+        Song item1 = new Song(
+                1,
+                "Solos (Remix)",
+                "Plan B",
+                "Solos",
+                225,
+                2009);
+
+        Song item2 = new Song(
+                2,
+                "La Barría",
+                "Wisin & Yandel",
+                "Pa'l Mundo",
+                177,
+                2005);
+
+        mSongDao.insert(Lists.newArrayList(item1, item2));
+
+        List<SongDescription> descLoaded = mSongDao.getSongDescriptions("remix");
+        assertThat(descLoaded.size(), is(1));
+        assertThat(descLoaded.get(0).mTitle, is(item1.mTitle));
+
+        List<Song> songLoaded = mSongDao.getSongs("remix");
+        assertThat(songLoaded.size(), is(1));
+        assertThat(songLoaded.get(0), is(item1));
     }
 }

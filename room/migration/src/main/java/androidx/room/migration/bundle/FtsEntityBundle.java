@@ -25,6 +25,7 @@ import androidx.room.Fts4Entity;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,17 +48,40 @@ public class FtsEntityBundle extends EntityBundle {
     @SerializedName("ftsOptions")
     private final FtsOptionsBundle mFtsOptions;
 
+    @SerializedName("contentSyncTriggers")
+    private final List<String> mContentSyncSqlTriggers;
+
     public FtsEntityBundle(
             String tableName,
             String createSql,
             List<FieldBundle> fields,
             PrimaryKeyBundle primaryKey,
             String ftsVersion,
-            FtsOptionsBundle ftsOptions) {
+            FtsOptionsBundle ftsOptions,
+            List<String> contentSyncSqlTriggers) {
         super(tableName, createSql, fields, primaryKey, Collections.<IndexBundle>emptyList(),
                 Collections.<ForeignKeyBundle>emptyList());
         mFtsVersion = ftsVersion;
         mFtsOptions = ftsOptions;
+        mContentSyncSqlTriggers = contentSyncSqlTriggers;
+    }
+
+    /**
+     * @return the FTS options.
+     */
+    public FtsOptionsBundle getFtsOptions() {
+        return mFtsOptions;
+    }
+
+    /**
+     * @return Creates the list of SQL queries that are necessary to create this entity.
+     */
+    @Override
+    public Collection<String> buildCreateQueries() {
+        List<String> result = new ArrayList<>();
+        result.add(createTable());
+        result.addAll(mContentSyncSqlTriggers);
+        return result;
     }
 
     @Override
