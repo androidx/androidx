@@ -64,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -1320,12 +1321,17 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         for (int i = 0; i < callbackCount; i++) {
             final Executor executor = map.valueAt(i);
             final PlayerEventCallback cb = map.keyAt(i);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    notifier.notify(cb);
-                }
-            });
+            try {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifier.notify(cb);
+                    }
+                });
+            } catch (RejectedExecutionException e) {
+                // The given executor is shutting down.
+                Log.w(TAG, "The given executor is shutting down. Ignoring the player event.");
+            }
         }
     }
 
@@ -1336,12 +1342,17 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             record = mDrmEventCallbackRecord;
         }
         if (record != null) {
-            record.first.execute(new Runnable() {
+            try {
+                record.first.execute(new Runnable() {
                 @Override
                 public void run() {
                     notifier.notify(record.second);
                 }
             });
+            } catch (RejectedExecutionException e) {
+                // The given executor is shutting down.
+                Log.w(TAG, "The given executor is shutting down. Ignoring the player event.");
+            }
         }
     }
 
