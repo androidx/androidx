@@ -77,6 +77,8 @@ class SQLiteOpenHelperWriter(val database: Database) {
             addMethod(createDropAllTables())
             addMethod(createOnCreate(scope.fork()))
             addMethod(createOnOpen(scope.fork()))
+            addMethod(createOnPreMigrate())
+            addMethod(createOnPostMigrate())
             addMethods(createValidateMigration(scope.fork()))
         }.build()
     }
@@ -170,6 +172,29 @@ class SQLiteOpenHelperWriter(val database: Database) {
             database.entities.forEach {
                 addStatement("_db.execSQL($S)", createDropTableQuery(it))
             }
+        }.build()
+    }
+
+    private fun createOnPreMigrate(): MethodSpec {
+        return MethodSpec.methodBuilder("onPreMigrate").apply {
+            addModifiers(PUBLIC)
+            addAnnotation(Override::class.java)
+            addParameter(SupportDbTypeNames.DB, "_db")
+            addStatement("$T.dropFtsSyncTriggers($L)", RoomTypeNames.DB_UTIL, "_db")
+        }.build()
+    }
+
+    private fun createOnPostMigrate(): MethodSpec {
+        return MethodSpec.methodBuilder("onPostMigrate").apply {
+            addModifiers(PUBLIC)
+            addAnnotation(Override::class.java)
+            addParameter(SupportDbTypeNames.DB, "_db")
+            database.entities.filterIsInstance(FtsEntity::class.java)
+                    .filter { it.ftsOptions.contentEntity != null }
+                    .flatMap { it.contentSyncTriggerCreateQueries }
+                    .forEach { syncTriggerQuery ->
+                        addStatement("_db.execSQL($S)", syncTriggerQuery)
+                    }
         }.build()
     }
 

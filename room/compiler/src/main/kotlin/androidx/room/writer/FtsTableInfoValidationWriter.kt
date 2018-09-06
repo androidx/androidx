@@ -39,12 +39,8 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
 
             addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
                     columnListType, entity.fields.size)
-            entity.fields.filterNot {
-                // Filter pk and lid fields, they are not available in "PRAGMA table_info"
-                entity.primaryKey.fields.isNotEmpty() && entity.primaryKey.fields.first() == it ||
-                        entity.ftsOptions.languageIdColumnName == it.columnName
-            }.forEach { field ->
-                addStatement("$L.add($S)", columnListVar, field.columnName)
+            entity.nonHiddenFields.forEach {
+                addStatement("$L.add($S)", columnListVar, it.columnName)
             }
 
             addStatement("final $T $L = new $T($S, $L, $S)",

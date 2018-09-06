@@ -157,7 +157,7 @@ public class SchemaBundle implements SchemaEquality<SchemaBundle> {
 
             @Override
             public void write(JsonWriter out, EntityBundle value) throws IOException {
-                if (value.getClass().isAssignableFrom(FtsEntityBundle.class)) {
+                if (value instanceof FtsEntityBundle) {
                     mFtsEntityBundleAdapter.write(out, (FtsEntityBundle) value);
                 } else {
                     mEntityBundleAdapter.write(out, value);

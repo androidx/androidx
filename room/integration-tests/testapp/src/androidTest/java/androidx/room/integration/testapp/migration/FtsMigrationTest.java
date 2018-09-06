@@ -26,9 +26,12 @@ import android.os.Build;
 
 import androidx.room.Dao;
 import androidx.room.Database;
+import androidx.room.Embedded;
+import androidx.room.Entity;
 import androidx.room.Fts4Entity;
 import androidx.room.FtsOptions;
 import androidx.room.Insert;
+import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -44,6 +47,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
+
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
@@ -57,9 +62,10 @@ public class FtsMigrationTest {
                 FtsMigrationDb.class.getCanonicalName());
     }
 
-    @Database(entities = {Book.class}, version = 2)
+    @Database(entities = {Book.class, User.class, AddressFts.class}, version = 4)
     abstract static class FtsMigrationDb extends RoomDatabase {
         abstract BookDao getBookDao();
+        abstract UserDao getUserDao();
     }
 
     @Dao
@@ -74,12 +80,41 @@ public class FtsMigrationTest {
         Book getAllBooks();
     }
 
+    @Dao
+    interface UserDao {
+        @Query("SELECT * FROM AddressFts WHERE AddressFts MATCH :searchQuery")
+        List<Address> searchAddress(String searchQuery);
+    }
+
     @Fts4Entity(matchInfo = FtsOptions.FTS3)
     static class Book {
         public String title;
         public String author;
         public int numOfPages;
         public String text;
+    }
+
+    @Entity
+    static class User {
+        @PrimaryKey
+        public long id;
+        public String firstName;
+        public String lastName;
+        @Embedded
+        public Address address;
+    }
+
+    @Fts4Entity(contentEntity = User.class)
+    static class AddressFts {
+        @Embedded
+        public Address address;
+    }
+
+    static class Address {
+        public String line1;
+        public String line2;
+        public String state;
+        public int zipcode;
     }
 
     @Test
@@ -107,7 +142,7 @@ public class FtsMigrationTest {
         try {
             Context targetContext = InstrumentationRegistry.getTargetContext();
             FtsMigrationDb db = Room.databaseBuilder(targetContext, FtsMigrationDb.class, TEST_DB)
-                    .addMigrations(BAD_MIGRATION_1_2)
+                    .addMigrations(BAD_MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build();
             helper.closeWhenFinished(db);
             db.getBookDao().getAllBooks();
@@ -115,6 +150,21 @@ public class FtsMigrationTest {
         } catch (IllegalStateException ex) {
             assertThat(ex.getMessage(), containsString("Migration didn't properly handle"));
         }
+    }
+
+    @Test
+    public void validFtsContentMigration() throws Exception {
+        SupportSQLiteDatabase db;
+
+        db = helper.createDatabase(TEST_DB, 3);
+        db.execSQL("INSERT INTO Person VALUES(1, 'Ernest', 'Cline', 'Ruth Ave', '', 'TX', 78757)");
+        db.close();
+
+        helper.runMigrationsAndValidate(TEST_DB, 4, true, MIGRATION_3_4);
+
+        List<Address> addresses = getLatestDb().getUserDao().searchAddress("Ruth");
+        assertThat(addresses.size(), is(1));
+        assertThat(addresses.get(0).line1, is("Ruth Ave"));
     }
 
     private FtsMigrationDb getLatestDb() {
@@ -139,6 +189,33 @@ public class FtsMigrationTest {
         }
     };
 
+    private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER NOT NULL, "
+                            + "`firstName` TEXT, `lastName` TEXT, `line1` TEXT, `line2` TEXT, "
+                            + "`state` TEXT, `zipcode` INTEGER, PRIMARY KEY(`id`))");
+            database.execSQL(
+                    "CREATE VIRTUAL TABLE IF NOT EXISTS `AddressFts` USING FTS4(`line1` TEXT, "
+                            + "`line2` TEXT, `state` TEXT, `zipcode` INTEGER, content=`Person`)");
+        }
+    };
+
+    private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE `Person` RENAME TO `User`");
+            database.execSQL("DROP TABLE `AddressFts`");
+            database.execSQL(
+                    "CREATE VIRTUAL TABLE IF NOT EXISTS `AddressFts` USING FTS4(`line1` TEXT, "
+                            + "`line2` TEXT, `state` TEXT, `zipcode` INTEGER, content=`User`)");
+            database.execSQL(
+                    "INSERT INTO `AddressFts` (`docid`, `line1`, `line2`, `state`, `zipcode`) "
+                            + "SELECT `rowid`, `line1`, `line2`, `state`, `zipcode` FROM `User`");
+        }
+    };
+
     private static final Migration BAD_MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
@@ -148,5 +225,7 @@ public class FtsMigrationTest {
         }
     };
 
-    private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2};
+    private static final Migration[] ALL_MIGRATIONS = new Migration[]{
+            MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4
+    };
 }
