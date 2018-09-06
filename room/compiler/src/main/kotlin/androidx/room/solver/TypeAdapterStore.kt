@@ -74,6 +74,9 @@ import androidx.room.solver.shortcut.binder.InstantDeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InstantInsertMethodBinder
 import androidx.room.solver.shortcut.binderprovider.InstantDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InstantInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCompletableInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
@@ -158,7 +161,10 @@ class TypeAdapterStore private constructor(
     )
 
     val insertBinderProviders = listOf(
-            InstantInsertMethodBinderProvider()
+            RxSingleInsertMethodBinderProvider(context),
+            RxMaybeInsertMethodBinderProvider(context),
+            RxCompletableInsertMethodBinderProvider(context),
+            InstantInsertMethodBinderProvider(context)
     )
 
     val deleteOrUpdateBinderProvider = listOf(
@@ -296,14 +302,13 @@ class TypeAdapterStore private constructor(
         typeMirror: TypeMirror,
         params: List<ShortcutQueryParameter>
     ): InsertMethodBinder {
-        val adapter = findInsertAdapter(typeMirror, params)
         return if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             insertBinderProviders.first {
                 it.matches(declared)
-            }.provide(declared, adapter)
+            }.provide(declared, params)
         } else {
-            InstantInsertMethodBinder(adapter)
+            InstantInsertMethodBinder(findInsertAdapter(typeMirror, params))
         }
     }
 

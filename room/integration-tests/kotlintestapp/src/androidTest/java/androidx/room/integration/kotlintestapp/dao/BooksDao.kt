@@ -35,6 +35,7 @@ import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
 import com.google.common.base.Optional
 import com.google.common.util.concurrent.ListenableFuture
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -44,6 +45,15 @@ interface BooksDao {
 
     @Insert
     fun addPublishers(vararg publishers: Publisher): List<Long>
+
+    @Insert
+    fun addPublishersSingle(vararg publishers: Publisher): Single<List<Long>>
+
+    @Insert
+    fun addPublishersCompletable(vararg publishers: Publisher): Completable
+
+    @Insert
+    fun addPublishersMaybe(vararg publishers: Publisher): Maybe<List<Long>>
 
     @Delete
     fun deletePublishers(vararg publishers: Publisher)

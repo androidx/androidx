@@ -88,6 +88,18 @@ object COMMON {
         loadJavaCode("common/input/rxjava2/Observable.java",
                 RxJava2TypeNames.OBSERVABLE.toString())
     }
+    val SINGLE by lazy {
+        loadJavaCode("common/input/rxjava2/Single.java",
+                RxJava2TypeNames.SINGLE.toString())
+    }
+    val MAYBE by lazy {
+        loadJavaCode("common/input/rxjava2/Maybe.java",
+                RxJava2TypeNames.MAYBE.toString())
+    }
+    val COMPLETABLE by lazy {
+        loadJavaCode("common/input/rxjava2/Completable.java",
+                RxJava2TypeNames.COMPLETABLE.toString())
+    }
 
     val RX2_ROOM by lazy {
         loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.toString())

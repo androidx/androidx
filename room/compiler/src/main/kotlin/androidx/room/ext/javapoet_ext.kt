@@ -125,6 +125,7 @@ object RxJava2TypeNames {
     val OBSERVABLE = ClassName.get("io.reactivex", "Observable")
     val MAYBE = ClassName.get("io.reactivex", "Maybe")
     val SINGLE = ClassName.get("io.reactivex", "Single")
+    val COMPLETABLE = ClassName.get("io.reactivex", "Completable")
 }
 
 object ReactiveStreamsTypeNames {
