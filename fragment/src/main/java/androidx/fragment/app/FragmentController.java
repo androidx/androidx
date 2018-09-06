@@ -16,6 +16,8 @@
 
 package androidx.fragment.app;
 
+import static androidx.core.util.Preconditions.checkNotNull;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Parcelable;
@@ -46,8 +48,9 @@ public class FragmentController {
     /**
      * Returns a {@link FragmentController}.
      */
-    public static FragmentController createController(FragmentHostCallback<?> callbacks) {
-        return new FragmentController(callbacks);
+    @NonNull
+    public static FragmentController createController(@NonNull FragmentHostCallback<?> callbacks) {
+        return new FragmentController(checkNotNull(callbacks, "callbacks == null"));
     }
 
     private FragmentController(FragmentHostCallback<?> callbacks) {
@@ -94,6 +97,7 @@ public class FragmentController {
     /**
      * Returns the list of active fragments.
      */
+    @NonNull
     public List<Fragment> getActiveFragments(List<Fragment> actives) {
         return mHost.mFragmentManager.getActiveFragments();
     }
@@ -102,7 +106,7 @@ public class FragmentController {
      * Attaches the host to the FragmentManager for this controller. The host must be
      * attached before the FragmentManager can be used to manage Fragments.
      */
-    public void attachHost(Fragment parent) {
+    public void attachHost(@Nullable Fragment parent) {
         mHost.mFragmentManager.attachController(
                 mHost, mHost /*container*/, parent);
     }
@@ -118,7 +122,8 @@ public class FragmentController {
      *
      * @return view the newly created view
      */
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
+            @NonNull AttributeSet attrs) {
         return mHost.mFragmentManager.onCreateView(parent, name, context, attrs);
     }
 
@@ -132,6 +137,7 @@ public class FragmentController {
     /**
      * Saves the state for all Fragments.
      */
+    @Nullable
     public Parcelable saveAllState() {
         return mHost.mFragmentManager.saveAllState();
     }
@@ -145,7 +151,8 @@ public class FragmentController {
      * @deprecated use {@link #restoreAllState(Parcelable, FragmentManagerNonConfig)}
      */
     @Deprecated
-    public void restoreAllState(Parcelable state, List<Fragment> nonConfigList) {
+    public void restoreAllState(@Nullable Parcelable state,
+            @Nullable List<Fragment> nonConfigList) {
         mHost.mFragmentManager.restoreAllState(state,
                 new FragmentManagerNonConfig(nonConfigList, null, null));
     }
@@ -156,7 +163,8 @@ public class FragmentController {
      *
      * @see #retainNestedNonConfig()
      */
-    public void restoreAllState(Parcelable state, FragmentManagerNonConfig nonConfig) {
+    public void restoreAllState(@Nullable Parcelable state,
+            @Nullable FragmentManagerNonConfig nonConfig) {
         mHost.mFragmentManager.restoreAllState(state, nonConfig);
     }
 
@@ -168,6 +176,7 @@ public class FragmentController {
      *             nested child fragments
      */
     @Deprecated
+    @Nullable
     public List<Fragment> retainNonConfig() {
         FragmentManagerNonConfig nonconf = mHost.mFragmentManager.retainNonConfig();
         return nonconf != null ? nonconf.getFragments() : null;
@@ -177,6 +186,7 @@ public class FragmentController {
      * Returns a nested tree of Fragments that have opted to retain their instance across
      * configuration changes.
      */
+    @Nullable
     public FragmentManagerNonConfig retainNestedNonConfig() {
         return mHost.mFragmentManager.retainNonConfig();
     }
@@ -449,6 +459,7 @@ public class FragmentController {
      * @deprecated Loaders are managed separately from FragmentController
      */
     @Deprecated
+    @Nullable
     public SimpleArrayMap<String, LoaderManager> retainLoaderNonConfig() {
         return null;
     }

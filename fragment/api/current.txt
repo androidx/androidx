@@ -11,6 +11,7 @@ package androidx.fragment.app {
     method public void onCancel(android.content.DialogInterface);
     method public android.app.Dialog onCreateDialog(android.os.Bundle);
     method public void onDismiss(android.content.DialogInterface);
+    method public final android.app.Dialog requireDialog();
     method public void setCancelable(boolean);
     method public void setShowsDialog(boolean);
     method public void setStyle(int, int);
@@ -378,6 +379,7 @@ package androidx.fragment.app {
     method public long getSelectedItemId();
     method public int getSelectedItemPosition();
     method public void onListItemClick(android.widget.ListView, android.view.View, int, long);
+    method public final android.widget.ListAdapter requireListAdapter();
     method public void setEmptyText(java.lang.CharSequence);
     method public void setListAdapter(android.widget.ListAdapter);
     method public void setListShown(boolean);

@@ -91,9 +91,9 @@ public class ListFragment extends Fragment {
      * way to have the built-in indeterminant progress state be shown.
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        final Context context = getContext();
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        final Context context = requireContext();
 
         FrameLayout root = new FrameLayout(context);
 
@@ -174,13 +174,13 @@ public class ListFragment extends Fragment {
      * @param position The position of the view in the list
      * @param id The row id of the item that was clicked
      */
-    public void onListItemClick(ListView l, View v, int position, long id) {
+    public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
     }
 
     /**
      * Provide the cursor for the list view.
      */
-    public void setListAdapter(ListAdapter adapter) {
+    public void setListAdapter(@Nullable ListAdapter adapter) {
         boolean hadAdapter = mAdapter != null;
         mAdapter = adapter;
         if (mList != null) {
@@ -223,6 +223,7 @@ public class ListFragment extends Fragment {
     /**
      * Get the fragment's list view widget.
      */
+    @NonNull
     public ListView getListView() {
         ensureList();
         return mList;
@@ -319,9 +320,28 @@ public class ListFragment extends Fragment {
 
     /**
      * Get the ListAdapter associated with this fragment's ListView.
+     *
+     * @see #requireListAdapter()
      */
+    @Nullable
     public ListAdapter getListAdapter() {
         return mAdapter;
+    }
+
+    /**
+     * Get the ListAdapter associated with this fragment's ListView.
+     *
+     * @throws IllegalStateException if no ListAdapter has been set.
+     * @see #getListAdapter()
+     */
+    @NonNull
+    public final ListAdapter requireListAdapter() {
+        ListAdapter listAdapter = getListAdapter();
+        if (listAdapter == null) {
+            throw new IllegalStateException("ListFragment " + this
+                    + " does not have a ListAdapter.");
+        }
+        return listAdapter;
     }
 
     private void ensureList() {
