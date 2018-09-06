@@ -16,22 +16,25 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
-import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.processor.Context
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.solver.shortcut.binder.InstantInsertMethodBinder
+import androidx.room.vo.ShortcutQueryParameter
 import javax.lang.model.type.DeclaredType
 
 /**
  * Provider for instant (blocking) insert method binder.
  */
-class InstantInsertMethodBinderProvider : InsertMethodBinderProvider {
+class InstantInsertMethodBinderProvider(private val context: Context) : InsertMethodBinderProvider {
 
     override fun matches(declared: DeclaredType) = true
 
     override fun provide(
         declared: DeclaredType,
-        adapter: InsertMethodAdapter?
+        params: List<ShortcutQueryParameter>
     ): InsertMethodBinder {
-        return InstantInsertMethodBinder(adapter)
+        return InstantInsertMethodBinder(
+                context.typeAdapterStore.findInsertAdapter(declared, params)
+        )
     }
 }
