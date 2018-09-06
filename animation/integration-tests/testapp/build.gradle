@@ -23,8 +23,8 @@ plugins {
 dependencies {
     implementation(project(":annotation"))
     implementation(project(":core"))
-    implementation(project(":animation:animation"))
-    implementation(project(":animation:animation-testing"))
+    implementation(project(":animation"))
+    implementation(project(":animation:testing"))
 
     implementation(TEST_RUNNER, libs.exclude_for_espresso)
     implementation(TEST_RULES, libs.exclude_for_espresso)
