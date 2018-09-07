@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.ext.getAsBoolean
 import androidx.room.ext.getAsStringList
+import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
 import androidx.room.processor.EntityProcessor.Companion.createIndexName
@@ -59,21 +60,18 @@ class TableEntityProcessor internal constructor(
     private fun doProcess(): Entity {
         context.checker.hasAnnotation(element, androidx.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
-        val annotation = MoreElements.getAnnotationMirror(element,
-                androidx.room.Entity::class.java).orNull()
+        val annotationBox = element.toAnnotationBox(androidx.room.Entity::class.java)
         val tableName: String
         val entityIndices: List<IndexInput>
         val foreignKeyInputs: List<ForeignKeyInput>
         val inheritSuperIndices: Boolean
         val ignoredColumns: Set<String>
-        if (annotation != null) {
-            tableName = extractTableName(element, annotation)
-            entityIndices = extractIndices(annotation, tableName)
-            inheritSuperIndices = AnnotationMirrors
-                    .getAnnotationValue(annotation, "inheritSuperIndices").getAsBoolean(false)
-            foreignKeyInputs = extractForeignKeys(annotation)
-            ignoredColumns = AnnotationMirrors
-                    .getAnnotationValue(annotation, "ignoredColumns").getAsStringList().toSet()
+        if (annotationBox != null) {
+            tableName = extractTableName(element, annotationBox.value)
+            entityIndices = extractIndices(annotationBox, tableName)
+            inheritSuperIndices = annotationBox.value.inheritSuperIndices
+            foreignKeyInputs = extractForeignKeys(annotationBox)
+            ignoredColumns = annotationBox.value.ignoredColumns.toSet()
         } else {
             tableName = element.simpleName.toString()
             foreignKeyInputs = emptyList()
@@ -451,10 +449,8 @@ class TableEntityProcessor internal constructor(
         // see if any embedded field is an entity with indices, if so, report a warning
         pojo.embeddedFields.forEach { embedded ->
             val embeddedElement = embedded.pojo.element
-            val subEntityAnnotation = MoreElements.getAnnotationMirror(embeddedElement,
-                    androidx.room.Entity::class.java).orNull()
-            subEntityAnnotation?.let {
-                val subIndices = extractIndices(subEntityAnnotation, "")
+            embeddedElement.toAnnotationBox(androidx.room.Entity::class.java)?.let {
+                val subIndices = extractIndices(it, "")
                 if (subIndices.isNotEmpty()) {
                     context.logger.w(Warning.INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED,
                             embedded.field.element, ProcessorErrors.droppedEmbeddedIndex(
@@ -477,8 +473,8 @@ class TableEntityProcessor internal constructor(
             return emptyList()
         }
         val parentElement = MoreTypes.asTypeElement(typeMirror)
-        val myIndices = MoreElements.getAnnotationMirror(parentElement,
-                androidx.room.Entity::class.java).orNull()?.let { annotation ->
+        val myIndices = parentElement
+                .toAnnotationBox(androidx.room.Entity::class.java)?.let { annotation ->
             val indices = extractIndices(annotation, tableName = "super")
             if (indices.isEmpty()) {
                 emptyList()
