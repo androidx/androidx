@@ -239,6 +239,8 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      */
     public static final int SHUFFLE_MODE_GROUP = 2;
 
+    public static final long UNKNOWN_TIME = -1;
+
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final Map<PlayerCallback, Executor> mCallbacks = new HashMap<>();
