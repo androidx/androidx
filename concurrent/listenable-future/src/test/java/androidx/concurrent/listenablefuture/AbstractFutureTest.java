@@ -150,26 +150,6 @@ public class AbstractFutureTest extends TestCase {
         assertEquals("foo", future.get(0, TimeUnit.SECONDS));
     }
 
-    public void testEvilFuture_setFuture() throws Exception {
-        final RuntimeException exception = new RuntimeException("you didn't say the magic word!");
-        AbstractFuture<String> evilFuture =
-                new AbstractFuture<String>() {
-                    @Override
-                    public void addListener(Runnable r, Executor e) {
-                        throw exception;
-                    }
-                };
-        AbstractFuture<String> normalFuture = new AbstractFuture<String>() {};
-        normalFuture.setFuture(evilFuture);
-        assertTrue(normalFuture.isDone());
-        try {
-            normalFuture.get();
-            fail();
-        } catch (ExecutionException e) {
-            assertSame(exception, e.getCause());
-        }
-    }
-
     public void testRemoveWaiter_interruption() throws Exception {
         final AbstractFuture<String> future = new AbstractFuture<String>() {};
         WaiterThread waiter1 = new WaiterThread(future);
@@ -1099,13 +1079,13 @@ abstract class ImmediateFuture<V> implements ListenableFuture<V> {
         }
     }
 
-    static final class ImmediateFailedFuture<V> extends AbstractFuture.TrustedFuture<V> {
+    static final class ImmediateFailedFuture<V> extends AbstractFuture<V> {
         ImmediateFailedFuture(Throwable thrown) {
             setException(thrown);
         }
     }
 
-    static final class ImmediateCancelledFuture<V> extends AbstractFuture.TrustedFuture<V> {
+    static final class ImmediateCancelledFuture<V> extends AbstractFuture<V> {
         ImmediateCancelledFuture() {
             cancel(false);
         }
