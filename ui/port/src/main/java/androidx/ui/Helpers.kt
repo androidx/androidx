@@ -82,3 +82,7 @@ fun describeEnum(enumEntry: Any): String {
 fun requireMainThread() {
     require(Looper.myLooper() == Looper.getMainLooper())
 }
+
+// TODO(Migration/ryanmentley): Make these better (e.g., actual classes)?  Or eliminate them?
+typealias Int32List = IntArray
+typealias Float64List = DoubleArray
