@@ -37,7 +37,6 @@
     <public type="attr" name="itemSpacing" />
     <public type="attr" name="listContentTopOffset" />
     <public type="attr" name="verticallyCenterListContent" />
-    <public type="attr" name="dayNightStyle" />
 
     <!-- PagedScrollBarView -->
     <public type="attr" name="scrollBarColor" />
