@@ -21,12 +21,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media2.MediaMetadata2.FLAG_BROWSABLE;
 import static androidx.media2.MediaMetadata2.FLAG_PLAYABLE;
 
-import android.os.Bundle;
 import android.os.ParcelUuid;
 import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -92,7 +90,8 @@ public abstract class DataSourceDesc2 {
             throw new IllegalStateException("Illegal start/end position: "
                     + startPositionMs + " : " + endPositionMs);
         }
-        if (endPositionMs > durationMs && endPositionMs != POSITION_UNKNOWN) {
+        if (mDurationMs != MediaPlayerConnector.UNKNOWN_TIME && endPositionMs != POSITION_UNKNOWN
+                && endPositionMs > durationMs) {
             throw new IllegalStateException("endPositionMs shouldn't be greater than durationMs: "
                     + " endPositionMs=" + endPositionMs + ", durationMs=" + durationMs);
         }
