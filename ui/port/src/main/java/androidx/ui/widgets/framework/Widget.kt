@@ -69,7 +69,7 @@ abstract class Widget(
         // / is placed in the tree, it is inflated into an [Element], which means a
         // / widget that is incorporated into the tree multiple times will be inflated
         // / multiple times.
-    val key: Key
+    val key: Key?
 ) : DiagnosticableTree {
 
     companion object {

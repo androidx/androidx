@@ -16,6 +16,9 @@ import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.describeIdentity
+import androidx.ui.gestures.events.PointerEvent
+import androidx.ui.gestures.hit_test.HitTestEntry
+import androidx.ui.gestures.hit_test.HitTestTarget
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.debugPrintLayouts
 import androidx.ui.rendering.debugPrintMarkNeedsLayoutStacks
@@ -139,8 +142,7 @@ import androidx.ui.widgets.framework._debugReportException
  * or baseline information, it gets marked dirty whenever the child's geometry
  * changes.
  */
-// TODO(Migration/xbhatnag): implements HitTestTarget
-abstract class RenderObject : AbstractNode(), DiagnosticableTree {
+abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget {
 
     companion object {
         var debugActiveLayout: RenderObject? = null
@@ -1671,7 +1673,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
     /**
      * Override this method to handle pointer events that hit this render object.
      */
-    open fun handleEvent(event: PointerEvent, entry: HitTestEntry) {}
+    override fun handleEvent(event: PointerEvent, entry: HitTestEntry) {}
 
     // HIT TESTING
 

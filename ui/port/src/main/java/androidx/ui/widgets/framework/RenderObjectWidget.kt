@@ -6,7 +6,7 @@ import androidx.ui.rendering.obj.RenderObject
 // / RenderObjectWidgets provide the configuration for [RenderObjectElement]s,
 // / which wrap [RenderObject]s, which provide the actual rendering of the
 // / application.
-abstract class RenderObjectWidget(key: Key) : Widget(key) {
+abstract class RenderObjectWidget(key: Key?) : Widget(key) {
 
     // / RenderObjectWidgets always inflate to a [RenderObjectElement] subclass.
     abstract override fun createElement(): RenderObjectElement
