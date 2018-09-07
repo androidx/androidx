@@ -353,8 +353,9 @@ public class FragmentTabHost extends TabHost
 
             if (newTab != null) {
                 if (newTab.fragment == null) {
-                    newTab.fragment = Fragment.instantiate(mContext,
-                            newTab.clss.getName(), newTab.args);
+                    newTab.fragment = mFragmentManager.getFragmentFactory().instantiate(
+                            mContext.getClassLoader(), newTab.clss.getName(), newTab.args);
+                    newTab.fragment.setArguments(newTab.args);
                     ft.add(mContainerId, newTab.fragment, newTab.tag);
                 } else {
                     ft.attach(newTab.fragment);
