@@ -23,6 +23,7 @@ import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.ui.CraneView
 import androidx.ui.foundation.Key
 import androidx.ui.painting.Image
 import androidx.ui.widgets.basic.RawImage
@@ -38,7 +39,7 @@ class SimpleFlutterActivity : Activity() {
         val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
 
         val widget = MirrorImageWidget(Key.createKey("jetpack image widget!"), bitmap)
-        setContentView(SimpleFlutterView(this, widget))
+        setContentView(CraneView(this, widget))
     }
 
     class MirrorImageWidget(key: Key, private val bitmap: Bitmap) : StatefulWidget(key) {

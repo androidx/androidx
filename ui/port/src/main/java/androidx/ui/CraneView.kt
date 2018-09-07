@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.ui.port
+package androidx.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -26,14 +26,13 @@ import androidx.ui.engine.window.WindowPadding
 import androidx.ui.flow.CompositorContext
 import androidx.ui.painting.Canvas
 import androidx.ui.skia.SkMatrix
-import androidx.ui.updateWindowMetrics
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.widgets.binding.WidgetsFlutterBinding
 import androidx.ui.widgets.binding.runApp
 import androidx.ui.widgets.framework.Widget
 
 @SuppressLint("ViewConstructor")
-class SimpleFlutterView(
+class CraneView(
     context: Context,
     private val widget: Widget
 ) : View(context) {
