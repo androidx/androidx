@@ -205,38 +205,6 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testSupplementalActionVisible() {
-        TextListItem item0 = new TextListItem(mActivity);
-        item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
-
-        TextListItem item1 = new TextListItem(mActivity);
-        item1.setAction("text", true, v -> { /* Do nothing. */ });
-
-
-        TextListItem item2 = new TextListItem(mActivity);
-        item2.setActions("text", true, v -> { /* Do nothing. */ },
-                        "text", true, v -> { /* Do nothing. */ });
-
-        List<TextListItem> items = Arrays.asList(item0, item1, item2);
-        setupPagedListView(items);
-
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        assertThat(viewHolder.getSupplementalIcon().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getSupplementalIconDivider().getVisibility(),
-                is(equalTo(View.VISIBLE)));
-
-        viewHolder = getViewHolderAtPosition(1);
-        assertThat(viewHolder.getAction1().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getAction1Divider().getVisibility(), is(equalTo(View.VISIBLE)));
-
-        viewHolder = getViewHolderAtPosition(2);
-        assertThat(viewHolder.getAction1().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getAction1Divider().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getAction2().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getAction2Divider().getVisibility(), is(equalTo(View.VISIBLE)));
-    }
-
-    @Test
     public void testSetSupplementalActionWithDrawable() {
         Drawable drawable = mActivity.getDrawable(android.R.drawable.sym_def_app_icon);
         TextListItem item = new TextListItem(mActivity);
@@ -396,16 +364,9 @@ public class TextListItemTest {
         item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
 
         TextListItem item1 = new TextListItem(mActivity);
-        item1.setAction("text", false, v -> { /* Do nothing. */ });
+        item1.setSwitch(true, false, null);
 
-        TextListItem item2 = new TextListItem(mActivity);
-        item2.setActions("text", false, v -> { /* Do nothing. */ },
-                "text", false, v -> { /* Do nothing. */ });
-
-        TextListItem item3 = new TextListItem(mActivity);
-        item3.setSwitch(true, false, null);
-
-        List<TextListItem> items = Arrays.asList(item0, item1, item2, item3);
+        List<TextListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
 
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
@@ -414,16 +375,6 @@ public class TextListItemTest {
                 is(equalTo(View.GONE)));
 
         viewHolder = getViewHolderAtPosition(1);
-        assertThat(viewHolder.getAction1().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getAction1Divider().getVisibility(), is(equalTo(View.GONE)));
-
-        viewHolder = getViewHolderAtPosition(2);
-        assertThat(viewHolder.getAction1().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getAction1Divider().getVisibility(), is(equalTo(View.GONE)));
-        assertThat(viewHolder.getAction2().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getAction2Divider().getVisibility(), is(equalTo(View.GONE)));
-
-        viewHolder = getViewHolderAtPosition(3);
         assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSwitchDivider().getVisibility(), is(equalTo(View.GONE)));
     }
@@ -754,42 +705,6 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testClickingSupplementalAction() {
-        final boolean[] clicked = {false};
-
-        TextListItem item0 = new TextListItem(mActivity);
-        item0.setAction("action", true, v -> clicked[0] = true);
-
-        List<TextListItem> items = Arrays.asList(item0);
-        setupPagedListView(items);
-
-        onView(withId(R.id.recycler_view)).perform(
-                actionOnItemAtPosition(0, clickChildViewWithId(R.id.action1)));
-        assertTrue(clicked[0]);
-    }
-
-    @Test
-    public void testClickingBothSupplementalActions() {
-        final boolean[] clicked = {false, false};
-
-        TextListItem item0 = new TextListItem(mActivity);
-        item0.setActions("action 1", true, v -> clicked[0] = true,
-                        "action 2", true, v -> clicked[1] = true);
-
-        List<TextListItem> items = Arrays.asList(item0);
-        setupPagedListView(items);
-
-        onView(withId(R.id.recycler_view)).perform(
-                actionOnItemAtPosition(0, clickChildViewWithId(R.id.action1)));
-        assertTrue(clicked[0]);
-        assertFalse(clicked[1]);
-
-        onView(withId(R.id.recycler_view)).perform(
-                actionOnItemAtPosition(0, clickChildViewWithId(R.id.action2)));
-        assertTrue(clicked[1]);
-    }
-
-    @Test
     public void testCustomViewBinderBindsLast() {
         final String updatedTitle = "updated title";
 
@@ -966,7 +881,6 @@ public class TextListItemTest {
         item.setOnClickListener(v -> { });
         item.setTitle("title");
         item.setBody("body");
-        item.setAction("action", false, v -> { });
         item.setEnabled(false);
 
         setupPagedListView(Arrays.asList(item));
@@ -974,7 +888,6 @@ public class TextListItemTest {
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertFalse(viewHolder.getTitle().isEnabled());
         assertFalse(viewHolder.getBody().isEnabled());
-        assertFalse(viewHolder.getAction1().isEnabled());
     }
 
     @Test
@@ -1076,57 +989,6 @@ public class TextListItemTest {
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertTrue(viewHolder.getClickInterceptView().getVisibility() == View.VISIBLE);
     }
-
-    @Test
-    public void testClickInterceptor_ClickableIfOneActionSet() {
-        TextListItem item = new TextListItem(mActivity);
-        item.setEnabled(true);
-        item.setAction("text", /* showDivider= */ true, v -> { });
-
-        setupPagedListView(Arrays.asList(item));
-
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        assertTrue(viewHolder.getClickInterceptView().isClickable());
-    }
-
-    @Test
-    public void testClickInterceptor_VisibleIfOneActionSet() {
-        TextListItem item = new TextListItem(mActivity);
-        item.setEnabled(true);
-        item.setAction("text", /* showDivider= */ true, v -> { });
-
-        setupPagedListView(Arrays.asList(item));
-
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        assertTrue(viewHolder.getClickInterceptView().getVisibility() == View.VISIBLE);
-    }
-
-    @Test
-    public void testClickInterceptor_ClickableIfTwoActionsSet() {
-        TextListItem item = new TextListItem(mActivity);
-        item.setEnabled(true);
-        item.setActions("text", /* showDivider= */ true, v -> { },
-                "text", /* showDivider= */ true, v -> { });
-
-        setupPagedListView(Arrays.asList(item));
-
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        assertTrue(viewHolder.getClickInterceptView().isClickable());
-    }
-
-    @Test
-    public void testClickInterceptor_VisibleIfTwoActionsSet() {
-        TextListItem item = new TextListItem(mActivity);
-        item.setEnabled(true);
-        item.setActions("text", /* showDivider= */ true, v -> { },
-                "text", /* showDivider= */ true, v -> { });
-
-        setupPagedListView(Arrays.asList(item));
-
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        assertTrue(viewHolder.getClickInterceptView().getVisibility() == View.VISIBLE);
-    }
-
 
     private static ViewAction clickChildViewWithId(final int id) {
         return new ViewAction() {
