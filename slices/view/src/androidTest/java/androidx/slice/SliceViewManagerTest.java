@@ -71,6 +71,17 @@ public class SliceViewManagerTest {
         mViewManager = SliceViewManager.getInstance(mContext);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testPinInvalidUri() {
+        Uri uri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_CONTENT)
+                .authority("doesnotexist")
+                .build();
+        mViewManager.pinSlice(uri);
+        List<Uri> uris = mManager.getPinnedSlices();
+        assertEquals(0, uris.size());
+    }
+
     @Test
     public void testPin() {
         Uri uri = new Uri.Builder()
