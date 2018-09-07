@@ -30,9 +30,10 @@ import androidx.annotation.Nullable;
  * @author Sven Mawson
  * @since 9.0 (in 1.0 as {@code ValueFuture})
  */
-public final class SettableFuture<V> extends AbstractFuture.TrustedFuture<V> {
+public final class SettableFuture<V> extends AbstractFuture<V> {
     /**
-     * Creates a new {@code SettableFuture} that can be completed or cancelled by a later method call.
+     * Creates a new {@code SettableFuture} that can be completed or cancelled by a later method
+     * call.
      */
     public static <V> SettableFuture<V> create() {
         return new SettableFuture<V>();
@@ -53,6 +54,7 @@ public final class SettableFuture<V> extends AbstractFuture.TrustedFuture<V> {
         return super.setFuture(future);
     }
 
-    private SettableFuture() {}
+    private SettableFuture() {
+    }
 }
 
