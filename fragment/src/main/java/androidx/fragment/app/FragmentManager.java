@@ -427,6 +427,24 @@ public abstract class FragmentManager {
     public abstract Fragment getPrimaryNavigationFragment();
 
     /**
+     * Set a {@link FragmentFactory} for this FragmentManager that will be used
+     * to create new Fragment instances from this point onward. Any child
+     * FragmentManager that does not have a custom FragmentFactory set will also use
+     * this same FragmentFactory.
+     *
+     * @param fragmentFactory the factory to use to create new Fragment instances
+     */
+    public abstract void setFragmentFactory(@NonNull FragmentFactory fragmentFactory);
+
+    /**
+     * Gets the current {@link FragmentFactory} used to instantiate new Fragment instances.
+     *
+     * @return the current FragmentFactory
+     */
+    @NonNull
+    public abstract FragmentFactory getFragmentFactory();
+
+    /**
      * Print the FragmentManager's state into the given stream.
      *
      * @param prefix Text to print at the front of each line.
@@ -702,6 +720,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     FragmentContainer mContainer;
     Fragment mParent;
     @Nullable Fragment mPrimaryNav;
+    FragmentFactory mFragmentFactory;
 
     static Field sAnimationListenerField = null;
 
@@ -3097,7 +3116,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (viewModelStores != null && i < viewModelStores.size()) {
                     viewModelStore = viewModelStores.get(i);
                 }
-                Fragment f = fs.instantiate(mHost, mContainer, mParent, childNonConfig,
+                Fragment f = fs.instantiate(mHost, getFragmentFactory(), mParent, childNonConfig,
                         viewModelStore);
                 if (DEBUG) Log.v(TAG, "restoreAllState: active #" + i + ": " + f);
                 mActive.put(f.mIndex, f);
@@ -3408,6 +3427,30 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
+    public void setFragmentFactory(@NonNull FragmentFactory fragmentFactory) {
+        mFragmentFactory = fragmentFactory;
+    }
+
+    @Override
+    @NonNull
+    public FragmentFactory getFragmentFactory() {
+        if (mFragmentFactory == null) {
+            if (mParent != null) {
+                return mParent.mFragmentManager.getFragmentFactory();
+            }
+            mFragmentFactory = new FragmentFactory() {
+                @SuppressWarnings("deprecation")
+                @NonNull
+                public Fragment instantiate(@NonNull Context context, @NonNull String className,
+                        @Nullable Bundle args) {
+                    return mHost.instantiate(context, className, args);
+                }
+            };
+        }
+        return mFragmentFactory;
+    }
+
+    @Override
     public void registerFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb,
             boolean recursive) {
         mLifecycleCallbacks.add(new FragmentLifecycleCallbacksHolder(cb, recursive));
@@ -3697,7 +3740,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         String tag = a.getString(FragmentTag.Fragment_tag);
         a.recycle();
 
-        if (!Fragment.isSupportFragmentClass(mHost.getContext(), fname)) {
+        if (fname == null || !FragmentFactory.isFragmentClass(context.getClassLoader(), fname)) {
             // Invalid support lib fragment; let the device's framework handle it.
             // This will allow android.app.Fragments to do the right thing.
             return null;
@@ -3724,7 +3767,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 + Integer.toHexString(id) + " fname=" + fname
                 + " existing=" + fragment);
         if (fragment == null) {
-            fragment = mContainer.instantiate(context, fname, null);
+            fragment = getFragmentFactory().instantiate(context.getClassLoader(), fname, null);
             fragment.mFromLayout = true;
             fragment.mFragmentId = id != 0 ? id : containerId;
             fragment.mContainerId = containerId;

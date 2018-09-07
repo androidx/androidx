@@ -24,6 +24,7 @@ import android.widget.TabWidget;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -87,6 +88,7 @@ public class FragmentTabsPager extends FragmentActivity {
     public static class TabsAdapter extends FragmentPagerAdapter
             implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
         private final Context mContext;
+        private final FragmentFactory mFragmentFactory;
         private final TabHost mTabHost;
         private final ViewPager mViewPager;
         private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
@@ -122,6 +124,7 @@ public class FragmentTabsPager extends FragmentActivity {
         public TabsAdapter(FragmentActivity activity, TabHost tabHost, ViewPager pager) {
             super(activity.getSupportFragmentManager());
             mContext = activity;
+            mFragmentFactory = activity.getSupportFragmentManager().getFragmentFactory();
             mTabHost = tabHost;
             mViewPager = pager;
             mTabHost.setOnTabChangedListener(this);
@@ -147,7 +150,10 @@ public class FragmentTabsPager extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             TabInfo info = mTabs.get(position);
-            return Fragment.instantiate(mContext, info.clss.getName(), info.args);
+            Fragment fragment = mFragmentFactory.instantiate(mContext.getClassLoader(),
+                    info.clss.getName(), info.args);
+            fragment.setArguments(info.args);
+            return fragment;
         }
 
         @Override

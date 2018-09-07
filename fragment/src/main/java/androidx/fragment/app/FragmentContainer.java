@@ -45,7 +45,11 @@ public abstract class FragmentContainer {
      * Creates an instance of the specified fragment, can be overridden to construct fragments
      * with dependencies, or change the fragment being constructed. By default just calls
      * {@link Fragment#instantiate(Context, String, Bundle)}.
+     * @deprecated Use {@link FragmentManager#setFragmentFactory} to control how Fragments are
+     * instantiated.
      */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     public Fragment instantiate(Context context, String className, Bundle arguments) {
         return Fragment.instantiate(context, className, arguments);
     }
