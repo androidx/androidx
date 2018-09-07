@@ -46,6 +46,8 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
 
     // state related fields
     private @AdapterState int mAdapterState;
+    private @ViewPager2.ScrollState int mScrollState;
+    private ScrollEventValues mScrollValues;
     private int mInitialPosition;
     private int mTarget;
     private boolean mDispatchSelected;
@@ -53,11 +55,14 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
 
     public ScrollEventAdapter(@NonNull LinearLayoutManager layoutManager) {
         mLayoutManager = layoutManager;
+        mScrollValues = new ScrollEventValues();
         resetState();
     }
 
     private void resetState() {
         mAdapterState = AdapterState.IDLE;
+        mScrollState = ViewPager2.ScrollState.IDLE;
+        mScrollValues.reset();
         mInitialPosition = NO_TARGET;
         mTarget = NO_TARGET;
         mDispatchSelected = false;
@@ -107,60 +112,69 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     @Override
     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
         mScrollHappened = true;
-
-        int position = getPosition();
-        View firstVisibleView = mLayoutManager.findViewByPosition(position);
-        if (firstVisibleView == null) {
-            return;
-        }
-
-        boolean isHorizontal = mLayoutManager.getOrientation() == ViewPager2.Orientation.HORIZONTAL;
-        int start, end;
-        if (isHorizontal) {
-            start = firstVisibleView.getLeft();
-            end = firstVisibleView.getRight();
-        } else {
-            start = firstVisibleView.getTop();
-            end = firstVisibleView.getBottom();
-        }
-
-        int offsetPx = -start;
-        if (offsetPx < 0) {
-            throw new IllegalStateException(String.format("Page can only be offset by a positive "
-                    + "amount, not by %d", offsetPx));
-        }
-
-        int sizePx = end - start;
-        float offset = sizePx == 0 ? 0 : (float) offsetPx / sizePx;
+        ScrollEventValues values = updateScrollEventValues();
 
         if (mDispatchSelected) {
             mDispatchSelected = false;
-            mTarget = (dx + dy > 0) ? position + 1 : position;
+            mTarget = (dx + dy > 0) ? values.mPosition + 1 : values.mPosition;
             if (mInitialPosition != mTarget) {
                 dispatchSelected(mTarget);
             }
         }
 
-        dispatchScrolled(position, offset, offsetPx);
+        dispatchScrolled(values.mPosition, values.mOffset, values.mOffsetPx);
 
-        if ((position == mTarget || mTarget == NO_TARGET) && offsetPx == 0) {
+        if ((values.mPosition == mTarget || mTarget == NO_TARGET) && values.mOffsetPx == 0) {
             dispatchStateChanged(ViewPager2.ScrollState.IDLE);
             resetState();
         }
     }
 
     /**
+     * Calculates the current position and the offset (as a percentage and in pixels) of that
+     * position from the center.
+     */
+    private ScrollEventValues updateScrollEventValues() {
+        ScrollEventValues values = mScrollValues;
+
+        values.mPosition = mLayoutManager.findFirstVisibleItemPosition();
+        if (values.mPosition == RecyclerView.NO_POSITION) {
+            return values.reset();
+        }
+        View firstVisibleView = mLayoutManager.findViewByPosition(values.mPosition);
+        if (firstVisibleView == null) {
+            return values.reset();
+        }
+
+        boolean isHorizontal = mLayoutManager.getOrientation() == ViewPager2.Orientation.HORIZONTAL;
+        int start, sizePx;
+        if (isHorizontal) {
+            start = firstVisibleView.getLeft();
+            sizePx = firstVisibleView.getWidth();
+        } else {
+            start = firstVisibleView.getTop();
+            sizePx = firstVisibleView.getHeight();
+        }
+
+        values.mOffsetPx = -start;
+        if (values.mOffsetPx < 0) {
+            throw new IllegalStateException(String.format("Page can only be offset by a positive "
+                    + "amount, not by %d", values.mOffsetPx));
+        }
+        values.mOffset = sizePx == 0 ? 0 : (float) values.mOffsetPx / sizePx;
+        return values;
+    }
+
+    /**
      * Let the adapter know a programmatic scroll was initiated.
      */
     public void notifyProgrammaticScroll(int target, boolean smooth) {
-        if (isIdle()) {
-            mAdapterState = smooth
-                    ? AdapterState.IN_PROGRESS_SMOOTH_SCROLL
-                    : AdapterState.IN_PROGRESS_IMMEDIATE_SCROLL;
-            mTarget = target;
-            dispatchStateChanged(ViewPager2.ScrollState.SETTLING);
-            dispatchSelected(target);
-        }
+        mAdapterState = smooth
+                ? AdapterState.IN_PROGRESS_SMOOTH_SCROLL
+                : AdapterState.IN_PROGRESS_IMMEDIATE_SCROLL;
+        mTarget = target;
+        dispatchStateChanged(ViewPager2.ScrollState.SETTLING);
+        dispatchSelected(target);
     }
 
     public void setOnPageChangeListener(OnPageChangeListener listener) {
@@ -174,14 +188,35 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         return mAdapterState == AdapterState.IDLE;
     }
 
+    /**
+     * Calculates the scroll position of the currently visible item of the ViewPager relative to its
+     * width. Calculated by adding the fraction by which the first visible item is off screen to its
+     * adapter position. E.g., if the ViewPager is currently scrolling from the second to the third
+     * page, the returned value will be between 1 and 2. Thus, non-integral values mean that the
+     * the ViewPager is settling towards its {@link ViewPager2#getCurrentItem() current item}, or
+     * the user may be dragging it.
+     *
+     * @return The current scroll position of the ViewPager, relative to its width
+     */
+    public float getRelativeScrollPosition() {
+        updateScrollEventValues();
+        return mScrollValues.mPosition + mScrollValues.mOffset;
+    }
+
     private void dispatchStateChanged(@ViewPager2.ScrollState int state) {
-        // Listener contract for immediate-scroll requires not having state change notifications.
+        // Listener contract for immediate-scroll requires not having state change notifications,
+        // but only when there was no smooth scroll in progress.
         // By putting a suppress statement in here (rather than next to dispatch calls) we are
         // simplifying the code of the class and enforcing the contract in one place.
-        if (mAdapterState == AdapterState.IN_PROGRESS_IMMEDIATE_SCROLL) {
+        if (mAdapterState == AdapterState.IN_PROGRESS_IMMEDIATE_SCROLL
+                && mScrollState == ViewPager2.ScrollState.IDLE) {
+            return;
+        }
+        if (mScrollState == state) {
             return;
         }
 
+        mScrollState = state;
         if (mListener != null) {
             mListener.onPageScrollStateChanged(state);
         }
@@ -211,5 +246,18 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         int IN_PROGRESS_MANUAL_DRAG = 1;
         int IN_PROGRESS_SMOOTH_SCROLL = 2;
         int IN_PROGRESS_IMMEDIATE_SCROLL = 3;
+    }
+
+    static class ScrollEventValues {
+        int mPosition;
+        float mOffset;
+        int mOffsetPx;
+
+        ScrollEventValues reset() {
+            mPosition = RecyclerView.NO_POSITION;
+            mOffset = 0f;
+            mOffsetPx = 0;
+            return this;
+        }
     }
 }

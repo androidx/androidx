@@ -36,6 +36,7 @@ import androidx.viewpager2.widget.ViewPager2.ScrollState.DRAGGING
 import androidx.viewpager2.widget.ViewPager2.ScrollState.IDLE
 import androidx.viewpager2.widget.ViewPager2.ScrollState.SETTLING
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.allOf
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -113,7 +114,7 @@ class PageChangeListenerTest : BaseTest() {
                     scrollEvents.assertOffsetSorted(sortOrder)
                     scrollEvents.assertValueSanity(initialPage, targetPage, viewPager.pageSize)
                     scrollEvents.assertLastCorrect(targetPage)
-                    scrollEvents.assertMaxShownPages(initialPage)
+                    scrollEvents.assertMaxShownPages()
                 }
             }
         }
@@ -368,7 +369,7 @@ class PageChangeListenerTest : BaseTest() {
                             scrollEvents.assertValueSanity(currentPage, targetPage,
                                     viewPager.pageSize)
                             scrollEvents.assertLastCorrect(targetPage)
-                            scrollEvents.assertMaxShownPages(currentPage)
+                            scrollEvents.assertMaxShownPages()
                         }
                     }
                 }
@@ -384,6 +385,79 @@ class PageChangeListenerTest : BaseTest() {
     @Test
     fun test_selectItemProgrammatically_smoothScroll_vertical() {
         test_selectItemProgrammatically_smoothScroll(VERTICAL)
+    }
+
+    private fun test_multiplePageChanges(@Orientation orientation: Int) {
+        // given
+        setUpTest(10, orientation).apply {
+            val targetPages = listOf(4, 9)
+            val listener = viewPager.addNewRecordingListener()
+            val latch = viewPager.addWaitForScrolledLatch(targetPages.last(), false)
+
+            // when
+            runOnUiThread {
+                targetPages.forEach {
+                    viewPager.setCurrentItem(it, true)
+                }
+            }
+            latch.await(2, SECONDS)
+
+            // then
+            listener.apply {
+                val targetPage = targetPages.last()
+                assertThat(settlingIx, equalTo(0))
+                assertThat(viewPager.currentItem, equalTo(targetPage))
+                assertThat(viewPager.currentCompletelyVisibleItem, equalTo(targetPage))
+                assertAllPagesSelected(targetPages)
+                assertScrollsAreBetweenSelectedPages()
+            }
+        }
+    }
+
+    @Test
+    fun test_multiplePageChanges_horizontal() {
+        test_multiplePageChanges(HORIZONTAL)
+    }
+
+    @Test
+    fun test_multiplePageChanges_vertical() {
+        test_multiplePageChanges(VERTICAL)
+    }
+
+    private fun test_configChangeDuringFarSmoothScroll(@Orientation orientation: Int) {
+        // given
+        setUpTest(5, orientation).apply {
+            val targetPage = 4
+            val dummyPage = 9999
+            val listener = viewPager.addNewRecordingListener()
+
+            // when
+            runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
+            recreateActivity()
+            // mark the config change in the listener
+            listener.onPageSelected(dummyPage)
+            // viewPager is recreated, so need to reattach listener
+            viewPager.addOnPageChangeListener(listener)
+
+            // then
+            listener.apply {
+                assertThat(viewPager.currentItem, equalTo(targetPage))
+                assertThat(viewPager.currentCompletelyVisibleItem, equalTo(targetPage))
+                assertThat(settlingIx, equalTo(0))
+                assertThat(pageSelectedIx(targetPage), equalTo(1))
+                assertThat(pageSelectedIx(dummyPage), equalTo(lastIx))
+            }
+        }
+    }
+
+    @Test
+    fun test_configChangeDuringFarSmoothScroll_horizontal() {
+        test_configChangeDuringFarSmoothScroll(HORIZONTAL)
+    }
+
+    @Test
+    fun test_configChangeDuringFarSmoothScroll_vertical() {
+        test_configChangeDuringFarSmoothScroll(VERTICAL)
     }
 
     /*
@@ -563,6 +637,10 @@ class PageChangeListenerTest : BaseTest() {
         val scrollEventsAfterSettling
             get() = events.subList(settlingIx + 1, events.size)
                     .mapNotNull { it as? OnPageScrolledEvent }
+        val selectEvents get() = events.mapNotNull { it as? OnPageSelectedEvent }
+        val scrollAndSelectEvents get() = events.mapNotNull {
+            it as? OnPageScrolledEvent ?: it as? OnPageSelectedEvent
+        }
         val eventCount get() = events.size
         val scrollEventCount get() = scrollEvents.size
         val lastIx get() = events.size - 1
@@ -590,6 +668,28 @@ class PageChangeListenerTest : BaseTest() {
         }
     }
 
+    private fun RecordingListener.assertAllPagesSelected(pages: List<Int>) {
+        assertThat(listOf(1, 2), not(equalTo(listOf(2, 1))))
+        assertThat(selectEvents.map { it.position }, equalTo(pages))
+    }
+
+    private fun RecordingListener.assertScrollsAreBetweenSelectedPages() {
+        var selectedPage = -1
+        var prevScrollPosition = 0f
+        scrollAndSelectEvents.forEach { event ->
+            when (event) {
+                is OnPageSelectedEvent -> selectedPage = event.position
+                is OnPageScrolledEvent -> {
+                    assertThat(selectedPage, not(equalTo(-1)))
+                    val currScrollPosition = event.position + event.positionOffset
+                    assertThat(currScrollPosition,
+                        isBetweenInIn(prevScrollPosition, selectedPage.toFloat()))
+                    prevScrollPosition = currScrollPosition
+                }
+            }
+        }
+    }
+
     private fun List<OnPageScrolledEvent>.assertOffsetSorted(sortOrder: SortOrder) {
         groupBy { it.position }.forEach { (_, events) ->
             events.assertSorted { it.positionOffsetPixels * sortOrder.sign }
@@ -608,8 +708,7 @@ class PageChangeListenerTest : BaseTest() {
         otherPage: Int,
         pageSize: Int
     ) = forEach {
-        assertThat(it.position,
-                isBetweenInIn(Math.min(initialPage, otherPage), Math.max(initialPage, otherPage)))
+        assertThat(it.position, isBetweenInInMinMax(initialPage, otherPage))
         assertThat(it.positionOffset, isBetweenInEx(0f, 1f))
         assertThat((it.positionOffset * pageSize).roundToInt(), equalTo(it.positionOffsetPixels))
     }
@@ -618,7 +717,7 @@ class PageChangeListenerTest : BaseTest() {
         map { it.position }.assertSorted { it * sortOrder.sign }
     }
 
-    private fun List<OnPageScrolledEvent>.assertMaxShownPages(startPage: Int) {
-        assertThat(map { it.position }.distinct().minus(startPage).size, isBetweenInIn(0, 3))
+    private fun List<OnPageScrolledEvent>.assertMaxShownPages() {
+        assertThat(map { it.position }.distinct().size, isBetweenInIn(0, 4))
     }
 }
