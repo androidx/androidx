@@ -17,6 +17,9 @@
 package foo.bar;
 import androidx.room.*;
 import java.util.List;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 @Dao
 abstract interface UpdateDao {
@@ -33,6 +36,16 @@ abstract interface UpdateDao {
     int updateUserAndReturnCount(User user1, List<User> others);
     @Update
     int updateUserAndReturnCount(User[] users);
+
+    @Update
+    Integer updateUserAndReturnCountObject(User user);
+
+    @Update
+    Completable updateUserAndReturnCountCompletable(User user);
+    @Update
+    Single<Integer> updateUserAndReturnCountSingle(User user);
+    @Update
+    Maybe<Integer> updateUserAndReturnCountMaybe(User user);
 
     @Update
     int multiPKey(MultiPKeyEntity entity);

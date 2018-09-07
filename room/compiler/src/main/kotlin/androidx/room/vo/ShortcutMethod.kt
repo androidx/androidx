@@ -26,7 +26,6 @@ abstract class ShortcutMethod(
     val element: ExecutableElement,
     val name: String,
     val entities: Map<String, Entity>,
-    val returnCount: Boolean,
     val parameters: List<ShortcutQueryParameter>,
     val methodBinder: DeleteOrUpdateMethodBinder?
 )

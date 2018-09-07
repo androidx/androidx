@@ -22,7 +22,6 @@ class DeletionMethod(
     element: ExecutableElement,
     name: String,
     entities: Map<String, Entity>,
-    returnCount: Boolean,
     parameters: List<ShortcutQueryParameter>,
     methodBinder: DeleteOrUpdateMethodBinder?
-) : ShortcutMethod(element, name, entities, returnCount, parameters, methodBinder)
+) : ShortcutMethod(element, name, entities, parameters, methodBinder)

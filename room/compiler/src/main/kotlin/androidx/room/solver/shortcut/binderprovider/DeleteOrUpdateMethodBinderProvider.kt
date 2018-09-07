@@ -33,8 +33,5 @@ interface DeleteOrUpdateMethodBinderProvider {
     /**
      * Provider of [DeleteOrUpdateMethodAdapter], based on the [DeclaredType]
      */
-    fun provide(
-        declared: DeclaredType,
-        adapter: DeleteOrUpdateMethodAdapter?
-    ): DeleteOrUpdateMethodBinder
+    fun provide(declared: DeclaredType): DeleteOrUpdateMethodBinder
 }

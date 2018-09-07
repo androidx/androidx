@@ -16,6 +16,8 @@
 
 // fake rx single
 package io.reactivex;
+import java.util.concurrent.Callable;
 
 public abstract class Single<T> {
+    public static <T> Single<T> fromCallable(Callable callable) {return null;}
 }

@@ -16,6 +16,8 @@
 
 // fake rx completable
 package io.reactivex;
+import java.util.concurrent.Callable;
 
 public abstract class Completable {
+    public static Completable fromCallable(Callable callable) {return null;}
 }
