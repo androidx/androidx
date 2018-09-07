@@ -543,6 +543,17 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     @Override
+    public void onVisibilityAggregatedImpl(boolean isVisible) {
+        if (isMediaPrepared()) {
+            if (!isVisible && mCurrentState == STATE_PLAYING) {
+                mMediaSession.pause();
+            } else if (isVisible && mTargetState == STATE_PLAYING) {
+                mMediaSession.play();
+            }
+        }
+    }
+
+    @Override
     public void onTouchEventImpl(MotionEvent ev) {
         if (DEBUG) {
             Log.d(TAG, "onTouchEvent(). mCurrentState=" + mCurrentState
