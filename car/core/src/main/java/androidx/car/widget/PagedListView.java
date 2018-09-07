@@ -726,21 +726,6 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Sets how this {@link PagedListView} responds to day/night configuration changes. By
-     * default, the PagedListView is darker in the day and lighter at night.
-     *
-     * <p>This method has been deprecated and no longer does anything.
-     *
-     * @param dayNightStyle A value from {@link DayNightStyle}.
-     * @see DayNightStyle
-     * @deprecated Set day/night behavior through the theme of the PagedListView.
-     */
-    @Deprecated
-    public void setDayNightStyle(@DayNightStyle int dayNightStyle) {
-        // No-op
-    }
-
-    /**
      * Sets the color that should be used for the dividers in the PagedListView.
      *
      * @param dividerColor The resource identifier for the divider color.

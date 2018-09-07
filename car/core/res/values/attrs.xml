@@ -92,21 +92,6 @@ limitations under the License.
         <!-- Vertically center the list contents when the number of items in the list does not take
              up the full height of the PagedListView. This value is "false" by default. -->
         <attr name="verticallyCenterListContent" format="boolean" />
-        <!-- Specifies how the PagedListView should respond to day/night mode events. The values
-             here should match the DayNightStyle @interface. See that class for more
-             information. -->
-        <attr name="dayNightStyle" format="enum">
-            <!-- Automatically changes colors for day/night, assuming the content is light during
-                 the day and dark during the night. This is the default behavior. -->
-            <enum name="auto" value="0" />
-            <!-- Automatically changes colors for day/night, with the colors being inverted from
-                 "auto". -->
-            <enum name="auto_inverse" value="1" />
-            <!-- Fixes the colors to be light colored.  -->
-            <enum name="always_light" value="2" />
-            <!-- Fixes the colors to be dark colored.  -->
-            <enum name="always_dark" value="3" />
-        </attr>
     </declare-styleable>
 
     <declare-styleable name="PagedScrollBarView">

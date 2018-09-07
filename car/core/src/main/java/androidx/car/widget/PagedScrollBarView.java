@@ -259,21 +259,6 @@ public class PagedScrollBarView extends ViewGroup {
     }
 
     /**
-     * Sets how this {@link PagedScrollBarView} responds to day/night configuration changes. By
-     * default, the PagedScrollBarView is darker in the day and lighter at night.
-     *
-     * <p>This method has been deprecated and no longer does anything.
-     *
-     * @param dayNightStyle A value from {@link DayNightStyle}.
-     * @see DayNightStyle
-     * @deprecated Set the day/night behavior of this view through the theme of this view.
-     */
-    @Deprecated
-    public void setDayNightStyle(@DayNightStyle int dayNightStyle) {
-        // No-op.
-    }
-
-    /**
      * Sets whether or not the up button on the scroll bar is clickable.
      *
      * @param enabled {@code true} if the up button is enabled.
