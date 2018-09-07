@@ -2488,7 +2488,7 @@ public final class MediaRouter {
                 for (MediaRouteDescriptor routeDescriptor : routeDescriptors) {
                     final String id = routeDescriptor.getId();
                     final int sourceIndex = provider.findRouteIndexByDescriptorId(id);
-                    boolean isGroup = routeDescriptor.getGroupMemberIds() != null;
+                    boolean isGroup = !(routeDescriptor.getGroupMemberIds().isEmpty());
                     boolean isDynamicGroup =
                             (mSelectedRouteController instanceof DynamicGroupRouteController)
                             && id.equals(((DynamicGroupRouteController) mSelectedRouteController)
