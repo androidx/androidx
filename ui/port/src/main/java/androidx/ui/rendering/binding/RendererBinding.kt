@@ -1,7 +1,6 @@
 package androidx.ui.rendering.binding
 
 import androidx.ui.assert
-import androidx.ui.core.Duration
 import androidx.ui.developer.timeline.Timeline
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.binding.BindingBase
@@ -15,6 +14,7 @@ import androidx.ui.rendering.view.ViewConfiguration
 import androidx.ui.scheduler.binding.SchedulerBinding
 import androidx.ui.scheduler.binding.SchedulerBindingImpl
 import androidx.ui.services.ServicesBinding
+import androidx.ui.widgets.binding.WidgetsBinding
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.async
@@ -74,7 +74,9 @@ object RendererBindingImpl : RendererMixinsWrapper(
         initRenderView()
         handleSemanticsEnabledChanged()
         assert(renderView != null)
-        addPersistentFrameCallback { _handlePersistentFrameCallback() }
+        // NOTE(Migration/Mihai): as we do not have working inheritance between bindings,
+        // we are adding the frame callback in WidgetsBinding, to make sure
+        // WidgetsBinding#drawFrame is called as well. That will call RendererBinding#drawFrame.
     }
 
     // was initServiceExtensions
@@ -244,10 +246,6 @@ object RendererBindingImpl : RendererMixinsWrapper(
     private fun _handleSemanticsOwnerDisposed() {
         TODO("Migration/Andrey: needs semantics code from RenderOwner")
 //        renderView.clearSemantics();
-    }
-
-    private fun _handlePersistentFrameCallback(timeStamp: Duration? = null) {
-        drawFrame()
     }
 
     /**
