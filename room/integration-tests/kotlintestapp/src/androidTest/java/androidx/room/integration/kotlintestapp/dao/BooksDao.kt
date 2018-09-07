@@ -59,10 +59,28 @@ interface BooksDao {
     fun deletePublishers(vararg publishers: Publisher)
 
     @Delete
+    fun deletePublishersSingle(vararg publishers: Publisher): Single<Int>
+
+    @Delete
+    fun deletePublishersCompletable(vararg publishers: Publisher): Completable
+
+    @Delete
+    fun deletePublishersMaybe(vararg publishers: Publisher): Maybe<Int>
+
+    @Delete
     fun deletePublishersCount(vararg publishers: Publisher): Int
 
     @Update
     fun updatePublishers(vararg publishers: Publisher)
+
+    @Update
+    fun updatePublishersCompletable(vararg publishers: Publisher): Completable
+
+    @Update
+    fun updatePublishersMaybe(vararg publishers: Publisher): Maybe<Int>
+
+    @Update
+    fun updatePublishersSingle(vararg publishers: Publisher): Single<Int>
 
     @Update
     fun updatePublishersCount(vararg publishers: Publisher): Int

@@ -74,8 +74,11 @@ import androidx.room.solver.shortcut.binder.InstantDeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InstantInsertMethodBinder
 import androidx.room.solver.shortcut.binderprovider.InstantDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InstantInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCompletableDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCompletableInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxMaybeDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxSingleDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -168,7 +171,10 @@ class TypeAdapterStore private constructor(
     )
 
     val deleteOrUpdateBinderProvider = listOf(
-            InstantDeleteOrUpdateMethodBinderProvider()
+            RxSingleDeleteOrUpdateMethodBinderProvider(context),
+            RxMaybeDeleteOrUpdateMethodBinderProvider(context),
+            RxCompletableDeleteOrUpdateMethodBinderProvider(context),
+            InstantDeleteOrUpdateMethodBinderProvider(context)
     )
 
     // type mirrors that be converted into columns w/o an extra converter
@@ -292,7 +298,7 @@ class TypeAdapterStore private constructor(
             val declared = MoreTypes.asDeclared(typeMirror)
             deleteOrUpdateBinderProvider.first {
                 it.matches(declared)
-            }.provide(declared, adapter)
+            }.provide(declared)
         } else {
             InstantDeleteOrUpdateMethodBinder(adapter)
         }

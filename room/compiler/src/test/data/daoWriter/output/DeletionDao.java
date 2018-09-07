@@ -5,11 +5,18 @@ import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import java.lang.Exception;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
+import java.lang.Void;
 import java.util.List;
+import java.util.concurrent.Callable;
 import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
@@ -122,6 +129,19 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
+  public Integer deleteUserAndReturnCountObject(User user) {
+    int _total = 0;
+    __db.beginTransaction();
+    try {
+      _total +=__deletionAdapterOfUser.handle(user);
+      __db.setTransactionSuccessful();
+      return _total;
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
   public int deleteUserAndReturnCount(User user) {
     int _total = 0;
     __db.beginTransaction();
@@ -159,6 +179,59 @@ public final class DeletionDao_Impl implements DeletionDao {
     } finally {
       __db.endTransaction();
     }
+  }
+
+  @Override
+  public Completable deleteUserCompletable(User user) {
+    return Completable.fromCallable(new Callable() {
+      @Override
+      public Void call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __deletionAdapterOfUser.handle(user);
+          __db.setTransactionSuccessful();
+          return null;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    });
+  }
+
+  @Override
+  public Single<Integer> deleteUserSingle(User user) {
+    return Single.fromCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        int _total = 0;
+        __db.beginTransaction();
+        try {
+          _total +=__deletionAdapterOfUser.handle(user);
+          __db.setTransactionSuccessful();
+          return _total;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    });
+  }
+
+  @Override
+  public Maybe<Integer> deleteUserMaybe(User user) {
+    return Maybe.fromCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        int _total = 0;
+        __db.beginTransaction();
+        try {
+          _total +=__deletionAdapterOfUser.handle(user);
+          __db.setTransactionSuccessful();
+          return _total;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    });
   }
 
   @Override

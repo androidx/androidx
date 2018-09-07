@@ -36,8 +36,11 @@ import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxFlowableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxObservableQueryResultBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCompletableDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCompletableInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxMaybeDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxSingleDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.TypeConverter
@@ -277,8 +280,8 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun testFindSingle() {
-        simpleRun(jfos = *arrayOf(COMMON.SINGLE, COMMON.RX2_ROOM)) {
+    fun testFindInsertSingle() {
+        simpleRun(jfos = *arrayOf(COMMON.SINGLE)) {
             invocation ->
             val single = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.SINGLE.toString())
@@ -289,8 +292,8 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun testFindMaybe() {
-        simpleRun(jfos = *arrayOf(COMMON.MAYBE, COMMON.RX2_ROOM)) {
+    fun testFindInsertMaybe() {
+        simpleRun(jfos = *arrayOf(COMMON.MAYBE)) {
             invocation ->
             val maybe = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.MAYBE.toString())
@@ -301,13 +304,49 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun testFindCompletable() {
-        simpleRun(jfos = *arrayOf(COMMON.COMPLETABLE, COMMON.RX2_ROOM)) {
+    fun testFindInsertCompletable() {
+        simpleRun(jfos = *arrayOf(COMMON.COMPLETABLE)) {
             invocation ->
             val completable = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
             assertThat(completable, notNullValue())
             assertThat(RxCompletableInsertMethodBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(completable.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindDeleteOrUpdateSingle() {
+        simpleRun(jfos = *arrayOf(COMMON.SINGLE)) {
+            invocation ->
+            val single = invocation.processingEnv.elementUtils
+                    .getTypeElement(RxJava2TypeNames.SINGLE.toString())
+            assertThat(single, notNullValue())
+            assertThat(RxSingleDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(single.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindDeleteOrUpdateMaybe() {
+        simpleRun(jfos = *arrayOf(COMMON.MAYBE)) {
+            invocation ->
+            val maybe = invocation.processingEnv.elementUtils
+                    .getTypeElement(RxJava2TypeNames.MAYBE.toString())
+            assertThat(maybe, notNullValue())
+            assertThat(RxMaybeDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(maybe.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindDeleteOrUpdateCompletable() {
+        simpleRun(jfos = *arrayOf(COMMON.COMPLETABLE)) {
+            invocation ->
+            val completable = invocation.processingEnv.elementUtils
+                    .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
+            assertThat(completable, notNullValue())
+            assertThat(RxCompletableDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(completable.asType())), `is`(true))
         }.compilesWithoutError()
     }
