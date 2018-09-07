@@ -31,12 +31,14 @@ import androidx.work.Data;
 import androidx.work.Logger;
 import androidx.work.NonBlockingWorker;
 import androidx.work.Worker;
+import androidx.work.impl.Extras;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.WorkerWrapper;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.SynchronousExecutor;
 
 import java.util.Collections;
 import java.util.List;
@@ -78,11 +80,18 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
             Logger.debug(TAG, "No worker to delegate to.");
             return FAILURE;
         }
+
+        Extras extrasToPass = new Extras(getInputData(),
+                getTags(),
+                getExtras().getRuntimeExtras(),
+                getRunAttemptCount(),
+                new SynchronousExecutor());
+
         mDelegate = WorkerWrapper.workerFromClassName(
                 getApplicationContext(),
                 className,
                 getId(),
-                getExtras());
+                extrasToPass);
 
         if (mDelegate == null) {
             Logger.debug(TAG, "No worker to delegate to.");

@@ -18,6 +18,8 @@ package androidx.work.impl.utils.taskexecutor;
 
 import android.support.annotation.NonNull;
 
+import androidx.work.impl.utils.SynchronousExecutor;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -25,12 +27,7 @@ import java.util.concurrent.Executor;
  */
 public class InstantWorkTaskExecutor implements TaskExecutor {
 
-    private Executor mSynchronousExecutor = new Executor() {
-        @Override
-        public void execute(@NonNull Runnable runnable) {
-            runnable.run();
-        }
-    };
+    private Executor mSynchronousExecutor = new SynchronousExecutor();
 
     @Override
     public void postToMainThread(Runnable runnable) {
