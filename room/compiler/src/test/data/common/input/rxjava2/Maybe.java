@@ -16,6 +16,8 @@
 
 // fake rx maybe
 package io.reactivex;
+import java.util.concurrent.Callable;
 
 public abstract class Maybe<T> {
+    public static <T> Maybe<T> fromCallable(Callable callable) {return null;}
 }

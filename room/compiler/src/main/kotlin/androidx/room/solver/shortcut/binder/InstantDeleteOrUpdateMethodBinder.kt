@@ -30,13 +30,11 @@ class InstantDeleteOrUpdateMethodBinder(
 ) : DeleteOrUpdateMethodBinder(adapter) {
 
     override fun convertAndReturn(
-        returnCount: Boolean,
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
         scope: CodeGenScope
     ) {
         adapter?.createDeleteOrUpdateMethodBody(
-                returnCount = returnCount,
                 parameters = parameters,
                 adapters = adapters,
                 scope = scope

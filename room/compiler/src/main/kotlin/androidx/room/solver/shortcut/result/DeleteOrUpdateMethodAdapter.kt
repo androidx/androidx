@@ -19,39 +19,53 @@ package androidx.room.solver.shortcut.result
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.writer.DaoWriter
+import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 /**
  * Class that knows how to generate a delete or update method body.
  */
-class DeleteOrUpdateMethodAdapter private constructor() {
+class DeleteOrUpdateMethodAdapter private constructor(private val returnType: TypeMirror) {
     companion object {
         fun create(returnType: TypeMirror): DeleteOrUpdateMethodAdapter? {
-            if (isDeleteOrUpdateValid(
-                            returnType.typeName())) {
-                return DeleteOrUpdateMethodAdapter()
+            if (isDeleteOrUpdateValid(returnType)) {
+                return DeleteOrUpdateMethodAdapter(returnType)
             }
             return null
         }
 
-        private fun isDeleteOrUpdateValid(returnTypeName: TypeName) =
-                returnTypeName == TypeName.VOID || returnTypeName == TypeName.INT
+        private fun isIntPrimitiveType(typeMirror: TypeMirror) = typeMirror.kind == TypeKind.INT
+
+        private fun isIntBoxType(typeMirror: TypeMirror) =
+                MoreTypes.isType(typeMirror) &&
+                        MoreTypes.isTypeOf(java.lang.Integer::class.java, typeMirror)
+
+        private fun isIntType(typeMirror: TypeMirror) =
+                isIntPrimitiveType(typeMirror) || isIntBoxType(typeMirror)
+
+        private fun isVoidObject(typeMirror: TypeMirror) = MoreTypes.isType(typeMirror) &&
+                MoreTypes.isTypeOf(Void::class.java, typeMirror)
+
+        private fun isDeleteOrUpdateValid(returnType: TypeMirror): Boolean {
+            return returnType.kind == TypeKind.VOID ||
+                    isIntType(returnType) ||
+                    isVoidObject(returnType)
+        }
     }
 
     fun createDeleteOrUpdateMethodBody(
-        returnCount: Boolean,
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
         scope: CodeGenScope
     ) {
-        val resultVar = if (returnCount) {
+        val resultVar = if (hasResultValue(returnType)) {
             scope.getTmpVar("_total")
         } else {
             null
@@ -72,6 +86,8 @@ class DeleteOrUpdateMethodAdapter private constructor() {
                         DaoWriter.dbField)
                 if (resultVar != null) {
                     addStatement("return $L", resultVar)
+                } else if (hasNullReturn(returnType)) {
+                    addStatement("return null")
                 }
             }
             nextControlFlow("finally").apply {
@@ -81,4 +97,10 @@ class DeleteOrUpdateMethodAdapter private constructor() {
             endControlFlow()
         }
     }
+
+    private fun hasResultValue(returnType: TypeMirror): Boolean {
+        return !(returnType.kind == TypeKind.VOID || isVoidObject(returnType))
+    }
+
+    private fun hasNullReturn(returnType: TypeMirror) = isVoidObject(returnType)
 }

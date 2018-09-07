@@ -4,10 +4,17 @@ import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteStatement;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import java.lang.Exception;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
+import java.lang.Void;
 import java.util.List;
+import java.util.concurrent.Callable;
 import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
@@ -181,6 +188,72 @@ public final class UpdateDao_Impl implements UpdateDao {
     } finally {
       __db.endTransaction();
     }
+  }
+
+  @Override
+  public Integer updateUserAndReturnCountObject(User user) {
+    int _total = 0;
+    __db.beginTransaction();
+    try {
+      _total +=__updateAdapterOfUser.handle(user);
+      __db.setTransactionSuccessful();
+      return _total;
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
+  public Completable updateUserAndReturnCountCompletable(User user) {
+    return Completable.fromCallable(new Callable() {
+      @Override
+      public Void call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __updateAdapterOfUser.handle(user);
+          __db.setTransactionSuccessful();
+          return null;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    });
+  }
+
+  @Override
+  public Single<Integer> updateUserAndReturnCountSingle(User user) {
+    return Single.fromCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        int _total = 0;
+        __db.beginTransaction();
+        try {
+          _total +=__updateAdapterOfUser.handle(user);
+          __db.setTransactionSuccessful();
+          return _total;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    });
+  }
+
+  @Override
+  public Maybe<Integer> updateUserAndReturnCountMaybe(User user) {
+    return Maybe.fromCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        int _total = 0;
+        __db.beginTransaction();
+        try {
+          _total +=__updateAdapterOfUser.handle(user);
+          __db.setTransactionSuccessful();
+          return _total;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    });
   }
 
   @Override
