@@ -18,7 +18,7 @@ package androidx.media.test.service;
 
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.BaseRemoteMediaPlayerConnector;
-import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -138,22 +138,22 @@ public class MockRemotePlayerConnector extends BaseRemoteMediaPlayerConnector {
     }
 
     @Override
-    public void setDataSource(DataSourceDesc2 dsd) {
+    public void setMediaItem(MediaItem2 item) {
 
     }
 
     @Override
-    public void setNextDataSource(DataSourceDesc2 dsd) {
+    public void setNextMediaItem(MediaItem2 item) {
 
     }
 
     @Override
-    public void setNextDataSources(List<DataSourceDesc2> dsds) {
+    public void setNextMediaItems(List<MediaItem2> items) {
 
     }
 
     @Override
-    public DataSourceDesc2 getCurrentDataSource() {
+    public MediaItem2 getCurrentMediaItem() {
         return null;
     }
 

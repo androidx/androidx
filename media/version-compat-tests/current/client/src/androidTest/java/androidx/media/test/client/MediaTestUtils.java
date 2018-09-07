@@ -19,8 +19,7 @@ package androidx.media.test.client;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import androidx.media2.DataSourceDesc2;
-import androidx.media2.FileDataSourceDesc2;
+import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 
@@ -66,9 +65,9 @@ public final class MediaTestUtils {
         final List<MediaItem2> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
-            list.add(new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+            list.add(new FileMediaItem2.Builder(new FileDescriptor())
                     .setMediaId(caller + "_item_" + (size + 1))
-                    .setDataSourceDesc(createDSD()).build());
+                    .build());
         }
         return list;
     }
@@ -80,8 +79,9 @@ public final class MediaTestUtils {
      * @see #createMetadata()
      */
     public static MediaItem2 createMediaItemWithMetadata() {
-        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setMetadata(createMetadata()).setDataSourceDesc(createDSD()).build();
+        return new FileMediaItem2.Builder(new FileDescriptor())
+                .setMetadata(createMetadata())
+                .build();
     }
 
     /**
@@ -95,10 +95,6 @@ public final class MediaTestUtils {
         String mediaId = Thread.currentThread().getStackTrace()[1].getMethodName();
         return new MediaMetadata2.Builder()
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
-    }
-
-    public static DataSourceDesc2 createDSD() {
-        return new FileDataSourceDesc2.Builder(new FileDescriptor()).build();
     }
 
     public static ArrayList<Parcelable> playlistToParcelableArrayList(List<MediaItem2> playlist) {

@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
-import androidx.core.util.ObjectsCompat;
 import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
 import androidx.media2.MediaSession2.OnDataSourceMissingHelper;
 
@@ -62,7 +61,7 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     ArrayList<MediaItem2> mShuffledList = new ArrayList<>();
     @GuardedBy("mLock")
-    private Map<MediaItem2, DataSourceDesc2> mItemDsdMap = new ArrayMap<>();
+    private Map<MediaItem2, MediaItem2> mItemDsdMap = new ArrayMap<>();
     @GuardedBy("mLock")
     private MediaMetadata2 mMetadata;
     @GuardedBy("mLock")
@@ -79,13 +78,13 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         }
 
         @Override
-        public void onCurrentDataSourceChanged(@NonNull MediaPlayerConnector mpb,
-                @Nullable DataSourceDesc2 dsd) {
+        public void onCurrentMediaItemChanged(@NonNull MediaPlayerConnector mpb,
+                @Nullable MediaItem2 item) {
             synchronized (mLock) {
                 if (mPlayer != mpb) {
                     return;
                 }
-                if (dsd == null && mCurrent != null) {
+                if (item == null && mCurrent != null) {
                     mCurrent = getNextValidPlayItemLocked(mCurrent.shuffledIdx, 1);
                     updateCurrentIfNeededLocked();
                 }
@@ -95,23 +94,23 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
 
     private class PlayItem {
         public int shuffledIdx;
-        public DataSourceDesc2 dsd;
+        public MediaItem2 item;
         public MediaItem2 mediaItem;
 
         PlayItem(int shuffledIdx) {
             this(shuffledIdx, null);
         }
 
-        PlayItem(int shuffledIdx, DataSourceDesc2 dsd) {
+        PlayItem(int shuffledIdx, MediaItem2 item) {
             this.shuffledIdx = shuffledIdx;
             if (shuffledIdx >= 0) {
                 this.mediaItem = mShuffledList.get(shuffledIdx);
-                if (dsd == null) {
+                if (item == null) {
                     synchronized (mLock) {
-                        this.dsd = retrieveDataSourceDescLocked(this.mediaItem);
+                        this.item = retrieveDataSourceDescLocked(this.mediaItem);
                     }
                 } else {
-                    this.dsd = dsd;
+                    this.item = item;
                 }
             }
         }
@@ -124,11 +123,7 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
             if (mediaItem == null) {
                 return false;
             }
-            if (dsd == null) {
-                return false;
-            }
-            if (mediaItem.getDataSourceDesc() != null
-                    && !mediaItem.getDataSourceDesc().equals(dsd)) {
+            if (item == null) {
                 return false;
             }
             synchronized (mLock) {
@@ -410,15 +405,8 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     @Override
-    public MediaItem2 getMediaItem(DataSourceDesc2 dsd) {
-        synchronized (mLock) {
-            for (Map.Entry<MediaItem2, DataSourceDesc2> entry : mItemDsdMap.entrySet()) {
-                if (ObjectsCompat.equals(entry.getValue(), dsd)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return super.getMediaItem(dsd);
+    public MediaItem2 getMediaItem(MediaItem2 item) {
+        return item;
     }
 
     @VisibleForTesting
@@ -435,25 +423,24 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* synthetic access */
-    DataSourceDesc2 retrieveDataSourceDescLocked(MediaItem2 item) {
-        DataSourceDesc2 dsd = item.getDataSourceDesc();
-        if (dsd != null) {
-            mItemDsdMap.put(item, dsd);
-            return dsd;
+    MediaItem2 retrieveDataSourceDescLocked(MediaItem2 item) {
+        if (item != null) {
+            mItemDsdMap.put(item, item);
+            return item;
         }
-        dsd = mItemDsdMap.get(item);
-        if (dsd != null) {
-            return dsd;
+        item = mItemDsdMap.get(item);
+        if (item != null) {
+            return item;
         }
         OnDataSourceMissingHelper helper = mDsmHelper;
         if (helper != null) {
             // TODO: Do not call onDataSourceMissing with the lock (b/74090741).
-            dsd = helper.onDataSourceMissing(mSession.getInstance(), item);
-            if (dsd != null) {
-                mItemDsdMap.put(item, dsd);
+            item = helper.onDataSourceMissing(mSession.getInstance(), item);
+            if (item != null) {
+                mItemDsdMap.put(item, item);
             }
         }
-        return dsd;
+        return item;
     }
 
     // TODO: consider to call updateCurrentIfNeededLocked inside (b/74090741)
@@ -472,9 +459,9 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
                     curShuffledIdx = curShuffledIdx < 0 ? mPlaylist.size() - 1 : 0;
                 }
             }
-            DataSourceDesc2 dsd = retrieveDataSourceDescLocked(mShuffledList.get(curShuffledIdx));
-            if (dsd != null) {
-                return new PlayItem(curShuffledIdx, dsd);
+            MediaItem2 item = retrieveDataSourceDescLocked(mShuffledList.get(curShuffledIdx));
+            if (item != null) {
+                return new PlayItem(curShuffledIdx, item);
             }
         }
         return null;
@@ -511,13 +498,13 @@ public class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
             return;
         }
         if (mPlayer.getPlayerState() == MediaPlayerConnector.PLAYER_STATE_IDLE) {
-            mPlayer.setDataSource(mCurrent.dsd);
+            mPlayer.setMediaItem(mCurrent.item);
         } else {
-            mPlayer.setNextDataSource(mCurrent.dsd);
+            mPlayer.setNextMediaItem(mCurrent.item);
             mPlayer.skipToNext();
         }
         mPlayer.loopCurrent(mRepeatMode == MediaPlaylistAgent.REPEAT_MODE_ONE);
-        // TODO: Call setNextDataSource (b/74090741)
+        // TODO: Call setNextMediaItem (b/74090741)
     }
 
     @SuppressWarnings("GuardedBy")

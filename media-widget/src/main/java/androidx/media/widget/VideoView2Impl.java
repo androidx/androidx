@@ -26,7 +26,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.SessionToken2;
@@ -124,19 +123,11 @@ interface VideoView2Impl {
     void setVideoUri(Uri uri, @Nullable Map<String, String> headers);
 
     /**
-     * Sets {@link MediaItem2} object to render using VideoView2. Alternative way to set media
-     * object to VideoView2 is {@link #setDataSource}.
+     * Sets {@link MediaItem2} object to render using VideoView2.
+     *
      * @param mediaItem the MediaItem2 to play
-     * @see #setDataSource
      */
     void setMediaItem2(@NonNull MediaItem2 mediaItem);
-
-    /**
-     * Sets {@link DataSourceDesc2} object to render using VideoView2.
-     * @param dataSource the {@link DataSourceDesc2} object to play.
-     * @see #setMediaItem2
-     */
-    void setDataSource(@NonNull DataSourceDesc2 dataSource);
 
     /**
      * Selects which view will be used to render video between SurfaceView and TextureView.

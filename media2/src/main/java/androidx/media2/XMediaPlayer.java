@@ -125,12 +125,12 @@ public class XMediaPlayer extends SessionPlayer2 {
     public static final int MEDIA_INFO_UNKNOWN = 1;
 
     /**
-     * The player just started the playback of this data source.
+     * The player just started the playback of this media item.
      * @see PlayerCallback#onInfo
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int MEDIA_INFO_DATA_SOURCE_START = 2;
+    public static final int MEDIA_INFO_MEDIA_ITEM_START = 2;
 
     /**
      * The player just pushed the very first video frame for rendering.
@@ -145,21 +145,21 @@ public class XMediaPlayer extends SessionPlayer2 {
     public static final int MEDIA_INFO_AUDIO_RENDERING_START = 4;
 
     /**
-     * The player just completed the playback of this data source.
+     * The player just completed the playback of this media item.
      * @see PlayerCallback#onInfo
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int MEDIA_INFO_DATA_SOURCE_END = 5;
+    public static final int MEDIA_INFO_MEDIA_ITEM_END = 5;
 
     /**
-     * The player just completed the playback of all the data sources set by {@link #setPlaylist}
+     * The player just completed the playback of all the media items set by {@link #setPlaylist}
      * and {@link #setMediaItem}.
      * @see PlayerCallback#onInfo
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int MEDIA_INFO_DATA_SOURCE_LIST_END = 6;
+    public static final int MEDIA_INFO_MEDIA_ITEM_LIST_END = 6;
 
     /**
      * The player just completed an iteration of playback loop. This event is sent only when
@@ -168,10 +168,10 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int MEDIA_INFO_DATA_SOURCE_REPEAT = 7;
+    public static final int MEDIA_INFO_MEDIA_ITEM_REPEAT = 7;
 
     /**
-     * The player just prepared a data source.
+     * The player just prepared a media item.
      * @see #prepare()
      * @see PlayerCallback#onInfo
      */
@@ -296,12 +296,12 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
             MEDIA_INFO_UNKNOWN,
-            MEDIA_INFO_DATA_SOURCE_START,
+            MEDIA_INFO_MEDIA_ITEM_START,
             MEDIA_INFO_VIDEO_RENDERING_START,
             MEDIA_INFO_AUDIO_RENDERING_START,
-            MEDIA_INFO_DATA_SOURCE_END,
-            MEDIA_INFO_DATA_SOURCE_LIST_END,
-            MEDIA_INFO_DATA_SOURCE_REPEAT,
+            MEDIA_INFO_MEDIA_ITEM_END,
+            MEDIA_INFO_MEDIA_ITEM_LIST_END,
+            MEDIA_INFO_MEDIA_ITEM_REPEAT,
             MEDIA_INFO_PREPARED,
             MEDIA_INFO_VIDEO_TRACK_LAGGING,
             MEDIA_INFO_BUFFERING_START,
@@ -324,7 +324,7 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     /**
      * This mode is used with {@link #seekTo(long, int)} to move media position to
-     * a sync (or key) frame associated with a data source that is located
+     * a sync (or key) frame associated with a media item that is located
      * right before or at the given time.
      *
      * @see #seekTo(long, int)
@@ -332,7 +332,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     public static final int SEEK_PREVIOUS_SYNC    = 0x00;
     /**
      * This mode is used with {@link #seekTo(long, int)} to move media position to
-     * a sync (or key) frame associated with a data source that is located
+     * a sync (or key) frame associated with a media item that is located
      * right after or at the given time.
      *
      * @see #seekTo(long, int)
@@ -340,7 +340,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     public static final int SEEK_NEXT_SYNC        = 0x01;
     /**
      * This mode is used with {@link #seekTo(long, int)} to move media position to
-     * a sync (or key) frame associated with a data source that is located
+     * a sync (or key) frame associated with a media item that is located
      * closest to (in time) or at the given time.
      *
      * @see #seekTo(long, int)
@@ -348,7 +348,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     public static final int SEEK_CLOSEST_SYNC     = 0x02;
     /**
      * This mode is used with {@link #seekTo(long, int)} to move media position to
-     * a frame (not necessarily a key frame) associated with a data source that
+     * a frame (not necessarily a key frame) associated with a media item that
      * is located closest to or at the given time.
      *
      * @see #seekTo(long, int)
@@ -434,7 +434,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     @GuardedBy("mStateLock")
     private @PlayerState int mState;
     @GuardedBy("mStateLock")
-    private Map<DataSourceDesc2, Integer> mDSDToBuffStateMap = new HashMap<>();
+    private Map<MediaItem2, Integer> mMediaItemToBuffState = new HashMap<>();
 
     public XMediaPlayer(Context context) {
         mState = PLAYER_STATE_IDLE;
@@ -472,7 +472,7 @@ public class XMediaPlayer extends SessionPlayer2 {
         }
         // TODO: Changing buffering state is not correct. Think about changing MP2 event APIs for
         // the initial buffering for prepare case.
-        setBufferingState(mPlayer.getCurrentDataSource(), BUFFERING_STATE_BUFFERING_AND_STARVED);
+        setBufferingState(mPlayer.getCurrentMediaItem(), BUFFERING_STATE_BUFFERING_AND_STARVED);
         return future;
     }
 
@@ -548,7 +548,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     public int getBufferingState() {
         Integer buffState;
         synchronized (mStateLock) {
-            buffState = mDSDToBuffStateMap.get(mPlayer.getCurrentDataSource());
+            buffState = mMediaItemToBuffState.get(mPlayer.getCurrentMediaItem());
         }
         return buffState == null ? BUFFERING_STATE_UNKNOWN : buffState;
     }
@@ -573,33 +573,33 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     @Override
     public ListenableFuture<CommandResult2> setPlaylist(
-            List<DataSourceDesc2> list, MediaMetadata2 metadata) {
+            List<MediaItem2> list, MediaMetadata2 metadata) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ListenableFuture<CommandResult2> setMediaItem(DataSourceDesc2 item) {
+    public ListenableFuture<CommandResult2> setMediaItem(MediaItem2 item) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
         synchronized (mCallTypeAndFutures) {
             mCallTypeAndFutures.add(
                     new Pair<>(MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE, future));
-            mPlayer.setDataSource(item);
+            mPlayer.setMediaItem(item);
         }
         return future;
     }
 
     @Override
-    public ListenableFuture<CommandResult2> addPlaylistItem(int index, DataSourceDesc2 item) {
+    public ListenableFuture<CommandResult2> addPlaylistItem(int index, MediaItem2 item) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ListenableFuture<CommandResult2> removePlaylistItem(DataSourceDesc2 item) {
+    public ListenableFuture<CommandResult2> removePlaylistItem(MediaItem2 item) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ListenableFuture<CommandResult2> replacePlaylistItem(int index, DataSourceDesc2 item) {
+    public ListenableFuture<CommandResult2> replacePlaylistItem(int index, MediaItem2 item) {
         throw new UnsupportedOperationException();
     }
 
@@ -614,7 +614,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<CommandResult2> skipToPlaylistItem(DataSourceDesc2 desc) {
+    public ListenableFuture<CommandResult2> skipToPlaylistItem(MediaItem2 item) {
         throw new UnsupportedOperationException();
     }
 
@@ -634,7 +634,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public List<DataSourceDesc2> getPlaylist() {
+    public List<MediaItem2> getPlaylist() {
         throw new UnsupportedOperationException();
     }
 
@@ -654,7 +654,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public DataSourceDesc2 getCurrentMediaItem() {
+    public MediaItem2 getCurrentMediaItem() {
         throw new UnsupportedOperationException();
     }
 
@@ -667,7 +667,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     /**
      * Resets {@link XMediaPlayer} to its uninitialized state. After calling
      * this method, you will have to initialize it again by setting the
-     * data source and calling {@link #prepare()}.
+     * media item and calling {@link #prepare()}.
      */
     public void reset() {
         synchronized (mCallTypeAndFutures) {
@@ -676,7 +676,7 @@ public class XMediaPlayer extends SessionPlayer2 {
         }
         synchronized (mStateLock) {
             mState = PLAYER_STATE_IDLE;
-            mDSDToBuffStateMap.clear();
+            mMediaItemToBuffState.clear();
         }
     }
 
@@ -770,7 +770,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     /**
      * @return a {@link PersistableBundle} containing the set of attributes and values
      * available for the media being handled by this player instance.
-     * The attributes are descibed in {@link MetricsConstants}.
+     * The attributes are described in {@link MetricsConstants}.
      *
      * Additional vendor-specific fields may also be present in the return value.
      */
@@ -819,7 +819,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * position or mode is different.
      *
      * @param msec the offset in milliseconds from the start to seek to.
-     * When seeking to the given time position, there is no guarantee that the data source
+     * When seeking to the given time position, there is no guarantee that the media item
      * has a frame located at the position. When this happens, a frame nearby will be rendered.
      * If msec is negative, time position zero will be used.
      * If msec is larger than duration, duration will be used.
@@ -1065,16 +1065,16 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void setBufferingState(final DataSourceDesc2 dsd, @BuffState final int state) {
+    void setBufferingState(final MediaItem2 item, @BuffState final int state) {
         Integer previousState;
         synchronized (mStateLock) {
-            previousState = mDSDToBuffStateMap.put(dsd, state);
+            previousState = mMediaItemToBuffState.put(item, state);
         }
         if (previousState == null || previousState.intValue() != state) {
             notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(SessionPlayer2.PlayerCallback callback) {
-                    callback.onBufferingStateChanged(XMediaPlayer.this, dsd, state);
+                    callback.onBufferingStateChanged(XMediaPlayer.this, item, state);
                 }
             });
         }
@@ -1120,53 +1120,53 @@ public class XMediaPlayer extends SessionPlayer2 {
     class Mp2Callback extends MediaPlayer2.EventCallback {
         @Override
         public void onVideoSizeChanged(
-                MediaPlayer2 mp, final DataSourceDesc2 dsd, final int width, final int height) {
+                MediaPlayer2 mp, final MediaItem2 item, final int width, final int height) {
             notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(PlayerCallback callback) {
-                    callback.onVideoSizeChanged(XMediaPlayer.this, dsd, width, height);
+                    callback.onVideoSizeChanged(XMediaPlayer.this, item, width, height);
                 }
             });
         }
 
         @Override
         public void onTimedMetaDataAvailable(
-                MediaPlayer2 mp, final DataSourceDesc2 dsd, final TimedMetaData2 data) {
+                MediaPlayer2 mp, final MediaItem2 item, final TimedMetaData2 data) {
             notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(PlayerCallback callback) {
-                    callback.onTimedMetaDataAvailable(XMediaPlayer.this, dsd, data);
+                    callback.onTimedMetaDataAvailable(XMediaPlayer.this, item, data);
                 }
             });
         }
 
         @Override
         public void onError(
-                MediaPlayer2 mp, final DataSourceDesc2 dsd, final int what, final int extra) {
+                MediaPlayer2 mp, final MediaItem2 item, final int what, final int extra) {
             setState(PLAYER_STATE_ERROR);
-            setBufferingState(dsd, BUFFERING_STATE_UNKNOWN);
+            setBufferingState(item, BUFFERING_STATE_UNKNOWN);
             notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(PlayerCallback callback) {
-                    callback.onError(XMediaPlayer.this, dsd, what, extra);
+                    callback.onError(XMediaPlayer.this, item, what, extra);
                 }
             });
         }
 
         @Override
         public void onInfo(
-                MediaPlayer2 mp, final DataSourceDesc2 dsd, final int mp2What, final int extra) {
+                MediaPlayer2 mp, final MediaItem2 item, final int mp2What, final int extra) {
             switch (mp2What) {
                 case MediaPlayer2.MEDIA_INFO_BUFFERING_START:
-                    setBufferingState(dsd, BUFFERING_STATE_BUFFERING_AND_STARVED);
+                    setBufferingState(item, BUFFERING_STATE_BUFFERING_AND_STARVED);
                     break;
                 case MediaPlayer2.MEDIA_INFO_PREPARED:
                 case MediaPlayer2.MEDIA_INFO_BUFFERING_END:
-                    setBufferingState(dsd, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+                    setBufferingState(item, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
                     break;
                 case MediaPlayer2.MEDIA_INFO_BUFFERING_UPDATE:
                     if (extra /* percent */ >= 100) {
-                        setBufferingState(dsd, BUFFERING_STATE_BUFFERING_COMPLETE);
+                        setBufferingState(item, BUFFERING_STATE_BUFFERING_COMPLETE);
                     }
                     break;
                 case MediaPlayer2.MEDIA_INFO_DATA_SOURCE_LIST_END:
@@ -1177,14 +1177,14 @@ public class XMediaPlayer extends SessionPlayer2 {
             notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(PlayerCallback callback) {
-                    callback.onInfo(XMediaPlayer.this, dsd, what, extra);
+                    callback.onInfo(XMediaPlayer.this, item, what, extra);
                 }
             });
         }
 
         @Override
         public void onCallCompleted(
-                MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                MediaPlayer2 mp, MediaItem2 item, int what, int status) {
             Pair<Integer, SettableFuture<CommandResult2>> pair;
             synchronized (mCallTypeAndFutures) {
                 pair = mCallTypeAndFutures.pollFirst();
@@ -1228,16 +1228,16 @@ public class XMediaPlayer extends SessionPlayer2 {
             // TODO: more handling on listenable future. e.g. Canceling.
             Integer resultCode = sResultCodeMap.get(status);
             pair.second.set(new CommandResult2(
-                    resultCode == null ? RESULT_CODE_ERROR_UNKNOWN : resultCode, dsd));
+                    resultCode == null ? RESULT_CODE_ERROR_UNKNOWN : resultCode, item));
         }
 
         @Override
         public void onMediaTimeDiscontinuity(
-                MediaPlayer2 mp, final DataSourceDesc2 dsd, final MediaTimestamp2 timestamp) {
+                MediaPlayer2 mp, final MediaItem2 item, final MediaTimestamp2 timestamp) {
             notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(PlayerCallback callback) {
-                    callback.onMediaTimeDiscontinuity(XMediaPlayer.this, dsd, timestamp);
+                    callback.onMediaTimeDiscontinuity(XMediaPlayer.this, item, timestamp);
                 }
             });
         }
@@ -1249,11 +1249,11 @@ public class XMediaPlayer extends SessionPlayer2 {
 
         @Override
         public void onSubtitleData(
-                MediaPlayer2 mp, final DataSourceDesc2 dsd, final SubtitleData2 data) {
+                MediaPlayer2 mp, final MediaItem2 item, final SubtitleData2 data) {
             notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(PlayerCallback callback) {
-                    callback.onSubtitleData(XMediaPlayer.this, dsd, data);
+                    callback.onSubtitleData(XMediaPlayer.this, item, data);
                 }
             });
         }
@@ -1271,12 +1271,12 @@ public class XMediaPlayer extends SessionPlayer2 {
          * no display surface was set, or the value was not determined yet.
          *
          * @param mp the player associated with this callback
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param width the width of the video
          * @param height the height of the video
          */
         public void onVideoSizeChanged(
-                XMediaPlayer mp, DataSourceDesc2 dsd, int width, int height) { }
+                XMediaPlayer mp, MediaItem2 item, int width, int height) { }
 
         /**
          * Called to indicate available timed metadata
@@ -1291,34 +1291,34 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @see TimedMetaData2
          *
          * @param mp the player associated with this callback
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param data the timed metadata sample associated with this event
          */
         public void onTimedMetaDataAvailable(
-                XMediaPlayer mp, DataSourceDesc2 dsd, TimedMetaData2 data) { }
+                XMediaPlayer mp, MediaItem2 item, TimedMetaData2 data) { }
 
         /**
          * Called to indicate an error.
          *
          * @param mp the MediaPlayer2 the error pertains to
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param what the type of error that has occurred.
          * @param extra an extra code, specific to the error. Typically
          * implementation dependent.
          */
         public void onError(
-                XMediaPlayer mp, DataSourceDesc2 dsd, @MediaError int what, int extra) { }
+                XMediaPlayer mp, MediaItem2 item, @MediaError int what, int extra) { }
 
         /**
          * Called to indicate an info or a warning.
          *
          * @param mp the player the info pertains to.
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param what the type of info or warning.
          * @param extra an extra code, specific to the info. Typically
          * implementation dependent.
          */
-        public void onInfo(XMediaPlayer mp, DataSourceDesc2 dsd, @MediaInfo int what, int extra) { }
+        public void onInfo(XMediaPlayer mp, MediaItem2 item, @MediaInfo int what, int extra) { }
 
         /**
          * Called when a discontinuity in the normal progression of the media time is detected.
@@ -1336,21 +1336,21 @@ public class XMediaPlayer extends SessionPlayer2 {
          * </ul>
          *
          * @param mp the player the media time pertains to.
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param timestamp the timestamp that correlates media time, system time and clock rate,
          *     or {@link MediaTimestamp2#TIMESTAMP_UNKNOWN} in an error case.
          */
         public void onMediaTimeDiscontinuity(
-                XMediaPlayer mp, DataSourceDesc2 dsd, MediaTimestamp2 timestamp) { }
+                XMediaPlayer mp, MediaItem2 item, MediaTimestamp2 timestamp) { }
 
         /**
          * Called when when a player subtitle track has new subtitle data available.
          * @param mp the player that reports the new subtitle data
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param data the subtitle data
          */
         public void onSubtitleData(
-                XMediaPlayer mp, DataSourceDesc2 dsd, @NonNull SubtitleData2 data) { }
+                XMediaPlayer mp, MediaItem2 item, @NonNull SubtitleData2 data) { }
     }
 
     /**

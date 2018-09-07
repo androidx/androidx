@@ -112,7 +112,7 @@ public abstract class MediaPlayerConnector implements AutoCloseable {
 
     /**
      * Prepares the player for playback.
-     * See {@link PlayerEventCallback#onMediaPrepared(MediaPlayerConnector, DataSourceDesc2)} for
+     * See {@link PlayerEventCallback#onMediaPrepared(MediaPlayerConnector, MediaItem2)} for
      * being notified when the preparation phase completed. During this time, the player may
      * allocate resources required to play, such as audio and video decoders.
      */
@@ -150,7 +150,7 @@ public abstract class MediaPlayerConnector implements AutoCloseable {
     }
 
     /**
-     * Returns the duration of the current data source, or {@link #UNKNOWN_TIME} if unknown.
+     * Returns the duration of the current media item, or {@link #UNKNOWN_TIME} if unknown.
      * @return the duration in ms, or {@link #UNKNOWN_TIME}.
      */
     public long getDuration() {
@@ -196,33 +196,33 @@ public abstract class MediaPlayerConnector implements AutoCloseable {
     public abstract @Nullable AudioAttributesCompat getAudioAttributes();
 
     /**
-     * Sets the data source to be played.
-     * @param dsd
+     * Sets the media item to be played.
+     * @param item
      */
-    public abstract void setDataSource(@NonNull DataSourceDesc2 dsd);
+    public abstract void setMediaItem(@NonNull MediaItem2 item);
 
     /**
-     * Sets the data source that will be played immediately after the current one is done playing.
-     * @param dsd
+     * Sets the media item that will be played immediately after the current one is done playing.
+     * @param item
      */
-    public abstract void setNextDataSource(@NonNull DataSourceDesc2 dsd);
+    public abstract void setNextMediaItem(@NonNull MediaItem2 item);
 
     /**
-     * Sets the list of data sources that will be sequentially played after the current one. Each
-     * data source is played immediately after the previous one is done playing.
-     * @param dsds
+     * Sets the list of media items that will be sequentially played after the current one. Each
+     * media item is played immediately after the previous one is done playing.
+     * @param items
      */
-    public abstract void setNextDataSources(@NonNull List<DataSourceDesc2> dsds);
+    public abstract void setNextMediaItems(@NonNull List<MediaItem2> items);
 
     /**
-     * Returns the current data source.
-     * @return the current data source, or null if none is set, or none available to play.
+     * Returns the current media item.
+     * @return the current media item, or null if none is set, or none available to play.
      */
-    public abstract @Nullable DataSourceDesc2 getCurrentDataSource();
+    public abstract @Nullable MediaItem2 getCurrentMediaItem();
 
     /**
-     * Configures the player to loop on the current data source.
-     * @param loop true if the current data source is meant to loop.
+     * Configures the player to loop on the current media item.
+     * @param loop true if the current media item is meant to loop.
      */
     public abstract void loopCurrent(boolean loop);
 
@@ -302,26 +302,26 @@ public abstract class MediaPlayerConnector implements AutoCloseable {
      */
     public abstract static class PlayerEventCallback {
         /**
-         * Called when the player's current data source has changed.
+         * Called when the player's current media item has changed.
          * <p>
          * When the playback completes, and no other source is about to be played next (i.e.
          * playback reached the end of the list of sources to play), this callback will be invoked
-         * with a {@code null} dsd.
+         * with a {@code null} item.
          *
-         * @param mpb the player whose data source changed.
-         * @param dsd the new current data source. {@code null}, if no more data sources available.
+         * @param mpb the player whose media item changed.
+         * @param item the new current media item. {@code null}, if no more media items available.
          */
-        public void onCurrentDataSourceChanged(@NonNull MediaPlayerConnector mpb,
-                @Nullable DataSourceDesc2 dsd) { }
+        public void onCurrentMediaItemChanged(@NonNull MediaPlayerConnector mpb,
+                @Nullable MediaItem2 item) { }
 
         /**
          * Called when the player is <i>prepared</i>, i.e. it is ready to play the content
-         * referenced by the given data source.
+         * referenced by the given media item.
          * @param mpb the player that is prepared.
-         * @param dsd the data source that the player is prepared to play.
+         * @param item the media item that the player is prepared to play.
          */
         public void onMediaPrepared(@NonNull MediaPlayerConnector mpb,
-                @NonNull DataSourceDesc2 dsd) { }
+                @NonNull MediaItem2 item) { }
 
         /**
          * Called to indicate that the state of the player has changed.
@@ -333,13 +333,13 @@ public abstract class MediaPlayerConnector implements AutoCloseable {
                 @PlayerState int state) { }
 
         /**
-         * Called to report buffering events for a data source.
+         * Called to report buffering events for a media item.
          * @param mpb the player that is buffering
-         * @param dsd the data source for which buffering is happening.
+         * @param item the media item for which buffering is happening.
          * @param state the new buffering state.
          */
         public void onBufferingStateChanged(@NonNull MediaPlayerConnector mpb,
-                @NonNull DataSourceDesc2 dsd, @BuffState int state) { }
+                @NonNull MediaItem2 item, @BuffState int state) { }
 
         /**
          * Called to indicate that the playback speed has changed.

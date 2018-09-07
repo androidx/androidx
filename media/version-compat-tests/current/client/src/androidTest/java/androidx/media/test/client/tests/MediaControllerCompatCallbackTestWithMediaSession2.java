@@ -35,6 +35,7 @@ import androidx.media.VolumeProviderCompat;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
 import androidx.media.test.lib.TestUtils;
+import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayerConnector;
@@ -50,6 +51,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.FileDescriptor;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -380,7 +382,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         final int testItemIndex = 0;
         final int testBufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
-        mSession.getMockPlaylistAgent().setPlaylistWithDummyDsd(testPlaylist);
+        mSession.getMockPlaylistAgent().setPlaylistWithDummyItem(testPlaylist);
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
         controllerCallback.reset(1);
@@ -436,13 +438,14 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         String displayTitle = "displayTitle";
         MediaMetadata2 metadata = new MediaMetadata2.Builder()
                 .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, displayTitle).build();
-        MediaItem2 currentMediaItem = new MediaItem2.Builder(FLAG_PLAYABLE)
-                .setMetadata(metadata).setDataSourceDesc(MediaTestUtils.createDSD()).build();
+        MediaItem2 currentMediaItem = new FileMediaItem2.Builder(new FileDescriptor())
+                .setMetadata(metadata)
+                .build();
 
         List<MediaItem2> playlist = MediaTestUtils.createPlaylist(5);
         final int testItemIndex = 3;
         playlist.set(testItemIndex, currentMediaItem);
-        mSession.getMockPlaylistAgent().setPlaylistWithDummyDsd(playlist);
+        mSession.getMockPlaylistAgent().setPlaylistWithDummyItem(playlist);
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
         controllerCallback.reset(1);

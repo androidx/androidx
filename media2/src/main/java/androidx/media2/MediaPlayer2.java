@@ -68,10 +68,10 @@ import java.util.concurrent.Executor;
  *         {@link #create(Context)}, or after calling {@link #reset()}.</p>
  *
  *         <p>While in this state, you should call
- *         {@link #setDataSource(DataSourceDesc2) setDataSource()}. It is a good
+ *         {@link #setMediaItem(MediaItem2) setMediaItem()}. It is a good
  *         programming practice to register an {@link EventCallback#onCallCompleted onCallCompleted}
  *         <a href="#callback">callback</a> and watch for {@link #CALL_STATUS_BAD_VALUE} and
- *         {@link #CALL_STATUS_ERROR_IO}, which might be caused by <code>setDataSource</code>.
+ *         {@link #CALL_STATUS_ERROR_IO}, which might be caused by <code>setMediaItem</code>.
  *         </p>
  *
  *         <p>Calling {@link #prepare()} transfers a MediaPlayer2 object to
@@ -92,7 +92,7 @@ import java.util.concurrent.Executor;
  *      </li>
  *
  *     <li>{@link #PLAYER_STATE_PLAYING}:
- *         <p>The player plays the data source while in this state.
+ *         <p>The player plays the media item while in this state.
  *         If you register an {@link EventCallback#onInfo} <a href="#callback">callback</a>
  *         the player regularly executes the callback with
  *         {@link #MEDIA_INFO_BUFFERING_UPDATE}.
@@ -110,7 +110,7 @@ import java.util.concurrent.Executor;
  *         </li>
  *         <li>If the looping mode was set to <code>true</code>,
  *         the MediaPlayer2 object remains in the <strong>Playing</strong> state and replays its
- *         data source from the beginning.</li>
+ *         media item from the beginning.</li>
  *         </ul>
  *         </li>
  *
@@ -126,7 +126,7 @@ import java.util.concurrent.Executor;
  *
  *          <p>If you register an {@link EventCallback#onError}} <a href="#callback">callback</a>
  *          the callback will be performed when entering the state. When programming errors happen,
- *          such as calling {@link #prepare()} and {@link #setDataSource(DataSourceDesc2)} methods
+ *          such as calling {@link #prepare()} and {@link #setMediaItem(MediaItem2)} methods
  *          from an <a href="#invalid_state">invalid state</a>, The callback is called with
  *          {@link #CALL_STATUS_INVALID_OPERATION} . The MediaPlayer2 object enters the
  *          <strong>Error</strong> whether or not a callback exists. </p>
@@ -183,7 +183,7 @@ import java.util.concurrent.Executor;
  * <tr><th>Method Name</th>
  * <th>Invalid States</th></tr>
  *
- * <tr><td>setDataSource</td> <td>{Prepared, Paused, Playing}</td></tr>
+ * <tr><td>setMediaItem</td> <td>{Prepared, Paused, Playing}</td></tr>
  * <tr><td>prepare</td> <td>{Prepared, Paused, Playing}</td></tr>
  * <tr><td>play</td> <td>{Idle}</td></tr>
  * <tr><td>pause</td> <td>{Idle}</td></tr>
@@ -312,7 +312,7 @@ public abstract class MediaPlayer2 {
     public abstract void pause();
 
     /**
-     * Tries to play next data source if applicable.
+     * Tries to play next media item if applicable.
      */
     // This is an asynchronous call.
     public abstract void skipToNext();
@@ -378,40 +378,40 @@ public abstract class MediaPlayer2 {
     public abstract @Nullable AudioAttributesCompat getAudioAttributes();
 
     /**
-     * Sets the data source as described by a DataSourceDesc2.
+     * Sets the media item as described by a MediaItem2.
      *
-     * @param dsd the descriptor of data source you want to play
+     * @param item the descriptor of media item you want to play
      */
     // This is an asynchronous call.
-    public abstract void setDataSource(@NonNull DataSourceDesc2 dsd);
+    public abstract void setMediaItem(@NonNull MediaItem2 item);
 
     /**
-     * Sets a single data source as described by a DataSourceDesc2 which will be played
-     * after current data source is finished.
+     * Sets a single media item as described by a MediaItem2 which will be played
+     * after current media item is finished.
      *
-     * @param dsd the descriptor of data source you want to play after current one
+     * @param item the descriptor of media item you want to play after current one
      */
     // This is an asynchronous call.
-    public abstract void setNextDataSource(@NonNull DataSourceDesc2 dsd);
+    public abstract void setNextMediaItem(@NonNull MediaItem2 item);
 
     /**
-     * Sets a list of data sources to be played sequentially after current data source is done.
+     * Sets a list of media items to be played sequentially after current media item is done.
      *
-     * @param dsds the list of data sources you want to play after current one
+     * @param items the list of media items you want to play after current one
      */
     // This is an asynchronous call.
-    public abstract void setNextDataSources(@NonNull List<DataSourceDesc2> dsds);
+    public abstract void getNextMediaItems(@NonNull List<MediaItem2> items);
 
     /**
-     * Gets the current data source as described by a DataSourceDesc2.
+     * Gets the current media item as described by a MediaItem2.
      *
-     * @return the current DataSourceDesc2
+     * @return the current MediaItem2
      */
-    public abstract @NonNull DataSourceDesc2 getCurrentDataSource();
+    public abstract @NonNull MediaItem2 getCurrentMediaItem();
 
     /**
-     * Configures the player to loop on the current data source.
-     * @param loop true if the current data source is meant to loop.
+     * Configures the player to loop on the current media item.
+     * @param loop true if the current media item is meant to loop.
      */
     // This is an asynchronous call.
     public abstract void loopCurrent(boolean loop);
@@ -565,7 +565,7 @@ public abstract class MediaPlayer2 {
      */
     /**
      * This mode is used with {@link #seekTo(long, int)} to move media position to
-     * a sync (or key) frame associated with a data source that is located
+     * a sync (or key) frame associated with a media item that is located
      * right before or at the given time.
      *
      * @see #seekTo(long, int)
@@ -573,7 +573,7 @@ public abstract class MediaPlayer2 {
     public static final int SEEK_PREVIOUS_SYNC    = 0x00;
     /**
      * This mode is used with {@link #seekTo(long, int)} to move media position to
-     * a sync (or key) frame associated with a data source that is located
+     * a sync (or key) frame associated with a media item that is located
      * right after or at the given time.
      *
      * @see #seekTo(long, int)
@@ -581,7 +581,7 @@ public abstract class MediaPlayer2 {
     public static final int SEEK_NEXT_SYNC        = 0x01;
     /**
      * This mode is used with {@link #seekTo(long, int)} to move media position to
-     * a sync (or key) frame associated with a data source that is located
+     * a sync (or key) frame associated with a media item that is located
      * closest to (in time) or at the given time.
      *
      * @see #seekTo(long, int)
@@ -589,7 +589,7 @@ public abstract class MediaPlayer2 {
     public static final int SEEK_CLOSEST_SYNC     = 0x02;
     /**
      * This mode is used with {@link #seekTo(long, int)} to move media position to
-     * a frame (not necessarily a key frame) associated with a data source that
+     * a frame (not necessarily a key frame) associated with a media item that
      * is located closest to or at the given time.
      *
      * @see #seekTo(long, int)
@@ -619,7 +619,7 @@ public abstract class MediaPlayer2 {
      * position or mode is different.
      *
      * @param msec the offset in milliseconds from the start to seek to.
-     * When seeking to the given time position, there is no guarantee that the data source
+     * When seeking to the given time position, there is no guarantee that the media item
      * has a frame located at the position. When this happens, a frame nearby will be rendered.
      * If msec is negative, time position zero will be used.
      * If msec is larger than duration, duration will be used.
@@ -652,7 +652,7 @@ public abstract class MediaPlayer2 {
     /**
      * Resets the MediaPlayer2 to its uninitialized state. After calling
      * this method, you will have to initialize it again by setting the
-     * data source and calling prepare().
+     * media item and calling prepare().
      */
     // This is a synchronous call.
     public abstract void reset();
@@ -670,7 +670,7 @@ public abstract class MediaPlayer2 {
      * When created, a MediaPlayer2 instance automatically generates its own audio session ID.
      * However, it is possible to force this player to be part of an already existing audio session
      * by calling this method.
-     * This method must be called before one of the overloaded <code> setDataSource </code> methods.
+     * This method must be called before one of the overloaded <code> setMediaItem </code> methods.
      */
     // This is an asynchronous call.
     public abstract void setAudioSessionId(int sessionId);
@@ -694,7 +694,7 @@ public abstract class MediaPlayer2 {
      * {@link android.media.audiofx.AudioEffect#getId()} and use it when calling this method
      * to attach the player to the effect.
      * <p>To detach the effect from the player, call this method with a null effect id.
-     * <p>This method must be called after one of the overloaded <code> setDataSource </code>
+     * <p>This method must be called after one of the overloaded <code> setMediaItem </code>
      * methods.
      * @param effectId system wide unique id of the effect to attach
      */
@@ -843,12 +843,12 @@ public abstract class MediaPlayer2 {
          * no display surface was set, or the value was not determined yet.
          *
          * @param mp the MediaPlayer2 associated with this callback
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param width the width of the video
          * @param height the height of the video
          */
         public void onVideoSizeChanged(
-                MediaPlayer2 mp, DataSourceDesc2 dsd, int width, int height) { }
+                MediaPlayer2 mp, MediaItem2 item, int width, int height) { }
 
         /**
          * Called to indicate available timed metadata
@@ -864,45 +864,45 @@ public abstract class MediaPlayer2 {
          * @see TimedMetaData2
          *
          * @param mp the MediaPlayer2 associated with this callback
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param data the timed metadata sample associated with this event
          */
         public void onTimedMetaDataAvailable(
-                MediaPlayer2 mp, DataSourceDesc2 dsd, TimedMetaData2 data) { }
+                MediaPlayer2 mp, MediaItem2 item, TimedMetaData2 data) { }
 
         /**
          * Called to indicate an error.
          *
          * @param mp the MediaPlayer2 the error pertains to
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param what the type of error that has occurred.
          * @param extra an extra code, specific to the error. Typically
          * implementation dependent.
          */
         public void onError(
-                MediaPlayer2 mp, DataSourceDesc2 dsd, @MediaError int what, int extra) { }
+                MediaPlayer2 mp, MediaItem2 item, @MediaError int what, int extra) { }
 
         /**
          * Called to indicate an info or a warning.
          *
          * @param mp the MediaPlayer2 the info pertains to.
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param what the type of info or warning.
          * @param extra an extra code, specific to the info. Typically
          * implementation dependent.
          */
-        public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, @MediaInfo int what, int extra) { }
+        public void onInfo(MediaPlayer2 mp, MediaItem2 item, @MediaInfo int what, int extra) { }
 
         /**
          * Called to acknowledge an API call.
          *
          * @param mp the MediaPlayer2 the call was made on.
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param what the enum for the API call.
          * @param status the returned status code for the call.
          */
         public void onCallCompleted(
-                MediaPlayer2 mp, DataSourceDesc2 dsd, @CallCompleted int what,
+                MediaPlayer2 mp, MediaItem2 item, @CallCompleted int what,
                 @CallStatus int status) { }
 
         /**
@@ -921,12 +921,12 @@ public abstract class MediaPlayer2 {
          * </ul>
          *
          * @param mp the MediaPlayer2 the media time pertains to.
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param timestamp the timestamp that correlates media time, system time and clock rate,
          *     or {@link MediaTimestamp2#TIMESTAMP_UNKNOWN} in an error case.
          */
         public void onMediaTimeDiscontinuity(
-                MediaPlayer2 mp, DataSourceDesc2 dsd, MediaTimestamp2 timestamp) { }
+                MediaPlayer2 mp, MediaItem2 item, MediaTimestamp2 timestamp) { }
 
         /**
          * Called to indicate {@link #notifyWhenCommandLabelReached(Object)} has been processed.
@@ -940,11 +940,11 @@ public abstract class MediaPlayer2 {
         /**
          * Called when when a player subtitle track has new subtitle data available.
          * @param mp the player that reports the new subtitle data
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param data the subtitle data
          */
         public void onSubtitleData(
-                MediaPlayer2 mp, DataSourceDesc2 dsd, @NonNull SubtitleData2 data) { }
+                MediaPlayer2 mp, MediaItem2 item, @NonNull SubtitleData2 data) { }
     }
 
     /**
@@ -1057,7 +1057,7 @@ public abstract class MediaPlayer2 {
      */
     public static final int MEDIA_INFO_UNKNOWN = 1;
 
-    /** The player just started the playback of this data source.
+    /** The player just started the playback of this media item.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_DATA_SOURCE_START = 2;
@@ -1072,13 +1072,13 @@ public abstract class MediaPlayer2 {
      */
     public static final int MEDIA_INFO_AUDIO_RENDERING_START = 4;
 
-    /** The player just completed the playback of this data source.
+    /** The player just completed the playback of this media item.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_DATA_SOURCE_END = 5;
 
-    /** The player just completed the playback of all the data sources set by {@link #setDataSource}
-     *  , {@link #setNextDataSource} and {@link #setNextDataSources}.
+    /** The player just completed the playback of all the media items set by {@link #setMediaItem}
+     *  , {@link #setNextMediaItem} and {@link #getNextMediaItems}.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_DATA_SOURCE_LIST_END = 6;
@@ -1089,7 +1089,7 @@ public abstract class MediaPlayer2 {
      */
     public static final int MEDIA_INFO_DATA_SOURCE_REPEAT = 7;
 
-    /** The player just prepared a data source.
+    /** The player just prepared a media item.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_PREPARED = 100;
@@ -1273,17 +1273,17 @@ public abstract class MediaPlayer2 {
      */
     public static final int CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL = 18;
 
-    /** The player just completed a call {@link #setDataSource}.
+    /** The player just completed a call {@link #setMediaItem}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_DATA_SOURCE = 19;
 
-    /** The player just completed a call {@link #setNextDataSource}.
+    /** The player just completed a call {@link #setNextMediaItem}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_NEXT_DATA_SOURCE = 22;
 
-    /** The player just completed a call {@link #setNextDataSources}.
+    /** The player just completed a call {@link #getNextMediaItems}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_NEXT_DATA_SOURCES = 23;
@@ -1429,9 +1429,9 @@ public abstract class MediaPlayer2 {
          * Called to give the app the opportunity to configure DRM before the session is created
          *
          * @param mp the {@code MediaPlayer2} associated with this callback
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          */
-        void onDrmConfig(MediaPlayer2 mp, DataSourceDesc2 dsd);
+        void onDrmConfig(MediaPlayer2 mp, MediaItem2 item);
     }
 
     /**
@@ -1454,22 +1454,22 @@ public abstract class MediaPlayer2 {
          * Called to indicate DRM info is available
          *
          * @param mp the {@code MediaPlayer2} associated with this callback
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param drmInfo DRM info of the source including PSSH, and subset
          *                of crypto schemes supported by this device
          */
-        public void onDrmInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, DrmInfo drmInfo) { }
+        public void onDrmInfo(MediaPlayer2 mp, MediaItem2 item, DrmInfo drmInfo) { }
 
         /**
          * Called to notify the client that {@link #prepareDrm} is finished and ready for
          * key request/response.
          *
          * @param mp the {@code MediaPlayer2} associated with this callback
-         * @param dsd the DataSourceDesc2 of this data source
+         * @param item the MediaItem2 of this media item
          * @param status the result of DRM preparation.
          */
         public void onDrmPrepared(
-                MediaPlayer2 mp, DataSourceDesc2 dsd, @PrepareDrmStatusCode int status) { }
+                MediaPlayer2 mp, MediaItem2 item, @PrepareDrmStatusCode int status) { }
     }
 
     /**
@@ -1690,12 +1690,12 @@ public abstract class MediaPlayer2 {
      */
     public abstract static class DrmInfo {
         /**
-         * Returns the PSSH info of the data source for each supported DRM scheme.
+         * Returns the PSSH info of the media item for each supported DRM scheme.
          */
         public abstract Map<UUID, byte[]> getPssh();
 
         /**
-         * Returns the intersection of the data source and the device DRM schemes.
+         * Returns the intersection of the media item and the device DRM schemes.
          * It effectively identifies the subset of the source's DRM schemes which
          * are supported by the device too.
          */

@@ -18,36 +18,49 @@ package androidx.media2;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Preconditions;
+import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * Structure for data source descriptor for {@link DataSourceCallback2}. Used by {@link MediaItem2}.
+ * Structure for media item descriptor for {@link DataSourceCallback2}.
  * <p>
- * Users should use {@link Builder} to create {@link CallbackDataSourceDesc2}.
+ * Users should use {@link Builder} to create {@link CallbackMediaItem2}.
  *
  * @see MediaItem2
  */
-public class CallbackDataSourceDesc2 extends DataSourceDesc2 {
-
+@VersionedParcelize
+public class CallbackMediaItem2 extends MediaItem2 {
+    @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            DataSourceCallback2 mDataSourceCallback2;
+    DataSourceCallback2 mDataSourceCallback2;
 
-    CallbackDataSourceDesc2(Builder builder) {
+    /**
+     * Used for VersionedParcelable
+     */
+    CallbackMediaItem2() {
+        // no-op
+    }
+
+    CallbackMediaItem2(Builder builder) {
         super(builder);
         mDataSourceCallback2 = builder.mDataSourceCallback2;
     }
 
     /**
-     * Return the DataSourceCallback2 that implements the callback for this data source.
-     * @return the DataSourceCallback2 that implements the callback for this data source,
+     * Return the DataSourceCallback2 that implements the callback for the data source of this media
+     * item.
+     *
+     * @return the DataSourceCallback2 that implements the callback for the data source of this
+     *         media item,
      */
     public @NonNull DataSourceCallback2 getDataSourceCallback2() {
         return mDataSourceCallback2;
     }
 
     /**
-     * This Builder class simplifies the creation of a {@link CallbackDataSourceDesc2} object.
+     * This Builder class simplifies the creation of a {@link CallbackMediaItem2} object.
      */
-    public static final class Builder extends DataSourceDesc2.Builder<Builder> {
+    public static final class Builder extends BuilderBase<Builder> {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         DataSourceCallback2 mDataSourceCallback2;
@@ -57,16 +70,17 @@ public class CallbackDataSourceDesc2 extends DataSourceDesc2 {
          * @param dsc2 the DataSourceCallback2 for the media you want to play
          */
         public Builder(@NonNull DataSourceCallback2 dsc2) {
+            super(FLAG_PLAYABLE);
             Preconditions.checkNotNull(dsc2);
             mDataSourceCallback2 = dsc2;
         }
 
         /**
-         * @return A new CallbackDataSourceDesc2 with values supplied by the Builder.
+         * @return A new CallbackMediaItem2 with values supplied by the Builder.
          */
         @Override
-        public CallbackDataSourceDesc2 build() {
-            return new CallbackDataSourceDesc2(this);
+        public CallbackMediaItem2 build() {
+            return new CallbackMediaItem2(this);
         }
     }
 }
