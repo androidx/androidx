@@ -25,7 +25,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -68,8 +67,6 @@ import java.util.List;
  *     the end of item.
  *     <ul>
  *         <li>Supplemental Icon
- *         <li>One Action Button
- *         <li>Two Action Buttons
  *         <li>Switch
  *     </ul>
  * </ul>
@@ -113,16 +110,14 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private static final int PRIMARY_ACTION_TYPE_ICON = 2;
 
     @Retention(SOURCE)
-    @IntDef({SUPPLEMENTAL_ACTION_NO_ACTION, SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON,
-            SUPPLEMENTAL_ACTION_ONE_ACTION, SUPPLEMENTAL_ACTION_TWO_ACTIONS,
+    @IntDef({SUPPLEMENTAL_ACTION_NO_ACTION,
+            SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON,
             SUPPLEMENTAL_ACTION_SWITCH})
     private @interface SupplementalActionType {}
 
     private static final int SUPPLEMENTAL_ACTION_NO_ACTION = 0;
     private static final int SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON = 1;
-    private static final int SUPPLEMENTAL_ACTION_ONE_ACTION = 2;
-    private static final int SUPPLEMENTAL_ACTION_TWO_ACTIONS = 3;
-    private static final int SUPPLEMENTAL_ACTION_SWITCH = 4;
+    private static final int SUPPLEMENTAL_ACTION_SWITCH = 2;
 
     private final Context mContext;
     private boolean mIsEnabled = true;
@@ -152,13 +147,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private boolean mShouldNotifySwitchChecked;
     private boolean mShowSwitchDivider;
     private CompoundButton.OnCheckedChangeListener mSwitchOnCheckedChangeListener;
-
-    private String mAction1Text;
-    private View.OnClickListener mAction1OnClickListener;
-    private boolean mShowAction1Divider;
-    private String mAction2Text;
-    private View.OnClickListener mAction2OnClickListener;
-    private boolean mShowAction2Divider;
 
     /**
      * Creates a {@link TextListItem.ViewHolder}.
@@ -491,32 +479,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                             hasClickListener ? View.VISIBLE : View.GONE);
                 });
                 break;
-            case SUPPLEMENTAL_ACTION_TWO_ACTIONS:
-                mBinders.add(vh -> {
-                    vh.getAction2().setVisibility(View.VISIBLE);
-                    if (mShowAction2Divider) {
-                        vh.getAction2Divider().setVisibility(View.VISIBLE);
-                    }
-
-                    vh.getAction2().setText(mAction2Text);
-                    vh.getAction2().setOnClickListener(mAction2OnClickListener);
-                });
-                // Fall through
-            case SUPPLEMENTAL_ACTION_ONE_ACTION:
-                mBinders.add(vh -> {
-                    vh.getAction1().setVisibility(View.VISIBLE);
-                    if (mShowAction1Divider) {
-                        vh.getAction1Divider().setVisibility(View.VISIBLE);
-                    }
-
-                    vh.getAction1().setText(mAction1Text);
-                    vh.getAction1().setOnClickListener(mAction1OnClickListener);
-
-                    // Buttons are always clickable, so activate the intercept view.
-                    vh.getClickInterceptView().setClickable(true);
-                    vh.getClickInterceptView().setVisibility(View.VISIBLE);
-                });
-                break;
             case SUPPLEMENTAL_ACTION_NO_ACTION:
                 // If there's not action, then no need for the intercept view to stop touches.
                 mBinders.add(vh -> vh.getClickInterceptView().setClickable(false));
@@ -700,64 +662,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Action Button}.
-     *
-     * @param text button text to display.
-     * @param showDivider whether to display a vertical bar that separates {@code Text} and
-     *                    {@code Action Button}.
-     * @param listener the callback that will run when action button is clicked.
-     * @deprecated Use {@link ActionListItem} for a {@code ListItem} with action buttons.
-     */
-    @Deprecated
-    public void setAction(String text, boolean showDivider, View.OnClickListener listener) {
-        if (TextUtils.isEmpty(text)) {
-            throw new IllegalArgumentException("Action text cannot be empty.");
-        }
-        if (listener == null) {
-            throw new IllegalArgumentException("Action OnClickListener cannot be null.");
-        }
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_ONE_ACTION;
-
-        mAction1Text = text;
-        mAction1OnClickListener = listener;
-        mShowAction1Divider = showDivider;
-
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Supplemental Action} to be represented by two {@code Action Button}s.
-     *
-     * <p>These two action buttons will be aligned towards item end.
-     *
-     * @param action1Text button text to display - this button will be closer to item end.
-     * @param action2Text button text to display.
-     * @deprecated Use {@link ActionListItem} for a {@code ListItem} with action buttons.
-     */
-    @Deprecated
-    public void setActions(String action1Text, boolean showAction1Divider,
-            View.OnClickListener action1OnClickListener,
-            String action2Text, boolean showAction2Divider,
-            View.OnClickListener action2OnClickListener) {
-        if (TextUtils.isEmpty(action1Text) || TextUtils.isEmpty(action2Text)) {
-            throw new IllegalArgumentException("Action text cannot be empty.");
-        }
-        if (action1OnClickListener == null || action2OnClickListener == null) {
-            throw new IllegalArgumentException("Action OnClickListener cannot be null.");
-        }
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_TWO_ACTIONS;
-
-        mAction1Text = action1Text;
-        mAction1OnClickListener = action1OnClickListener;
-        mShowAction1Divider = showAction1Divider;
-        mAction2Text = action2Text;
-        mAction2OnClickListener = action2OnClickListener;
-        mShowAction2Divider = showAction2Divider;
-
-        markDirty();
-    }
-
-    /**
      * Sets {@code Supplemental Action} to be represented by a {@link android.widget.Switch}.
      *
      * @param checked initial value for switched.
@@ -811,12 +715,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         private View mSupplementalIconDivider;
         private ImageView mSupplementalIcon;
 
-        private Button mAction1;
-        private View mAction1Divider;
-
-        private Button mAction2;
-        private View mAction2Divider;
-
         private Switch mSwitch;
         private View mSwitchDivider;
         private View mClickInterceptor;
@@ -837,11 +735,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             mSwitch = itemView.findViewById(R.id.switch_widget);
             mSwitchDivider = itemView.findViewById(R.id.switch_divider);
 
-            mAction1 = itemView.findViewById(R.id.action1);
-            mAction1Divider = itemView.findViewById(R.id.action1_divider);
-            mAction2 = itemView.findViewById(R.id.action2);
-            mAction2Divider = itemView.findViewById(R.id.action2_divider);
-
             mClickInterceptor = itemView.findViewById(R.id.click_interceptor);
 
             int minTouchSize = itemView.getContext().getResources()
@@ -859,7 +752,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                     mTitle, mBody,
                     // Supplemental actions include icon, action button, and switch.
                     mSupplementalIcon, mSupplementalIconDivider,
-                    mAction1, mAction1Divider, mAction2, mAction2Divider,
                     mSwitch, mSwitchDivider,
                     // Click intercept view that is underneath any supplemental actions
                     mClickInterceptor
@@ -916,26 +808,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         @NonNull
         public Switch getSwitch() {
             return mSwitch;
-        }
-
-        @NonNull
-        public Button getAction1() {
-            return mAction1;
-        }
-
-        @NonNull
-        public View getAction1Divider() {
-            return mAction1Divider;
-        }
-
-        @NonNull
-        public Button getAction2() {
-            return mAction2;
-        }
-
-        @NonNull
-        public View getAction2Divider() {
-            return mAction2Divider;
         }
 
         @NonNull
