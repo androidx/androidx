@@ -26,7 +26,9 @@ import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -40,6 +42,8 @@ import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
 import org.junit.Test;
+
+import javax.annotation.Nullable;
 
 @MediumTest
 public class ChangeImageTransformTest extends BaseTransitionTest {
@@ -86,6 +90,16 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
         transformImage(ImageView.ScaleType.FIT_START, ImageView.ScaleType.CENTER);
         verifyMatrixMatches(fitStartMatrix(), mStartMatrix);
         verifyMatrixMatches(centerMatrix(), mEndMatrix);
+    }
+
+    @Test
+    public void testNoAnimationForDrawableWithoutSize() throws Throwable {
+        transformImage(ImageView.ScaleType.FIT_XY,
+                ImageView.ScaleType.CENTER_CROP,
+                new ColorDrawable(Color.WHITE),
+                true);
+        assertNull(mStartMatrix);
+        assertNull(mEndMatrix);
     }
 
     private Matrix centerMatrix() {
@@ -217,9 +231,16 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
         }
     }
 
-    private void transformImage(ImageView.ScaleType startScale, final ImageView.ScaleType endScale)
-            throws Throwable {
-        final ImageView imageView = enterImageViewScene(startScale);
+    private void transformImage(final ImageView.ScaleType startScale,
+            final ImageView.ScaleType endScale) throws Throwable {
+        transformImage(startScale, endScale, null, startScale == endScale);
+    }
+
+    private void transformImage(final ImageView.ScaleType startScale,
+            final ImageView.ScaleType endScale,
+            @Nullable final Drawable image,
+            final boolean noAnimationExpected) throws Throwable {
+        final ImageView imageView = enterImageViewScene(startScale, image);
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -228,21 +249,26 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
             }
         });
         waitForStart();
-        verify(mListener, (startScale == endScale) ? times(1) : never())
+        verify(mListener, (noAnimationExpected) ? times(1) : never())
                 .onTransitionEnd(any(Transition.class));
         waitForEnd();
     }
 
-    private ImageView enterImageViewScene(final ImageView.ScaleType scaleType) throws Throwable {
+    private ImageView enterImageViewScene(final ImageView.ScaleType scaleType,
+            @Nullable final Drawable image) throws Throwable {
         enterScene(R.layout.scene4);
-        final ViewGroup container = (ViewGroup) rule.getActivity().findViewById(R.id.holder);
+        final ViewGroup container = rule.getActivity().findViewById(R.id.holder);
         final ImageView[] imageViews = new ImageView[1];
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mImageView = new ImageView(rule.getActivity());
-                mImage = ActivityCompat.getDrawable(rule.getActivity(),
-                        android.R.drawable.ic_media_play);
+                if (image != null) {
+                    mImage = image;
+                } else {
+                    mImage = ActivityCompat.getDrawable(rule.getActivity(),
+                            android.R.drawable.ic_media_play);
+                }
                 mImageView.setImageDrawable(mImage);
                 mImageView.setScaleType(scaleType);
                 imageViews[0] = mImageView;
