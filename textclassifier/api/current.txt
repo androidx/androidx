@@ -109,8 +109,7 @@ package androidx.textclassifier {
   }
 
   public final class TextLinks {
-    method public int apply(android.widget.TextView, androidx.textclassifier.TextLinksParams);
-    method public int apply(android.content.Context, android.text.Spannable, androidx.textclassifier.TextLinksParams);
+    method public int apply(android.text.Spannable, androidx.textclassifier.TextClassifier, androidx.textclassifier.TextLinksParams);
     method public static androidx.textclassifier.TextLinks createFromBundle(android.os.Bundle);
     method public java.util.Collection<androidx.textclassifier.TextLinks.TextLink> getLinks();
     method public android.os.Bundle toBundle();

@@ -28,9 +28,7 @@ import static org.junit.Assert.assertEquals;
 import android.content.Context;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
-import android.widget.TextView;
 
 import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
@@ -161,7 +159,8 @@ public final class TextLinksTest {
         TextLinks textLinks = new TextLinks.Builder(text).build();
 
         Context context = InstrumentationRegistry.getContext();
-        int status = textLinks.apply(context, text, TextLinksParams.DEFAULT_PARAMS);
+        TextClassifier textClassifier = TextClassificationManager.of(context).getTextClassifier();
+        int status = textLinks.apply(text, textClassifier, TextLinksParams.DEFAULT_PARAMS);
         assertThat(status).isEqualTo(TextLinks.STATUS_NO_LINKS_FOUND);
 
         final TextLinks.TextLinkSpan[] spans =
@@ -177,27 +176,11 @@ public final class TextLinksTest {
                 .build();
 
         Context context = InstrumentationRegistry.getContext();
-        int status = textLinks.apply(context, text, TextLinksParams.DEFAULT_PARAMS);
+        TextClassifier textClassifier = TextClassificationManager.of(context).getTextClassifier();
+        int status = textLinks.apply(text, textClassifier, TextLinksParams.DEFAULT_PARAMS);
         assertThat(status).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
 
         assertAppliedSpannable(text);
-    }
-
-    @Test
-    public void testApply_textview() {
-        SpannableString text = new SpannableString(FULL_TEXT);
-        TextLinks textLinks = new TextLinks.Builder(text)
-                .addLink(START, END, Collections.singletonMap(TextClassifier.TYPE_PHONE, 1.0f))
-                .build();
-
-        final TextView textView = new TextView(InstrumentationRegistry.getTargetContext());
-        textView.setText(text);
-
-        int status = textLinks.apply(textView, TextLinksParams.DEFAULT_PARAMS);
-        assertThat(status).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);
-        assertThat(textView.getMovementMethod()).isInstanceOf(LinkMovementMethod.class);
-
-        assertAppliedSpannable((Spannable) textView.getText());
     }
 
     private void assertAppliedSpannable(Spannable spannable) {
