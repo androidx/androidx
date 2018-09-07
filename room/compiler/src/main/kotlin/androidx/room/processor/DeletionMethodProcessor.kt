@@ -16,9 +16,7 @@
 package androidx.room.processor
 
 import androidx.room.Delete
-import androidx.room.ext.typeName
 import androidx.room.vo.DeletionMethod
-import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
@@ -34,7 +32,6 @@ class DeletionMethodProcessor(
         delegate.extractAnnotation(Delete::class, ProcessorErrors.MISSING_DELETE_ANNOTATION)
 
         val returnType = delegate.extractReturnType()
-        val returnTypeName = returnType.typeName()
 
         val methodBinder = context.typeAdapterStore
                 .findDeleteOrUpdateMethodBinder(returnType)
@@ -53,7 +50,6 @@ class DeletionMethodProcessor(
                 element = delegate.executableElement,
                 name = delegate.executableElement.simpleName.toString(),
                 entities = entities,
-                returnCount = returnTypeName == TypeName.INT,
                 parameters = params,
                 methodBinder = methodBinder
         )

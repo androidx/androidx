@@ -54,7 +54,6 @@ abstract class DeleteOrUpdateMethodBinder(val adapter: DeleteOrUpdateMethodAdapt
      * ```
      */
     abstract fun convertAndReturn(
-        returnCount: Boolean,
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
         scope: CodeGenScope
