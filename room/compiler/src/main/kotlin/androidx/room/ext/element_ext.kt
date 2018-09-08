@@ -155,7 +155,7 @@ fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T> {
     })
 }
 
-fun <T : Annotation> TypeElement.toAnnotationBox(cl: Class<T>) =
+fun <T : Annotation> Element.toAnnotationBox(cl: Class<T>) =
         MoreElements.getAnnotationMirror(this, cl).orNull()?.box(cl)
 
 private class ListVisitor<T : Annotation>(private val annotationClass: Class<T>)
