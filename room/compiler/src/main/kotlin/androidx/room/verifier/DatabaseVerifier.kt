@@ -34,7 +34,10 @@ import javax.lang.model.element.Element
  * This class is also used to resolve the return types.
  */
 class DatabaseVerifier private constructor(
-        val connection: Connection, val context: Context, val entities: List<Entity>) {
+    val connection: Connection,
+    val context: Context,
+    val entities: List<Entity>
+) {
     companion object {
         private const val CONNECTION_URL = "jdbc:sqlite::memory:"
         /**
@@ -93,10 +96,14 @@ class DatabaseVerifier private constructor(
             }
         }
     }
+
     init {
         entities.forEach { entity ->
             val stmt = connection.createStatement()
             stmt.executeUpdate(stripLocalizeCollations(entity.createTableQuery))
+            entity.indices.forEach {
+                stmt.executeUpdate(it.createQuery(entity.tableName))
+            }
         }
     }
 
@@ -110,14 +117,14 @@ class DatabaseVerifier private constructor(
     }
 
     private fun stripLocalizeCollations(sql: String) =
-        COLLATE_LOCALIZED_UNICODE_PATTERN.matcher(sql).replaceAll(" COLLATE NOCASE")
+            COLLATE_LOCALIZED_UNICODE_PATTERN.matcher(sql).replaceAll(" COLLATE NOCASE")
 
     fun closeConnection(context: Context) {
         if (!connection.isClosed) {
             try {
                 connection.close()
             } catch (t: Throwable) {
-                //ignore.
+                // ignore.
                 context.logger.d("failed to close the database connection ${t.message}")
             }
         }
