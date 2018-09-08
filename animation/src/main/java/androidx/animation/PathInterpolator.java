@@ -20,8 +20,6 @@ import android.content.res.Resources;
 import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.graphics.Path;
-import android.graphics.PathMeasure;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.InflateException;
 
@@ -48,10 +46,9 @@ public class PathInterpolator implements Interpolator {
 
     // This governs how accurate the approximation of the Path is.
     private static final float PRECISION = 0.002f;
+    private static final float EPSILON = 0.01f;
 
-    private float[] mX; // x coordinates in the line
-
-    private float[] mY; // y coordinates in the line
+    private float[] mData;
 
     /**
      * Create an interpolator for an arbitrary <code>Path</code>. The <code>Path</code>
@@ -157,54 +154,31 @@ public class PathInterpolator implements Interpolator {
     }
 
     private void initPath(Path path) {
-        if (Build.VERSION.SDK_INT >= 26) {
-            float[] pointComponents = path.approximate(PRECISION);
+        mData = PathUtils.createKeyFrameData(path, PRECISION);
 
-            int numPoints = pointComponents.length / 3;
-            if (pointComponents[1] != 0 || pointComponents[2] != 0
-                    || pointComponents[pointComponents.length - 2] != 1
-                    || pointComponents[pointComponents.length - 1] != 1) {
-                throw new IllegalArgumentException("The Path must start at (0,0) and end at (1,1)");
+        int numPoints = getNumOfPoints();
+
+        // Sanity check
+        if (!floatEquals(getXAtIndex(0), 0f) || !floatEquals(getYAtIndex(0), 0f)
+                || !floatEquals(getXAtIndex(numPoints - 1), 1f)
+                || !floatEquals(getYAtIndex(numPoints - 1), 1f)) {
+            throw new IllegalArgumentException("The Path must start at (0,0) and end at (1,1)");
+        }
+
+        float prevX = 0;
+        float prevFraction = 0;
+        for (int i = 0; i < numPoints; i++) {
+            float fraction = getFractionAtIndex(i);
+            float x = getXAtIndex(i);
+            if (fraction == prevFraction && x != prevX) {
+                throw new IllegalArgumentException(
+                        "The Path cannot have discontinuity in the X axis.");
             }
-
-            mX = new float[numPoints];
-            mY = new float[numPoints];
-            float prevX = 0;
-            float prevFraction = 0;
-            int componentIndex = 0;
-            for (int i = 0; i < numPoints; i++) {
-                float fraction = pointComponents[componentIndex++];
-                float x = pointComponents[componentIndex++];
-                float y = pointComponents[componentIndex++];
-                if (fraction == prevFraction && x != prevX) {
-                    throw new IllegalArgumentException(
-                            "The Path cannot have discontinuity in the X axis.");
-                }
-                if (x < prevX) {
-                    throw new IllegalArgumentException("The Path cannot loop back on itself.");
-                }
-                mX[i] = x;
-                mY[i] = y;
-                prevX = x;
-                prevFraction = fraction;
+            if (x < prevX) {
+                throw new IllegalArgumentException("The Path cannot loop back on itself.");
             }
-        } else {
-            final PathMeasure pathMeasure = new PathMeasure(path, false);
-
-            final float pathLength = pathMeasure.getLength();
-            final int numPoints = (int) (pathLength / PRECISION) + 1;
-
-            mX = new float[numPoints];
-            mY = new float[numPoints];
-
-            final float[] position = new float[2];
-            for (int i = 0; i < numPoints; ++i) {
-                final float distance = (i * pathLength) / (numPoints - 1);
-                pathMeasure.getPosTan(distance, position, null /* tangent */);
-
-                mX[i] = position[0];
-                mY[i] = position[1];
-            }
+            prevFraction = fraction;
+            prevX = x;
         }
     }
 
@@ -227,28 +201,48 @@ public class PathInterpolator implements Interpolator {
         }
         // Do a binary search for the correct x to interpolate between.
         int startIndex = 0;
-        int endIndex = mX.length - 1;
+        int endIndex = getNumOfPoints() - 1;
 
         while (endIndex - startIndex > 1) {
             int midIndex = (startIndex + endIndex) / 2;
-            if (t < mX[midIndex]) {
+            if (t < getXAtIndex(midIndex)) {
                 endIndex = midIndex;
             } else {
                 startIndex = midIndex;
             }
         }
 
-        float xRange = mX[endIndex] - mX[startIndex];
+        float xRange = getXAtIndex(endIndex) - getXAtIndex(startIndex);
         if (xRange == 0) {
-            return mY[startIndex];
+            return getYAtIndex(startIndex);
         }
 
-        float tInRange = t - mX[startIndex];
+        float tInRange = t - getXAtIndex(startIndex);
         float fraction = tInRange / xRange;
 
-        float startY = mY[startIndex];
-        float endY = mY[endIndex];
+        float startY = getYAtIndex(startIndex);
+        float endY = getYAtIndex(endIndex);
         return startY + (fraction * (endY - startY));
+    }
+
+    private float getFractionAtIndex(int index) {
+        return mData[3 * index];
+    }
+
+    private float getXAtIndex(int index) {
+        return mData[3 * index + 1];
+    }
+
+    private float getYAtIndex(int index) {
+        return mData[3 * index + 2];
+    }
+
+    private int getNumOfPoints() {
+        return mData.length / 3;
+    }
+
+    private static boolean floatEquals(float a, float b) {
+        return Math.abs(a - b) < EPSILON;
     }
 
 }
