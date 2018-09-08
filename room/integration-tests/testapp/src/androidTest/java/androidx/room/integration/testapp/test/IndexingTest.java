@@ -26,6 +26,7 @@ import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
 import androidx.room.Index;
+import androidx.room.Insert;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
@@ -56,6 +57,13 @@ public class IndexingTest {
         public String field2;
         @ColumnInfo(index = true, name = "my_field")
         public String field3;
+
+        Entity1(int mId, String field1, String field2, String field3) {
+            this.mId = mId;
+            this.field1 = field1;
+            this.field2 = field2;
+            this.field3 = field3;
+        }
     }
 
     static class IndexInfo {
@@ -63,6 +71,14 @@ public class IndexingTest {
         @ColumnInfo(name = "tbl_name")
         public String tableName;
         public String sql;
+    }
+
+    @Dao
+    public interface Entity1Dao {
+        @Insert
+        void insert(Entity1 item);
+        @Query("SELECT * FROM foo_table indexed by customIndex where field2 = :inp")
+        List<Entity1> indexedBy(String inp);
     }
 
     @Dao
@@ -74,6 +90,7 @@ public class IndexingTest {
     @Database(entities = {Entity1.class}, version = 1, exportSchema = false)
     abstract static class IndexingDb extends RoomDatabase {
         abstract SqlMasterDao sqlMasterDao();
+        abstract Entity1Dao entity1Dao();
     }
 
     @Test
@@ -93,5 +110,14 @@ public class IndexingTest {
                 + " ON `foo_table` (`field2`)"));
         assertThat(indices.get(3).sql, is("CREATE INDEX `index_foo_table_my_field`"
                 + " ON `foo_table` (`my_field`)"));
+    }
+
+    @Test
+    public void indexedByQuery() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        IndexingDb db = Room.inMemoryDatabaseBuilder(context, IndexingDb.class).build();
+        db.entity1Dao().insert(new Entity1(1, "a", "b", "c"));
+        List<Entity1> result = db.entity1Dao().indexedBy("b");
+        assertThat(result.size(), is(1));
     }
 }
