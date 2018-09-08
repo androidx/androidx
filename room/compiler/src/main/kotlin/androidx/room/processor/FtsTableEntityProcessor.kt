@@ -16,17 +16,13 @@
 
 package androidx.room.processor
 
+import androidx.room.Fts3
+import androidx.room.Fts4
 import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
-import androidx.room.FtsOptions.Tokenizer
 import androidx.room.ext.AnnotationBox
-import androidx.room.ext.getAsEnum
-import androidx.room.ext.getAsIntList
-import androidx.room.ext.getAsString
-import androidx.room.ext.getAsStringList
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.toAnnotationBox
-import androidx.room.ext.toType
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
@@ -39,13 +35,10 @@ import androidx.room.vo.FtsEntity
 import androidx.room.vo.FtsOptions
 import androidx.room.vo.LanguageId
 import androidx.room.vo.PrimaryKey
-import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import javax.lang.model.element.AnnotationMirror
-import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeMirror
 
 class FtsTableEntityProcessor internal constructor(
     baseContext: Context,
@@ -89,14 +82,11 @@ class FtsTableEntityProcessor internal constructor(
 
         context.checker.check(pojo.relations.isEmpty(), element, ProcessorErrors.RELATION_IN_ENTITY)
 
-        val (ftsVersion, ftsAnnotation) = if (element.hasAnnotation(androidx.room.Fts3::class)) {
-            FtsVersion.FTS3 to MoreElements.getAnnotationMirror(element,
-                    androidx.room.Fts3::class.java).orNull()
+        val (ftsVersion, ftsOptions) = if (element.hasAnnotation(androidx.room.Fts3::class)) {
+            FtsVersion.FTS3 to getFts3Options(element.toAnnotationBox(Fts3::class.java)!!)
         } else {
-            FtsVersion.FTS4 to MoreElements.getAnnotationMirror(element,
-                    androidx.room.Fts4::class.java).orNull()
+            FtsVersion.FTS4 to getFts4Options(element.toAnnotationBox(Fts4::class.java)!!)
         }
-        val ftsOptions = getAnnotationFtsOptions(ftsVersion, ftsAnnotation)
 
         val shadowTableName = if (ftsOptions.contentEntity != null) {
             // In 'external content' mode the FTS table content is in another table.
@@ -139,90 +129,47 @@ class FtsTableEntityProcessor internal constructor(
         return entity
     }
 
-    private fun getAnnotationFtsOptions(
-        version: FtsVersion,
-        annotation: AnnotationMirror?
-    ): FtsOptions {
-        if (annotation == null) {
-            return FtsOptions(
-                    tokenizer = Tokenizer.SIMPLE,
-                    tokenizerArgs = emptyList(),
-                    contentEntity = null,
-                    languageIdColumnName = "",
-                    matchInfo = MatchInfo.FTS4,
-                    notIndexedColumns = emptyList(),
-                    prefixSizes = emptyList(),
-                    preferredOrder = Order.ASC)
-        }
+    private fun getFts3Options(annotation: AnnotationBox<Fts3>) =
+        FtsOptions(
+            tokenizer = annotation.value.tokenizer,
+            tokenizerArgs = annotation.value.tokenizerArgs.asList(),
+            contentEntity = null,
+            languageIdColumnName = "",
+            matchInfo = MatchInfo.FTS4,
+            notIndexedColumns = emptyList(),
+            prefixSizes = emptyList(),
+            preferredOrder = Order.ASC)
 
-        val tokenizer = AnnotationMirrors.getAnnotationValue(annotation, "tokenizer")
-                .getAsEnum(Tokenizer::class.java)
-        val tokenizerArgs = AnnotationMirrors.getAnnotationValue(annotation, "tokenizerArgs")
-                .getAsStringList()
-
-        val contentEntity: Entity?
-        val languageIdColumnName: String
-        val matchInfo: MatchInfo
-        val notIndexedColumns: List<String>
-        val prefixSizes: List<Int>
-        val preferredOrder: Order
-        if (version == FtsVersion.FTS4) {
-            contentEntity = getContentEntity(
-                    AnnotationMirrors.getAnnotationValue(annotation, "contentEntity"))
-            languageIdColumnName = AnnotationMirrors.getAnnotationValue(annotation, "languageId")
-                    .getAsString() ?: ""
-            matchInfo = AnnotationMirrors.getAnnotationValue(annotation, "matchInfo")
-                    .getAsEnum(MatchInfo::class.java)
-            notIndexedColumns = AnnotationMirrors.getAnnotationValue(annotation, "notIndexed")
-                    .getAsStringList()
-            prefixSizes = AnnotationMirrors.getAnnotationValue(annotation, "prefix")
-                    .getAsIntList()
-            preferredOrder = AnnotationMirrors.getAnnotationValue(annotation, "order")
-                    .getAsEnum(Order::class.java)
-        } else {
-            contentEntity = null
-            languageIdColumnName = ""
-            matchInfo = MatchInfo.FTS4
-            notIndexedColumns = emptyList()
-            prefixSizes = emptyList()
-            preferredOrder = Order.ASC
-        }
-
+    private fun getFts4Options(annotation: AnnotationBox<Fts4>): FtsOptions {
+        val contentEntity: Entity? = getContentEntity(annotation.getAsTypeMirror("contentEntity"))
         return FtsOptions(
-                tokenizer = tokenizer,
-                tokenizerArgs = tokenizerArgs,
+                tokenizer = annotation.value.tokenizer,
+                tokenizerArgs = annotation.value.tokenizerArgs.asList(),
                 contentEntity = contentEntity,
-                languageIdColumnName = languageIdColumnName,
-                matchInfo = matchInfo,
-                notIndexedColumns = notIndexedColumns,
-                prefixSizes = prefixSizes,
-                preferredOrder = preferredOrder)
+                languageIdColumnName = annotation.value.languageId,
+                matchInfo = annotation.value.matchInfo,
+                notIndexedColumns = annotation.value.notIndexed.asList(),
+                prefixSizes = annotation.value.prefix.asList(),
+                preferredOrder = annotation.value.order)
     }
 
-    private fun getContentEntity(annotationValue: AnnotationValue): Entity? {
-        val contentEntityElement = try {
-            val entityType = annotationValue.toType()
-            val defaultType = context.processingEnv.elementUtils
-                    .getTypeElement(Object::class.java.canonicalName).asType()
-            if (!context.processingEnv.typeUtils.isSameType(entityType, defaultType)) {
-                MoreTypes.asElement(entityType) as TypeElement
-            } else {
-                return null
-            }
-        } catch (notPresent: TypeNotPresentException) {
-            context.logger.e(element, ProcessorErrors.FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY)
-            return null
-        } catch (noClass: IllegalArgumentException) {
+    private fun getContentEntity(entityType: TypeMirror?): Entity? {
+        if (entityType == null) {
             context.logger.e(element, ProcessorErrors.FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY)
             return null
         }
 
+        val defaultType = context.processingEnv.elementUtils
+                    .getTypeElement(Object::class.java.canonicalName).asType()
+        if (context.processingEnv.typeUtils.isSameType(entityType, defaultType)) {
+            return null
+        }
+        val contentEntityElement = MoreTypes.asElement(entityType) as TypeElement
         if (!contentEntityElement.hasAnnotation(androidx.room.Entity::class)) {
             context.logger.e(contentEntityElement,
                     ProcessorErrors.externalContentNotAnEntity(contentEntityElement.toString()))
             return null
         }
-
         return EntityProcessor(context, contentEntityElement, referenceStack).process()
     }
 

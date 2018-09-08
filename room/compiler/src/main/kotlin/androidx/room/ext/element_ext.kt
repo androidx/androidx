@@ -126,6 +126,7 @@ fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T> {
             returnType == Boolean::class.java -> value.getAsBoolean(defaultValue as Boolean)
             returnType == String::class.java -> value.getAsString(defaultValue as String?)
             returnType == Array<String>::class.java -> value.getAsStringList().toTypedArray()
+            returnType == IntArray::class.java -> value.getAsIntList().toIntArray()
             returnType == Class::class.java -> {
                 try {
                     value.toClassType()
@@ -138,6 +139,8 @@ fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T> {
                 @Suppress("UNCHECKED_CAST")
                 ListVisitor(returnType.componentType as Class<out Annotation>).visit(value)
             }
+            returnType.isEnum -> value.getAsEnum(returnType as Class<out Enum<*>>)
+
             else -> throw UnsupportedOperationException("$returnType isn't supported")
         }
         method.name to result
@@ -282,7 +285,7 @@ fun AnnotationValue.getAsStringList(): List<String> {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Enum<T>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
+fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
     return object : SimpleAnnotationValueVisitor6<T, Void>() {
         override fun visitEnumConstant(value: VariableElement?, p: Void?): T {
             return enumClass.getDeclaredMethod("valueOf", String::class.java)
