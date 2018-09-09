@@ -16,8 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.getAsBoolean
-import androidx.room.ext.getAsStringList
 import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
@@ -36,8 +34,6 @@ import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import androidx.room.vo.PrimaryKey
 import androidx.room.vo.Warning
-import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
@@ -216,14 +212,13 @@ class TableEntityProcessor internal constructor(
                 context.logger.e(element, ProcessorErrors.FOREIGN_KEY_CANNOT_FIND_PARENT)
                 return@map null
             }
-            val parentAnnotation = MoreElements.getAnnotationMirror(parentElement,
-                    androidx.room.Entity::class.java).orNull()
+            val parentAnnotation = parentElement.toAnnotationBox(androidx.room.Entity::class.java)
             if (parentAnnotation == null) {
                 context.logger.e(element,
                         ProcessorErrors.foreignKeyNotAnEntity(parentElement.toString()))
                 return@map null
             }
-            val tableName = extractTableName(parentElement, parentAnnotation)
+            val tableName = extractTableName(parentElement, parentAnnotation.value)
             val fields = it.childColumns.mapNotNull { columnName ->
                 val field = pojo.fields.find { it.columnName == columnName }
                 if (field == null) {
@@ -296,8 +291,7 @@ class TableEntityProcessor internal constructor(
      */
     private fun collectPrimaryKeysFromPrimaryKeyAnnotations(fields: List<Field>): List<PrimaryKey> {
         return fields.mapNotNull { field ->
-            MoreElements.getAnnotationMirror(field.element,
-                    androidx.room.PrimaryKey::class.java).orNull()?.let {
+            field.element.toAnnotationBox(androidx.room.PrimaryKey::class.java)?.let {
                 if (field.parent != null) {
                     // the field in the entity that contains this error.
                     val grandParentField = field.parent.mRootParent.field.element
@@ -311,9 +305,7 @@ class TableEntityProcessor internal constructor(
                 } else {
                     PrimaryKey(declaredIn = field.element.enclosingElement,
                             fields = listOf(field),
-                            autoGenerateId = AnnotationMirrors
-                                    .getAnnotationValue(it, "autoGenerate")
-                                    .getAsBoolean(false))
+                            autoGenerateId = it.value.autoGenerate)
                 }
             }
         }
@@ -326,10 +318,8 @@ class TableEntityProcessor internal constructor(
         typeElement: TypeElement,
         availableFields: List<Field>
     ): List<PrimaryKey> {
-        val myPkeys = MoreElements.getAnnotationMirror(typeElement,
-                androidx.room.Entity::class.java).orNull()?.let {
-            val primaryKeyColumns = AnnotationMirrors.getAnnotationValue(it, "primaryKeys")
-                    .getAsStringList()
+        val myPkeys = typeElement.toAnnotationBox(androidx.room.Entity::class.java)?.let {
+            val primaryKeyColumns = it.value.primaryKeys
             if (primaryKeyColumns.isEmpty()) {
                 emptyList()
             } else {
@@ -364,16 +354,13 @@ class TableEntityProcessor internal constructor(
         embeddedFields: List<EmbeddedField>
     ): List<PrimaryKey> {
         return embeddedFields.mapNotNull { embeddedField ->
-            MoreElements.getAnnotationMirror(embeddedField.field.element,
-                    androidx.room.PrimaryKey::class.java).orNull()?.let {
-                val autoGenerate = AnnotationMirrors
-                        .getAnnotationValue(it, "autoGenerate").getAsBoolean(false)
-                context.checker.check(!autoGenerate || embeddedField.pojo.fields.size == 1,
+            embeddedField.field.element.toAnnotationBox(androidx.room.PrimaryKey::class.java)?.let {
+                context.checker.check(!it.value.autoGenerate || embeddedField.pojo.fields.size == 1,
                         embeddedField.field.element,
                         ProcessorErrors.AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS)
                 PrimaryKey(declaredIn = embeddedField.field.element.enclosingElement,
                         fields = embeddedField.pojo.fields,
-                        autoGenerateId = autoGenerate)
+                        autoGenerateId = it.value.autoGenerate)
             }
         }
     }

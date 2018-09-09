@@ -82,7 +82,6 @@ object ProcessorErrors {
 
     val DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE = "Dao class must be an abstract class or" +
             " an interface"
-    val DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE = "Database must be annotated with @Database"
     val DAO_MUST_BE_ANNOTATED_WITH_DAO = "Dao class must be annotated with @Dao"
 
     fun daoMustHaveMatchingConstructor(daoName: String, dbName: String): String {

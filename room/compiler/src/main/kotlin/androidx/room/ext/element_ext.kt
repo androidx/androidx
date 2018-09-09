@@ -100,6 +100,7 @@ fun TypeElement.getAllAbstractMethodsIncludingSupers(): Set<ExecutableElement> {
 
 interface ClassGetter {
     fun getAsTypeMirror(methodName: String): TypeMirror?
+    fun getAsTypeMirrorList(methodName: String): List<TypeMirror>
     fun <T : Annotation> getAsAnnotationBox(methodName: String): Array<AnnotationBox<T>>
 }
 
@@ -121,11 +122,11 @@ fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T> {
         val value = AnnotationMirrors.getAnnotationValue(this, method.name)
         val returnType = method.returnType
         val defaultValue = method.defaultValue
-
         val result: Any? = when {
             returnType == Boolean::class.java -> value.getAsBoolean(defaultValue as Boolean)
             returnType == String::class.java -> value.getAsString(defaultValue as String?)
             returnType == Array<String>::class.java -> value.getAsStringList().toTypedArray()
+            returnType == emptyArray<Class<*>>()::class.java -> value.toListOfClassTypes()
             returnType == IntArray::class.java -> value.getAsIntList().toIntArray()
             returnType == Class::class.java -> {
                 try {
@@ -145,10 +146,11 @@ fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T> {
         }
         method.name to result
     }
-    return AnnotationBox(Proxy.newProxyInstance(cl.classLoader,
+    return AnnotationBox(Proxy.newProxyInstance(ClassGetter::class.java.classLoader,
             arrayOf(cl, ClassGetter::class.java)) { _, method, args ->
         when (method.name) {
             ClassGetter::getAsTypeMirror.name -> map[args[0]]
+            ClassGetter::getAsTypeMirrorList.name -> map[args[0]]
             "getAsAnnotationBox" -> map[args[0]]
             else -> map[method.name]
         }
@@ -203,10 +205,6 @@ private val TO_TYPE = object : SimpleAnnotationValueVisitor6<TypeMirror, Void>()
 
 fun AnnotationValue.toListOfClassTypes(): List<TypeMirror> {
     return TO_LIST_OF_TYPES.visit(this)
-}
-
-fun AnnotationValue.toType(): TypeMirror {
-    return TO_TYPE.visit(this)
 }
 
 fun AnnotationValue.toClassType(): TypeMirror? {
@@ -268,19 +266,19 @@ fun AnnotationValue.getAsInt(def: Int? = null): Int? {
     return ANNOTATION_VALUE_TO_INT_VISITOR.visit(this) ?: def
 }
 
-fun AnnotationValue.getAsIntList(): List<Int> {
+private fun AnnotationValue.getAsIntList(): List<Int> {
     return ANNOTATION_VALUE_INT_ARR_VISITOR.visit(this)
 }
 
-fun AnnotationValue.getAsString(def: String? = null): String? {
+private fun AnnotationValue.getAsString(def: String? = null): String? {
     return ANNOTATION_VALUE_TO_STRING_VISITOR.visit(this) ?: def
 }
 
-fun AnnotationValue.getAsBoolean(def: Boolean): Boolean {
+private fun AnnotationValue.getAsBoolean(def: Boolean): Boolean {
     return ANNOTATION_VALUE_TO_BOOLEAN_VISITOR.visit(this) ?: def
 }
 
-fun AnnotationValue.getAsStringList(): List<String> {
+private fun AnnotationValue.getAsStringList(): List<String> {
     return ANNOTATION_VALUE_STRING_ARR_VISITOR.visit(this)
 }
 

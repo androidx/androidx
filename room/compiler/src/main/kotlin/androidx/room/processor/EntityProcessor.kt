@@ -24,8 +24,6 @@ import androidx.room.ext.AnnotationBox
 import androidx.room.ext.hasAnyOf
 import androidx.room.vo.ForeignKeyAction
 import androidx.room.vo.Index
-import com.google.auto.common.AnnotationMirrors.getAnnotationValue
-import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
@@ -34,15 +32,6 @@ interface EntityProcessor {
     fun process(): androidx.room.vo.Entity
 
     companion object {
-        fun extractTableName(element: TypeElement, annotation: AnnotationMirror): String {
-            val annotationValue = getAnnotationValue(annotation, "tableName").value.toString()
-            return if (annotationValue == "") {
-                element.simpleName.toString()
-            } else {
-                annotationValue
-            }
-        }
-
         fun extractTableName(element: TypeElement, annotation: Entity): String {
             return if (annotation.tableName == "") {
                 element.simpleName.toString()

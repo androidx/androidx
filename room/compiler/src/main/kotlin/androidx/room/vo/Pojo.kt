@@ -16,9 +16,9 @@
 
 package androidx.room.vo
 
+import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.processor.EntityProcessor
-import com.google.auto.common.MoreElements
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
@@ -41,10 +41,9 @@ open class Pojo(
      * Might be via Embedded or Relation.
      */
     fun accessedTableNames(): List<String> {
-        val entityAnnotation = MoreElements.getAnnotationMirror(element,
-                androidx.room.Entity::class.java).orNull()
+        val entityAnnotation = element.toAnnotationBox(androidx.room.Entity::class.java)
         return if (entityAnnotation != null) {
-            listOf(EntityProcessor.extractTableName(element, entityAnnotation))
+            listOf(EntityProcessor.extractTableName(element, entityAnnotation.value))
         } else {
             embeddedFields.flatMap {
                 it.pojo.accessedTableNames()
