@@ -37,8 +37,8 @@ class UpdateMethodProcessor(
         val annotation = delegate
                 .extractAnnotation(Update::class, ProcessorErrors.MISSING_UPDATE_ANNOTATION)
 
-        val onConflict = OnConflictProcessor.extractFrom(annotation)
-        context.checker.check(onConflict <= IGNORE && onConflict >= REPLACE,
+        val onConflict = annotation?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
+        context.checker.check(onConflict in REPLACE..IGNORE,
                 executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
 
         val (entities, params) = delegate.extractParams(

@@ -23,7 +23,6 @@ import androidx.room.Relation
 import androidx.room.ext.KotlinMetadataProcessor
 import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
-import androidx.room.ext.getAnnotationValue
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.isAssignableWithoutVariance
@@ -428,10 +427,8 @@ class PojoProcessor private constructor(
             return null
         }
 
-        val fieldPrefix = variableElement
-                .getAnnotationValue(Embedded::class.java, "prefix")
-                ?.toString()
-                ?: ""
+        val fieldPrefix = variableElement.toAnnotationBox(Embedded::class.java)
+                ?.value?.prefix ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
         val embeddedField = Field(
                 variableElement,
