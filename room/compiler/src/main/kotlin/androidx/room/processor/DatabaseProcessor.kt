@@ -55,7 +55,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
     }
 
     private fun doProcess(): Database {
-        val dbAnnotation = element.toAnnotationBox(androidx.room.Database::class.java)!!
+        val dbAnnotation = element.toAnnotationBox(androidx.room.Database::class)!!
 
         val entities = processEntities(dbAnnotation, element)
         validateUniqueTableNames(element, entities)

@@ -427,8 +427,7 @@ class PojoProcessor private constructor(
             return null
         }
 
-        val fieldPrefix = variableElement.toAnnotationBox(Embedded::class.java)
-                ?.value?.prefix ?: ""
+        val fieldPrefix = variableElement.toAnnotationBox(Embedded::class)?.value?.prefix ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
         val embeddedField = Field(
                 variableElement,
@@ -454,7 +453,7 @@ class PojoProcessor private constructor(
         container: DeclaredType?,
         relationElement: VariableElement
     ): androidx.room.vo.Relation? {
-        val annotation = relationElement.toAnnotationBox(Relation::class.java)!!
+        val annotation = relationElement.toAnnotationBox(Relation::class)!!
 
         val parentField = myFields.firstOrNull {
             it.columnName == annotation.value.parentColumn

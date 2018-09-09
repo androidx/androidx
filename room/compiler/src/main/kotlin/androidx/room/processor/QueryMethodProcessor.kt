@@ -65,7 +65,7 @@ class QueryMethodProcessor(
         val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
 
-        val annotation = executableElement.toAnnotationBox(Query::class.java)?.value
+        val annotation = executableElement.toAnnotationBox(Query::class)?.value
         context.checker.check(annotation != null, executableElement,
                 ProcessorErrors.MISSING_QUERY_ANNOTATION)
 

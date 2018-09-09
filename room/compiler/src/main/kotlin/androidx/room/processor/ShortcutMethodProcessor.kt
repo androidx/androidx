@@ -37,7 +37,7 @@ class ShortcutMethodProcessor(
     private val executableType = MoreTypes.asExecutable(asMember)
 
     fun <T : Annotation> extractAnnotation(klass: KClass<T>, errorMsg: String): T? {
-        val annotation = executableElement.toAnnotationBox(klass.java)
+        val annotation = executableElement.toAnnotationBox(klass)
         context.checker.check(annotation != null, executableElement, errorMsg)
         return annotation?.value
     }
