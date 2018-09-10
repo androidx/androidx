@@ -44,11 +44,10 @@
     <string name="sample_route_description">Sample route from Support7Demos</string>
 
     <string name="sample_dynamic_group_mrp_service">Media Route Provider Service Support Library Sample (supporting dynamic group)</string>
-    <string name="dg_fixed_volume_route_name">DG Route 1 (Fixed Volume)</string>
-    <string name="dg_variable_volume_route_name">DG Route 2 (Variable Volume)</string>
-    <string name="dg_not_groupable_route_name">DG Not Groupable Route</string>
-    <string name="dg_variable_volume_route_group_name">DG Variable Volume Route Group</string>
-    <string name="dg_mixed_volume_route_group_name">DG Mixed Volume Route Group</string>
+    <string name="dg_tv_route_name1">DG Route 1 - TV</string>
+    <string name="dg_tv_route_name2">DG Route 2 - TV</string>
+    <string name="dg_speaker_route_name3">DG Route 3 - Speaker</string>
+    <string name="dg_speaker_route_name4">DG Route 4 - Speaker</string>
 
     <!-- GridLayout -->
 
