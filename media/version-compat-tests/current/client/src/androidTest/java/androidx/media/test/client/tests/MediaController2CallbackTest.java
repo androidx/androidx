@@ -121,6 +121,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         assertNotNull(controller);
         waitForConnect(controller, false /* expected */);
         waitForDisconnect(controller, true /* expected */);
+
+        session2.cleanUp();
     }
 
     @Test
