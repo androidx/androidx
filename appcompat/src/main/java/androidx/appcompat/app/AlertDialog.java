@@ -975,6 +975,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * processing is needed, {@link #show()} may be called instead to both
          * create and display the dialog.
          */
+        @NonNull
         public AlertDialog create() {
             // We can't use Dialog's 3-arg constructor with the createThemeContextWrapper param,
             // so we always have to re-set the theme
