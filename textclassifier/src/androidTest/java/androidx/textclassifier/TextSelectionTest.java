@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import android.os.Build;
+import android.os.LocaleList;
 
 import androidx.core.os.LocaleListCompat;
 import androidx.test.filters.SdkSuppress;
@@ -109,6 +110,23 @@ public final class TextSelectionTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    public void testRequestFromPlatform() {
+        android.view.textclassifier.TextSelection.Request platformRequest =
+                new android.view.textclassifier.TextSelection.Request.Builder(
+                        TEXT, START_INDEX, END_INDEX)
+                        .setDefaultLocales((LocaleList) LOCALE_LIST.unwrap())
+                        .build();
+
+        TextSelection.Request request = TextSelection.Request.fromPlatfrom(platformRequest);
+        assertThat(request.getStartIndex()).isEqualTo(START_INDEX);
+        assertThat(request.getEndIndex()).isEqualTo(END_INDEX);
+        assertThat(request.getText()).isEqualTo(TEXT);
+        assertThat(request.getDefaultLocales().toLanguageTags())
+                .isEqualTo(LOCALE_LIST.toLanguageTags());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void testFromPlatform() {
         android.view.textclassifier.TextSelection platformTextSelection =
                 new android.view.textclassifier.TextSelection.Builder(START_INDEX, END_INDEX)
@@ -140,8 +158,8 @@ public final class TextSelectionTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
-    public void testToPlatform() {
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.O_MR1)
+    public void testToPlatform_O() {
         TextSelection reference = createTextSelection();
 
         android.view.textclassifier.TextSelection platformTextSelection =
@@ -149,7 +167,19 @@ public final class TextSelectionTest {
         TextSelection textSelection = TextSelection.fromPlatform(platformTextSelection);
 
         assertTextSelection(textSelection);
+    }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void testToPlatform_P() {
+        TextSelection reference = createTextSelection();
+
+        android.view.textclassifier.TextSelection platformTextSelection =
+                (android.view.textclassifier.TextSelection) reference.toPlatform();
+        TextSelection textSelection = TextSelection.fromPlatform(platformTextSelection);
+
+        assertTextSelection(textSelection);
+        assertThat(textSelection.getId()).isEqualTo(ID);
     }
 
     private void assertTextSelection(TextSelection textSelection) {

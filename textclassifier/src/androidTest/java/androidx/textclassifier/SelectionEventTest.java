@@ -22,12 +22,15 @@ import static androidx.textclassifier.SelectionEvent.INVOCATION_MANUAL;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -49,6 +52,12 @@ public class SelectionEventTest {
             new TextClassificationSessionId("session");
     private static final TextClassificationContext TEXT_CLASSIFICATION_CONTEXT =
             new TextClassificationContext.Builder("pkg", "widget").build();
+    private Context mContext;
+
+    @Before
+    public void setup() {
+        mContext = InstrumentationRegistry.getContext();
+    }
 
     @Test
     public void testToBundle() {
@@ -173,7 +182,7 @@ public class SelectionEventTest {
                 START
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform(mContext);
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionStartedEvent(
@@ -191,7 +200,7 @@ public class SelectionEventTest {
                 END
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform(mContext);
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
@@ -210,7 +219,7 @@ public class SelectionEventTest {
                 new TextClassification.Builder().setText(TEXT).build()
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform(mContext);
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
@@ -231,7 +240,7 @@ public class SelectionEventTest {
                 new TextSelection.Builder(START, END).build()
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform(mContext);
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
@@ -251,7 +260,7 @@ public class SelectionEventTest {
                 ACTION_COPY
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform(mContext);
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
@@ -272,7 +281,7 @@ public class SelectionEventTest {
                 new TextClassification.Builder().setText(TEXT).build()
         );
         android.view.textclassifier.SelectionEvent platformSelectionEvent =
-                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform();
+                (android.view.textclassifier.SelectionEvent) selectionEvent.toPlatform(mContext);
 
         android.view.textclassifier.SelectionEvent expected =
                 android.view.textclassifier.SelectionEvent.createSelectionActionEvent(

@@ -28,6 +28,7 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,6 +39,7 @@ public class TextClassificationManagerTest {
     private static final String PACKAGE_NAME = "my.package";
 
     private TextClassificationManager mTextClassificationManager;
+    private Object mPlatformTextClassificationMgr;
     @Mock
     private Context mContext;
     @Mock
@@ -46,14 +48,18 @@ public class TextClassificationManagerTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        mTextClassificationManager = new TextClassificationManager(mContext);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mContext.getPackageName()).thenReturn(PACKAGE_NAME);
         when(mContext.getApplicationContext()).thenReturn(mContext);
-        when(mContext.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE)).thenReturn(
-                InstrumentationRegistry.getTargetContext().getSystemService(
-                        Context.TEXT_CLASSIFICATION_SERVICE)
-        );
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mPlatformTextClassificationMgr =
+                    InstrumentationRegistry.getTargetContext().getSystemService(
+                            android.view.textclassifier.TextClassificationManager.class);
+            when(mContext.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE))
+                    .thenReturn(mPlatformTextClassificationMgr);
+        }
+        mTextClassificationManager = new TextClassificationManager(mContext);
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -74,11 +80,24 @@ public class TextClassificationManagerTest {
 
     @Test
     public void testGetTextClassifier_custom() throws Exception {
-        mTextClassificationManager.setTextClassifier(new DummyTextClassifier());
-        TextClassifier textClassifier =
-                mTextClassificationManager.getTextClassifier();
+        DummyTextClassifier dummyTextClassifier = new DummyTextClassifier();
+        mTextClassificationManager.setTextClassifier(dummyTextClassifier);
+        TextClassifier textClassifier = mTextClassificationManager.getTextClassifier();
 
-        assertThat(textClassifier).isInstanceOf(DummyTextClassifier.class);
+        assertThat(textClassifier).isEqualTo(dummyTextClassifier);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    public void testGetTextClassifier_custom_postO_platformTextClassifierIsSet() throws Exception {
+        Assume.assumeNotNull(mPlatformTextClassificationMgr);
+
+        mTextClassificationManager.setTextClassifier(new DummyTextClassifier());
+
+        assertThat(
+                ((android.view.textclassifier.TextClassificationManager)
+                        mPlatformTextClassificationMgr).getTextClassifier())
+                .isInstanceOf(PlatformTextClassifier.class);
     }
 
     private static class DummyTextClassifier extends TextClassifier {

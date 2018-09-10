@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.LocaleList;
 import android.text.SpannableString;
 
 import androidx.core.app.RemoteActionCompat;
@@ -136,6 +137,29 @@ public final class TextClassificationTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    public void testRequestFromPlatform() {
+        android.view.textclassifier.TextClassification.Request platformRequest =
+                new android.view.textclassifier.TextClassification.Request.Builder(
+                        TEXT, START_INDEX, END_INDEX)
+                        .setDefaultLocales((LocaleList) LOCALE_LIST.unwrap())
+                        .setReferenceTime(
+                                ConvertUtils.createZonedDateTimeFromUtc(REFERENCE_TIME_IN_MS))
+                        .build();
+
+
+        TextClassification.Request request =
+                TextClassification.Request.fromPlatform(platformRequest);
+
+        assertThat(request.getStartIndex()).isEqualTo(START_INDEX);
+        assertThat(request.getEndIndex()).isEqualTo(END_INDEX);
+        assertThat(request.getText()).isEqualTo(TEXT);
+        assertThat(request.getDefaultLocales().toLanguageTags())
+                .isEqualTo(LOCALE_LIST.toLanguageTags());
+        assertThat(request.getReferenceTime()).isEqualTo(REFERENCE_TIME_IN_MS);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void testConvertFromPlatformTextClassification() {
         final PendingIntent primaryPendingIntent = createPendingIntent(PRIMARY_INTENT);
         final RemoteActionCompat remoteAction0 = new RemoteActionCompat(PRIMARY_ICON, PRIMARY_LABEL,
@@ -192,12 +216,29 @@ public final class TextClassificationTest {
         TextClassification reference = createExpectedBuilder().build();
 
         android.view.textclassifier.TextClassification platformTextClassification =
-                (android.view.textclassifier.TextClassification) reference.toPlatform();
+                (android.view.textclassifier.TextClassification) reference.toPlatform(mContext);
 
         TextClassification textClassification =
                 TextClassification.fromPlatform(mContext, platformTextClassification);
 
         assertTextClassificationEquals(textClassification, reference);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26, maxSdkVersion = 27)
+    public void testConvertToPlatformTextClassification_O() {
+        TextClassification reference = createExpectedBuilderWithRemoteActions().build();
+
+        android.view.textclassifier.TextClassification platformTextClassification =
+                (android.view.textclassifier.TextClassification) reference.toPlatform(mContext);
+
+        assertThat(platformTextClassification.getText()).isEqualTo(TEXT.toString());
+        assertThat(platformTextClassification.getIcon()).isNotNull();
+        assertThat(platformTextClassification.getOnClickListener()).isNotNull();
+        assertThat(platformTextClassification.getEntityCount()).isEqualTo(2);
+        assertThat(platformTextClassification.getEntity(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
+        assertThat(platformTextClassification.getEntity(1)).isEqualTo(TextClassifier.TYPE_PHONE);
+        assertThat(platformTextClassification.getIntent()).isNull();
     }
 
     private static TextClassification.Request createTextClassificationRequest() {

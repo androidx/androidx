@@ -181,14 +181,14 @@ public final class TextSelection {
      */
     @SuppressLint("WrongConstant") // Lint does not know @EntityType in platform and here are same.
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(28)
+    @RequiresApi(26)
     @NonNull
     Object toPlatform() {
         android.view.textclassifier.TextSelection.Builder builder =
                 new android.view.textclassifier.TextSelection.Builder(
                         getSelectionStartIndex(),
                         getSelectionEndIndex());
-        if (getId() != null) {
+        if (getId() != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             builder.setId(getId());
         }
 
@@ -316,6 +316,20 @@ public final class TextSelection {
         @Nullable
         public LocaleListCompat getDefaultLocales() {
             return mDefaultLocales;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        @NonNull
+        static TextSelection.Request fromPlatfrom(
+                @NonNull android.view.textclassifier.TextSelection.Request request) {
+            return new TextSelection.Request.Builder(
+                    request.getText(), request.getStartIndex(), request.getEndIndex())
+                    .setDefaultLocales(ConvertUtils.wrapLocalList(request.getDefaultLocales()))
+                    .build();
         }
 
         /**
