@@ -31,9 +31,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener;
 
 import java.lang.annotation.Retention;
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.List;
 
 /**
  * Translates {@link RecyclerView.OnScrollListener} events to {@link OnPageChangeListener} events.
@@ -44,7 +41,7 @@ import java.util.List;
 public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private static final int NO_TARGET = -1;
 
-    private final @NonNull List<OnPageChangeListener> mListeners = new ArrayList<>(3);
+    private OnPageChangeListener mListener;
     private final @NonNull LinearLayoutManager mLayoutManager;
 
     // state related fields
@@ -53,8 +50,6 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private int mTarget;
     private boolean mDispatchSelected;
     private boolean mScrollHappened;
-
-    private PageTransformerAdapter mPageTransformerAdapter;
 
     public ScrollEventAdapter(@NonNull LinearLayoutManager layoutManager) {
         mLayoutManager = layoutManager;
@@ -148,7 +143,7 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
 
         dispatchScrolled(position, offset, offsetPx);
 
-        if (position == mTarget && offsetPx == 0) {
+        if ((position == mTarget || mTarget == NO_TARGET) && offsetPx == 0) {
             dispatchStateChanged(ViewPager2.ScrollState.IDLE);
             resetState();
         }
@@ -168,32 +163,8 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         }
     }
 
-    /**
-     * Registers a listener
-     */
-    public void addOnPageChangeListener(OnPageChangeListener listener) {
-        mListeners.add(listener);
-    }
-
-    /**
-     * Set the adapter for PageTransformer
-     */
-    public void setPageTransformerAdapter(PageTransformerAdapter adapter) {
-        mPageTransformerAdapter = adapter;
-    }
-
-    /**
-     * Removes a listener
-     */
-    public void removeOnPageChangeListener(OnPageChangeListener listener) {
-        mListeners.remove(listener);
-    }
-
-    /**
-     * Removes all listeners
-     */
-    public void clearOnPageChangeListeners() {
-        mListeners.clear();
+    public void setOnPageChangeListener(OnPageChangeListener listener) {
+        mListener = listener;
     }
 
     /**
@@ -211,43 +182,21 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             return;
         }
 
-        try {
-            for (OnPageChangeListener listener : mListeners) {
-                listener.onPageScrollStateChanged(state);
-            }
-        } catch (ConcurrentModificationException ex) {
-            throwListenerListModifiedWhileInUse(ex);
+        if (mListener != null) {
+            mListener.onPageScrollStateChanged(state);
         }
     }
 
     private void dispatchSelected(int target) {
-        try {
-            for (OnPageChangeListener listener : mListeners) {
-                listener.onPageSelected(target);
-            }
-        } catch (ConcurrentModificationException ex) {
-            throwListenerListModifiedWhileInUse(ex);
+        if (mListener != null) {
+            mListener.onPageSelected(target);
         }
     }
 
     private void dispatchScrolled(int position, float offset, int offsetPx) {
-        try {
-            for (OnPageChangeListener listener : mListeners) {
-                listener.onPageScrolled(position, offset, offsetPx);
-            }
-        } catch (ConcurrentModificationException ex) {
-            throwListenerListModifiedWhileInUse(ex);
+        if (mListener != null) {
+            mListener.onPageScrolled(position, offset, offsetPx);
         }
-
-        if (mPageTransformerAdapter != null) {
-            mPageTransformerAdapter.onPageScrolled(position, offset);
-        }
-    }
-
-    private void throwListenerListModifiedWhileInUse(ConcurrentModificationException parent) {
-        throw new IllegalStateException(
-                "Adding and removing listeners during dispatch to listeners is not supported",
-                parent);
     }
 
     private int getPosition() {
