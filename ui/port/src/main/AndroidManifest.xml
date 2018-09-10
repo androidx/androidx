@@ -17,7 +17,7 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name="androidx.ui.port.IntegrationTest$Companion$TestActivity"/>
+        <activity android:name="androidx.ui.port.integration.ImageDrawTest$Companion$TestActivity"/>
     </application>
 </manifest>
 
