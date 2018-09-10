@@ -21,8 +21,8 @@
               android:orientation="vertical">
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="@dimen/mr_dynamic_dialog_row_height"
-                  android:paddingStart="16dp"
-                  android:paddingEnd="16dp"
+                  android:paddingLeft="16dp"
+                  android:paddingRight="16dp"
                   android:gravity="center_vertical"
                   android:orientation="horizontal">
         <FrameLayout android:layout_width="24dp"
@@ -44,6 +44,7 @@
                   android:layout_weight="1"
                   android:layout_marginLeft="16dp"
                   android:layout_marginRight="16dp"
+                  android:textAlignment="viewStart"
                   android:textAppearance="?attr/mediaRouteBodyTextAppearance" />
         <CheckBox android:id="@+id/mr_cast_checkbox"
                   android:layout_width="24dp"
@@ -56,16 +57,19 @@
         <ImageButton android:id="@+id/mr_cast_mute_button"
                      android:layout_width="24dp"
                      android:layout_height="24dp"
-                     android:layout_marginStart="16dp"
                      android:layout_centerVertical="true"
+                     android:layout_marginLeft="16dp"
+                     android:layout_marginStart="16dp"
                      android:background="?attr/selectableItemBackgroundBorderless" />
         <androidx.mediarouter.app.MediaRouteVolumeSlider
             android:id="@+id/mr_cast_volume_slider"
             android:layout_toRightOf="@id/mr_cast_mute_button"
+            android:layout_toEndOf="@id/mr_cast_mute_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
             android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
             android:contentDescription="@string/mr_controller_volume_slider"
             android:progressDrawable="@drawable/mr_cast_route_seekbar_track"
             android:thumb="@drawable/mr_cast_thumb"
