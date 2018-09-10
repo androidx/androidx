@@ -185,8 +185,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
                 mConfiguration,
                 mWorkTaskExecutor,
                 mWorkDatabase,
-                getSchedulers(),
-                configuration.getExecutor());
+                getSchedulers());
         mPreferences = new Preferences(mContext);
         mForceStopRunnableCompleted = false;
 

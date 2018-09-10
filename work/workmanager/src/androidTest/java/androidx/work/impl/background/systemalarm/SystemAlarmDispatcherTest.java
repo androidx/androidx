@@ -73,8 +73,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -92,7 +90,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     private Scheduler mScheduler;
     private WorkManagerImpl mWorkManager;
     private Configuration mConfiguration;
-    private ExecutorService mExecutorService;
     private Processor mProcessor;
     private Processor mSpyProcessor;
     private CommandInterceptingSystemDispatcher mDispatcher;
@@ -125,15 +122,12 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
         TaskExecutor instantTaskExecutor = new InstantWorkTaskExecutor();
         when(mWorkManager.getWorkTaskExecutor()).thenReturn(instantTaskExecutor);
-        mExecutorService = Executors.newSingleThreadExecutor();
         mProcessor = new Processor(
                 mContext,
                 mConfiguration,
                 new InstantWorkTaskExecutor(),
                 mDatabase,
-                Collections.singletonList(mScheduler),
-                // simulate real world use-case
-                mExecutorService);
+                Collections.singletonList(mScheduler));
         mSpyProcessor = spy(mProcessor);
 
         mDispatcher =
@@ -159,12 +153,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @After
     public void tearDown() {
-        mExecutorService.shutdownNow();
-        try {
-            mExecutorService.awaitTermination(1, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            // Do nothing.
-        }
         mSpyDispatcher.onDestroy();
     }
 
@@ -537,14 +525,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 update(intent);
             }
             return isAdded;
-        }
-
-        Map<String, Integer> getActionCount() {
-            return mActionCount;
-        }
-
-        List<Intent> getCommands() {
-            return mCommands;
         }
 
         List<String> getIntentActions() {
