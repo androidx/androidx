@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 
 /**
  * A Processor can intelligently schedule and execute work on demand.
@@ -48,7 +47,6 @@ public class Processor implements ExecutionListener {
     private WorkDatabase mWorkDatabase;
     private Map<String, WorkerWrapper> mEnqueuedWorkMap;
     private List<Scheduler> mSchedulers;
-    private Executor mExecutor;
 
     private Set<String> mCancelledIds;
 
@@ -60,15 +58,13 @@ public class Processor implements ExecutionListener {
             Configuration configuration,
             TaskExecutor workTaskExecutor,
             WorkDatabase workDatabase,
-            List<Scheduler> schedulers,
-            Executor executor) {
+            List<Scheduler> schedulers) {
         mAppContext = appContext;
         mConfiguration = configuration;
         mWorkTaskExecutor = workTaskExecutor;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
         mSchedulers = schedulers;
-        mExecutor = executor;
         mCancelledIds = new HashSet<>();
         mOuterListeners = new ArrayList<>();
         mLock = new Object();
