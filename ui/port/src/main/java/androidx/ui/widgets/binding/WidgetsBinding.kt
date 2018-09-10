@@ -443,7 +443,7 @@ class WidgetsBindingImpl(
             if (renderViewElement != null)
                 buildOwner.buildScope(renderViewElement!!, null)
             // Call to super
-            RendererBindingImpl.drawFrame()
+            super.drawFrame()
             buildOwner.finalizeTree()
         } finally {
             assert({

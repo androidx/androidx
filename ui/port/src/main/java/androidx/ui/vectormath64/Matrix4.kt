@@ -267,9 +267,7 @@ data class Matrix4(
     }
 
     // / Invert [this].
-    fun invert() {
-        copyInverse(this)
-    }
+    fun invert() = copyInverse(this)
 
     // / Set this matrix to be the inverse of [arg]
     fun copyInverse(arg: Matrix4): Double {

@@ -53,18 +53,18 @@ import androidx.ui.text.TextDirection
 // / must not be null. The [textDirection] argument must not be null if
 // / [alignment] will need resolving or if [matchTextDirection] is true.
 class RenderImage(
-    image: Image,
-    width: Double?,
-    height: Double?,
+    image: Image? = null,
+    width: Double? = null,
+    height: Double? = null,
     scale: Double = 1.0,
-    color: Color?,
-    colorBlendMode: BlendMode?,
-    fit: BoxFit?,
+    color: Color? = null,
+    colorBlendMode: BlendMode? = null,
+    fit: BoxFit? = null,
     alignment: AlignmentGeometry = Alignment.center,
     repeat: ImageRepeat = ImageRepeat.noRepeat,
-    centerSlice: Rect?,
+    centerSlice: Rect? = null,
     matchTextDirection: Boolean = false,
-    textDirection: TextDirection?
+    textDirection: TextDirection? = null
 ) : RenderBox() {
 
     private var _image = image
@@ -105,7 +105,7 @@ class RenderImage(
     }
 
     // / The image to display.
-    var image: Image
+    var image: Image?
         get() = _image
         set(value) = run {
             if (value == _image)
@@ -305,8 +305,8 @@ class RenderImage(
             return cons.smallest
 
         return cons.constrainSizeAndAttemptToPreserveAspectRatio(Size(
-                _image.width.toDouble() / _scale,
-                _image.height.toDouble() / _scale
+                _image!!.width.toDouble() / _scale,
+                _image!!.height.toDouble() / _scale
         ))
     }
 
@@ -351,8 +351,8 @@ class RenderImage(
 
         paintImage(
             canvas = context.canvas,
-            rect = offset.and(size!!),
-            image = _image,
+            rect = offset.and(size),
+            image = _image!!,
             colorFilter = _colorFilter,
             fit = _fit,
             alignment = _resolvedAlignment!!,

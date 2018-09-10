@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-package androidx.ui.rendering
+package androidx.ui.foundation
 
-import androidx.ui.engine.geometry.Size
-import androidx.ui.rendering.box.BoxConstraints
-import androidx.ui.rendering.box._DebugSize
-import androidx.ui.rendering.proxybox.RenderConstrainedBox
-import org.junit.Assert.assertEquals
+import androidx.ui.foundation.binding.BindingBaseImpl
+import kotlinx.coroutines.experimental.Deferred
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class SizeTest {
+class ReassembleTest {
+
+    class TestFoundationFlutterBinding : BindingBaseImpl() {
+        var wasLocked: Boolean = false
+
+        override fun performReassemble(): Deferred<Unit> {
+            wasLocked = locked
+            return super.performReassemble()
+        }
+    }
 
     @Test
-    fun `Stack can layout with top, right, bottom, left 0,0`() {
-        val box = RenderConstrainedBox(_additionalConstraints = BoxConstraints.tight(
-                Size(100.0, 100.0)))
+    fun `Pointer events are locked during reassemble`() {
+        val binding = TestFoundationFlutterBinding()
 
-        box.layout(constraints = BoxConstraints())
-
-        assertEquals(box.size.width, 100.0, 0.1)
-        assertEquals(box.size.height, 100.0, 0.1)
-        assertEquals(box.size, Size(100.0, 100.0))
-        assertTrue(box.size is _DebugSize)
+        binding.reassembleApplication()
+        assertTrue(binding.wasLocked)
     }
 }

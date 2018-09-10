@@ -44,10 +44,10 @@ import androidx.ui.text.TextDirection
 // / behavior in all cases.
 class RenderPositionedBox(
     child: RenderBox? = null,
-    widthFactor: Double?,
-    heightFactor: Double?,
+    widthFactor: Double? = null,
+    heightFactor: Double? = null,
     alignment: AlignmentGeometry = Alignment.center,
-    textDirection: TextDirection
+    textDirection: TextDirection? = null
 ) : RenderAligningShiftedBox(
         child = child,
         alignment = alignment,
@@ -99,12 +99,12 @@ class RenderPositionedBox(
             size = constraints!!.constrain(
                     Size(
                         if (shrinkWrapWidth) {
-                            child!!.size!!.width * (_widthFactor ?: 1.0)
+                            child!!.size.width * (_widthFactor ?: 1.0)
                         } else {
                             Double.POSITIVE_INFINITY
                         },
                         if (shrinkWrapHeight) {
-                            child!!.size!!.height * (_heightFactor ?: 1.0)
+                            child!!.size.height * (_heightFactor ?: 1.0)
                         } else {
                             Double.POSITIVE_INFINITY
                         }
@@ -123,7 +123,7 @@ class RenderPositionedBox(
         super.debugPaintSize(context, offset)
         assert {
             var paint: Paint? = null
-            if (child != null && !child!!.size!!.isEmpty()) {
+            if (child != null && !child!!.size.isEmpty()) {
                 paint = Paint().let {
                     it.style = PaintingStyle.stroke
                     it.strokeWidth = 1.0
@@ -176,7 +176,7 @@ class RenderPositionedBox(
                     it.color = Color(0x90909090.toInt())
                     it
                 }
-                context.canvas.drawRect(offset and size!!, paint)
+                context.canvas.drawRect(offset and size, paint)
             }
             true
         }

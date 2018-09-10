@@ -14,28 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.ui.androidx.ui.foundation.diagnostics
+package androidx.ui.foundation.diagnostics
 
 import androidx.ui.describeEnum
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.assertions.FlutterError
-import androidx.ui.foundation.diagnostics.DiagnosticLevel
-import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.Diagnosticable
-import androidx.ui.foundation.diagnostics.DiagnosticableTree
-import androidx.ui.foundation.diagnostics.DiagnosticsNode
-import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
-import androidx.ui.foundation.diagnostics.DoubleProperty
-import androidx.ui.foundation.diagnostics.EnumProperty
-import androidx.ui.foundation.diagnostics.FlagProperty
-import androidx.ui.foundation.diagnostics.IntProperty
-import androidx.ui.foundation.diagnostics.IterableProperty
-import androidx.ui.foundation.diagnostics.MessageProperty
-import androidx.ui.foundation.diagnostics.ObjectFlagProperty
-import androidx.ui.foundation.diagnostics.PercentProperty
-import androidx.ui.foundation.diagnostics.StringProperty
-import androidx.ui.foundation.diagnostics.kNoDefaultValue
 import androidx.ui.matchers.EqualsIgnoringHashCodes
 import androidx.ui.matchers.HasGoodToStringDeep
 import androidx.ui.painting.Color

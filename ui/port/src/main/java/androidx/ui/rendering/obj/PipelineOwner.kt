@@ -50,16 +50,16 @@ class PipelineOwner(
         // / various stages of the pipeline. This function might be called multiple
         // / times in quick succession. Implementations should take care to discard
         // / duplicate calls quickly.
-    val onNeedVisualUpdate: VoidCallback,
+    val onNeedVisualUpdate: VoidCallback? = null,
         // / Called whenever this pipeline owner creates a semantics object.
         // /
         // / Typical implementations will schedule the creation of the initial
         // / semantics tree.
-    val onSemanticsOwnerCreated: VoidCallback,
+    val onSemanticsOwnerCreated: VoidCallback? = null,
         // / Called whenever this pipeline owner disposes its semantics owner.
         // /
         // / Typical implementations will tear down the semantics tree.
-    val onSemanticsOwnerDisposed: VoidCallback
+    val onSemanticsOwnerDisposed: VoidCallback? = null
 
 ) {
 
@@ -68,8 +68,7 @@ class PipelineOwner(
     // / Used to notify the pipeline owner that an associated render object wishes
     // / to update its visual appearance.
     fun requestVisualUpdate() {
-        if (onNeedVisualUpdate != null)
-            onNeedVisualUpdate()
+        onNeedVisualUpdate?.invoke()
     }
 
     // / The unique object managed by this pipeline that has no parent.

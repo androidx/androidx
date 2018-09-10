@@ -34,12 +34,12 @@ import androidx.ui.text.TextDirection
 // / The [alignment] argument must not be null.
 abstract class RenderAligningShiftedBox(
     alignment: AlignmentGeometry = Alignment.center,
-    textDirection: TextDirection,
+    textDirection: TextDirection? = null,
     child: RenderBox? = null
 ) : RenderShiftedBox(child) {
 
     private var _alignment: AlignmentGeometry = alignment
-    private var _textDirection: TextDirection = textDirection
+    private var _textDirection: TextDirection? = textDirection
 
     // / How to align the child.
     // /
@@ -70,7 +70,7 @@ abstract class RenderAligningShiftedBox(
     // /
     // / This may be changed to null, but only after [alignment] has been changed
     // / to a value that does not depend on the direction.
-    var textDirection: TextDirection
+    var textDirection: TextDirection?
         get() = _textDirection
         set(value) {
             if (_textDirection == value)
@@ -114,7 +114,7 @@ abstract class RenderAligningShiftedBox(
         assert(hasSize)
         assert(_resolvedAlignment != null)
         val childParentData = child!!.parentData as BoxParentData
-        childParentData.offset = _resolvedAlignment!!.alongOffset(size!! - child!!.size!!)
+        childParentData.offset = _resolvedAlignment!!.alongOffset(size - child!!.size)
     }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {

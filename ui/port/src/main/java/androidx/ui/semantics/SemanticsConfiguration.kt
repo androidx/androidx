@@ -63,7 +63,10 @@ class SemanticsConfiguration {
 //  ///
 //  /// Paint order as established by [visitChildrenForSemantics] is used to
 //  /// determine if a node is previous to this one.
-    val isBlockingSemanticsOfPreviouslyPaintedNodes: Boolean get() { TODO() }
+    val isBlockingSemanticsOfPreviouslyPaintedNodes: Boolean get() {
+        // TODO(Migration/Andrey): Mocking it for now
+        return false
+    }
 //  bool isBlockingSemanticsOfPreviouslyPaintedNodes = false;
 //
 //  // SEMANTIC ANNOTATIONS

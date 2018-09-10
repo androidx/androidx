@@ -25,6 +25,8 @@ interface RendererBinding : SchedulerBinding, ServicesBinding {
     fun performReassembleRenderer(superCall: () -> Deferred<Unit>): Deferred<Unit>
 
     val renderView: RenderView?
+
+    val pipelineOwner: PipelineOwner?
 }
 
 open class RendererMixinsWrapper(
@@ -46,7 +48,7 @@ class RendererBindingImpl(
      * The render tree's owner, which maintains dirty state for layout,
      * composite, paint, and accessibility semantics
      */
-    var pipelineOwner: PipelineOwner? = null
+    override var pipelineOwner: PipelineOwner? = null
         internal set
 
     init { // was initInstances

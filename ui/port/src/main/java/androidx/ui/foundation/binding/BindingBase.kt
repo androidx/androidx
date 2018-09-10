@@ -66,7 +66,7 @@ interface BindingBase {
 // / library defines how to create the binding. It could be implied (for example,
 // / [WidgetsFlutterBinding] is automatically started from [runApp]), or the
 // / application might be required to explicitly call the constructor.
-class BindingBaseImpl : BindingBase {
+open class BindingBaseImpl : BindingBase {
 
     // / Default abstract constructor for bindings.
     // /

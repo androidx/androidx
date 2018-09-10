@@ -484,7 +484,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
      * If [sizedByParent] has changed, called
      * [markNeedsLayoutForSizedByParentChange] instead of [markNeedsLayout].
      */
-    fun markNeedsLayout() {
+    open fun markNeedsLayout() {
         assert(debugCanPerformMutations)
         if (_needsLayout) {
             assert(debugSubtreeRelayoutRootAlreadyMarkedNeedsLayout())
@@ -1272,28 +1272,28 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree {
      * logical pixels. To get physical pixels, use [applyPaintTransform] from the
      * [RenderView] to further transform the coordinate.
      */
-//    fun getTransformTo(ancestor: RenderObject?): Matrix4 {
-//        assert(attached);
-//        val checkedAncestor: RenderObject?
-//        if (ancestor != null) {
-//            checkedAncestor = ancestor
-//        } else {
-//            val rootNode = owner!!.rootNode as AbstractNode;
-//            checkedAncestor = rootNode as? RenderObject
-//        }
-//        var renderer: RenderObject? = this
-//        val renderers = mutableListOf<RenderObject>()
-//        while (renderer != checkedAncestor && renderer != null) {
-//            assert(renderer != null); // Failed to find ancestor in parent chain.
-//            renderer = renderer.parent as RenderObject
-//            renderers.add(renderer);
-//        }
-//        val transform: Matrix4 = Matrix4.identity();
-//        for (index in renderers.size - 1 downTo 1) {
-//            renderers[index].applyPaintTransform(renderers[index - 1], transform)
-//        }
-//        return transform;
-//    }
+    fun getTransformTo(ancestor: RenderObject?): Matrix4 {
+        assert(attached)
+        val checkedAncestor: RenderObject?
+        if (ancestor != null) {
+            checkedAncestor = ancestor
+        } else {
+            val rootNode = owner!!.rootNode as AbstractNode
+            checkedAncestor = rootNode as? RenderObject
+        }
+        var renderer: RenderObject? = this
+        val renderers = mutableListOf<RenderObject>()
+        while (renderer != checkedAncestor && renderer != null) {
+            assert(renderer != null); // Failed to find ancestor in parent chain.
+            renderer = renderer.parent as RenderObject
+            renderers.add(renderer)
+        }
+        val transform: Matrix4 = Matrix4.identity()
+        for (index in renderers.size - 1 downTo 1) {
+            renderers[index].applyPaintTransform(renderers[index - 1], transform)
+        }
+        return transform
+    }
 
     /**
      * Returns a rect in this object's coordinate system that describes

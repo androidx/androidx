@@ -115,11 +115,11 @@ class RenderConstrainedBox(
     override fun debugPaintSize(context: PaintingContext, offset: Offset) {
         super.debugPaintSize(context, offset)
         assert {
-            if (child == null || child!!.size!!.isEmpty()) {
+            if (child == null || child!!.size.isEmpty()) {
                 val paint = Paint().apply {
                     color = Color(0x90909090.toInt())
                 }
-                context.canvas.drawRect(offset.and(size!!), paint)
+                context.canvas.drawRect(offset.and(size), paint)
             }
             true
         }

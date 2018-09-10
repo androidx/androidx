@@ -11,6 +11,7 @@ import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
+import androidx.ui.painting.matrixutils.transformPoint
 import androidx.ui.rendering.debugCheckIntrinsicSizes
 import androidx.ui.rendering.debugPaintBaselinesEnabled
 import androidx.ui.rendering.debugPaintPointersEnabled
@@ -19,6 +20,8 @@ import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.runtimeType
+import androidx.ui.text.TextBaseline
+import androidx.ui.vectormath64.Matrix4
 
 /**
  * A render object in a 2D Cartesian coordinate system.
@@ -870,7 +873,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * of those functions, call [markNeedsLayout] instead to schedule a layout of
      * the box.
      */
-    var size: Size?
+    var size: Size
         get() {
             assert(hasSize, { "RenderBox was not laid out: ${toString()}" })
             assert {
@@ -891,7 +894,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
                 }
                 true
             }
-            return _size
+            return _size!! // TODO(Migration/Andrey): Force notnull as we have assert hasSize before
         }
         // Setting the size, in checked mode, triggers some analysis of the render box,
         // as implemented by [debugAssertDoesMeetConstraints], including calling the intrinsic
@@ -940,8 +943,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
                 )
             }
             assert {
-                // TODO(Migration/xbhatnag): Double check if this should be non-null
-                mutableValue = debugAdoptSize(mutableValue!!)
+                mutableValue = debugAdoptSize(mutableValue)
                 true
             }
             _size = mutableValue
@@ -1014,15 +1016,14 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         return result
     }
 
-    override val semanticBounds: Rect get() = Offset.zero.and(size!!)
+    override val semanticBounds: Rect get() = Offset.zero.and(size)
 
     override fun debugResetSize() {
         // updates the value of size._canBeUsedByParent if necessary
         size = size
     }
 
-    // TODO(Migration/xbhatnag): Needs TextBaseline
-//    Map<TextBaseline, double> _cachedBaselines;
+    private var _cachedBaselines: MutableMap<TextBaseline, Double>? = null
 
     companion object {
         var _debugDoingBaseline = false
@@ -1262,30 +1263,28 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         }
     }
 
-    // TODO(Migration/xbhatnag): Needs TextBaseline
-//    @override
-//    void markNeedsLayout() {
-//        if ((_cachedBaselines != null && _cachedBaselines.isNotEmpty) ||
-//                (_cachedIntrinsicDimensions != null && _cachedIntrinsicDimensions.isNotEmpty)) {
-//            // If we have cached data, then someone must have used our data.
-//            // Since the parent will shortly be marked dirty, we can forget that they
-//            // used the baseline and/or intrinsic dimensions. If they use them again,
-//            // then we'll fill the cache again, and if we get dirty again, we'll
-//            // notify them again.
-//            _cachedBaselines?.clear();
-//            _cachedIntrinsicDimensions?.clear();
-//            if (parent is RenderObject) {
-//                markParentNeedsLayout();
-//                return;
-//            }
-//        }
-//        super.markNeedsLayout();
-//    }
+    override fun markNeedsLayout() {
+        if ((_cachedBaselines != null && _cachedBaselines!!.isNotEmpty()) ||
+                (_cachedIntrinsicDimensions != null && _cachedIntrinsicDimensions!!.isNotEmpty())) {
+            // If we have cached data, then someone must have used our data.
+            // Since the parent will shortly be marked dirty, we can forget that they
+            // used the baseline and/or intrinsic dimensions. If they use them again,
+            // then we'll fill the cache again, and if we get dirty again, we'll
+            // notify them again.
+            _cachedBaselines?.clear()
+            _cachedIntrinsicDimensions?.clear()
+            if (parent is RenderObject) {
+                markParentNeedsLayout()
+                return
+            }
+        }
+        super.markNeedsLayout()
+    }
 
     override fun performResize() {
         // default behavior for subclasses that have sizedByParent = true
         size = constraints!!.smallest
-        assert(size!!.isFinite())
+        assert(size.isFinite())
     }
 
     override fun performLayout() {
@@ -1390,76 +1389,72 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
 //    @protected
 //    bool hitTestChildren(HitTestResult result, { Offset position }) => false;
 
-    // TODO(Migration/xbhatnag): Needs Matrix4
-//    /// Multiply the transform from the parent's coordinate system to this box's
-//    /// coordinate system into the given transform.
-//    ///
-//    /// This function is used to convert coordinate systems between boxes.
-//    /// Subclasses that apply transforms during painting should override this
-//    /// function to factor those transforms into the calculation.
-//    ///
-//    /// The [RenderBox] implementation takes care of adjusting the matrix for the
-//    /// position of the given child as determined during layout and stored on the
-//    /// child's [parentData] in the [BoxParentData.offset] field.
-//    @override
-//    void applyPaintTransform(RenderObject child, Matrix4 transform) {
-//        assert(child != null);
-//        assert(child.parent == this);
-//        assert(() {
-//            if (child.parentData is! BoxParentData) {
-//            throw new FlutterError(
-//                    '$runtimeType does not implement applyPaintTransform.\n'
-//            'The following $runtimeType object:\n'
-//            '  ${toStringShallow()}\n'
-//            '...did not use a BoxParentData class for the parentData field of the following child:\n'
-//            '  ${child.toStringShallow()}\n'
-//            'The $runtimeType class inherits from RenderBox. '
-//            'The default applyPaintTransform implementation provided by RenderBox assumes that the '
-//            'children all use BoxParentData objects for their parentData field. '
-//            'Since $runtimeType does not in fact use that ParentData class for its children, it must '
-//            'provide an implementation of applyPaintTransform that supports the specific ParentData '
-//            'subclass used by its children (which apparently is ${child.parentData.runtimeType}).'
-//            );
-//        }
-//            return true;
-//        }());
-//        final BoxParentData childParentData = child.parentData;
-//        final Offset offset = childParentData.offset;
-//        transform.translate(offset.dx, offset.dy);
-//    }
+    // / Multiply the transform from the parent's coordinate system to this box's
+    // / coordinate system into the given transform.
+    // /
+    // / This function is used to convert coordinate systems between boxes.
+    // / Subclasses that apply transforms during painting should override this
+    // / function to factor those transforms into the calculation.
+    // /
+    // / The [RenderBox] implementation takes care of adjusting the matrix for the
+    // / position of the given child as determined during layout and stored on the
+    // / child's [parentData] in the [BoxParentData.offset] field.
+    override fun applyPaintTransform(child: RenderObject, transform: Matrix4) {
+        assert(child != null)
+        assert(child.parent == this)
+        assert {
+            if (child.parentData !is BoxParentData) {
+            throw FlutterError(
+                    "${runtimeType()} does not implement applyPaintTransform.\n" +
+            "The following ${runtimeType()} object:\n  ${toStringShallow()}\n" +
+            "...did not use a BoxParentData class for the parentData field of the " +
+            "following child:\n ${child.toStringShallow()}\n" +
+            "The ${runtimeType()} class inherits from RenderBox. " +
+            "The default applyPaintTransform implementation provided by RenderBox assumes that " +
+            "the children all use BoxParentData objects for their parentData field. " +
+            "Since ${runtimeType()} does not in fact use that ParentData class for its children, " +
+            "it must provide an implementation of applyPaintTransform that supports the specific " +
+            "ParentData subclass used by its children (which apparently is " +
+            "${child.parentData!!.runtimeType()})."
+            )
+        }
+            true
+        }
+        val childParentData = child.parentData as BoxParentData
+        val offset = childParentData.offset
+        transform.translate(offset.dx, offset.dy)
+    }
 
-    // TODO(Migration/xbhatnag): Needs Matrix4
-//    /// Convert the given point from the global coordinate system in logical pixels
-//    /// to the local coordinate system for this box.
-//    ///
-//    /// If the transform from global coordinates to local coordinates is
-//    /// degenerate, this function returns [Offset.zero].
-//    ///
-//    /// If `ancestor` is non-null, this function converts the given point from the
-//    /// coordinate system of `ancestor` (which must be an ancestor of this render
-//    /// object) instead of from the global coordinate system.
-//    ///
-//    /// This method is implemented in terms of [getTransformTo].
-//    Offset globalToLocal(Offset point, { RenderObject ancestor }) {
-//        final Matrix4 transform = getTransformTo(ancestor);
-//        final double det = transform.invert();
-//        if (det == 0.0)
-//            return Offset.zero;
-//        return MatrixUtils.transformPoint(transform, point);
-//    }
+    // / Convert the given point from the global coordinate system in logical pixels
+    // / to the local coordinate system for this box.
+    // /
+    // / If the transform from global coordinates to local coordinates is
+    // / degenerate, this function returns [Offset.zero].
+    // /
+    // / If `ancestor` is non-null, this function converts the given point from the
+    // / coordinate system of `ancestor` (which must be an ancestor of this render
+    // / object) instead of from the global coordinate system.
+    // /
+    // / This method is implemented in terms of [getTransformTo].
+    fun globalToLocal(point: Offset, ancestor: RenderObject? = null): Offset {
+        val transform = getTransformTo(ancestor)
+        val det = transform.invert()
+        if (det == 0.0)
+            return Offset.zero
+        return transform.transformPoint(point)
+    }
 
-    // TODO(Migration/xbhatnag): Needs MatrixUtils
-//    /// Convert the given point from the local coordinate system for this box to
-//    /// the global coordinate system in logical pixels.
-//    ///
-//    /// If `ancestor` is non-null, this function converts the given point to the
-//    /// coordinate system of `ancestor` (which must be an ancestor of this render
-//    /// object) instead of to the global coordinate system.
-//    ///
-//    /// This method is implemented in terms of [getTransformTo].
-//    Offset localToGlobal(Offset point, { RenderObject ancestor }) {
-//        return MatrixUtils.transformPoint(getTransformTo(ancestor), point);
-//    }
+    // / Convert the given point from the local coordinate system for this box to
+    // / the global coordinate system in logical pixels.
+    // /
+    // / If `ancestor` is non-null, this function converts the given point to the
+    // / coordinate system of `ancestor` (which must be an ancestor of this render
+    // / object) instead of to the global coordinate system.
+    // /
+    // / This method is implemented in terms of [getTransformTo].
+    fun localToGlobal(point: Offset, ancestor: RenderObject? = null): Offset {
+        return getTransformTo(ancestor).transformPoint(point)
+    }
 
     /**
      * Returns a rectangle that contains all the pixels painted by this box.
@@ -1477,7 +1472,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * The returned paint bounds are in the local coordinate system of this box.
      */
     override val paintBounds: Rect
-        get() = Offset.zero.and(size!!)
+        get() = Offset.zero.and(size)
 
     // TODO(Migration/xbhatnag): RenderObject does not implement HitTestTarget
 //    /// Override this method to handle pointer events that hit this render object.
@@ -1559,7 +1554,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
                 strokeWidth = 1.0
                 color = Color(0xFF00FFFF.toInt())
             }
-            context.canvas.drawRect((offset.and(size!!)).deflate(0.5), paint)
+            context.canvas.drawRect((offset.and(size)).deflate(0.5), paint)
             true
         }
     }
@@ -1616,7 +1611,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
                     // new Color(0x00BBBB | ((0x04000000 * depth) & 0xFF000000));
                     color = Color(0x00BBBB or ((0x04000000 * depth) and 0xFF000000.toInt()))
                 }
-                context.canvas.drawRect(offset.and(size!!), paint)
+                context.canvas.drawRect(offset.and(size), paint)
             }
             true
         }

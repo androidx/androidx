@@ -40,5 +40,12 @@ open class RenderProxyBox(
      * subclasses.
 */
     // TODO(a14n): Remove ignore once https://github.com/dart-lang/sdk/issues/30328 is fixed
-override var child: RenderBox? = null
-) : RenderProxyBoxMixin()
+    child: RenderBox? = null
+) : RenderProxyBoxMixin() {
+
+    init {
+        // TODO(Migration/Andrey) we should not use "override var" in constructor as
+        // original child property has an additional logic in set fun, we lose with this approach
+        this.child = child
+    }
+}

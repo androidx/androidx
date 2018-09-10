@@ -277,7 +277,7 @@ data class BoxConstraints(
      * the given width and height as possible while still respecting the original
      * box constraints.
      */
-    fun tighten(width: Double? = null, height: Double?): BoxConstraints {
+    fun tighten(width: Double? = null, height: Double? = null): BoxConstraints {
         return BoxConstraints(minWidth = width?.clamp(minWidth, maxWidth) ?: minWidth,
                 maxWidth = width?.clamp(minWidth, maxWidth) ?: maxWidth,
                 minHeight = height?.clamp(minHeight, maxHeight) ?: minHeight,
