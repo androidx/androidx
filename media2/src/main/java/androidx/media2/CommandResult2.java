@@ -20,9 +20,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.os.SystemClock;
 
 import androidx.annotation.RestrictTo;
-
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -43,7 +43,11 @@ public final class CommandResult2 {
     private final long mCompletionTime;
     private final DataSourceDesc2 mDesc;
 
-    public CommandResult2(int resultCode, long completionTime, DataSourceDesc2 desc) {
+    public CommandResult2(int resultCode, DataSourceDesc2 desc) {
+        this(resultCode, desc, SystemClock.elapsedRealtime());
+    }
+
+    public CommandResult2(int resultCode, DataSourceDesc2 desc, long completionTime) {
         mResultCode = resultCode;
         mCompletionTime = completionTime;
         mDesc = desc;
