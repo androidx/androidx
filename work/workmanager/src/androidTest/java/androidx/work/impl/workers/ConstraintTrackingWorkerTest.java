@@ -130,9 +130,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         setupDelegateForExecution(EchoingWorker.class.getName());
 
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
-        builder.withWorker(mWorker)
-                .withListener(null) // set on ConstraintTrackingWorker
-                .withSchedulers(Collections.singletonList(mScheduler));
+        builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);
@@ -150,9 +148,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(false);
         setupDelegateForExecution(TestWorker.class.getName());
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
-        builder.withWorker(mWorker)
-                .withListener(null) // set on ConstraintTrackingWorker
-                .withSchedulers(Collections.singletonList(mScheduler));
+        builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);
@@ -168,9 +164,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
         setupDelegateForExecution(SleepTestWorker.class.getName());
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
-        builder.withWorker(mWorker)
-                .withListener(null) // set on ConstraintTrackingWorker
-                .withSchedulers(Collections.singletonList(mScheduler));
+        builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);
@@ -194,9 +188,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         setupDelegateForExecution(SleepTestWorker.class.getName());
 
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
-        builder.withWorker(mWorker)
-                .withListener(null) // set on ConstraintTrackingWorker
-                .withSchedulers(Collections.singletonList(mScheduler));
+        builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);
@@ -226,9 +218,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         setupDelegateForExecution(StopAwareWorker.class.getName());
 
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
-        builder.withWorker(mWorker)
-                .withListener(null) // set on ConstraintTrackingWorker
-                .withSchedulers(Collections.singletonList(mScheduler));
+        builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
         mExecutorService.submit(mWorkerWrapper);

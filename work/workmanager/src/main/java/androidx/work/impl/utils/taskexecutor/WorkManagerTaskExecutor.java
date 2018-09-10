@@ -35,6 +35,14 @@ import java.util.concurrent.ThreadFactory;
 public class WorkManagerTaskExecutor implements TaskExecutor {
 
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+
+    private final Executor mMainThreadExecutor = new Executor() {
+        @Override
+        public void execute(@NonNull Runnable command) {
+            postToMainThread(command);
+        }
+    };
+
     // Avoiding synthetic accessor.
     volatile Thread mCurrentBackgroundExecutorThread;
     private final ThreadFactory mBackgroundThreadFactory = new ThreadFactory() {
@@ -53,6 +61,11 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     @Override
     public void postToMainThread(Runnable r) {
         mMainThreadHandler.post(r);
+    }
+
+    @Override
+    public Executor getMainThreadExecutor() {
+        return mMainThreadExecutor;
     }
 
     @Override
