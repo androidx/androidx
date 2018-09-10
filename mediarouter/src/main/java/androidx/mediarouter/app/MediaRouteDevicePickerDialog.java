@@ -178,6 +178,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_picker_dialog);
+        MediaRouterThemeHelper.setDialogBackgroundColor(mContext, this);
 
         mRoutes = new ArrayList<>();
         mCloseButton = findViewById(R.id.mr_picker_close_button);

@@ -30,8 +30,8 @@
           android:visibility="gone" />
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingStart="24dp"
-                    android:paddingEnd="24dp"
+                    android:paddingLeft="24dp"
+                    android:paddingRight="24dp"
                     android:paddingTop="12dp"
                     android:paddingBottom="32dp">
         <ImageButton android:id="@+id/mr_cast_close_button"
@@ -62,12 +62,14 @@
                           android:layout_height="wrap_content"
                           android:maxLines="1"
                           android:ellipsize="end"
+                          android:textAlignment="viewStart"
                           android:textAppearance="@style/TextAppearance.MediaRouter.Dynamic.Metadata.PrimaryText" />
                 <TextView android:id="@+id/mr_cast_meta_subtitle"
                           android:layout_width="match_parent"
                           android:layout_height="wrap_content"
                           android:maxLines="1"
                           android:ellipsize="end"
+                          android:textAlignment="viewStart"
                           android:textAppearance="@style/TextAppearance.MediaRouter.Dynamic.Metadata.SecondaryText" />
             </LinearLayout>
             <Button android:id="@+id/mr_cast_stop_button"
