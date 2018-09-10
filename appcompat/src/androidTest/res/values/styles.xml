@@ -103,6 +103,11 @@
         <item name="android:typeface">monospace</item>
     </style>
 
+    <style name="TextView_FontVariation">
+        <item name="fontVariationSettings">\'wght\' 300</item>
+        <item name="android:textAppearance">@null</item>
+    </style>
+
     <style name="TextAppearance" parent="TextAppearance.AppCompat" />
 
     <style name="Theme.CustomFont" parent="@style/Theme.AppCompat.Light">

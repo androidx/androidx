@@ -294,6 +294,24 @@
             android:hyphenationFrequency="full"
             android:breakStrategy="balanced"/>
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontVariation_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:fontVariationSettings="'wdth' 30"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontVariation_textAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextView_FontVariation"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontVariation_textView_and_textAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:fontVariationSettings="'wdth' 30"
+            android:textAppearance="@style/TextView_FontVariation"/>
     </LinearLayout>
 
 </ScrollView>
