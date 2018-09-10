@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.work.integration.testapp;
+
+package androidx.work.impl.utils;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
+import android.support.annotation.RestrictTo;
 
-import androidx.work.Worker;
+import java.util.concurrent.Executor;
 
 /**
- * A Test Worker.
+ * An {@link Executor} that runs its commands right away on the current thread.
+ *
+ * @hide
  */
-public class TestWorker extends Worker {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SynchronousExecutor implements Executor {
+
     @Override
-    public @NonNull Result doWork() {
-        Log.e("SUMIR", "dowork");
-        return Result.SUCCESS;
+    public void execute(@NonNull Runnable command) {
+        command.run();
     }
 }
