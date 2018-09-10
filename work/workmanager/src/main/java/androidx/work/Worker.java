@@ -59,6 +59,9 @@ public abstract class Worker extends NonBlockingWorker {
         RETRY
     }
 
+    // Package-private to avoid synthetic accessor.
+    SettableFuture<Pair<Result, Data>> mFuture;
+
     /**
      * Override this method to do your actual background processing.
      */
@@ -71,10 +74,15 @@ public abstract class Worker extends NonBlockingWorker {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public @NonNull ListenableFuture<Pair<Result, Data>> onStartWork() {
-        SettableFuture<Pair<Result, Data>> future = SettableFuture.create();
-        Result result = doWork();
-        setResult(result);
-        future.set(new Pair<>(result, getOutputData()));
-        return future;
+        mFuture = SettableFuture.create();
+        getExtras().getBackgroundExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                Result result = doWork();
+                setResult(result);
+                mFuture.set(new Pair<>(result, getOutputData()));
+            }
+        });
+        return mFuture;
     }
 }

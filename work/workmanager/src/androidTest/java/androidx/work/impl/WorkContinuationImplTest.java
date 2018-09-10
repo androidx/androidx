@@ -48,6 +48,7 @@ import androidx.work.WorkManagerTest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.TestWorker;
 
@@ -64,7 +65,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -101,7 +101,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         mScheduler = mock(Scheduler.class);
         Context context = InstrumentationRegistry.getTargetContext();
         mConfiguration = new Configuration.Builder()
-                .setExecutor(Executors.newSingleThreadExecutor())
+                .setExecutor(new SynchronousExecutor())
                 .build();
 
         mWorkManagerImpl =
