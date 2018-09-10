@@ -117,8 +117,7 @@ public class WorkManagerImplLargeExecutorTest {
                 configuration,
                 mWorkManagerImplSpy.getWorkTaskExecutor(),
                 mWorkManagerImplSpy.getWorkDatabase(),
-                Collections.singletonList((Scheduler) trackingScheduler),
-                executor);
+                Collections.singletonList((Scheduler) trackingScheduler));
 
         when(mWorkManagerImplSpy.getSchedulers()).thenReturn(
                 Collections.singletonList((Scheduler) trackingScheduler));
