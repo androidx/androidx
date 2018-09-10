@@ -38,6 +38,11 @@ public class InstantWorkTaskExecutor implements TaskExecutor {
     }
 
     @Override
+    public Executor getMainThreadExecutor() {
+        return mSynchronousExecutor;
+    }
+
+    @Override
     public void executeOnBackgroundThread(Runnable runnable) {
         runnable.run();
     }
