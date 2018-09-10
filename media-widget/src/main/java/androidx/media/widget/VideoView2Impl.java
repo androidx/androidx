@@ -168,6 +168,8 @@ interface VideoView2Impl {
 
     void onDetachedFromWindowImpl();
 
+    void onVisibilityAggregatedImpl(boolean isVisible);
+
     void onTouchEventImpl(MotionEvent ev);
 
     void onTrackballEventImpl(MotionEvent ev);

@@ -571,6 +571,17 @@ class VideoView2ImplBaseWithMp1
     }
 
     @Override
+    public void onVisibilityAggregatedImpl(boolean isVisible) {
+        if (isInPlaybackState()) {
+            if (!isVisible && mCurrentState == STATE_PLAYING) {
+                mMediaPlayer.pause();
+            } else if (isVisible && mTargetState == STATE_PLAYING) {
+                mMediaPlayer.start();
+            }
+        }
+    }
+
+    @Override
     public void onTouchEventImpl(MotionEvent ev) {
         if (DEBUG) {
             Log.d(TAG, "onTouchEvent(). mCurrentState=" + mCurrentState

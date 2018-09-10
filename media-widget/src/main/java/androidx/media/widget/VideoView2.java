@@ -349,6 +349,12 @@ public class VideoView2 extends BaseLayout {
     }
 
     @Override
+    public void onVisibilityAggregated(boolean isVisible) {
+        super.onVisibilityAggregated(isVisible);
+        mImpl.onVisibilityAggregatedImpl(isVisible);
+    }
+
+    @Override
     public CharSequence getAccessibilityClassName() {
         return VideoView2.class.getName();
     }
