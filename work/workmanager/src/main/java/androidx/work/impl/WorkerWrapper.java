@@ -168,7 +168,8 @@ public class WorkerWrapper implements Runnable {
                 input,
                 mTags,
                 mRuntimeExtras,
-                mWorkSpec.runAttemptCount);
+                mWorkSpec.runAttemptCount,
+                mConfiguration.getExecutor());
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.

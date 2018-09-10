@@ -92,6 +92,7 @@ public class Processor implements ExecutionListener {
      * @return {@code true} if the work was successfully enqueued for processing
      */
     public boolean startWork(String id, Extras.RuntimeExtras runtimeExtras) {
+        WorkerWrapper workWrapper;
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
             // and new work with those constraints are added.
@@ -100,7 +101,7 @@ public class Processor implements ExecutionListener {
                 return false;
             }
 
-            WorkerWrapper workWrapper =
+            workWrapper =
                     new WorkerWrapper.Builder(
                             mAppContext,
                             mConfiguration,
@@ -115,10 +116,10 @@ public class Processor implements ExecutionListener {
                     new FutureListener(this, id, future),
                     mWorkTaskExecutor.getMainThreadExecutor());
             mEnqueuedWorkMap.put(id, workWrapper);
-            mExecutor.execute(workWrapper);
-            Logger.debug(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
-            return true;
         }
+        mWorkTaskExecutor.getBackgroundExecutor().execute(workWrapper);
+        Logger.debug(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
+        return true;
     }
 
     /**

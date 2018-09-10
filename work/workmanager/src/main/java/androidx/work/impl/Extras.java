@@ -24,9 +24,10 @@ import android.support.annotation.RestrictTo;
 
 import androidx.work.Data;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Extra information to setup Workers.
@@ -40,15 +41,18 @@ public class Extras {
     private @NonNull Set<String> mTags;
     private @NonNull RuntimeExtras mRuntimeExtras;
     private int mRunAttemptCount;
+    private @NonNull Executor mBackgroundExecutor;
 
     public Extras(@NonNull Data inputData,
-            @NonNull List<String> tags,
+            @NonNull Collection<String> tags,
             @NonNull RuntimeExtras runtimeExtras,
-            int runAttemptCount) {
+            int runAttemptCount,
+            @NonNull Executor backgroundExecutor) {
         mInputData = inputData;
         mTags = new HashSet<>(tags);
         mRuntimeExtras = runtimeExtras;
         mRunAttemptCount = runAttemptCount;
+        mBackgroundExecutor = backgroundExecutor;
     }
 
     public @NonNull Data getInputData() {
@@ -65,6 +69,10 @@ public class Extras {
 
     public int getRunAttemptCount() {
         return mRunAttemptCount;
+    }
+
+    public @NonNull Executor getBackgroundExecutor() {
+        return mBackgroundExecutor;
     }
 
     /**
