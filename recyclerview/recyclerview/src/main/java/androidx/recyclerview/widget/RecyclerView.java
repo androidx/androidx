@@ -3842,7 +3842,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     final void fillRemainingScrollValues(State state) {
         if (getScrollState() == SCROLL_STATE_SETTLING) {
-            final OverScroller scroller = mViewFlinger.mScroller;
+            final OverScroller scroller = mViewFlinger.mOverScroller;
             state.mRemainingScrollHorizontal = scroller.getFinalX() - scroller.getCurrX();
             state.mRemainingScrollVertical = scroller.getFinalY() - scroller.getCurrY();
         } else {
@@ -5060,7 +5060,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
-        OverScroller mScroller;
+        OverScroller mOverScroller;
         Interpolator mInterpolator = sQuinticInterpolator;
 
         // When set to true, postOnAnimation callbacks are delayed until the run method completes
@@ -5070,7 +5070,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         private boolean mReSchedulePostAnimationCallback = false;
 
         ViewFlinger() {
-            mScroller = new OverScroller(getContext(), sQuinticInterpolator);
+            mOverScroller = new OverScroller(getContext(), sQuinticInterpolator);
         }
 
         @Override
@@ -5092,7 +5092,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
             // Keep a local reference so that if it is changed during onAnimation method, it won't
             // cause unexpected behaviors
-            final OverScroller scroller = mScroller;
+            final OverScroller scroller = mOverScroller;
             if (scroller.computeScrollOffset()) {
                 final int x = scroller.getCurrX();
                 final int y = scroller.getCurrY();
@@ -5176,6 +5176,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         || ((scrollerFinishedX || unconsumedX != 0)
                             && (scrollerFinishedY || unconsumedY != 0));
 
+                // Get the current smoothScroller. It may have changed by this point and we need to
+                // make sure we don't stop scrolling if it has changed and it's pending an initial
+                // run.
                 SmoothScroller smoothScroller = mLayout.mSmoothScroller;
                 boolean smoothScrollerPending =
                         smoothScroller != null && smoothScroller.isPendingInitialRun();
@@ -5251,9 +5254,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             // changed our interpolator.
             if (mInterpolator != sQuinticInterpolator) {
                 mInterpolator = sQuinticInterpolator;
-                mScroller = new OverScroller(getContext(), sQuinticInterpolator);
+                mOverScroller = new OverScroller(getContext(), sQuinticInterpolator);
             }
-            mScroller.fling(0, 0, velocityX, velocityY,
+            mOverScroller.fling(0, 0, velocityX, velocityY,
                     Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
             postOnAnimation();
         }
@@ -5306,23 +5309,23 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         public void smoothScrollBy(int dx, int dy, int duration, Interpolator interpolator) {
             if (mInterpolator != interpolator) {
                 mInterpolator = interpolator;
-                mScroller = new OverScroller(getContext(), interpolator);
+                mOverScroller = new OverScroller(getContext(), interpolator);
             }
             setScrollState(SCROLL_STATE_SETTLING);
             mLastFlingX = mLastFlingY = 0;
-            mScroller.startScroll(0, 0, dx, dy, duration);
+            mOverScroller.startScroll(0, 0, dx, dy, duration);
             if (Build.VERSION.SDK_INT < 23) {
                 // b/64931938 before API 23, startScroll() does not reset getCurX()/getCurY()
                 // to start values, which causes fillRemainingScrollValues() put in obsolete values
                 // for LayoutManager.onLayoutChildren().
-                mScroller.computeScrollOffset();
+                mOverScroller.computeScrollOffset();
             }
             postOnAnimation();
         }
 
         public void stop() {
             removeCallbacks(this);
-            mScroller.abortAnimation();
+            mOverScroller.abortAnimation();
         }
 
     }
@@ -11699,11 +11702,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         void onAnimation(int dx, int dy) {
-            // TODO(b/72745539): If mRunning is false, we call stop, which is a no op if mRunning
-            // is false. Also, if recyclerView is null, we call stop, and stop assumes recyclerView
-            // is not null (as does the code following this block).  This should be cleaned up.
             final RecyclerView recyclerView = mRecyclerView;
-            if (!mRunning || mTargetPosition == RecyclerView.NO_POSITION || recyclerView == null) {
+            if (mTargetPosition == RecyclerView.NO_POSITION || recyclerView == null) {
                 stop();
             }
 
@@ -11744,10 +11744,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     if (mRunning) {
                         mPendingInitialRun = true;
                         recyclerView.mViewFlinger.postOnAnimation();
-                    } else {
-                        // TODO(b/72745539): stop() is a no-op if mRunning is false, so this can be
-                        // removed.
-                        stop(); // done
                     }
                 }
             }
