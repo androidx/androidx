@@ -41,13 +41,9 @@ import androidx.ui.widgets.framework.Widget
 // /   element for the element hierarchy.
 // / * [WidgetsBinding.handleBeginFrame], which pumps the widget pipeline to
 // /   ensure the widget, element, and render trees are all built.
-fun runApp(app: Widget) {
-
-    // TODO(Migration/Filip): Not needed anymore?
-    // WidgetsFlutterBinding.ensureInitialized
-
-    WidgetsBindingImpl.let {
-        it.attachRootWidget(app)
-        it.scheduleWarmUpFrame()
+fun runApp(app: Widget, binding: WidgetsBinding) {
+    with(binding) {
+        attachRootWidget(app)
+        scheduleWarmUpFrame()
     }
 }

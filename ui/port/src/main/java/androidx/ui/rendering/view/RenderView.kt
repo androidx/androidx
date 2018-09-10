@@ -38,6 +38,7 @@ import androidx.ui.vectormath64.Matrix4
  * Typically created by the binding (e.g., [RendererBinding]).
  */
 class RenderView(
+    private val window: Window,
     child: RenderBox? = null,
     configuration: ViewConfiguration
 ) : RenderObjectWithChildMixin<RenderBox>() {
@@ -157,7 +158,7 @@ class RenderView(
             val builder = SceneBuilder()
             layer!!.addToScene(builder, Offset.zero)
             val scene: Scene = builder.build()
-            Window.render(scene)
+            window.render(scene)
             scene.dispose()
             assert {
                 if (debugRepaintRainbowEnabled || debugRepaintTextRainbowEnabled) {
@@ -189,12 +190,12 @@ class RenderView(
             true
         }
         properties.add(DiagnosticsProperty.create("window size",
-                Window.physicalSize, tooltip = "in physical pixels"))
+                window.physicalSize, tooltip = "in physical pixels"))
         properties.add(DoubleProperty.create("device pixel ratio",
-                Window.devicePixelRatio, tooltip = "physical pixels per logical pixel"))
+                window.devicePixelRatio, tooltip = "physical pixels per logical pixel"))
         properties.add(DiagnosticsProperty.create("configuration",
                 configuration, tooltip = "in logical pixels"))
-        if (Window.semanticsEnabled) {
+        if (window.semanticsEnabled) {
             properties.add(DiagnosticsNode.message("semantics enabled"))
         }
     }

@@ -1,5 +1,11 @@
 package androidx.ui.widgets.binding
 
+import androidx.ui.engine.window.Window
+import androidx.ui.foundation.binding.BindingBaseImpl
+import androidx.ui.rendering.binding.RendererBindingImpl
+import androidx.ui.scheduler.binding.SchedulerBindingImpl
+import androidx.ui.services.ServicesBindingImpl
+
 // / A concrete binding for applications based on the Widgets framework.
 // / This is the glue that binds the framework to the Flutter engine.
 class WidgetsFlutterBinding {
@@ -7,17 +13,17 @@ class WidgetsFlutterBinding {
 
     companion object {
 
-        // / Returns an instance of the [WidgetsBinding], creating and
-        // / initializing it if necessary. If one is created, it will be a
-        // / [WidgetsFlutterBinding]. If one was previously initialized, then
-        // / it will at least implement [WidgetsBinding].
-        // /
-        // / You only need to call this method if you need the binding to be
-        // / initialized before calling [runApp].
-        // /
-        // / In the `flutter_test` framework, [testWidgets] initializes the
-        // / binding instance to a [TestWidgetsFlutterBinding], not a
-        // / [WidgetsFlutterBinding].
-        val ensureInitialized: WidgetsBinding = WidgetsBindingImpl
+        fun create(window: Window): WidgetsBinding {
+            val base = BindingBaseImpl()
+            return WidgetsBindingImpl(
+                    window,
+                    base,
+                    RendererBindingImpl(window,
+                            base,
+                            SchedulerBindingImpl(window,
+                                    base,
+                                    ServicesBindingImpl(base)))
+            )
+        }
     }
 }

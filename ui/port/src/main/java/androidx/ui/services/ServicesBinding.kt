@@ -17,13 +17,12 @@
 package androidx.ui.services
 
 import androidx.ui.foundation.binding.BindingBase
-import androidx.ui.foundation.binding.BindingBaseImpl
 
 interface ServicesBinding {
     fun evict(asset: String)
 }
 
-object ServicesBindingImpl : BindingBase by BindingBaseImpl, ServicesBinding {
+class ServicesBindingImpl(base: BindingBase) : BindingBase by base, ServicesBinding {
 
     override fun evict(asset: String) {
         TODO()

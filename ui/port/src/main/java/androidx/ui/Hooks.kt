@@ -36,7 +36,7 @@ import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.window.Window
 import androidx.ui.engine.window.WindowPadding
 
-fun _updateWindowMetrics(
+fun Window.updateWindowMetrics(
     devicePixelRatio: Double,
     width: Double,
     height: Double,
@@ -49,17 +49,17 @@ fun _updateWindowMetrics(
     viewInsetBottom: Double,
     viewInsetLeft: Double
 ) {
-    Window.devicePixelRatio = devicePixelRatio
-    Window.physicalSize = Size(width, height)
-    Window.padding = WindowPadding(
+    this.devicePixelRatio = devicePixelRatio
+    this.physicalSize = Size(width, height)
+    this.padding = WindowPadding(
             top = paddingTop,
             right = paddingRight,
             bottom = paddingBottom,
             left = paddingLeft)
-    Window.viewInsets = WindowPadding(
+    this.viewInsets = WindowPadding(
             top = viewInsetTop,
             right = viewInsetRight,
             bottom = viewInsetBottom,
             left = viewInsetLeft)
-    Window.onMetricsChanged.offer(Unit)
+    this.onMetricsChanged.offer(Unit)
 }
