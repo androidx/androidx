@@ -23,9 +23,9 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingTop="16dp"
-              android:paddingStart="16dp"
-              android:paddingEnd="16dp"
-              android:gravity="center_vertical"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp"
+              android:textAlignment="viewStart"
               android:textAppearance="?attr/mediaRouteHeaderTextAppearance" />
     <RelativeLayout android:id="@+id/mr_cast_volume_layout"
                     android:layout_width="match_parent"
@@ -39,6 +39,7 @@
         <androidx.mediarouter.app.MediaRouteVolumeSlider
             android:id="@+id/mr_cast_volume_slider"
             android:layout_toRightOf="@id/mr_cast_mute_button"
+            android:layout_toEndOf="@id/mr_cast_mute_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"

@@ -16,6 +16,9 @@
   -->
 
 <resources>
+    <color name="mr_dynamic_dialog_background_light">#FFFFFF</color>
+    <color name="mr_dynamic_dialog_background_dark">#000000</color>
+
     <color name="mr_dynamic_dialog_icon_light">#202124</color>
     <color name="mr_dynamic_dialog_icon_dark">#F8F9FA</color>
 

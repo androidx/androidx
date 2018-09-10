@@ -309,6 +309,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_cast_dialog);
+        MediaRouterThemeHelper.setDialogBackgroundColor(mContext, this);
 
         mCloseButton = findViewById(R.id.mr_cast_close_button);
         mCloseButton.setColorFilter(COLOR_WHITE_ON_DARK_BACKGROUND);
