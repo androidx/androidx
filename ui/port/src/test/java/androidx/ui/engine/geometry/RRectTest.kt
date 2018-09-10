@@ -27,7 +27,7 @@ class RRectTest {
 
     @Test
     fun `RRect_contains()`() {
-        val rrect = RRect.fromRectAndCorners(
+        val rrect = RRect(
                 Rect.fromLTRB(1.0, 1.0, 2.0, 2.0),
                 topLeft = Radius.circular(0.5),
                 topRight = Radius.circular(0.25),
@@ -47,7 +47,7 @@ class RRectTest {
 
     @Test
     fun `RRect_contains() large radii`() {
-        val rrect = RRect.fromRectAndCorners(
+        val rrect = RRect(
                 Rect.fromLTRB(1.0, 1.0, 2.0, 2.0),
                 topLeft = Radius.circular(5000.0),
                 topRight = Radius.circular(2500.0),
