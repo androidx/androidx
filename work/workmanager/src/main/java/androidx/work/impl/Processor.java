@@ -19,6 +19,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.work.Configuration;
 import androidx.work.Logger;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 /**
@@ -52,7 +54,6 @@ public class Processor implements ExecutionListener {
 
     private final List<ExecutionListener> mOuterListeners;
     private final Object mLock;
-
 
     public Processor(
             Context appContext,
@@ -106,10 +107,13 @@ public class Processor implements ExecutionListener {
                             mWorkTaskExecutor,
                             mWorkDatabase,
                             id)
-                            .withListener(this)
                             .withSchedulers(mSchedulers)
                             .withRuntimeExtras(runtimeExtras)
                             .build();
+            ListenableFuture<Boolean> future = workWrapper.getFuture();
+            future.addListener(
+                    new FutureListener(this, id, future),
+                    mWorkTaskExecutor.getMainThreadExecutor());
             mEnqueuedWorkMap.put(id, workWrapper);
             mExecutor.execute(workWrapper);
             Logger.debug(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
@@ -224,6 +228,35 @@ public class Processor implements ExecutionListener {
             for (ExecutionListener executionListener : mOuterListeners) {
                 executionListener.onExecuted(workSpecId, needsReschedule);
             }
+        }
+    }
+
+    // TODO: Clean this up some more.
+    private static class FutureListener implements Runnable {
+
+        private @NonNull ExecutionListener mExecutionListener;
+        private @NonNull String mWorkSpecId;
+        private @NonNull ListenableFuture<Boolean> mFuture;
+
+        FutureListener(
+                @NonNull ExecutionListener executionListener,
+                @NonNull String workSpecId,
+                @NonNull ListenableFuture<Boolean> future) {
+            mExecutionListener = executionListener;
+            mWorkSpecId = workSpecId;
+            mFuture = future;
+        }
+
+        @Override
+        public void run() {
+            boolean needsReschedule;
+            try {
+                needsReschedule = mFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                // Should never really happen(?)
+                needsReschedule = true;
+            }
+            mExecutionListener.onExecuted(mWorkSpecId, needsReschedule);
         }
     }
 }

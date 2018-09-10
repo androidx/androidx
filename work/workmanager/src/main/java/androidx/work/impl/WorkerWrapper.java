@@ -66,11 +66,9 @@ import java.util.concurrent.ExecutionException;
 public class WorkerWrapper implements Runnable {
 
     private static final String TAG = "WorkerWrapper";
+
     private Context mAppContext;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    String mWorkSpecId;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    ExecutionListener mListener;
+    private String mWorkSpecId;
     private List<Scheduler> mSchedulers;
     private Extras.RuntimeExtras mRuntimeExtras;
     private WorkSpec mWorkSpec;
@@ -86,20 +84,17 @@ public class WorkerWrapper implements Runnable {
     private List<String> mTags;
     private String mWorkDescription;
 
+    private @NonNull SettableFuture<Boolean> mFuture = SettableFuture.create();
+
     private volatile boolean mInterrupted;
 
+    // Package-private for synthetic accessor.
     WorkerWrapper(Builder builder) {
         mAppContext = builder.mAppContext;
         mWorkTaskExecutor = builder.mWorkTaskExecutor;
         mWorkSpecId = builder.mWorkSpecId;
-        mListener = builder.mListener;
         mSchedulers = builder.mSchedulers;
         mRuntimeExtras = builder.mRuntimeExtras;
-        if (mRuntimeExtras == null) {
-            // Create an instance of RuntimeExtras so we can make the Worker aware of its
-            // ExecutionListener.
-            mRuntimeExtras = new Extras.RuntimeExtras();
-        }
         mWorker = builder.mWorker;
 
         mConfiguration = builder.mConfiguration;
@@ -109,12 +104,15 @@ public class WorkerWrapper implements Runnable {
         mWorkTagDao = mWorkDatabase.workTagDao();
     }
 
+    public @NonNull ListenableFuture<Boolean> getFuture() {
+        return mFuture;
+    }
+
     @WorkerThread
     @Override
     public void run() {
         mTags = mWorkTagDao.getTagsForWorkSpecId(mWorkSpecId);
         mWorkDescription = createWorkDescription(mTags);
-
         runWorker();
     }
 
@@ -221,11 +219,8 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void onWorkFinished(@NonNull Result result) {
+    // Package-private for synthetic accessor.
+    void onWorkFinished(@NonNull Result result) {
         assertBackgroundExecutorThread();
         if (!tryCheckForInterruptionAndNotify()) {
             try {
@@ -307,10 +302,6 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void notifyListener(final boolean needsReschedule) {
-        if (mListener == null) {
-            return;
-        }
-
         try {
             // IMPORTANT: We are using a transaction here as to ensure that we have some guarantees
             // about the state of the world before we disable RescheduleReceiver.
@@ -325,16 +316,12 @@ public class WorkerWrapper implements Runnable {
                 PackageManagerHelper.setComponentEnabled(
                         mAppContext, RescheduleReceiver.class, false);
             }
-            mWorkTaskExecutor.postToMainThread(new Runnable() {
-                @Override
-                public void run() {
-                    mListener.onExecuted(mWorkSpecId, needsReschedule);
-                }
-            });
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
         }
+
+        mFuture.set(needsReschedule);
     }
 
     private void handleResult(Worker.Result result) {
@@ -583,9 +570,8 @@ public class WorkerWrapper implements Runnable {
         @NonNull Configuration mConfiguration;
         @NonNull WorkDatabase mWorkDatabase;
         @NonNull String mWorkSpecId;
-        ExecutionListener mListener;
         List<Scheduler> mSchedulers;
-        Extras.RuntimeExtras mRuntimeExtras;
+        @NonNull Extras.RuntimeExtras mRuntimeExtras = new Extras.RuntimeExtras();
 
         public Builder(@NonNull Context context,
                 @NonNull Configuration configuration,
@@ -600,16 +586,6 @@ public class WorkerWrapper implements Runnable {
         }
 
         /**
-         * @param listener The {@link ExecutionListener} which gets notified on completion of the
-         *                 {@link Worker} with the given {@code workSpecId}.
-         * @return The instance of {@link Builder} for chaining.
-         */
-        public Builder withListener(ExecutionListener listener) {
-            mListener = listener;
-            return this;
-        }
-
-        /**
          * @param schedulers The list of {@link Scheduler}s used for scheduling {@link Worker}s.
          * @return The instance of {@link Builder} for chaining.
          */
@@ -619,11 +595,15 @@ public class WorkerWrapper implements Runnable {
         }
 
         /**
-         * @param runtimeExtras The {@link Extras.RuntimeExtras} for the {@link Worker}.
+         * @param runtimeExtras The {@link Extras.RuntimeExtras} for the {@link Worker}; if this is
+         *                      {@code null}, it will be ignored and the default value will be
+         *                      retained.
          * @return The instance of {@link Builder} for chaining.
          */
         public Builder withRuntimeExtras(Extras.RuntimeExtras runtimeExtras) {
-            mRuntimeExtras = runtimeExtras;
+            if (runtimeExtras != null) {
+                mRuntimeExtras = runtimeExtras;
+            }
             return this;
         }
 
