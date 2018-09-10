@@ -244,7 +244,7 @@ public class CarListDialog extends Dialog {
      * Initializes {@link #mAdapter} to display the items in the given array. It utilizes the
      * {@link TextListItem} but only populates the title field with the the values in the array.
      */
-    private void initializeWithItems(String[] items) {
+    private void initializeWithItems(CharSequence[] items) {
         Context context = getContext();
         List<ListItem> listItems = new ArrayList<>();
 
@@ -271,7 +271,7 @@ public class CarListDialog extends Dialog {
 
             listItems.add(header);
 
-            String[] items = section.getItems();
+            CharSequence[] items = section.getItems();
             // Now initialize all the items associated with this subsection.
             for (int i = 0, length = items.length; i < length; i++) {
                 listItems.add(createItem(/* text= */ items[i], /* position= */ i));
@@ -287,7 +287,7 @@ public class CarListDialog extends Dialog {
      * @param text The text to display as the title in {@code TextListItem}.
      * @param position The position of the item in the list.
      */
-    private TextListItem createItem(String text, int position) {
+    private TextListItem createItem(CharSequence text, int position) {
         TextListItem item = new TextListItem(getContext());
         item.setTitle(text);
 
@@ -361,8 +361,8 @@ public class CarListDialog extends Dialog {
      * the list of items associated with that section.
      */
     public static class DialogSubSection {
-        private final String mTitle;
-        private final String[] mItems;
+        private final CharSequence mTitle;
+        private final CharSequence[] mItems;
 
         /**
          * Creates a subsection.
@@ -371,7 +371,7 @@ public class CarListDialog extends Dialog {
          * @param items A list of items associated with this section. This list cannot be
          *              {@code null} or empty.
          */
-        public DialogSubSection(@NonNull String title, @NonNull String[] items) {
+        public DialogSubSection(@NonNull CharSequence title, @NonNull CharSequence[] items) {
             if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("Title cannot be empty.");
             }
@@ -386,13 +386,13 @@ public class CarListDialog extends Dialog {
 
         /** Returns the section title. */
         @NonNull
-        public String getTitle() {
+        public CharSequence getTitle() {
             return mTitle;
         }
 
         /** Returns the section items. */
         @NonNull
-        public String[] getItems() {
+        public CharSequence[] getItems() {
             return mItems;
         }
 
@@ -419,7 +419,7 @@ public class CarListDialog extends Dialog {
 
         CharSequence mTitle;
         int mInitialPosition;
-        String[] mItems;
+        CharSequence[] mItems;
         DialogSubSection[] mSections;
         DialogInterface.OnClickListener mOnClickListener;
 
@@ -440,11 +440,12 @@ public class CarListDialog extends Dialog {
          * Sets the title of the dialog to be the given string resource.
          *
          * @param titleId The resource id of the string to be used as the title.
+         *                Text style will be retained.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         @NonNull
         public Builder setTitle(@StringRes int titleId) {
-            mTitle = mContext.getString(titleId);
+            mTitle = mContext.getText(titleId);
             return this;
         }
 
@@ -482,7 +483,7 @@ public class CarListDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         @NonNull
-        public Builder setItems(@NonNull String[] items,
+        public Builder setItems(@NonNull CharSequence[] items,
                 @Nullable OnClickListener onClickListener) {
             if (items == null || items.length == 0) {
                 throw new IllegalArgumentException("Provided list of items cannot be empty.");
@@ -509,8 +510,8 @@ public class CarListDialog extends Dialog {
          * within a section also cannot be empty. Passing an empty list to this method will
          * throw can exception.
          *
-         * <p>If both this method and {@link #setItems(String[], OnClickListener)} are called, then
-         * the sections will take precedent, and the items set via the other method will be
+         * <p>If both this method and {@link #setItems(CharSequence[], OnClickListener)} are called,
+         * then the sections will take precedent, and the items set via the other method will be
          * ignored.
          *
          * @param sections The sections that will appear in the list.
@@ -597,8 +598,8 @@ public class CarListDialog extends Dialog {
         /**
          * Creates an {@link CarListDialog} with the arguments supplied to this {@code Builder}.
          *
-         * <p>If {@link #setItems(String[],DialogInterface.OnClickListener)} is never called, then
-         * calling this method will throw an exception.
+         * <p>If {@link #setItems(CharSequence[],DialogInterface.OnClickListener)} is never called,
+         * then calling this method will throw an exception.
          *
          * <p>Calling this method does not display the dialog. Utilize this dialog within a
          * {@link androidx.fragment.app.DialogFragment} to show the dialog.
