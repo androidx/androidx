@@ -79,8 +79,8 @@ def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
 }
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
-tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarDebug")
-tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarMinDepVersionsDebug")
+tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarMinDepVersionsDebug")
 
 supportLibrary {
     name = "Android Room Compiler"
