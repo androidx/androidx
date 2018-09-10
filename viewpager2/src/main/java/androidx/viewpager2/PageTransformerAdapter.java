@@ -32,7 +32,7 @@ import androidx.viewpager2.widget.ViewPager2.PageTransformer;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class PageTransformerAdapter {
+public class PageTransformerAdapter implements OnPageChangeListener {
     private final LinearLayoutManager mLayoutManager;
 
     private PageTransformer mPageTransformer;
@@ -53,7 +53,8 @@ public class PageTransformerAdapter {
         mPageTransformer = transformer;
     }
 
-    void onPageScrolled(int position, float positionOffset) {
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         if (mPageTransformer == null) {
             return;
         }
@@ -70,5 +71,13 @@ public class PageTransformerAdapter {
             float viewOffset = transformOffset + (currPos - position);
             mPageTransformer.transformPage(view, viewOffset);
         }
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
     }
 }
