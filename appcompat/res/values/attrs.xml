@@ -870,6 +870,8 @@
         <!-- Distance from the bottom of the TextView to the last text baseline. If set, this
              overrides the value set for paddingBottom. -->
         <attr name="lastBaselineToBottomHeight" format="dimension" />
+        <!-- OpenType font variation settings, available aftear api 26. -->
+        <attr name="fontVariationSettings" format="string" />
     </declare-styleable>
 
     <declare-styleable name="LinearLayoutCompat">
@@ -1140,6 +1142,8 @@
         <attr name="android:shadowDy"/>
         <attr name="android:shadowDx"/>
         <attr name="android:shadowRadius"/>
+        <!-- OpenType font variation settings, available aftear api 26. -->
+        <attr name="fontVariationSettings" />
     </declare-styleable>
 
     <!-- The set of attributes that describe a AlertDialog's theme. -->
