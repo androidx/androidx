@@ -73,6 +73,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /** Unit tests for {@link PagedListView}. */
@@ -157,6 +158,8 @@ public final class PagedListViewTest {
             throwable.printStackTrace();
             throw new RuntimeException(throwable);
         }
+        // Wait for paged list view to layout by using espresso to scroll to a position.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
     }
 
     @Test
@@ -502,6 +505,34 @@ public final class PagedListViewTest {
     }
 
     @Test
+    public void testPagedDownScrollsOverLongItem_itemEndAlignedToScreenBottom() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setBody(mActivity.getResources().getString(R.string.longer_than_screen_size));
+
+        setupPagedListView(Arrays.asList(item));
+
+        View longItem = findLongItem();
+
+        // Verify long item is at top.
+        OrientationHelper orientationHelper = OrientationHelper.createVerticalHelper(
+                mPagedListView.getRecyclerView().getLayoutManager());
+        assertThat(orientationHelper.getDecoratedStart(longItem), is(equalTo(0)));
+        assertThat(orientationHelper.getDecoratedEnd(longItem),
+                is(greaterThan(mPagedListView.getBottom())));
+
+        // Set a limit to avoid test stuck in non-moving state.
+        int limit = 10;
+        for (int pageCount = 0; pageCount < limit
+                && mPagedListView.mScrollBarView.isDownEnabled();
+                pageCount++) {
+            onView(withId(R.id.page_down)).perform(click());
+        }
+        // Verify long item end is aligned to bottom.
+        assertThat(orientationHelper.getDecoratedEnd(longItem),
+                is(equalTo(mPagedListView.getHeight())));
+    }
+
+    @Test
     public void testPageDownScrollsOverLongItem() throws Throwable {
         // Verifies that page down button gradually steps over item longer than parent size.
         TextListItem item;
@@ -569,7 +600,7 @@ public final class PagedListViewTest {
     }
 
     @Test
-    public void testPageUpScrollsOverLongItem() throws Throwable {
+    public void testPageUpScrollsOverLongItem() {
         // Verifies that page down button gradually steps over item longer than parent size.
         TextListItem item;
         List<ListItem> items = new ArrayList<>();
