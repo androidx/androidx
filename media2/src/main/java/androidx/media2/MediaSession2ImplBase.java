@@ -70,6 +70,11 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     static final String TAG = "MS2ImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
+    // Note: This checks the uniqueness of a session ID only in single process.
+    // When the framework becomes able to check the uniqueness, this logic should be removed.
+    @GuardedBy("MediaSession2ImplBase.class")
+    private static final List<String> SESSION_ID_LIST = new ArrayList<>();
+
     private final Context mContext;
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
@@ -126,6 +131,12 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         mPlaylistEventCallback = new MyPlaylistEventCallback(this);
         mAudioFocusHandler = new AudioFocusHandler(context, instance);
 
+        synchronized (MediaSession2ImplBase.class) {
+            if (SESSION_ID_LIST.contains(id)) {
+                throw new IllegalArgumentException("Session ID must be unique. ID=" + id);
+            }
+            SESSION_ID_LIST.add(id);
+        }
         mSessionId = id;
         mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
                 TYPE_SESSION, context.getPackageName(), mSession2Stub));
@@ -309,6 +320,9 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         synchronized (mLock) {
             if (mPlayer == null) {
                 return;
+            }
+            synchronized (MediaSession2ImplBase.class) {
+                SESSION_ID_LIST.remove(mSessionId);
             }
             mAudioFocusHandler.close();
             mPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
