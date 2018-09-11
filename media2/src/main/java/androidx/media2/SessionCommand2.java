@@ -126,7 +126,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYBACK_SEEK_TO = 10004;
 
     /**
@@ -138,7 +137,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYBACK_SET_SPEED = 10005;
 
     static {
@@ -157,7 +155,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_GET_LIST = 20000;
 
     /**
@@ -169,7 +166,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_SET_LIST = 20001;
 
     /**
@@ -181,7 +177,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM = 20002;
 
     /**
@@ -193,7 +188,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM = 20003;
 
     /**
@@ -217,7 +211,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE = 20005;
 
     /**
@@ -229,7 +222,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE = 20006;
 
     /**
@@ -238,7 +230,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_GET_LIST_METADATA = 20007;
 
     /**
@@ -250,7 +241,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_ADD_ITEM = 20008;
 
     /**
@@ -262,7 +252,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_REMOVE_ITEM = 20009;
 
     /**
@@ -274,7 +263,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_REPLACE_ITEM = 20010;
 
     /**
@@ -283,7 +271,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM = 20011;
 
     /**
@@ -295,7 +282,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA = 20012;
 
     static {
@@ -320,7 +306,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_VOLUME_SET_VOLUME = 30000;
 
     /**
@@ -333,7 +318,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_VOLUME_ADJUST_VOLUME = 30001;
 
     static {
@@ -352,7 +336,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_FAST_FORWARD = 40000;
 
     /**
@@ -360,7 +343,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_REWIND = 40001;
 
     /**
@@ -368,7 +350,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40002;
 
     /**
@@ -376,7 +357,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40003;
 
     /**
@@ -384,7 +364,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40004;
 
     /**
@@ -392,7 +371,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID = 40005;
 
     /**
@@ -400,7 +378,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40006;
 
     /**
@@ -408,7 +385,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40007;
 
     /**
@@ -416,31 +392,33 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_SESSION_SET_RATING = 40008;
 
     /**
      * Command code for {@link MediaController2#subscribeRoutesInfo()}
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
-
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO = 40009;
 
     /**
      * Command code for {@link MediaController2#unsubscribeRoutesInfo()}
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
-
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO = 40010;
 
     /**
      * Command code for {@link MediaController2#selectRoute(Bundle)}}
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
-
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_SELECT_ROUTE = 40011;
 
     static {
@@ -459,7 +437,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT = 50000;
 
     /**
@@ -467,7 +444,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_LIBRARY_SUBSCRIBE = 50001;
 
     /**
@@ -475,7 +451,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 50002;
 
     /**
@@ -483,7 +458,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_LIBRARY_GET_CHILDREN = 50003;
 
     /**
@@ -491,7 +465,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_LIBRARY_GET_ITEM = 50004;
 
     /**
@@ -499,7 +472,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_LIBRARY_SEARCH = 50005;
 
     /**
@@ -507,7 +479,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-
     public static final int COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT = 50006;
 
     static {
