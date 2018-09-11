@@ -24,6 +24,8 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
 
@@ -35,15 +37,16 @@ import androidx.fragment.app.DialogFragment;
  */
 public class AppCompatDialogFragment extends DialogFragment {
 
+    @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         return new AppCompatDialog(getContext(), getTheme());
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @Override
-    public void setupDialog(Dialog dialog, int style) {
+    public void setupDialog(@NonNull Dialog dialog, int style) {
         if (dialog instanceof AppCompatDialog) {
             // If the dialog is an AppCompatDialog, we'll handle it
             AppCompatDialog acd = (AppCompatDialog) dialog;

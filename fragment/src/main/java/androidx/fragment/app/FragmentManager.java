@@ -174,6 +174,7 @@ public abstract class FragmentManager {
      */
     @RestrictTo(LIBRARY_GROUP)
     @Deprecated
+    @NonNull
     public FragmentTransaction openTransaction() {
         return beginTransaction();
     }
@@ -382,7 +383,7 @@ public abstract class FragmentManager {
      * interesting state created by the fragment.
      */
     @Nullable
-    public abstract Fragment.SavedState saveFragmentInstanceState(Fragment f);
+    public abstract Fragment.SavedState saveFragmentInstanceState(@NonNull Fragment f);
 
     /**
      * Returns true if the final {@link android.app.Activity#onDestroy() Activity.onDestroy()}
@@ -452,8 +453,8 @@ public abstract class FragmentManager {
      * @param writer A PrintWriter to which the dump is to be set.
      * @param args Additional arguments to the dump request.
      */
-    public abstract void dump(String prefix, @Nullable FileDescriptor fd, PrintWriter writer,
-            @Nullable String[] args);
+    public abstract void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+            @NonNull PrintWriter writer, @Nullable String[] args);
 
     /**
      * Control whether the framework's internal fragment manager debugging
@@ -822,6 +823,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         throw ex;
     }
 
+    @NonNull
     @Override
     public FragmentTransaction beginTransaction() {
         return new BackStackRecord(this);
@@ -1002,7 +1004,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     @Override
     @Nullable
-    public Fragment.SavedState saveFragmentInstanceState(Fragment fragment) {
+    public Fragment.SavedState saveFragmentInstanceState(@NonNull Fragment fragment) {
         if (fragment.mIndex < 0) {
             throwException( new IllegalStateException("Fragment " + fragment
                     + " is not currently in the FragmentManager"));
@@ -1035,8 +1037,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public void dump(String prefix, @Nullable FileDescriptor fd, PrintWriter writer,
-            @Nullable String[] args) {
+    public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+            @NonNull PrintWriter writer, @Nullable String[] args) {
         String innerPrefix = prefix + "    ";
 
         int N;
@@ -2077,8 +2079,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return null;
     }
 
-    public Fragment findFragmentByWho(String who) {
-        if (mActive != null && who != null) {
+    public Fragment findFragmentByWho(@NonNull String who) {
+        if (mActive != null) {
             for (int i=mActive.size()-1; i>=0; i--) {
                 Fragment f = mActive.valueAt(i);
                 if (f != null && (f=f.findFragmentByWho(who)) != null) {
@@ -3206,8 +3208,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    public void attachController(FragmentHostCallback host,
-            FragmentContainer container, Fragment parent) {
+    public void attachController(@NonNull FragmentHostCallback host,
+            @NonNull FragmentContainer container, @Nullable Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
         mHost = host;
         mContainer = container;
@@ -3301,7 +3303,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    public void dispatchConfigurationChanged(Configuration newConfig) {
+    public void dispatchConfigurationChanged(@NonNull Configuration newConfig) {
         for (int i = 0; i < mAdded.size(); i++) {
             Fragment f = mAdded.get(i);
             if (f != null) {
@@ -3319,7 +3321,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    public boolean dispatchCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public boolean dispatchCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         if (mCurState < Fragment.CREATED) {
             return false;
         }
@@ -3352,7 +3354,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return show;
     }
 
-    public boolean dispatchPrepareOptionsMenu(Menu menu) {
+    public boolean dispatchPrepareOptionsMenu(@NonNull Menu menu) {
         if (mCurState < Fragment.CREATED) {
             return false;
         }
@@ -3368,7 +3370,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return show;
     }
 
-    public boolean dispatchOptionsItemSelected(MenuItem item) {
+    public boolean dispatchOptionsItemSelected(@NonNull MenuItem item) {
         if (mCurState < Fragment.CREATED) {
             return false;
         }
@@ -3383,7 +3385,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return false;
     }
 
-    public boolean dispatchContextItemSelected(MenuItem item) {
+    public boolean dispatchContextItemSelected(@NonNull MenuItem item) {
         if (mCurState < Fragment.CREATED) {
             return false;
         }
@@ -3398,7 +3400,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return false;
     }
 
-    public void dispatchOptionsMenuClosed(Menu menu) {
+    public void dispatchOptionsMenuClosed(@NonNull Menu menu) {
         if (mCurState < Fragment.CREATED) {
             return;
         }
@@ -3451,13 +3453,13 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public void registerFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb,
+    public void registerFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb,
             boolean recursive) {
         mLifecycleCallbacks.add(new FragmentLifecycleCallbacksHolder(cb, recursive));
     }
 
     @Override
-    public void unregisterFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb) {
+    public void unregisterFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb) {
         synchronized (mLifecycleCallbacks) {
             for (int i = 0, N = mLifecycleCallbacks.size(); i < N; i++) {
                 if (mLifecycleCallbacks.get(i).mCallback == cb) {
@@ -3726,7 +3728,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+    @Nullable
+    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
+            @NonNull AttributeSet attrs) {
         if (!"fragment".equals(name)) {
             return null;
         }

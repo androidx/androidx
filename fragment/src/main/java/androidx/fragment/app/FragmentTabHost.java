@@ -16,6 +16,7 @@
 
 package androidx.fragment.app;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -232,7 +233,7 @@ public class FragmentTabHost extends TabHost
     }
 
     @Override
-    public void setOnTabChangedListener(OnTabChangeListener l) {
+    public void setOnTabChangedListener(@Nullable OnTabChangeListener l) {
         mOnTabChangeListener = l;
     }
 
@@ -305,6 +306,7 @@ public class FragmentTabHost extends TabHost
     }
 
     @Override
+    @NonNull
     protected Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
@@ -313,7 +315,7 @@ public class FragmentTabHost extends TabHost
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable state) {
+    protected void onRestoreInstanceState(@SuppressLint("UnknownNullness") Parcelable state) {
         if (!(state instanceof SavedState)) {
             super.onRestoreInstanceState(state);
             return;
@@ -324,7 +326,7 @@ public class FragmentTabHost extends TabHost
     }
 
     @Override
-    public void onTabChanged(String tabId) {
+    public void onTabChanged(@Nullable String tabId) {
         if (mAttached) {
             final FragmentTransaction ft = doTabChanged(tabId, null);
             if (ft != null) {

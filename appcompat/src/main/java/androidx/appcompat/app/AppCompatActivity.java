@@ -130,6 +130,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         getDelegate().setSupportActionBar(toolbar);
     }
 
+    @NonNull
     @Override
     public MenuInflater getMenuInflater() {
         return getDelegate().getMenuInflater();
@@ -156,7 +157,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         getDelegate().onConfigurationChanged(newConfig);
         if (mResources != null) {
@@ -192,7 +193,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     @Override
-    public final boolean onMenuItemSelected(int featureId, android.view.MenuItem item) {
+    public final boolean onMenuItemSelected(int featureId, @NonNull android.view.MenuItem item) {
         if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
@@ -501,12 +502,12 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * {@link AppCompatDelegate#FEATURE_SUPPORT_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
      */
     @Override
-    public void onPanelClosed(int featureId, Menu menu) {
+    public void onPanelClosed(int featureId, @NonNull Menu menu) {
         super.onPanelClosed(featureId, menu);
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         getDelegate().onSaveInstanceState(outState);
     }

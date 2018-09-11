@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
+@SuppressLint("UnknownNullness")
 public abstract class FragmentTransitionImpl {
 
     /**
