@@ -58,7 +58,7 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
             MediaSession2.SessionCallback callback = registry.getSessionCallback();
             mSession2 = new MediaSession2.Builder(MockMediaSessionService2.this)
                     .setId(ID)
-                    .setPlayer(new MockPlayerConnector(0))
+                    .setPlayer(new MockPlayer(0))
                     .setSessionCallback(Executors.newSingleThreadExecutor(),
                             callback != null ? callback : new TestSessionCallback())
                     .build();

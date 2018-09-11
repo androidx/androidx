@@ -116,14 +116,6 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void reset() {
-        try {
-            mBinder.reset(mControllerId);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call reset()");
-        }
-    }
-
     public void prepare() {
         try {
             mBinder.prepare(mControllerId);

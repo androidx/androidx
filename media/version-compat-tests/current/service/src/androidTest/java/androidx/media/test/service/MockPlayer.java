@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service;
 
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.CommandResult2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.SessionPlayer2;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

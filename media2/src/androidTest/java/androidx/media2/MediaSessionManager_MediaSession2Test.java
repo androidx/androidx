@@ -72,8 +72,8 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
     @Test
     public void testGetMediaSession2Tokens_hasMediaController() throws InterruptedException {
         prepareLooper();
-        final MockPlayer player = (MockPlayer) mSession.getPlayerConnector();
-        player.notifyPlaybackState(MediaPlayerConnector.PLAYER_STATE_IDLE);
+        final MockPlayer player = (MockPlayer) mSession.getPlayer();
+        player.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_IDLE);
 
         MediaController2 controller = null;
 //        List<SessionToken2> tokens = mManager.getActiveSessionTokens();

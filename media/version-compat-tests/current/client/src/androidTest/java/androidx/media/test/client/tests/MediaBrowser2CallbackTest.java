@@ -89,6 +89,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
     @Override
     TestControllerInterface onCreateController(final @NonNull SessionToken2 token,
             final @Nullable ControllerCallback callback) throws InterruptedException {
+        assertNotNull("Test bug", token);
         final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override

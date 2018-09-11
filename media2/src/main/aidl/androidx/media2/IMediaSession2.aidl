@@ -39,7 +39,6 @@ import androidx.versionedparcelable.ParcelImpl;
 
     void play(IMediaController2 caller) = 4;
     void pause(IMediaController2 caller) = 5;
-    void reset(IMediaController2 caller) = 6;
     void prepare(IMediaController2 caller) = 7;
     void fastForward(IMediaController2 caller) = 8;
     void rewind(IMediaController2 caller) = 9;

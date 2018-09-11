@@ -25,17 +25,16 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.media.test.service.MockPlayerConnector;
-import androidx.media.test.service.MockPlaylistAgent;
+import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media.test.service.TestServiceRegistry;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaMetadata2;
-import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionPlayer2;
 import androidx.media2.SessionToken2;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -61,14 +60,12 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
     private static final long NOTIFICATION_SHOW_TIME_MS = 15000;
 
     MediaSession2 mSession;
-    MockPlayerConnector mPlayer;
-    MockPlaylistAgent mPlaylistAgent;
+    MockPlayer mPlayer;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        mPlayer = new MockPlayerConnector(true);
-        mPlaylistAgent = new MockPlaylistAgent();
+        mPlayer = new MockPlayer(true);
         TestServiceRegistry.getInstance().setHandler(sHandler);
     }
 
@@ -88,7 +85,7 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
                 if (CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
                     mSession = session;
                     // Change the player and playlist agent with ours.
-                    session.updatePlayerConnector(mPlayer, mPlaylistAgent);
+                    session.updatePlayer(mPlayer);
                     latch.countDown();
                 }
                 return super.onConnect(session, controller);
@@ -110,7 +107,7 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
                         .putText(MediaMetadata2.METADATA_KEY_ARTIST, "Test Artist Name")
                         .putBitmap(MediaMetadata2.METADATA_KEY_ALBUM_ART, albumArt)
                         .build();
-        mPlaylistAgent.mCurrentMediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+        mPlayer.mCurrentMediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                         .setMetadata(metadata)
                         .setMediaId(mediaId)
                         .build();
@@ -118,7 +115,7 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
         // Notification should be shown. Clicking play/pause button will change the player state.
         // When playing, the notification will not be removed by swiping horizontally.
         // When paused, the notification can be swiped away.
-        mPlayer.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PLAYING);
+        mPlayer.notifyPlayerStateChanged(SessionPlayer2.PLAYER_STATE_PLAYING);
         Thread.sleep(NOTIFICATION_SHOW_TIME_MS);
     }
 }

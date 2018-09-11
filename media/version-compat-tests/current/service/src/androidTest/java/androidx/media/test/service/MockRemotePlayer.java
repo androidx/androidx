@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media.test.service;
 
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.CommandResult2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.RemoteSessionPlayer2;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -24,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Mock implementation of {@link BaseRemoteMediaPlayerConnector}.
+ * Mock implementation of {@link RemoteSessionPlayer2}.
  */
 public class MockRemotePlayer extends RemoteSessionPlayer2 {
     public final CountDownLatch mLatch = new CountDownLatch(1);
@@ -34,6 +38,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer2 {
     public int mCurrentVolume;
     public int mMaxVolume;
     public int mDirection;
+    public AudioAttributesCompat mAttributes;
 
     public MockRemotePlayer(int controlType, int maxVolume, int currentVolume) {
         mControlType = controlType;
@@ -99,7 +104,8 @@ public class MockRemotePlayer extends RemoteSessionPlayer2 {
 
     @Override
     public ListenableFuture<CommandResult2> setAudioAttributes(AudioAttributesCompat attributes) {
-        return null;
+        mAttributes = attributes;
+        return new SyncListenableFuture(null);
     }
 
     @Override
@@ -140,7 +146,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer2 {
 
     @Override
     public AudioAttributesCompat getAudioAttributes() {
-        return null;
+        return mAttributes;
     }
 
     @Override

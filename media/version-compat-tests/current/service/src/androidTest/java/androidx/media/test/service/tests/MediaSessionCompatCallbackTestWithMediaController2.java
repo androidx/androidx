@@ -153,17 +153,6 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     }
 
     @Test
-    public void testReset() throws Exception {
-        prepareLooper();
-        createControllerAndWaitConnection();
-        mSessionCallback.reset(1);
-
-        mController.reset();
-        assertTrue(mSessionCallback.await(TIME_OUT_MS));
-        assertEquals(true, mSessionCallback.mOnStopCalled);
-    }
-
-    @Test
     public void testPrepare() throws Exception {
         prepareLooper();
         createControllerAndWaitConnection();
