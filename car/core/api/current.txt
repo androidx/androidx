@@ -50,7 +50,6 @@ package androidx.car.drawer {
     ctor public CarDrawerActivity();
     method protected int getContentContainerId();
     method protected androidx.car.drawer.CarDrawerController getDrawerController();
-    method protected deprecated androidx.car.drawer.CarDrawerAdapter getRootAdapter();
     method public void setMainContent(android.view.View);
     method public void setMainContent(int);
     method public void setToolbarAlwaysShow();
