@@ -110,6 +110,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         mPlayer = new MockPlayerConnector(1);
         mMockAgent = new MockPlaylistAgent();
         mSession = new MediaSession2.Builder(mContext)
+                .setId(TAG)
                 .setPlayer(mPlayer)
                 .setPlaylistAgent(mMockAgent)
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
@@ -846,8 +847,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
                 public void run() {
                     mSession = new MediaSession2.Builder(mContext)
                             .setPlayer(mPlayer)
-                            .setSessionCallback(sHandlerExecutor, new SessionCallback() {
-                            })
+                            .setSessionCallback(sHandlerExecutor, new SessionCallback() {})
                             .setId("testDeadlock").build();
                 }
             });
