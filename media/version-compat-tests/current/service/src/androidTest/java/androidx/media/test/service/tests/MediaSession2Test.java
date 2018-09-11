@@ -60,6 +60,8 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public class MediaSession2Test extends MediaSession2TestBase {
 
+    private static final String TAG = "MediaSession2Test";
+
     private MediaSession2 mSession;
     private MockPlayerConnector mPlayer;
     private MockPlaylistAgent mMockAgent;
@@ -72,6 +74,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         mMockAgent = new MockPlaylistAgent();
 
         mSession = new MediaSession2.Builder(mContext)
+                .setId(TAG)
                 .setPlayer(mPlayer)
                 .setPlaylistAgent(mMockAgent)
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
@@ -322,5 +325,31 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 testThread.quit();
             }
         }
+    }
+
+    @Test
+    public void testCreatingTwoSessionWithSameId() {
+        prepareLooper();
+        final String sessionId = "testSessionId";
+        MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(new MockPlayerConnector(0))
+                .setId(sessionId)
+                .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {})
+                .build();
+
+        MediaSession2.Builder builderWithSameId = new MediaSession2.Builder(mContext);
+        try {
+            builderWithSameId.setPlayer(new MockPlayerConnector(0))
+                    .setId(sessionId)
+                    .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {})
+                    .build();
+            fail("Creating a new session with the same ID in a process should not be allowed");
+        } catch (IllegalArgumentException e) {
+            // expected. pass-through
+        }
+
+        // Creating a new session with ID of the closed session is okay.
+        session.close();
+        builderWithSameId.build();
     }
 }

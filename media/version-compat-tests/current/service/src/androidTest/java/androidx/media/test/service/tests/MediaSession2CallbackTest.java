@@ -93,27 +93,28 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         mPlayer = new MockPlayerConnector(1);
 
         final MockOnCommandCallback callback = new MockOnCommandCallback();
-        MediaSession2 session = new MediaSession2.Builder(mContext)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCommandRequest")
-                .build();
-        mController2 = createRemoteController2(session.getToken());
+                .build()) {
+            mController2 = createRemoteController2(session.getToken());
 
-        mController2.pause();
-        assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertFalse(mPlayer.mPauseCalled);
-        assertEquals(1, callback.commands.size());
-        assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE,
-                (long) callback.commands.get(0).getCommandCode());
+            mController2.pause();
+            assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertFalse(mPlayer.mPauseCalled);
+            assertEquals(1, callback.commands.size());
+            assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE,
+                    (long) callback.commands.get(0).getCommandCode());
 
-        mController2.play();
-        assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mPlayer.mPlayCalled);
-        assertFalse(mPlayer.mPauseCalled);
-        assertEquals(2, callback.commands.size());
-        assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY,
-                (long) callback.commands.get(1).getCommandCode());
+            mController2.play();
+            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mPlayCalled);
+            assertFalse(mPlayer.mPauseCalled);
+            assertEquals(2, callback.commands.size());
+            assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY,
+                    (long) callback.commands.get(1).getCommandCode());
+        }
     }
 
     @Test
@@ -147,14 +148,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        MediaSession2 session = new MediaSession2.Builder(mContext)
+
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCustomCommand")
-                .build();
-        mController2 = createRemoteController2(session.getToken());
-        mController2.sendCustomCommand(testCommand, testArgs, null /* ResultReceiver */);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                .build()) {
+            mController2 = createRemoteController2(session.getToken());
+            mController2.sendCustomCommand(testCommand, testArgs, null /* ResultReceiver */);
+            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        }
     }
 
     @Test
@@ -403,16 +406,17 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 mLatch.countDown();
             }
         };
-        MediaSession2 session = new MediaSession2.Builder(mContext)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSubscribeRoutesInfo")
-                .build();
-        mController2 = createRemoteController2(session.getToken());
+                .build()) {
+            mController2 = createRemoteController2(session.getToken());
 
-        callback.resetLatchCount(1);
-        mController2.subscribeRoutesInfo();
-        assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            callback.resetLatchCount(1);
+            mController2.subscribeRoutesInfo();
+            assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
     }
 
     @Test
@@ -426,16 +430,17 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 mLatch.countDown();
             }
         };
-        MediaSession2 session = new MediaSession2.Builder(mContext)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnUnsubscribeRoutesInfo")
-                .build();
-        mController2 = createRemoteController2(session.getToken());
+                .build()) {
+            mController2 = createRemoteController2(session.getToken());
 
-        callback.resetLatchCount(1);
-        mController2.unsubscribeRoutesInfo();
-        assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            callback.resetLatchCount(1);
+            mController2.unsubscribeRoutesInfo();
+            assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
     }
 
     @Test
@@ -451,16 +456,17 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 mLatch.countDown();
             }
         };
-        MediaSession2 session = new MediaSession2.Builder(mContext)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSelectRoute")
-                .build();
-        mController2 = createRemoteController2(session.getToken());
+                .build()) {
+            mController2 = createRemoteController2(session.getToken());
 
-        callback.resetLatchCount(1);
-        mController2.selectRoute(testRoute);
-        assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            callback.resetLatchCount(1);
+            mController2.selectRoute(testRoute);
+            assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
     }
 
     @Test
@@ -595,24 +601,21 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         final int targetState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
         final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                MediaSession2 session = new MediaSession2.Builder(mContext)
-                        .setPlayer(mPlayer)
-                        .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
-                            @Override
-                            public void onPlayerStateChanged(MediaSession2 session,
-                                    MediaPlayerConnector player, int state) {
-                                assertEquals(targetState, state);
-                                latchForSessionCallback.countDown();
-                            }
-                        }).build();
-            }
-        });
-
-        mPlayer.notifyPlayerStateChanged(targetState);
-        assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(mPlayer)
+                .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
+                    @Override
+                    public void onPlayerStateChanged(MediaSession2 session,
+                            MediaPlayerConnector player, int state) {
+                        assertEquals(targetState, state);
+                        latchForSessionCallback.countDown();
+                    }
+                })
+                .setId("testOnPlayerStateChanged")
+                .build()) {
+            mPlayer.notifyPlayerStateChanged(targetState);
+            assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        }
     }
 
     @Test

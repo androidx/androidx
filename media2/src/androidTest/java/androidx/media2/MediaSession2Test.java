@@ -85,6 +85,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         mMockAgent = new MockPlaylistAgent();
 
         mSession = new MediaSession2.Builder(mContext)
+                .setId(TAG)
                 .setPlayer(mPlayer)
                 .setPlaylistAgent(mMockAgent)
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {

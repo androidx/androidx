@@ -55,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaPlaylistAgentTest extends MediaSession2TestBase {
+    private static final String TAG = "MediaPlaylistAgentTest";
 
     MediaSession2 mSession;
     MockPlaylistAgent mMockAgent;
@@ -77,7 +78,9 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
                         }
                         return null;
                     }
-                }).build();
+                })
+                .setId(TAG)
+                .build();
         // Create a default MediaController2 in client app.
         mController2 = createRemoteController2(mSession.getToken());
     }
