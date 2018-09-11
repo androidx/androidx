@@ -44,5 +44,10 @@
   <init>();
 }
 
+# Constructors accessed via reflection in DownloadAction
+-dontnote androidx.media2.exoplayer.external.source.dash.offline.DashDownloadAction
+-dontnote androidx.media2.exoplayer.external.source.hls.offline.HlsDownloadAction
+-dontnote androidx.media2.exoplayer.external.source.smoothstreaming.offline.SsDownloadAction
+
 # Don't warn about checkerframework
 -dontwarn org.checkerframework.**
