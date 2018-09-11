@@ -525,7 +525,9 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      * @param routes The routes information. Each bundle should be from {@link
      *               androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
      *               RouteInfo}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
             @Nullable List<Bundle> routes) {
         mImpl.notifyRoutesInfoChanged(controller, routes);
@@ -1173,7 +1175,9 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * @param session the session for this event
          * @param controller controller information
          * @see SessionCommand2#COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onSubscribeRoutesInfo(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller) { }
 
@@ -1183,7 +1187,9 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * @param session the session for this event
          * @param controller controller information
          * @see SessionCommand2#COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onUnsubscribeRoutesInfo(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller) { }
 
@@ -1197,7 +1203,9 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * @see SessionCommand2#COMMAND_CODE_SESSION_SELECT_ROUTE
          * @see androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
          * @see androidx.mediarouter.media.MediaRouter#getRoute
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onSelectRoute(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull Bundle route) { }
         /**
