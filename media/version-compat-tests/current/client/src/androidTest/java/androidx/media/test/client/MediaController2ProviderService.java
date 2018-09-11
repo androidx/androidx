@@ -353,6 +353,12 @@ public class MediaController2ProviderService extends Service {
         ////////////////////////////////////////////////////////////////////////////////
 
         @Override
+        public void getLibraryRoot(String controllerId, Bundle extras) throws RemoteException {
+            MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
+            browser2.getLibraryRoot(extras);
+        }
+
+        @Override
         public void subscribe(String controllerId, String parentId, Bundle extras)
                 throws RemoteException {
             MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
@@ -363,6 +369,33 @@ public class MediaController2ProviderService extends Service {
         public void unsubscribe(String controllerId, String parentId) throws RemoteException {
             MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
             browser2.unsubscribe(parentId);
+        }
+
+        @Override
+        public void getChildren(String controllerId, String parentId, int page, int pageSize,
+                Bundle extras) throws RemoteException {
+            MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
+            browser2.getChildren(parentId, page, pageSize, extras);
+        }
+
+        @Override
+        public void getItem(String controllerId, String mediaId) throws RemoteException {
+            MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
+            browser2.getItem(mediaId);
+        }
+
+        @Override
+        public void search(String controllerId, String query, Bundle extras)
+                throws RemoteException {
+            MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
+            browser2.search(query, extras);
+        }
+
+        @Override
+        public void getSearchResult(String controllerId, String query, int page, int pageSize,
+                Bundle extras) throws RemoteException {
+            MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
+            browser2.getSearchResult(query, page, pageSize, extras);
         }
 
         private class TestControllerCallback extends MediaBrowser2.BrowserCallback {
