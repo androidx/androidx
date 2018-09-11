@@ -347,8 +347,9 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
                 assert(oldChild == null ||
                         oldChild._debugLifecycleState == _ElementLifecycle.active)
                 if (oldChild != null) {
-                    if (oldChild.widget.key != null)
-                        oldKeyedChildren[oldChild.widget.key] = oldChild
+                    val key = oldChild.widget.key
+                    if (key != null)
+                        oldKeyedChildren[key] = oldChild
                     else
                         deactivateChild(oldChild)
                 }

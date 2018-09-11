@@ -8,6 +8,7 @@ import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.gestures.hit_test.HitTestResult
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
@@ -1301,7 +1302,6 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         }
     }
 
-    // TODO(Migration/xbhatnag): Needs HitTestResult
 //    /// Determines the set of render objects located at the given position.
 //    ///
 //    /// Returns true, and adds any render objects that contain the point to the
@@ -1320,43 +1320,44 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
 //    /// called. For example, a render object might be a child of a [RenderOpacity]
 //    /// object, which calls [hitTest] on its children when its opacity is zero
 //    /// even through it does not [paint] its children.
-//    bool hitTest(HitTestResult result, { @required Offset position }) {
-//        assert(() {
-//            if (!hasSize) {
-//                if (debugNeedsLayout) {
-//                    throw new FlutterError(
-//                            'Cannot hit test a render box that has never been laid out.\n'
-//                    'The hitTest() method was called on this RenderBox:\n'
-//                    '  $this\n'
-//                    'Unfortunately, this object\'s geometry is not known at this time, '
-//                    'probably because it has never been laid out. '
-//                    'This means it cannot be accurately hit-tested. If you are trying '
-//                    'to perform a hit test during the layout phase itself, make sure '
-//                    'you only hit test nodes that have completed layout (e.g. the node\'s '
-//                    'children, after their layout() method has been called).'
-//                    );
-//                }
-//                throw new FlutterError(
-//                        'Cannot hit test a render box with no size.\n'
-//                'The hitTest() method was called on this RenderBox:\n'
-//                '  $this\n'
-//                'Although this node is not marked as needing layout, '
-//                'its size is not set. A RenderBox object must have an '
-//                'explicit size before it can be hit-tested. Make sure '
-//                'that the RenderBox in question sets its size during layout.'
-//                );
-//            }
-//            return true;
-//        }());
-//        if (_size.contains(position)) {
-//            if (hitTestChildren(result, position: position) || hitTestSelf(position)) {
-//                result.add(new BoxHitTestEntry(this, position));
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
+    open fun hitTest(result: HitTestResult, position: Offset): Boolean {
+        assert {
+            if (!hasSize) {
+                if (debugNeedsLayout) {
+                    throw FlutterError(
+                            "Cannot hit test a render box that has never been laid out.\n" +
+                                    "The hitTest() method was called on this RenderBox:\n" +
+                                    "  $this\n" +
+                                    "Unfortunately, this object\'s geometry is not known at this " +
+                                    "time, probably because it has never been laid out. " +
+                                    "This means it cannot be accurately hit-tested. If you are " +
+                                    "trying to perform a hit test during the layout phase " +
+                                    "itself, make sure you only hit test nodes that have " +
+                                    "completed layout (e.g. the node\'s children, after their " +
+                                    "layout() method has been called)."
+                    )
+                }
+                throw FlutterError(
+                        "Cannot hit test a render box with no size.\n" +
+                                "The hitTest() method was called on this RenderBox:\n" +
+                                "  $this\n" +
+                                "Although this node is not marked as needing layout, " +
+                                "its size is not set. A RenderBox object must have an " +
+                                "explicit size before it can be hit-tested. Make sure " +
+                                "that the RenderBox in question sets its size during layout."
+                )
+            }
+            true
+        }
+        if (_size!!.contains(position)) {
+            if (hitTestChildren(result, position) || hitTestSelf(position)) {
+                result.add(BoxHitTestEntry(this, position))
+                return true
+            }
+        }
+        return false
+    }
+
     /**
      * Override this method if this render object can be hit even if its
      * children were not hit.
@@ -1371,7 +1372,6 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      */
     protected open fun hitTestSelf(position: Offset): Boolean = false
 
-    // TODO(Migration/xbhatnag): Needs HitTestResult
 //    /// Override this method to check whether any children are located at the
 //    /// given position.
 //    ///
@@ -1386,8 +1386,9 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
 //    ///
 //    /// Used by [hitTest]. If you override [hitTest] and do not call this
 //    /// function, then you don't need to implement this function.
-//    @protected
-//    bool hitTestChildren(HitTestResult result, { Offset position }) => false;
+    protected open fun hitTestChildren(result: HitTestResult, position: Offset? = null): Boolean {
+        return false
+    }
 
     // / Multiply the transform from the parent's coordinate system to this box's
     // / coordinate system into the given transform.
