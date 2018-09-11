@@ -49,6 +49,14 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
      * {@link MediaBrowser2} methods.
      */
 
+    public void getLibraryRoot(@Nullable Bundle extras) {
+        try {
+            mBinder.getLibraryRoot(mControllerId, extras);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call getLibraryRoot()");
+        }
+    }
+
     public void subscribe(@NonNull String parentId, @Nullable Bundle extras) {
         try {
             mBinder.subscribe(mControllerId, parentId, extras);
@@ -62,6 +70,40 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
             mBinder.unsubscribe(mControllerId, parentId);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call unsubscribe()");
+        }
+    }
+
+    public void getChildren(@NonNull String parentId, int page, int pageSize,
+            @Nullable Bundle extras) {
+        try {
+            mBinder.getChildren(mControllerId, parentId, page, pageSize, extras);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call getChildren()");
+        }
+    }
+
+    public void getItem(@NonNull String mediaId) {
+        try {
+            mBinder.getItem(mControllerId, mediaId);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call getItem()");
+        }
+    }
+
+    public void search(@NonNull String query, @Nullable Bundle extras) {
+        try {
+            mBinder.search(mControllerId, query, extras);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call search()");
+        }
+    }
+
+    public void getSearchResult(@NonNull String query, int page, int pageSize,
+            @Nullable Bundle extras) {
+        try {
+            mBinder.getSearchResult(mControllerId, query, page, pageSize, extras);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call getSearchResult()");
         }
     }
 
