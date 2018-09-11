@@ -874,7 +874,9 @@ public class MediaController2 implements AutoCloseable {
 
     /**
      * Queries for information about the routes currently known.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void subscribeRoutesInfo() {
         if (isConnected()) {
             getImpl().subscribeRoutesInfo();
@@ -887,7 +889,9 @@ public class MediaController2 implements AutoCloseable {
      * The {@link ControllerCallback#onRoutesInfoChanged callback} will no longer be invoked for
      * the routes once this method returns.
      * </p>
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void unsubscribeRoutesInfo() {
         if (isConnected()) {
             getImpl().unsubscribeRoutesInfo();
@@ -898,7 +902,9 @@ public class MediaController2 implements AutoCloseable {
      * Selects the specified route.
      *
      * @param route The route to select.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void selectRoute(@NonNull Bundle route) {
         if (route == null) {
             throw new IllegalArgumentException("route shouldn't be null");
@@ -1184,7 +1190,9 @@ public class MediaController2 implements AutoCloseable {
          *               #getUniqueRouteDescriptorBundle RouteInfo}.
          * @see androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
          * @see androidx.mediarouter.media.MediaRouter#getRoute
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onRoutesInfoChanged(@NonNull MediaController2 controller,
                 @Nullable List<Bundle> routes) { }
     }

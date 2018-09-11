@@ -105,7 +105,6 @@ package androidx.media2 {
     method public void reset();
     method public void rewind();
     method public void seekTo(long);
-    method public void selectRoute(android.os.Bundle);
     method public void sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void setPlaybackSpeed(float);
     method public void setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
@@ -116,8 +115,6 @@ package androidx.media2 {
     method public void skipToNextItem();
     method public void skipToPlaylistItem(androidx.media2.MediaItem2);
     method public void skipToPreviousItem();
-    method public void subscribeRoutesInfo();
-    method public void unsubscribeRoutesInfo();
     method public void updatePlaylistMetadata(androidx.media2.MediaMetadata2);
   }
 
@@ -137,7 +134,6 @@ package androidx.media2 {
     method public void onPlaylistChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
     method public void onPlaylistMetadataChanged(androidx.media2.MediaController2, androidx.media2.MediaMetadata2);
     method public void onRepeatModeChanged(androidx.media2.MediaController2, int);
-    method public void onRoutesInfoChanged(androidx.media2.MediaController2, java.util.List<android.os.Bundle>);
     method public void onSeekCompleted(androidx.media2.MediaController2, long);
     method public void onShuffleModeChanged(androidx.media2.MediaController2, int);
   }
@@ -578,7 +574,6 @@ package androidx.media2 {
     method public int getShuffleMode();
     method public androidx.media2.SessionToken2 getToken();
     method public void notifyError(int, android.os.Bundle);
-    method public void notifyRoutesInfoChanged(androidx.media2.MediaSession2.ControllerInfo, java.util.List<android.os.Bundle>);
     method public void pause();
     method public void play();
     method public void prepare();
@@ -675,11 +670,8 @@ package androidx.media2 {
     method public void onRepeatModeChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlaylistAgent, int);
     method public void onRewind(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public void onSeekCompleted(androidx.media2.MediaSession2, androidx.media2.MediaPlayerConnector, long);
-    method public void onSelectRoute(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, android.os.Bundle);
     method public void onSetRating(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, androidx.media2.Rating2);
     method public void onShuffleModeChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlaylistAgent, int);
-    method public void onSubscribeRoutesInfo(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public void onUnsubscribeRoutesInfo(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
   }
 
   public final class MediaSessionManager2 {
@@ -780,10 +772,7 @@ package androidx.media2 {
     field public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40006; // 0x9c46
     field public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40007; // 0x9c47
     field public static final int COMMAND_CODE_SESSION_REWIND = 40001; // 0x9c41
-    field public static final int COMMAND_CODE_SESSION_SELECT_ROUTE = 40011; // 0x9c4b
     field public static final int COMMAND_CODE_SESSION_SET_RATING = 40008; // 0x9c48
-    field public static final int COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO = 40009; // 0x9c49
-    field public static final int COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO = 40010; // 0x9c4a
     field public static final int COMMAND_CODE_VOLUME_ADJUST_VOLUME = 30001; // 0x7531
     field public static final int COMMAND_CODE_VOLUME_SET_VOLUME = 30000; // 0x7530
     field public static final int COMMAND_VERSION_1 = 1; // 0x1
