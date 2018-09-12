@@ -318,6 +318,16 @@ public class ActionMenuItem implements SupportMenuItem {
     }
 
     @Override
+    public boolean requiresActionButton() {
+        return true;
+    }
+
+    @Override
+    public boolean requiresOverflow() {
+        return false;
+    }
+
+    @Override
     public SupportMenuItem setActionView(View actionView) {
         throw new UnsupportedOperationException();
     }
