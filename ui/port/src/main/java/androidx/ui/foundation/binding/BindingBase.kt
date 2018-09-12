@@ -3,6 +3,7 @@ package androidx.ui.foundation.binding
 import androidx.annotation.CallSuper
 import androidx.ui.developer.timeline.Timeline
 import androidx.ui.foundation.assertions.FlutterError
+import androidx.ui.requireMainThread
 import androidx.ui.runtimeType
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
@@ -157,7 +158,6 @@ open class BindingBaseImpl : BindingBase {
     // / Events should be flushed when [unlocked] is called.
     val locked
         get() = _lockCount > 0
-    @Volatile // TODO(Migration/Andrey): Ask Flutter team how it works in Dart w/o volatile!
     private var _lockCount = 0
 
     // / Locks the dispatching of asynchronous events and callbacks until the
@@ -170,6 +170,9 @@ open class BindingBaseImpl : BindingBase {
     // /
     // / The [Future] returned by the `callback` argument is returned by [lockEvents].
     override fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit> {
+        // TODO(Migration/Andrey): Flutter's use of Deferred is not for multithreading.
+        requireMainThread()
+
         Timeline.startSync("Lock events")
 
         assert(callback != null)
@@ -178,6 +181,9 @@ open class BindingBaseImpl : BindingBase {
         assert(future != null, { "The lockEvents() callback returned null;" +
                 "it should return a Future<Null> that completes when the lock is to expire." })
         future.invokeOnCompletion {
+            // TODO(Migration/Andrey): Flutter's use of Deferred is not for multithreading.
+            requireMainThread()
+
             _lockCount -= 1
             if (!locked) {
                 Timeline.finishSync()

@@ -18,6 +18,7 @@ package androidx.ui.foundation
 
 import androidx.ui.foundation.binding.BindingBaseImpl
 import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +40,8 @@ class ReassembleTest {
     fun `Pointer events are locked during reassemble`() {
         val binding = TestFoundationFlutterBinding()
 
-        binding.reassembleApplication()
+        runBlocking { binding.reassembleApplication() }
+
         assertTrue(binding.wasLocked)
     }
 }

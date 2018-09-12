@@ -1,5 +1,6 @@
 package androidx.ui
 
+import android.os.Looper
 import kotlin.math.truncate
 
 // These are purely Crane helpers for flutter migration. Feel free to add more.
@@ -76,4 +77,8 @@ fun describeEnum(enumEntry: Any): String {
 //    return description.substring(indexOfDot + 1)
     // TODO(Andrey) it's not the case for Kotlin. Day.monday.toString() == "monday"
     return enumEntry.toString()
+}
+
+fun requireMainThread() {
+    require(Looper.myLooper() == Looper.getMainLooper())
 }
