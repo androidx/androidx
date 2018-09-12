@@ -68,6 +68,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
@@ -2340,8 +2341,7 @@ public class MediaControlView2 extends BaseLayout {
         private Executor mCallbackExecutor;
 
         Controller2(SessionToken2 token) {
-            mCallbackExecutor =  MainHandlerExecutor
-                    .getExecutor(MediaControlView2.this.getContext());
+            mCallbackExecutor = ContextCompat.getMainExecutor(getContext());
             mController2 = new MediaController2(getContext(), token, mCallbackExecutor,
                     new MediaControllerCallback());
             mPlaybackState = mController2.getPlayerState();

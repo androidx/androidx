@@ -77,6 +77,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 
@@ -713,7 +714,7 @@ public abstract class MediaRouteProviderService extends Service {
                 MediaRouteProvider.DynamicGroupRouteController controller =
                         mProvider.onCreateDynamicGroupRouteController(initialMemberRouteId);
                 controller.setOnDynamicRoutesChangedListener(
-                        MainHandlerExecutor.getExecutor(getApplicationContext()),
+                        ContextCompat.getMainExecutor(getApplicationContext()),
                         mDynamicRoutesChangedListener);
                 if (controller != null) {
                     mControllers.put(controllerId, controller);
