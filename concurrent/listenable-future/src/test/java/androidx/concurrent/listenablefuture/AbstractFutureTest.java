@@ -30,6 +30,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Atomics;
 import com.google.common.util.concurrent.Uninterruptibles;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -1024,7 +1025,7 @@ public class AbstractFutureTest extends TestCase {
 }
 
 
-abstract class ImmediateFuture<V> implements ListenableFuture<V> {
+abstract class ImmediateFuture<V> implements com.google.common.util.concurrent.ListenableFuture<V> {
 
     @Override
     public void addListener(Runnable listener, Executor executor) {

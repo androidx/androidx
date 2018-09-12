@@ -20,14 +20,15 @@ import android.arch.core.util.Function;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
-import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.concurrent.listenablefuture.SettableFuture;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
 /**
  * A collection of utilities which make using
- * {@link androidx.concurrent.listenablefuture.ListenableFuture}s pleasant.
+ * {@link com.google.common.util.concurrent.ListenableFuture}s pleasant.
  *
  * @hide
  */
