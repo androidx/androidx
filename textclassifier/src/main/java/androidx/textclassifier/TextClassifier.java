@@ -205,17 +205,25 @@ public abstract class TextClassifier {
 
     /**
      * Reports a selection event.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void reportSelectionEvent(@NonNull SelectionEvent event) {
     }
 
     /**
      * Called when a selection event is reported.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @WorkerThread
     public void onSelectionEvent(@NonNull SelectionEvent event) {
     }
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     static void ensureNotOnMainThread() {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new IllegalStateException("Must not be on main thread");
