@@ -36,6 +36,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.media.widget.MediaControlView2;
 import androidx.media.widget.VideoView2;
@@ -101,7 +102,8 @@ public class VideoViewTest extends FragmentActivity {
             mVideoView.setMediaControlView2(mMediaControlView, 2000);
             mMediaControlView.setOnFullScreenListener(new FullScreenListener());
             SessionToken2 token = mVideoView.getMediaSessionToken2();
-            Executor executor = MainHandlerExecutor.getExecutor(this);
+
+            Executor executor = ContextCompat.getMainExecutor(this);
             mMediaController = new MediaController2(
                     this, token, executor, new ControllerCallback());
         }

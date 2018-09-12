@@ -22,6 +22,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -211,11 +212,11 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final WeakReference<MediaSessionService2ImplBase> mServiceImpl;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        final MainHandlerExecutor mMainExecutor;
+        final Handler mHandler;
 
         MediaSessionService2Stub(final MediaSessionService2ImplBase serviceImpl) {
             mServiceImpl = new WeakReference<>(serviceImpl);
-            mMainExecutor = new MainHandlerExecutor(serviceImpl.getInstance());
+            mHandler = new Handler(serviceImpl.getInstance().getMainLooper());
         }
 
         @Override
@@ -229,7 +230,7 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
             }
             final int pid = Binder.getCallingPid();
             final int uid = Binder.getCallingUid();
-            mMainExecutor.execute(new Runnable() {
+            mHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     boolean shouldNotifyDisconnected = true;
@@ -282,7 +283,7 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
         @Override
         public void close() {
             mServiceImpl.clear();
-            mMainExecutor.clear();
+            mHandler.removeCallbacksAndMessages(null);
         }
     }
 }

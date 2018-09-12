@@ -25,6 +25,7 @@ import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 
@@ -254,7 +255,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             @Override
             public @NonNull MediaLibrarySession build() {
                 if (mCallbackExecutor == null) {
-                    mCallbackExecutor = new MainHandlerExecutor(mContext);
+                    mCallbackExecutor = ContextCompat.getMainExecutor(mContext);
                 }
                 if (mCallback == null) {
                     mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
