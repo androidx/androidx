@@ -57,7 +57,7 @@ class FtsTableEntityProcessor internal constructor(
     private fun doProcess(): FtsEntity {
         context.checker.hasAnnotation(element, androidx.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
-        val entityAnnotation = element.toAnnotationBox(androidx.room.Entity::class.java)
+        val entityAnnotation = element.toAnnotationBox(androidx.room.Entity::class)
         val tableName: String
         val ignoredColumns: Set<String>
         if (entityAnnotation != null) {
@@ -83,9 +83,9 @@ class FtsTableEntityProcessor internal constructor(
         context.checker.check(pojo.relations.isEmpty(), element, ProcessorErrors.RELATION_IN_ENTITY)
 
         val (ftsVersion, ftsOptions) = if (element.hasAnnotation(androidx.room.Fts3::class)) {
-            FtsVersion.FTS3 to getFts3Options(element.toAnnotationBox(Fts3::class.java)!!)
+            FtsVersion.FTS3 to getFts3Options(element.toAnnotationBox(Fts3::class)!!)
         } else {
-            FtsVersion.FTS4 to getFts4Options(element.toAnnotationBox(Fts4::class.java)!!)
+            FtsVersion.FTS4 to getFts4Options(element.toAnnotationBox(Fts4::class)!!)
         }
 
         val shadowTableName = if (ftsOptions.contentEntity != null) {

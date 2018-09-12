@@ -114,7 +114,7 @@ class AnnotationBox<T : Annotation>(private val obj: Any) : ClassGetter by (obj 
     val value: T = obj as T
 }
 
-fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T> {
+private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T> {
     if (!cl.isAnnotation) {
         throw IllegalArgumentException("$cl is not annotation")
     }
@@ -157,8 +157,8 @@ fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T> {
     })
 }
 
-fun <T : Annotation> Element.toAnnotationBox(cl: Class<T>) =
-        MoreElements.getAnnotationMirror(this, cl).orNull()?.box(cl)
+fun <T : Annotation> Element.toAnnotationBox(cl: KClass<T>) =
+        MoreElements.getAnnotationMirror(this, cl.java).orNull()?.box(cl.java)
 
 private class ListVisitor<T : Annotation>(private val annotationClass: Class<T>)
     : SimpleAnnotationValueVisitor6<Array<AnnotationBox<T>>, Void?>() {
@@ -203,11 +203,11 @@ private val TO_TYPE = object : SimpleAnnotationValueVisitor6<TypeMirror, Void>()
     }
 }
 
-fun AnnotationValue.toListOfClassTypes(): List<TypeMirror> {
+private fun AnnotationValue.toListOfClassTypes(): List<TypeMirror> {
     return TO_LIST_OF_TYPES.visit(this)
 }
 
-fun AnnotationValue.toClassType(): TypeMirror? {
+private fun AnnotationValue.toClassType(): TypeMirror? {
     return TO_TYPE.visit(this)
 }
 
@@ -215,13 +215,6 @@ fun TypeMirror.isCollection(): Boolean {
     return MoreTypes.isType(this) &&
             (MoreTypes.isTypeOf(java.util.List::class.java, this) ||
                     MoreTypes.isTypeOf(java.util.Set::class.java, this))
-}
-
-fun Element.getAnnotationValue(annotation: Class<out Annotation>, fieldName: String): Any? {
-    return MoreElements.getAnnotationMirror(this, annotation)
-            .orNull()?.let {
-                AnnotationMirrors.getAnnotationValue(it, fieldName)?.value
-            }
 }
 
 private val ANNOTATION_VALUE_TO_INT_VISITOR = object : SimpleAnnotationValueVisitor6<Int?, Void>() {
@@ -262,7 +255,7 @@ private val ANNOTATION_VALUE_INT_ARR_VISITOR = object
     }
 }
 
-fun AnnotationValue.getAsInt(def: Int? = null): Int? {
+private fun AnnotationValue.getAsInt(def: Int? = null): Int? {
     return ANNOTATION_VALUE_TO_INT_VISITOR.visit(this) ?: def
 }
 
@@ -283,7 +276,7 @@ private fun AnnotationValue.getAsStringList(): List<String> {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
+private fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
     return object : SimpleAnnotationValueVisitor6<T, Void>() {
         override fun visitEnumConstant(value: VariableElement?, p: Void?): T {
             return enumClass.getDeclaredMethod("valueOf", String::class.java)

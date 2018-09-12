@@ -41,7 +41,7 @@ open class Pojo(
      * Might be via Embedded or Relation.
      */
     fun accessedTableNames(): List<String> {
-        val entityAnnotation = element.toAnnotationBox(androidx.room.Entity::class.java)
+        val entityAnnotation = element.toAnnotationBox(androidx.room.Entity::class)
         return if (entityAnnotation != null) {
             listOf(EntityProcessor.extractTableName(element, entityAnnotation.value))
         } else {
