@@ -24,13 +24,11 @@ import androidx.room.ext.KotlinMetadataProcessor
 import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
 import androidx.room.ext.getAnnotationValue
-import androidx.room.ext.getAsString
-import androidx.room.ext.getAsStringList
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.isAssignableWithoutVariance
 import androidx.room.ext.isCollection
-import androidx.room.ext.toClassType
+import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
@@ -48,7 +46,6 @@ import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.PojoMethod
 import androidx.room.vo.Warning
-import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.auto.value.AutoValue
@@ -460,19 +457,16 @@ class PojoProcessor private constructor(
         container: DeclaredType?,
         relationElement: VariableElement
     ): androidx.room.vo.Relation? {
-        val annotation = MoreElements.getAnnotationMirror(relationElement, Relation::class.java)
-                .orNull()!!
-        val parentColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "parentColumn")
-                .getAsString("") ?: ""
+        val annotation = relationElement.toAnnotationBox(Relation::class.java)!!
 
         val parentField = myFields.firstOrNull {
-            it.columnName == parentColumnInput
+            it.columnName == annotation.value.parentColumn
         }
         if (parentField == null) {
             context.logger.e(relationElement,
                     ProcessorErrors.relationCannotFindParentEntityField(
                             entityName = element.qualifiedName.toString(),
-                            columnName = parentColumnInput,
+                            columnName = annotation.value.parentColumn,
                             availableColumns = myFields.map { it.columnName }))
             return null
         }
@@ -494,8 +488,7 @@ class PojoProcessor private constructor(
             return null
         }
         val typeArgElement = MoreTypes.asTypeElement(typeArg)
-        val entityClassInput = AnnotationMirrors
-                .getAnnotationValue(annotation, "entity").toClassType()
+        val entityClassInput = annotation.getAsTypeMirror("entity")
 
         // do we need to decide on the entity?
         val inferEntity = (entityClassInput == null ||
@@ -513,17 +506,15 @@ class PojoProcessor private constructor(
         val entity = EntityProcessor(context, entityElement, referenceStack).process()
 
         // now find the field in the entity.
-        val entityColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "entityColumn")
-                .getAsString() ?: ""
         val entityField = entity.fields.firstOrNull {
-            it.columnName == entityColumnInput
+            it.columnName == annotation.value.entityColumn
         }
 
         if (entityField == null) {
             context.logger.e(relationElement,
                     ProcessorErrors.relationCannotFindEntityField(
                             entityName = entity.typeName.toString(),
-                            columnName = entityColumnInput,
+                            columnName = annotation.value.entityColumn,
                             availableColumns = entity.fields.map { it.columnName }))
             return null
         }
@@ -535,15 +526,13 @@ class PojoProcessor private constructor(
                 affinity = null,
                 parent = parent)
 
-        val projectionInput = AnnotationMirrors.getAnnotationValue(annotation, "projection")
-                .getAsStringList()
-        val projection = if (projectionInput.isEmpty()) {
+        val projection = if (annotation.value.projection.isEmpty()) {
             // we need to infer the projection from inputs.
             createRelationshipProjection(inferEntity, typeArg, entity, entityField, typeArgElement)
         } else {
             // make sure projection makes sense
-            validateRelationshipProjection(projectionInput, entity, relationElement)
-            projectionInput
+            validateRelationshipProjection(annotation.value.projection, entity, relationElement)
+            annotation.value.projection.asList()
         }
         // if types don't match, row adapter prints a warning
         return androidx.room.vo.Relation(
@@ -557,7 +546,7 @@ class PojoProcessor private constructor(
     }
 
     private fun validateRelationshipProjection(
-        projectionInput: List<String>,
+        projectionInput: Array<String>,
         entity: Entity,
         relationElement: VariableElement
     ) {

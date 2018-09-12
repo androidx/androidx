@@ -16,69 +16,40 @@
 
 package androidx.room.processor
 
+import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Fts3
 import androidx.room.Fts4
-import androidx.room.ext.getAsBoolean
-import androidx.room.ext.getAsInt
-import androidx.room.ext.getAsString
-import androidx.room.ext.getAsStringList
+import androidx.room.ext.AnnotationBox
 import androidx.room.ext.hasAnyOf
-import androidx.room.ext.toType
-import androidx.room.vo.Entity
 import androidx.room.vo.ForeignKeyAction
 import androidx.room.vo.Index
-import com.google.auto.common.AnnotationMirrors.getAnnotationValue
-import javax.lang.model.element.AnnotationMirror
-import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.SimpleAnnotationValueVisitor6
 
 interface EntityProcessor {
-    fun process(): Entity
+    fun process(): androidx.room.vo.Entity
 
     companion object {
-        fun extractTableName(element: TypeElement, annotation: AnnotationMirror): String {
-            val annotationValue = getAnnotationValue(annotation, "tableName").value.toString()
-            return if (annotationValue == "") {
+        fun extractTableName(element: TypeElement, annotation: Entity): String {
+            return if (annotation.tableName == "") {
                 element.simpleName.toString()
             } else {
-                annotationValue
+                annotation.tableName
             }
         }
 
-        fun extractIndices(
-            annotation: AnnotationMirror,
-            tableName: String
-        ): List<IndexInput> {
-            val arrayOfIndexAnnotations = getAnnotationValue(annotation, "indices")
-            return INDEX_LIST_VISITOR.visit(arrayOfIndexAnnotations, tableName)
-        }
-
-        private val INDEX_LIST_VISITOR = object
-            : SimpleAnnotationValueVisitor6<List<IndexInput>, String>() {
-            override fun visitArray(
-                values: MutableList<out AnnotationValue>?,
-                tableName: String
-            ): List<IndexInput> {
-                return values?.mapNotNull {
-                    INDEX_VISITOR.visit(it, tableName)
-                } ?: emptyList()
-            }
-        }
-
-        private val INDEX_VISITOR = object : SimpleAnnotationValueVisitor6<IndexInput?, String>() {
-            override fun visitAnnotation(a: AnnotationMirror?, tableName: String): IndexInput? {
-                val fieldInput = getAnnotationValue(a, "value").getAsStringList()
-                val unique = getAnnotationValue(a, "unique").getAsBoolean(false)
-                val nameValue = getAnnotationValue(a, "name").getAsString("")
-                val name = if (nameValue == null || nameValue == "") {
-                    createIndexName(fieldInput, tableName)
+        fun extractIndices(annotation: AnnotationBox<Entity>, tableName: String): List<IndexInput> {
+            return annotation.getAsAnnotationBox<androidx.room.Index>("indices").map {
+                val indexAnnotation = it.value
+                val nameValue = indexAnnotation.name
+                val name = if (nameValue == "") {
+                    createIndexName(indexAnnotation.value.asList(), tableName)
                 } else {
                     nameValue
                 }
-                return IndexInput(name, unique, fieldInput)
+                IndexInput(name, indexAnnotation.unique, indexAnnotation.value.asList())
             }
         }
 
@@ -86,45 +57,22 @@ interface EntityProcessor {
             return Index.DEFAULT_PREFIX + tableName + "_" + columnNames.joinToString("_")
         }
 
-        fun extractForeignKeys(annotation: AnnotationMirror): List<ForeignKeyInput> {
-            val arrayOfForeignKeyAnnotations = getAnnotationValue(annotation, "foreignKeys")
-            return FOREIGN_KEY_LIST_VISITOR.visit(arrayOfForeignKeyAnnotations)
-        }
-
-        private val FOREIGN_KEY_LIST_VISITOR = object
-            : SimpleAnnotationValueVisitor6<List<ForeignKeyInput>, Void?>() {
-            override fun visitArray(
-                values: MutableList<out AnnotationValue>?,
-                void: Void?
-            ): List<ForeignKeyInput> {
-                return values?.mapNotNull {
-                    FOREIGN_KEY_VISITOR.visit(it)
-                } ?: emptyList()
-            }
-        }
-
-        private val FOREIGN_KEY_VISITOR = object : SimpleAnnotationValueVisitor6<ForeignKeyInput?,
-                Void?>() {
-            override fun visitAnnotation(a: AnnotationMirror?, void: Void?): ForeignKeyInput? {
-                val entityClass = try {
-                    getAnnotationValue(a, "entity").toType()
-                } catch (notPresent: TypeNotPresentException) {
-                    return null
+        fun extractForeignKeys(annotation: AnnotationBox<Entity>): List<ForeignKeyInput> {
+            return annotation.getAsAnnotationBox<ForeignKey>("foreignKeys")
+                    .mapNotNull { annotationBox ->
+                val foreignKey = annotationBox.value
+                val parent = annotationBox.getAsTypeMirror("entity")
+                if (parent != null) {
+                    ForeignKeyInput(
+                            parent = parent,
+                            parentColumns = foreignKey.parentColumns.asList(),
+                            childColumns = foreignKey.childColumns.asList(),
+                            onDelete = ForeignKeyAction.fromAnnotationValue(foreignKey.onDelete),
+                            onUpdate = ForeignKeyAction.fromAnnotationValue(foreignKey.onUpdate),
+                            deferred = foreignKey.deferred)
+                } else {
+                    null
                 }
-                val parentColumns = getAnnotationValue(a, "parentColumns").getAsStringList()
-                val childColumns = getAnnotationValue(a, "childColumns").getAsStringList()
-                val onDeleteInput = getAnnotationValue(a, "onDelete").getAsInt()
-                val onUpdateInput = getAnnotationValue(a, "onUpdate").getAsInt()
-                val deferred = getAnnotationValue(a, "deferred").getAsBoolean(true)
-                val onDelete = ForeignKeyAction.fromAnnotationValue(onDeleteInput)
-                val onUpdate = ForeignKeyAction.fromAnnotationValue(onUpdateInput)
-                return ForeignKeyInput(
-                        parent = entityClass,
-                        parentColumns = parentColumns,
-                        childColumns = childColumns,
-                        onDelete = onDelete,
-                        onUpdate = onUpdate,
-                        deferred = deferred)
             }
         }
     }
