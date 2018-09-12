@@ -21,6 +21,7 @@ import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.ext.KotlinMetadataProcessor
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
@@ -31,8 +32,6 @@ import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.Warning
-import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
@@ -66,14 +65,12 @@ class QueryMethodProcessor(
         val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
 
-        val annotation = MoreElements.getAnnotationMirror(executableElement,
-                Query::class.java).orNull()
+        val annotation = executableElement.toAnnotationBox(Query::class.java)?.value
         context.checker.check(annotation != null, executableElement,
                 ProcessorErrors.MISSING_QUERY_ANNOTATION)
 
         val query = if (annotation != null) {
-            val query = SqlParser.parse(
-                    AnnotationMirrors.getAnnotationValue(annotation, "value").value.toString())
+            val query = SqlParser.parse(annotation.value)
             context.checker.check(query.errors.isEmpty(), executableElement,
                     query.errors.joinToString("\n"))
             if (!executableElement.hasAnnotation(SkipQueryVerification::class)) {
