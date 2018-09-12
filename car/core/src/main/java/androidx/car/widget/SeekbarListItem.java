@@ -122,7 +122,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         return new ViewHolder(itemView);
     }
 
-    public SeekbarListItem(Context context) {
+    public SeekbarListItem(@NonNull Context context) {
         mContext = context;
         markDirty();
     }
@@ -138,6 +138,11 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     @Override
     public void setEnabled(boolean enabled) {
         mIsEnabled = enabled;
+    }
+
+    @NonNull
+    protected Context getContext() {
+        return mContext;
     }
 
     /**
