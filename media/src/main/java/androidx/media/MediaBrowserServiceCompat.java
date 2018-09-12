@@ -522,21 +522,29 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         @Override
         public void onLoadChildren(String parentId,
-                final MediaBrowserServiceCompatApi26.ResultWrapper resultWrapper, Bundle options) {
+                final MediaBrowserServiceCompatApi26.ResultWrapper resultWrapper,
+                final Bundle options) {
             final Result<List<MediaBrowserCompat.MediaItem>> result
                     = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                 @Override
                 void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
-                    List<Parcel> parcelList = null;
-                    if (list != null) {
-                        parcelList = new ArrayList<>();
-                        for (MediaBrowserCompat.MediaItem item : list) {
-                            Parcel parcel = Parcel.obtain();
-                            item.writeToParcel(parcel, 0);
-                            parcelList.add(parcel);
-                        }
+                    if (list == null) {
+                        resultWrapper.sendResult(null);
+                        return;
                     }
-                    resultWrapper.sendResult(parcelList, getFlags());
+                    if ((getFlags() & RESULT_FLAG_OPTION_NOT_HANDLED) != 0) {
+                        // If onLoadChildren(options) is not overridden, the list we get here is not
+                        // paginated. Therefore, we need to manually cut the list. In other words,
+                        // we need to apply options here.
+                        list = applyOptions(list, options);
+                    }
+                    List<Parcel> parcelList = new ArrayList<>();
+                    for (MediaBrowserCompat.MediaItem item : list) {
+                        Parcel parcel = Parcel.obtain();
+                        item.writeToParcel(parcel, 0);
+                        parcelList.add(parcel);
+                    }
+                    resultWrapper.sendResult(parcelList);
                 }
 
                 @Override
