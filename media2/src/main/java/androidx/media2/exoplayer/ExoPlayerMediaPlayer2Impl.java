@@ -259,10 +259,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     // Player implementation.
 
     @Override
-    public void setDataSource(DataSourceDesc2 dsd) {
-        synchronized (mLock) {
-            mDataSourceDescription = dsd;
-        }
+    public void setDataSource(final DataSourceDesc2 dsd) {
+        addTask(new Task(CALL_COMPLETED_SET_DATA_SOURCE, false) {
+            @Override
+            void process() {
+                Preconditions.checkNotNull(dsd);
+                // TODO(b/80232248): Update the data source queue when it's implemented.
+                synchronized (mLock) {
+                    mDataSourceDescription = dsd;
+                }
+            }
+        });
     }
 
     @Override
