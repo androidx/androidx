@@ -1669,7 +1669,7 @@ public final class MediaRouter {
          * @return The list of the routes in this group
          */
         public List<RouteInfo> getMemberRoutes() {
-            return mMemberRoutes;
+            return Collections.unmodifiableList(mMemberRoutes);
         }
 
         @Override
@@ -1774,15 +1774,15 @@ public final class MediaRouter {
         }
 
         public List<RouteInfo> getUnselectableRoutes() {
-            return mUnselectableRoutes;
+            return Collections.unmodifiableList(mUnselectableRoutes);
         }
 
         public List<RouteInfo> getGroupableRoutes() {
-            return mGroupableRoutes;
+            return Collections.unmodifiableList(mGroupableRoutes);
         }
 
         public List<RouteInfo> getTransferableRoutes() {
-            return mTransferableRoutes;
+            return Collections.unmodifiableList(mTransferableRoutes);
         }
 
         /**
@@ -1847,7 +1847,7 @@ public final class MediaRouter {
          */
         public List<RouteInfo> getRoutes() {
             checkCallingThread();
-            return mRoutes;
+            return Collections.unmodifiableList(mRoutes);
         }
 
         Resources getResources() {
