@@ -22,10 +22,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.arch.core.util.Function;
 import android.support.annotation.NonNull;
 
-import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.concurrent.listenablefuture.SettableFuture;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -27,8 +27,9 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.support.v4.util.Pair;
 
-import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.work.impl.Extras;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Set;
 import java.util.UUID;

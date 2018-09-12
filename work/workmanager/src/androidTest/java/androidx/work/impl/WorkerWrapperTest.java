@@ -43,7 +43,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
@@ -71,6 +70,8 @@ import androidx.work.worker.InterruptionAwareWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
