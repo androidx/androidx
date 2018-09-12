@@ -91,10 +91,6 @@ public class CarDrawerActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
 
         mDrawerController = new CarDrawerController(drawerLayout, drawerToggle);
-        CarDrawerAdapter rootAdapter = getRootAdapter();
-        if (rootAdapter != null) {
-            mDrawerController.setRootAdapter(rootAdapter);
-        }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -116,17 +112,6 @@ public class CarDrawerActivity extends AppCompatActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mDrawerController.syncState();
-    }
-
-    /**
-     * @return Adapter for root content of the Drawer.
-     * @deprecated Do not implement this, instead call {@link #getDrawerController}.
-     * {@link CarDrawerController#setRootAdapter(CarDrawerAdapter)} directly.
-     */
-    @Deprecated
-    @Nullable
-    protected CarDrawerAdapter getRootAdapter() {
-        return null;
     }
 
     /**
