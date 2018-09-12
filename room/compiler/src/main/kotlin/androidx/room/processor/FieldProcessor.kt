@@ -17,14 +17,11 @@
 package androidx.room.processor
 
 import androidx.room.ColumnInfo
-import androidx.room.ext.getAsBoolean
-import androidx.room.ext.getAsString
+import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
-import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.MoreElements
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.type.DeclaredType
@@ -41,41 +38,20 @@ class FieldProcessor(
     fun process(): Field {
         val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
         val type = TypeName.get(member)
-        val columnInfoAnnotation = MoreElements.getAnnotationMirror(element,
-                ColumnInfo::class.java)
+        val columnInfo = element.toAnnotationBox(ColumnInfo::class.java)?.value
         val name = element.simpleName.toString()
-        val columnName: String
-        val affinity: SQLTypeAffinity?
-        val collate: Collate?
-        val fieldPrefix = fieldParent?.prefix ?: ""
-        val indexed: Boolean
-        if (columnInfoAnnotation.isPresent) {
-            val nameInAnnotation = AnnotationMirrors
-                    .getAnnotationValue(columnInfoAnnotation.get(), "name")
-                    .getAsString(ColumnInfo.INHERIT_FIELD_NAME)
-            columnName = fieldPrefix + if (nameInAnnotation == ColumnInfo.INHERIT_FIELD_NAME) {
-                name
-            } else {
-                nameInAnnotation
-            }
-
-            affinity = try {
-                SQLTypeAffinity.fromAnnotation(columnInfoAnnotation.get(), "typeAffinity")
-            } catch (ex: NumberFormatException) {
-                null
-            }
-
-            collate = Collate.fromAnnotation(columnInfoAnnotation.get(), "collate")
-
-            indexed = AnnotationMirrors
-                    .getAnnotationValue(columnInfoAnnotation.get(), "index")
-                    .getAsBoolean(false)
+        val rawCName = if (columnInfo != null && columnInfo.name != ColumnInfo.INHERIT_FIELD_NAME) {
+            columnInfo.name
         } else {
-            columnName = fieldPrefix + name
-            affinity = null
-            collate = null
-            indexed = false
+            name
         }
+        val columnName = (fieldParent?.prefix ?: "") + rawCName
+        val affinity = try {
+            SQLTypeAffinity.fromAnnotationValue(columnInfo?.typeAffinity)
+        } catch (ex: NumberFormatException) {
+            null
+        }
+
         context.checker.notBlank(columnName, element,
                 ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
         context.checker.notUnbound(type, element,
@@ -86,9 +62,9 @@ class FieldProcessor(
                 element = element,
                 columnName = columnName,
                 affinity = affinity,
-                collate = collate,
+                collate = Collate.fromAnnotationValue(columnInfo?.collate),
                 parent = fieldParent,
-                indexed = indexed)
+                indexed = columnInfo?.index ?: false)
 
         when (bindingScope) {
             BindingScope.TWO_WAY -> {

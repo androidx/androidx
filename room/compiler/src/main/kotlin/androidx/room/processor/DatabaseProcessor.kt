@@ -17,23 +17,20 @@
 package androidx.room.processor
 
 import androidx.room.SkipQueryVerification
+import androidx.room.ext.AnnotationBox
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.getAsBoolean
-import androidx.room.ext.getAsInt
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
-import androidx.room.ext.toListOfClassTypes
+import androidx.room.ext.toAnnotationBox
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
-import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
@@ -58,9 +55,8 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
     }
 
     private fun doProcess(): Database {
-        val dbAnnotation = MoreElements
-                .getAnnotationMirror(element, androidx.room.Database::class.java)
-                .orNull()
+        val dbAnnotation = element.toAnnotationBox(androidx.room.Database::class.java)!!
+
         val entities = processEntities(dbAnnotation, element)
         validateUniqueTableNames(element, entities)
         validateForeignKeys(element, entities)
@@ -97,20 +93,16 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         }
         validateUniqueDaoClasses(element, daoMethods, entities)
         validateUniqueIndices(element, entities)
-        val version = AnnotationMirrors.getAnnotationValue(dbAnnotation, "version")
-                .getAsInt(1)!!.toInt()
-        val exportSchema = AnnotationMirrors.getAnnotationValue(dbAnnotation, "exportSchema")
-                .getAsBoolean(true)
 
         val hasForeignKeys = entities.any { it.foreignKeys.isNotEmpty() }
 
         val database = Database(
-                version = version,
+                version = dbAnnotation.value.version,
                 element = element,
                 type = MoreElements.asType(element).asType(),
                 entities = entities,
                 daoMethods = daoMethods,
-                exportSchema = exportSchema,
+                exportSchema = dbAnnotation.value.exportSchema,
                 enableForeignKeys = hasForeignKeys)
         return database
     }
@@ -253,18 +245,14 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                 }
     }
 
-    private fun processEntities(dbAnnotation: AnnotationMirror?, element: TypeElement):
-            List<Entity> {
-        if (!context.checker.check(dbAnnotation != null, element,
-                ProcessorErrors.DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE)) {
-            return listOf()
-        }
-
-        val entityList = AnnotationMirrors.getAnnotationValue(dbAnnotation, "entities")
-        val listOfTypes = entityList.toListOfClassTypes()
-        context.checker.check(listOfTypes.isNotEmpty(), element,
+    private fun processEntities(
+        dbAnnotation: AnnotationBox<androidx.room.Database>,
+        element: TypeElement
+    ): List<Entity> {
+        val entityList = dbAnnotation.getAsTypeMirrorList("entities")
+        context.checker.check(entityList.isNotEmpty(), element,
                 ProcessorErrors.DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES)
-        return listOfTypes.map {
+        return entityList.map {
             EntityProcessor(context, MoreTypes.asTypeElement(it)).process()
         }
     }

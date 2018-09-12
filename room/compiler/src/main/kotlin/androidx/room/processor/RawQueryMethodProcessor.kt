@@ -21,13 +21,11 @@ import androidx.room.Transaction
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isEntityElement
-import androidx.room.ext.toListOfClassTypes
+import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.parser.SqlParser
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.vo.RawQueryMethod
-import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
@@ -44,9 +42,7 @@ class RawQueryMethodProcessor(
         val asMember = types.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
 
-        val annotation = MoreElements.getAnnotationMirror(executableElement,
-                RawQuery::class.java).orNull()
-        context.checker.check(annotation != null, executableElement,
+        context.checker.check(executableElement.hasAnnotation(RawQuery::class), executableElement,
                 ProcessorErrors.MISSING_RAWQUERY_ANNOTATION)
 
         val returnTypeName = TypeName.get(executableType.returnType)
@@ -75,17 +71,12 @@ class RawQueryMethodProcessor(
     }
 
     private fun processObservedTables(): Set<String> {
-        val annotation = MoreElements
-                .getAnnotationMirror(executableElement,
-                        androidx.room.RawQuery::class.java)
-                .orNull() ?: return emptySet()
-        val entityList = AnnotationMirrors.getAnnotationValue(annotation, "observedEntities")
-        return entityList
-                .toListOfClassTypes()
-                .map {
+        val annotation = executableElement.toAnnotationBox(RawQuery::class.java)
+        return annotation?.getAsTypeMirrorList("observedEntities")
+                ?.map {
                     MoreTypes.asTypeElement(it)
                 }
-                .flatMap {
+                ?.flatMap {
                     if (it.isEntityElement()) {
                         val entity = EntityProcessor(
                                 context = context,
@@ -107,7 +98,7 @@ class RawQueryMethodProcessor(
                         }
                         tableNames
                     }
-                }.toSet()
+                }?.toSet() ?: emptySet()
     }
 
     private fun findRuntimeQueryParameter(): RawQueryMethod.RuntimeQueryParameter? {
