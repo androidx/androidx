@@ -672,7 +672,10 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 public void notify(EventCallback callback) {
                     MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
                     callback.onInfo(
-                            mediaPlayer2, dataSourceDescription, MEDIA_INFO_PREPARED, 0);
+                            mediaPlayer2,
+                            dataSourceDescription,
+                            MEDIA_INFO_PREPARED,
+                            /* extra= */ 0);
                 }
             });
             notifyPlayerEvent(new PlayerEventNotifier() {
@@ -694,13 +697,31 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         }
 
         @Override
+        public void onRenderedFirstFrame() {
+            final DataSourceDesc2 dataSourceDescription;
+            synchronized (mLock) {
+                // TODO(b/80232248): get the active data source from a data source queue.
+                dataSourceDescription = mDataSourceDescription;
+            }
+            notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                @Override
+                public void notify(EventCallback callback) {
+                    MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
+                    callback.onInfo(
+                            mediaPlayer2,
+                            dataSourceDescription,
+                            MEDIA_INFO_VIDEO_RENDERING_START,
+                            /* extra= */ 0);
+                }
+            });
+        }
+
+        @Override
         public void onSurfaceSizeChanged(int width, int height) {}
 
         @Override
         public void onSeekProcessed() {}
 
-        @Override
-        public void onRenderedFirstFrame() {}
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
