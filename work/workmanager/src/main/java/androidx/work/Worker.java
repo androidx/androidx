@@ -76,7 +76,7 @@ public abstract class Worker extends NonBlockingWorker {
     @Override
     public @NonNull ListenableFuture<Pair<Result, Data>> onStartWork() {
         mFuture = SettableFuture.create();
-        getExtras().getBackgroundExecutor().execute(new Runnable() {
+        getBackgroundExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 Result result = doWork();

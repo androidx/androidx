@@ -54,6 +54,7 @@ import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpec;
@@ -605,12 +606,14 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testFromWorkSpec_hasAppContext() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        Worker worker = WorkerWrapper.workerFromWorkSpec(
+        Worker worker = WorkerWrapper.workerFromClassName(
+                getWorkSpec(work).workerClassName,
                 mContext,
-                getWorkSpec(work),
-                new Extras(Data.EMPTY,
-                        Collections.<String>emptyList(),
-                        new Extras.RuntimeExtras(),
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
+                        work.getTags(),
+                        new WorkerParameters.RuntimeExtras(),
                         1,
                         mSynchronousExecutor));
 
@@ -627,12 +630,14 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(TestWorker.class).setInputData(input).build();
-        Worker worker = WorkerWrapper.workerFromWorkSpec(
+        Worker worker = WorkerWrapper.workerFromClassName(
+                getWorkSpec(work).workerClassName,
                 mContext,
-                getWorkSpec(work),
-                new Extras(input,
-                        Collections.<String>emptyList(),
-                        new Extras.RuntimeExtras(),
+                new WorkerParameters(
+                        work.getId(),
+                        input,
+                        work.getTags(),
+                        new WorkerParameters.RuntimeExtras(),
                         1,
                         mSynchronousExecutor));
 
@@ -640,12 +645,14 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(worker.getInputData().getString(key), is(expectedValue));
 
         work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        worker = WorkerWrapper.workerFromWorkSpec(
+        worker = WorkerWrapper.workerFromClassName(
+                getWorkSpec(work).workerClassName,
                 mContext,
-                getWorkSpec(work),
-                new Extras(Data.EMPTY,
-                        Collections.<String>emptyList(),
-                        new Extras.RuntimeExtras(),
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
+                        work.getTags(),
+                        new WorkerParameters.RuntimeExtras(),
                         1,
                         mSynchronousExecutor));
 
@@ -662,12 +669,14 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .addTag("two")
                         .addTag("three")
                         .build();
-        Worker worker = WorkerWrapper.workerFromWorkSpec(
+        Worker worker = WorkerWrapper.workerFromClassName(
+                getWorkSpec(work).workerClassName,
                 mContext,
-                getWorkSpec(work),
-                new Extras(Data.EMPTY,
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
                         Arrays.asList("one", "two", "three"),
-                        new Extras.RuntimeExtras(),
+                        new WorkerParameters.RuntimeExtras(),
                         1,
                         mSynchronousExecutor));
 
@@ -680,15 +689,17 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testFromWorkSpec_hasCorrectRuntimeExtras() {
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        Extras.RuntimeExtras runtimeExtras = new Extras.RuntimeExtras();
+        WorkerParameters.RuntimeExtras runtimeExtras = new WorkerParameters.RuntimeExtras();
         runtimeExtras.triggeredContentAuthorities = new String[]{"tca1", "tca2", "tca3"};
         runtimeExtras.triggeredContentUris = new Uri[]{Uri.parse("tcu1"), Uri.parse("tcu2")};
 
-        Worker worker = WorkerWrapper.workerFromWorkSpec(
+        Worker worker = WorkerWrapper.workerFromClassName(
+                getWorkSpec(work).workerClassName,
                 mContext,
-                getWorkSpec(work),
-                new Extras(Data.EMPTY,
-                        Collections.<String>emptyList(),
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
+                        work.getTags(),
                         runtimeExtras,
                         1,
                         mSynchronousExecutor));
@@ -765,12 +776,13 @@ public class WorkerWrapperTest extends DatabaseTest {
         insertWork(work);
 
         Worker worker = WorkerWrapper.workerFromClassName(
-                mContext,
                 InterruptionAwareWorker.class.getName(),
-                work.getId(),
-                new Extras(Data.EMPTY,
-                        Collections.<String>emptyList(),
-                        new Extras.RuntimeExtras(),
+                mContext,
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
+                        work.getTags(),
+                        new WorkerParameters.RuntimeExtras(),
                         1,
                         mSynchronousExecutor));
         assertThat(worker, is(notNullValue()));
@@ -795,12 +807,13 @@ public class WorkerWrapperTest extends DatabaseTest {
         insertWork(work);
 
         Worker worker = WorkerWrapper.workerFromClassName(
-                mContext,
                 InterruptionAwareWorker.class.getName(),
-                work.getId(),
-                new Extras(Data.EMPTY,
+                mContext,
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
                         Collections.<String>emptyList(),
-                        new Extras.RuntimeExtras(),
+                        new WorkerParameters.RuntimeExtras(),
                         1,
                         mSynchronousExecutor));
         assertThat(worker, is(notNullValue()));
