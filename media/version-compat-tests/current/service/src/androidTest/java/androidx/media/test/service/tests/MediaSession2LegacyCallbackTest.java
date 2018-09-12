@@ -65,7 +65,6 @@ import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -82,14 +81,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link SessionCallback} working with {@link MediaControllerCompat}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
     private static final String TAG = "MediaSession2LegacyCallbackTest";
 
     private static final String EXPECTED_CONTROLLER_PACKAGE_NAME =
-            (Build.VERSION.SDK_INT >= 28 || Build.VERSION.SDK_INT < 21)
+            (Build.VERSION.SDK_INT < 21 || Build.VERSION.SDK_INT >= 24)
                     ? CLIENT_PACKAGE_NAME : LEGACY_CONTROLLER;
 
     PendingIntent mIntent;
