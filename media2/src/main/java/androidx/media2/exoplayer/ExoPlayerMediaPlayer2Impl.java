@@ -80,9 +80,10 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final @NonNull DataSource.Factory mDataSourceFactory;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final @NonNull SimpleExoPlayer mPlayer;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
     final @NonNull Object mPlayerLock;
+    @GuardedBy("mPlayerLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final @NonNull SimpleExoPlayer mPlayer;
 
     private final HandlerThread mHandlerThread;
     private final Handler mTaskHandler;
@@ -112,6 +113,13 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mVideoHeight;
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mStartPlaybackTimeNs;
+    // TODO(b/80232248): Store with the data source it relates to.
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mPlayingTimeUs;
 
     // TODO(b/80232248): Implement command queue and make setters notify their callbacks.
 
@@ -141,6 +149,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
         mExecutorByPlayerEventCallback = new ArrayMap<>();
         mLock = new Object();
+        mStartPlaybackTimeNs = -1;
     }
 
     // Command queue and events implementation.
@@ -628,6 +637,30 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         throw new UnsupportedOperationException();
     }
 
+    // Internal functionality.
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void maybeUpdateTimerForPlaying() {
+        synchronized (mLock) {
+            if (mStartPlaybackTimeNs != -1) {
+                return;
+            }
+            mStartPlaybackTimeNs = System.nanoTime();
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void maybeUpdateTimerForStopped() {
+        synchronized (mLock) {
+            if (mStartPlaybackTimeNs == -1) {
+                return;
+            }
+            long nowNs = System.nanoTime();
+            mPlayingTimeUs += (nowNs - mStartPlaybackTimeNs + 500) / 1000;
+            mStartPlaybackTimeNs = -1;
+        }
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final class ComponentListener extends Player.DefaultEventListener implements
             VideoListener {
@@ -714,6 +747,15 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                             /* extra= */ 0);
                 }
             });
+        }
+
+        @Override
+        public void onPlayerStateChanged(boolean playWhenReady, int state) {
+            if (state == Player.STATE_READY && playWhenReady) {
+                maybeUpdateTimerForPlaying();
+            } else {
+                maybeUpdateTimerForStopped();
+            }
         }
 
         @Override
