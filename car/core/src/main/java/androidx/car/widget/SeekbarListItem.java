@@ -489,25 +489,6 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     }
 
     /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
-     *
-     * @deprecated use either {@link #setSupplementalIcon(Drawable, boolean)} or
-     * {@link #setSupplementalIcon(int, boolean)} and
-     * {@link #setSupplementalIconListener(android.view.View.OnClickListener)}.
-     */
-    @Deprecated
-    public void setSupplementalIcon(Drawable drawable, boolean showSupplementalIconDivider,
-            @Nullable  View.OnClickListener listener) {
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
-
-        mSupplementalIconDrawable = drawable;
-        mShowSupplementalIconDivider = showSupplementalIconDivider;
-        mSupplementalIconOnClickListener = listener;
-
-        markDirty();
-    }
-
-    /**
      * Sets {@code Supplemental Action} to be empty icon.
      *
      * {@code Seekbar} would have an end margin as if {@code Supplemental Action} were set.

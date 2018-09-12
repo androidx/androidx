@@ -470,7 +470,6 @@ package androidx.car.widget {
     method public void setSupplementalEmptyIcon(boolean);
     method public void setSupplementalIcon(int, boolean);
     method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean);
-    method public deprecated void setSupplementalIcon(android.graphics.drawable.Drawable, boolean, android.view.View.OnClickListener);
     method public void setSupplementalIconListener(android.view.View.OnClickListener);
     method public void setText(java.lang.CharSequence);
   }
