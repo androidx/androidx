@@ -50,6 +50,7 @@ import androidx.core.widget.TintableCompoundButton;
 public class AppCompatCheckBox extends CheckBox implements TintableCompoundButton {
 
     private final AppCompatCompoundButtonHelper mCompoundButtonHelper;
+    private final AppCompatTextHelper mTextHelper;
 
     public AppCompatCheckBox(Context context) {
         this(context, null);
@@ -63,6 +64,9 @@ public class AppCompatCheckBox extends CheckBox implements TintableCompoundButto
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
         mCompoundButtonHelper = new AppCompatCompoundButtonHelper(this);
         mCompoundButtonHelper.loadFromAttributes(attrs, defStyleAttr);
+
+        mTextHelper = new AppCompatTextHelper(this);
+        mTextHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
     @Override
