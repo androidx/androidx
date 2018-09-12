@@ -36,11 +36,12 @@ package androidx.swiperefreshlayout.widget {
     field public static final int LARGE = 0; // 0x0
   }
 
-  public class SwipeRefreshLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingChild androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingParent androidx.core.view.NestedScrollingParent2 {
+  public class SwipeRefreshLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingChild androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingChild3 androidx.core.view.NestedScrollingParent androidx.core.view.NestedScrollingParent2 androidx.core.view.NestedScrollingParent3 {
     ctor public SwipeRefreshLayout(android.content.Context);
     ctor public SwipeRefreshLayout(android.content.Context, android.util.AttributeSet);
     method public boolean canChildScrollUp();
     method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public void dispatchNestedScroll(int, int, int, int, int[], int, int[]);
     method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
     method public int getProgressCircleDiameter();
     method public int getProgressViewEndOffset();
@@ -49,6 +50,7 @@ package androidx.swiperefreshlayout.widget {
     method public boolean isRefreshing();
     method public void onMeasure(int, int);
     method public void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
     method public void onNestedScroll(android.view.View, int, int, int, int, int);
     method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
     method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
