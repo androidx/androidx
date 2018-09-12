@@ -84,13 +84,6 @@
     <!-- Placeholder text indicating that the user is currently casting screen. [CHAR LIMIT=50] -->
     <string name="mr_controller_casting_screen">Casting screen</string>
 
-    <!-- Text for error alert when a video container is not valid for progressive download/playback. -->
-    <string name="VideoView2_error_text_invalid_progressive_playback">This video isn\'t valid for streaming to this device.</string>
-    <!-- Text for error alert when a video cannot be played. It can be used by any app. -->
-    <string name="VideoView2_error_text_unknown">Can\'t play this video.</string>
-    <!-- Button to close error alert when a video cannot be played. -->
-    <string name="VideoView2_error_button">OK</string>
-
     <!-- Text for displaying ad skip wait time. -->
     <string name="MediaControlView2_ad_skip_wait_time">
         You can skip Ad in <xliff:g id="wait_time" example="5">%1$d</xliff:g>s
@@ -141,6 +134,10 @@
     <string name="mcv2_music_title_unknown_text">Song title unknown</string>
     <!-- Text for displaying unknown artist name. -->
     <string name="mcv2_music_artist_unknown_text">Artist unknown</string>
+    <!-- Text for error alert when a video cannot be played. It can be used by any app. -->
+    <string name="mcv2_playback_error_text">Couldn\'t play the item you requested</string>
+    <!-- Button to close error alert when a video cannot be played. -->
+    <string name="mcv2_error_dialog_button">OK</string>
 
     <!--Content Descriptions -->
     <string name="mcv2_back_button_desc">Back</string>

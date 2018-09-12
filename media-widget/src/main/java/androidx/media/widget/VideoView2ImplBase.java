@@ -1041,11 +1041,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         }
                         return;
                     }
-                    mCurrentState = STATE_ERROR;
-                    mTargetState = STATE_ERROR;
-
-                    if (mMediaControlView != null) {
-                        mMediaControlView.setVisibility(View.GONE);
+                    if (mCurrentState != STATE_ERROR) {
+                        mCurrentState = STATE_ERROR;
+                        mTargetState = STATE_ERROR;
                     }
                 }
 
