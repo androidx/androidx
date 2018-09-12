@@ -26,7 +26,6 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
-import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.work.Data;
 import androidx.work.Logger;
 import androidx.work.NonBlockingWorker;
@@ -39,6 +38,8 @@ import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.SynchronousExecutor;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Collections;
 import java.util.List;

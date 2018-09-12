@@ -19,6 +19,8 @@ package androidx.concurrent.listenablefuture;
 
 import androidx.annotation.Nullable;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 /**
  * A {@link ListenableFuture} whose result can be set by a {@link #set(Object)}, {@link
  * #setException(Throwable)} or {@link #setFuture(ListenableFuture)} call. It can also, like any

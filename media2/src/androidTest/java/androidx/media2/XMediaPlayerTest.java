@@ -36,7 +36,6 @@ import android.os.PersistableBundle;
 import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
-import androidx.concurrent.listenablefuture.ListenableFuture;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.test.R;
@@ -47,6 +46,8 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
