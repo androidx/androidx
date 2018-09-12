@@ -48,7 +48,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
     companion object {
         private val INVALID_RETURN_TYPES = setOf(TypeKind.ERROR, TypeKind.VOID, TypeKind.NONE)
         fun findConverters(context: Context, element: Element): ProcessResult {
-            val annotation = element.toAnnotationBox(TypeConverters::class.java)
+            val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
                 val classes = it.getAsTypeMirrorList("value")
                         ?.filter {

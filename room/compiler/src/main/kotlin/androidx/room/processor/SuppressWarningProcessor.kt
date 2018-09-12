@@ -26,7 +26,7 @@ import javax.lang.model.element.Element
 object SuppressWarningProcessor {
 
     fun getSuppressedWarnings(element: Element): Set<Warning> {
-        val annotation = element.toAnnotationBox(SuppressWarnings::class.java)?.value
+        val annotation = element.toAnnotationBox(SuppressWarnings::class)?.value
         return if (annotation == null) {
             emptySet()
         } else {
