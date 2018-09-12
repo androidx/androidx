@@ -22,28 +22,15 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiresApi(26)
 class MediaBrowserServiceCompatApi26 {
     private static final String TAG = "MBSCompatApi26";
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static Field sResultFlags;
-    static {
-        try {
-            sResultFlags = MediaBrowserService.Result.class.getDeclaredField("mFlags");
-            sResultFlags.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            Log.w(TAG, e);
-        }
-    }
 
     public static Object createService(Context context, ServiceCompatProxy serviceProxy) {
         return new MediaBrowserServiceAdaptor(context, serviceProxy);
@@ -68,12 +55,7 @@ class MediaBrowserServiceCompatApi26 {
             mResultObj = result;
         }
 
-        public void sendResult(List<Parcel> result, int flags) {
-            try {
-                sResultFlags.setInt(mResultObj, flags);
-            } catch (IllegalAccessException e) {
-                Log.w(TAG, e);
-            }
+        public void sendResult(List<Parcel> result) {
             mResultObj.sendResult(parcelListToItemList(result));
         }
 
