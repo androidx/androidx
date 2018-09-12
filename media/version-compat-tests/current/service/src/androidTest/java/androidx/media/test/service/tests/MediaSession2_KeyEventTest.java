@@ -203,6 +203,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
         assertTrue(mPlayer.mPlayCalled);
     }
 
+    @FlakyTest(bugId = 115464664)
     @Test
     public void testPlayPause_pause() throws Exception {
         prepareLooper();
