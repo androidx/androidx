@@ -18,12 +18,10 @@ package androidx.ui.rendering
 
 import android.graphics.Bitmap
 import androidx.ui.painting.Image
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 
-fun mockImage(width: Int, height: Int): Image {
-    val bitmap = mock(Bitmap::class.java)
-    `when`(bitmap.width).thenReturn(width)
-    `when`(bitmap.height).thenReturn(height)
-    return Image(bitmap)
-}
+fun mockImage(width: Int, height: Int) = Image(mock<Bitmap> {
+        on { it.width } doReturn width
+        on { it.height } doReturn height
+    })
