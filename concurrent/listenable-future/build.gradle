@@ -25,6 +25,7 @@ plugins {
 }
 
 dependencies {
+    compile(GUAVA_LISTENABLE_FUTURE)
     testCompile(JUNIT)
     testCompile(TRUTH)
     compile(SUPPORT_ANNOTATIONS)
