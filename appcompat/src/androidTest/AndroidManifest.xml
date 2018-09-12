@@ -114,6 +114,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatCheckBoxActivity"
+            android:label="@string/app_compat_checkbox_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
             android:name="androidx.appcompat.widget.SearchViewTestActivity"
             android:label="@string/search_view_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
