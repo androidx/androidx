@@ -38,7 +38,7 @@ class FieldProcessor(
     fun process(): Field {
         val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
         val type = TypeName.get(member)
-        val columnInfo = element.toAnnotationBox(ColumnInfo::class.java)?.value
+        val columnInfo = element.toAnnotationBox(ColumnInfo::class)?.value
         val name = element.simpleName.toString()
         val rawCName = if (columnInfo != null && columnInfo.name != ColumnInfo.INHERIT_FIELD_NAME) {
             columnInfo.name
