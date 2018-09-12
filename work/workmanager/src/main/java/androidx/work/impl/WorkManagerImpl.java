@@ -40,6 +40,7 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
+import androidx.work.WorkerParameters;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.model.WorkSpec;
@@ -529,11 +530,11 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     /**
      * @param workSpecId The {@link WorkSpec} id to start
-     * @param runtimeExtras The {@link Extras.RuntimeExtras} associated with this work
+     * @param runtimeExtras The {@link WorkerParameters.RuntimeExtras} associated with this work
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(String workSpecId, Extras.RuntimeExtras runtimeExtras) {
+    public void startWork(String workSpecId, WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkTaskExecutor.executeOnBackgroundThread(
                 new StartWorkRunnable(this, workSpecId, runtimeExtras));
     }

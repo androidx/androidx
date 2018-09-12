@@ -27,8 +27,8 @@ import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import androidx.work.Logger;
+import androidx.work.WorkerParameters;
 import androidx.work.impl.ExecutionListener;
-import androidx.work.impl.Extras;
 import androidx.work.impl.WorkManagerImpl;
 
 import java.util.HashMap;
@@ -116,9 +116,9 @@ public class SystemJobService extends JobService implements ExecutionListener {
             mJobParameters.put(workSpecId, params);
         }
 
-        Extras.RuntimeExtras runtimeExtras = null;
+        WorkerParameters.RuntimeExtras runtimeExtras = null;
         if (Build.VERSION.SDK_INT >= 24) {
-            runtimeExtras = new Extras.RuntimeExtras();
+            runtimeExtras = new WorkerParameters.RuntimeExtras();
             if (params.getTriggeredContentUris() != null
                     || params.getTriggeredContentAuthorities() != null) {
                 runtimeExtras.triggeredContentUris = params.getTriggeredContentUris();
