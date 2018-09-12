@@ -1,52 +1,5 @@
 package androidx.textclassifier {
 
-  public final class SelectionEvent {
-    method public static androidx.textclassifier.SelectionEvent createFromBundle(android.os.Bundle);
-    method public static androidx.textclassifier.SelectionEvent createSelectionActionEvent(int, int, int);
-    method public static androidx.textclassifier.SelectionEvent createSelectionActionEvent(int, int, int, androidx.textclassifier.TextClassification);
-    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int);
-    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int, androidx.textclassifier.TextClassification);
-    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int, androidx.textclassifier.TextSelection);
-    method public static androidx.textclassifier.SelectionEvent createSelectionStartedEvent(int, int);
-    method public long getDurationSincePreviousEvent();
-    method public long getDurationSinceSessionStart();
-    method public int getEnd();
-    method public java.lang.String getEntityType();
-    method public int getEventIndex();
-    method public long getEventTime();
-    method public int getEventType();
-    method public int getInvocationMethod();
-    method public java.lang.String getPackageName();
-    method public java.lang.String getResultId();
-    method public androidx.textclassifier.TextClassificationSessionId getSessionId();
-    method public int getSmartEnd();
-    method public int getSmartStart();
-    method public int getStart();
-    method public java.lang.String getWidgetType();
-    method public java.lang.String getWidgetVersion();
-    method public static boolean isTerminal(int);
-    method public android.os.Bundle toBundle();
-    field public static final int ACTION_ABANDON = 107; // 0x6b
-    field public static final int ACTION_COPY = 101; // 0x65
-    field public static final int ACTION_CUT = 103; // 0x67
-    field public static final int ACTION_DRAG = 106; // 0x6a
-    field public static final int ACTION_OTHER = 108; // 0x6c
-    field public static final int ACTION_OVERTYPE = 100; // 0x64
-    field public static final int ACTION_PASTE = 102; // 0x66
-    field public static final int ACTION_RESET = 201; // 0xc9
-    field public static final int ACTION_SELECT_ALL = 200; // 0xc8
-    field public static final int ACTION_SHARE = 104; // 0x68
-    field public static final int ACTION_SMART_SHARE = 105; // 0x69
-    field public static final int EVENT_AUTO_SELECTION = 5; // 0x5
-    field public static final int EVENT_SELECTION_MODIFIED = 2; // 0x2
-    field public static final int EVENT_SELECTION_STARTED = 1; // 0x1
-    field public static final int EVENT_SMART_SELECTION_MULTI = 4; // 0x4
-    field public static final int EVENT_SMART_SELECTION_SINGLE = 3; // 0x3
-    field public static final int INVOCATION_LINK = 2; // 0x2
-    field public static final int INVOCATION_MANUAL = 1; // 0x1
-    field public static final int INVOCATION_UNKNOWN = 0; // 0x0
-  }
-
   public final class TextClassification {
     method public static androidx.textclassifier.TextClassification createFromBundle(android.os.Bundle);
     method public java.util.List<androidx.core.app.RemoteActionCompat> getActions();
@@ -114,8 +67,6 @@ package androidx.textclassifier {
     method public androidx.textclassifier.TextClassification classifyText(androidx.textclassifier.TextClassification.Request);
     method public androidx.textclassifier.TextLinks generateLinks(androidx.textclassifier.TextLinks.Request);
     method public int getMaxGenerateLinksTextLength();
-    method public void onSelectionEvent(androidx.textclassifier.SelectionEvent);
-    method public final void reportSelectionEvent(androidx.textclassifier.SelectionEvent);
     method public androidx.textclassifier.TextSelection suggestSelection(androidx.textclassifier.TextSelection.Request);
     field public static final java.lang.String HINT_TEXT_IS_EDITABLE = "android.text_is_editable";
     field public static final java.lang.String HINT_TEXT_IS_NOT_EDITABLE = "android.text_is_not_editable";

@@ -36,7 +36,10 @@ import java.util.Locale;
 /**
  * A selection event.
  * Specify index parameters as word token indices.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SelectionEvent {
     private static final String EXTRA_ABSOLUTE_START = "extra_absolute_start";
     private static final String EXTRA_ABSOLUTE_END = "extra_absolute_end";
