@@ -461,11 +461,9 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         final ControllerInfo controller;
         synchronized (mLock) {
             if (remoteUserInfo == null) {
-                // TODO: Fix here to allow MediaControllerCompat to send commands on API 21~27.
-                // In API 21~27, getCurrentControllerInfo() always returns null.
-                // Due to this, on those API versions no MediaControllerCompat can send command
-                // to the session.
-                controller = null;
+                Log.d(TAG, "RemoteUserInfo is null, ignoring command=" + sessionCommand
+                        + ", commandCode=" + commandCode);
+                return;
             } else {
                 ControllerInfo ctrl = mConnectedControllersManager.getController(remoteUserInfo);
                 if (ctrl != null) {
@@ -481,7 +479,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         mSessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                if (controller == null || mSessionImpl.isClosed()) {
+                if (mSessionImpl.isClosed()) {
                     return;
                 }
                 if (!mConnectedControllersManager.isConnected(controller)) {
