@@ -45,7 +45,7 @@ dependencies {
     // @aar and { transitive = true } are needed as a workaround for
     // https://github.com/gradle/gradle/issues/3170
     api("android.arch.lifecycle:extensions:1.1.0@aar") { transitive = true }
-    api project(":concurrent:listenable-future")
+    api project(":concurrent:futures")
     implementation("android.arch.persistence.room:runtime:1.1.1-rc1@aar") { transitive = true }
     annotationProcessor("android.arch.persistence.room:compiler:1.1.1-rc1")
     androidTestImplementation("android.arch.core:core-testing:1.1.0")

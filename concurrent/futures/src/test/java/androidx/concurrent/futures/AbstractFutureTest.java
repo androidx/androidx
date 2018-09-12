@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.concurrent.listenablefuture;
+package androidx.concurrent.futures;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 
 import androidx.annotation.Nullable;
-import androidx.concurrent.listenablefuture.ImmediateFuture.ImmediateCancelledFuture;
-import androidx.concurrent.listenablefuture.ImmediateFuture.ImmediateFailedFuture;
-import androidx.concurrent.listenablefuture.ImmediateFuture.ImmediateSuccessfulFuture;
+import androidx.concurrent.futures.ImmediateFuture.ImmediateCancelledFuture;
+import androidx.concurrent.futures.ImmediateFuture.ImmediateFailedFuture;
+import androidx.concurrent.futures.ImmediateFuture.ImmediateSuccessfulFuture;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
