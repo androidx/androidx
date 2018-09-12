@@ -348,8 +348,9 @@ public class MediaSession2Test extends MediaSession2TestBase {
             // expected. pass-through
         }
 
-        // Creating a new session with ID of the closed session is okay.
         session.close();
-        builderWithSameId.build();
+        // Creating a new session with ID of the closed session is okay.
+        MediaSession2 sessionWithSameId = builderWithSameId.build();
+        sessionWithSameId.close();
     }
 }
