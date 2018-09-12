@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
@@ -2811,7 +2812,7 @@ public final class MediaRouter {
                     // Note: Controller doesn't have a valid route id yet.
                     // It will be informed with updated provider's route descriptors.
                     controller.setOnDynamicRoutesChangedListener(
-                            MainHandlerExecutor.getExecutor(mApplicationContext),
+                            ContextCompat.getMainExecutor(mApplicationContext),
                             mDynamicRoutesListener);
                     mSelectedRouteController = controller;
                     // Select the initial member route for now. It is replaced with dynamic group

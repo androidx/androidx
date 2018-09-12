@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.media.widget.test.R;
 import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaController2;
@@ -99,7 +100,7 @@ public class MediaControlView2Test {
     @Before
     public void setup() throws Throwable {
         mContext = InstrumentationRegistry.getTargetContext();
-        mMainHandlerExecutor = MainHandlerExecutor.getExecutor(mContext);
+        mMainHandlerExecutor = ContextCompat.getMainExecutor(mContext);
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
         mActivity = mActivityRule.getActivity();
