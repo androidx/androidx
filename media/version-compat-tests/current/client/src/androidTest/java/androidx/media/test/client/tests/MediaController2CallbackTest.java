@@ -87,18 +87,25 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     RemoteMediaSession2 mRemoteSession2;
     MediaController2 mController;
 
+    final List<RemoteMediaSession2> mRemoteSessionList = new ArrayList<>();
+
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mRemoteSession2 = new RemoteMediaSession2(DEFAULT_TEST_NAME, mContext);
+        mRemoteSession2 = createRemoteMediaSession2(DEFAULT_TEST_NAME);
     }
 
     @After
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-        mRemoteSession2.cleanUp();
+        for (int i = 0; i < mRemoteSessionList.size(); i++) {
+            RemoteMediaSession2 session = mRemoteSessionList.get(i);
+            if (session != null) {
+                session.cleanUp();
+            }
+        }
     }
 
     @Test
@@ -114,7 +121,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     public void testConnection_sessionRejects() throws InterruptedException {
         prepareLooper();
         RemoteMediaSession2 session2 =
-                new RemoteMediaSession2(TEST_CONTROLLER_CALLBACK_SESSION_REJECTS, mContext);
+                createRemoteMediaSession2(TEST_CONTROLLER_CALLBACK_SESSION_REJECTS);
 
         MediaController2 controller = createController(session2.getToken(),
                 false /* waitForConnect */, null);
@@ -719,7 +726,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         // Ensure that the controller cannot use newly create session with the same ID.
         // Recreated session has different session stub, so previously created controller
         // shouldn't be available.
-        mRemoteSession2 = new RemoteMediaSession2(id, mContext);
+        mRemoteSession2 = createRemoteMediaSession2(id);
         testNoInteraction();
     }
 
@@ -743,5 +750,11 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
 
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         setRunnableForOnCustomCommand(mController, null);
+    }
+
+    RemoteMediaSession2 createRemoteMediaSession2(String id) {
+        RemoteMediaSession2 session = new RemoteMediaSession2(id, mContext);
+        mRemoteSessionList.add(session);
+        return session;
     }
 }
