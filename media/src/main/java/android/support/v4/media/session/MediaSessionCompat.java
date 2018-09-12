@@ -19,6 +19,8 @@ package android.support.v4.media.session;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
+import static androidx.media.MediaSessionManager.RemoteUserInfo.UNKNOWN_PID;
+import static androidx.media.MediaSessionManager.RemoteUserInfo.UNKNOWN_UID;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -57,6 +59,7 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -856,8 +859,19 @@ public class MediaSessionCompat {
      * Gets the controller information who sent the current request.
      * <p>
      * Note: This is only valid while in a request callback, such as {@link Callback#onPlay}.
+     * <p>
+     * Note: From API 21 to 23, this method returns a dummy {@link RemoteUserInfo} which has
+     * following values:
+     * <ul>
+     *     <li>Package name is {@link MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER}.</li>
+     *     <li>PID and UID will have negative values.</li>
+     * </ul>
+     * <p>
+     * Note: From API 24 to 27, the {@link RemoteUserInfo} returned from this method will have
+     * negative uid and pid. Most of the cases it will have the correct package name, but sometimes
+     * it will fail to get the right one.
      *
-     * @throws IllegalStateException If this method is called outside of {@link Callback} methods.
+     * @see MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER
      * @see MediaSessionManager#isTrustedForMediaControl(RemoteUserInfo)
      */
     public final @NonNull RemoteUserInfo getCurrentControllerInfo() {
@@ -914,10 +928,17 @@ public class MediaSessionCompat {
      * @return An equivalent {@link MediaSessionCompat} object, or null if none.
      */
     public static MediaSessionCompat fromMediaSession(Context context, Object mediaSession) {
-        if (context != null && mediaSession != null && Build.VERSION.SDK_INT >= 21) {
-            return new MediaSessionCompat(context, new MediaSessionImplApi21(mediaSession));
+        if (Build.VERSION.SDK_INT < 21 || context == null || mediaSession == null) {
+            return null;
         }
-        return null;
+        MediaSessionImpl impl;
+        if (Build.VERSION.SDK_INT >= 28) {
+            impl = new MediaSessionImplApi28(mediaSession);
+        } else {
+            // API 21+
+            impl = new MediaSessionImplApi21(mediaSession);
+        }
+        return new MediaSessionCompat(context, impl);
     }
 
     /**
@@ -1042,7 +1063,7 @@ public class MediaSessionCompat {
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                     if (keyEvent.getRepeatCount() > 0) {
                         // Consider long-press as a single tap.
-                        handleMediaPlayPauseKeySingleTapIfPending(remoteUserInfo);
+                        handleMediaPlayPauseKeySingleTapIfPending();
                     } else if (mMediaPlayPauseKeyPending) {
                         mCallbackHandler.removeMessages(
                                 CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
@@ -1064,13 +1085,13 @@ public class MediaSessionCompat {
                 default:
                     // If another key is pressed within double tap timeout, consider the pending
                     // pending play/pause as a single tap to handle media keys in order.
-                    handleMediaPlayPauseKeySingleTapIfPending(remoteUserInfo);
+                    handleMediaPlayPauseKeySingleTapIfPending();
                     break;
             }
             return false;
         }
 
-        void handleMediaPlayPauseKeySingleTapIfPending(RemoteUserInfo remoteUserInfo) {
+        void handleMediaPlayPauseKeySingleTapIfPending() {
             if (!mMediaPlayPauseKeyPending) {
                 return;
             }
@@ -1089,13 +1110,11 @@ public class MediaSessionCompat {
                         | PlaybackStateCompat.ACTION_PLAY)) != 0;
             boolean canPause = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
                         | PlaybackStateCompat.ACTION_PAUSE)) != 0;
-            impl.setCurrentControllerInfo(remoteUserInfo);
             if (isPlaying && canPause) {
                 onPause();
             } else if (!isPlaying && canPlay) {
                 onPlay();
             }
-            impl.setCurrentControllerInfo(null);
         }
 
         /**
@@ -1336,7 +1355,16 @@ public class MediaSessionCompat {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT) {
-                    handleMediaPlayPauseKeySingleTapIfPending((RemoteUserInfo) msg.obj);
+                    // Here we manually set the caller info, since this is not directly called from
+                    // the session callback. This is triggered by timeout.
+                    MediaSessionImpl impl = mSessionImpl.get();
+                    if (impl == null) {
+                        return;
+                    }
+                    RemoteUserInfo info = (RemoteUserInfo) msg.obj;
+                    impl.setCurrentControllerInfo(info);
+                    handleMediaPlayPauseKeySingleTapIfPending();
+                    impl.setCurrentControllerInfo(null);
                 }
             }
         }
@@ -1349,6 +1377,7 @@ public class MediaSessionCompat {
 
             @Override
             public void onCommand(String command, Bundle extras, ResultReceiver cb) {
+                setCurrentControllerInfo();
                 try {
                     if (command.equals(MediaControllerCompat.COMMAND_GET_EXTRA_BINDER)) {
                         MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
@@ -1394,71 +1423,99 @@ public class MediaSessionCompat {
                     // class.
                     Log.e(TAG, "Could not unparcel the extra data.");
                 }
+                clearCurrentControllerInfo();
             }
 
             @Override
             public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-                return Callback.this.onMediaButtonEvent(mediaButtonIntent);
+                setCurrentControllerInfo();
+                boolean result = Callback.this.onMediaButtonEvent(mediaButtonIntent);
+                clearCurrentControllerInfo();
+                return result;
             }
 
             @Override
             public void onPlay() {
+                setCurrentControllerInfo();
                 Callback.this.onPlay();
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onPlayFromMediaId(String mediaId, Bundle extras) {
+                setCurrentControllerInfo();
                 Callback.this.onPlayFromMediaId(mediaId, extras);
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onPlayFromSearch(String search, Bundle extras) {
+                setCurrentControllerInfo();
                 Callback.this.onPlayFromSearch(search, extras);
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onSkipToQueueItem(long id) {
+                setCurrentControllerInfo();
                 Callback.this.onSkipToQueueItem(id);
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onPause() {
+                setCurrentControllerInfo();
                 Callback.this.onPause();
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onSkipToNext() {
+                setCurrentControllerInfo();
                 Callback.this.onSkipToNext();
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onSkipToPrevious() {
+                setCurrentControllerInfo();
                 Callback.this.onSkipToPrevious();
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onFastForward() {
+                setCurrentControllerInfo();
                 Callback.this.onFastForward();
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onRewind() {
+                setCurrentControllerInfo();
                 Callback.this.onRewind();
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onStop() {
+                setCurrentControllerInfo();
                 Callback.this.onStop();
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onSeekTo(long pos) {
+                setCurrentControllerInfo();
                 Callback.this.onSeekTo(pos);
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onSetRating(Object ratingObj) {
+                setCurrentControllerInfo();
                 Callback.this.onSetRating(RatingCompat.fromRating(ratingObj));
+                clearCurrentControllerInfo();
             }
 
             @Override
@@ -1468,6 +1525,7 @@ public class MediaSessionCompat {
 
             @Override
             public void onCustomAction(String action, Bundle extras) {
+                setCurrentControllerInfo();
                 Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
                 ensureClassLoader(bundle);
 
@@ -1500,6 +1558,23 @@ public class MediaSessionCompat {
                 } else {
                     Callback.this.onCustomAction(action, extras);
                 }
+                clearCurrentControllerInfo();
+            }
+
+            // Since we can't get ControllerInfo in API 21-23, just provide a default (unknown) one.
+            void setCurrentControllerInfo() {
+                MediaSessionImpl sessionImpl = mSessionImpl != null ? mSessionImpl.get() : null;
+                if (sessionImpl != null) {
+                    sessionImpl.setCurrentControllerInfo(
+                            new RemoteUserInfo(LEGACY_CONTROLLER, UNKNOWN_PID, UNKNOWN_UID));
+                }
+            }
+
+            void clearCurrentControllerInfo() {
+                MediaSessionImpl sessionImpl = mSessionImpl != null ? mSessionImpl.get() : null;
+                if (sessionImpl != null) {
+                    sessionImpl.setCurrentControllerInfo(null);
+                }
             }
         }
 
@@ -1511,7 +1586,9 @@ public class MediaSessionCompat {
 
             @Override
             public void onPlayFromUri(Uri uri, Bundle extras) {
+                setCurrentControllerInfo();
                 Callback.this.onPlayFromUri(uri, extras);
+                clearCurrentControllerInfo();
             }
         }
 
@@ -1523,22 +1600,49 @@ public class MediaSessionCompat {
 
             @Override
             public void onPrepare() {
+                setCurrentControllerInfo();
                 Callback.this.onPrepare();
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onPrepareFromMediaId(String mediaId, Bundle extras) {
+                setCurrentControllerInfo();
                 Callback.this.onPrepareFromMediaId(mediaId, extras);
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onPrepareFromSearch(String query, Bundle extras) {
+                setCurrentControllerInfo();
                 Callback.this.onPrepareFromSearch(query, extras);
+                clearCurrentControllerInfo();
             }
 
             @Override
             public void onPrepareFromUri(Uri uri, Bundle extras) {
+                setCurrentControllerInfo();
                 Callback.this.onPrepareFromUri(uri, extras);
+                clearCurrentControllerInfo();
+            }
+
+            // Note: This is only for on API 24~27. From API 28, this method has no effect since
+            // MediaSessionImplApi28#getCurrentControllerInfo() returns controller info from
+            // framework.
+            @Override
+            void setCurrentControllerInfo() {
+                if (Build.VERSION.SDK_INT >= 28) {
+                    return;
+                }
+                MediaSessionImpl sessionImpl = mSessionImpl != null ? mSessionImpl.get() : null;
+                if (sessionImpl != null) {
+                    String packageName = sessionImpl.getCallingPackage();
+                    if (TextUtils.isEmpty(packageName)) {
+                        packageName = LEGACY_CONTROLLER;
+                    }
+                    sessionImpl.setCurrentControllerInfo(
+                            new RemoteUserInfo(packageName, UNKNOWN_PID, UNKNOWN_UID));
+                }
             }
         }
     }
@@ -3380,6 +3484,7 @@ public class MediaSessionCompat {
     static class MediaSessionImplApi21 implements MediaSessionImpl {
         final Object mSessionObj;
         final Token mToken;
+        final Object mLock = new Object();
 
         boolean mDestroyed = false;
         final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
@@ -3392,6 +3497,9 @@ public class MediaSessionCompat {
         boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
         @PlaybackStateCompat.ShuffleMode int mShuffleMode;
+
+        @GuardedBy("mLock")
+        RemoteUserInfo mRemoteUserInfo;
 
         MediaSessionImplApi21(Context context, String tag, VersionedParcelable token2) {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
@@ -3599,7 +3707,9 @@ public class MediaSessionCompat {
 
         @Override
         public void setCurrentControllerInfo(RemoteUserInfo remoteUserInfo) {
-            // No-op, until we return something from {@link #getRemoteControlClient}.
+            synchronized (mLock) {
+                mRemoteUserInfo = remoteUserInfo;
+            }
         }
 
         @Override
@@ -3613,8 +3723,9 @@ public class MediaSessionCompat {
 
         @Override
         public RemoteUserInfo getCurrentControllerInfo() {
-            // Note: Update MediaSessionCompatCallbackTest when we return something.
-            return null;
+            synchronized (mLock) {
+                return mRemoteUserInfo;
+            }
         }
 
         class ExtraSession extends IMediaSession.Stub {
@@ -3633,12 +3744,8 @@ public class MediaSessionCompat {
             @Override
             public void registerCallbackListener(IMediaControllerCallback cb) {
                 if (!mDestroyed) {
-                    String packageName = getCallingPackage();
-                    if (packageName == null) {
-                        packageName = RemoteUserInfo.LEGACY_CONTROLLER;
-                    }
                     RemoteUserInfo info = new RemoteUserInfo(
-                            packageName, getCallingPid(), getCallingUid());
+                            RemoteUserInfo.LEGACY_CONTROLLER, getCallingPid(), getCallingUid());
                     mExtraControllerCallbacks.register(cb, info);
                 }
             }

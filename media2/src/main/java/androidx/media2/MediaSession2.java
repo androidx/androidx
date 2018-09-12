@@ -1437,14 +1437,16 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         }
 
         /**
-         * @return package name of the controller
+         * @return package name of the controller. Can be
+         *         {@link androidx.media.MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER} if
+         *         the package name cannot be obtained.
          */
         public @NonNull String getPackageName() {
             return mRemoteUserInfo.getPackageName();
         }
 
         /**
-         * @return uid of the controller
+         * @return uid of the controller. Can be a negative value if the uid cannot be obtained.
          */
         public int getUid() {
             return mRemoteUserInfo.getUid();

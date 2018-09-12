@@ -63,6 +63,7 @@ import static android.support.mediacompat.testlib.util.IntentUtil.callMediaContr
 import static android.support.mediacompat.testlib.util.IntentUtil.callTransportControlsMethod;
 import static android.support.mediacompat.testlib.util.TestUtil.assertBundleEquals;
 
+import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
 import static androidx.test.InstrumentationRegistry.getArguments;
 import static androidx.test.InstrumentationRegistry.getContext;
 import static androidx.test.InstrumentationRegistry.getInstrumentation;
@@ -221,7 +222,7 @@ public class MediaSessionCompatCallbackTest {
             return;
         }
         mCallback.reset(1);
-        mCallback.setExpectedCallerPackageName(IntentUtil.SERVICE_PACKAGE_NAME);
+        mCallback.setExpectedCallerPackageName(getExpectedPackageNameForSelf());
         mSession.setCallback(mCallback, new Handler(Looper.getMainLooper()));
         MediaSessionCompat session = MediaSessionCompat.fromMediaSession(
                 getContext(), mSession.getMediaSession());
@@ -234,9 +235,9 @@ public class MediaSessionCompatCallbackTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testCallers() throws Exception {
-        mCallback.reset(1, getContext().getPackageName());
+        mCallback.reset(1, getExpectedPackageNameForSelf());
         mSession.setCallback(mCallback, new Handler(Looper.getMainLooper()));
         MediaSessionCompat session = MediaSessionCompat.fromMediaSession(
                 getContext(), mSession.getMediaSession());
@@ -250,20 +251,23 @@ public class MediaSessionCompatCallbackTest {
         mCallback.await(TIME_OUT_MS);
         assertTrue(mCallback.mOnStopCalled);
         RemoteUserInfo remoteUserInfo1 = mCallback.mRemoteUserInfoForStop;
-        assertEquals(getContext().getPackageName(), remoteUserInfo1.getPackageName());
-        assertEquals(Process.myUid(), remoteUserInfo1.getUid());
-        assertEquals(Process.myPid(), remoteUserInfo1.getPid());
+        assertEquals(getExpectedPackageNameForSelf(), remoteUserInfo1.getPackageName());
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertEquals(Process.myUid(), remoteUserInfo1.getUid());
+            assertEquals(Process.myPid(), remoteUserInfo1.getPid());
+        }
 
-        mCallback.reset(1, getContext().getPackageName());
+        mCallback.reset(1, getExpectedPackageNameForSelf());
         controller2.getTransportControls().stop();
         mCallback.await(TIME_OUT_MS);
         assertTrue(mCallback.mOnStopCalled);
         RemoteUserInfo remoteUserInfo2 = mCallback.mRemoteUserInfoForStop;
-        assertEquals(getContext().getPackageName(), remoteUserInfo2.getPackageName());
-        assertEquals(Process.myUid(), remoteUserInfo2.getUid());
-        assertEquals(Process.myPid(), remoteUserInfo2.getPid());
-
-        assertNotEquals(remoteUserInfo1, remoteUserInfo2);
+        assertEquals(getExpectedPackageNameForSelf(), remoteUserInfo2.getPackageName());
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertEquals(Process.myUid(), remoteUserInfo2.getUid());
+            assertEquals(Process.myPid(), remoteUserInfo2.getPid());
+            assertNotEquals(remoteUserInfo1, remoteUserInfo2);
+        }
     }
 
     /**
@@ -1051,6 +1055,14 @@ public class MediaSessionCompatCallbackTest {
                 DISPATCH_MEDIA_BUTTON, up, getContext(), mSession.getSessionToken());
     }
 
+    private String getExpectedPackageNameForSelf() {
+        if (Build.VERSION.SDK_INT >= 24 || Build.VERSION.SDK_INT < 21) {
+            return IntentUtil.SERVICE_PACKAGE_NAME;
+        } else {
+            return LEGACY_CONTROLLER;
+        }
+    }
+
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
         private CountDownLatch mLatch;
         private RemoteUserInfo mRemoteUserInfoForStop;
@@ -1100,7 +1112,11 @@ public class MediaSessionCompatCallbackTest {
 
         public void reset(int count) {
             mLatch = new CountDownLatch(count);
-            mExpectedCallerPackageName = IntentUtil.CLIENT_PACKAGE_NAME;
+            if (Build.VERSION.SDK_INT >= 24 || Build.VERSION.SDK_INT < 21) {
+                setExpectedCallerPackageName(IntentUtil.CLIENT_PACKAGE_NAME);
+            } else {
+                setExpectedCallerPackageName(LEGACY_CONTROLLER);
+            }
             mSeekPosition = -1;
             mQueueItemId = -1;
             mRating = null;
@@ -1455,10 +1471,6 @@ public class MediaSessionCompatCallbackTest {
         }
 
         private boolean isCallerTestClient() {
-            if (Build.VERSION.SDK_INT < 28) {
-                // RemoteUserInfo isn't available.
-                return true;
-            }
             RemoteUserInfo info = mSession.getCurrentControllerInfo();
             assertNotNull(info);
 
