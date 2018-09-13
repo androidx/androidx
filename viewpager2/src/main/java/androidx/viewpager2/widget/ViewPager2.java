@@ -17,7 +17,6 @@
 package androidx.viewpager2.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
@@ -66,11 +65,11 @@ public class ViewPager2 extends ViewGroup {
     private CompositeOnPageChangeListener mExternalPageChangeListeners =
             new CompositeOnPageChangeListener(3);
 
-    private RecyclerView mRecyclerView;
+    RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
-    private PagerSnapHelper mPagerSnapHelper;
     private ScrollEventAdapter mScrollEventAdapter;
     private PageTransformerAdapter mPageTransformerAdapter;
+    int mCurrentItem;
 
     public ViewPager2(Context context) {
         super(context);
@@ -105,19 +104,21 @@ public class ViewPager2 extends ViewGroup {
         mRecyclerView.setLayoutParams(
                 new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         mRecyclerView.addOnChildAttachStateChangeListener(enforceChildFillListener());
-
-        mPagerSnapHelper = new PagerSnapHelper();
-        mPagerSnapHelper.attachToRecyclerView(mRecyclerView);
+        new PagerSnapHelper().attachToRecyclerView(mRecyclerView);
 
         mScrollEventAdapter = new ScrollEventAdapter(mLayoutManager);
         mRecyclerView.addOnScrollListener(mScrollEventAdapter);
 
-        CompositeOnPageChangeListener dispatcher = new CompositeOnPageChangeListener(2);
+        CompositeOnPageChangeListener dispatcher = new CompositeOnPageChangeListener(3);
         mScrollEventAdapter.setOnPageChangeListener(dispatcher);
 
+        // Add mOnPageChangeListener before mExternalPageChangeListeners, because we need to update
+        // internal state first
+        dispatcher.addOnPageChangeListener(mOnPageChangeListener);
         dispatcher.addOnPageChangeListener(mExternalPageChangeListeners);
 
-        // Add mPageTransformerAdapter after mExternalPageChangeListeners
+        // Add mPageTransformerAdapter after mExternalPageChangeListeners, because page transform
+        // events must be fired after scroll events
         mPageTransformerAdapter = new PageTransformerAdapter(mLayoutManager);
         dispatcher.addOnPageChangeListener(mPageTransformerAdapter);
 
@@ -168,6 +169,9 @@ public class ViewPager2 extends ViewGroup {
 
         ss.mRecyclerViewId = mRecyclerView.getId();
         ss.mOrientation = getOrientation();
+        ss.mCurrentItem = mCurrentItem;
+        ss.mScrollInProgress =
+                mLayoutManager.findFirstCompletelyVisibleItemPosition() != mCurrentItem;
 
         Adapter adapter = mRecyclerView.getAdapter();
         if (adapter instanceof FragmentStateAdapter) {
@@ -187,6 +191,15 @@ public class ViewPager2 extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         setOrientation(ss.mOrientation);
+        mCurrentItem = ss.mCurrentItem;
+        if (ss.mScrollInProgress) {
+            mRecyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mRecyclerView.scrollToPosition(mCurrentItem);
+                }
+            });
+        }
 
         if (ss.mAdapterState != null) {
             Adapter adapter = mRecyclerView.getAdapter();
@@ -213,6 +226,8 @@ public class ViewPager2 extends ViewGroup {
     static class SavedState extends BaseSavedState {
         int mRecyclerViewId;
         @Orientation int mOrientation;
+        int mCurrentItem;
+        boolean mScrollInProgress;
         Parcelable[] mAdapterState;
 
         @RequiresApi(24)
@@ -233,6 +248,8 @@ public class ViewPager2 extends ViewGroup {
         private void readValues(Parcel source, ClassLoader loader) {
             mRecyclerViewId = source.readInt();
             mOrientation = source.readInt();
+            mCurrentItem = source.readInt();
+            mScrollInProgress = source.readByte() != 0;
             mAdapterState = source.readParcelableArray(loader);
         }
 
@@ -241,6 +258,8 @@ public class ViewPager2 extends ViewGroup {
             super.writeToParcel(out, flags);
             out.writeInt(mRecyclerViewId);
             out.writeInt(mOrientation);
+            out.writeInt(mCurrentItem);
+            out.writeByte((byte) (mScrollInProgress ? 1 : 0));
             out.writeParcelableArray(mAdapterState, flags);
         }
 
@@ -349,10 +368,15 @@ public class ViewPager2 extends ViewGroup {
      * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
      */
     public void setCurrentItem(int item, boolean smoothScroll) {
-        // TODO: handle scroll-in-progress case better; could lead to subtle bugs otherwise (WIP)
-        final int currentItem = getCurrentItem();
-        if (currentItem == item || !mScrollEventAdapter.isIdle()) {
+        float previousItem = mCurrentItem;
+        if (previousItem == item) {
             return;
+        }
+        mCurrentItem = item;
+
+        if (!mScrollEventAdapter.isIdle()) {
+            // Scroll in progress, overwrite previousItem with actual current position
+            previousItem = mScrollEventAdapter.getRelativeScrollPosition();
         }
 
         mScrollEventAdapter.notifyProgrammaticScroll(item, smoothScroll);
@@ -362,26 +386,20 @@ public class ViewPager2 extends ViewGroup {
         }
 
         // For smooth scroll, pre-jump to nearby item for long jumps.
-        if (Math.abs(item - currentItem) > 3) {
-            mRecyclerView.scrollToPosition(item > currentItem ? item - 2 : item + 2);
+        if (Math.abs(item - previousItem) > 3) {
+            mRecyclerView.scrollToPosition(item > previousItem ? item - 3 : item + 3);
+            // TODO(b/114361680): call smoothScrollToPosition synchronously (blocked by b/114019007)
+            mRecyclerView.post(new SmoothScrollToPosition(item));
+        } else {
+            mRecyclerView.smoothScrollToPosition(item);
         }
-        mRecyclerView.smoothScrollToPosition(item);
     }
 
     /**
      * @return Currently selected page.
-     *
-     * Implementation returns currently visible middle-item, which is not necessarily what is
-     * expected of this API, e.g. for smooth scroll in progress.
-     *
-     * TODO: implement API parity with ViewPager (WIP)
      */
     public int getCurrentItem() {
-        View snapView = mPagerSnapHelper.findSnapView(mLayoutManager);
-        if (snapView == null) {
-            return NO_POSITION;
-        }
-        return mLayoutManager.getPosition(snapView);
+        return mCurrentItem;
     }
 
     /**
@@ -426,6 +444,38 @@ public class ViewPager2 extends ViewGroup {
         // TODO: add support for reverseDrawingOrder: b/112892792
         // TODO: add support for pageLayerType: b/112893074
         mPageTransformerAdapter.setPageTransformer(transformer);
+    }
+
+    /**
+     * Listener that updates mCurrentItem after swipes. Will of course also update it in all other
+     * cases, but we already know about those updates (as we triggered those ourselves).
+     */
+    private final OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            mCurrentItem = position;
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+        }
+    };
+
+    private class SmoothScrollToPosition implements Runnable {
+        private final int mPosition;
+
+        SmoothScrollToPosition(int position) {
+            mPosition = position;
+        }
+
+        @Override
+        public void run() {
+            mRecyclerView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Retention(CLASS)
