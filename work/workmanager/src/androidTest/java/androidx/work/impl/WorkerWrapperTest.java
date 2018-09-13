@@ -63,17 +63,20 @@ import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.ChainedArgumentWorker;
+import androidx.work.worker.DefaultConstructorWorker;
 import androidx.work.worker.EchoingWorker;
 import androidx.work.worker.ExceptionWorker;
 import androidx.work.worker.FailureWorker;
 import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.InterruptionAwareWorker;
+import androidx.work.worker.NewConstructorWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,6 +111,51 @@ public class WorkerWrapperTest extends DatabaseTest {
         mWorkSpecDao = spy(mDatabase.workSpecDao());
         mDependencyDao = mDatabase.dependencyDao();
         mMockScheduler = mock(Scheduler.class);
+    }
+
+    @Test
+    @SmallTest
+    public void testWorkerFromClassName_isCreated_withOnlyDefaultConstructor() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(DefaultConstructorWorker.class).build();
+        insertWork(work);
+
+        Worker worker = WorkerWrapper.workerFromClassName(
+                DefaultConstructorWorker.class.getName(),
+                mContext,
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
+                        work.getTags(),
+                        new WorkerParameters.RuntimeExtras(),
+                        1,
+                        mSynchronousExecutor));
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker, CoreMatchers.<Worker>instanceOf(DefaultConstructorWorker.class));
+        assertThat(worker.getId(), is(work.getId()));
+    }
+
+    @Test
+    @SmallTest
+    public void testWorkerFromClassName_isCreated_withNewConstructor() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(NewConstructorWorker.class).build();
+        insertWork(work);
+
+        Worker worker =
+                WorkerWrapper.workerFromClassName(
+                        NewConstructorWorker.class.getName(),
+                        mContext,
+                        new WorkerParameters(
+                                work.getId(),
+                                Data.EMPTY,
+                                work.getTags(),
+                                new WorkerParameters.RuntimeExtras(),
+                                1,
+                                mSynchronousExecutor));
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker, CoreMatchers.<Worker>instanceOf(NewConstructorWorker.class));
+        assertThat(worker.getId(), is(work.getId()));
     }
 
     @Test

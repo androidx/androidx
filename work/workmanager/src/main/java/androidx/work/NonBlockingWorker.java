@@ -47,13 +47,33 @@ public abstract class NonBlockingWorker {
     private @NonNull Context mAppContext;
 
     @SuppressWarnings("NullableProblems")   // Set by internalInit
-    private @NonNull WorkerParameters mWorkParameters;
+    private @NonNull WorkerParameters mWorkerParams;
 
     private volatile boolean mStopped;
     private volatile boolean mCancelled;
 
     private @NonNull volatile Data mOutputData = Data.EMPTY;
     private @NonNull volatile Worker.Result mResult = Worker.Result.FAILURE;
+
+    /**
+     * The default constructor.  This constructor is deprecated and only exists temporarily for
+     * backwards-compatibility.  It will be removed soon, so you should switch all your workers to
+     * use {@link #NonBlockingWorker(Context, WorkerParameters)}.
+     *
+     * @deprecated Use {@link #NonBlockingWorker(Context, WorkerParameters)} instead
+     */
+    @Deprecated
+    public NonBlockingWorker() {
+    }
+
+    /**
+     * @param appContext The application {@link Context}
+     * @param workerParams Parameters to setup the internal state of this worker
+     */
+    public NonBlockingWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
+        mAppContext = appContext;
+        mWorkerParams = workerParams;
+    }
 
     /**
      * Gets the application {@link android.content.Context}.
@@ -70,7 +90,7 @@ public abstract class NonBlockingWorker {
      * @return The ID of the creating {@link WorkRequest}
      */
     public final @NonNull UUID getId() {
-        return mWorkParameters.getId();
+        return mWorkerParams.getId();
     }
 
     /**
@@ -81,7 +101,7 @@ public abstract class NonBlockingWorker {
      * @see OneTimeWorkRequest.Builder#setInputMerger(Class)
      */
     public final @NonNull Data getInputData() {
-        return mWorkParameters.getInputData();
+        return mWorkerParams.getInputData();
     }
 
     /**
@@ -91,7 +111,7 @@ public abstract class NonBlockingWorker {
      * @see WorkRequest.Builder#addTag(String)
      */
     public final @NonNull Set<String> getTags() {
-        return mWorkParameters.getTags();
+        return mWorkerParams.getTags();
     }
 
     /**
@@ -102,7 +122,7 @@ public abstract class NonBlockingWorker {
      */
     @RequiresApi(24)
     public final @Nullable Uri[] getTriggeredContentUris() {
-        return mWorkParameters.getTriggeredContentUris();
+        return mWorkerParams.getTriggeredContentUris();
     }
 
     /**
@@ -112,7 +132,7 @@ public abstract class NonBlockingWorker {
      */
     @RequiresApi(24)
     public final @Nullable String[] getTriggeredContentAuthorities() {
-        return mWorkParameters.getTriggeredContentAuthorities();
+        return mWorkerParams.getTriggeredContentAuthorities();
     }
 
     /**
@@ -123,7 +143,7 @@ public abstract class NonBlockingWorker {
      */
     @RequiresApi(28)
     public final @Nullable Network getNetwork() {
-        return mWorkParameters.getNetwork();
+        return mWorkerParams.getNetwork();
     }
 
     /**
@@ -132,7 +152,7 @@ public abstract class NonBlockingWorker {
      * @return The current run attempt count for this work.
      */
     public final int getRunAttemptCount() {
-        return mWorkParameters.getRunAttemptCount();
+        return mWorkerParams.getRunAttemptCount();
     }
 
     /**
@@ -253,12 +273,16 @@ public abstract class NonBlockingWorker {
         mResult = result;
     }
 
+    /**
+     * @deprecated To be removed; internal usage only.
+     */
+    @Deprecated
     @Keep
     @SuppressWarnings("unused")
     protected void internalInit(@NonNull Context context,
             @NonNull WorkerParameters workParameters) {
         mAppContext = context;
-        mWorkParameters = workParameters;
+        mWorkerParams = workParameters;
     }
 
     /**
@@ -266,7 +290,7 @@ public abstract class NonBlockingWorker {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull WorkerParameters.RuntimeExtras getRuntimeExtras() {
-        return mWorkParameters.getRuntimeExtras();
+        return mWorkerParams.getRuntimeExtras();
     }
 
     /**
@@ -274,6 +298,6 @@ public abstract class NonBlockingWorker {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
-        return mWorkParameters.getBackgroundExecutor();
+        return mWorkerParams.getBackgroundExecutor();
     }
 }

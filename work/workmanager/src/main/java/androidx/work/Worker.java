@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
@@ -62,6 +63,14 @@ public abstract class Worker extends NonBlockingWorker {
 
     // Package-private to avoid synthetic accessor.
     SettableFuture<Pair<Result, Data>> mFuture;
+
+    public Worker() {
+        super();
+    }
+
+    public Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     /**
      * Override this method to do your actual background processing.

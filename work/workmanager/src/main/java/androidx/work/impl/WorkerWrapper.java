@@ -52,6 +52,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -527,13 +528,20 @@ public class WorkerWrapper implements Runnable {
             @NonNull WorkerParameters params) {
         try {
             Class<?> clazz = Class.forName(workerClassName);
-            Worker worker = (Worker) clazz.newInstance();
-            Method internalInitMethod = NonBlockingWorker.class.getDeclaredMethod(
-                    "internalInit",
-                    Context.class,
-                    WorkerParameters.class);
-            internalInitMethod.setAccessible(true);
-            internalInitMethod.invoke(worker, context.getApplicationContext(), params);
+            Worker worker;
+            try {
+                Constructor<?> constructor =
+                        clazz.getDeclaredConstructor(Context.class, WorkerParameters.class);
+                worker = (Worker) constructor.newInstance(context.getApplicationContext(), params);
+            } catch (NoSuchMethodException e) {
+                worker = (Worker) clazz.newInstance();
+                Method internalInitMethod = NonBlockingWorker.class.getDeclaredMethod(
+                        "internalInit",
+                        Context.class,
+                        WorkerParameters.class);
+                internalInitMethod.setAccessible(true);
+                internalInitMethod.invoke(worker, context.getApplicationContext(), params);
+            }
             return worker;
         } catch (Exception e) {
             Logger.error(TAG, "Trouble instantiating " + workerClassName, e);
