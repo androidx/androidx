@@ -29,4 +29,9 @@
         android:text="@string/sample_text1"
         app:fontFamily="@font/samplefont" />
 
+    <androidx.appcompat.widget.AppCompatCheckBoxSpy
+        android:id="@+id/checkbox_button_compat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

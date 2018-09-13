@@ -411,6 +411,17 @@
         <attr name="colorError" format="reference|color" />
 
         <attr name="viewInflaterClass" format="string" />
+
+        <!-- ===================== -->
+        <!-- Animated list choice indicators -->
+        <!-- ===================== -->
+        <eat-comment />
+
+        <!-- Animated Drawable to use for single choice indicators. -->
+        <attr name="listChoiceIndicatorMultipleAnimated" format="reference" />
+        <!-- Animated Drawable to use for multiple choice indicators. -->
+        <attr name="listChoiceIndicatorSingleAnimated" format="reference" />
+
     </declare-styleable>
 
 
@@ -1036,6 +1047,8 @@
 
     <declare-styleable name="CompoundButton">
         <attr name="android:button"/>
+        <!-- Compat attr to load backported drawable types -->
+        <attr name="buttonCompat" format="reference"/>
         <!-- Tint to apply to the button drawable. -->
         <attr name="buttonTint" format="color" />
 

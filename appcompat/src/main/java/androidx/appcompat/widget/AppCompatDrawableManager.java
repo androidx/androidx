@@ -173,7 +173,9 @@ public final class AppCompatDrawableManager {
      */
     private static final int[] TINT_CHECKABLE_BUTTON_LIST = {
             R.drawable.abc_btn_check_material,
-            R.drawable.abc_btn_radio_material
+            R.drawable.abc_btn_radio_material,
+            R.drawable.abc_btn_check_material_anim,
+            R.drawable.abc_btn_radio_material_anim
     };
 
     private WeakHashMap<Context, SparseArrayCompat<ColorStateList>> mTintLists;

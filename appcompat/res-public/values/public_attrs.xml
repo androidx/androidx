@@ -135,6 +135,8 @@
      <public type="attr" name="layout"/>
      <public type="attr" name="lineHeight"/>
      <public type="attr" name="listChoiceBackgroundIndicator"/>
+     <public type="attr" name="listChoiceIndicatorMultipleAnimated"/>
+     <public type="attr" name="listChoiceIndicatorSingleAnimated"/>
      <public type="attr" name="listDividerAlertDialog"/>
      <public type="attr" name="listPopupWindowStyle"/>
      <public type="attr" name="listPreferredItemHeight"/>

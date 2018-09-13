@@ -16,10 +16,14 @@
 package androidx.appcompat.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.graphics.Typeface;
+import android.graphics.drawable.AnimatedStateListDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
 
+import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.test.filters.SmallTest;
@@ -56,5 +60,17 @@ public class AppCompatRadioButtonTest {
         Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
 
         assertEquals(expected, radioButton.getTypeface());
+    }
+
+    @Test
+    public void testDefaultButton_isAnimated() {
+        // Given an ACRB with the theme's button drawable
+        final AppCompatRadioButtonSpy radio = mContainer.findViewById(
+                R.id.radiobutton_button_compat);
+        final Drawable button = radio.mButton;
+
+        // Then this drawable should be an animated-selector
+        assertTrue(button instanceof AnimatedStateListDrawableCompat
+                || button instanceof AnimatedStateListDrawable);
     }
 }
