@@ -378,6 +378,7 @@ public abstract class FragmentTransaction {
      * @deprecated This has been renamed {@link #setReorderingAllowed(boolean)}.
      */
     @Deprecated
+    @NonNull
     public abstract FragmentTransaction setAllowOptimization(boolean allowOptimization);
 
     /**

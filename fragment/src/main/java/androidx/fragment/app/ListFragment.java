@@ -91,6 +91,7 @@ public class ListFragment extends Fragment {
      * way to have the built-in indeterminant progress state be shown.
      */
     @Override
+    @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         final Context context = requireContext();
@@ -234,7 +235,7 @@ public class ListFragment extends Fragment {
      * be shown when the list is empty.  If you would like to have it
      * shown, call this method to supply the text it should use.
      */
-    public void setEmptyText(CharSequence text) {
+    public void setEmptyText(@Nullable CharSequence text) {
         ensureList();
         if (mStandardEmptyView == null) {
             throw new IllegalStateException("Can't be used with a custom content view");
