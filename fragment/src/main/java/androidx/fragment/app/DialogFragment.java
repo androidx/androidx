@@ -136,7 +136,7 @@ public class DialogFragment extends Fragment
      * @param tag The tag for this fragment, as per
      * {@link FragmentTransaction#add(Fragment, String) FragmentTransaction.add}.
      */
-    public void show(FragmentManager manager, String tag) {
+    public void show(@NonNull FragmentManager manager, @Nullable String tag) {
         mDismissed = false;
         mShownByMe = true;
         FragmentTransaction ft = manager.beginTransaction();
@@ -153,7 +153,7 @@ public class DialogFragment extends Fragment
      * @return Returns the identifier of the committed transaction, as per
      * {@link FragmentTransaction#commit() FragmentTransaction.commit()}.
      */
-    public int show(FragmentTransaction transaction, String tag) {
+    public int show(@NonNull FragmentTransaction transaction, @Nullable String tag) {
         mDismissed = false;
         mShownByMe = true;
         transaction.add(this, tag);
@@ -173,7 +173,7 @@ public class DialogFragment extends Fragment
      * @param tag The tag for this fragment, as per
      * {@link FragmentTransaction#add(Fragment, String) FragmentTransaction.add}.
      */
-    public void showNow(FragmentManager manager, String tag) {
+    public void showNow(@NonNull FragmentManager manager, @Nullable String tag) {
         mDismissed = false;
         mShownByMe = true;
         FragmentTransaction ft = manager.beginTransaction();
@@ -212,11 +212,11 @@ public class DialogFragment extends Fragment
         }
         mViewDestroyed = true;
         if (mBackStackId >= 0) {
-            getFragmentManager().popBackStack(mBackStackId,
+            requireFragmentManager().popBackStack(mBackStackId,
                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
             mBackStackId = -1;
         } else {
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            FragmentTransaction ft = requireFragmentManager().beginTransaction();
             ft.remove(this);
             if (allowStateLoss) {
                 ft.commitAllowingStateLoss();
@@ -307,7 +307,7 @@ public class DialogFragment extends Fragment
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (!mShownByMe) {
             // If not explicitly shown through our API, take this as an
@@ -363,7 +363,7 @@ public class DialogFragment extends Fragment
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    public void setupDialog(Dialog dialog, int style) {
+    public void setupDialog(@NonNull Dialog dialog, int style) {
         switch (style) {
             case STYLE_NO_INPUT:
                 dialog.getWindow().addFlags(
@@ -400,15 +400,15 @@ public class DialogFragment extends Fragment
      */
     @NonNull
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        return new Dialog(getActivity(), getTheme());
+        return new Dialog(requireActivity(), getTheme());
     }
 
     @Override
-    public void onCancel(DialogInterface dialog) {
+    public void onCancel(@NonNull DialogInterface dialog) {
     }
 
     @Override
-    public void onDismiss(DialogInterface dialog) {
+    public void onDismiss(@NonNull DialogInterface dialog) {
         if (!mViewDestroyed) {
             // Note: we need to use allowStateLoss, because the dialog
             // dispatches this asynchronously so we can receive the call

@@ -23,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 /**
  * This fragment provides a fully decorated leanback-style preference fragment, including a
  * list background and header.
@@ -50,7 +52,7 @@ public abstract class LeanbackPreferenceFragmentCompat extends
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final View innerView = super.onCreateView(inflater, container, savedInstanceState);
         // parent class would create a themed context based the preferenceTheme attr.
@@ -65,7 +67,7 @@ public abstract class LeanbackPreferenceFragmentCompat extends
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setTitle(getPreferenceScreen().getTitle());
     }

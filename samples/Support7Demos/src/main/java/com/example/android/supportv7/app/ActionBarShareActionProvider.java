@@ -18,7 +18,6 @@ package com.example.android.supportv7.app;
 
 import android.content.Intent;
 import android.view.Menu;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
@@ -38,7 +37,7 @@ public class ActionBarShareActionProvider extends AppCompatActivity {
     }
 
     @Override
-    protected boolean onPrepareOptionsPanel(View view, Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
         final ShareActionProvider sap = (ShareActionProvider) MenuItemCompat.getActionProvider(
                 menu.findItem(R.id.menu_item_share_provider_action_bar));
 

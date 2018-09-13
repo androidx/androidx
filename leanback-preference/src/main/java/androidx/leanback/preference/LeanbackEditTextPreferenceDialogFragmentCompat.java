@@ -31,6 +31,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.preference.DialogPreference;
 import androidx.preference.EditTextPreference;
 
@@ -101,7 +102,7 @@ public class LeanbackEditTextPreferenceDialogFragmentCompat extends
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putCharSequence(SAVE_STATE_TITLE, mDialogTitle);
         outState.putCharSequence(SAVE_STATE_MESSAGE, mDialogMessage);
@@ -111,7 +112,7 @@ public class LeanbackEditTextPreferenceDialogFragmentCompat extends
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         TypedValue tv = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);

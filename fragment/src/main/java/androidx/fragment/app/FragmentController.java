@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import static androidx.core.util.Preconditions.checkNotNull;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Parcelable;
@@ -74,6 +75,7 @@ public class FragmentController {
      * @see LoaderManager#getInstance
      */
     @Deprecated
+    @SuppressLint("UnknownNullness")
     public LoaderManager getSupportLoaderManager() {
         throw new UnsupportedOperationException("Loaders are managed separately from "
                 + "FragmentController, use LoaderManager.getInstance() to obtain a LoaderManager.");
@@ -83,7 +85,7 @@ public class FragmentController {
      * Returns a fragment with the given identifier.
      */
     @Nullable
-    public Fragment findFragmentByWho(String who) {
+    public Fragment findFragmentByWho(@NonNull String who) {
         return mHost.mFragmentManager.findFragmentByWho(who);
     }
 
@@ -98,7 +100,8 @@ public class FragmentController {
      * Returns the list of active fragments.
      */
     @NonNull
-    public List<Fragment> getActiveFragments(List<Fragment> actives) {
+    public List<Fragment> getActiveFragments(@SuppressLint("UnknownNullness")
+            List<Fragment> actives) {
         return mHost.mFragmentManager.getActiveFragments();
     }
 
@@ -122,6 +125,7 @@ public class FragmentController {
      *
      * @return view the newly created view
      */
+    @Nullable
     public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
         return mHost.mFragmentManager.onCreateView(parent, name, context, attrs);
@@ -315,7 +319,7 @@ public class FragmentController {
      *
      * @see Fragment#onConfigurationChanged(Configuration)
      */
-    public void dispatchConfigurationChanged(Configuration newConfig) {
+    public void dispatchConfigurationChanged(@NonNull Configuration newConfig) {
         mHost.mFragmentManager.dispatchConfigurationChanged(newConfig);
     }
 
@@ -339,7 +343,7 @@ public class FragmentController {
      * @return {@code true} if the options menu contains items to display
      * @see Fragment#onCreateOptionsMenu(Menu, MenuInflater)
      */
-    public boolean dispatchCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public boolean dispatchCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         return mHost.mFragmentManager.dispatchCreateOptionsMenu(menu, inflater);
     }
 
@@ -351,7 +355,7 @@ public class FragmentController {
      * @return {@code true} if the options menu contains items to display
      * @see Fragment#onPrepareOptionsMenu(Menu)
      */
-    public boolean dispatchPrepareOptionsMenu(Menu menu) {
+    public boolean dispatchPrepareOptionsMenu(@NonNull Menu menu) {
         return mHost.mFragmentManager.dispatchPrepareOptionsMenu(menu);
     }
 
@@ -364,7 +368,7 @@ public class FragmentController {
      * @return {@code true} if the options menu selection event was consumed
      * @see Fragment#onOptionsItemSelected(MenuItem)
      */
-    public boolean dispatchOptionsItemSelected(MenuItem item) {
+    public boolean dispatchOptionsItemSelected(@NonNull MenuItem item) {
         return mHost.mFragmentManager.dispatchOptionsItemSelected(item);
     }
 
@@ -377,7 +381,7 @@ public class FragmentController {
      * @return {@code true} if the context menu selection event was consumed
      * @see Fragment#onContextItemSelected(MenuItem)
      */
-    public boolean dispatchContextItemSelected(MenuItem item) {
+    public boolean dispatchContextItemSelected(@NonNull MenuItem item) {
         return mHost.mFragmentManager.dispatchContextItemSelected(item);
     }
 
@@ -388,7 +392,7 @@ public class FragmentController {
      *
      * @see Fragment#onOptionsMenuClosed(Menu)
      */
-    public void dispatchOptionsMenuClosed(Menu menu) {
+    public void dispatchOptionsMenuClosed(@NonNull Menu menu) {
         mHost.mFragmentManager.dispatchOptionsMenuClosed(menu);
     }
 
@@ -473,7 +477,8 @@ public class FragmentController {
      * @deprecated Loaders are managed separately from FragmentController
      */
     @Deprecated
-    public void restoreLoaderNonConfig(SimpleArrayMap<String, LoaderManager> loaderManagers) {
+    public void restoreLoaderNonConfig(@SuppressLint("UnknownNullness")
+            SimpleArrayMap<String, LoaderManager> loaderManagers) {
     }
 
     /**
@@ -482,6 +487,7 @@ public class FragmentController {
      * @deprecated Loaders are managed separately from FragmentController
      */
     @Deprecated
-    public void dumpLoaders(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dumpLoaders(@NonNull String prefix, @Nullable FileDescriptor fd,
+            @NonNull PrintWriter writer, @Nullable String[] args) {
     }
 }
