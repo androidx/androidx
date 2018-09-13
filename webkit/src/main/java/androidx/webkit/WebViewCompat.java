@@ -433,7 +433,6 @@ public class WebViewCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#GET_WEB_VIEW_CLIENT}.
      *
-     * <p>
      * @return the WebViewClient, or a default client if not yet set
      */
     @SuppressLint("NewApi")
@@ -459,7 +458,6 @@ public class WebViewCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#GET_WEB_CHROME_CLIENT}.
      *
-     * <p>
      * @return the WebChromeClient, or {@code null} if not yet set
      */
     @SuppressLint("NewApi")

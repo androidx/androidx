@@ -40,7 +40,7 @@ public abstract class SafeBrowsingResponseCompat {
     public abstract void showInterstitial(boolean allowReporting);
 
     /**
-     * Act as if the user clicked "visit this unsafe site."
+     * Act as if the user clicked the "visit this unsafe site" button.
      *
      * <p>
      * This method should only be called if
@@ -54,7 +54,7 @@ public abstract class SafeBrowsingResponseCompat {
     public abstract void proceed(boolean report);
 
     /**
-     * Act as if the user clicked "back to safety."
+     * Act as if the user clicked the "back to safety" button.
      *
      * <p>
      * This method should only be called if

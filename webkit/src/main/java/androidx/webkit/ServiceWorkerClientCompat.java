@@ -36,17 +36,16 @@ public abstract class ServiceWorkerClientCompat {
      * <p class="note"><b>Note:</b> This method is called on a thread other than the UI thread so
      * clients should exercise caution when accessing private data or the view system.
      *
+     * <p>This method is called only if {@link
+     * WebViewFeature#SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST} is supported. You can check whether
+     * that flag is supported using {@link WebViewFeature#isFeatureSupported(String)}.
+     *
      * @param request Object containing the details of the request.
      * @return A {@link android.webkit.WebResourceResponse} containing the
      * response information or {@code null} if the WebView should load the
      * resource itself.
      * @see android.webkit.WebViewClient#shouldInterceptRequest(android.webkit.WebView,
      * WebResourceRequest)
-     *
-     * This method is called only if
-     * {@link WebViewFeature#SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST} is supported. You can check
-     * whether that flag is supported using {@link WebViewFeature#isFeatureSupported(String)}.
-     *
      */
     public abstract WebResourceResponse shouldInterceptRequest(@NonNull WebResourceRequest request);
 }
