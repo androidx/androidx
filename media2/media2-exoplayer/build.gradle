@@ -17,8 +17,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
-import static androidx.build.dependencies.DependenciesKt.CHECKER_FRAMEWORK
-
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -27,10 +25,6 @@ android {
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
-}
-
-dependencies {
-    compileOnly(CHECKER_FRAMEWORK)
 }
 
 // Copy in classes from the prebuilt at the end of the java compilation task.
