@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -422,5 +423,31 @@ public class ResourcesCompatTest {
         Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplexmlfont);
 
         assertSame(font, font2);
+    }
+
+    @Test
+    public void getFloatForFloat() {
+        float value = ResourcesCompat.getFloat(mResources, R.dimen.twelve_point_five);
+        assertEquals(12.5f, value, 0.01f);
+    }
+
+    @Test
+    public void getFloatForNotAFloatThrows() {
+        try {
+            ResourcesCompat.getFloat(mResources, android.R.string.yes);
+            fail();
+        } catch (Resources.NotFoundException e) {
+            assertEquals("Resource ID #0x1040013 type #0x3 is not valid", e.getMessage());
+        }
+    }
+
+    @Test
+    public void getFloatForMissingResourceThrows() {
+        try {
+            ResourcesCompat.getFloat(mResources, 42);
+            fail();
+        } catch (Resources.NotFoundException e) {
+            assertEquals("Resource ID #0x2a", e.getMessage());
+        }
     }
 }
