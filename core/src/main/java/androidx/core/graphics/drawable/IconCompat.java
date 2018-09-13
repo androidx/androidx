@@ -364,6 +364,33 @@ public class IconCompat extends CustomVersionedParcelable {
     }
 
     /**
+     * Gets the bitmap used to create this icon.
+     * <p>
+     * Only valid for icons of type TYPE_BITMAP.
+     * Note: This bitmap may not be available in the future, and it is
+     * up to the caller to ensure safety if this bitmap is re-used and/or persisted.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public Bitmap getBitmap() {
+        if (mType == TYPE_UNKNOWN && Build.VERSION.SDK_INT >= 23) {
+            if (mObj1 instanceof Bitmap) {
+                return (Bitmap) mObj1;
+            }
+            return null;
+        }
+        if (mType == TYPE_BITMAP) {
+            return (Bitmap) mObj1;
+        } else if (mType == TYPE_ADAPTIVE_BITMAP) {
+            return createLegacyIconFromAdaptiveIcon((Bitmap) mObj1, true);
+        } else {
+            throw new IllegalStateException("called getBitmap() on " + this);
+        }
+    }
+
+    /**
      * Gets the uri used to create this icon.
      * <p>
      * Only valid for icons of type TYPE_URI.

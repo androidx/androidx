@@ -19,6 +19,7 @@ package androidx.core.app;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +56,25 @@ public class Person {
                 .build();
     }
 
+    /**
+     * Extracts and returns the {@link Person} written to the {@code bundle}. A persistable bundle
+     * can be created from a {@link Person} using {@link #toPersistableBundle()}. The Icon of the
+     * Person will not be extracted from the PersistableBundle.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    @RequiresApi(22)
+    public static Person fromPersistableBundle(@NonNull PersistableBundle bundle) {
+        return new Builder()
+                .setName(bundle.getString(NAME_KEY))
+                .setUri(bundle.getString(URI_KEY))
+                .setKey(bundle.getString(KEY_KEY))
+                .setBot(bundle.getBoolean(IS_BOT_KEY))
+                .setImportant(bundle.getBoolean(IS_IMPORTANT_KEY))
+                .build();
+    }
 
     /**
      * Converts an Android framework {@link android.app.Person} to a compat {@link Person}.
@@ -110,6 +130,26 @@ public class Person {
         Bundle result = new Bundle();
         result.putCharSequence(NAME_KEY, mName);
         result.putBundle(ICON_KEY, mIcon != null ? mIcon.toBundle() : null);
+        result.putString(URI_KEY, mUri);
+        result.putString(KEY_KEY, mKey);
+        result.putBoolean(IS_BOT_KEY, mIsBot);
+        result.putBoolean(IS_IMPORTANT_KEY, mIsImportant);
+        return result;
+    }
+
+    /**
+     * Writes and returns a new {@link PersistableBundle} that represents this {@link Person}. This
+     * bundle can be converted back by using {@link #fromPersistableBundle(PersistableBundle)}. The
+     * Icon of the Person will not be included in the resulting PersistableBundle.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    @RequiresApi(22)
+    public PersistableBundle toPersistableBundle() {
+        PersistableBundle result = new PersistableBundle();
+        result.putString(NAME_KEY, mName != null ? mName.toString() : null);
         result.putString(URI_KEY, mUri);
         result.putString(KEY_KEY, mKey);
         result.putBoolean(IS_BOT_KEY, mIsBot);
