@@ -354,20 +354,24 @@ public final class TextLinks {
         private static final String EXTRA_TEXT = "text";
         private static final String EXTRA_DEFAULT_LOCALES = "locales";
         private static final String EXTRA_ENTITY_CONFIG = "entity_config";
+        private static final String EXTRA_REFERENCE_TIME = "reference_time";
 
         private final CharSequence mText;
         @Nullable private final LocaleListCompat mDefaultLocales;
         @NonNull private final EntityConfig mEntityConfig;
+        @Nullable private Long mReferenceTime = null;
 
         Request(
                 @NonNull CharSequence text,
                 @Nullable LocaleListCompat defaultLocales,
-                @Nullable EntityConfig entityConfig) {
+                @Nullable EntityConfig entityConfig,
+                @Nullable Long referenceTime) {
             mText = text;
             mDefaultLocales = defaultLocales;
             mEntityConfig = entityConfig == null
                     ? new TextClassifier.EntityConfig.Builder().build()
                     : entityConfig;
+            mReferenceTime = referenceTime;
         }
 
         /**
@@ -397,6 +401,16 @@ public final class TextLinks {
         }
 
         /**
+         * @return reference time based on which relative dates (e.g. "tomorrow") should be
+         *      interpreted. This should be milliseconds from the epoch of
+         *      1970-01-01T00:00:00Z(UTC timezone).
+         */
+        @Nullable
+        public Long getReferenceTime() {
+            return mReferenceTime;
+        }
+
+        /**
          * A builder for building TextLinks requests.
          */
         public static final class Builder {
@@ -405,6 +419,7 @@ public final class TextLinks {
 
             @Nullable private LocaleListCompat mDefaultLocales;
             @Nullable private EntityConfig mEntityConfig;
+            @Nullable private Long mReferenceTime = null;
 
             public Builder(@NonNull CharSequence text) {
                 mText = Preconditions.checkNotNull(text);
@@ -437,11 +452,28 @@ public final class TextLinks {
             }
 
             /**
+             * @param referenceTime reference time based on which relative dates (e.g. "tomorrow")
+             *      should be interpreted. This should usually be the time when the text was
+             *      originally composed and should be milliseconds from the epoch of
+             *      1970-01-01T00:00:00Z(UTC timezone). For example, if there is a message saying
+             *      "see you 10 days later", and the message was composed yesterday, text classifier
+             *      will then realize it is indeed means 9 days later from now and generate a link
+             *      accordingly. If no reference time or {@code null} is set, now is used.
+             *
+             * @return this builder
+             */
+            @NonNull
+            public TextLinks.Request.Builder setReferenceTime(
+                    @Nullable Long referenceTime) {
+                mReferenceTime = referenceTime;
+                return this;
+            }
+            /**
              * Builds and returns the request object.
              */
             @NonNull
             public Request build() {
-                return new Request(mText, mDefaultLocales, mEntityConfig);
+                return new Request(mText, mDefaultLocales, mEntityConfig, mReferenceTime);
             }
 
         }
@@ -456,6 +488,7 @@ public final class TextLinks {
             bundle.putCharSequence(EXTRA_TEXT, mText);
             bundle.putBundle(EXTRA_ENTITY_CONFIG, mEntityConfig.toBundle());
             BundleUtils.putLocaleList(bundle, EXTRA_DEFAULT_LOCALES, mDefaultLocales);
+            BundleUtils.putLong(bundle, EXTRA_REFERENCE_TIME, mReferenceTime);
             return bundle;
         }
 
@@ -468,6 +501,7 @@ public final class TextLinks {
                     .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES))
                     .setEntityConfig(
                             EntityConfig.createFromBundle(bundle.getBundle(EXTRA_ENTITY_CONFIG)))
+                    .setReferenceTime(BundleUtils.getLong(bundle, EXTRA_REFERENCE_TIME))
                     .build();
         }
 

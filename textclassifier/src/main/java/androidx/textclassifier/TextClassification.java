@@ -507,7 +507,7 @@ public final class TextClassification {
              *      originally composed and should be milliseconds from the epoch of
              *      1970-01-01T00:00:00Z(UTC timezone). For example, if there is a message saying
              *      "see you 10 days later", and the message was composed yesterday, text classifier
-             *      will then realize it is indeed means 9 days later from now and generate a link
+             *      will then realize it is indeed means 9 days later from now and classify the text
              *      accordingly. If no reference time is set, now is used.
              *
              * @return this builder
