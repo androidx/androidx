@@ -37,7 +37,6 @@ import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.SessionCommandGroup2;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -52,6 +51,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Tests {@link MediaSession2} whether it handles key events correctly.
+ * In order to get the media key events, the player state is set to 'Playing' before every test
+ * method.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4.class)
@@ -135,16 +136,15 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testPlay() throws Exception {
+    public void testPlayKeyEvent() throws Exception {
         prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
     }
 
-    @FlakyTest(bugId = 115432583)
     @Test
-    public void testPause() throws Exception {
+    public void testPauseKeyEvent() throws Exception {
         prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -152,7 +152,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testNext() throws Exception {
+    public void testNextKeyEvent() throws Exception {
         prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT, false);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -160,16 +160,15 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testPrevious() throws Exception {
+    public void testPreviousKeyEvent() throws Exception {
         prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS, false);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mMockAgent.mSkipToPreviousItemCalled);
     }
 
-    @FlakyTest(bugId = 112291143)
     @Test
-    public void testStop() throws Exception {
+    public void testStopKeyEvent() throws Exception {
         prepareLooper();
         mPlayer = new MockPlayerConnector(2);
         mSession.updatePlayerConnector(mPlayer, mSession.getPlaylistAgent());
@@ -180,7 +179,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testFastForward() throws Exception {
+    public void testFastForwardKeyEvent() throws Exception {
         prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, false);
         assertTrue(mSessionCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -188,7 +187,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testRewind() throws Exception {
+    public void testRewindKeyEvent() throws Exception {
         prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_REWIND, false);
         assertTrue(mSessionCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -196,7 +195,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testPlayPause_play() throws Exception {
+    public void testPlayPauseKeyEvent_play() throws Exception {
         prepareLooper();
         mPlayer.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PAUSED);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
@@ -204,18 +203,16 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
         assertTrue(mPlayer.mPlayCalled);
     }
 
-    @FlakyTest(bugId = 115464664)
     @Test
-    public void testPlayPause_pause() throws Exception {
+    public void testPlayPauseKeyEvent_pause() throws Exception {
         prepareLooper();
-        mPlayer.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_PLAYING);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPauseCalled);
     }
 
     @Test
-    public void testPlayPause_doubleTap() throws Exception {
+    public void testPlayPauseKeyEvent_doubleTapIsTranslatedToSkipToNext() throws Exception {
         prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, true);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
