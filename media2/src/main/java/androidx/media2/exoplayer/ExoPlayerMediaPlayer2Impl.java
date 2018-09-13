@@ -43,6 +43,7 @@ import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaTimestamp2;
 import androidx.media2.PlaybackParams2;
+import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
 import androidx.media2.exoplayer.external.DefaultRenderersFactory;
 import androidx.media2.exoplayer.external.ExoPlayerFactory;
@@ -51,10 +52,12 @@ import androidx.media2.exoplayer.external.SimpleExoPlayer;
 import androidx.media2.exoplayer.external.Timeline;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
 import androidx.media2.exoplayer.external.source.MediaSource;
+import androidx.media2.exoplayer.external.source.TrackGroup;
 import androidx.media2.exoplayer.external.source.TrackGroupArray;
 import androidx.media2.exoplayer.external.trackselection.DefaultTrackSelector;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.upstream.DefaultDataSourceFactory;
+import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
 import androidx.media2.exoplayer.external.video.VideoListener;
 
@@ -514,6 +517,46 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
+    public PersistableBundle getMetrics() {
+        if (Util.SDK_INT >= 21) {
+            PersistableBundle bundle = new PersistableBundle();
+            TrackGroupArray trackGroupArray;
+            long durationMs;
+            synchronized (mPlayerLock) {
+                trackGroupArray = mPlayer.getCurrentTrackGroups();
+                durationMs = mPlayer.getDuration();
+            }
+            long playingTimeMs;
+            synchronized (mLock) {
+                playingTimeMs = C.usToMs(mPlayingTimeUs);
+            }
+            @Nullable String primaryAudioMimeType = null;
+            @Nullable String primaryVideoMimeType = null;
+            for (int i = 0; i < trackGroupArray.length; i++) {
+                TrackGroup trackGroup = trackGroupArray.get(i);
+                String mimeType = trackGroup.getFormat(0).sampleMimeType;
+                if (primaryVideoMimeType == null && MimeTypes.isVideo(mimeType)) {
+                    primaryVideoMimeType = mimeType;
+                } else if (primaryAudioMimeType == null && MimeTypes.isAudio(mimeType)) {
+                    primaryAudioMimeType = mimeType;
+                }
+            }
+            if (primaryVideoMimeType != null) {
+                bundle.putString(MetricsConstants.MIME_TYPE_VIDEO, primaryVideoMimeType);
+            }
+            if (primaryAudioMimeType != null) {
+                bundle.putString(MetricsConstants.MIME_TYPE_AUDIO, primaryAudioMimeType);
+            }
+            bundle.putLong(MetricsConstants.DURATION, durationMs == C.TIME_UNSET ? -1 : durationMs);
+            bundle.putLong(MetricsConstants.PLAYING, playingTimeMs);
+            return bundle;
+        } else {
+            // TODO(b/80232248): Check what to do for pre-Android L builds.
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
     public void skipToNext() {
         throw new UnsupportedOperationException();
     }
@@ -525,11 +568,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void getNextMediaItems(List<MediaItem2> items) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public PersistableBundle getMetrics() {
         throw new UnsupportedOperationException();
     }
 
