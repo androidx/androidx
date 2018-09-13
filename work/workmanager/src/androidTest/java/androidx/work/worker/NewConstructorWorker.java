@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,23 @@ package androidx.work.worker;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-/**
- * Simple Test Worker
- */
+public class NewConstructorWorker extends Worker {
 
-public class TestWorker extends Worker {
+    public NewConstructorWorker() throws IllegalAccessException {
+        throw new IllegalAccessException();
+    }
 
-    public TestWorker(@NonNull Context context,
-            @NonNull WorkerParameters workerParams) {
+    public NewConstructorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 
+    @NonNull
     @Override
-    public @NonNull Result doWork() {
-        Log.d("TestWorker", "TestWorker Ran!");
+    public Result doWork() {
         return Result.SUCCESS;
     }
 }
