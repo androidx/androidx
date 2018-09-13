@@ -134,6 +134,7 @@ package androidx.textclassifier {
     method public static androidx.textclassifier.TextLinks.Request createFromBundle(android.os.Bundle);
     method public androidx.core.os.LocaleListCompat getDefaultLocales();
     method public androidx.textclassifier.TextClassifier.EntityConfig getEntityConfig();
+    method public java.lang.Long getReferenceTime();
     method public java.lang.CharSequence getText();
     method public android.os.Bundle toBundle();
   }
@@ -143,6 +144,7 @@ package androidx.textclassifier {
     method public androidx.textclassifier.TextLinks.Request build();
     method public androidx.textclassifier.TextLinks.Request.Builder setDefaultLocales(androidx.core.os.LocaleListCompat);
     method public androidx.textclassifier.TextLinks.Request.Builder setEntityConfig(androidx.textclassifier.TextClassifier.EntityConfig);
+    method public androidx.textclassifier.TextLinks.Request.Builder setReferenceTime(java.lang.Long);
   }
 
   public static final class TextLinks.TextLink {
