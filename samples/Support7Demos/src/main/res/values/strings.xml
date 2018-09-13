@@ -48,6 +48,7 @@
     <string name="dg_tv_route_name2">DG Route 2 - TV</string>
     <string name="dg_speaker_route_name3">DG Route 3 - Speaker</string>
     <string name="dg_speaker_route_name4">DG Route 4 - Speaker</string>
+    <string name="dg_not_unselectable_route_name5"> DG Route 5 - Not unselectable</string>
 
     <!-- GridLayout -->
 
