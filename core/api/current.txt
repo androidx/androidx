@@ -648,9 +648,13 @@ package androidx.core.app {
     method public java.lang.CharSequence getLabel();
     method public java.lang.String getResultKey();
     method public static android.os.Bundle getResultsFromIntent(android.content.Intent);
+    method public static int getResultsSource(android.content.Intent);
     method public boolean isDataOnly();
+    method public static void setResultsSource(android.content.Intent, int);
     field public static final java.lang.String EXTRA_RESULTS_DATA = "android.remoteinput.resultsData";
     field public static final java.lang.String RESULTS_CLIP_LABEL = "android.remoteinput.results";
+    field public static final int SOURCE_CHOICE = 1; // 0x1
+    field public static final int SOURCE_FREE_FORM_INPUT = 0; // 0x0
   }
 
   public static final class RemoteInput.Builder {
