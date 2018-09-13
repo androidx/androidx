@@ -38,7 +38,7 @@ import androidx.work.Data;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
-import androidx.work.impl.Extras;
+import androidx.work.WorkerParameters;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.WorkerWrapper;
@@ -250,13 +250,13 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         ConstraintTrackingWorker worker =
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
-                        mContext,
                         ConstraintTrackingWorker.class.getName(),
-                        mWork.getId(),
-                        new Extras(
+                        mContext,
+                        new WorkerParameters(
+                                mWork.getId(),
                                 input,
                                 Collections.<String>emptyList(),
-                                new Extras.RuntimeExtras(),
+                                new WorkerParameters.RuntimeExtras(),
                                 1,
                                 executor));
 
