@@ -129,21 +129,12 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
             throws Throwable {
         CharSequence charSequence = "value doesn't matter";
         Uri uri = Uri.parse("Some Uri");
-        RemoteInput input =
-                new RemoteInput.Builder(RESULT_KEY)
-                .setAllowDataType(MIME_TYPE, true)
-                .build();
+        RemoteInput input = newTextAndDataRemoteInput();
         Intent intent = new Intent();
 
-        Map<String, Uri> dataResults = new HashMap<>();
-        dataResults.put(MIME_TYPE, uri);
-        RemoteInput.addDataResultToIntent(input, intent, dataResults);
-
-        Bundle textResults = new Bundle();
-        textResults.putCharSequence(input.getResultKey(), charSequence);
-        RemoteInput[] arr = new RemoteInput[1];
-        arr[0] = input;
-        RemoteInput.addResultsToIntent(arr, intent, textResults);
+        addDataResultsToIntent(input, intent, uri);
+        addTextResultsToIntent(input, intent, charSequence);
+        RemoteInput.setResultsSource(intent, RemoteInput.SOURCE_FREE_FORM_INPUT);
 
         verifyIntentHasTextResults(intent, charSequence);
         verifyIntentHasDataResults(intent, uri);
@@ -155,24 +146,76 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
             throws Throwable {
         CharSequence charSequence = "value doesn't matter";
         Uri uri = Uri.parse("Some Uri");
-        RemoteInput input =
-                new RemoteInput.Builder(RESULT_KEY)
-                .setAllowDataType(MIME_TYPE, true)
-                .build();
+        RemoteInput input = newTextAndDataRemoteInput();
         Intent intent = new Intent();
 
+        addTextResultsToIntent(input, intent, charSequence);
+        addDataResultsToIntent(input, intent, uri);
+        RemoteInput.setResultsSource(intent, RemoteInput.SOURCE_CHOICE);
+
+        verifyIntentHasTextResults(intent, charSequence);
+        verifyIntentHasDataResults(intent, uri);
+    }
+
+    @Test
+    public void testGetResultsSource_emptyIntent() {
+        Intent intent = new Intent();
+
+        assertEquals(RemoteInput.SOURCE_FREE_FORM_INPUT, RemoteInput.getResultsSource(intent));
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void testGetResultsSource_addDataAndTextResults() {
+        CharSequence charSequence = "value doesn't matter";
+        Uri uri = Uri.parse("Some Uri");
+        RemoteInput input = newTextAndDataRemoteInput();
+        Intent intent = new Intent();
+
+        addTextResultsToIntent(input, intent, charSequence);
+        addDataResultsToIntent(input, intent, uri);
+
+        assertEquals(RemoteInput.SOURCE_FREE_FORM_INPUT, RemoteInput.getResultsSource(intent));
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void testGetResultsSource_setSource() {
+        Intent intent = new Intent();
+
+        RemoteInput.setResultsSource(intent, RemoteInput.SOURCE_CHOICE);
+
+        assertEquals(RemoteInput.SOURCE_CHOICE, RemoteInput.getResultsSource(intent));
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void testGetResultsSource_setSourceAndAddDataAndTextResults() {
+        CharSequence charSequence = "value doesn't matter";
+        Uri uri = Uri.parse("Some Uri");
+        RemoteInput input = newTextAndDataRemoteInput();
+        Intent intent = new Intent();
+
+        RemoteInput.setResultsSource(intent, RemoteInput.SOURCE_CHOICE);
+        addTextResultsToIntent(input, intent, charSequence);
+        addDataResultsToIntent(input, intent, uri);
+
+        assertEquals(RemoteInput.SOURCE_CHOICE, RemoteInput.getResultsSource(intent));
+    }
+
+    private static void addTextResultsToIntent(RemoteInput input, Intent intent,
+            CharSequence charSequence) {
         Bundle textResults = new Bundle();
         textResults.putCharSequence(input.getResultKey(), charSequence);
         RemoteInput[] arr = new RemoteInput[1];
         arr[0] = input;
         RemoteInput.addResultsToIntent(arr, intent, textResults);
+    }
 
+    private static void addDataResultsToIntent(RemoteInput input, Intent intent, Uri uri) {
         Map<String, Uri> dataResults = new HashMap<>();
         dataResults.put(MIME_TYPE, uri);
         RemoteInput.addDataResultToIntent(input, intent, dataResults);
-
-        verifyIntentHasTextResults(intent, charSequence);
-        verifyIntentHasDataResults(intent, uri);
     }
 
     private static void verifyIntentHasTextResults(Intent intent, CharSequence expected) {
@@ -207,6 +250,13 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
     private static RemoteInput newDataOnlyRemoteInput() {
         return new RemoteInput.Builder(RESULT_KEY)
             .setAllowFreeFormInput(false)
+            .setAllowDataType(MIME_TYPE, true)
+            .build();
+    }
+
+    private static RemoteInput newTextAndDataRemoteInput() {
+        return new RemoteInput.Builder(RESULT_KEY)
+            .setAllowFreeFormInput(true)
             .setAllowDataType(MIME_TYPE, true)
             .build();
     }
