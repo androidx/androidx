@@ -31,8 +31,8 @@ import java.util.concurrent.TimeUnit
 
 // region test
 
-const val randomTesting = false // change to true to enable random tests
-const val randomTestsPerConfig = 1 // increase to have more random tests generated
+private const val randomTesting = false // change to true to enable random tests
+private const val randomTestsPerConfig = 1 // increase to have more random tests generated
 
 @RunWith(Parameterized::class)
 @LargeTest

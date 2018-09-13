@@ -225,4 +225,13 @@ open class BaseTest {
     fun <T : Comparable<T>> isBetweenInIn(min: T, max: T): Matcher<T> {
         return allOf(greaterThanOrEqualTo<T>(min), lessThanOrEqualTo<T>(max))
     }
+
+    /**
+     * Is between [min(a, b), max(a, b)]
+     * @param a - inclusive
+     * @param b - inclusive
+     */
+    fun <T : Comparable<T>> isBetweenInInMinMax(a: T, b: T): Matcher<T> {
+        return allOf(greaterThanOrEqualTo<T>(minOf(a, b)), lessThanOrEqualTo<T>(maxOf(a, b)))
+    }
 }
