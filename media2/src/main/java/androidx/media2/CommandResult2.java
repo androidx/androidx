@@ -22,9 +22,8 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.SystemClock;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Result of the asynchrnous APIs
