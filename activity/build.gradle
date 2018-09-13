@@ -28,6 +28,7 @@ dependencies {
 
 supportLibrary {
     name = "Activity"
+    publish = true
     mavenVersion = LibraryVersions.ACTIVITY
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
