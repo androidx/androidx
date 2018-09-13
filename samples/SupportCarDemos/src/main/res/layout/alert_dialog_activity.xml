@@ -68,6 +68,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:checked="true"
-        android:text="@string/create_alert_dialog_button"
-        style="@style/Widget.Car.Button" />
+        android:text="@string/create_alert_dialog_button" />
 </LinearLayout>

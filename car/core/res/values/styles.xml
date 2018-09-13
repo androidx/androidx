@@ -260,12 +260,17 @@ limitations under the License.
         <item name="android:textSize">@dimen/car_body3_size</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/car_button_background</item>
-        <item name="android:textColor">@color/car_body3</item>
+        <item name="android:textColor">@color/car_body1</item>
     </style>
 
     <!-- A style for buttons that is fixed with dark-colored text. -->
     <style name="Widget.Car.Button.DarkText">
-        <item name="android:textColor">@color/car_body3_dark</item>
+        <item name="android:textColor">@color/car_body1_dark</item>
+    </style>
+
+    <!-- A style for buttons that is fixed with light-colored text. -->
+    <style name="Widget.Car.Button.LightText">
+        <item name="android:textColor">@color/car_body1_light</item>
     </style>
 
     <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
