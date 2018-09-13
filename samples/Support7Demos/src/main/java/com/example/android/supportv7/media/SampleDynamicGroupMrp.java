@@ -104,7 +104,8 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackStream(AudioManager.STREAM_MUSIC)
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
-                .setVolume(VOLUME_MAX)
+                .setVolumeMax(VOLUME_MAX)
+                .setVolume(mVolume)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();
@@ -140,11 +141,25 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .build();
 
         MediaRouteDescriptor routeDescriptor4 = new MediaRouteDescriptor.Builder(
-                FIXED_VOLUME_ROUTE_ID,
+                VARIABLE_VOLUME_BASIC_ROUTE_ID + "4",
                 r.getString(R.string.dg_speaker_route_name4))
                 .setDescription(r.getString(R.string.sample_route_description))
                 .addControlFilters(CONTROL_FILTERS_BASIC)
                 .setDeviceType(MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER)
+                .setPlaybackStream(AudioManager.STREAM_MUSIC)
+                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
+                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
+                .setVolumeMax(VOLUME_MAX)
+                .setVolume(mVolume)
+                .setCanDisconnect(true)
+                .setSettingsActivity(is)
+                .build();
+
+        MediaRouteDescriptor routeDescriptor5 = new MediaRouteDescriptor.Builder(
+                FIXED_VOLUME_ROUTE_ID,
+                r.getString(R.string.dg_not_unselectable_route_name5))
+                .setDescription(r.getString(R.string.sample_route_description))
+                .addControlFilters(CONTROL_FILTERS_BASIC)
                 .setPlaybackStream(AudioManager.STREAM_MUSIC)
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED)
@@ -158,6 +173,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         mRouteDescriptors.put(routeDescriptor2.getId(), routeDescriptor2);
         mRouteDescriptors.put(routeDescriptor3.getId(), routeDescriptor3);
         mRouteDescriptors.put(routeDescriptor4.getId(), routeDescriptor4);
+        mRouteDescriptors.put(routeDescriptor5.getId(), routeDescriptor5);
     }
 
     @Override
@@ -189,15 +205,10 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 for (MediaRouteDescriptor descriptor: routeDescriptors) {
                     String routeId = descriptor.getId();
                     DynamicRouteDescriptor.Builder builder =
-                            new DynamicRouteDescriptor.Builder(descriptor);
-                    if (descriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV) {
-                        builder.setIsGroupable(false);
-                        builder.setIsTransferable(true);
-                    } else {
-                        builder.setIsGroupable(true);
-                        builder.setIsTransferable(true);
-                    }
-                    builder.setSelectionState(DynamicRouteDescriptor.UNSELECTED);
+                            new DynamicRouteDescriptor.Builder(descriptor)
+                                    .setIsGroupable(true)
+                                    .setIsTransferable(true)
+                                    .setSelectionState(DynamicRouteDescriptor.UNSELECTED);
                     mDynamicRouteDescriptors.put(routeId, builder.build());
                 }
             }
@@ -237,12 +248,15 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 Log.d(TAG, "onAddMemberRoute: Ignored for routeId: " + routeId);
                 return;
             }
+
+            MediaRouteDescriptor routeDescriptor = dynamicDescriptor.getRouteDescriptor();
             DynamicRouteDescriptor.Builder builder =
                     new DynamicRouteDescriptor.Builder(dynamicDescriptor)
                             .setSelectionState(DynamicRouteDescriptor.SELECTED);
 
-            // Initial member shouldn't be unselected.
-            if (mMemberRouteIds.isEmpty()) {
+            // Make fixed volume route not unselectable.
+            if (routeDescriptor.getVolumeHandling()
+                    == MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED) {
                 builder.setIsUnselectable(false);
             } else {
                 builder.setIsUnselectable(true);
@@ -252,9 +266,14 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
             MediaRouteDescriptor groupDescriptor =
                     new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId))
-                    .addGroupMemberId(routeId)
-                    .build();
+                            .addGroupMemberId(routeId)
+                            .build();
             mRouteDescriptors.put(mRouteId, groupDescriptor);
+
+            if (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV) {
+                // Make other TVs ungroupable, since only one TV can exist in dynamic group.
+                setOtherTvDevicesGroupable(false);
+            }
             publishRoutes();
             if (mListenerExecutor != null) {
                 mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
@@ -272,6 +291,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 return;
             }
 
+            MediaRouteDescriptor routeDescriptor = dynamicDescriptor.getRouteDescriptor();
             DynamicRouteDescriptor.Builder builder =
                     new DynamicRouteDescriptor.Builder(dynamicDescriptor);
             builder.setSelectionState(DynamicRouteDescriptor.UNSELECTED);
@@ -282,6 +302,11 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                             .removeGroupMemberId(routeId)
                             .build();
             mRouteDescriptors.put(mRouteId, groupDescriptor);
+
+            if (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV) {
+                // Revert other TV devices to groupable routes.
+                setOtherTvDevicesGroupable(true);
+            }
             publishRoutes();
             if (mListenerExecutor != null) {
                 mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
@@ -350,6 +375,21 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
             Log.d(TAG, mRouteId + ": Received control request " + intent);
             return mHelper.onControlRequest(intent, callback);
+        }
+
+        // Set groupable attribute of other TV devices who is not member of dynamic group.
+        private void setOtherTvDevicesGroupable(boolean groupable) {
+            for (DynamicRouteDescriptor dynamicDescriptor : mDynamicRouteDescriptors.values()) {
+                MediaRouteDescriptor routeDescriptor = dynamicDescriptor.getRouteDescriptor();
+                String routeId = routeDescriptor.getId();
+                if (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV
+                        && !mMemberRouteIds.contains(routeId)) {
+                    DynamicRouteDescriptor.Builder builder =
+                            new DynamicRouteDescriptor.Builder(dynamicDescriptor)
+                                    .setIsGroupable(groupable);
+                    mDynamicRouteDescriptors.put(routeId, builder.build());
+                }
+            }
         }
     }
 }
