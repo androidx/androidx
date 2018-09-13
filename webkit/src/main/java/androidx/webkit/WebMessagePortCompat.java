@@ -69,13 +69,12 @@ public abstract class WebMessagePortCompat {
         /**
          * Message callback for receiving onMessage events.
          *
-         * @param port  the WebMessagePort that the message is destined for
-         * @param message  the message from the entangled port.
-         *
-         * This method is called only if {@link WebViewFeature#WEB_MESSAGE_CALLBACK_ON_MESSAGE} is
-         * supported. You can check whether that flag is supported using
+         * <p>This method is called only if {@link WebViewFeature#WEB_MESSAGE_CALLBACK_ON_MESSAGE}
+         * is supported. You can check whether that flag is supported using
          * {@link WebViewFeature#isFeatureSupported(String)}.
          *
+         * @param port  the WebMessagePort that the message is destined for
+         * @param message  the message from the entangled port.
          */
         public void onMessage(@NonNull WebMessagePortCompat port,
                 @Nullable WebMessageCompat message) { }
