@@ -66,11 +66,6 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     public static final List<MediaItem2> SEARCH_RESULT = new ArrayList<>();
     public static final int SEARCH_RESULT_COUNT = 50;
 
-    // TODO(jaewan): Uncomment here after DataSourceDesc2.builder is ready.
-//    private static final DataSourceDesc2 DATA_SOURCE_DESC =
-//            new DataSourceDesc2.Builder().setDataSource(new FileDescriptor()).build();
-    private static final DataSourceDesc2 DATA_SOURCE_DESC = null;
-
     private static final String TAG = "MockMediaLibrarySvc2";
 
     static {
@@ -242,9 +237,8 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
 
     private MediaItem2 createMediaItem(String mediaId) {
         Context context = MockMediaLibraryService2.this;
-        return new MediaItem2.Builder(0 /* Flags */)
+        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                 .setMediaId(mediaId)
-                .setDataSourceDesc(DATA_SOURCE_DESC)
                 .setMetadata(new MediaMetadata2.Builder()
                                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
                                 .build())

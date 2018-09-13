@@ -42,7 +42,7 @@ public abstract class DataSourceCallback2 implements Closeable {
      *
      * Return {@code -1} to indicate that end of stream is reached.
      *
-     * @param position the position in the data source to read from.
+     * @param position the position in the media item to read from.
      * @param buffer the buffer to read the data into.
      * @param offset the offset within buffer to read the data into.
      * @param size the number of bytes to read.

@@ -155,7 +155,8 @@ public class MediaUtils2 {
         // descriptionCompat cannot be null
         MediaDescriptionCompat descriptionCompat = item.getDescription();
         MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat);
-        return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2)
+        return new MediaItem2.Builder(FLAG_PLAYABLE)
+                .setMetadata(metadata2)
                 .setUuid(createUuidByQueueIdAndMediaId(item.getQueueId(),
                         descriptionCompat.getMediaId()))
                 .build();

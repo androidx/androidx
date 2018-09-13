@@ -22,6 +22,8 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
+import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -32,23 +34,35 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Structure for data source descriptor for {@link Uri}. Used by {@link MediaItem2}.
+ * Structure for media item descriptor for {@link Uri}.
  * <p>
- * Users should use {@link Builder} to create {@link UriDataSourceDesc2}.
+ * Users should use {@link Builder} to create {@link UriMediaItem2}.
  *
  * @see MediaItem2
  */
-public class UriDataSourceDesc2 extends DataSourceDesc2 {
+@VersionedParcelize
+public class UriMediaItem2 extends MediaItem2 {
+    @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     Uri mUri;
+    @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     Map<String, String> mUriHeader;
+    @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<HttpCookie> mUriCookies;
+    @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     Context mUriContext;
 
-    UriDataSourceDesc2(Builder builder) {
+    /**
+     * Used for VersionedParcelable
+     */
+    UriMediaItem2() {
+        // no-op
+    }
+
+    UriMediaItem2(Builder builder) {
         super(builder);
         mUri = builder.mUri;
         mUriHeader = builder.mUriHeader;
@@ -57,16 +71,16 @@ public class UriDataSourceDesc2 extends DataSourceDesc2 {
     }
 
     /**
-     * Return the Uri of this data source.
-     * @return the Uri of this data source
+     * Return the Uri of this media item.
+     * @return the Uri of this media item
      */
     public @NonNull Uri getUri() {
         return mUri;
     }
 
     /**
-     * Return the Uri headers of this data source.
-     * @return the Uri headers of this data source
+     * Return the Uri headers of this media item.
+     * @return the Uri headers of this media item
      */
     public @Nullable Map<String, String> getUriHeaders() {
         if (mUriHeader == null) {
@@ -76,8 +90,8 @@ public class UriDataSourceDesc2 extends DataSourceDesc2 {
     }
 
     /**
-     * Return the Uri cookies of this data source.
-     * @return the Uri cookies of this data source
+     * Return the Uri cookies of this media item.
+     * @return the Uri cookies of this media item
      */
     public @Nullable List<HttpCookie> getUriCookies() {
         if (mUriCookies == null) {
@@ -87,17 +101,17 @@ public class UriDataSourceDesc2 extends DataSourceDesc2 {
     }
 
     /**
-     * Return the Context used for resolving the Uri of this data source.
-     * @return the Context used for resolving the Uri of this data source
+     * Return the Context used for resolving the Uri of this media item.
+     * @return the Context used for resolving the Uri of this media item
      */
     public @NonNull Context getUriContext() {
         return mUriContext;
     }
 
     /**
-     * This Builder class simplifies the creation of a {@link UriDataSourceDesc2} object.
+     * This Builder class simplifies the creation of a {@link UriMediaItem2} object.
      */
-    public static final class Builder extends DataSourceDesc2.Builder<Builder> {
+    public static final class Builder extends BuilderBase<Builder> {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         Uri mUri;
@@ -115,17 +129,14 @@ public class UriDataSourceDesc2 extends DataSourceDesc2 {
          * @param uri the Content URI of the data you want to play
          */
         public Builder(@NonNull Context context, @NonNull Uri uri) {
-            Preconditions.checkNotNull(context, "context cannot be null");
-            Preconditions.checkNotNull(uri, "uri cannot be null");
-            mUri = uri;
-            mUriContext = context;
+            this(context, uri, null, null);
         }
 
         /**
          * Creates a new Builder object with a content Uri.
          *
          * To provide cookies for the subsequent HTTP requests, you can install your own default
-         * cookie handler and use other variants of setDataSource APIs instead.
+         * cookie handler and use other variants of setMediaItem APIs instead.
          *
          * <p><strong>Note</strong> that the cross domain redirection is allowed by default,
          * but that can be changed with key/value pairs through the headers parameter with
@@ -142,8 +153,11 @@ public class UriDataSourceDesc2 extends DataSourceDesc2 {
          */
         public Builder(@NonNull Context context, @NonNull Uri uri,
                 @Nullable Map<String, String> headers, @Nullable List<HttpCookie> cookies) {
+            super(FLAG_PLAYABLE);
             Preconditions.checkNotNull(context, "context cannot be null");
-            Preconditions.checkNotNull(uri);
+            Preconditions.checkNotNull(uri, "uri cannot be null");
+            mUri = uri;
+            mUriContext = context;
             if (cookies != null) {
                 CookieHandler cookieHandler = CookieHandler.getDefault();
                 if (cookieHandler != null && !(cookieHandler instanceof CookieManager)) {
@@ -163,13 +177,12 @@ public class UriDataSourceDesc2 extends DataSourceDesc2 {
             mUriContext = context;
         }
 
-
         /**
-         * @return A new UriDataSourceDesc2 with values supplied by the Builder.
+         * @return A new UriMediaItem2 with values supplied by the Builder.
          */
         @Override
-        public UriDataSourceDesc2 build() {
-            return new UriDataSourceDesc2(this);
+        public UriMediaItem2 build() {
+            return new UriMediaItem2(this);
         }
     }
 }

@@ -643,7 +643,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                     }
                 }).build()) {
 
-            mPlayer.notifyBufferingStateChanged(currentItem.getDataSourceDesc(), buffState);
+            mPlayer.notifyBufferingStateChanged(currentItem, buffState);
             assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -677,7 +677,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setId("testOnMediaPrepared")
                 .setSessionCallback(sHandlerExecutor, sessionCallback)
                 .build()) {
-            mPlayer.notifyMediaPrepared(testItem.getDataSourceDesc());
+            mPlayer.notifyMediaPrepared(testItem);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -710,12 +710,11 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                     }
                 }).build()) {
 
-            // Player notifies with the unknown dsd. Should be ignored.
-            mPlayer.notifyCurrentDataSourceChanged(MediaTestUtils.createMediaItemWithMetadata()
-                    .getDataSourceDesc());
-            // Known DSD should be notified through the onCurrentMediaItemChanged.
-            mPlayer.notifyCurrentDataSourceChanged(currentItem.getDataSourceDesc());
-            // Null DSD becomes null MediaItem2.
+            // Player notifies with the unknown item. Should be ignored.
+            mPlayer.notifyCurrentDataSourceChanged(MediaTestUtils.createMediaItemWithMetadata());
+            // Known ITEM should be notified through the onCurrentMediaItemChanged.
+            mPlayer.notifyCurrentDataSourceChanged(currentItem);
+            // Null ITEM becomes null MediaItem2.
             mPlayer.notifyCurrentDataSourceChanged(null);
             assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         }
