@@ -22,12 +22,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,6 +51,21 @@ public final class RemoteInput {
     /** Extra added to a clip data intent object to hold the data results bundle. */
     private static final String EXTRA_DATA_TYPE_RESULTS_DATA =
             "android.remoteinput.dataTypeResultsData";
+
+    /** Extra added to a clip data intent object identifying the {@link Source} of the results. */
+    private static final String EXTRA_RESULTS_SOURCE = "android.remoteinput.resultsSource";
+
+    /** @hide */
+    @IntDef({SOURCE_FREE_FORM_INPUT, SOURCE_CHOICE})
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Source {}
+
+    /** The user manually entered the data. */
+    public static final int SOURCE_FREE_FORM_INPUT = 0;
+
+    /** The user selected one of the choices from {@link #getChoices}. */
+    public static final int SOURCE_CHOICE = 1;
 
     private final String mResultKey;
     private final CharSequence mLabel;
@@ -294,7 +312,6 @@ public final class RemoteInput {
             }
             return results.isEmpty() ? null : results;
         } else {
-            Log.w(TAG, "RemoteInput is only supported from API Level 16");
             return null;
         }
     }
@@ -317,7 +334,6 @@ public final class RemoteInput {
             }
             return clipDataIntent.getExtras().getParcelable(RemoteInput.EXTRA_RESULTS_DATA);
         } else {
-            Log.w(TAG, "RemoteInput is only supported from API Level 16");
             return null;
         }
     }
@@ -379,8 +395,6 @@ public final class RemoteInput {
             }
             clipDataIntent.putExtra(RemoteInput.EXTRA_RESULTS_DATA, resultsBundle);
             intent.setClipData(ClipData.newIntent(RemoteInput.RESULTS_CLIP_LABEL, clipDataIntent));
-        } else {
-            Log.w(TAG, "RemoteInput is only supported from API Level 16");
         }
     }
 
@@ -416,8 +430,58 @@ public final class RemoteInput {
                 clipDataIntent.putExtra(getExtraResultsKeyForData(mimeType), resultsBundle);
             }
             intent.setClipData(ClipData.newIntent(RemoteInput.RESULTS_CLIP_LABEL, clipDataIntent));
+        }
+    }
+
+    /**
+     * Set the source of the RemoteInput results. This method should only be called by remote
+     * input collection services (e.g.
+     * {@link android.service.notification.NotificationListenerService})
+     * when sending results to a pending intent.
+     *
+     * @see #SOURCE_FREE_FORM_INPUT
+     * @see #SOURCE_CHOICE
+     *
+     * @param intent The intent to add remote input source to. The {@link ClipData}
+     *               field of the intent will be modified to contain the source.
+     * @param source The source of the results.
+     */
+    public static void setResultsSource(@NonNull Intent intent, @Source int source) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            android.app.RemoteInput.setResultsSource(intent, source);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            Intent clipDataIntent = getClipDataIntentFromIntent(intent);
+            if (clipDataIntent == null) {
+                clipDataIntent = new Intent();  // First time we've added a result.
+            }
+            clipDataIntent.putExtra(EXTRA_RESULTS_SOURCE, source);
+            intent.setClipData(ClipData.newIntent(RESULTS_CLIP_LABEL, clipDataIntent));
+        }
+    }
+
+    /**
+     * Get the source of the RemoteInput results.
+     *
+     * @see #SOURCE_FREE_FORM_INPUT
+     * @see #SOURCE_CHOICE
+     *
+     * @param intent The intent object that fired in response to an action or content intent
+     *               which also had one or more remote input requested.
+     * @return The source of the results. If no source was set, {@link #SOURCE_FREE_FORM_INPUT} will
+     * be returned.
+     */
+    @Source
+    public static int getResultsSource(@NonNull Intent intent) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            return android.app.RemoteInput.getResultsSource(intent);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            Intent clipDataIntent = getClipDataIntentFromIntent(intent);
+            if (clipDataIntent == null) {
+                return SOURCE_FREE_FORM_INPUT;
+            }
+            return clipDataIntent.getExtras().getInt(EXTRA_RESULTS_SOURCE, SOURCE_FREE_FORM_INPUT);
         } else {
-            Log.w(TAG, "RemoteInput is only supported from API Level 16");
+            return SOURCE_FREE_FORM_INPUT;
         }
     }
 
