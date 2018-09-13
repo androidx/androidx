@@ -292,8 +292,12 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testGetSessionActivity() {
         prepareLooper();
         PendingIntent sessionActivity = mController.getSessionActivity();
-        assertEquals(mContext.getPackageName(), sessionActivity.getCreatorPackage());
-        assertEquals(Process.myUid(), sessionActivity.getCreatorUid());
+        assertNotNull(sessionActivity);
+        if (Build.VERSION.SDK_INT >= 17) {
+            // PendingIntent#getCreatorPackage() is added in API 17.
+            assertEquals(mContext.getPackageName(), sessionActivity.getCreatorPackage());
+            assertEquals(Process.myUid(), sessionActivity.getCreatorUid());
+        }
     }
 
     @Test

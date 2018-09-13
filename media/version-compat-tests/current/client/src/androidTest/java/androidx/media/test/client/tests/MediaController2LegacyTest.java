@@ -29,6 +29,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Build;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -130,7 +131,11 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
 
         mController = createController(mSession.getSessionToken());
         PendingIntent sessionActivityOut = mController.getSessionActivity();
-        assertEquals(mContext.getPackageName(), sessionActivityOut.getCreatorPackage());
+        assertNotNull(sessionActivityOut);
+        if (Build.VERSION.SDK_INT >= 17) {
+            // PendingIntent#getCreatorPackage() is added in API 17.
+            assertEquals(mContext.getPackageName(), sessionActivityOut.getCreatorPackage());
+        }
     }
 
     /**

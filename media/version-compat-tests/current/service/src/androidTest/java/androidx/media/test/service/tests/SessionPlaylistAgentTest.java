@@ -55,6 +55,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Tests {@link MediaSession2}.
+ *
+ * TODO: When MediaPlayer2 supports Jelly Bean, lower this test's minSdk to Jelly Bean.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4.class)
