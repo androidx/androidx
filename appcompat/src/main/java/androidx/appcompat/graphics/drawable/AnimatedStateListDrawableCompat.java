@@ -43,6 +43,7 @@ import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.collection.LongSparseArray;
 import androidx.collection.SparseArrayCompat;
+import androidx.core.graphics.drawable.TintAwareDrawable;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
@@ -86,7 +87,8 @@ import java.io.IOException;
  * @attr ref android.R.styleable#DrawableStates_state_pressed
  * @see AppCompatResources#getDrawable(Context, int)
  */
-public class AnimatedStateListDrawableCompat extends StateListDrawable {
+public class AnimatedStateListDrawableCompat extends StateListDrawable
+        implements TintAwareDrawable {
     private static final String LOGTAG = AnimatedStateListDrawableCompat.class.getSimpleName();
     private static final String ELEMENT_TRANSITION = "transition";
     private static final String ELEMENT_ITEM = "item";

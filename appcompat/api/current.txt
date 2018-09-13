@@ -339,7 +339,7 @@ package androidx.appcompat.content.res {
 
 package androidx.appcompat.graphics.drawable {
 
-  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable {
+  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements androidx.core.graphics.drawable.TintAwareDrawable {
     ctor public AnimatedStateListDrawableCompat();
     method public void addState(int[], android.graphics.drawable.Drawable, int);
     method public <T extends android.graphics.drawable.Drawable & android.graphics.drawable.Animatable> void addTransition(int, int, T, boolean);

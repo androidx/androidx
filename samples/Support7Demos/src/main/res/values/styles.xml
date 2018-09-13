@@ -58,4 +58,9 @@
     </style>
 
     <style name="CustomPopupNoElevation" parent="@style/Widget.AppCompat.Light.PopupMenu" />
+
+    <style name="ThemeOverlay.Blue" parent="@style/ThemeOverlay.AppCompat.Dark">
+        <item name="colorControlActivated">#ff2196f3</item>
+    </style>
+
 </resources>
