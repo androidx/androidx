@@ -409,12 +409,12 @@ public class RemoteMediaSession2 {
             }
         }
 
-        public void setPlaylistWithDummyDsd(List<MediaItem2> playlist) {
+        public void setPlaylistWithDummyItem(List<MediaItem2> playlist) {
             try {
-                mBinder.setPlaylistWithDummyDsd(
+                mBinder.setPlaylistWithDummyItem(
                         mSessionId, MediaTestUtils.mediaItem2ListToBundleList(playlist));
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call setPlaylistWithDummyDsd()");
+                Log.e(TAG, "Failed to call setPlaylistWithDummyItem()");
             }
         }
 

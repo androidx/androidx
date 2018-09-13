@@ -41,16 +41,16 @@ public final class CommandResult2 {
     // No error code here!
     private final int mResultCode;
     private final long mCompletionTime;
-    private final DataSourceDesc2 mDesc;
+    private final MediaItem2 mItem;
 
-    public CommandResult2(int resultCode, DataSourceDesc2 desc) {
-        this(resultCode, desc, SystemClock.elapsedRealtime());
+    public CommandResult2(int resultCode, MediaItem2 item) {
+        this(resultCode, item, SystemClock.elapsedRealtime());
     }
 
-    public CommandResult2(int resultCode, DataSourceDesc2 desc, long completionTime) {
+    public CommandResult2(int resultCode, MediaItem2 item, long completionTime) {
         mResultCode = resultCode;
         mCompletionTime = completionTime;
-        mDesc = desc;
+        mItem = item;
     }
 
     /**
@@ -77,9 +77,9 @@ public final class CommandResult2 {
     /**
      * Gets the {@link MediaItem2} for which the command was executed.
      *
-     * @return media item desc
+     * @return media item
      */
-    public @Nullable DataSourceDesc2 getMediaItem2() {
-        return mDesc;
+    public @Nullable MediaItem2 getMediaItem() {
+        return mItem;
     }
 }

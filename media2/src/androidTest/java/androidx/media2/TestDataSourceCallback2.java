@@ -36,7 +36,7 @@ public class TestDataSourceCallback2 extends DataSourceCallback2 {
     private Long mReturnFromGetSize;
     private boolean mIsClosed;
 
-    // Read an asset fd into a new byte array data source. Closes afd.
+    // Read an asset fd into a new byte array media item. Closes afd.
     public static TestDataSourceCallback2 fromAssetFd(AssetFileDescriptor afd) throws IOException {
         try {
             InputStream in = afd.createInputStream();
@@ -92,7 +92,7 @@ public class TestDataSourceCallback2 extends DataSourceCallback2 {
         return mData.length;
     }
 
-    // Note: it's fine to keep using this data source after closing it.
+    // Note: it's fine to keep using this media item after closing it.
     @Override
     public synchronized void close() {
         Log.v(TAG, "close()");

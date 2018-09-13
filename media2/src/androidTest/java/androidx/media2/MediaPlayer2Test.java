@@ -115,7 +115,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE) {
                     assertTrue(status != MediaPlayer2.CALL_STATUS_NO_ERROR);
                     onSetDataSourceCalled.signal();
@@ -127,7 +127,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
 
         onSetDataSourceCalled.reset();
-        mPlayer.setDataSource((DataSourceDesc2) null);
+        mPlayer.setMediaItem((MediaItem2) null);
         onSetDataSourceCalled.waitForSignal();
     }
 
@@ -157,7 +157,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final Monitor onLoopCurrentCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     onPrepareCalled.signal();
                 }
@@ -165,7 +165,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     onPlayCalled.signal();
                 } else if (what == MediaPlayer2.CALL_COMPLETED_LOOP_CURRENT) {
@@ -221,7 +221,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             mp.setEventCallback(mExecutor, ecb);
-            mp.setDataSource(new UriDataSourceDesc2.Builder(mContext, uri).build());
+            mp.setMediaItem(new UriMediaItem2.Builder(mContext, uri).build());
             onPrepareCalled.reset();
             mp.prepare();
             onPrepareCalled.waitForSignal();
@@ -258,7 +258,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final Monitor onLoopCurrentCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     onPrepareCalled.signal();
                 }
@@ -266,7 +266,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     onPlayCalled.signal();
                 } else if (what == MediaPlayer2.CALL_COMPLETED_LOOP_CURRENT) {
@@ -318,7 +318,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             afd = mResources.openRawResourceFd(resid);
-            mp.setDataSource(new FileDataSourceDesc2.Builder(
+            mp.setMediaItem(new FileMediaItem2.Builder(
                     afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                     .build());
 
@@ -361,7 +361,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 MediaPlayer2.EventCallback ecb =
                     new MediaPlayer2.EventCallback() {
                         @Override
-                        public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc2 dsd,
+                        public void onCallCompleted(MediaPlayer2 mp, MediaItem2 item,
                                 int what, int status) {
                             if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                                 onPlayCalled.signal();
@@ -424,7 +424,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             MediaPlayer2.EventCallback ecb =
                     new MediaPlayer2.EventCallback() {
                         @Override
-                        public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd,
+                        public void onInfo(MediaPlayer2 mp, MediaItem2 item,
                                 int what, int extra) {
                             if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
                                 Log.i("@@@", "got oncompletion");
@@ -435,7 +435,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                         }
 
                         @Override
-                        public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc2 dsd,
+                        public void onCallCompleted(MediaPlayer2 mp, MediaItem2 item,
                                 int what, int status) {
                             if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                                 onPlayCalled.signal();
@@ -484,14 +484,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaPlayer2.EventCallback ecb =
                 new MediaPlayer2.EventCallback() {
                     @Override
-                    public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+                    public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                         if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                             onPrepareCalled.signal();
                         }
                     }
 
                     @Override
-                    public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc2 dsd,
+                    public void onCallCompleted(MediaPlayer2 mp, MediaItem2 item,
                             int what, int status) {
                         if (what == MediaPlayer2.CALL_COMPLETED_LOOP_CURRENT) {
                             onLoopCurrentCalled.signal();
@@ -533,7 +533,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             afd = mResources.openRawResourceFd(resid);
-            mp.setDataSource(new FileDataSourceDesc2.Builder(
+            mp.setMediaItem(new FileMediaItem2.Builder(
                     afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
 
             mp.setEventCallback(mExecutor, ecb);
@@ -668,7 +668,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final Monitor prepareCompleted = new Monitor();
         PlayerEventCallback callback = new PlayerEventCallback() {
             public void onMediaPrepared(@NonNull MediaPlayerConnector mpb,
-                    @NonNull DataSourceDesc2 dsd) {
+                    @NonNull MediaItem2 item) {
                 prepareCompleted.signal();
             }
         };
@@ -729,7 +729,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
                     seekDone.countDown();
                 }
@@ -918,28 +918,28 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         if (!checkLoadResource(res1)) {
             return; // skip
         }
-        final DataSourceDesc2 dsd1 = createDataSourceDesc(res1);
-        final DataSourceDesc2 dsd2 = createDataSourceDesc(res2);
-        ArrayList<DataSourceDesc2> nextDSDs = new ArrayList<DataSourceDesc2>(2);
-        nextDSDs.add(dsd2);
-        nextDSDs.add(dsd1);
+        final MediaItem2 item1 = createDataSourceDesc(res1);
+        final MediaItem2 item2 = createDataSourceDesc(res2);
+        ArrayList<MediaItem2> nextDSDs = new ArrayList<MediaItem2>(2);
+        nextDSDs.add(item2);
+        nextDSDs.add(item1);
 
-        mPlayer.setNextDataSources(nextDSDs);
+        mPlayer.getNextMediaItems(nextDSDs);
 
         final Monitor onCompletion1Called = new Monitor();
         final Monitor onCompletion2Called = new Monitor();
         final Monitor onPlaylistEndCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
-                    Log.i(LOG_TAG, "testSetNextDataSources: prepared dsd MediaId="
-                            + dsd.getMediaId());
+                    Log.i(LOG_TAG, "testSetNextDataSources: prepared item MediaId="
+                            + item.getMediaId());
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
-                    if (dsd == dsd1) {
+                    if (item == item1) {
                         onCompletion1Called.signal();
-                    } else if (dsd == dsd2) {
+                    } else if (item == item2) {
                         onCompletion2Called.signal();
                     } else {
                         mOnCompletionCalled.signal();
@@ -973,8 +973,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
         onCompletion1Called.waitForSignal();
         if (skip) {
-            assertFalse("first dsd completed", mOnCompletionCalled.isSignalled());
-            assertFalse("second dsd completed", onCompletion2Called.isSignalled());
+            assertFalse("first item completed", mOnCompletionCalled.isSignalled());
+            assertFalse("second item completed", onCompletion2Called.isSignalled());
         }
         onPlaylistEndCalled.waitForSignal();
 
@@ -984,17 +984,17 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     public void testSetNextDataSource() throws Exception {
-        final DataSourceDesc2 dsd1 = createDataSourceDesc(
+        final MediaItem2 item1 = createDataSourceDesc(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
-        final DataSourceDesc2 dsd2 = createDataSourceDesc(
+        final MediaItem2 item2 = createDataSourceDesc(
                 R.raw.testvideo);
 
         final Monitor onPlaybackCompletedCalled = new Monitor();
-        final List<DataSourceDesc2> playedDSDs = new ArrayList<>();
+        final List<MediaItem2> playedDSDs = new ArrayList<>();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCE
                         || what == MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCES) {
                     if (status != MediaPlayer2.CALL_STATUS_NO_ERROR) {
@@ -1004,9 +1004,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             }
 
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
-                    playedDSDs.add(dsd);
+                    playedDSDs.add(item);
                     onPlaybackCompletedCalled.signal();
                 }
             }
@@ -1017,16 +1017,16 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         onPlaybackCompletedCalled.reset();
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.setDataSource(dsd1);
-        mPlayer.setNextDataSource(dsd1);
-        mPlayer.setNextDataSources(Arrays.asList(dsd2, dsd1));
+        mPlayer.setMediaItem(item1);
+        mPlayer.setNextMediaItem(item1);
+        mPlayer.getNextMediaItems(Arrays.asList(item2, item1));
         mPlayer.prepare();
         mPlayer.play();
         onPlaybackCompletedCalled.waitForCountedSignals(3);
         assertEquals(3, playedDSDs.size());
-        assertEquals(dsd1, playedDSDs.get(0));
-        assertEquals(dsd2, playedDSDs.get(1));
-        assertEquals(dsd1, playedDSDs.get(2));
+        assertEquals(item1, playedDSDs.get(0));
+        assertEquals(item2, playedDSDs.get(1));
+        assertEquals(item1, playedDSDs.get(2));
 
         mPlayer.reset();
     }
@@ -1034,17 +1034,17 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     public void testSetNextDataSourceBeforeSetDataSource() throws Exception {
-        final DataSourceDesc2 dsd1 = createDataSourceDesc(
+        final MediaItem2 item1 = createDataSourceDesc(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
-        final DataSourceDesc2 dsd2 = createDataSourceDesc(
+        final MediaItem2 item2 = createDataSourceDesc(
                 R.raw.testvideo);
 
         final Monitor onCallCompletedCalled = new Monitor();
-        final List<DataSourceDesc2> playedDSDs = new ArrayList<>();
+        final List<MediaItem2> playedDSDs = new ArrayList<>();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCE
                         || what == MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCES) {
                     if (status == MediaPlayer2.CALL_STATUS_INVALID_OPERATION) {
@@ -1061,11 +1061,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
 
         onCallCompletedCalled.reset();
-        mPlayer.setNextDataSource(dsd1);
+        mPlayer.setNextMediaItem(item1);
         assertTrue(onCallCompletedCalled.waitForSignal());
 
         onCallCompletedCalled.reset();
-        mPlayer.setNextDataSources(Arrays.asList(dsd2, dsd1));
+        mPlayer.getNextMediaItems(Arrays.asList(item2, item1));
         assertTrue(onCallCompletedCalled.waitForSignal());
 
         mPlayer.reset();
@@ -1082,7 +1082,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
@@ -1092,7 +1092,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
                     mOnSeekCompleteCalled.signal();
                 }
@@ -1154,7 +1154,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final Monitor labelReached = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -1229,7 +1229,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -1237,7 +1237,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
                     mOnSeekCompleteCalled.signal();
                 }
@@ -1325,7 +1325,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final Monitor onPauseCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -1333,7 +1333,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PAUSE) {
                     onPauseCalled.signal();
                 }
@@ -1632,7 +1632,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
@@ -1642,7 +1642,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
                     mOnSeekCompleteCalled.signal();
                 } else if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
@@ -1655,7 +1655,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onSubtitleData(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, SubtitleData2 data) {
+                    MediaPlayer2 mp, MediaItem2 item, SubtitleData2 data) {
                 if (data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
@@ -1715,7 +1715,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
@@ -1725,7 +1725,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     mOnPlayCalled.signal();
                 }
@@ -1733,7 +1733,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onSubtitleData(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, SubtitleData2 data) {
+                    MediaPlayer2 mp, MediaItem2 item, SubtitleData2 data) {
                 if (data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
@@ -1783,7 +1783,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
@@ -1793,7 +1793,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     mOnPlayCalled.signal();
                 }
@@ -1840,14 +1840,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
                     mOnSeekCompleteCalled.signal();
                 }
             }
             @Override
             public void onMediaTimeDiscontinuity(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, MediaTimestamp2 timestamp) {
+                    MediaPlayer2 mp, MediaItem2 item, MediaTimestamp2 timestamp) {
                 timestamps.add(timestamp);
                 mOnMediaTimeDiscontinuityCalled.signal();
             }
@@ -1919,7 +1919,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.reset();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
@@ -1972,7 +1972,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.reset();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
@@ -1982,7 +1982,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     mOnPlayCalled.signal();
                 }
@@ -2026,18 +2026,18 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.reset();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onVideoSizeChanged(MediaPlayer2 mp, DataSourceDesc2 dsd,
+            public void onVideoSizeChanged(MediaPlayer2 mp, MediaItem2 item,
                     int width, int height) {
                 mOnVideoSizeChangedCalled.signal();
             }
 
             @Override
-            public void onError(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onError(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 mOnErrorCalled.signal();
             }
 
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 mOnInfoCalled.signal();
 
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
@@ -2049,7 +2049,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
                     mOnSeekCompleteCalled.signal();
                 } else if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
@@ -2100,7 +2100,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PREPARE) {
                     prepareCompleted.signal();
                 } else if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
@@ -2148,7 +2148,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     public void testPlayerEventCallback() throws Throwable {
         final int mp4Duration = 8484;
-        final DataSourceDesc2 dsd2 = createDataSourceDesc(
+        final MediaItem2 item2 = createDataSourceDesc(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
 
         final Monitor onDsdChangedCalled = new Monitor();
@@ -2163,20 +2163,20 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         PlayerEventCallback callback = new PlayerEventCallback() {
             @Override
-            public void onCurrentDataSourceChanged(MediaPlayerConnector mpb, DataSourceDesc2 dsd) {
+            public void onCurrentMediaItemChanged(MediaPlayerConnector mpb, MediaItem2 item) {
                 switch (onDsdChangedCalled.getNumSignal()) {
                     case 1:
-                        assertEquals(dsd2, dsd);
+                        assertEquals(item2, item);
                         break;
                     case 2:
-                        assertNull(dsd);
+                        assertNull(item);
                         break;
                 }
                 onDsdChangedCalled.signal();
             }
 
             @Override
-            public void onMediaPrepared(MediaPlayerConnector mpb, DataSourceDesc2 dsd) {
+            public void onMediaPrepared(MediaPlayerConnector mpb, MediaItem2 item) {
                 onPrepareCalled.signal();
             }
 
@@ -2187,7 +2187,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             }
 
             @Override
-            public void onBufferingStateChanged(MediaPlayerConnector mpb, DataSourceDesc2 dsd,
+            public void onBufferingStateChanged(MediaPlayerConnector mpb, MediaItem2 item,
                     int state) {
                 bufferingState.set(state);
                 onBufferingStateChangedCalled.signal();
@@ -2213,7 +2213,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             return; // skip;
         }
         assertEquals(1, onDsdChangedCalled.waitForCountedSignals(1));
-        mPlayer.setNextDataSource(dsd2);
+        mPlayer.setNextMediaItem(item2);
 
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
@@ -2275,7 +2275,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             Uri uri = Uri.parse(outputFileLocation);
             MediaPlayer2 mp = MediaPlayer2.create(mActivity);
             try {
-                mp.setDataSource(new UriDataSourceDesc2.Builder(mContext, uri).build());
+                mp.setMediaItem(new UriMediaItem2.Builder(mContext, uri).build());
                 mp.prepare();
                 Thread.sleep(SLEEP_TIME);
                 playAndStop(mp);
@@ -2350,7 +2350,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 TestDataSourceCallback2.fromAssetFd(mResources.openRawResourceFd(resid));
         // Test returning -1 from getSize() to indicate unknown size.
         dataSource.returnFromGetSize(-1);
-        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
         playLoadedVideo(null, null, -1);
         assertTrue(mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
 
@@ -2361,7 +2361,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -2369,7 +2369,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     mOnPlayCalled.signal();
                 }
@@ -2384,7 +2384,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         // Test reset.
         mPlayer.reset();
-        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
         mPlayer.setEventCallback(mExecutor, ecb);
 
@@ -2411,7 +2411,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE) {
                     mCallStatus = status;
                     mOnPlayCalled.signal();
@@ -2421,7 +2421,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.setEventCallback(mExecutor, ecb);
 
         mCallStatus = MediaPlayer2.CALL_STATUS_NO_ERROR;
-        mPlayer.setDataSource((DataSourceDesc2) null);
+        mPlayer.setMediaItem((MediaItem2) null);
         mOnPlayCalled.waitForSignal();
         assertTrue(mCallStatus != MediaPlayer2.CALL_STATUS_NO_ERROR);
     }
@@ -2432,7 +2432,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE) {
                     mCallStatus = status;
                     mOnPlayCalled.signal();
@@ -2442,7 +2442,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.setEventCallback(mExecutor, ecb);
 
         TestDataSourceCallback2 dataSource = new TestDataSourceCallback2(new byte[0]);
-        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
         mOnPlayCalled.waitForSignal();
         mPlayer.reset();
         assertTrue(dataSource.isClosed());
@@ -2461,11 +2461,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         setOnErrorListener();
         TestDataSourceCallback2 dataSource =
                 TestDataSourceCallback2.fromAssetFd(mResources.openRawResourceFd(resid));
-        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -2496,12 +2496,12 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         TestDataSourceCallback2 dataSource =
                 TestDataSourceCallback2.fromAssetFd(mResources.openRawResourceFd(resid));
-        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
         setOnErrorListener();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -2550,7 +2550,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         setOnErrorListener();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -2558,12 +2558,12 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 commandsCompleted.add(what);
             }
 
             @Override
-            public void onError(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onError(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 mOnErrorCalled.signal();
             }
         };
@@ -2574,7 +2574,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPrepareCalled.reset();
         mOnErrorCalled.reset();
 
-        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
         // prepare() will be pending until readAllowed is signaled.
         mPlayer.prepare();
@@ -2608,7 +2608,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start1 = 6000;
         final long end1 = 8000;
         AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1);
-        DataSourceDesc2 dsd1 = new FileDataSourceDesc2.Builder(
+        MediaItem2 item1 = new FileMediaItem2.Builder(
                 afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
                 .setStartPosition(start1)
                 .setEndPosition(end1)
@@ -2618,19 +2618,19 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start2 = 3000;
         final long end2 = 5000;
         AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2);
-        DataSourceDesc2 dsd2 = new FileDataSourceDesc2.Builder(
+        MediaItem2 item2 = new FileMediaItem2.Builder(
                 afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
                 .setStartPosition(start2)
                 .setEndPosition(end2)
                 .build();
 
-        mPlayer.setDataSource(dsd1);
-        mPlayer.setNextDataSource(dsd2);
+        mPlayer.setMediaItem(item1);
+        mPlayer.setNextMediaItem(item2);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
@@ -2640,7 +2640,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     assertTrue(status == MediaPlayer2.CALL_STATUS_NO_ERROR);
                     mOnPlayCalled.signal();
@@ -2680,19 +2680,19 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start = 6000;
         final long end = 8000;
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
-        DataSourceDesc2 dsd = new FileDataSourceDesc2.Builder(
+        MediaItem2 item = new FileMediaItem2.Builder(
                 afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                 .setStartPosition(start)
                 .setEndPosition(end)
                 .build();
 
-        mPlayer.setDataSource(dsd);
+        mPlayer.setMediaItem(item);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         final Monitor onDataSourceRepeatCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_REPEAT) {
@@ -2704,7 +2704,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     assertTrue(status == MediaPlayer2.CALL_STATUS_NO_ERROR);
                     mOnPlayCalled.signal();
@@ -2752,7 +2752,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start1 = 6000;
         final long end1 = 7000;
         AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1);
-        DataSourceDesc2 dsd1 = new FileDataSourceDesc2.Builder(
+        MediaItem2 item1 = new FileMediaItem2.Builder(
                 afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
                 .setStartPosition(start1)
                 .setEndPosition(end1)
@@ -2762,19 +2762,19 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final long start2 = 3000;
         final long end2 = 4000;
         AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2);
-        DataSourceDesc2 dsd2 = new FileDataSourceDesc2.Builder(
+        MediaItem2 item2 = new FileMediaItem2.Builder(
                 afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
                 .setStartPosition(start2)
                 .setEndPosition(end2)
                 .build();
 
-        mPlayer.setDataSource(dsd1);
-        mPlayer.setNextDataSource(dsd2);
+        mPlayer.setMediaItem(item1);
+        mPlayer.setNextMediaItem(item2);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
@@ -2784,7 +2784,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     assertTrue(status == MediaPlayer2.CALL_STATUS_NO_ERROR);
                     mOnPlayCalled.signal();
@@ -2807,7 +2807,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPlayCalled.waitForSignal();
         mOnCompletionCalled.waitForSignal();
 
-        assertEquals(dsd2, mPlayer.getCurrentDataSource());
+        assertEquals(item2, mPlayer.getCurrentMediaItem());
         assertEquals(2.0f, mPlayer.getPlaybackParams().getSpeed(), 0.001f);
 
         afd1.close();
@@ -2823,7 +2823,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -2881,7 +2881,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         setOnErrorListener();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 }
@@ -2889,12 +2889,12 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onCallCompleted(
-                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
                 commandsCompleted.add(new Pair<>(what, status));
             }
 
             @Override
-            public void onError(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+            public void onError(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
                 mOnErrorCalled.signal();
             }
 
@@ -2910,7 +2910,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPrepareCalled.reset();
         mOnErrorCalled.reset();
 
-        mPlayer.setDataSource(new CallbackDataSourceDesc2.Builder(dataSource).build());
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
         // prepare() will be pending until readAllowed is signaled.
         mPlayer.prepare();

@@ -20,8 +20,8 @@ import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
-import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
-import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
+import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_ITEM;
+import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_ITEM;
 import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
 import static androidx.media.test.lib.MediaSession2Constants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
@@ -226,7 +226,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         final int listSize = 5;
         final List<MediaItem2> list = MediaTestUtils.createPlaylist(listSize);
-        mRemoteSession2.getMockPlaylistAgent().setPlaylistWithDummyDsd(list);
+        mRemoteSession2.getMockPlaylistAgent().setPlaylistWithDummyItem(list);
 
         final int currentItemIndex = 3;
         final MediaItem2 currentItem = list.get(currentItemIndex);
@@ -246,14 +246,14 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                         latchForControllerCallback.countDown();
                     }
                 });
-        // Player notifies with the unknown dsd. Should be ignored.
-        mRemoteSession2.getMockPlayer().notifyCurrentDataSourceChanged(INDEX_FOR_UNKONWN_DSD);
+        // Player notifies with the unknown item. Should be ignored.
+        mRemoteSession2.getMockPlayer().notifyCurrentDataSourceChanged(INDEX_FOR_UNKONWN_ITEM);
 
-        // Known DSD should be notified through the onCurrentMediaItemChanged.
+        // Known ITEM should be notified through the onCurrentMediaItemChanged.
         mRemoteSession2.getMockPlayer().notifyCurrentDataSourceChanged(currentItemIndex);
 
-        // Null DSD becomes null MediaItem2.
-        mRemoteSession2.getMockPlayer().notifyCurrentDataSourceChanged(INDEX_FOR_NULL_DSD);
+        // Null ITEM becomes null MediaItem2.
+        mRemoteSession2.getMockPlayer().notifyCurrentDataSourceChanged(INDEX_FOR_NULL_ITEM);
         assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -366,7 +366,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
 
         RemoteMediaSession2.RemoteMockPlaylistAgent agent = mRemoteSession2.getMockPlaylistAgent();
-        agent.setPlaylistWithDummyDsd(playlist);
+        agent.setPlaylistWithDummyItem(playlist);
         agent.setCurrentMediaItem(testItemIndex);
 
         RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
@@ -540,7 +540,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        mRemoteSession2.getMockPlaylistAgent().setPlaylistWithDummyDsd(testPlaylist);
+        mRemoteSession2.getMockPlaylistAgent().setPlaylistWithDummyItem(testPlaylist);
 
         RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
         player.setBufferedPosition(testBufferingPosition);

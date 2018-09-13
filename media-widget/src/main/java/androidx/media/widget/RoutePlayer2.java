@@ -28,9 +28,9 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayerConnector;
-import androidx.media2.UriDataSourceDesc2;
+import androidx.media2.UriMediaItem2;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaSessionStatus;
@@ -60,7 +60,7 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     ArrayMap<PlayerEventCallback, Executor> mPlayerEventCallbackMap =
             new ArrayMap<>();
     private RemotePlaybackClient mClient;
-    private DataSourceDesc2 mDsd;
+    private MediaItem2 mDsd;
 
     private StatusCallback mStatusCallback = new StatusCallback() {
         @Override
@@ -234,22 +234,22 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     }
 
     @Override
-    public void setDataSource(DataSourceDesc2 dsd) {
+    public void setMediaItem(MediaItem2 dsd) {
         mDsd = dsd;
     }
 
     @Override
-    public void setNextDataSource(DataSourceDesc2 dsd) {
+    public void setNextMediaItem(MediaItem2 dsd) {
         // TODO: implement
     }
 
     @Override
-    public void setNextDataSources(List<DataSourceDesc2> dsds) {
+    public void setNextMediaItems(List<MediaItem2> dsds) {
         // TODO: implement
     }
 
     @Override
-    public DataSourceDesc2 getCurrentDataSource() {
+    public MediaItem2 getCurrentMediaItem() {
         return mDsd;
     }
 
@@ -338,11 +338,11 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     }
 
     private void playInternal() {
-        if (!(mDsd instanceof UriDataSourceDesc2)) {
+        if (!(mDsd instanceof UriMediaItem2)) {
             Log.w(TAG, "Data source type is not Uri." + mDsd);
             return;
         }
-        mClient.play(((UriDataSourceDesc2) mDsd).getUri(), "video/mp4", null, mPosition, null,
+        mClient.play(((UriMediaItem2) mDsd).getUri(), "video/mp4", null, mPosition, null,
                 new ItemActionCallback() {
                     @Override
                     public void onResult(Bundle data, String sessionId,

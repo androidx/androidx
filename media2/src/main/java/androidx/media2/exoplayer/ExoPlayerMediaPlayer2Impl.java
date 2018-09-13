@@ -38,7 +38,7 @@ import androidx.collection.ArrayMap;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaTimestamp2;
@@ -105,7 +105,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     private MediaPlayerConnector mMediaPlayerConnectorImpl;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable DataSourceDesc2 mDataSourceDescription;
+    @Nullable MediaItem2 mMediaItem;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mVideoWidth;
@@ -259,23 +259,23 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     // Player implementation.
 
     @Override
-    public void setDataSource(final DataSourceDesc2 dsd) {
+    public void setMediaItem(final MediaItem2 item) {
         addTask(new Task(CALL_COMPLETED_SET_DATA_SOURCE, false) {
             @Override
             void process() {
-                Preconditions.checkNotNull(dsd);
+                Preconditions.checkNotNull(item);
                 // TODO(b/80232248): Update the data source queue when it's implemented.
                 synchronized (mLock) {
-                    mDataSourceDescription = dsd;
+                    mMediaItem = item;
                 }
             }
         });
     }
 
     @Override
-    public DataSourceDesc2 getCurrentDataSource() {
+    public MediaItem2 getCurrentMediaItem() {
         synchronized (mLock) {
-            return mDataSourceDescription;
+            return mMediaItem;
         }
     }
 
@@ -284,9 +284,9 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_PREPARE, true) {
             @Override
             void process() {
-                DataSourceDesc2 dataSourceDescription = getCurrentDataSource();
+                MediaItem2 item = getCurrentMediaItem();
                 MediaSource mediaSource = ExoPlayerUtils.createMediaSource(
-                        mDataSourceFactory, dataSourceDescription);
+                        mDataSourceFactory, item);
                 synchronized (mPlayerLock) {
                     mPlayer.prepare(mediaSource);
                 }
@@ -492,12 +492,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setNextDataSource(DataSourceDesc2 dsd) {
+    public void setNextMediaItem(MediaItem2 item) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setNextDataSources(List<DataSourceDesc2> dsds) {
+    public void getNextMediaItems(List<MediaItem2> items) {
         throw new UnsupportedOperationException();
     }
 
@@ -638,10 +638,10 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 final int height,
                 int unappliedRotationDegrees,
                 float pixelWidthHeightRatio) {
-            final DataSourceDesc2 dataSourceDesc2;
+            final MediaItem2 item;
             synchronized (mLock) {
-                // TODO(b/80232248): get the active data source from a data source queue.
-                dataSourceDesc2 = mDataSourceDescription;
+                // TODO(b/80232248): get the active media item from a media item queue.
+                item = mMediaItem;
                 mVideoWidth = width;
                 mVideoHeight = height;
             }
@@ -649,7 +649,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 @Override
                 public void notify(EventCallback callback) {
                     callback.onVideoSizeChanged(
-                            ExoPlayerMediaPlayer2Impl.this, dataSourceDesc2, width, height);
+                            ExoPlayerMediaPlayer2Impl.this, item, width, height);
                 }
             });
         }
@@ -663,9 +663,9 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 return;
             }
 
-            final DataSourceDesc2 dataSourceDescription;
+            final MediaItem2 item;
             synchronized (mLock) {
-                dataSourceDescription = mDataSourceDescription;
+                item = mMediaItem;
             }
             notifyMediaPlayer2Event(new Mp2EventNotifier() {
                 @Override
@@ -673,7 +673,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                     MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
                     callback.onInfo(
                             mediaPlayer2,
-                            dataSourceDescription,
+                            item,
                             MEDIA_INFO_PREPARED,
                             /* extra= */ 0);
                 }
@@ -681,13 +681,13 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             notifyPlayerEvent(new PlayerEventNotifier() {
                 @Override
                 public void notify(MediaPlayerConnector.PlayerEventCallback cb) {
-                    cb.onMediaPrepared(getMediaPlayerConnector(), dataSourceDescription);
+                    cb.onMediaPrepared(getMediaPlayerConnector(), item);
                 }
             });
             synchronized (mTaskLock) {
                 if (mCurrentTask != null
                         && mCurrentTask.mMediaCallType == CALL_COMPLETED_PREPARE
-                        && ObjectsCompat.equals(mCurrentTask.mDSD, dataSourceDescription)
+                        && ObjectsCompat.equals(mCurrentTask.mDSD, item)
                         && mCurrentTask.mNeedToWaitForEventToComplete) {
                     mCurrentTask.sendCompleteNotification(CALL_STATUS_NO_ERROR);
                     mCurrentTask = null;
@@ -698,10 +698,10 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
         @Override
         public void onRenderedFirstFrame() {
-            final DataSourceDesc2 dataSourceDescription;
+            final MediaItem2 item;
             synchronized (mLock) {
                 // TODO(b/80232248): get the active data source from a data source queue.
-                dataSourceDescription = mDataSourceDescription;
+                item = mMediaItem;
             }
             notifyMediaPlayer2Event(new Mp2EventNotifier() {
                 @Override
@@ -709,7 +709,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                     MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
                     callback.onInfo(
                             mediaPlayer2,
-                            dataSourceDescription,
+                            item,
                             MEDIA_INFO_VIDEO_RENDERING_START,
                             /* extra= */ 0);
                 }
@@ -768,23 +768,23 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         }
 
         @Override
-        public void setDataSource(DataSourceDesc2 dsd) {
-            ExoPlayerMediaPlayer2Impl.this.setDataSource(dsd);
+        public void setMediaItem(MediaItem2 item) {
+            ExoPlayerMediaPlayer2Impl.this.setMediaItem(item);
         }
 
         @Override
-        public void setNextDataSource(DataSourceDesc2 dsd) {
-            ExoPlayerMediaPlayer2Impl.this.setNextDataSource(dsd);
+        public void setNextMediaItem(MediaItem2 item) {
+            ExoPlayerMediaPlayer2Impl.this.setNextMediaItem(item);
         }
 
         @Override
-        public void setNextDataSources(List<DataSourceDesc2> dsds) {
-            ExoPlayerMediaPlayer2Impl.this.setNextDataSources(dsds);
+        public void setNextMediaItems(List<MediaItem2> items) {
+            ExoPlayerMediaPlayer2Impl.this.getNextMediaItems(items);
         }
 
         @Override
-        public DataSourceDesc2 getCurrentDataSource() {
-            return ExoPlayerMediaPlayer2Impl.this.getCurrentDataSource();
+        public MediaItem2 getCurrentMediaItem() {
+            return ExoPlayerMediaPlayer2Impl.this.getCurrentMediaItem();
         }
 
         @Override
@@ -848,7 +848,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         final int mMediaCallType;
         final boolean mNeedToWaitForEventToComplete;
 
-        DataSourceDesc2 mDSD;
+        MediaItem2 mDSD;
         boolean mSkip;
 
         Task(int mediaCallType, boolean needToWaitForEventToComplete) {
@@ -888,7 +888,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 status = CALL_STATUS_SKIPPED;
             }
 
-            mDSD = getCurrentDataSource();
+            mDSD = getCurrentMediaItem();
 
             if (!mNeedToWaitForEventToComplete || status != CALL_STATUS_NO_ERROR || skip) {
                 sendCompleteNotification(status);

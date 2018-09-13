@@ -518,7 +518,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         final MediaController2 controller = createController(mSession.getToken(), true, callback);
         mSession.setPlaylist(testPlaylist, null);
         mPlayer.mBufferedPosition = testBufferingPosition;
-        mPlayer.notifyBufferingStateChanged(testItem.getDataSourceDesc(), testBufferingState);
+        mPlayer.notifyBufferingStateChanged(testItem, testBufferingState);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 

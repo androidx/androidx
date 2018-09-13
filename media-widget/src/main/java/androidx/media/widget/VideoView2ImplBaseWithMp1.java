@@ -54,7 +54,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.SessionToken2;
@@ -476,15 +475,6 @@ class VideoView2ImplBaseWithMp1
      */
     @Override
     public void setMediaItem2(@NonNull MediaItem2 mediaItem) {
-    }
-
-    /**
-     * Sets {@link DataSourceDesc2} object to render using VideoView2.
-     * @param dataSource the {@link DataSourceDesc2} object to play.
-     * @see #setMediaItem2
-     */
-    @Override
-    public void setDataSource(@NonNull DataSourceDesc2 dataSource) {
     }
 
     /**

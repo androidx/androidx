@@ -108,16 +108,14 @@ public final class TestUtils {
      */
     public static List<MediaItem2> createPlaylist(int size) {
         final List<MediaItem2> list = new ArrayList<>();
-        String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String caller = Thread.currentThread().getStackTrace()[3].getMethodName();
         for (int i = 0; i < size; i++) {
-            list.add(createMediaItem(caller + "_item_" + (size + 1), createDSD()));
+            MediaItem2 item = new FileMediaItem2.Builder(new FileDescriptor())
+                    .setMediaId(caller + "_item_" + (size + 1))
+                    .build();
+            list.add(item);
         }
         return list;
-    }
-
-    public static MediaItem2 createMediaItem(String id, DataSourceDesc2 dsd) {
-        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setMediaId(id).setDataSourceDesc(dsd).build();
     }
 
     /**
@@ -127,8 +125,8 @@ public final class TestUtils {
      * @see #createMetadata()
      */
     public static MediaItem2 createMediaItemWithMetadata() {
-        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setMetadata(createMetadata()).setDataSourceDesc(createDSD()).build();
+        return new FileMediaItem2.Builder(new FileDescriptor())
+                .setMetadata(createMetadata()).build();
     }
 
     /**
@@ -139,13 +137,9 @@ public final class TestUtils {
      * @return the newly created media item
      */
     public static MediaMetadata2 createMetadata() {
-        String mediaId = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String mediaId = Thread.currentThread().getStackTrace()[3].getMethodName();
         return new MediaMetadata2.Builder()
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
-    }
-
-    public static DataSourceDesc2 createDSD() {
-        return new FileDataSourceDesc2.Builder(new FileDescriptor()).build();
     }
 
     /**

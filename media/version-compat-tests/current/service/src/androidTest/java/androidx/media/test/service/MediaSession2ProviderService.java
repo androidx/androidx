@@ -17,8 +17,8 @@
 package androidx.media.test.service;
 
 import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_SESSION2;
-import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
-import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
+import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_ITEM;
+import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_ITEM;
 import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERED_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERING_STATE;
@@ -31,11 +31,9 @@ import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
 import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
-import static androidx.media.test.lib.MediaSession2Constants
-        .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
+import static androidx.media.test.lib.MediaSession2Constants.TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
 import static androidx.media.test.lib.MediaSession2Constants.TEST_GET_SESSION_ACTIVITY;
-import static androidx.media.test.lib.MediaSession2Constants
-        .TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST;
+import static androidx.media.test.lib.MediaSession2Constants.TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -52,8 +50,7 @@ import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.test.lib.MockActivity;
 import androidx.media.test.lib.TestUtils.SyncHandler;
-import androidx.media2.DataSourceDesc2;
-import androidx.media2.FileDataSourceDesc2;
+import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayerConnector;
@@ -233,7 +230,7 @@ public class MediaSession2ProviderService extends Service {
             }
             MockPlaylistAgent agent = new MockPlaylistAgent();
             agent.mPlaylist = MediaTestUtils.playlistFromParcelableList(
-                    agentConfig.getParcelableArrayList(KEY_PLAYLIST), false /* createDsd */);
+                    agentConfig.getParcelableArrayList(KEY_PLAYLIST), false /* createItem */);
             agent.mCurrentMediaItem = MediaItem2.fromBundle(agentConfig.getBundle(KEY_MEDIA_ITEM));
             agent.mMetadata = MediaMetadata2.fromBundle(agentConfig.getBundle(KEY_METADATA));
             return agent;
@@ -344,7 +341,7 @@ public class MediaSession2ProviderService extends Service {
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
             MockPlayerConnector player = (MockPlayerConnector) session2.getPlayerConnector();
             player.notifyBufferingStateChanged(
-                    agent.getPlaylist().get(itemIndex).getDataSourceDesc(), buffState);
+                    agent.getPlaylist().get(itemIndex), buffState);
         }
 
         @Override
@@ -369,16 +366,16 @@ public class MediaSession2ProviderService extends Service {
             MockPlayerConnector player = (MockPlayerConnector) session2.getPlayerConnector();
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
             switch (index) {
-                case INDEX_FOR_UNKONWN_DSD:
+                case INDEX_FOR_UNKONWN_ITEM:
                     player.notifyCurrentDataSourceChanged(
-                            new FileDataSourceDesc2.Builder(new FileDescriptor()).build());
+                            new FileMediaItem2.Builder(new FileDescriptor()).build());
                     break;
-                case INDEX_FOR_NULL_DSD:
+                case INDEX_FOR_NULL_ITEM:
                     player.notifyCurrentDataSourceChanged(null);
                     break;
                 default:
                     player.notifyCurrentDataSourceChanged(
-                            agent.getPlaylist().get(index).getDataSourceDesc());
+                            agent.getPlaylist().get(index));
                     break;
             }
         }
@@ -388,7 +385,7 @@ public class MediaSession2ProviderService extends Service {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlayerConnector player = (MockPlayerConnector) session2.getPlayerConnector();
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
-            player.notifyMediaPrepared(agent.getPlaylist().get(index).getDataSourceDesc());
+            player.notifyMediaPrepared(agent.getPlaylist().get(index));
         }
 
 
@@ -410,7 +407,7 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void setPlaylistWithDummyDsd(String sessionId, List<Bundle> playlist)
+        public void setPlaylistWithDummyItem(String sessionId, List<Bundle> playlist)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
@@ -418,10 +415,9 @@ public class MediaSession2ProviderService extends Service {
             List<MediaItem2> list = new ArrayList<>();
             for (Bundle bundle : playlist) {
                 MediaItem2 item = MediaItem2.fromBundle(bundle);
-                list.add(new MediaItem2.Builder(item.getFlags())
-                        .setMediaId(item.getMediaId())
+                list.add(new FileMediaItem2.Builder(new FileDescriptor())
                         .setMetadata(item.getMetadata())
-                        .setDataSourceDesc(createNewDsd())
+                        .setMediaId(item.getMediaId())
                         .build());
             }
             agent.mPlaylist = list;
@@ -485,9 +481,5 @@ public class MediaSession2ProviderService extends Service {
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
             agent.callNotifyRepeatModeChanged();
         }
-    }
-
-    private DataSourceDesc2 createNewDsd() {
-        return new FileDataSourceDesc2.Builder(new FileDescriptor()).build();
     }
 }

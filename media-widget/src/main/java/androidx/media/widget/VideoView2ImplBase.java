@@ -47,7 +47,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.BaseRemoteMediaPlayerConnector;
-import androidx.media2.DataSourceDesc2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayer2;
@@ -57,7 +56,7 @@ import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
 import androidx.media2.SubtitleData2;
-import androidx.media2.UriDataSourceDesc2;
+import androidx.media2.UriMediaItem2;
 import androidx.media2.subtitle.Cea708CaptionRenderer;
 import androidx.media2.subtitle.ClosedCaptionRenderer;
 import androidx.media2.subtitle.SubtitleController;
@@ -165,7 +164,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 mRoute = route;
                 mRoutePlayer = new RoutePlayer2(mInstance.getContext(), route);
                 // TODO: Replace with MediaSession2#setPlaylist once b/110811730 is fixed.
-                mRoutePlayer.setDataSource(mMediaItem.getDataSourceDesc());
+                mRoutePlayer.setMediaItem(mMediaItem);
                 mRoutePlayer.setCurrentPosition(localPlaybackPosition);
                 if (mMediaSession != null) {
                     mMediaSession.updatePlayerConnector(
@@ -407,16 +406,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     @Override
     public void setVideoUri(Uri uri, @Nullable Map<String, String> headers) {
-        UriDataSourceDesc2.Builder builder = new UriDataSourceDesc2.Builder(
+        UriMediaItem2.Builder builder = new UriMediaItem2.Builder(
                 mInstance.getContext(), uri, headers, null);
-        setDataSource(builder.build());
+        setMediaItem2(builder.build());
     }
 
     /**
-     * Sets {@link MediaItem2} object to render using VideoView2. Alternative way to set media
-     * object to VideoView2 is {@link #setDataSource}.
+     * Sets {@link MediaItem2} object to render using VideoView2.
      * @param mediaItem the MediaItem2 to play
-     * @see #setDataSource
      */
     @Override
     public void setMediaItem2(@NonNull MediaItem2 mediaItem) {
@@ -430,19 +427,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mMediaItem = mediaItem;
         mSeekWhenPrepared = 0;
         openVideo();
-    }
-
-    /**
-     * Sets {@link DataSourceDesc2} object to render using VideoView2.
-     * @param dataSource the {@link DataSourceDesc2} object to play.
-     * @see #setMediaItem2
-     */
-    @Override
-    public void setDataSource(@NonNull DataSourceDesc2 dataSource) {
-        MediaItem2 mediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setDataSourceDesc(dataSource)
-                .build();
-        setMediaItem2(mediaItem);
     }
 
     /**
@@ -683,16 +667,15 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         if (DEBUG) {
             Log.d(TAG, "openVideo()");
         }
-        DataSourceDesc2 dsd = mMediaItem.getDataSourceDesc();
-        if (dsd != null) {
+        if (mMediaItem != null) {
             resetPlayer();
             if (isRemotePlayback()) {
-                mRoutePlayer.setDataSource(dsd);
+                mRoutePlayer.setMediaItem(mMediaItem);
                 return;
             } else {
                 if (mMediaPlayer != null) {
                     // TODO: Remove once b/110811730 is fixed.
-                    mMediaPlayer.setDataSource(dsd);
+                    mMediaPlayer.setMediaItem(mMediaItem);
                 }
             }
         }
@@ -738,7 +721,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             Log.w(TAG, "Unable to open content: " + mMediaItem, ex);
             mCurrentState = STATE_ERROR;
             mTargetState = STATE_ERROR;
-            mMediaPlayer2Callback.onError(mMediaPlayer, dsd,
+            mMediaPlayer2Callback.onError(mMediaPlayer, mMediaItem,
                     MediaPlayer2.MEDIA_ERROR_UNKNOWN, MediaPlayer2.MEDIA_ERROR_IO);
         }
     }
@@ -848,9 +831,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             return;
         }
 
-        DataSourceDesc2 dsd = mMediaItem.getDataSourceDesc();
-        Uri uri = (dsd != null && dsd instanceof UriDataSourceDesc2)
-                ? ((UriDataSourceDesc2) dsd).getUri() : null;
+        Uri uri = (mMediaItem != null && mMediaItem instanceof UriMediaItem2)
+                ? ((UriMediaItem2) mMediaItem).getUri() : null;
         if (uri == null) {
             // Something wrong.
             return;
@@ -988,7 +970,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             new MediaPlayer2.EventCallback() {
                 @Override
                 public void onVideoSizeChanged(
-                        MediaPlayer2 mp, DataSourceDesc2 dsd, int width, int height) {
+                        MediaPlayer2 mp, MediaItem2 dsd, int width, int height) {
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): size: " + width + "/" + height);
                     }
@@ -1011,7 +993,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onInfo(
-                        MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
+                        MediaPlayer2 mp, MediaItem2 dsd, int what, int extra) {
                     if (DEBUG) {
                         Log.d(TAG, "onInfo()");
                     }
@@ -1032,7 +1014,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onError(
-                        MediaPlayer2 mp, DataSourceDesc2 dsd, int frameworkErr, int implErr) {
+                        MediaPlayer2 mp, MediaItem2 dsd, int frameworkErr, int implErr) {
                     if (DEBUG) {
                         Log.d(TAG, "Error: " + frameworkErr + "," + implErr);
                     }
@@ -1050,7 +1032,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onSubtitleData(
-                        MediaPlayer2 mp, DataSourceDesc2 dsd, SubtitleData2 data) {
+                        MediaPlayer2 mp, MediaItem2 dsd, SubtitleData2 data) {
                     if (DEBUG) {
                         Log.d(TAG, "onSubtitleData(): getTrackIndex: " + data.getTrackIndex()
                                 + ", getCurrentPosition: " + mp.getCurrentPosition()
@@ -1075,7 +1057,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                 }
 
-                private void onPrepared(MediaPlayer2 mp, DataSourceDesc2 dsd) {
+                private void onPrepared(MediaPlayer2 mp, MediaItem2 dsd) {
                     if (DEBUG) {
                         Log.d(TAG, "OnPreparedListener(): "
                                 + ", mCurrentState=" + mCurrentState
@@ -1121,7 +1103,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                 }
 
-                private void onCompletion(MediaPlayer2 mp, DataSourceDesc2 dsd) {
+                private void onCompletion(MediaPlayer2 mp, MediaItem2 dsd) {
                     mCurrentState = STATE_PLAYBACK_COMPLETED;
                     mTargetState = STATE_PLAYBACK_COMPLETED;
                 }

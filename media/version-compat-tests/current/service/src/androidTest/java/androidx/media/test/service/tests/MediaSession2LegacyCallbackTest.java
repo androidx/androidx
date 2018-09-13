@@ -752,8 +752,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
             }
         };
 
-        mMockAgent.mCurrentMediaItem = MediaTestUtils.createMediaItem(
-                mediaId, MediaTestUtils.createDSD());
+        mMockAgent.mCurrentMediaItem = MediaTestUtils.createMediaItem(mediaId);
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setPlaylistAgent(mMockAgent)

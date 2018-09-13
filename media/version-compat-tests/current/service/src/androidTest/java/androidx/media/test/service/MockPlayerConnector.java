@@ -19,7 +19,7 @@ package androidx.media.test.service;
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayerConnector;
 
 import java.util.List;
@@ -132,7 +132,7 @@ public class MockPlayerConnector extends MediaPlayerConnector {
 
     @Override
     public void skipToNext() {
-        // No-op. This skipToNext() means 'skip to next item in the setNextDataSources()'
+        // No-op. This skipToNext() means 'skip to next item in the setNextMediaItems()'
     }
 
     @Override
@@ -193,33 +193,33 @@ public class MockPlayerConnector extends MediaPlayerConnector {
         }
     }
 
-    public void notifyCurrentDataSourceChanged(final DataSourceDesc2 dsd) {
+    public void notifyCurrentDataSourceChanged(final MediaItem2 item) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
             final Executor executor = mCallbacks.valueAt(i);
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onCurrentDataSourceChanged(MockPlayerConnector.this, dsd);
+                    callback.onCurrentMediaItemChanged(MockPlayerConnector.this, item);
                 }
             });
         }
     }
 
-    public void notifyMediaPrepared(final DataSourceDesc2 dsd) {
+    public void notifyMediaPrepared(final MediaItem2 item) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
             final Executor executor = mCallbacks.valueAt(i);
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onMediaPrepared(MockPlayerConnector.this, dsd);
+                    callback.onMediaPrepared(MockPlayerConnector.this, item);
                 }
             });
         }
     }
 
-    public void notifyBufferingStateChanged(final DataSourceDesc2 dsd,
+    public void notifyBufferingStateChanged(final MediaItem2 item,
             final @BuffState int buffState) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
@@ -227,7 +227,7 @@ public class MockPlayerConnector extends MediaPlayerConnector {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onBufferingStateChanged(MockPlayerConnector.this, dsd, buffState);
+                    callback.onBufferingStateChanged(MockPlayerConnector.this, item, buffState);
                 }
             });
         }
@@ -279,22 +279,22 @@ public class MockPlayerConnector extends MediaPlayerConnector {
     }
 
     @Override
-    public void setDataSource(@NonNull DataSourceDesc2 dsd) {
+    public void setMediaItem(@NonNull MediaItem2 item) {
         // TODO: Implement this
     }
 
     @Override
-    public void setNextDataSource(@NonNull DataSourceDesc2 dsd) {
+    public void setNextMediaItem(@NonNull MediaItem2 item) {
         // TODO: Implement this
     }
 
     @Override
-    public void setNextDataSources(@NonNull List<DataSourceDesc2> dsds) {
+    public void setNextMediaItems(@NonNull List<MediaItem2> items) {
         // TODO: Implement this
     }
 
     @Override
-    public DataSourceDesc2 getCurrentDataSource() {
+    public MediaItem2 getCurrentMediaItem() {
         // TODO: Implement this
         return null;
     }
