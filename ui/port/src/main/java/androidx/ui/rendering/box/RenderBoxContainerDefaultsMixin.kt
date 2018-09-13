@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.rendering.obj
+package androidx.ui.rendering.box
 
-import androidx.annotation.CallSuper
-
-// / Base class for data associated with a [RenderObject] by its parent.
+// / A mixin that provides useful default behaviors for boxes with children
+// / managed by the [ContainerRenderObjectMixin] mixin.
 // /
-// / Some render objects wish to store data on their children, such as their
-// / input parameters to the parent's layout algorithm or their position relative
-// / to other children.
-open class ParentData {
-    // / Called when the RenderObject is removed from the tree.
-    @CallSuper
-    internal open fun detach() { }
-
-    override fun toString() = "<none>"
-}
+// / By convention, this class doesn't override any members of the superclass.
+// / Instead, it provides helpful functions that subclasses can call as
+// / appropriate.
+// Note(Migration/Mihai): the contents supposed to be in this file were
+//                        moved to ContainerRenderObjectMixin

@@ -1355,7 +1355,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * This is used in the semantics phase to avoid including children
      * that are not physically visible.
      */
-//    open fun describeApproximatePaintClip(child: RenderObject): Rect? = null
+    open fun describeApproximatePaintClip(child: RenderObject): Rect? = null
 
     /**
      * Returns a rect in this object's coordinate system that describes

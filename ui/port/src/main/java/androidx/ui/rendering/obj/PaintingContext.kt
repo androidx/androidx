@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.ui.rendering.obj
 
 import androidx.ui.assert
@@ -10,6 +26,7 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.PictureRecorder
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.debugProfilePaintsEnabled
+import androidx.ui.rendering.layer.ClipRectLayer
 import androidx.ui.rendering.layer.ContainerLayer
 import androidx.ui.rendering.layer.Layer
 import androidx.ui.rendering.layer.OffsetLayer
@@ -310,29 +327,37 @@ class PaintingContext(
     }
 
     // TODO(Migration/andrey): needs ClipRectLayer and clipRect support on canvas
-//    /// Clip further painting using a rectangle.
-//    ///
-//    /// * `needsCompositing` is whether the child needs compositing. Typically
-//    ///   matches the value of [RenderObject.needsCompositing] for the caller.
-//    /// * `offset` is the offset from the origin of the canvas' coordinate system
-//    ///   to the origin of the caller's coordinate system.
-//    /// * `clipRect` is rectangle (in the caller's coordinate system) to use to
-//    ///   clip the painting done by [painter].
-//    /// * `painter` is a callback that will paint with the [clipRect] applied. This
-//    ///   function calls the [painter] synchronously.
-//    void pushClipRect(bool needsCompositing, Offset offset, Rect clipRect, PaintingContextCallback painter) {
-//        final Rect offsetClipRect = clipRect.shift(offset);
-//        if (needsCompositing) {
-//            pushLayer(new ClipRectLayer(clipRect: offsetClipRect), painter, offset, childPaintBounds: offsetClipRect);
-//        } else {
-//            canvas
-//            ..save()
-//            ..clipRect(offsetClipRect);
-//            painter(this, offset);
-//            canvas
-//            ..restore();
-//        }
-//    }
+    // / Clip further painting using a rectangle.
+    // /
+    // / * `needsCompositing` is whether the child needs compositing. Typically
+    // /   matches the value of [RenderObject.needsCompositing] for the caller.
+    // / * `offset` is the offset from the origin of the canvas' coordinate system
+    // /   to the origin of the caller's coordinate system.
+    // / * `clipRect` is rectangle (in the caller's coordinate system) to use to
+    // /   clip the painting done by [painter].
+    // / * `painter` is a callback that will paint with the [clipRect] applied. This
+    // /   function calls the [painter] synchronously.
+    fun pushClipRect(
+        needsCompositing: Boolean,
+        offset: Offset,
+        clipRect: Rect,
+        painter: PaintingContextCallback
+    ) {
+        val offsetClipRect = clipRect.shift(offset)
+        if (needsCompositing) {
+            pushLayer(ClipRectLayer(clipRect = offsetClipRect),
+                painter, offset, childPaintBounds = offsetClipRect)
+        } else {
+            canvas.apply {
+                save()
+                clipRect(offsetClipRect)
+            }
+            painter(this, offset)
+            canvas.apply {
+                restore()
+            }
+        }
+    }
 
     // TODO(Migration/andrey): needs ClipRRectLayer and clipRRect support on canvas
 //    /// Clip further painting using a rounded rectangle.

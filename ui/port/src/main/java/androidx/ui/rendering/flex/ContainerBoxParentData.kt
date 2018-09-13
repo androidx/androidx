@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.ui.rendering.obj
+package androidx.ui.rendering.flex
 
-import androidx.annotation.CallSuper
+import androidx.ui.rendering.obj.ContainerParentDataMixin
+import androidx.ui.rendering.obj.RenderObject
 
-// / Base class for data associated with a [RenderObject] by its parent.
+// / Abstract ParentData subclass for RenderBox subclasses that want the
+// / ContainerRenderObjectMixin.
 // /
-// / Some render objects wish to store data on their children, such as their
-// / input parameters to the parent's layout algorithm or their position relative
-// / to other children.
-open class ParentData {
-    // / Called when the RenderObject is removed from the tree.
-    @CallSuper
-    internal open fun detach() { }
-
-    override fun toString() = "<none>"
-}
+// / This is a convenience class that mixes in the relevant classes with
+// / the relevant type arguments.
+abstract class ContainerBoxParentData<ChildType : RenderObject>
+    : /* BoxParentData() */ ContainerParentDataMixin<ChildType>()

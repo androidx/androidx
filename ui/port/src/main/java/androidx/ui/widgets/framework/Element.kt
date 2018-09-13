@@ -165,14 +165,16 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     // / If this object is a [RenderObjectElement], the render object is the one at
     // / this location in the tree. Otherwise, this getter will walk down the tree
     // / until it finds a [RenderObjectElement].
-    private fun getRenderObject(): RenderObject {
+    // / TODO(migration/Mihai): this was renamed from "getRenderObject" to avoid JVM naming
+    // /                        conflict with the renderObject property in RenderObjectElement
+    fun retrieveRenderObject(): RenderObject {
 
         var result: RenderObject? = null
 
         fun visit(element: Element) {
             assert(result == null); // this verifies that there's only one child
             if (element is RenderObjectElement)
-                result = element.getRenderObject()
+                result = element.renderObject
             else
                 element.visitChildren(::visit)
         }
@@ -419,8 +421,8 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     // / adding [renderObject] to the render tree.
     open fun attachRenderObject(newSlot: Any?) {
         assert(slot == null)
-        visitChildren {
-            child -> child.attachRenderObject(newSlot)
+        visitChildren { child ->
+            child.attachRenderObject(newSlot)
         }
         slot = newSlot
     }
@@ -668,7 +670,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         assert { _debugLifecycleState = _ElementLifecycle.defunct; true; }
     }
 
-    override fun findRenderObject(): RenderObject = getRenderObject()
+    override fun findRenderObject(): RenderObject = retrieveRenderObject()
 
     override val size: Size?
         get() = run {

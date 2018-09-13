@@ -19,8 +19,21 @@ enum class Axis {
     // /
     // /  * [TextDirection], which disambiguates between left-to-right horizontal
     // /    content and right-to-left horizontal content.
-    horizontal,
+    HORIZONTAL,
 
-    // / Up and down.
-    vertical
+    // / up and down.
+    VERTICAL
+}
+
+// / Returns the opposite of the given [Axis].
+// /
+// / Specifically, returns [Axis.HORIZONTAL] for [Axis.VERTICAL], and
+// / vice versa.
+// /
+// / See also:
+// /
+// /  * [flipAxisDirection], which does the same thing for [AxisDirection] values.
+fun Axis.flip() = when (this) {
+    Axis.HORIZONTAL -> Axis.VERTICAL
+    Axis.VERTICAL -> Axis.HORIZONTAL
 }

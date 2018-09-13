@@ -199,7 +199,7 @@ fun createCylindricalProjectionTransform(
     radius: Double,
     angle: Double,
     perspective: Double = 0.001,
-    orientation: Axis = Axis.vertical
+    orientation: Axis = Axis.VERTICAL
 ): Matrix4 {
     assert(radius != null)
     assert(angle != null)
@@ -232,7 +232,7 @@ fun createCylindricalProjectionTransform(
     // Model matrix by first translating the object from the origin of the world
     // by radius in the z axis and then rotating against the world.
     result *=
-            (if (orientation == Axis.horizontal)
+            (if (orientation == Axis.HORIZONTAL)
                 Matrix4.rotationY(angle) else Matrix4.rotationX(angle)) *
             Matrix4.translationValues(0.0, 0.0, radius)
 

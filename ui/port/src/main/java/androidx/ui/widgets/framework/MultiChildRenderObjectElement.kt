@@ -1,5 +1,23 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.ui.widgets.framework
 
+import androidx.ui.rendering.obj.ContainerParentDataMixin
+import androidx.ui.rendering.obj.ContainerRenderObjectMixin
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.widgets.debugChildrenHaveDuplicateKeys
 
@@ -30,16 +48,17 @@ class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
     override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
         val elementSlot = slot as Element?
 
-        TODO("Remove once ContainerRenderObjectMixin is migrated")
-//        val renderObject = this.renderObject as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>;
-//        assert(renderObject.debugValidateChild(child));
-//        renderObject.insert(child, after = elementSlot?.renderObject);
-//        assert(renderObject == this.renderObject);
+        val renderObject = this.renderObject
+                as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>
+        assert(renderObject.debugValidateChild(child))
+        renderObject.insert(child!!, after = elementSlot?.retrieveRenderObject())
+        assert(renderObject == this.renderObject)
     }
 
     override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
         TODO("Remove once ContainerRenderObjectMixin is migrated")
-//        val renderObject = this.renderObject as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>;
+//        val renderObject = this.renderObject
+//            as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>;
 //        assert(child.parent == renderObject);
 //        renderObject.move(child, after = slot?.renderObject);
 //        assert(renderObject == this.renderObject);
@@ -47,7 +66,8 @@ class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
 
     override fun removeChildRenderObject(child: RenderObject?) {
         TODO("Remove once ContainerRenderObjectMixin is migrated")
-//        val renderObject = this.renderObject as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>
+//        val renderObject = this.renderObject
+//            as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>
 //        assert(child.parent == renderObject);
 //        renderObject.remove(child);
 //        assert(renderObject == this.renderObject);
@@ -72,7 +92,7 @@ class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
         super.mount(parent, newSlot)
         var children = mutableListOf<Element>()
         var previousChild: Element? = null
-        for (i in 0.._children.size) {
+        for (i in 0 until multiChildWidget.children.size) {
             val newChild = inflateWidget(multiChildWidget.children[i], previousChild)
             children.add(newChild)
             previousChild = newChild
