@@ -32,9 +32,9 @@ dependencies {
 }
 
 supportLibrary {
-    name = "AndroidX ListenableFuture"
-    publish = false
-    mavenVersion = LibraryVersions.LISTENABLE_FUTURE
+    name = "AndroidX Futures"
+    publish = true
+    mavenVersion = LibraryVersions.FUTURES
     mavenGroup = LibraryGroups.CONCURRENT
     inceptionYear = "2018"
     description = "Androidx implementation of Guava's ListenableFuture"
