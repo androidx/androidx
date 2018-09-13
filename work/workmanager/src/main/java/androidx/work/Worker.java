@@ -22,7 +22,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.support.v4.util.Pair;
 
-import androidx.concurrent.listenablefuture.SettableFuture;
+import androidx.concurrent.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

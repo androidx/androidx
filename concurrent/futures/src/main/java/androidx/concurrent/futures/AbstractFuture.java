@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.concurrent.listenablefuture;
+package androidx.concurrent.futures;
 
 import static java.util.concurrent.atomic.AtomicReferenceFieldUpdater.newUpdater;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -57,7 +58,9 @@ import java.util.logging.Logger;
  * @author Sven Mawson
  * @author Luke Sandberg
  * @since 1.0
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("ShortCircuitBoolean") // we use non-short circuiting comparisons intentionally
 public abstract class AbstractFuture<V> implements ListenableFuture<V> {
 
