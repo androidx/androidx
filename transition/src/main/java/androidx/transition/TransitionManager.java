@@ -169,7 +169,13 @@ public class TransitionManager {
         final ViewGroup sceneRoot = scene.getSceneRoot();
 
         if (!sPendingTransitions.contains(sceneRoot)) {
+            Scene oldScene = Scene.getCurrentScene(sceneRoot);
             if (transition == null) {
+                // Notify old scene that it is being exited
+                if (oldScene != null) {
+                    oldScene.exit();
+                }
+
                 scene.enter();
             } else {
                 sPendingTransitions.add(sceneRoot);
@@ -177,7 +183,6 @@ public class TransitionManager {
                 Transition transitionClone = transition.clone();
                 transitionClone.setSceneRoot(sceneRoot);
 
-                Scene oldScene = Scene.getCurrentScene(sceneRoot);
                 if (oldScene != null && oldScene.isCreatedFromLayoutResource()) {
                     transitionClone.setCanRemoveViews(true);
                 }
