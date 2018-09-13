@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.content.pm;
+package androidx.sharetarget;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,6 +26,7 @@ import android.util.Xml;
 import androidx.annotation.AnyThread;
 import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
+import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.util.AtomicFile;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -267,7 +268,7 @@ class ShortcutsInfoSerialization {
         for (Intent intent : shortcut.getIntents()) {
             serializeIntent(serializer, intent);
         }
-        for (String category : shortcut.mCategories) {
+        for (String category : shortcut.getCategories()) {
             serializeCategory(serializer, category);
         }
 
