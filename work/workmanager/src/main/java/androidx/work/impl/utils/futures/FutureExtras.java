@@ -20,7 +20,7 @@ import android.arch.core.util.Function;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
-import androidx.concurrent.listenablefuture.SettableFuture;
+import androidx.concurrent.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

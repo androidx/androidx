@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.arch.core.util.Function;
 import android.support.annotation.NonNull;
 
-import androidx.concurrent.listenablefuture.SettableFuture;
+import androidx.concurrent.futures.SettableFuture;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 

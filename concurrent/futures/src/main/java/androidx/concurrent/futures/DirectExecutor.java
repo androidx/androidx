@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.concurrent.listenablefuture;
+package androidx.concurrent.futures;
 
 import java.util.concurrent.Executor;
 

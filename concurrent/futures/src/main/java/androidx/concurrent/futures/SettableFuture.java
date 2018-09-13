@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.concurrent.listenablefuture;
+package androidx.concurrent.futures;
 
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -31,7 +32,9 @@ import com.google.common.util.concurrent.ListenableFuture;
  *
  * @author Sven Mawson
  * @since 9.0 (in 1.0 as {@code ValueFuture})
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SettableFuture<V> extends AbstractFuture<V> {
     /**
      * Creates a new {@code SettableFuture} that can be completed or cancelled by a later method
