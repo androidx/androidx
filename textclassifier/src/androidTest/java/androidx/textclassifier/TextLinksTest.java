@@ -62,6 +62,7 @@ public final class TextLinksTest {
     private static final String LANGUAGE_TAGS = "en-US,de-DE";
     private static final LocaleListCompat LOCALE_LIST =
             LocaleListCompat.forLanguageTags(LANGUAGE_TAGS);
+    private static final long REFERENCE_TIME = System.currentTimeMillis();
 
     private Map<String, Float> mDummyEntityScores;
 
@@ -113,6 +114,17 @@ public final class TextLinksTest {
         assertThat(result.getEntityConfig().resolveEntityTypes(
                 Arrays.asList("default", "excluded")))
                 .containsExactly("included", "default");
+        assertThat(result.getReferenceTime()).isEqualTo(REFERENCE_TIME);
+    }
+
+    @Test
+    public void testBundleRequest_minimalRequest() {
+        TextLinks.Request reference = new TextLinks.Request.Builder(FULL_TEXT).build();
+
+        // Serialize/deserialize.
+        TextLinks.Request result = TextLinks.Request.createFromBundle(reference.toBundle());
+
+        assertEquals(FULL_TEXT, result.getText());
     }
 
     @Test
@@ -221,6 +233,7 @@ public final class TextLinksTest {
         return new TextLinks.Request.Builder(FULL_TEXT)
                 .setDefaultLocales(LOCALE_LIST)
                 .setEntityConfig(entityConfig)
+                .setReferenceTime(REFERENCE_TIME)
                 .build();
     }
 
