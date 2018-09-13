@@ -44,7 +44,7 @@ import java.util.List;
 /**
  * Tests {@link MediaSessionManager2Test}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaSessionManager2Test extends MediaTestBase {

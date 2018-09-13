@@ -54,6 +54,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests {@link MediaController2}.
@@ -63,6 +65,8 @@ import java.lang.reflect.Method;
 @SmallTest
 public class MediaController2Test extends MediaSession2TestBase {
 
+    final List<RemoteMediaSession2> mRemoteSessionList = new ArrayList<>();
+
     AudioManager mAudioManager;
     RemoteMediaSession2 mRemoteSession2;
 
@@ -71,14 +75,19 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void setUp() throws Exception {
         super.setUp();
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mRemoteSession2 = new RemoteMediaSession2(DEFAULT_TEST_NAME, mContext);
+        mRemoteSession2 = createRemoteMediaSession2(DEFAULT_TEST_NAME);
     }
 
     @After
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-        mRemoteSession2.cleanUp();
+        for (int i = 0; i < mRemoteSessionList.size(); i++) {
+            RemoteMediaSession2 session = mRemoteSessionList.get(i);
+            if (session != null) {
+                session.cleanUp();
+            }
+        }
     }
 
     /**
@@ -102,14 +111,18 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGetSessionActivity() throws InterruptedException {
         prepareLooper();
-        RemoteMediaSession2 session2 = new RemoteMediaSession2(TEST_GET_SESSION_ACTIVITY, mContext);
+        RemoteMediaSession2 session2 = createRemoteMediaSession2(TEST_GET_SESSION_ACTIVITY);
 
         MediaController2 controller = createController(session2.getToken());
         PendingIntent sessionActivity = controller.getSessionActivity();
-        assertEquals(SERVICE_PACKAGE_NAME, sessionActivity.getCreatorPackage());
-        // TODO: Add getPid/getUid in MediaController2ProviderService and compare them.
-        // assertEquals(mRemoteSession2.getUid(), sessionActivity.getCreatorUid());
+        assertNotNull(sessionActivity);
+        if (Build.VERSION.SDK_INT >= 17) {
+            // PendingIntent#getCreatorPackage() is added in API 17.
+            assertEquals(SERVICE_PACKAGE_NAME, sessionActivity.getCreatorPackage());
 
+            // TODO: Add getPid/getUid in MediaController2ProviderService and compare them.
+            // assertEquals(mRemoteSession2.getUid(), sessionActivity.getCreatorUid());
+        }
         session2.cleanUp();
     }
 
@@ -285,5 +298,11 @@ public class MediaController2Test extends MediaSession2TestBase {
                 info.getMaxVolume());
         assertEquals(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC),
                 info.getCurrentVolume());
+    }
+
+    RemoteMediaSession2 createRemoteMediaSession2(String id) {
+        RemoteMediaSession2 session = new RemoteMediaSession2(id, mContext);
+        mRemoteSessionList.add(session);
+        return session;
     }
 }
