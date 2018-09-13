@@ -30,6 +30,7 @@ import android.os.Build;
 
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
 import androidx.media2.UriMediaItem2;
@@ -44,6 +45,7 @@ import androidx.media2.exoplayer.external.source.TrackGroupArray;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,12 +61,18 @@ import java.util.List;
 
     /** Returns an ExoPlayer media source for the given media item. */
     public static MediaSource createMediaSource(
-            DataSource.Factory dataSourceFactory, MediaItem2 dataSourceDescription) {
-        // TODO(b/111150876): Add support for HLS streams and file descriptors.
-        if (dataSourceDescription instanceof UriMediaItem2) {
-            Uri uri = ((UriMediaItem2) dataSourceDescription).getUri();
+            DataSource.Factory dataSourceFactory, MediaItem2 mediaItem2) {
+        // TODO(b/111150876): Add support for HLS streams.
+        if (mediaItem2 instanceof UriMediaItem2) {
+            Uri uri = ((UriMediaItem2) mediaItem2).getUri();
             return new ExtractorMediaSource.Factory(dataSourceFactory)
-                    .setTag(dataSourceDescription).createMediaSource(uri);
+                    .setTag(mediaItem2).createMediaSource(uri);
+        } else if (mediaItem2 instanceof FileMediaItem2) {
+            FileDescriptor fileDescriptor = ((FileMediaItem2) mediaItem2).getFileDescriptor();
+            long offset = ((FileMediaItem2) mediaItem2).getFileDescriptorOffset();
+            long length = ((FileMediaItem2) mediaItem2).getFileDescriptorLength();
+            dataSourceFactory = FileDescriptorDataSource.getFactory(fileDescriptor, offset, length);
+            return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.EMPTY);
         } else {
             throw new UnsupportedOperationException();
         }
