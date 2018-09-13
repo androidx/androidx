@@ -24,7 +24,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -34,7 +33,6 @@ import android.widget.VideoView;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
@@ -99,7 +97,6 @@ import java.util.Map;
  * @attr ref androidx.media.widget.R.styleable#VideoView2_viewType
  */
 @TargetApi(Build.VERSION_CODES.P)
-@RequiresApi(21)  // It can be lowered, using MP1 and MS1, without guarantee subtitle feature.
 public class VideoView2 extends BaseLayout {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -127,9 +124,6 @@ public class VideoView2 extends BaseLayout {
     private static final String TAG = "VideoView2";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    // To use MP1 for debugging purpose, run "adb shell setprop log.tag.VV2MP1 DEBUG"
-    private static final boolean USE_MP1 = Log.isLoggable("VV2MP1", Log.DEBUG);
-
     private VideoView2Impl mImpl;
 
     public VideoView2(@NonNull Context context) {
@@ -142,24 +136,10 @@ public class VideoView2 extends BaseLayout {
 
     public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            if (USE_MP1) {
-                if (DEBUG) {
-                    Log.d(TAG, "Create VideoView2ImplApi28WithMp1");
-                }
-                mImpl = new VideoView2ImplApi28WithMp1();
-            } else {
-                if (DEBUG) {
-                    Log.d(TAG, "Create VideoView2ImplBase");
-                }
-                mImpl = new VideoView2ImplBase();
-            }
-        } else {
-            if (DEBUG) {
-                Log.d(TAG, "Create VideoView2ImplBaseWithMp1");
-            }
-            mImpl = new VideoView2ImplBaseWithMp1();
+        if (DEBUG) {
+            Log.d(TAG, "Create VideoView2ImplBase");
         }
+        mImpl = new VideoView2ImplBase();
         mImpl.initialize(this, context, attrs, defStyleAttr);
     }
 
@@ -202,22 +182,6 @@ public class VideoView2 extends BaseLayout {
     @RestrictTo(LIBRARY_GROUP)
     public MediaMetadata2 getMediaMetadata() {
         return mImpl.getMediaMetadata();
-    }
-
-    /**
-     * Returns MediaController instance which is connected with MediaSession that VideoView2 is
-     * using. This method should be called when VideoView2 is attached to window, or it throws
-     * IllegalStateException, since internal MediaSession instance is not available until
-     * this view is attached to window. Please check {@link View#isAttachedToWindow}
-     * before calling this method.
-     *
-     * @throws IllegalStateException if internal MediaSession is not created yet.
-     * @hide
-     */
-    // TODO: Remove with impl_with_mp1 once MP2 compat starts supporting lower devices.
-    @RestrictTo(LIBRARY_GROUP)
-    public MediaControllerCompat getMediaController() {
-        return mImpl.getMediaController();
     }
 
     /**
