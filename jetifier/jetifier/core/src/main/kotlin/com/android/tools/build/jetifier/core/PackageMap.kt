@@ -246,6 +246,10 @@ class PackageMap(private val rules: List<PackageRule>) {
                 to = "androidx/versionedparcelable"
             ),
             PackageRule(
+                    from = "androidx/activity",
+                    to = "androidx/activity"
+            ),
+            PackageRule(
                 from = "androidx/slice/view",
                 to = "androidx/slice/view"
             ),
