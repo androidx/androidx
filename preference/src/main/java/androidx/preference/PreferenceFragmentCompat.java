@@ -192,7 +192,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     public abstract void onCreatePreferences(Bundle savedInstanceState, String rootKey);
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
         TypedArray a = mStyledContext.obtainStyledAttributes(null,
@@ -324,7 +324,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         final PreferenceScreen preferenceScreen = getPreferenceScreen();

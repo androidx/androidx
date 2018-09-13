@@ -141,7 +141,7 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putCharSequence(SAVE_STATE_TITLE, mDialogTitle);
         outState.putCharSequence(SAVE_STATE_MESSAGE, mDialogMessage);
@@ -157,7 +157,7 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final TypedValue tv = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);

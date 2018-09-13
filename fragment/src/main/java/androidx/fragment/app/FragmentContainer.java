@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 
@@ -50,7 +51,9 @@ public abstract class FragmentContainer {
      */
     @SuppressWarnings("deprecation")
     @Deprecated
-    public Fragment instantiate(Context context, String className, Bundle arguments) {
+    @NonNull
+    public Fragment instantiate(@NonNull Context context, @NonNull String className,
+            @Nullable Bundle arguments) {
         return Fragment.instantiate(context, className, arguments);
     }
 }
