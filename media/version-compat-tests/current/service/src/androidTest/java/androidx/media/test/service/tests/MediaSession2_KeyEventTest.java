@@ -109,6 +109,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
                         latch.countDown();
+                        player.release();
                     }
                 });
                 player.start();

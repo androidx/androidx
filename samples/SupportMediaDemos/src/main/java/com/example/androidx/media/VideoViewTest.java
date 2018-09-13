@@ -41,9 +41,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.media.widget.MediaControlView2;
 import androidx.media.widget.VideoView2;
 import androidx.media2.MediaController2;
-import androidx.media2.MediaItem2;
 import androidx.media2.SessionToken2;
-import androidx.media2.UriDataSourceDesc2;
+import androidx.media2.UriMediaItem2;
 
 import java.util.concurrent.Executor;
 
@@ -92,10 +91,7 @@ public class VideoViewTest extends FragmentActivity {
             if (mUseTextureView) {
                 mVideoView.setViewType(VideoView2.VIEW_TYPE_TEXTUREVIEW);
             }
-            UriDataSourceDesc2.Builder dsdBuilder = new UriDataSourceDesc2.Builder(this, videoUri);
-            MediaItem2 mediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                    .setDataSourceDesc(dsdBuilder.build())
-                    .build();
+            UriMediaItem2 mediaItem = new UriMediaItem2.Builder(this, videoUri).build();
             mVideoView.setMediaItem2(mediaItem);
 
             mMediaControlView = new MediaControlView2(this);

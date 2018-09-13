@@ -1095,7 +1095,7 @@ public class MediaController2 implements AutoCloseable {
                 float speed) { }
 
         /**
-         * Called to report buffering events for a data source.
+         * Called to report buffering events for a media item.
          * <p>
          * Use {@link #getBufferedPosition()} for current buffering position.
          *

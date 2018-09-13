@@ -47,7 +47,7 @@ import java.util.concurrent.Executor;
  * <p>
  * <pre class="prettyprint">
  * MediaPlayer2 mp2 = MediaPlayer2.create();
- * // prepare the player with a valid data source.
+ * // prepare the player with a valid media item.
  * &hellip;
  *
  * final TrackInfo[] trackInfos = mp2.getTrackInfo();
@@ -67,7 +67,7 @@ import java.util.concurrent.Executor;
  * <p>
  *
  * @see MediaPlayer2#setEventCallback(Executor, MediaPlayer2.EventCallback)
- * @see MediaPlayer2.EventCallback#onSubtitleData(MediaPlayer2, DataSourceDesc2, SubtitleData2)
+ * @see MediaPlayer2.EventCallback#onSubtitleData(MediaPlayer2, MediaItem2, SubtitleData2)
  */
 public final class SubtitleData2 {
     private static final String TAG = "SubtitleData2";

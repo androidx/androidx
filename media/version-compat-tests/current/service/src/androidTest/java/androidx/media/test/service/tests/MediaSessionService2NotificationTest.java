@@ -111,8 +111,8 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
                         .putBitmap(MediaMetadata2.METADATA_KEY_ALBUM_ART, albumArt)
                         .build();
         mPlaylistAgent.mCurrentMediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                        .setMediaId(mediaId)
                         .setMetadata(metadata)
+                        .setMediaId(mediaId)
                         .build();
 
         // Notification should be shown. Clicking play/pause button will change the player state.

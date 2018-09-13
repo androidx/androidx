@@ -39,7 +39,7 @@ import java.util.concurrent.Executor;
  * notify methods to signal MediaSession2 that playlist-related state has changed.
  * <p>
  * A playlist is composed of one or multiple {@link MediaItem2} instances, which combine metadata
- * and data sources (as {@link DataSourceDesc2})
+ * and media items (as {@link MediaItem2})
  * <p>
  * Calls may be asynchronous except for getters. Wait for callbacks for the completion.
  * <p>
@@ -354,9 +354,9 @@ public abstract class MediaPlaylistAgent {
      * <p>
      * This may be the asynchronous call depending on the implementation. Wait for underlying player
      * connector's
-     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
+     * {@link PlayerEventCallback#onCurrentMediaItemChanged(MediaPlayerConnector, MediaItem2)}
      * for completion. Callee needs to call {@link #getCurrentMediaItem()} or
-     * {@link #getMediaItem(DataSourceDesc2)} to get the current {@link MediaItem2}.
+     * {@link #getMediaItem(MediaItem2)} to get the current {@link MediaItem2}.
      *
      * @param item media item to start playing from
      */
@@ -367,9 +367,9 @@ public abstract class MediaPlaylistAgent {
      * <p>
      * This may be the asynchronous call depending on the implementation. Wait for underlying player
      * connector's
-     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
+     * {@link PlayerEventCallback#onCurrentMediaItemChanged(MediaPlayerConnector, MediaItem2)}
      * for completion. Callee needs to call {@link #getCurrentMediaItem()} or
-     * {@link #getMediaItem(DataSourceDesc2)} to get the current {@link MediaItem2}.
+     * {@link #getMediaItem(MediaItem2)} to get the current {@link MediaItem2}.
      */
     public abstract void skipToPreviousItem();
 
@@ -378,11 +378,11 @@ public abstract class MediaPlaylistAgent {
      * <p>
      * This may be the asynchronous call depending on the implementation. Wait for underlying player
      * connector's
-     * {@link PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)}
+     * {@link PlayerEventCallback#onCurrentMediaItemChanged(MediaPlayerConnector, MediaItem2)}
      * for completion. Callee needs to call {@link #getCurrentMediaItem()} or
-     * {@link #getMediaItem(DataSourceDesc2)} to get the current {@link MediaItem2}.
+     * {@link #getMediaItem(MediaItem2)} to get the current {@link MediaItem2}.
      *
-     * @see PlayerEventCallback#onCurrentDataSourceChanged(MediaPlayerConnector, DataSourceDesc2)
+     * @see PlayerEventCallback#onCurrentMediaItemChanged(MediaPlayerConnector, MediaItem2)
      */
     public abstract void skipToNextItem();
 
@@ -450,38 +450,25 @@ public abstract class MediaPlaylistAgent {
     public abstract void setShuffleMode(@ShuffleMode int shuffleMode);
 
     /**
-     * Gets the media item with the given {@link DataSourceDesc2}. Called by {@link MediaSession2}
-     * when it wants to translate {@link DataSourceDesc2} from the
+     * Gets the media item with the given {@link MediaItem2}. Called by {@link MediaSession2}
+     * when it wants to translate {@link MediaItem2} from the
      * {@link MediaPlayerConnector.PlayerEventCallback} to the {@link MediaItem2}. Override this
-     * method if you want to create {@link DataSourceDesc2}s dynamically, instead of specifying them
+     * method if you want to create {@link MediaItem2}s dynamically, instead of specifying them
      * with {@link #setPlaylist(List, MediaMetadata2)}.
      * <p>
-     * Session would throw an exception if this returns {@code null} for the dsd from the
+     * Session would throw an exception if this returns {@code null} for the item from the
      * {@link MediaPlayerConnector.PlayerEventCallback}.
      * <p>
      * Default implementation calls the {@link #getPlaylist()} and searches the {@link MediaItem2}
-     * with the {@param dsd}.
+     * with the {@param item}.
      *
-     * @param dsd The dsd to query
-     * @return A {@link MediaItem2} object in the playlist that matches given {@code dsd}.
-     * @throws IllegalArgumentException if {@code dsd} is null
+     * @param item The item to query
+     * @return A {@link MediaItem2} object in the playlist that matches given {@code item}.
+     * @throws IllegalArgumentException if {@code item} is null
      */
-    public @Nullable MediaItem2 getMediaItem(@NonNull DataSourceDesc2 dsd) {
-        if (dsd == null) {
-            throw new IllegalArgumentException("dsd shouldn't be null");
-        }
-        List<MediaItem2> itemList = getPlaylist();
-        if (itemList == null) {
-            return null;
-        }
-        for (int i = 0; i < itemList.size(); i++) {
-            MediaItem2 item = itemList.get(i);
-            if (item != null && item.getDataSourceDesc() != null
-                    && item.getDataSourceDesc().equals(dsd)) {
-                return item;
-            }
-        }
-        return null;
+    public @Nullable MediaItem2 getMediaItem(@NonNull MediaItem2 item) {
+        // Note: Will be removed in next CL
+        return item;
     }
 
     private SimpleArrayMap<PlaylistEventCallback, Executor> getCallbacks() {

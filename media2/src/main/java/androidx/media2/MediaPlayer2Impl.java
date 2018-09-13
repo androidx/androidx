@@ -277,7 +277,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     /**
-     * Tries to play next data source if applicable.
+     * Tries to play next media item if applicable.
      */
     @Override
     public void skipToNext() {
@@ -372,81 +372,81 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     /**
-     * Sets the data source as described by a DataSourceDesc2.
+     * Sets the media item as described by a MediaItem2.
      *
-     * @param dsd the descriptor of data source you want to play
+     * @param item the descriptor of media item you want to play
      * @throws IllegalStateException if it is called in an invalid state
-     * @throws NullPointerException if dsd is null
+     * @throws NullPointerException if item is null
      */
     @Override
-    public void setDataSource(@NonNull final DataSourceDesc2 dsd) {
+    public void setMediaItem(@NonNull final MediaItem2 item) {
         addTask(new Task(CALL_COMPLETED_SET_DATA_SOURCE, false) {
             @Override
             void process() {
-                Preconditions.checkArgument(dsd != null, "the DataSourceDesc2 cannot be null");
-                // TODO: setDataSource could update exist data source
+                Preconditions.checkArgument(item != null, "the MediaItem2 cannot be null");
+                // TODO: setMediaItem could update exist media item
                 try {
-                    mPlayer.setFirst(dsd);
+                    mPlayer.setFirst(item);
                 } catch (IOException e) {
-                    Log.e(TAG, "process: setDataSource", e);
+                    Log.e(TAG, "process: setMediaItem", e);
                 }
             }
         });
     }
 
     /**
-     * Sets a single data source as described by a DataSourceDesc2 which will be played
-     * after current data source is finished.
+     * Sets a single media item as described by a MediaItem2 which will be played
+     * after current media item is finished.
      *
-     * @param dsd the descriptor of data source you want to play after current one
+     * @param item the descriptor of media item you want to play after current one
      * @throws IllegalStateException if it is called in an invalid state
-     * @throws NullPointerException if dsd is null
+     * @throws NullPointerException if item is null
      */
     @Override
-    public void setNextDataSource(@NonNull final DataSourceDesc2 dsd) {
+    public void setNextMediaItem(@NonNull final MediaItem2 item) {
         addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCE, false) {
             @Override
             void process() {
-                Preconditions.checkArgument(dsd != null, "the DataSourceDesc2 cannot be null");
-                handleDataSourceError(mPlayer.setNext(dsd));
+                Preconditions.checkArgument(item != null, "the MediaItem2 cannot be null");
+                handleDataSourceError(mPlayer.setNext(item));
             }
         });
     }
 
     /**
-     * Sets a list of data sources to be played sequentially after current data source is done.
+     * Sets a list of media items to be played sequentially after current media item is done.
      *
-     * @param dsds the list of data sources you want to play after current one
+     * @param items the list of media items you want to play after current one
      * @throws IllegalStateException if it is called in an invalid state
-     * @throws IllegalArgumentException if dsds is null or empty, or contains null DataSourceDesc2
+     * @throws IllegalArgumentException if items is null or empty, or contains null MediaItem2
      */
     @Override
-    public void setNextDataSources(@NonNull final List<DataSourceDesc2> dsds) {
+    public void getNextMediaItems(@NonNull final List<MediaItem2> items) {
         addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCES, false) {
             @Override
             void process() {
-                if (dsds == null || dsds.size() == 0) {
-                    throw new IllegalArgumentException("data source list cannot be null or empty.");
+                if (items == null || items.size() == 0) {
+                    throw new IllegalArgumentException("media item list cannot be null or empty.");
                 }
-                for (DataSourceDesc2 dsd : dsds) {
-                    if (dsd == null) {
+                for (MediaItem2 item : items) {
+                    if (item == null) {
                         throw new IllegalArgumentException(
-                                "DataSourceDesc2 in the source list cannot be null.");
+                                "MediaItem2 in the source list cannot be null.");
                     }
                 }
-                handleDataSourceError(mPlayer.setNextMultiple(dsds));
+                handleDataSourceError(mPlayer.setNextMultiple(items));
             }
         });
     }
 
     @Override public @NonNull
-    DataSourceDesc2 getCurrentDataSource() {
+    MediaItem2 getCurrentMediaItem() {
         return mPlayer.getFirst().getDSD();
     }
 
     /**
-     * Configures the player to loop on the current data source.
-     * @param loop true if the current data source is meant to loop.
+     * Configures the player to loop on the current media item.
+     * @param loop true if the current media item is meant to loop.
      */
     @Override
     public void loopCurrent(final boolean loop) {
@@ -613,14 +613,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static void handleDataSource(MediaPlayerSource src)
             throws IOException {
-        final DataSourceDesc2 dsd = src.getDSD();
-        Preconditions.checkArgument(dsd != null, "the DataSourceDesc2 cannot be null");
+        final MediaItem2 item = src.getDSD();
+        Preconditions.checkArgument(item != null, "the MediaItem2 cannot be null");
 
         MediaPlayer player = src.getPlayer();
-        if (dsd instanceof CallbackDataSourceDesc2) {
+        if (item instanceof CallbackMediaItem2) {
             player.setDataSource(new MediaDataSource() {
                 DataSourceCallback2 mDataSource =
-                        ((CallbackDataSourceDesc2) dsd).getDataSourceCallback2();
+                        ((CallbackMediaItem2) item).getDataSourceCallback2();
 
                 @Override
                 public int readAt(long position, byte[] buffer, int offset, int size)
@@ -638,22 +638,22 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     mDataSource.close();
                 }
             });
-        } else if (dsd instanceof FileDataSourceDesc2) {
-            FileDataSourceDesc2 fdsd = (FileDataSourceDesc2) dsd;
+        } else if (item instanceof FileMediaItem2) {
+            FileMediaItem2 fitem = (FileMediaItem2) item;
             player.setDataSource(
-                    fdsd.getFileDescriptor(),
-                    fdsd.getFileDescriptorOffset(),
-                    fdsd.getFileDescriptorLength());
-        } else if (dsd instanceof UriDataSourceDesc2) {
-            UriDataSourceDesc2 udsd = (UriDataSourceDesc2) dsd;
+                    fitem.getFileDescriptor(),
+                    fitem.getFileDescriptorOffset(),
+                    fitem.getFileDescriptorLength());
+        } else if (item instanceof UriMediaItem2) {
+            UriMediaItem2 uitem = (UriMediaItem2) item;
             player.setDataSource(
-                    udsd.getUriContext(),
-                    udsd.getUri(),
-                    udsd.getUriHeaders(),
-                    udsd.getUriCookies());
+                    uitem.getUriContext(),
+                    uitem.getUri(),
+                    uitem.getUriHeaders(),
+                    uitem.getUriCookies());
         } else {
             throw new IllegalArgumentException(
-                    "Unsupported data source description. " + dsd.toString());
+                    "Unsupported media item description. " + item.toString());
         }
     }
 
@@ -740,7 +740,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * position or mode is different.
      *
      * @param msec the offset in milliseconds from the start to seek to.
-     * When seeking to the given time position, there is no guarantee that the data source
+     * When seeking to the given time position, there is no guarantee that the media item
      * has a frame located at the position. When this happens, a frame nearby will be rendered.
      * If msec is negative, time position zero will be used.
      * If msec is larger than duration, duration will be used.
@@ -795,7 +795,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     /**
      * Resets the MediaPlayer2 to its uninitialized state. After calling
      * this method, you will have to initialize it again by setting the
-     * data source and calling prepare().
+     * media item and calling prepare().
      */
     @Override
     public void reset() {
@@ -815,7 +815,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * When created, a MediaPlayer2 instance automatically generates its own audio session ID.
      * However, it is possible to force this player to be part of an already existing audio session
      * by calling this method.
-     * This method must be called before one of the overloaded <code> setDataSource </code> methods.
+     * This method must be called before one of the overloaded <code> setMediaItem </code> methods.
      * @throws IllegalStateException if it is called in an invalid state
      * @throws IllegalArgumentException if the sessionId is invalid.
      */
@@ -844,7 +844,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * {@link android.media.audiofx.AudioEffect#getId()} and use it when calling this method
      * to attach the player to the effect.
      * <p>To detach the effect from the player, call this method with a null effect id.
-     * <p>This method must be called after one of the overloaded <code> setDataSource </code>
+     * <p>This method must be called after one of the overloaded <code> setMediaItem </code>
      * methods.
      * @param effectId system wide unique id of the effect to attach
      */
@@ -1030,8 +1030,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             @Override
             public void onDrmConfig(MediaPlayer mp) {
                 MediaPlayerSource src = mPlayer.getSourceForPlayer(mp);
-                DataSourceDesc2 dsd = src == null ? null : src.getDSD();
-                listener.onDrmConfig(MediaPlayer2Impl.this, dsd);
+                MediaItem2 item = src == null ? null : src.getDSD();
+                listener.onDrmConfig(MediaPlayer2Impl.this, item);
             }
         });
     }
@@ -1371,17 +1371,17 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void setEndPositionTimerIfNeeded(
             final MediaPlayer.OnCompletionListener completionListener,
-            final MediaPlayerSource src, MediaTimestamp timedsd) {
+            final MediaPlayerSource src, MediaTimestamp timeitem) {
         if (src == mPlayer.getFirst()) {
             mEndPositionHandler.removeCallbacksAndMessages(null);
-            DataSourceDesc2 dsd = src.getDSD();
-            if (dsd.getEndPosition() != DataSourceDesc2.POSITION_UNKNOWN) {
-                if (timedsd.getMediaClockRate() > 0.0f) {
+            MediaItem2 item = src.getDSD();
+            if (item.getEndPosition() != MediaItem2.POSITION_UNKNOWN) {
+                if (timeitem.getMediaClockRate() > 0.0f) {
                     long nowNs = System.nanoTime();
-                    long elapsedTimeUs = (nowNs - timedsd.getAnchorSytemNanoTime()) / 1000;
-                    long nowMediaMs = (timedsd.getAnchorMediaTimeUs() + elapsedTimeUs) / 1000;
-                    long timeLeftMs = (long) ((dsd.getEndPosition() - nowMediaMs)
-                            / timedsd.getMediaClockRate());
+                    long elapsedTimeUs = (nowNs - timeitem.getAnchorSytemNanoTime()) / 1000;
+                    long nowMediaMs = (timeitem.getAnchorMediaTimeUs() + elapsedTimeUs) / 1000;
+                    long timeLeftMs = (long) ((item.getEndPosition() - nowMediaMs)
+                            / timeitem.getMediaClockRate());
                     mEndPositionHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -1409,8 +1409,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                             @Override
                             public void notify(EventCallback callback) {
                                 MediaPlayer2Impl mp2 = MediaPlayer2Impl.this;
-                                DataSourceDesc2 dsd = src.getDSD();
-                                callback.onInfo(mp2, dsd, MEDIA_INFO_PREPARED, 0);
+                                MediaItem2 item = src.getDSD();
+                                callback.onInfo(mp2, item, MEDIA_INFO_PREPARED, 0);
                             }
                         });
                         notifyPlayerEvent(new PlayerEventNotifier() {
@@ -1621,7 +1621,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         private UUID[] mSupportedSchemes;
 
         /**
-         * Returns the PSSH info of the data source for each supported DRM scheme.
+         * Returns the PSSH info of the media item for each supported DRM scheme.
          */
         @Override
         public Map<UUID, byte[]> getPssh() {
@@ -1629,7 +1629,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         /**
-         * Returns the intersection of the data source and the device DRM schemes.
+         * Returns the intersection of the media item and the device DRM schemes.
          * It effectively identifies the subset of the source's DRM schemes which
          * are supported by the device too.
          */
@@ -1757,7 +1757,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private abstract class Task implements Runnable {
         final int mMediaCallType;
         final boolean mNeedToWaitForEventToComplete;
-        DataSourceDesc2 mDSD;
+        MediaItem2 mDSD;
         boolean mSkip;
 
         Task(int mediaCallType, boolean needToWaitForEventToComplete) {
@@ -1797,7 +1797,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 status = CALL_STATUS_SKIPPED;
             }
 
-            mDSD = getCurrentDataSource();
+            mDSD = getCurrentMediaItem();
 
             if (!mNeedToWaitForEventToComplete || status != CALL_STATUS_NO_ERROR || skip) {
 
@@ -1827,12 +1827,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     };
 
     private static class DataSourceError {
-        final DataSourceDesc2 mDSD;
+        final MediaItem2 mDSD;
         final int mWhat;
 
         final int mExtra;
-        DataSourceError(DataSourceDesc2 dsd, int what, int extra) {
-            mDSD = dsd;
+        DataSourceError(MediaItem2 item, int what, int extra) {
+            mDSD = item;
             mWhat = what;
             mExtra = extra;
         }
@@ -1841,7 +1841,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     private class MediaPlayerSource {
 
-        volatile DataSourceDesc2 mDSD;
+        volatile MediaItem2 mDSD;
         MediaPlayer mPlayer;
         final AtomicInteger mBufferedPercentage = new AtomicInteger(0);
         int mSourceState = SOURCE_STATE_INIT;
@@ -1851,12 +1851,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         boolean mPlayPending;
         boolean mSetAsNextPlayer;
 
-        MediaPlayerSource(final DataSourceDesc2 dsd) {
-            mDSD = dsd;
+        MediaPlayerSource(final MediaItem2 item) {
+            mDSD = item;
             setUpListeners(this);
         }
 
-        DataSourceDesc2 getDSD() {
+        MediaItem2 getDSD() {
             return mDSD;
         }
 
@@ -1893,48 +1893,48 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             return mQueue.get(0);
         }
 
-        synchronized void setFirst(DataSourceDesc2 dsd) throws IOException {
+        synchronized void setFirst(MediaItem2 item) throws IOException {
             if (mQueue.isEmpty()) {
-                mQueue.add(0, new MediaPlayerSource(dsd));
+                mQueue.add(0, new MediaPlayerSource(item));
             } else {
-                mQueue.get(0).mDSD = dsd;
+                mQueue.get(0).mDSD = item;
                 setUpListeners(mQueue.get(0));
             }
             handleDataSource(mQueue.get(0));
             notifyPlayerEvent(new PlayerEventNotifier() {
                 @Override
                 public void notify(PlayerEventCallback cb) {
-                    cb.onCurrentDataSourceChanged(mMediaPlayerConnectorImpl, mQueue.get(0).mDSD);
+                    cb.onCurrentMediaItemChanged(mMediaPlayerConnectorImpl, mQueue.get(0).mDSD);
                 }
             });
         }
 
-        synchronized DataSourceError setNext(DataSourceDesc2 dsd) {
+        synchronized DataSourceError setNext(MediaItem2 item) {
             if (mQueue.isEmpty() || getFirst().getDSD() == null) {
                 throw new IllegalStateException();
             }
-            // Clear next data sources if any.
+            // Clear next media items if any.
             while (mQueue.size() >= 2) {
                 MediaPlayerSource src = mQueue.remove(1);
                 src.mPlayer.release();
             }
-            MediaPlayerSource src = new MediaPlayerSource(dsd);
+            MediaPlayerSource src = new MediaPlayerSource(item);
             mQueue.add(1, src);
             return prepareAt(1);
         }
 
-        synchronized DataSourceError setNextMultiple(List<DataSourceDesc2> descs) {
+        synchronized DataSourceError setNextMultiple(List<MediaItem2> descs) {
             if (mQueue.isEmpty() || getFirst().getDSD() == null) {
                 throw new IllegalStateException();
             }
-            // Clear next data sources if any.
+            // Clear next media items if any.
             while (mQueue.size() >= 2) {
                 MediaPlayerSource src = mQueue.remove(1);
                 src.mPlayer.release();
             }
             List<MediaPlayerSource> sources = new ArrayList<>();
-            for (DataSourceDesc2 dsd: descs) {
-                sources.add(new MediaPlayerSource(dsd));
+            for (MediaItem2 item: descs) {
+                sources.add(new MediaPlayerSource(item));
             }
             mQueue.addAll(1, sources);
             return prepareAt(1);
@@ -2051,7 +2051,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                             }
                         }
                         // setNextMediaPlayer() does not pass surface to next player. Use it only
-                        // for the audio-only data source.
+                        // for the audio-only media item.
                         if (!hasVideo) {
                             getCurrentPlayer().setNextMediaPlayer(src.mPlayer);
                             src.mSetAsNextPlayer = true;
@@ -2070,8 +2070,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     @Override
                     public void notify(EventCallback cb) {
                         MediaPlayer2Impl mp2 = MediaPlayer2Impl.this;
-                        DataSourceDesc2 dsd = src.getDSD();
-                        cb.onInfo(mp2, dsd, MEDIA_INFO_DATA_SOURCE_REPEAT, 0);
+                        MediaItem2 item = src.getDSD();
+                        cb.onInfo(mp2, item, MEDIA_INFO_DATA_SOURCE_REPEAT, 0);
                     }
                 });
                 src.mPlayer.seekTo((int) src.getDSD().getStartPosition());
@@ -2084,8 +2084,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     @Override
                     public void notify(EventCallback cb) {
                         MediaPlayer2Impl mp2 = MediaPlayer2Impl.this;
-                        DataSourceDesc2 dsd = src.getDSD();
-                        cb.onInfo(mp2, dsd, MEDIA_INFO_DATA_SOURCE_END, 0);
+                        MediaItem2 item = src.getDSD();
+                        cb.onInfo(mp2, item, MEDIA_INFO_DATA_SOURCE_END, 0);
                     }
                 });
             } else {
@@ -2095,17 +2095,17 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 if (mQueue.size() == 1) {
                     setMp2State(mp, PLAYER_STATE_PAUSED);
 
-                    final DataSourceDesc2 dsd = mQueue.get(0).getDSD();
+                    final MediaItem2 item = mQueue.get(0).getDSD();
                     notifyPlayerEvent(new PlayerEventNotifier() {
                         @Override
                         public void notify(PlayerEventCallback cb) {
-                            cb.onCurrentDataSourceChanged(mMediaPlayerConnectorImpl, null);
+                            cb.onCurrentMediaItemChanged(mMediaPlayerConnectorImpl, null);
                         }
                     });
                     notifyMediaPlayer2Event(new Mp2EventNotifier() {
                         @Override
                         public void notify(EventCallback callback) {
-                            callback.onInfo(MediaPlayer2Impl.this, dsd,
+                            callback.onInfo(MediaPlayer2Impl.this, item,
                                     MEDIA_INFO_DATA_SOURCE_LIST_END, 0);
                         }
                     });
@@ -2160,7 +2160,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             notifyPlayerEvent(new PlayerEventNotifier() {
                 @Override
                 public void notify(PlayerEventCallback cb) {
-                    cb.onCurrentDataSourceChanged(mMediaPlayerConnectorImpl, src2.mDSD);
+                    cb.onCurrentMediaItemChanged(mMediaPlayerConnectorImpl, src2.mDSD);
                 }
             });
         }
@@ -2232,7 +2232,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
             MediaPlayerSource src = mQueue.get(n);
             try {
-                // Apply audio session ID before calling setDataSource().
+                // Apply audio session ID before calling setMediaItem().
                 if (mAudioSessionId != null) {
                     src.getPlayer().setAudioSessionId(mAudioSessionId);
                 }
@@ -2241,9 +2241,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 src.getPlayer().prepareAsync();
                 return null;
             } catch (Exception e) {
-                DataSourceDesc2 dsd = src.getDSD();
+                MediaItem2 item = src.getDSD();
                 setMp2State(src.getPlayer(), PLAYER_STATE_ERROR);
-                return new DataSourceError(dsd, MEDIA_ERROR_UNKNOWN, MEDIA_ERROR_UNSUPPORTED);
+                return new DataSourceError(item, MEDIA_ERROR_UNKNOWN, MEDIA_ERROR_UNSUPPORTED);
             }
 
         }
@@ -2480,8 +2480,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 notifyPlayerEvent(new PlayerEventNotifier() {
                     @Override
                     public void notify(PlayerEventCallback cb) {
-                        DataSourceDesc2 dsd = src.getDSD();
-                        cb.onBufferingStateChanged(mMediaPlayerConnectorImpl, dsd, state);
+                        MediaItem2 item = src.getDSD();
+                        cb.onBufferingStateChanged(mMediaPlayerConnectorImpl, item, state);
                     }
                 });
                 return;
@@ -2592,23 +2592,23 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         @Override
-        public void setDataSource(DataSourceDesc2 dsd) {
-            MediaPlayer2Impl.this.setDataSource(dsd);
+        public void setMediaItem(MediaItem2 item) {
+            MediaPlayer2Impl.this.setMediaItem(item);
         }
 
         @Override
-        public void setNextDataSource(DataSourceDesc2 dsd) {
-            MediaPlayer2Impl.this.setNextDataSource(dsd);
+        public void setNextMediaItem(MediaItem2 item) {
+            MediaPlayer2Impl.this.setNextMediaItem(item);
         }
 
         @Override
-        public void setNextDataSources(List<DataSourceDesc2> dsds) {
-            MediaPlayer2Impl.this.setNextDataSources(dsds);
+        public void setNextMediaItems(List<MediaItem2> items) {
+            MediaPlayer2Impl.this.getNextMediaItems(items);
         }
 
         @Override
-        public DataSourceDesc2 getCurrentDataSource() {
-            return MediaPlayer2Impl.this.getCurrentDataSource();
+        public MediaItem2 getCurrentMediaItem() {
+            return MediaPlayer2Impl.this.getCurrentMediaItem();
         }
 
         @Override

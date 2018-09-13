@@ -78,8 +78,8 @@ public class CommonConstants {
     public static final String KEY_METADATA_COMPAT = "metadataCompat";
     public static final String KEY_QUEUE = "queue";
 
-    public static final int INDEX_FOR_UNKONWN_DSD = -1;
-    public static final int INDEX_FOR_NULL_DSD = -2;
+    public static final int INDEX_FOR_UNKONWN_ITEM = -1;
+    public static final int INDEX_FOR_NULL_ITEM = -2;
 
     // Default test name
     public static final String DEFAULT_TEST_NAME = "defaultTestName";

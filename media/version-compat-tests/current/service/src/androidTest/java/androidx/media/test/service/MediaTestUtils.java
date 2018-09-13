@@ -22,8 +22,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
-import androidx.media2.DataSourceDesc2;
-import androidx.media2.FileDataSourceDesc2;
+import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
@@ -74,16 +73,15 @@ public final class MediaTestUtils {
         final List<MediaItem2> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
-            list.add(new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+            list.add(new FileMediaItem2.Builder(new FileDescriptor())
                     .setMediaId(caller + "_item_" + (size + 1))
-                    .setDataSourceDesc(createDSD()).build());
+                    .build());
         }
         return list;
     }
 
-    public static MediaItem2 createMediaItem(String id, DataSourceDesc2 dsd) {
-        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setMediaId(id).setDataSourceDesc(dsd).build();
+    public static MediaItem2 createMediaItem(String id) {
+        return new FileMediaItem2.Builder(new FileDescriptor()).setMediaId(id).build();
     }
 
     /**
@@ -93,8 +91,9 @@ public final class MediaTestUtils {
      * @see #createMetadata()
      */
     public static MediaItem2 createMediaItemWithMetadata() {
-        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setMetadata(createMetadata()).setDataSourceDesc(createDSD()).build();
+        return new FileMediaItem2.Builder(new FileDescriptor())
+                .setMetadata(createMetadata())
+                .build();
     }
 
     /**
@@ -110,10 +109,6 @@ public final class MediaTestUtils {
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
     }
 
-    public static DataSourceDesc2 createDSD() {
-        return new FileDataSourceDesc2.Builder(new FileDescriptor()).build();
-    }
-
     public static List<Bundle> playlistToBundleList(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
@@ -126,20 +121,18 @@ public final class MediaTestUtils {
     }
 
     public static List<MediaItem2> playlistFromParcelableList(List<Parcelable> parcelables,
-            boolean createDsd) {
+            boolean createItem) {
         if (parcelables == null) {
             return null;
         }
 
         List<MediaItem2> result = new ArrayList<>();
-        if (createDsd) {
+        if (createItem) {
             for (Parcelable itemBundle : parcelables) {
                 MediaItem2 item = MediaItem2.fromBundle((Bundle) itemBundle);
-                result.add(new MediaItem2.Builder(item.getFlags())
-                        .setMediaId(item.getMediaId())
+                result.add(new FileMediaItem2.Builder(new FileDescriptor())
                         .setMetadata(item.getMetadata())
-                        .setDataSourceDesc(
-                                new FileDataSourceDesc2.Builder(new FileDescriptor()).build())
+                        .setMediaId(item.getMediaId())
                         .build());
             }
         } else {
