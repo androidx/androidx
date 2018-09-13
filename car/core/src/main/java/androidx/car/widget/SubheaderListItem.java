@@ -139,6 +139,11 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
         viewHolder.getText().setEnabled(mIsEnabled);
     }
 
+    @NonNull
+    protected Context getContext() {
+        return mContext;
+    }
+
     private void setText() {
         @DimenRes int textStartPadding;
         switch (mTextStartMarginType) {

@@ -155,7 +155,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         return new ViewHolder(itemView);
     }
 
-    public TextListItem(Context context) {
+    public TextListItem(@NonNull Context context) {
         mContext = context;
         markDirty();
     }
@@ -216,6 +216,11 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     @Override
     public void setEnabled(boolean enabled) {
         mIsEnabled = enabled;
+    }
+
+    @NonNull
+    protected Context getContext() {
+        return mContext;
     }
 
     private void hideSubViews(ViewHolder vh) {

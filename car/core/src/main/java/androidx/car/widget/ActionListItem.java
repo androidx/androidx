@@ -134,7 +134,7 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
         return new ViewHolder(itemView);
     }
 
-    public ActionListItem(Context context) {
+    public ActionListItem(@NonNull Context context) {
         mContext = context;
         markDirty();
     }
@@ -196,6 +196,11 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
         setText();
         setSupplementalActions();
         setOnClickListener();
+    }
+
+    @NonNull
+    protected Context getContext() {
+        return mContext;
     }
 
     private void setPrimaryAction() {
