@@ -300,4 +300,12 @@ public abstract class NonBlockingWorker {
     public @NonNull Executor getBackgroundExecutor() {
         return mWorkerParams.getBackgroundExecutor();
     }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull WorkerFactory getWorkerFactory() {
+        return mWorkerParams.getWorkerFactory();
+    }
 }
