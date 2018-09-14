@@ -19,7 +19,6 @@ package androidx.viewpager2.widget
 import android.os.SystemClock.sleep
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.LargeTest
@@ -630,17 +629,8 @@ class PageChangeListenerTest : BaseTest() {
     }
 
     private fun ViewPager2.addNewRecordingListener(): RecordingListener {
-        val listener = RecordingListener()
-        addOnPageChangeListener(listener)
-        return listener
+        return RecordingListener().also { addOnPageChangeListener(it) }
     }
-
-    private val ViewPager2.currentCompletelyVisibleItem: Int
-        get() {
-            return ((getChildAt(0) as RecyclerView)
-                    .layoutManager as LinearLayoutManager)
-                    .findFirstCompletelyVisibleItemPosition()
-        }
 
     private sealed class Event {
         data class OnPageScrolledEvent(

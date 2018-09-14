@@ -175,9 +175,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
     }
 
     private fun ViewPager2.addNewRecordingListener(): RecordingListener {
-        val listener = RecordingListener()
-        addOnPageChangeListener(listener)
-        return listener
+        return RecordingListener().also { addOnPageChangeListener(it) }
     }
 
     private sealed class Event {

@@ -39,7 +39,7 @@ import java.lang.annotation.Retention;
  */
 @RestrictTo(LIBRARY)
 public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
-    private static final int NO_TARGET = -1;
+    private static final int NO_POSITION = -1;
 
     private OnPageChangeListener mListener;
     private final @NonNull LinearLayoutManager mLayoutManager;
@@ -48,7 +48,7 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private @AdapterState int mAdapterState;
     private @ViewPager2.ScrollState int mScrollState;
     private ScrollEventValues mScrollValues;
-    private int mInitialPosition;
+    private int mDragStartPosition;
     private int mTarget;
     private boolean mDispatchSelected;
     private boolean mScrollHappened;
@@ -63,8 +63,8 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mAdapterState = AdapterState.IDLE;
         mScrollState = ViewPager2.ScrollState.IDLE;
         mScrollValues.reset();
-        mInitialPosition = NO_TARGET;
-        mTarget = NO_TARGET;
+        mDragStartPosition = NO_POSITION;
+        mTarget = NO_POSITION;
         mDispatchSelected = false;
         mScrollHappened = false;
     }
@@ -75,29 +75,58 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
      */
     @Override
     public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-        if (mAdapterState == AdapterState.IDLE && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+        // User started a drag (not dragging -> dragging)
+        if (mAdapterState != AdapterState.IN_PROGRESS_MANUAL_DRAG
+                && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+            // Remember we're performing a drag
             mAdapterState = AdapterState.IN_PROGRESS_MANUAL_DRAG;
+            if (mTarget != NO_POSITION) {
+                // Target was set means programmatic scroll was in progress
+                // Update "drag start page" to reflect the page that ViewPager2 thinks it is at
+                mDragStartPosition = mTarget;
+                // Reset target because drags have no target until released
+                mTarget = NO_POSITION;
+            } else {
+                // ViewPager2 was at rest, set "drag start page" to current page
+                mDragStartPosition = getPosition();
+            }
             dispatchStateChanged(ViewPager2.ScrollState.DRAGGING);
-            mInitialPosition = getPosition();
             return;
         }
 
+        // Drag is released, RecyclerView is snapping to page (dragging -> settling)
+        // Note that mAdapterState is not updated, to remember we were dragging when settling
         if (mAdapterState == AdapterState.IN_PROGRESS_MANUAL_DRAG
                 && newState == RecyclerView.SCROLL_STATE_SETTLING) {
             if (!mScrollHappened) {
-                // Special case of dragging before first (or beyond last) page
+                // Pages didn't move during drag, so must be at the start or end of the list
+                // ViewPager's contract requires at least one scroll event though
                 dispatchScrolled(getPosition(), 0f, 0);
             } else {
                 dispatchStateChanged(ViewPager2.ScrollState.SETTLING);
+                // Determine target page and dispatch onPageSelected on next scroll event
                 mDispatchSelected = true;
+                // Reset value to recognise if onPageSelected has been fired when going to idle
+                mScrollHappened = false;
             }
             return;
         }
 
+        // Drag has settled (dragging && settling -> idle)
         if (mAdapterState == AdapterState.IN_PROGRESS_MANUAL_DRAG
                 && newState == RecyclerView.SCROLL_STATE_IDLE) {
             if (!mScrollHappened) {
-                // Special case of dragging before first (or beyond last) page
+                // Special case if we were snapped at a page when going from dragging to settling
+                // Happens if there was no velocity or if it was the first or last page
+                if (mDispatchSelected) {
+                    // Fire onPageSelected when snapped page is different from initial position
+                    // E.g.: smooth scroll from 0 to 1, interrupt with drag at 0.5, release at 0
+                    updateScrollEventValues();
+                    if (mDragStartPosition != mScrollValues.mPosition) {
+                        dispatchSelected(mScrollValues.mPosition);
+                    }
+                }
+                // Normally idle is fired in onScrolled, but scroll did not happen
                 dispatchStateChanged(ViewPager2.ScrollState.IDLE);
                 resetState();
             }
@@ -115,16 +144,24 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         ScrollEventValues values = updateScrollEventValues();
 
         if (mDispatchSelected) {
+            // Drag started settling, need to calculate target page and dispatch onPageSelected now
             mDispatchSelected = false;
             mTarget = (dx + dy > 0) ? values.mPosition + 1 : values.mPosition;
-            if (mInitialPosition != mTarget) {
+            if (mDragStartPosition != mTarget) {
                 dispatchSelected(mTarget);
             }
         }
 
         dispatchScrolled(values.mPosition, values.mOffset, values.mOffsetPx);
 
-        if ((values.mPosition == mTarget || mTarget == NO_TARGET) && values.mOffsetPx == 0) {
+        if ((values.mPosition == mTarget || mTarget == NO_POSITION) && values.mOffsetPx == 0
+                && mScrollState != ViewPager2.ScrollState.DRAGGING) {
+            // When the target page is reached and the user is not dragging anymore, we're settled,
+            // so go to idle.
+            // Special case and a bit of a hack when there is no target: RecyclerView is being
+            // initialized and fires a single scroll event. This flags mScrollHappened, so we need
+            // to reset our state. However, we don't want to dispatch idle. But that won't happen;
+            // because we were already idle.
             dispatchStateChanged(ViewPager2.ScrollState.IDLE);
             resetState();
         }
