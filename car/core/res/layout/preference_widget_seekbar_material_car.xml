@@ -55,7 +55,7 @@
             android:layout_below="@android:id/title"
             android:layout_alignStart="@android:id/title"
             android:paddingBottom="@dimen/car_padding_1"
-            android:textAppearance="@style/TextAppearance.Car.Body2"/>
+            android:textAppearance="@style/TextAppearance.Car.Body3"/>
 
         <!-- Using UnPressableLinearLayout as a workaround to disable the pressed state propagation
         to the children of this container layout. Otherwise, the animated pressed state will also
@@ -85,7 +85,7 @@
                 android:layout_width="@dimen/preference_seekbar_value_width"
                 android:layout_height="wrap_content"
                 android:gravity="right|center_vertical"
-                android:textAppearance="@style/TextAppearance.Car.Body2"
+                android:textAppearance="@style/TextAppearance.Car.Body3"
                 android:fadingEdge="horizontal"
                 android:scrollbars="none"/>
         </androidx.preference.UnPressableLinearLayout>
