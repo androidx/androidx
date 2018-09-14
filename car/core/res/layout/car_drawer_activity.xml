@@ -43,7 +43,7 @@ limitations under the License.
         </com.google.android.material.appbar.AppBarLayout>
 
         <!-- The main content view. Fragments will be added here. -->
-        <androidx.car.moderator.SpeedBumpView
+        <FrameLayout
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

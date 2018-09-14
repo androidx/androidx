@@ -38,11 +38,12 @@ limitations under the License.
         android:id="@+id/lock_out_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.Car.Body1"
         android:layout_alignStart="@id/lock_out_drawable"
         android:layout_alignEnd="@id/lock_out_drawable"
         android:layout_alignTop="@id/lock_out_drawable"
         android:layout_alignBottom="@id/lock_out_drawable"
         android:gravity="center"
+        android:textColor="@color/speed_bump_text"
+        android:textSize="@dimen/speed_bump_text_size"
         android:text="@string/speed_bump_lockout_message"/>
 </RelativeLayout>

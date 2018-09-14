@@ -38,7 +38,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
-import androidx.car.R;
 
 /**
  * A controller for the actual monitoring of when interaction should be allowed in a
