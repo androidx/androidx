@@ -106,9 +106,6 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
                 // getDeclaredField to throw a NoSuchFieldException when the field is definitely
                 // there. For these users fallback to a suboptimal implementation,
                 // based on synchronized. This will be a definite performance hit to those users.
-                // MOE:begin_strip
-                // See bugs b/25673935 and b/25650716
-                // MOE:end_strip
                 thrownAtomicReferenceFieldUpdaterFailure = atomicReferenceFieldUpdaterFailure;
                 helper = new SynchronizedHelper();
             }
@@ -927,18 +924,6 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
      * @since 20.0
      */
     protected void afterDone() {
-    }
-
-    /**
-     * Returns the exception that this {@code Future} completed with. This includes completion
-     * through
-     * a call to {@link #setException} or {@link #setFuture setFuture}{@code (failedFuture)} but not
-     * cancellation.
-     *
-     * @throws RuntimeException if the {@code Future} has not failed
-     */
-    final Throwable trustedGetException() {
-        return ((Failure) value).exception;
     }
 
     /**
