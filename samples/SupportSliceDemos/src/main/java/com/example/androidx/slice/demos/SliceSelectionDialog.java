@@ -232,7 +232,9 @@ public class SliceSelectionDialog {
     protected static CharSequence findTitle(Context context, Slice loadedSlice,
             SliceMetadata metaData) {
         ListContent content = new ListContent(context, loadedSlice);
-        SliceItem headerItem = content.getHeader().getSliceItem();
+        SliceItem headerItem = content.getHeader() != null
+                ? content.getHeader().getSliceItem() : null;
+        if (headerItem == null) return null;
         // Look for a title, then large text, then any text at all.
         SliceItem title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_TITLE, null);
         if (title != null) {
