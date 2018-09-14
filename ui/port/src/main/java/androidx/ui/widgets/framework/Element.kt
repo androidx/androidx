@@ -749,7 +749,12 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
             return null
     }
 
-    private var _inheritedWidgets: Map<Type, InheritedElement>? = null
+    protected var _inheritedWidgets: HashMap<Type, InheritedElement>? = null
+
+    protected fun getParentInheritedWidgets(): HashMap<Type, InheritedElement>? {
+        return _inheritedWidgets
+    }
+
     internal var _dependencies: MutableSet<InheritedElement>? = null
     private var _hadUnsatisfiedDependencies = false
 
@@ -791,7 +796,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return ancestor
     }
 
-    fun _updateInheritance() {
+    open fun _updateInheritance() {
         assert(_active)
         _inheritedWidgets = _parent?._inheritedWidgets
     }

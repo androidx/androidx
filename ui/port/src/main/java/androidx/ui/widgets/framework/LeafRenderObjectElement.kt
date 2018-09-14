@@ -4,7 +4,7 @@ import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.rendering.obj.RenderObject
 
 // / An [Element] that uses a [LeafRenderObjectWidget] as its configuration.
-class LeafRenderObjectElement(widget: LeafRenderObjectWidget) : RenderObjectElement(widget) {
+open class LeafRenderObjectElement(widget: LeafRenderObjectWidget) : RenderObjectElement(widget) {
 
     override fun forgetChild(child: Element) {
         assert(false)

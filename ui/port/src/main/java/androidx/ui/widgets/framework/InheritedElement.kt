@@ -1,5 +1,6 @@
 package androidx.ui.widgets.framework
 
+import androidx.ui.Type
 import androidx.ui.assert
 
 // / An [Element] that uses a [InheritedWidget] as its configuration.
@@ -7,15 +8,16 @@ class InheritedElement(widget: InheritedWidget) : ProxyElement(widget) {
 
     val _dependents: MutableSet<Element> = mutableSetOf()
 
-//    override fun _updateInheritance() {
-//        assert(_active);
-//        final Map<Type, InheritedElement> incomingWidgets = _parent?._inheritedWidgets;
-//        if (incomingWidgets != null)
-//            _inheritedWidgets = new HashMap<Type, InheritedElement>.from(incomingWidgets);
-//        else
-//        _inheritedWidgets = new HashMap<Type, InheritedElement>();
-//        _inheritedWidgets[widget.runtimeType] = this;
-//    }
+    override fun _updateInheritance() {
+        assert(_active)
+        val incomingWidgets = getParentInheritedWidgets()
+        if (incomingWidgets != null) {
+            _inheritedWidgets = HashMap<Type, InheritedElement>(incomingWidgets)
+        } else {
+            _inheritedWidgets = HashMap<Type, InheritedElement>()
+        }
+        _inheritedWidgets!![Type.fromObject(widget)] = this
+    }
 
     override fun debugDeactivated() {
         assert {

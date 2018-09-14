@@ -55,6 +55,10 @@ class Canvas {
         internalCanvas = frameworkCanvas
     }
 
+    fun toFrameworkCanvas(): android.graphics.Canvas {
+        return internalCanvas
+    }
+
     private val internalPath = Path()
 
     private val internalRectF = android.graphics.RectF()
