@@ -22,6 +22,8 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.net.Uri;
 import android.os.Build;
+import android.system.Os;
+import android.system.OsConstants;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -29,12 +31,15 @@ import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.upstream.BaseDataSource;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.upstream.DataSpec;
+import androidx.media2.exoplayer.external.util.Util;
 
 import java.io.EOFException;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 /**
  * An ExoPayer {@link DataSource} for reading from a file descriptor.
@@ -86,6 +91,14 @@ public class FileDescriptorDataSource extends BaseDataSource {
     public long open(DataSpec dataSpec) throws IOException {
         mUri = dataSpec.uri;
         transferInitializing(dataSpec);
+        // TODO(b/80232248): Seek the file descriptor to the skip position below.
+        if (Util.SDK_INT >= 21) {
+            resetFdV21(mFileDescriptor);
+        } else if (Util.SDK_INT >= 19) {
+            resetFdV19(mFileDescriptor);
+        } else {
+            throw new IllegalStateException();
+        }
         mInputStream = new FileInputStream(mFileDescriptor);
         long skipped = mInputStream.skip(mOffset + dataSpec.position) - mOffset;
         if (skipped != dataSpec.position) {
@@ -153,4 +166,31 @@ public class FileDescriptorDataSource extends BaseDataSource {
             }
         }
     }
+
+    @SuppressLint("PrivateApi")
+    private static void resetFdV19(FileDescriptor fileDescriptor) throws IOException {
+        try {
+            // TODO(b/80232248): Figure out why this seems to be a no-op on Android K.
+            Class<?> posixClass = Class.forName("libcore.io.Posix");
+            Constructor constructor = posixClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            Object posixObject = constructor.newInstance();
+            Method lseek =
+                    posixClass.getMethod("lseek", FileDescriptor.class, Long.TYPE, Integer.TYPE);
+            lseek.invoke(posixObject, fileDescriptor, 0L, 0);
+        } catch (Exception e) {
+            // We don't have a way to reset the file descriptor.
+            throw new IllegalStateException();
+        }
+    }
+
+    @TargetApi(21)
+    private static void resetFdV21(FileDescriptor fileDescriptor) throws IOException {
+        try {
+            Os.lseek(fileDescriptor, /* offset= */ 0L, OsConstants.SEEK_SET);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
 }
