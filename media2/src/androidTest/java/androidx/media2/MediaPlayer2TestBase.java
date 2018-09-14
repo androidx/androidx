@@ -29,6 +29,7 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.PersistableBundle;
 import android.os.PowerManager;
 import android.view.SurfaceHolder;
@@ -240,9 +241,13 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             public void run() {
                 // Keep screen on while testing.
                 mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                mActivity.setTurnScreenOn(true);
-                mActivity.setShowWhenLocked(true);
-                mKeyguardManager.requestDismissKeyguard(mActivity, null);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                    mActivity.setTurnScreenOn(true);
+                    mActivity.setShowWhenLocked(true);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    mKeyguardManager.requestDismissKeyguard(mActivity, null);
+                }
             }
         });
         mInstrumentation.waitForIdleSync();
