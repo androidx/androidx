@@ -224,7 +224,7 @@ public class SliceContent {
                         actionItem = new SliceItem(
                                 PendingIntent.getActivity(context, 0, launchIntent, 0),
                                 new Slice.Builder(uri).build(), FORMAT_ACTION,
-                                null /* subtype */, null);
+                                null /* subtype */, new String[]{});
                     }
                 }
             }
