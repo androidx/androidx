@@ -15,6 +15,7 @@
  */
 
 import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.SupportLibraryExtension
@@ -76,4 +77,5 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Gradle Plugin"
     url = SupportLibraryExtension.ARCHITECTURE_URL
+    compilationTarget = CompilationTarget.HOST
 }
