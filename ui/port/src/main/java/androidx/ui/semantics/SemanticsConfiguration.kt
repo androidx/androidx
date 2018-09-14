@@ -1,9 +1,5 @@
 package androidx.ui.semantics
 
-import MoveCursorHandler
-import SetSelectionHandler
-import _SemanticsActionHandler
-import _concatStrings
 import androidx.ui.VoidCallback
 import androidx.ui.text.TextDirection
 import androidx.ui.text.TextSelection
@@ -114,6 +110,10 @@ class SemanticsConfiguration {
         }
     }
 
+    /**
+     * A property that holds a [VoidCallback] and calls [_addArgumentlessAction] when
+     * it is set
+     */
     private class ArgumentlessActionProperty(
         val action: SemanticsAction
     ) : ReadWriteProperty<SemanticsConfiguration, VoidCallback?> {
@@ -136,6 +136,10 @@ class SemanticsConfiguration {
         }
     }
 
+    /**
+     * A property that can only be set to non-null values (though the default values may be null)
+     */
+    // TODO(Migration/ryanmentley): The nullability of this class is really strange. Can we improve?
     private class NonNullAnnotationProperty<T>(initialValue: T) :
         ReadWriteProperty<SemanticsConfiguration, T> {
         private var value = initialValue
@@ -794,6 +798,9 @@ class SemanticsConfiguration {
     // TODO(Migration/ryanmentley): Should be private, but is internal to avoid a synthetic accessor
     internal fun _hasFlag(flag: SemanticsFlag): Boolean = (_flags and flag.index) != 0
 
+    /**
+     * A property that provides an abstraction over [_setFlag] and [_hasFlag]
+     */
     private class SimpleFlagProperty(
         val flag: SemanticsFlag
     ) : ReadWriteProperty<SemanticsConfiguration, Boolean> {

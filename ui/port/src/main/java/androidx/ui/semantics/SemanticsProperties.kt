@@ -1,7 +1,5 @@
 package androidx.ui.semantics
 
-import MoveCursorHandler
-import SetSelectionHandler
 import androidx.ui.VoidCallback
 import androidx.ui.foundation.diagnostics.DiagnosticableTree
 import androidx.ui.text.TextDirection
