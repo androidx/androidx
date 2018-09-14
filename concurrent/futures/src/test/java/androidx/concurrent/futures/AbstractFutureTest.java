@@ -65,12 +65,12 @@ import org.junit.runner.RunWith;
 public class AbstractFutureTest extends TestCase {
 
     public void testSuccess() throws ExecutionException, InterruptedException {
-        final Object value = new Object();
+        final Object newValue = new Object();
         assertSame(
-                value,
+                newValue,
                 new AbstractFuture<Object>() {
                     {
-                        set(value);
+                        set(newValue);
                     }
                 }.get());
     }
