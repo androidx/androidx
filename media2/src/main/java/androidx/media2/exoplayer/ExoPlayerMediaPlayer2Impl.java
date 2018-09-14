@@ -49,7 +49,6 @@ import androidx.media2.exoplayer.external.DefaultRenderersFactory;
 import androidx.media2.exoplayer.external.ExoPlayerFactory;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
-import androidx.media2.exoplayer.external.Timeline;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
 import androidx.media2.exoplayer.external.source.MediaSource;
 import androidx.media2.exoplayer.external.source.TrackGroup;
@@ -110,6 +109,9 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @Nullable MediaItem2 mMediaItem;
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mPrepared;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mVideoWidth;
@@ -502,6 +504,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     public void reset() {
         synchronized (mLock) {
             mMediaItem = null;
+            mPrepared = false;
             mVideoWidth = 0;
             mVideoHeight = 0;
             mStartPlaybackTimeNs = -1;
@@ -724,7 +727,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 float pixelWidthHeightRatio) {
             final MediaItem2 item;
             synchronized (mLock) {
-                // TODO(b/80232248): get the active media item from a media item queue.
+                // TODO(b/80232248): Get the active media item from the media item queue.
                 item = mMediaItem;
                 mVideoWidth = width;
                 mVideoHeight = height;
@@ -739,18 +742,44 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         }
 
         @Override
-        public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-            // TODO(b/80232248): Trigger onInfo with MEDIA_INFO_PREPARED for any item in the data
-            // source queue for which the duration is now known, even if this is not the initial
-            // preparation.
-            if (reason != Player.TIMELINE_CHANGE_REASON_PREPARED) {
-                return;
+        public void onRenderedFirstFrame() {
+            final MediaItem2 item;
+            synchronized (mLock) {
+                // TODO(b/80232248): Get the active media item from the media item queue.
+                item = mMediaItem;
+            }
+            notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                @Override
+                public void notify(EventCallback callback) {
+                    MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
+                    callback.onInfo(
+                            mediaPlayer2,
+                            item,
+                            MEDIA_INFO_VIDEO_RENDERING_START,
+                            /* extra= */ 0);
+                }
+            });
+        }
+
+        @Override
+        public void onPlayerStateChanged(boolean playWhenReady, int state) {
+            if (state == Player.STATE_READY && playWhenReady) {
+                maybeUpdateTimerForPlaying();
+            } else {
+                maybeUpdateTimerForStopped();
             }
 
             final MediaItem2 item;
             synchronized (mLock) {
+                if (mPrepared || state != Player.STATE_READY) {
+                    return;
+                }
+                mPrepared = true;
                 item = mMediaItem;
             }
+            // TODO(b/80232248): Trigger onInfo with MEDIA_INFO_PREPARED for any item in the data
+            // source queue for which the duration is now known, even if this is not the initial
+            // preparation.
             notifyMediaPlayer2Event(new Mp2EventNotifier() {
                 @Override
                 public void notify(EventCallback callback) {
@@ -777,35 +806,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                     mCurrentTask = null;
                     processPendingTask();
                 }
-            }
-        }
-
-        @Override
-        public void onRenderedFirstFrame() {
-            final MediaItem2 item;
-            synchronized (mLock) {
-                // TODO(b/80232248): get the active data source from a data source queue.
-                item = mMediaItem;
-            }
-            notifyMediaPlayer2Event(new Mp2EventNotifier() {
-                @Override
-                public void notify(EventCallback callback) {
-                    MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
-                    callback.onInfo(
-                            mediaPlayer2,
-                            item,
-                            MEDIA_INFO_VIDEO_RENDERING_START,
-                            /* extra= */ 0);
-                }
-            });
-        }
-
-        @Override
-        public void onPlayerStateChanged(boolean playWhenReady, int state) {
-            if (state == Player.STATE_READY && playWhenReady) {
-                maybeUpdateTimerForPlaying();
-            } else {
-                maybeUpdateTimerForStopped();
             }
         }
 
