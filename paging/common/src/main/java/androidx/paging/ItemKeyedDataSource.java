@@ -94,6 +94,7 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
          * <p>
          * Returned data must begin directly adjacent to this position.
          */
+        @NonNull
         public final Key key;
         /**
          * Requested number of items to load.
@@ -103,7 +104,7 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
          */
         public final int requestedLoadSize;
 
-        public LoadParams(Key key, int requestedLoadSize) {
+        public LoadParams(@NonNull Key key, int requestedLoadSize) {
             this.key = key;
             this.requestedLoadSize = requestedLoadSize;
         }

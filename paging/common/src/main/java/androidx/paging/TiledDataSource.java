@@ -17,6 +17,7 @@
 package androidx.paging;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 
@@ -44,6 +45,7 @@ public abstract class TiledDataSource<T> extends PositionalDataSource<T> {
         return false;
     }
 
+    @Nullable
     @WorkerThread
     public abstract List<T> loadRange(int startPosition, int count);
 

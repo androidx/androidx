@@ -130,6 +130,7 @@ public abstract class DataSource<Key, Value> {
          *
          * @return the new DataSource.
          */
+        @NonNull
         public abstract DataSource<Key, Value> create();
 
         /**
