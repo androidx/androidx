@@ -2,6 +2,13 @@ package androidx.ui.foundation.assertions
 
 import androidx.ui.foundation.debugPrint
 
+// / Signature for [FlutterErrorDetails.informationCollector] callback
+// / and other callbacks that collect information into a string buffer.
+typealias InformationCollector = (StringBuffer) -> Unit
+
+// / Signature for [FlutterError.onError] handler.
+typealias FlutterExceptionHandler = (FlutterErrorDetails) -> Unit
+
 // / Dump the current stack to the console using [debugPrint] and
 // / [FlutterError.defaultStackFilter].
 // /

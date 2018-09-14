@@ -47,8 +47,10 @@ class FlutterError(
 //        ///
 //        /// Set this to null to silently catch and ignore errors. This is not
 //        /// recommended.
-//        static FlutterExceptionHandler onError = dumpErrorToConsole;
-//
+        var onError: FlutterExceptionHandler = { details: FlutterErrorDetails ->
+            dumpErrorToConsole(details)
+        }
+
         var _errorCount = 0
 //
         // / Resets the count of errors used by [dumpErrorToConsole] to decide whether
@@ -77,7 +79,8 @@ class FlutterError(
 //        /// had not been called before (so the next message is verbose again).
 //        ///
 //        /// The default behavior for the [onError] handler is to call this function.
-//        fun dumpErrorToConsole(details: FlutterErrorDetails, forceReport: Boolean = false) {
+        fun dumpErrorToConsole(details: FlutterErrorDetails, forceReport: Boolean = false) {
+            TODO()
 //            assert(details != null);
 //            assert(details.exception != null);
 //            val reportError = details.silent != true; // could be null
@@ -164,8 +167,9 @@ class FlutterError(
 //                debugPrint('Another exception was thrown: ${details.exceptionAsString().split("\n")[0].trimLeft()}');
 //            }
 //            _errorCount += 1;
-//        }
-//
+        }
+
+        //
 //        /// Converts a stack to a string that is more readable by omitting stack
 //        /// frames that correspond to Dart internals.
 //        ///
@@ -230,11 +234,7 @@ class FlutterError(
 
         // / Calls [onError] with the given details, unless it is null.
         fun reportError(details: FlutterErrorDetails) {
-            TODO("Uncomment once onError is migrated")
-//            assert(details != null);
-//            assert(details.exception != null);
-//            if (onError != null)
-//                onError(details);
+            onError(details)
         }
     }
 }

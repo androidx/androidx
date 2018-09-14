@@ -2,10 +2,6 @@ package androidx.ui.foundation.assertions
 
 import androidx.ui.foundation.IterableFilter
 
-// / Signature for [FlutterErrorDetails.informationCollector] callback
-// / and other callbacks that collect information into a string buffer.
-typealias InformationCollector = (StringBuffer) -> Unit
-
 // / Class for information provided to [FlutterExceptionHandler] callbacks.
 // /
 // / See [FlutterError.onError].
@@ -20,7 +16,7 @@ typealias InformationCollector = (StringBuffer) -> Unit
 // / The [exception] must not be null; other arguments can be left to
 // / their default values. (`throw null` results in a
 // / [NullThrownError] exception.)
-class FlutterErrorDetails(
+open class FlutterErrorDetails(
         // / The exception. Often this will be an [AssertionError], maybe specifically
         // / a [FlutterError]. However, this could be any value at all.
     val exception: Any,
