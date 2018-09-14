@@ -123,6 +123,8 @@ public class SchemaBundle implements SchemaEquality<SchemaBundle> {
     }
 
     private static class EntityTypeAdapterFactory implements TypeAdapterFactory {
+        EntityTypeAdapterFactory() {
+        }
 
         @Override
         @SuppressWarnings("unchecked")
