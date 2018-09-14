@@ -889,7 +889,7 @@ public class AnimatorInflater {
 
         final int resID = a.getResourceId(AndroidResources.STYLEABLE_KEYFRAME_INTERPOLATOR, 0);
         if (resID > 0) {
-            final TimeInterpolator interpolator = loadInterpolator(res, theme, resID);
+            final Interpolator interpolator = loadInterpolator(res, theme, resID);
             keyframe.setInterpolator(interpolator);
         }
         a.recycle();
@@ -950,7 +950,7 @@ public class AnimatorInflater {
         final int resID = arrayAnimator.getResourceId(
                 AndroidResources.STYLEABLE_ANIMATOR_INTERPOLATOR, 0);
         if (resID > 0) {
-            final TimeInterpolator interpolator = loadInterpolator(res, theme, resID);
+            final Interpolator interpolator = loadInterpolator(res, theme, resID);
             anim.setInterpolator(interpolator);
         }
 

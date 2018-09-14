@@ -22,6 +22,8 @@ import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
+import androidx.annotation.FloatRange;
+
 /**
  * An interpolator where the change starts backward then flings forward.
  */
@@ -61,7 +63,8 @@ public class AnticipateInterpolator implements Interpolator {
     }
 
     @Override
-    public float getInterpolation(float t) {
+    @FloatRange(to = 1)
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float t) {
         // a(t) = t * t * ((tension + 1) * t - tension)
         return t * t * ((mTension + 1) * t - mTension);
     }

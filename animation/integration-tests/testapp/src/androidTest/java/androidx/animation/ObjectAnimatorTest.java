@@ -359,7 +359,7 @@ public class ObjectAnimatorTest {
         float startY = 0f;
         float endY = 1000f;
         long duration = 200;
-        TimeInterpolator interpolator = new AccelerateInterpolator();
+        Interpolator interpolator = new AccelerateInterpolator();
         ObjectAnimator objAnimator = ObjectAnimator.ofFloat(object, property, startY, endY);
         objAnimator.setDuration(duration);
         objAnimator.setRepeatCount(ValueAnimator.INFINITE);

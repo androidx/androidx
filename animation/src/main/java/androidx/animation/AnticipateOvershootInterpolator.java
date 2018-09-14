@@ -22,6 +22,8 @@ import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
+import androidx.annotation.FloatRange;
+
 /**
  * An interpolator where the change starts backward then flings forward and overshoots
  * the target value and finally goes back to the final value.
@@ -84,7 +86,8 @@ public class AnticipateOvershootInterpolator implements Interpolator {
     }
 
     @Override
-    public float getInterpolation(float t) {
+    @FloatRange(to = 1)
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float t) {
         // a(t, s) = t * t * ((s + 1) * t - s)
         // o(t, s) = t * t * ((s + 1) * t + s)
         // f(t) = 0.5 * a(t * 2, tension * extraTension), when t < 0.5
