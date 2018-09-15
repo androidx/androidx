@@ -6,6 +6,7 @@ import androidx.ui.developer.timeline.Timeline
 import androidx.ui.foundation.AbstractNode
 import androidx.ui.foundation.profile
 import androidx.ui.foundation.timelineWhitelistArguments
+import androidx.ui.semantics.SemanticsOwner
 
 // / The pipeline owner manages the rendering pipeline.
 // /

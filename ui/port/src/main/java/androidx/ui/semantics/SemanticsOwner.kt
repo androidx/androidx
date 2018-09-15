@@ -9,23 +9,23 @@ import androidx.ui.foundation.change_notifier.ChangeNotifier
 // / obtain a [SemanticsHandle]. This will create a [SemanticsOwner] if
 // / necessary.
 class SemanticsOwner : ChangeNotifier() {
-//  final Set<SemanticsNode> _dirtyNodes = new Set<SemanticsNode>();
-//  final Map<int, SemanticsNode> _nodes = <int, SemanticsNode>{};
-//  final Set<SemanticsNode> _detachedNodes = new Set<SemanticsNode>();
-//  final Map<int, CustomSemanticsAction> _actions = <int, CustomSemanticsAction>{};
-//
-//  /// The root node of the semantics tree, if any.
-//  ///
-//  /// If the semantics tree is empty, returns null.
-//  SemanticsNode get rootSemanticsNode => _nodes[0];
-//
-//  @override
-//  void dispose() {
-//    _dirtyNodes.clear();
-//    _nodes.clear();
-//    _detachedNodes.clear();
-//    super.dispose();
-//  }
+    internal val _dirtyNodes: MutableSet<SemanticsNode> = mutableSetOf()
+    internal val _nodes: MutableMap<Int, SemanticsNode> = mutableMapOf()
+    internal val _detachedNodes: MutableSet<SemanticsNode> = mutableSetOf()
+    private val _actions: MutableMap<Int, CustomSemanticsAction> = mutableMapOf()
+
+    // / The root node of the semantics tree, if any.
+    // /
+    // / If the semantics tree is empty, returns null.
+    val rootSemanticsNode: SemanticsNode?
+        get() = _nodes[0]
+
+    override fun dispose() {
+        _dirtyNodes.clear()
+        _nodes.clear()
+        _detachedNodes.clear()
+        super.dispose()
+    }
 //
 //  /// Update the semantics using [Window.updateSemantics].
 //  void sendSemanticsUpdate() {

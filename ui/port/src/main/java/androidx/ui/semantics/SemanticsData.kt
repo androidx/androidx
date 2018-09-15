@@ -3,7 +3,6 @@ package androidx.ui.semantics
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
-import androidx.ui.rendering.obj.SemanticsTag
 import androidx.ui.runtimeType
 import androidx.ui.text.TextDirection
 import androidx.ui.text.TextSelection
@@ -57,14 +56,14 @@ data class SemanticsData(
 
     // / The reading direction for the text in [label], [value], [hint],
     // / [increasedValue], and [decreasedValue].
-    val textDirection: TextDirection,
+    val textDirection: TextDirection?,
 
     // / The bounding box for this node in its coordinate system.
     val rect: Rect,
 
     // / The currently selected text (or the position of the cursor) within [value]
     // / if this node represents a text field.
-    val textSelection: TextSelection,
+    val textSelection: TextSelection?,
 
     // / Indicates the current scrolling position in logical pixels if the node is
     // / scrollable.
@@ -76,7 +75,7 @@ data class SemanticsData(
     // / See also:
     // /
     // /  * [ScrollPosition.pixels], from where this value is usually taken.
-    val scrollPosition: Double,
+    val scrollPosition: Double?,
 
     // / Indicates the maximum in-range value for [scrollPosition] if the node is
     // / scrollable.
@@ -86,7 +85,7 @@ data class SemanticsData(
     // / See also:
     // /
     // /  * [ScrollPosition.maxScrollExtent], from where this value is usually taken.
-    val scrollExtentMax: Double,
+    val scrollExtentMax: Double?,
 
     // / Indicates the minimum in-range value for [scrollPosition] if the node is
     // / scrollable.
@@ -96,7 +95,7 @@ data class SemanticsData(
     // / See also:
     // /
     // /  * [ScrollPosition.minScrollExtent], from where this value is usually taken.
-    val scrollExtentMin: Double,
+    val scrollExtentMin: Double?,
 
     // / The set of [SemanticsTag]s associated with this node.
     val tags: Set<SemanticsTag>,
