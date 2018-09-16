@@ -331,6 +331,7 @@ public class MediaBrowserTest {
 
     @Test
     @MediumTest
+    @FlakyTest(bugId = 115820189)
     @SdkSuppress(minSdkVersion = 24)
     public void testSubscribeWithOptions() throws Exception {
         connectMediaBrowserService();
