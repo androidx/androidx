@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 
 import android.view.ViewGroup;
 import android.widget.ScrollView;
-import android.widget.ToggleButton;
 
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
@@ -28,6 +27,7 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -85,9 +85,13 @@ public abstract class AppCompatInflaterPassTest<A extends BaseTestActivity> {
         // View defined as <Spinner> should be inflated as AppCompatSpinner
         assertEquals(AppCompatSpinner.class, mContainer.findViewById(R.id.spinner).getClass());
 
-        // View defined as <ToggleButton> should be inflated as ToggleButton
-        assertEquals(ToggleButton.class,
+        // View defined as <ToggleButton> should be inflated as AppCompatToggleButton
+        assertEquals(AppCompatToggleButton.class,
                 mContainer.findViewById(R.id.togglebutton).getClass());
+
+        // View defined as <AppCompatToggleButton> should be inflated as AppCompatToggleButton
+        assertEquals(AppCompatToggleButton.class,
+                mContainer.findViewById(R.id.ac_togglebutton).getClass());
 
         // View defined as <ScrollView> should be inflated as ScrollView
         assertEquals(ScrollView.class,
