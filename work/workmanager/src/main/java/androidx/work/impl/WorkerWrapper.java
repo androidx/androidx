@@ -190,6 +190,16 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
+        if (mWorker.isUsed()) {
+            Logger.error(TAG,
+                    String.format("Received an already-used Worker %s; WorkerFactory should return "
+                            + "new instances",
+                            mWorkSpec.workerClassName));
+            setFailedAndNotify();
+            return;
+        }
+        mWorker.setUsed();
+
         // Try to set the work to the running state.  Note that this may fail because another thread
         // may have modified the DB since we checked last at the top of this function.
         if (trySetRunning()) {

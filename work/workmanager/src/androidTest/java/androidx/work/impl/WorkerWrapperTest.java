@@ -71,6 +71,7 @@ import androidx.work.worker.InterruptionAwareWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
+import androidx.work.worker.UsedWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -170,6 +171,18 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.run();
         assertThat(listener.mResult, is(false));
         verify(mMockScheduler, never()).schedule(any(WorkSpec[].class));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
+    }
+
+    @Test
+    @SmallTest
+    public void testUsedWorker_failsExecution() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        insertWork(work);
+        WorkerWrapper workerWrapper = createBuilder(work.getStringId())
+                .withWorker(new UsedWorker())
+                .build();
+        workerWrapper.run();
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
