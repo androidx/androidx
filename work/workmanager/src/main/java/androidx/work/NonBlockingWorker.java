@@ -55,6 +55,8 @@ public abstract class NonBlockingWorker {
     private @NonNull volatile Data mOutputData = Data.EMPTY;
     private @NonNull volatile Worker.Result mResult = Worker.Result.FAILURE;
 
+    private boolean mUsed;
+
     /**
      * The default constructor.  This constructor is deprecated and only exists temporarily for
      * backwards-compatibility.  It will be removed soon, so you should switch all your workers to
@@ -283,6 +285,27 @@ public abstract class NonBlockingWorker {
             @NonNull WorkerParameters workParameters) {
         mAppContext = context;
         mWorkerParams = workParameters;
+    }
+
+    /**
+     * @return {@code true} if this worker has already been marked as used
+     * @see #setUsed()
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public final boolean isUsed() {
+        return mUsed;
+    }
+
+    /**
+     * Marks this worker as used to make sure we enforce the policy that workers can only be used
+     * once and that WorkerFactories return a new instance each time.
+     * @see #isUsed()
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public final void setUsed() {
+        mUsed = true;
     }
 
     /**
