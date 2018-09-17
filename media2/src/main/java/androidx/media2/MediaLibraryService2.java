@@ -16,8 +16,6 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +25,6 @@ import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
@@ -229,30 +226,11 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             // Ideally it's better to make it inner class of service to enforce, but it violates API
             // guideline that Builders should be the inner class of the building target.
             public Builder(@NonNull MediaLibraryService2 service,
+                    @NonNull SessionPlayer2 player,
                     @NonNull Executor callbackExecutor,
                     @NonNull MediaLibrarySessionCallback callback) {
-                super(service);
+                super(service, player);
                 setSessionCallback(callbackExecutor, callback);
-            }
-
-            @Override
-            public @NonNull Builder setPlayer(@NonNull MediaPlayerConnector player) {
-                return super.setPlayer(player);
-            }
-
-            @Override
-            public @NonNull Builder setPlaylistAgent(@NonNull MediaPlaylistAgent playlistAgent) {
-                return super.setPlaylistAgent(playlistAgent);
-            }
-
-            /**
-             * @hide
-             */
-            // TODO(jaewan): Unhide
-            @RestrictTo(LIBRARY_GROUP)
-            @Override
-            public @NonNull Builder setPlayer(SessionPlayer2 player) {
-                return super.setPlayer(player);
             }
 
             @Override
@@ -273,7 +251,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                 if (mCallback == null) {
                     mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
                 }
-                return new MediaLibrarySession(mContext, mId, mSessionPlayer, mSessionActivity,
+                return new MediaLibrarySession(mContext, mId, mPlayer, mSessionActivity,
                         mCallbackExecutor, mCallback);
             }
         }

@@ -93,7 +93,7 @@ public class MediaNotificationHandler extends
      */
     @Override
     public void onPlayerStateChanged(MediaSession2 session,
-            @MediaPlayerConnector.PlayerState int state) {
+            @SessionPlayer2.PlayerState int state) {
         MediaSessionService2.MediaNotification mediaNotification =
                 mServiceInstance.onUpdateNotification(session);
         if (mediaNotification == null) {
@@ -111,7 +111,7 @@ public class MediaNotificationHandler extends
             return;
         }
 
-        // state == MediaPlayerConnector.PLAYER_STATE_PLAYING
+        // state == SessionPlayer2.PLAYER_STATE_PLAYING
         ContextCompat.startForegroundService(mServiceInstance, mStartSelfIntent);
         mServiceInstance.startForeground(id, notification);
     }
@@ -230,8 +230,8 @@ public class MediaNotificationHandler extends
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static boolean isPlaybackStopped(int state) {
-        return state == MediaPlayerConnector.PLAYER_STATE_PAUSED
-                || state == MediaPlayerConnector.PLAYER_STATE_IDLE
-                || state == MediaPlayerConnector.PLAYER_STATE_ERROR;
+        return state == SessionPlayer2.PLAYER_STATE_PAUSED
+                || state == SessionPlayer2.PLAYER_STATE_IDLE
+                || state == SessionPlayer2.PLAYER_STATE_ERROR;
     }
 }

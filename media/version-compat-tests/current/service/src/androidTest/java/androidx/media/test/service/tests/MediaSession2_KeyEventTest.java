@@ -85,8 +85,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
         mPlayer.notifyPlayerStateChanged(SessionPlayer2.PLAYER_STATE_PLAYING);
 
         mSessionCallback = new TestSessionCallback();
-        mSession = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        mSession = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, mSessionCallback)
                 .build();
 

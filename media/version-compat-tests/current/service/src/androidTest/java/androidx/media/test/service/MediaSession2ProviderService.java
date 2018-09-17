@@ -112,9 +112,8 @@ public class MediaSession2ProviderService extends Service {
         @Override
         public void create(final String sessionId) throws RemoteException {
             final MediaSession2.Builder builder =
-                    new MediaSession2.Builder(MediaSession2ProviderService.this)
-                            .setId(sessionId)
-                            .setPlayer(new MockPlayer(0));
+                    new MediaSession2.Builder(MediaSession2ProviderService.this, new MockPlayer(0))
+                            .setId(sessionId);
 
             switch (sessionId) {
                 case TEST_GET_SESSION_ACTIVITY: {
@@ -145,7 +144,7 @@ public class MediaSession2ProviderService extends Service {
                             SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
                                     .addCommand(new SessionCommand2(
                                             SessionCommand2
-                                                    .COMMAND_CODE_PLAYLIST_GET_LIST_METADATA))
+                                                    .COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA))
                                     .build();
                             return commands;
                         }
@@ -458,6 +457,13 @@ public class MediaSession2ProviderService extends Service {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlayer player = (MockPlayer) session2.getPlayer();
             player.notifyRepeatModeChanged();
+        }
+
+        @Override
+        public void notifyPlaybackCompleted(String sessionId) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.notifyPlaybackCompleted();
         }
     }
 }

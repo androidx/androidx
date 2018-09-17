@@ -215,13 +215,7 @@ import java.util.concurrent.Executor;
  * and {@link #CALL_COMPLETED_PAUSE}.
  * Then check the <code>status</code> parameter. The value {@link #CALL_STATUS_NO_ERROR} indicates a
  * successful transition. Any other value will be an error. Call {@link #getState()} to
- * determine the current state.
- * (You can also register a {@link MediaPlayerConnector.PlayerEventCallback#onPlayerStateChanged}
- * callback but this method does not distinguish between the <strong>Idle</strong> and
- * <strong>Prepared</strong> states.)</p>
- *
- * <p>You can also register a {@link MediaPlayerConnector.PlayerEventCallback#onPlayerStateChanged}
- * callback. Call {@link #getState()} from your code to determine the state.</p>
+ * determine the current state.</p>
  *
  * <p>In order for callbacks to work, your app must create
  * MediaPlayer2 objects on a thread that has its own running Looper. This can be done on the main UI
@@ -255,12 +249,6 @@ public abstract class MediaPlayer2 {
      */
     @RestrictTo(LIBRARY_GROUP)
     public MediaPlayer2() { }
-
-    /**
-     * Returns a {@link MediaPlayerConnector} implementation which runs based on
-     * this MediaPlayer2 instance.
-     */
-    public abstract MediaPlayerConnector getMediaPlayerConnector();
 
     /**
      * Cancels the asynchronous call previously submitted.

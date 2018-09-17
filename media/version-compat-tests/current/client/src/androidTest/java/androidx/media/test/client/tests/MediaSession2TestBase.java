@@ -387,6 +387,11 @@ abstract class MediaSession2TestBase {
         }
 
         @Override
+        public void onPlaybackCompleted(MediaController2 controller) {
+            mCallbackProxy.onPlaybackCompleted(controller);
+        }
+
+        @Override
         public void setRunnableForOnCustomCommand(Runnable runnable) {
             synchronized (this) {
                 mOnCustomCommandRunnable = runnable;

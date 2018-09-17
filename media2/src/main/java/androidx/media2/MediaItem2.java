@@ -119,7 +119,7 @@ public class MediaItem2 implements VersionedParcelable {
             throw new IllegalStateException("Illegal start/end position: "
                     + startPositionMs + " : " + endPositionMs);
         }
-        if (durationMs != MediaPlayerConnector.UNKNOWN_TIME && endPositionMs != POSITION_UNKNOWN
+        if (durationMs != SessionPlayer2.UNKNOWN_TIME && endPositionMs != POSITION_UNKNOWN
                 && endPositionMs > durationMs) {
             throw new IllegalStateException("endPositionMs shouldn't be greater than durationMs: "
                     + " endPositionMs=" + endPositionMs + ", durationMs=" + durationMs);

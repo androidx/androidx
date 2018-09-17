@@ -53,6 +53,7 @@ class MediaInterface2 {
         List<MediaItem2> getPlaylist();
         MediaMetadata2 getPlaylistMetadata();
         void setPlaylist(List<MediaItem2> list, MediaMetadata2 metadata);
+        void setMediaItem(MediaItem2 item);
         void updatePlaylistMetadata(MediaMetadata2 metadata);
 
         MediaItem2 getCurrentMediaItem();

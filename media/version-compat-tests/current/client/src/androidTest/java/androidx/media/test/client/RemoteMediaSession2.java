@@ -458,6 +458,14 @@ public class RemoteMediaSession2 {
                 Log.e(TAG, "Failed to call notifyRepeatModeChanged()");
             }
         }
+
+        public void notifyPlaybackCompleted() {
+            try {
+                mBinder.notifyPlaybackCompleted(mSessionId);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyRepeatModeChanged()");
+            }
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////

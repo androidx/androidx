@@ -38,7 +38,6 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.MediaPlayerConnector.PlayerEventCallback;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.test.R;
 import androidx.test.filters.LargeTest;
@@ -65,11 +64,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 public class MediaPlayer2Test extends MediaPlayer2TestBase {
@@ -673,53 +668,60 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final int tolerance = 70;
 
         final Monitor prepareCompleted = new Monitor();
-        PlayerEventCallback callback = new PlayerEventCallback() {
-            public void onMediaPrepared(@NonNull MediaPlayerConnector mpb,
-                    @NonNull MediaItem2 item) {
-                prepareCompleted.signal();
+        MediaPlayer2.EventCallback callback = new MediaPlayer2.EventCallback() {
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, MediaItem2 item, int what, int status) {
+                if (what == MediaPlayer2.CALL_COMPLETED_PREPARE) {
+                    prepareCompleted.signal();
+                }
+                super.onCallCompleted(mp, item, what, status);
             }
         };
         mPlayer.setSurface(mActivity.getSurfaceHolder2().getSurface());
-        MediaPlayerConnector basePlayer = mPlayer.getMediaPlayerConnector();
-        basePlayer.registerPlayerEventCallback(mExecutor, callback);
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
-        assertEquals(MediaPlayerConnector.UNKNOWN_TIME, basePlayer.getDuration());
+        mPlayer.setEventCallback(mExecutor, callback);
+        assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
+        try {
+            assertTrue(mPlayer.getDuration() <= 0);
+        } catch (IllegalStateException e) {
+            // may throw exception
+        }
 
-        basePlayer.prepare();
+        mPlayer.prepare();
         assertTrue(prepareCompleted.waitForSignal());
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_PAUSED, basePlayer.getPlayerState());
-        assertEquals(expectedDuration, basePlayer.getDuration(), tolerance);
+        assertEquals(MediaPlayer2.PLAYER_STATE_PREPARED, mPlayer.getState());
+        assertEquals(expectedDuration, mPlayer.getDuration(), tolerance);
     }
 
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetCurrentPosition() throws Exception {
-        MediaPlayerConnector basePlayer = mPlayer.getMediaPlayerConnector();
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
-        assertEquals(MediaPlayerConnector.UNKNOWN_TIME, basePlayer.getCurrentPosition());
+        assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
+        try {
+            assertTrue(mPlayer.getCurrentPosition() <= 0);
+        } catch (IllegalStateException e) {
+            // OK to thrown an exception while in the IDLE
+        }
     }
 
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetBufferedPosition() throws Exception {
-        MediaPlayerConnector basePlayer = mPlayer.getMediaPlayerConnector();
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
-        assertEquals(MediaPlayerConnector.UNKNOWN_TIME, basePlayer.getBufferedPosition());
+        assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
+        try {
+            assertTrue(mPlayer.getBufferedPosition() <= 0);
+        } catch (IllegalStateException e) {
+            // OK to thrown an exception while in the IDLE
+        }
     }
 
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetPlaybackSpeed() throws Exception {
-        MediaPlayerConnector basePlayer = mPlayer.getMediaPlayerConnector();
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
-        try {
-            basePlayer.getPlaybackSpeed();
-        } catch (Exception e) {
-            fail();
-        }
+    public void testGetPlayerParams() throws Exception {
+        assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
+        assertNotNull(mPlayer.getPlaybackParams());
     }
 
     /**
@@ -2285,147 +2287,24 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             mEventCallbacks.add(ecb);
         }
 
-        MediaPlayerConnector playerBase = mPlayer.getMediaPlayerConnector();
-        assertEquals(MediaPlayerConnector.BUFFERING_STATE_UNKNOWN, playerBase.getBufferingState());
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, playerBase.getPlayerState());
+        assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
         prepareCompleted.reset();
-        playerBase.prepare();
+        mPlayer.prepare();
         prepareCompleted.waitForSignal();
-        assertEquals(MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
-                playerBase.getBufferingState());
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_PAUSED, playerBase.getPlayerState());
         assertEquals(MediaPlayer2.PLAYER_STATE_PREPARED, mPlayer.getState());
 
         playCompleted.reset();
-        playerBase.play();
+        mPlayer.play();
         playCompleted.waitForSignal();
-        assertEquals(MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
-                playerBase.getBufferingState());
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_PLAYING, playerBase.getPlayerState());
+        assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
 
         pauseCompleted.reset();
-        playerBase.pause();
+        mPlayer.pause();
         pauseCompleted.waitForSignal();
-        assertEquals(MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
-                playerBase.getBufferingState());
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_PAUSED, playerBase.getPlayerState());
+        assertEquals(MediaPlayer2.PLAYER_STATE_PAUSED, mPlayer.getState());
 
-        playerBase.reset();
-        assertEquals(MediaPlayerConnector.BUFFERING_STATE_UNKNOWN, playerBase.getBufferingState());
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, playerBase.getPlayerState());
-    }
-
-    @Test
-    @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    public void testPlayerEventCallback() throws Throwable {
-        final int mp4Duration = 8484;
-        final MediaItem2 item2 = createDataSourceDesc(
-                R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
-
-        final Monitor onDsdChangedCalled = new Monitor();
-        final Monitor onPrepareCalled = new Monitor();
-        final Monitor onSeekCompleteCalled = new Monitor();
-        final Monitor onPlayerStateChangedCalled = new Monitor();
-        final AtomicInteger playerState = new AtomicInteger();
-        final Monitor onBufferingStateChangedCalled = new Monitor();
-        final AtomicInteger bufferingState = new AtomicInteger();
-        final Monitor onPlaybackSpeedChanged = new Monitor();
-        final AtomicReference<Float> playbackSpeed = new AtomicReference<>();
-
-        PlayerEventCallback callback = new PlayerEventCallback() {
-            @Override
-            public void onCurrentMediaItemChanged(MediaPlayerConnector mpb, MediaItem2 item) {
-                switch (onDsdChangedCalled.getNumSignal()) {
-                    case 1:
-                        assertEquals(item2, item);
-                        break;
-                    case 2:
-                        assertNull(item);
-                        break;
-                }
-                onDsdChangedCalled.signal();
-            }
-
-            @Override
-            public void onMediaPrepared(MediaPlayerConnector mpb, MediaItem2 item) {
-                onPrepareCalled.signal();
-            }
-
-            @Override
-            public void onPlayerStateChanged(MediaPlayerConnector mpb, int state) {
-                playerState.set(state);
-                onPlayerStateChangedCalled.signal();
-            }
-
-            @Override
-            public void onBufferingStateChanged(MediaPlayerConnector mpb, MediaItem2 item,
-                    int state) {
-                bufferingState.set(state);
-                onBufferingStateChangedCalled.signal();
-            }
-
-            @Override
-            public void onPlaybackSpeedChanged(MediaPlayerConnector mpb, float speed) {
-                playbackSpeed.set(speed);
-                onPlaybackSpeedChanged.signal();
-            }
-
-            @Override
-            public void onSeekCompleted(MediaPlayerConnector mpb, long position) {
-                onSeekCompleteCalled.signal();
-            }
-        };
-
-        MediaPlayerConnector basePlayer = mPlayer.getMediaPlayerConnector();
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-        basePlayer.registerPlayerEventCallback(executor, callback);
-
-        if (!checkLoadResource(R.raw.testvideo)) {
-            return; // skip;
-        }
-        assertEquals(1, onDsdChangedCalled.waitForCountedSignals(1));
-        mPlayer.setNextMediaItem(item2);
-
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-
-        onPrepareCalled.reset();
-        onPlayerStateChangedCalled.reset();
-        onBufferingStateChangedCalled.reset();
-        basePlayer.prepare();
-        do {
-            assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
-        } while (bufferingState.get()
-                != MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_STARVED);
-
-        assertTrue(onPrepareCalled.waitForSignal(1000));
-        do {
-            assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
-        } while (playerState.get() != MediaPlayerConnector.PLAYER_STATE_PAUSED);
-        do {
-            assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
-        } while (bufferingState.get()
-                != MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
-
-        onSeekCompleteCalled.reset();
-        basePlayer.seekTo(mp4Duration >> 1);
-        onSeekCompleteCalled.waitForSignal();
-
-        onPlaybackSpeedChanged.reset();
-        basePlayer.setPlaybackSpeed(0.5f);
-        do {
-            assertTrue(onPlaybackSpeedChanged.waitForSignal(1000));
-        } while (Math.abs(playbackSpeed.get() - 0.5f) > FLOAT_TOLERANCE);
-
-        basePlayer.skipToNext();
-        basePlayer.play();
-        assertEquals(3, onDsdChangedCalled.waitForCountedSignals(3));
-
-        basePlayer.reset();
-        assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
-
-        basePlayer.unregisterPlayerEventCallback(callback);
-        executor.shutdown();
+        mPlayer.reset();
+        assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
     }
 
     @Test
