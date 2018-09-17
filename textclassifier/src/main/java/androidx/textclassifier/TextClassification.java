@@ -25,6 +25,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
@@ -269,14 +271,20 @@ public final class TextClassification {
      * @hide
      */
     @SuppressLint("WrongConstant") // Lint does not know @EntityType in platform and here are same.
+    @SuppressWarnings("deprecation") // To support O
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(28)
+    @RequiresApi(26)
     @NonNull
-    Object toPlatform() {
+    Object toPlatform(@NonNull Context context) {
+        Preconditions.checkNotNull(context);
+
         android.view.textclassifier.TextClassification.Builder builder =
                 new android.view.textclassifier.TextClassification.Builder()
-                        .setText(getText() == null ? null : getText().toString())
-                        .setId(getId());
+                        .setText(getText() == null ? null : getText().toString());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            builder.setId(getId());
+        }
 
         final int entityCount = getEntityTypeCount();
         for (int i = 0; i < entityCount; i++) {
@@ -284,9 +292,27 @@ public final class TextClassification {
             builder.setEntityType(entity, getConfidenceScore(entity));
         }
 
-        List<RemoteActionCompat> actions = getActions();
-        for (RemoteActionCompat action : actions) {
-            builder.addAction(action.toRemoteAction());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            List<RemoteActionCompat> actions = getActions();
+            for (RemoteActionCompat action : actions) {
+                builder.addAction(action.toRemoteAction());
+            }
+        }
+
+        if (!getActions().isEmpty()) {
+            final RemoteActionCompat firstAction = getActions().get(0);
+            builder.setLabel(firstAction.getTitle().toString())
+                    .setIcon(firstAction.getIcon().loadDrawable(context))
+                    .setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            try {
+                                firstAction.getActionIntent().send();
+                            } catch (PendingIntent.CanceledException e) {
+                                Log.e(TextClassifier.DEFAULT_LOG_TAG, "Failed to start action ", e);
+                            }
+                        }
+                    });
         }
 
         return builder.build();
@@ -441,6 +467,21 @@ public final class TextClassification {
         @Nullable
         public Long getReferenceTime() {
             return mReferenceTime;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        @NonNull
+        static TextClassification.Request fromPlatform(
+                @NonNull android.view.textclassifier.TextClassification.Request request) {
+            return new TextClassification.Request.Builder(
+                    request.getText(), request.getStartIndex(), request.getEndIndex())
+                    .setReferenceTime(ConvertUtils.zonedDateTimeToUtcMs(request.getReferenceTime()))
+                    .setDefaultLocales(LocaleListCompat.wrap(request.getDefaultLocales()))
+                    .build();
         }
 
         /**
