@@ -17,4 +17,5 @@
 
 <resources>
     <attr name="themeColor" />
+    <attr name="themeTintColor" />
 </resources>
