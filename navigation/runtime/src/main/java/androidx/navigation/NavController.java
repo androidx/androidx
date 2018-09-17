@@ -467,7 +467,7 @@ public class NavController {
             if (!deepLinked) {
                 // Navigate to the first destination in the graph
                 // if we haven't deep linked to a destination
-                mGraph.navigate(null, null);
+                mGraph.navigate(null, null, null);
             }
         }
     }
@@ -546,7 +546,7 @@ public class NavController {
                             + NavDestination.getDisplayName(mContext, destinationId));
                 }
                 node.navigate(bundle,
-                        new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build());
+                        new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build(), null);
             }
             return true;
         }
@@ -566,7 +566,7 @@ public class NavController {
                 // Navigate to the last NavDestination, clearing any existing destinations
                 node.navigate(bundle, new NavOptions.Builder()
                         .setPopUpTo(mGraph.getId(), true)
-                        .setEnterAnim(0).setExitAnim(0).build());
+                        .setEnterAnim(0).setExitAnim(0).build(), null);
             }
         }
         return true;
@@ -645,6 +645,22 @@ public class NavController {
      */
     @SuppressWarnings("deprecation")
     public void navigate(@IdRes int resId, @Nullable Bundle args, @Nullable NavOptions navOptions) {
+        navigate(resId, args, navOptions, null);
+    }
+
+    /**
+     * Navigate to a destination from the current navigation graph. This supports both navigating
+     * via an {@link NavDestination#getAction(int) action} and directly navigating to a destination.
+     *
+     * @param resId an {@link NavDestination#getAction(int) action} id or a destination id to
+     *              navigate to
+     * @param args arguments to pass to the destination
+     * @param navOptions special options for this navigation operation
+     * @param navigatorExtras extras to pass to the Navigator
+     */
+    @SuppressWarnings("deprecation")
+    public void navigate(@IdRes int resId, @Nullable Bundle args, @Nullable NavOptions navOptions,
+            @Nullable Navigator.Extras navigatorExtras) {
         NavDestination currentNode = mBackStack.isEmpty() ? mGraph : mBackStack.peekLast();
         if (currentNode == null) {
             throw new IllegalStateException("no current navigation node");
@@ -684,7 +700,7 @@ public class NavController {
                 popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             }
         }
-        node.navigate(args, navOptions);
+        node.navigate(args, navOptions, navigatorExtras);
     }
 
     /**
@@ -700,10 +716,23 @@ public class NavController {
      * Navigate via the given {@link NavDirections}
      *
      * @param directions directions that describe this navigation operation
+     * @param navOptions special options for this navigation operation
      */
     public void navigate(@NonNull NavDirections directions, @Nullable NavOptions navOptions) {
         navigate(directions.getActionId(), directions.getArguments(), navOptions);
     }
+
+    /**
+     * Navigate via the given {@link NavDirections}
+     *
+     * @param directions directions that describe this navigation operation
+     * @param navigatorExtras extras to pass to the {@link Navigator}
+     */
+    public void navigate(@NonNull NavDirections directions,
+            @NonNull Navigator.Extras navigatorExtras) {
+        navigate(directions.getActionId(), directions.getArguments(), null, navigatorExtras);
+    }
+
     /**
      * Create a deep link to a destination within this NavController.
      *

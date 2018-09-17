@@ -27,6 +27,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -86,7 +88,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     @SuppressWarnings("deprecation")
     @Override
     public void navigate(@NonNull Destination destination, @Nullable Bundle args,
-            @Nullable NavOptions navOptions) {
+            @Nullable NavOptions navOptions, @Nullable Navigator.Extras navigatorExtras) {
         if (destination.getIntent() == null) {
             throw new IllegalStateException("Destination " + destination.getId()
                     + " does not have an Intent set.");
@@ -139,7 +141,6 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         final int destId = destination.getId();
         intent.putExtra(EXTRA_NAV_CURRENT, destId);
         NavOptions.addPopAnimationsToIntent(intent, navOptions);
-        mContext.startActivity(intent);
         if (navOptions != null && mHostActivity != null) {
             int enterAnim = navOptions.getEnterAnim();
             int exitAnim = navOptions.getExitAnim();
@@ -148,6 +149,12 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
                 exitAnim = exitAnim != -1 ? exitAnim : 0;
                 mHostActivity.overridePendingTransition(enterAnim, exitAnim);
             }
+        }
+        if (navigatorExtras instanceof Extras) {
+            Extras extras = (Extras) navigatorExtras;
+            ActivityCompat.startActivity(mContext, intent, extras.getActivityOptions().toBundle());
+        } else {
+            mContext.startActivity(intent);
         }
 
         // You can't pop the back stack from the caller of a new Activity,
@@ -333,6 +340,32 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         @Nullable
         public String getDataPattern() {
             return mDataPattern;
+        }
+    }
+
+    /**
+     * Extras that can be passed to ActivityNavigator to customize what
+     * {@link ActivityOptionsCompat} are passed through to the call to
+     * {@link ActivityCompat#startActivity(Context, Intent, Bundle)}.
+     */
+    public static class Extras implements Navigator.Extras {
+        @NonNull
+        private final ActivityOptionsCompat mActivityOptions;
+
+        /**
+         * Create a new Extras instance with the given {@link ActivityOptionsCompat}.
+         * @param activityOptions The {@link ActivityOptionsCompat} to pass through
+         */
+        public Extras(@NonNull ActivityOptionsCompat activityOptions) {
+            mActivityOptions = activityOptions;
+        }
+
+        /**
+         * Gets the {@link ActivityOptionsCompat} instance.
+         */
+        @NonNull
+        ActivityOptionsCompat getActivityOptions() {
+            return mActivityOptions;
         }
     }
 }
