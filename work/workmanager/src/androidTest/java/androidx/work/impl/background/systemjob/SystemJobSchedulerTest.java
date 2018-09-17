@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -43,11 +44,13 @@ import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.State;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.worker.TestWorker;
 
 import org.junit.Before;
@@ -66,6 +69,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     private WorkManagerImpl mWorkManager;
     private JobScheduler mJobScheduler;
     private SystemJobScheduler mSystemJobScheduler;
+    private WorkSpecDao mMockWorkSpecDao;
 
     @Before
     public void setUp() {
@@ -73,13 +77,14 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         Configuration configuration = new Configuration.Builder().build();
         WorkDatabase workDatabase = mock(WorkDatabase.class);
         SystemIdInfoDao systemIdInfoDao = mock(SystemIdInfoDao.class);
-
+        mMockWorkSpecDao = mock(WorkSpecDao.class);
 
         mWorkManager = mock(WorkManagerImpl.class);
         mJobScheduler = mock(JobScheduler.class);
 
         when(mWorkManager.getConfiguration()).thenReturn(configuration);
         when(workDatabase.systemIdInfoDao()).thenReturn(systemIdInfoDao);
+        when(workDatabase.workSpecDao()).thenReturn(mMockWorkSpecDao);
         when(mWorkManager.getWorkDatabase()).thenReturn(workDatabase);
 
         doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
@@ -112,9 +117,11 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     public void testSystemJobScheduler_schedulesTwiceOnApi23() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec1 = getWorkSpec(work1);
+        addToWorkSpecDao(workSpec1);
 
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec2 = getWorkSpec(work2);
+        addToWorkSpecDao(workSpec2);
 
         mSystemJobScheduler.schedule(workSpec1, workSpec2);
 
@@ -130,9 +137,11 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     public void testSystemJobScheduler_schedulesOnceAtOrAboveApi24() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec1 = getWorkSpec(work1);
+        addToWorkSpecDao(workSpec1);
 
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec2 = getWorkSpec(work2);
+        addToWorkSpecDao(workSpec2);
 
         mSystemJobScheduler.schedule(workSpec1, workSpec2);
 
@@ -156,5 +165,35 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     public void testSystemJobScheduler_cancelsOnceAtOrAboveApi24() {
         mSystemJobScheduler.cancel(TEST_ID);
         verify(mJobScheduler, times(1)).cancel(anyInt());
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23)
+    public void testSystemJobScheduler_ignoresUnfoundWork() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        WorkSpec workSpec = getWorkSpec(work);
+        // Don't use addToWorkSpecDao and put it in the database mock.
+
+        mSystemJobScheduler.schedule(workSpec);
+        verify(mSystemJobScheduler, never()).scheduleInternal(eq(workSpec), anyInt());
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23)
+    public void testSystemJobScheduler_ignoresUnenqueuedWork() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(State.CANCELLED)
+                .build();
+        WorkSpec workSpec = getWorkSpec(work);
+        // Don't use addToWorkSpecDao and put it in the database mock.
+
+        mSystemJobScheduler.schedule(workSpec);
+        verify(mSystemJobScheduler, never()).scheduleInternal(eq(workSpec), anyInt());
+    }
+
+    private void addToWorkSpecDao(WorkSpec workSpec) {
+        when(mMockWorkSpecDao.getWorkSpec(workSpec.id)).thenReturn(workSpec);
     }
 }
