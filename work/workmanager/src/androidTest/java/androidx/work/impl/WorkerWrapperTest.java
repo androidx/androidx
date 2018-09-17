@@ -63,20 +63,17 @@ import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.ChainedArgumentWorker;
-import androidx.work.worker.DefaultConstructorWorker;
 import androidx.work.worker.EchoingWorker;
 import androidx.work.worker.ExceptionWorker;
 import androidx.work.worker.FailureWorker;
 import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.InterruptionAwareWorker;
-import androidx.work.worker.NewConstructorWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -111,51 +108,6 @@ public class WorkerWrapperTest extends DatabaseTest {
         mWorkSpecDao = spy(mDatabase.workSpecDao());
         mDependencyDao = mDatabase.dependencyDao();
         mMockScheduler = mock(Scheduler.class);
-    }
-
-    @Test
-    @SmallTest
-    public void testWorkerFromClassName_isCreated_withOnlyDefaultConstructor() {
-        OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(DefaultConstructorWorker.class).build();
-        insertWork(work);
-
-        Worker worker = WorkerWrapper.workerFromClassName(
-                DefaultConstructorWorker.class.getName(),
-                mContext,
-                new WorkerParameters(
-                        work.getId(),
-                        Data.EMPTY,
-                        work.getTags(),
-                        new WorkerParameters.RuntimeExtras(),
-                        1,
-                        mSynchronousExecutor));
-        assertThat(worker, is(notNullValue()));
-        assertThat(worker, CoreMatchers.<Worker>instanceOf(DefaultConstructorWorker.class));
-        assertThat(worker.getId(), is(work.getId()));
-    }
-
-    @Test
-    @SmallTest
-    public void testWorkerFromClassName_isCreated_withNewConstructor() {
-        OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(NewConstructorWorker.class).build();
-        insertWork(work);
-
-        Worker worker =
-                WorkerWrapper.workerFromClassName(
-                        NewConstructorWorker.class.getName(),
-                        mContext,
-                        new WorkerParameters(
-                                work.getId(),
-                                Data.EMPTY,
-                                work.getTags(),
-                                new WorkerParameters.RuntimeExtras(),
-                                1,
-                                mSynchronousExecutor));
-        assertThat(worker, is(notNullValue()));
-        assertThat(worker, CoreMatchers.<Worker>instanceOf(NewConstructorWorker.class));
-        assertThat(worker.getId(), is(work.getId()));
     }
 
     @Test
@@ -654,16 +606,17 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testFromWorkSpec_hasAppContext() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        Worker worker = WorkerWrapper.workerFromClassName(
-                getWorkSpec(work).workerClassName,
-                mContext,
+        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
+                TestWorker.class.getName(),
                 new WorkerParameters(
                         work.getId(),
                         Data.EMPTY,
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
-                        mSynchronousExecutor));
+                        mSynchronousExecutor,
+                        mConfiguration.getWorkerFactory()));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getApplicationContext(), is(equalTo(mContext.getApplicationContext())));
@@ -678,31 +631,33 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(TestWorker.class).setInputData(input).build();
-        Worker worker = WorkerWrapper.workerFromClassName(
-                getWorkSpec(work).workerClassName,
-                mContext,
+        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
+                TestWorker.class.getName(),
                 new WorkerParameters(
                         work.getId(),
                         input,
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
-                        mSynchronousExecutor));
+                        mSynchronousExecutor,
+                        mConfiguration.getWorkerFactory()));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getInputData().getString(key), is(expectedValue));
 
         work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        worker = WorkerWrapper.workerFromClassName(
-                getWorkSpec(work).workerClassName,
-                mContext,
+        worker = mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
+                TestWorker.class.getName(),
                 new WorkerParameters(
                         work.getId(),
                         Data.EMPTY,
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
-                        mSynchronousExecutor));
+                        mSynchronousExecutor,
+                        mConfiguration.getWorkerFactory()));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getInputData().size(), is(0));
@@ -717,16 +672,17 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .addTag("two")
                         .addTag("three")
                         .build();
-        Worker worker = WorkerWrapper.workerFromClassName(
-                getWorkSpec(work).workerClassName,
-                mContext,
+        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
+                TestWorker.class.getName(),
                 new WorkerParameters(
                         work.getId(),
                         Data.EMPTY,
                         Arrays.asList("one", "two", "three"),
                         new WorkerParameters.RuntimeExtras(),
                         1,
-                        mSynchronousExecutor));
+                        mSynchronousExecutor,
+                        mConfiguration.getWorkerFactory()));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getTags(), containsInAnyOrder("one", "two", "three"));
@@ -741,16 +697,17 @@ public class WorkerWrapperTest extends DatabaseTest {
         runtimeExtras.triggeredContentAuthorities = new String[]{"tca1", "tca2", "tca3"};
         runtimeExtras.triggeredContentUris = new Uri[]{Uri.parse("tcu1"), Uri.parse("tcu2")};
 
-        Worker worker = WorkerWrapper.workerFromClassName(
-                getWorkSpec(work).workerClassName,
-                mContext,
+        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
+                TestWorker.class.getName(),
                 new WorkerParameters(
                         work.getId(),
                         Data.EMPTY,
                         work.getTags(),
                         runtimeExtras,
                         1,
-                        mSynchronousExecutor));
+                        mSynchronousExecutor,
+                        mConfiguration.getWorkerFactory()));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getTriggeredContentAuthorities(),
@@ -823,16 +780,17 @@ public class WorkerWrapperTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
 
-        Worker worker = WorkerWrapper.workerFromClassName(
+        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
                 InterruptionAwareWorker.class.getName(),
-                mContext,
                 new WorkerParameters(
                         work.getId(),
                         Data.EMPTY,
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
-                        mSynchronousExecutor));
+                        mSynchronousExecutor,
+                        mConfiguration.getWorkerFactory()));
         assertThat(worker, is(notNullValue()));
         assertThat(worker.isStopped(), is(false));
 
@@ -854,16 +812,17 @@ public class WorkerWrapperTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
 
-        Worker worker = WorkerWrapper.workerFromClassName(
+        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
                 InterruptionAwareWorker.class.getName(),
-                mContext,
                 new WorkerParameters(
                         work.getId(),
                         Data.EMPTY,
                         Collections.<String>emptyList(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
-                        mSynchronousExecutor));
+                        mSynchronousExecutor,
+                        mConfiguration.getWorkerFactory()));
         assertThat(worker, is(notNullValue()));
         assertThat(worker.isStopped(), is(false));
 

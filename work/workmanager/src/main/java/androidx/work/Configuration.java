@@ -40,6 +40,7 @@ public final class Configuration {
     public static final int MIN_SCHEDULER_LIMIT = 20;
 
     private final @NonNull Executor mExecutor;
+    private final @NonNull WorkerFactory mWorkerFactory;
     private final int mLoggingLevel;
     private final int mMinJobSchedulerId;
     private final int mMaxJobSchedulerId;
@@ -51,6 +52,13 @@ public final class Configuration {
         } else {
             mExecutor = builder.mExecutor;
         }
+
+        if (builder.mWorkerFactory == null) {
+            mWorkerFactory = new DefaultWorkerFactory();
+        } else {
+            mWorkerFactory = builder.mWorkerFactory;
+        }
+
         mLoggingLevel = builder.mLoggingLevel;
         mMinJobSchedulerId = builder.mMinJobSchedulerId;
         mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
@@ -62,6 +70,13 @@ public final class Configuration {
      */
     public @NonNull Executor getExecutor() {
         return mExecutor;
+    }
+
+    /**
+     * @return The {@link WorkerFactory} used by {@link WorkManager} to create {@link Worker}s.
+     */
+    public @NonNull WorkerFactory getWorkerFactory() {
+        return mWorkerFactory;
     }
 
     /**
@@ -126,11 +141,23 @@ public final class Configuration {
      */
     public static final class Builder {
 
+        Executor mExecutor;
+        WorkerFactory mWorkerFactory;
+        int mLoggingLevel = Log.INFO;
         int mMinJobSchedulerId = IdGenerator.INITIAL_ID;
         int mMaxJobSchedulerId = Integer.MAX_VALUE;
         int mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
-        int mLoggingLevel = Log.INFO;
-        Executor mExecutor;
+
+        /**
+         * Specifies a custom {@link WorkerFactory} for WorkManager.
+         *
+         * @param workerFactory A {@link WorkerFactory} for creating {@link Worker}s
+         * @return This {@link Builder} instance
+         */
+        public @NonNull Builder setWorkerFactory(@NonNull WorkerFactory workerFactory) {
+            mWorkerFactory = workerFactory;
+            return this;
+        }
 
         /**
          * Specifies a custom {@link Executor} for WorkManager.
@@ -188,19 +215,6 @@ public final class Configuration {
                                 + "JobScheduler.");
             }
             mMaxSchedulerLimit = Math.min(maxSchedulerLimit, MAX_SCHEDULER_LIMIT);
-            return this;
-        }
-
-        /**
-         * Specifies a custom {@link Executor} for WorkManager.
-         *
-         * @param executor An {@link Executor} for processing work
-         * @return This {@link Builder} instance
-         * @deprecated Use the {@link Configuration.Builder#setExecutor(Executor)} method instead
-         */
-        @Deprecated
-        public @NonNull Builder withExecutor(@NonNull Executor executor) {
-            mExecutor = executor;
             return this;
         }
 
