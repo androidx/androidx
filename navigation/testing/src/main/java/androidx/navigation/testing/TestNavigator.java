@@ -44,7 +44,7 @@ public class TestNavigator extends Navigator<TestNavigator.Destination> {
 
     @Override
     public void navigate(@NonNull Destination destination, @Nullable Bundle args,
-            @Nullable NavOptions navOptions) {
+            @Nullable NavOptions navOptions, @Nullable Extras navigatorExtras) {
         if (navOptions != null && navOptions.shouldLaunchSingleTop() && !mBackStack.isEmpty()
                 && mBackStack.peekLast().first.getId() == destination.getId()) {
             mBackStack.pop();

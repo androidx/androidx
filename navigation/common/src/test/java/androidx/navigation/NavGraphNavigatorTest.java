@@ -73,7 +73,7 @@ public class NavGraphNavigatorTest {
     public void navigateWithoutStartDestination() {
         NavDestination destination = createFirstDestination();
         final NavGraph graph = createGraphWithDestination(destination);
-        graph.navigate(null, null);
+        graph.navigate(null, null, null);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class NavGraphNavigatorTest {
         NavDestination destination = createFirstDestination();
         final NavGraph graph = createGraphWithDestination(destination);
         graph.setStartDestination(FIRST_DESTINATION_ID);
-        graph.navigate(null, null);
+        graph.navigate(null, null, null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
@@ -99,7 +99,7 @@ public class NavGraphNavigatorTest {
         NavDestination destination = createFirstDestination();
         final NavGraph graph = createGraphWithDestination(destination);
         graph.setStartDestination(FIRST_DESTINATION_ID);
-        graph.navigate(null, null);
+        graph.navigate(null, null, null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
@@ -117,7 +117,7 @@ public class NavGraphNavigatorTest {
         final NavGraph graph = createGraphWithDestination(destination);
         graph.setStartDestination(FIRST_DESTINATION_ID);
         // singleTop should still show as added on an empty stack
-        graph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build());
+        graph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build(), null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
@@ -129,11 +129,11 @@ public class NavGraphNavigatorTest {
         NavDestination destination = createFirstDestination();
         final NavGraph graph = createGraphWithDestination(destination);
         graph.setStartDestination(FIRST_DESTINATION_ID);
-        graph.navigate(null, null);
+        graph.navigate(null, null, null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
-        graph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build());
+        graph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build(), null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_UNCHANGED);
@@ -149,11 +149,11 @@ public class NavGraphNavigatorTest {
         final NavGraph secondGraph = createGraphWithDestination(secondDestination);
         secondGraph.setId(SECOND_DESTINATION_ID);
         secondGraph.setStartDestination(SECOND_DESTINATION_ID);
-        graph.navigate(null, null);
+        graph.navigate(null, null, null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
-        secondGraph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build());
+        secondGraph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build(), null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 secondGraph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
@@ -168,14 +168,14 @@ public class NavGraphNavigatorTest {
         nestedGraph.setStartDestination(FIRST_DESTINATION_ID);
         final NavGraph graph = createGraphWithDestination(nestedGraph);
         graph.setStartDestination(FIRST_DESTINATION_ID);
-        graph.navigate(null, null);
+        graph.navigate(null, null, null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 nestedGraph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
-        graph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build());
+        graph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build(), null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_UNCHANGED);

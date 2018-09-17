@@ -27,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -35,7 +36,10 @@ import androidx.navigation.Navigator;
 import androidx.navigation.NavigatorProvider;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Navigator that navigates through {@link FragmentTransaction fragment transactions}. Every
@@ -144,7 +148,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     @SuppressWarnings("deprecation")
     @Override
     public void navigate(@NonNull Destination destination, @Nullable Bundle args,
-                            @Nullable NavOptions navOptions) {
+            @Nullable NavOptions navOptions, @Nullable Navigator.Extras navigatorExtras) {
         if (mFragmentManager.isStateSaved()) {
             Log.i(TAG, "Ignoring navigate() call: FragmentManager has already"
                     + " saved its state");
@@ -195,6 +199,12 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             ft.addToBackStack(Integer.toString(destId));
             mIsPendingBackStackOperation = true;
             backStackEffect = BACK_STACK_DESTINATION_ADDED;
+        }
+        if (navigatorExtras instanceof Extras) {
+            Extras extras = (Extras) navigatorExtras;
+            for (Map.Entry<View, String> sharedElement : extras.getSharedElements().entrySet()) {
+                ft.addSharedElement(sharedElement.getKey(), sharedElement.getValue());
+            }
         }
         ft.setReorderingAllowed(true);
         ft.commit();
@@ -349,6 +359,81 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 f.setArguments(args);
             }
             return f;
+        }
+    }
+
+    /**
+     * Extras that can be passed to FragmentNavigator to enable Fragment specific behavior
+     */
+    public static class Extras implements Navigator.Extras {
+        private final LinkedHashMap<View, String> mSharedElements = new LinkedHashMap<>();
+
+        Extras(Map<View, String> sharedElements) {
+            mSharedElements.putAll(sharedElements);
+        }
+
+        /**
+         * Gets the map of shared elements associated with these Extras. The returned map
+         * is an {@link Collections#unmodifiableMap(Map) unmodifiable} copy of the underlying
+         * map and should be treated as immutable.
+         */
+        @NonNull
+        public Map<View, String> getSharedElements() {
+            return Collections.unmodifiableMap(mSharedElements);
+        }
+
+        /**
+         * Builder for constructing new {@link Extras} instances. The resulting instances are
+         * immutable.
+         */
+        public static class Builder {
+            private final LinkedHashMap<View, String> mSharedElements = new LinkedHashMap<>();
+
+            /**
+             * Adds multiple shared elements for mapping Views in the current Fragment to
+             * transitionNames in the Fragment being navigated to.
+             *
+             * @param sharedElements Shared element pairs to add
+             * @return this {@link Builder}
+             */
+            @NonNull
+            public Builder addSharedElements(@NonNull Map<View, String> sharedElements) {
+                for (Map.Entry<View, String> sharedElement : sharedElements.entrySet()) {
+                    View view = sharedElement.getKey();
+                    String name = sharedElement.getValue();
+                    if (view != null && name != null) {
+                        addSharedElement(view, name);
+                    }
+                }
+                return this;
+            }
+
+            /**
+             * Maps the given View in the current Fragment to the given transition name in the
+             * Fragment being navigated to.
+             *
+             * @param sharedElement A View in the current Fragment to match with a View in the
+             *                      Fragment being navigated to.
+             * @param name The transitionName of the View in the Fragment being navigated to that
+             *             should be matched to the shared element.
+             * @return this {@link Builder}
+             * @see FragmentTransaction#addSharedElement(View, String)
+             */
+            @NonNull
+            public Builder addSharedElement(@NonNull View sharedElement, @NonNull String name) {
+                mSharedElements.put(sharedElement, name);
+                return this;
+            }
+
+            /**
+             * Constructs the final {@link Extras} instance.
+             *
+             * @return An immutable {@link Extras} instance.
+             */
+            @NonNull
+            public Extras build() {
+                return new Extras(mSharedElements);
+            }
         }
     }
 }

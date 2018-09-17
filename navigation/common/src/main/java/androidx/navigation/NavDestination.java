@@ -392,18 +392,19 @@ public class NavDestination {
      * <p>Uses the {@link #getNavigator() configured navigator} to navigate to this destination.
      * Apps should not call this directly, instead use {@link NavController}'s navigation methods
      * to ensure consistent back stack tracking and behavior.</p>
-     *
-     * @param args arguments to the new destination
+     *  @param args arguments to the new destination
      * @param navOptions options for navigation
+     * @param navigatorExtras extras to pass to the Navigator
      */
     @SuppressWarnings("unchecked")
-    public void navigate(@Nullable Bundle args, @Nullable NavOptions navOptions) {
+    public void navigate(@Nullable Bundle args, @Nullable NavOptions navOptions,
+            @Nullable Navigator.Extras navigatorExtras) {
         Bundle defaultArgs = getDefaultArguments();
         Bundle finalArgs = new Bundle();
         finalArgs.putAll(defaultArgs);
         if (args != null) {
             finalArgs.putAll(args);
         }
-        mNavigator.navigate(this, finalArgs, navOptions);
+        mNavigator.navigate(this, finalArgs, navOptions, navigatorExtras);
     }
 }

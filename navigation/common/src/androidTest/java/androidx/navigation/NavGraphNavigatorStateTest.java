@@ -52,7 +52,7 @@ public class NavGraphNavigatorStateTest {
         final NavGraph graph = mNavGraphNavigator.createDestination();
         graph.addDestination(destination);
         graph.setStartDestination(FIRST_DESTINATION_ID);
-        graph.navigate(null, null);
+        graph.navigate(null, null, null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_DESTINATION_ADDED);
@@ -61,7 +61,7 @@ public class NavGraphNavigatorStateTest {
         Bundle saveState = mNavGraphNavigator.onSaveState();
         mNavGraphNavigator.onRestoreState(saveState);
 
-        graph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build());
+        graph.navigate(null, new NavOptions.Builder().setLaunchSingleTop(true).build(), null);
         verify(mListener).onNavigatorNavigated(mNavGraphNavigator,
                 graph.getId(),
                 Navigator.BACK_STACK_UNCHANGED);
