@@ -374,9 +374,12 @@ public class AsyncPagedListDiffer<T> {
 
         // Transform the last loadAround() index from the old list to the new list by passing it
         // through the DiffResult. This ensures the lastKey of a positional PagedList is carried
-        // to new list even if no in-viewport item changes (AsyncPagedListDiffer#get not called)
+        // to new list even if no in-viewport item changes (AsyncPagedListDiffer#get not called).
+        // Note: we don't take into account loads between new list snapshot and new list, but this
+        // is only a problem in rare cases when placeholders are disabled, and a load starts (for
+        // some reason) and finishes before diff completes.
         int newPosition = PagedStorageDiffHelper.transformAnchorIndex(
-                diffResult, previousSnapshot.mStorage, newList.mStorage, lastAccessIndex);
+                diffResult, previousSnapshot.mStorage, diffSnapshot.mStorage, lastAccessIndex);
         // copy lastLoad position, clamped to list bounds
         mPagedList.mLastLoad = Math.max(0, Math.min(mPagedList.size(), newPosition));
 
