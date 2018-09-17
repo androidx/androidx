@@ -36,8 +36,11 @@ import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.DefaultWorkerFactory;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
+import androidx.work.Worker;
+import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
@@ -56,6 +59,7 @@ import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -248,19 +252,22 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         insertWork(mWork);
 
-        ConstraintTrackingWorker worker =
-                (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
-                        ConstraintTrackingWorker.class.getName(),
-                        mContext,
-                        new WorkerParameters(
-                                mWork.getId(),
-                                input,
-                                Collections.<String>emptyList(),
-                                new WorkerParameters.RuntimeExtras(),
-                                1,
-                                executor));
+        WorkerFactory workerFactory = new DefaultWorkerFactory();
+        Worker worker = workerFactory.createWorker(
+                mContext.getApplicationContext(),
+                ConstraintTrackingWorker.class.getName(),
+                new WorkerParameters(
+                        mWork.getId(),
+                        input,
+                        Collections.<String>emptyList(),
+                        new WorkerParameters.RuntimeExtras(),
+                        1,
+                        executor,
+                        workerFactory));
 
-        mWorker = spy(worker);
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker, is(CoreMatchers.<Worker>instanceOf(ConstraintTrackingWorker.class)));
+        mWorker = spy((ConstraintTrackingWorker) worker);
         when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
     }
 
