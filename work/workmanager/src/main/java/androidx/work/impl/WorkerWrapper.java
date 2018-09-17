@@ -52,8 +52,6 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -173,12 +171,16 @@ public class WorkerWrapper implements Runnable {
                 mTags,
                 mRuntimeExtras,
                 mWorkSpec.runAttemptCount,
-                mConfiguration.getExecutor());
+                mConfiguration.getExecutor(),
+                mConfiguration.getWorkerFactory());
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
         if (mWorker == null) {
-            mWorker = workerFromClassName(mWorkSpec.workerClassName, mAppContext, params);
+            mWorker = mConfiguration.getWorkerFactory().createWorker(
+                    mAppContext,
+                    mWorkSpec.workerClassName,
+                    params);
         }
 
         if (mWorker == null) {
@@ -508,45 +510,6 @@ public class WorkerWrapper implements Runnable {
         sb.append(" } ]");
 
         return sb.toString();
-    }
-
-    /**
-     * Creates a {@link Worker} reflectively & initializes the worker.
-     *
-     * @param workerClassName The fully qualified class name for the {@link Worker}
-     * @param context         The Context from which we derive the application Context
-     * @param params          The {@link WorkerParameters} for the worker
-     * @return The instance of {@link Worker}
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @SuppressWarnings("ClassNewInstance")
-    public static Worker workerFromClassName(
-            @NonNull String workerClassName,
-            @NonNull Context context,
-            @NonNull WorkerParameters params) {
-        try {
-            Class<?> clazz = Class.forName(workerClassName);
-            Worker worker;
-            try {
-                Constructor<?> constructor =
-                        clazz.getDeclaredConstructor(Context.class, WorkerParameters.class);
-                worker = (Worker) constructor.newInstance(context.getApplicationContext(), params);
-            } catch (NoSuchMethodException e) {
-                worker = (Worker) clazz.newInstance();
-                Method internalInitMethod = NonBlockingWorker.class.getDeclaredMethod(
-                        "internalInit",
-                        Context.class,
-                        WorkerParameters.class);
-                internalInitMethod.setAccessible(true);
-                internalInitMethod.invoke(worker, context.getApplicationContext(), params);
-            }
-            return worker;
-        } catch (Exception e) {
-            Logger.error(TAG, "Trouble instantiating " + workerClassName, e);
-        }
-        return null;
     }
 
     /**

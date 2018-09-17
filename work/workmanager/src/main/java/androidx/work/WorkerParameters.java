@@ -40,6 +40,7 @@ public final class WorkerParameters {
     private @NonNull RuntimeExtras mRuntimeExtras;
     private int mRunAttemptCount;
     private @NonNull Executor mBackgroundExecutor;
+    private @NonNull WorkerFactory mWorkerFactory;
 
     /**
      * @hide
@@ -51,13 +52,15 @@ public final class WorkerParameters {
             @NonNull Collection<String> tags,
             @NonNull RuntimeExtras runtimeExtras,
             int runAttemptCount,
-            @NonNull Executor backgroundExecutor) {
+            @NonNull Executor backgroundExecutor,
+            @NonNull WorkerFactory workerFactory) {
         mId = id;
         mInputData = inputData;
         mTags = new HashSet<>(tags);
         mRuntimeExtras = runtimeExtras;
         mRunAttemptCount = runAttemptCount;
         mBackgroundExecutor = backgroundExecutor;
+        mWorkerFactory = workerFactory;
     }
 
     /**
@@ -145,6 +148,14 @@ public final class WorkerParameters {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
         return mBackgroundExecutor;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull WorkerFactory getWorkerFactory() {
+        return mWorkerFactory;
     }
 
     /**
