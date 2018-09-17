@@ -64,6 +64,10 @@ public abstract class Worker extends NonBlockingWorker {
     // Package-private to avoid synthetic accessor.
     SettableFuture<Pair<Result, Data>> mFuture;
 
+    /**
+     * @deprecated Use {@link #Worker(Context, WorkerParameters)} instead
+     */
+    @Deprecated
     public Worker() {
         super();
     }
