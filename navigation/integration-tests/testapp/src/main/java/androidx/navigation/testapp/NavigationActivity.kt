@@ -20,11 +20,13 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.NavigationView
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.widget.Toast
+import androidx.navigation.ActivityNavigator
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
@@ -52,7 +54,15 @@ class NavigationActivity : AppCompatActivity() {
             // navigation items to the menu here if there isn't a NavigationView
             toolbar.inflateMenu(R.menu.menu_overflow)
             toolbar.setOnMenuItemClickListener { item ->
-                NavigationUI.onNavDestinationSelected(item, navController)
+                when (item.itemId) {
+                    R.id.help_activity -> {
+                        navController.navigate(R.id.help_activity, null, null,
+                                ActivityNavigator.Extras(ActivityOptionsCompat
+                                        .makeSceneTransitionAnimation(this,
+                                                toolbar, "toolbar")))
+                        true
+                    } else -> NavigationUI.onNavDestinationSelected(item, navController)
+                }
             }
         }
 

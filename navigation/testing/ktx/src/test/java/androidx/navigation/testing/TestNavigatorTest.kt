@@ -32,7 +32,7 @@ class TestNavigatorTest {
         val testNavigator = TestNavigator()
         val destination = testNavigator.createDestination()
         val args = Bundle()
-        testNavigator.navigate(destination, args, null)
+        testNavigator.navigate(destination, args, null, null)
         assertEquals("TestNavigator back stack size is 1 after navigate",
                 1,
                 testNavigator.backStack.size)

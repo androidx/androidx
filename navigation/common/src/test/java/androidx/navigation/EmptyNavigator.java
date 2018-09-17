@@ -35,7 +35,7 @@ class EmptyNavigator extends Navigator<NavDestination> {
 
     @Override
     public void navigate(@NonNull NavDestination destination, @Nullable Bundle args,
-            @Nullable NavOptions navOptions) {
+            @Nullable NavOptions navOptions, @Nullable Extras navigatorExtras) {
         throw new IllegalStateException("navigate is not supported");
     }
 

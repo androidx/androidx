@@ -55,7 +55,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
 
     @Override
     public void navigate(@NonNull NavGraph destination, @Nullable Bundle args,
-            @Nullable NavOptions navOptions) {
+            @Nullable NavOptions navOptions, @Nullable Extras navigatorExtras) {
         int startId = destination.getStartDestination();
         if (startId == 0) {
             throw new IllegalStateException("no start destination defined via"
@@ -77,7 +77,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
             mBackStack.add(destination.getId());
             dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
         }
-        startDestination.navigate(args, navOptions);
+        startDestination.navigate(args, navOptions, navigatorExtras);
     }
 
     /**
