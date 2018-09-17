@@ -57,6 +57,15 @@ final class ConvertUtils {
     }
 
     @Nullable
+    @RequiresApi(26)
+    static LocaleListCompat wrapLocalList(@Nullable LocaleList localeList) {
+        if (localeList == null) {
+            return null;
+        }
+        return LocaleListCompat.wrap(localeList);
+    }
+
+    @Nullable
     @RequiresApi(28)
     static android.view.textclassifier.TextClassifier.EntityConfig toPlatformEntityConfig(
             @Nullable TextClassifier.EntityConfig entityConfig) {
@@ -102,5 +111,14 @@ final class ConvertUtils {
         d.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         d.draw(canvas);
         return IconCompat.createWithBitmap(b);
+    }
+
+    @RequiresApi(28)
+    @Nullable
+    public static Long zonedDateTimeToUtcMs(@Nullable ZonedDateTime zonedDateTime) {
+        if (zonedDateTime == null) {
+            return null;
+        }
+        return zonedDateTime.toInstant().toEpochMilli();
     }
 }

@@ -19,37 +19,53 @@ package androidx.textclassifier;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
+
+import java.util.WeakHashMap;
 
 /**
  * Class to handle the creation of {@link TextClassifier}.
  */
 public final class TextClassificationManager {
+    private static final Object sLock = new Object();
+    @GuardedBy("sLock")
+    private static final WeakHashMap<Context, TextClassificationManager> sMapping =
+            new WeakHashMap<>();
+
     private final Context mContext;
-    @Nullable
-    private static TextClassificationManager sInstance;
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
     private TextClassifier mTextClassifier;
+    private final TextClassifier mDefaultTextClassifier;
 
     /** @hide **/
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
     TextClassificationManager(@NonNull Context context) {
         mContext = Preconditions.checkNotNull(context);
+        mDefaultTextClassifier = defaultTextClassifier(context);
     }
 
     /**
-     * Return an instance of {@link TextClassificationManager}.
+     * Returns an instance of {@link TextClassificationManager} for the specified context.
+     * Each context has its own {@link TextClassificationManager}.
      */
     public static TextClassificationManager of(@NonNull Context context) {
-        if (sInstance == null) {
-            Context appContext = context.getApplicationContext();
-            sInstance = new TextClassificationManager(appContext);
+        Preconditions.checkNotNull(context);
+        synchronized (sLock) {
+            TextClassificationManager textClassificationManager = sMapping.get(context);
+            if (textClassificationManager == null) {
+                textClassificationManager = new TextClassificationManager(context);
+                sMapping.put(context, textClassificationManager);
+            }
+            return textClassificationManager;
         }
-        return sInstance;
     }
 
     /**
@@ -58,28 +74,54 @@ public final class TextClassificationManager {
      */
     @NonNull
     public TextClassifier getTextClassifier() {
-        if (mTextClassifier != null) {
-            return mTextClassifier;
+        synchronized (mLock) {
+            if (mTextClassifier != null) {
+                return mTextClassifier;
+            }
         }
-        return defaultTextClassifier();
+        return mDefaultTextClassifier;
     }
 
     /**
      * Sets a preferred text classifier.
      * <p>
-     * To turn off the feature completely, you can set a {@link TextClassifier#NO_OP}.
+     * To turn off the feature completely, you can set a {@link TextClassifier#NO_OP}. If
+     * {@code null} is set, default text classifier is used.
+     * <p>
+     * Note that the given text classifier is only set to this instance of the
+     * {@link TextClassificationManager}.
      */
     public void setTextClassifier(@Nullable TextClassifier textClassifier) {
-        mTextClassifier = textClassifier;
+        synchronized (mLock) {
+            mTextClassifier = textClassifier;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                setPlatformTextClassifier(textClassifier);
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setPlatformTextClassifier(@Nullable TextClassifier textClassifier) {
+        android.view.textclassifier.TextClassificationManager textClassificationManager =
+                (android.view.textclassifier.TextClassificationManager)
+                        mContext.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE);
+        if (textClassificationManager == null) {
+            return;
+        }
+        android.view.textclassifier.TextClassifier platformTextClassifier =
+                textClassifier == null
+                        ? null
+                        : new PlatformTextClassifier(mContext, textClassifier);
+        textClassificationManager.setTextClassifier(platformTextClassifier);
     }
 
     /**
      * Returns the default text classifier.
      */
-    private TextClassifier defaultTextClassifier() {
+    private static TextClassifier defaultTextClassifier(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return PlatformTextClassifierWrapper.create(mContext);
+            return PlatformTextClassifierWrapper.create(context);
         }
-        return LegacyTextClassifier.of(mContext);
+        return LegacyTextClassifier.of(context);
     }
 }
