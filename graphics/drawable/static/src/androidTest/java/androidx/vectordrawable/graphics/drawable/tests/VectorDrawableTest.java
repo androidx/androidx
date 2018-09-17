@@ -230,7 +230,7 @@ public class VectorDrawableTest {
         mContext = InstrumentationRegistry.getContext();
         mResources = mContext.getResources();
         mTheme = mContext.getTheme();
-        mTheme.applyStyle(R.style.VectorDrawableTestTheme, false);
+        mTheme.applyStyle(R.style.VectorDrawableTestTheme, true);
     }
 
     @Test
@@ -479,6 +479,7 @@ public class VectorDrawableTest {
         d2.setAlpha(originalAlpha);
     }
 
+    @Test
     public void testBounds() {
         VectorDrawableCompat vectorDrawable =
                 VectorDrawableCompat.create(mResources, R.drawable.vector_icon_delete, mTheme);
@@ -493,5 +494,17 @@ public class VectorDrawableTest {
 
         vectorDrawable.copyBounds(rect);
         assertEquals("Bounds should be same value for copyBounds", rect, expectedRect);
+    }
+
+    @Test
+    public void testTint() {
+        VectorDrawableCompat d =
+                VectorDrawableCompat.create(mResources, R.drawable.heart, mTheme);
+
+        d.setBounds(0, 0, 64, 64);
+        Bitmap bitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        d.draw(canvas);
+        assertEquals(0xff00fff0, bitmap.getPixel(32, 32));
     }
 }

@@ -708,7 +708,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         final TypedArray a = TypedArrayUtils.obtainAttributes(res, theme, attrs,
                 AndroidResources.STYLEABLE_VECTOR_DRAWABLE_TYPE_ARRAY);
 
-        updateStateFromTypedArray(a, parser);
+        updateStateFromTypedArray(a, parser, theme);
         a.recycle();
         state.mChangingConfigurations = getChangingConfigurations();
         state.mCacheDirty = true;
@@ -741,7 +741,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
     }
 
-    private void updateStateFromTypedArray(TypedArray a, XmlPullParser parser)
+    private void updateStateFromTypedArray(TypedArray a, XmlPullParser parser, Theme theme)
             throws XmlPullParserException {
         final VectorDrawableCompatState state = mVectorState;
         final VPathRenderer pathRenderer = state.mVPathRenderer;
@@ -754,7 +754,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         state.mTintMode = parseTintModeCompat(mode, Mode.SRC_IN);
 
         final ColorStateList tint =
-                a.getColorStateList(AndroidResources.STYLEABLE_VECTOR_DRAWABLE_TINT);
+                TypedArrayUtils.getNamedColorStateList(a, parser, theme, "tint",
+                        AndroidResources.STYLEABLE_VECTOR_DRAWABLE_TINT);
         if (tint != null) {
             state.mTint = tint;
         }
