@@ -21,6 +21,21 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListUpdateCallback;
 
+/**
+ * Methods for computing and applying DiffResults between PagedLists.
+ *
+ * To minimize the amount of diffing caused by placeholders, we only execute DiffUtil in a reduced
+ * 'diff space' - in the range (computeLeadingNulls..size-computeTrailingNulls).
+ *
+ * This allows the diff of a PagedList, e.g.:
+ *     100 nulls, placeholder page, (empty page) x 5, page, 100 nulls
+ *
+ * To only inform DiffUtil about single loaded page in this case, by pruning all other nulls from
+ * consideration.
+ *
+ * @see PagedStorage#computeLeadingNulls()
+ * @see PagedStorage#computeTrailingNulls()
+ */
 class PagedStorageDiffHelper {
     private PagedStorageDiffHelper() {
     }
@@ -178,12 +193,16 @@ class PagedStorageDiffHelper {
      */
     static int transformAnchorIndex(@NonNull DiffUtil.DiffResult diffResult,
             @NonNull PagedStorage oldList, @NonNull PagedStorage newList, final int oldPosition) {
+        final int oldOffset = oldList.computeLeadingNulls();
+
         // diffResult's indices starting after nulls, need to transform to diffutil indices
         // (see also dispatchDiff(), which adds this offset when dispatching)
-        int diffIndex = oldPosition - oldList.getLeadingNullCount();
+        int diffIndex = oldPosition - oldOffset;
+
+        final int oldSize = oldList.size() - oldOffset - oldList.computeTrailingNulls();
 
         // if our anchor is non-null, use it or close item's position in new list
-        if (diffIndex >= 0 && diffIndex < oldList.getStorageCount()) {
+        if (diffIndex >= 0 && diffIndex < oldSize) {
             // search outward from old position for position that maps
             for (int i = 0; i < 30; i++) {
                 int positionToTry = diffIndex + (i / 2 * (i % 2 == 1 ? -1 : 1));
