@@ -33,7 +33,6 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.widget.Toolbar;
 import androidx.car.R;
 import androidx.car.util.DropShadowScrollListener;
 import androidx.car.widget.PagedListView;
@@ -71,16 +70,6 @@ public class CarDrawerController {
 
     private final PagedListView mDrawerList;
     private final ProgressBar mProgressBar;
-
-    /**
-     * @deprecated Use {@link #CarDrawerController(DrawerLayout, ActionBarDrawerToggle)} instead.
-     *             The {@code Toolbar} is no longer needed and will be ignored.
-     */
-    @Deprecated
-    public CarDrawerController(@Nullable Toolbar toolbar, @NonNull DrawerLayout drawerLayout,
-            @NonNull ActionBarDrawerToggle drawerToggle) {
-        this(drawerLayout, drawerToggle);
-    }
 
     /**
      * Creates a {@link CarDrawerController} that will control the navigation of the drawer given by
