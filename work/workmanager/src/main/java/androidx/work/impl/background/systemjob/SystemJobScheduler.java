@@ -26,6 +26,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 import androidx.work.Logger;
+import androidx.work.State;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -75,8 +76,29 @@ public class SystemJobScheduler implements Scheduler {
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
 
         for (WorkSpec workSpec : workSpecs) {
+            workDatabase.beginTransaction();
             try {
-                workDatabase.beginTransaction();
+                // It is possible that this WorkSpec got cancelled/pruned since this isn't part of
+                // the same database transaction as marking it enqueued (for example, if we using
+                // any of the synchronous operations).  For now, handle this gracefully by exiting
+                // the loop.  When we plumb ListenableFutures all the way through, we can remove the
+                // *sync methods and return ListenableFutures, which will block on an operation on
+                // the background task thread so all database operations happen on the same thread.
+                // See b/114705286.
+                WorkSpec currentDbWorkSpec = workDatabase.workSpecDao().getWorkSpec(workSpec.id);
+                if (currentDbWorkSpec == null) {
+                    Logger.warning(
+                            TAG,
+                            "Skipping scheduling " + workSpec.id
+                                    + " because it's no longer in the DB");
+                    continue;
+                } else if (currentDbWorkSpec.state != State.ENQUEUED) {
+                    Logger.warning(
+                            TAG,
+                            "Skipping scheduling " + workSpec.id
+                                    + " because it is no longer enqueued");
+                    continue;
+                }
 
                 SystemIdInfo info = workDatabase.systemIdInfoDao()
                         .getSystemIdInfo(workSpec.id);
