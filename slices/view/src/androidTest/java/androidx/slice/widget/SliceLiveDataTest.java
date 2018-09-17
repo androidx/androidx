@@ -16,6 +16,7 @@
 
 package androidx.slice.widget;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -42,6 +43,7 @@ import androidx.slice.SliceUtils;
 import androidx.slice.SliceViewManager;
 import androidx.slice.SliceViewManager.SliceCallback;
 import androidx.test.InstrumentationRegistry;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -268,6 +270,16 @@ public class SliceLiveDataTest {
         verify(mErrorListener).onSliceError(
                 eq(SliceLiveData.OnErrorListener.ERROR_INVALID_INPUT),
                 any(Throwable.class));
+    }
+
+    @Test
+    @UiThreadTest
+    public void testInvalidUri() {
+        final SliceView sliceView = new SliceView(mContext);
+        LiveData<Slice> sliceLiveData = SliceLiveData.fromUri(mContext,
+                Uri.parse("content://doesnotexist"));
+        sliceLiveData.observeForever(sliceView);
+        assertNull(sliceView.getSlice());
     }
 
     private InputStream createInput(Slice s) {
