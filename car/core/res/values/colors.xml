@@ -88,7 +88,7 @@
     <color name="car_list_header">@color/car_blue_500</color>
 
     <!-- The color of the divider. The color here is a lighter shade. -->
-    <color name="car_list_divider_light">@color/car_grey_700</color>
+    <color name="car_list_divider_light">#18ffffff</color>
 
     <!-- The color of the divider. The color here is a darker shade. -->
     <color name="car_list_divider_dark">#1f000000</color>
