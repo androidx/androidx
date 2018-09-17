@@ -205,6 +205,28 @@ class PagedStorageDiffHelperTest {
         }
     }
 
+    @Test
+    fun transformAnchorIndex_loadingSnapshot() {
+        val oldList = PagedStorage(10, listOf("a"), 10)
+        val newList = PagedStorage(10, listOf("a"), 10)
+
+        oldList.allocatePlaceholders(10, 5, 1,
+                /* ignored */ mock(PagedStorage.Callback::class.java))
+
+        assertEquals(5, oldList.leadingNullCount)
+        assertEquals(10, oldList.computeLeadingNulls())
+
+        validateTwoListDiffTransform(
+                oldList,
+                newList) { transformAnchorIndex ->
+            // previously, this would cause a crash where we tried to use storage space
+            // (getLeadingNullCount..size-getTrailingNulls) incorrectly, instead of diff space
+            // (computeLeadingNulls..size-computeTrailingNulls). Diff space greedily excludes the
+            // nulls that represent partially loaded pages to minimize diff computation cost.
+            assertEquals(15, transformAnchorIndex(15))
+        }
+    }
+
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
