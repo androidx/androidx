@@ -17,6 +17,7 @@
 package androidx.textclassifier;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
@@ -740,7 +741,9 @@ public final class SelectionEvent {
     @RequiresApi(28)
     @NonNull
     @SuppressLint("WrongConstant") // Lint does not know the constants in platform and here are same
-    Object toPlatform() {
+    Object toPlatform(@NonNull Context context) {
+        Preconditions.checkNotNull(context);
+
         if (getEventType() == EVENT_SELECTION_STARTED) {
             return android.view.textclassifier.SelectionEvent.createSelectionStartedEvent(
                     getInvocationMethod(),
@@ -754,20 +757,23 @@ public final class SelectionEvent {
                     (android.view.textclassifier.TextSelection) mTextSelection.toPlatform());
         }
         if (getEventType() == EVENT_SELECTION_MODIFIED) {
-            return toPlatformSelectionModifiedEvent();
+            return toPlatformSelectionModifiedEvent(context);
         }
-        return toPlatformSelectionActionEvent();
+        return toPlatformSelectionActionEvent(context);
     }
 
     @NonNull
     @RequiresApi(28)
-    private android.view.textclassifier.SelectionEvent toPlatformSelectionModifiedEvent() {
+    private android.view.textclassifier.SelectionEvent toPlatformSelectionModifiedEvent(
+            @NonNull Context context) {
+        Preconditions.checkNotNull(context);
+
         if (mTextClassification != null) {
             return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
                     getAbsoluteStart(),
                     getAbsoluteEnd(),
                     (android.view.textclassifier.TextClassification)
-                            mTextClassification.toPlatform()
+                            mTextClassification.toPlatform(context)
             );
         }
         return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
@@ -779,14 +785,17 @@ public final class SelectionEvent {
     @NonNull
     @RequiresApi(28)
     @SuppressLint("WrongConstant") // Lint does not know the constants in platform and here are same
-    private android.view.textclassifier.SelectionEvent toPlatformSelectionActionEvent() {
+    private android.view.textclassifier.SelectionEvent toPlatformSelectionActionEvent(
+            @NonNull Context context) {
+        Preconditions.checkNotNull(context);
+
         if (mTextClassification != null) {
             return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
                     getAbsoluteStart(),
                     getAbsoluteEnd(),
                     getEventType(),
                     (android.view.textclassifier.TextClassification)
-                            mTextClassification.toPlatform()
+                            mTextClassification.toPlatform(context)
             );
         }
         return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
