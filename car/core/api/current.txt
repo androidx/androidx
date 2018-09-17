@@ -75,7 +75,6 @@ package androidx.car.drawer {
   }
 
   public class CarDrawerController {
-    ctor public deprecated CarDrawerController(androidx.appcompat.widget.Toolbar, androidx.drawerlayout.widget.DrawerLayout, androidx.appcompat.app.ActionBarDrawerToggle);
     ctor public CarDrawerController(androidx.drawerlayout.widget.DrawerLayout, androidx.appcompat.app.ActionBarDrawerToggle);
     method public void addDrawerListener(androidx.drawerlayout.widget.DrawerLayout.DrawerListener);
     method public void closeDrawer();
