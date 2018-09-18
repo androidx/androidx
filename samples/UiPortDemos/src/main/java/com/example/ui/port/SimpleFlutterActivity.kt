@@ -20,15 +20,11 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.ui.CraneView
-import android.view.Gravity
-import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.ui.foundation.Key
 import androidx.ui.painting.Image
@@ -44,15 +40,6 @@ class SimpleFlutterActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
-
-        // val widget = MirrorImageWidget(Key.createKey("jetpack image widget!"), bitmap)
-
-        val view = View(this)
-        val frameLayoutParams = FrameLayout.LayoutParams(100, 100)
-        frameLayoutParams.gravity = Gravity.CENTER
-        view.layoutParams = frameLayoutParams
-        view.setBackgroundColor(Color.RED)
 
         setContentView(CraneView(this,
                 ViewCompatTestWidget(Key.createKey("ViewCompatTestWidget"))))
@@ -68,6 +55,11 @@ class SimpleFlutterActivity : Activity() {
                     imageView
             }
         }
+    }
+
+    private fun createTestMirrorImageWidget(): MirrorImageWidget {
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
+        return MirrorImageWidget(Key.createKey("jetpack image widget!"), bitmap)
     }
 
     class MirrorImageWidget(key: Key, private val bitmap: Bitmap) : StatefulWidget(key) {

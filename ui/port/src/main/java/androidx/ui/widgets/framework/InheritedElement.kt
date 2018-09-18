@@ -11,11 +11,7 @@ class InheritedElement(widget: InheritedWidget) : ProxyElement(widget) {
     override fun _updateInheritance() {
         assert(_active)
         val incomingWidgets = getParentInheritedWidgets()
-        if (incomingWidgets != null) {
-            _inheritedWidgets = HashMap<Type, InheritedElement>(incomingWidgets)
-        } else {
-            _inheritedWidgets = HashMap<Type, InheritedElement>()
-        }
+        _inheritedWidgets = incomingWidgets?.toMutableMap() ?: mutableMapOf()
         _inheritedWidgets!![Type.fromObject(widget)] = this
     }
 
