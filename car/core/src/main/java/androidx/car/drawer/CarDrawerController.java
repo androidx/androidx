@@ -112,8 +112,12 @@ public class CarDrawerController {
                         ? outValue.resourceId
                         : R.id.car_drawer_list);
         mDrawerList.setMaxPages(PagedListView.ItemCap.UNLIMITED);
-        mDrawerList.setOnScrollListener(new DropShadowScrollListener(
-                mDrawerLayout.findViewById(R.id.drawer_toolbar)));
+
+        View toolbar = drawerLayout.findViewById(
+                theme.resolveAttribute(R.attr.drawerToolbarId, outValue, true)
+                        ? outValue.resourceId
+                        : R.id.drawer_toolbar);
+        mDrawerList.setOnScrollListener(new DropShadowScrollListener(toolbar));
 
         @IdRes int backButtonId = theme.resolveAttribute(R.attr.drawerBackButtonId, outValue, true)
                 ? outValue.resourceId

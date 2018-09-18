@@ -234,6 +234,13 @@ limitations under the License.
         <!-- The id of the view that will render a loading indicator for when the drawer contents
              are being fetched and the list of items cannot be displayed at the moment. -->
         <attr name="drawerProgressId" format="reference"/>
-
+        <!-- The id of the view that contains the back button and title of the drawer. -->
+        <attr name="drawerToolbarId" format="reference"/>
+        <!-- The layout that will be used to render a small list item within the drawer. A small
+             layout should have an icon and title. -->
+        <attr name="drawerSmallLayoutId" format="reference"/>
+        <!-- The layout that will be used for render a normal list item within the drawer. A
+             normal layout should have an icon, title, subtitle and end icon. -->
+        <attr name="drawerNormalLayoutId" format="reference"/>
     </declare-styleable>
 </resources>
