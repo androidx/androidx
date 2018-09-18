@@ -126,7 +126,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
 
     // Records the interpolator for the set. Null value indicates that no interpolator
     // was set on this AnimatorSet, so it should not be passed down to the children.
-    private TimeInterpolator mInterpolator = null;
+    private Interpolator mInterpolator = null;
 
     // The total duration of finishing all the Animators in the set.
     private long mTotalDuration = 0;
@@ -300,7 +300,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
     }
 
     /**
-     * Sets the TimeInterpolator for all current {@link #getChildAnimations() child animations}
+     * Sets the Interpolator for all current {@link #getChildAnimations() child animations}
      * of this AnimatorSet. The default value is null, which means that no interpolator
      * is set on this AnimatorSet. Setting the interpolator to any non-null value
      * will cause that interpolator to be set on the child animations
@@ -309,13 +309,13 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
      * @param interpolator the interpolator to be used by each child animation of this AnimatorSet
      */
     @Override
-    public void setInterpolator(@Nullable TimeInterpolator interpolator) {
+    public void setInterpolator(@Nullable Interpolator interpolator) {
         mInterpolator = interpolator;
     }
 
     @Override
     @Nullable
-    public TimeInterpolator getInterpolator() {
+    public Interpolator getInterpolator() {
         return mInterpolator;
     }
 

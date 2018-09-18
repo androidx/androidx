@@ -712,7 +712,7 @@ public class AnimatorSetTest {
         mAnim1.setRepeatCount(ValueAnimator.INFINITE);
         Animator[] animatorArray = {mAnim1, mAnim2};
 
-        TimeInterpolator interpolator = new AccelerateDecelerateInterpolator();
+        Interpolator interpolator = new AccelerateDecelerateInterpolator();
         mAnimatorSet = new AnimatorSet();
         mAnimatorSet.playTogether(animatorArray);
         mAnimatorSet.setInterpolator(interpolator);
