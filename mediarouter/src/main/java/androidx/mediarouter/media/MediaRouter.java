@@ -2519,6 +2519,8 @@ public final class MediaRouter {
                             route = isGroup ? new RouteGroup(provider, id, route.getId()) :
                                     new RouteInfo(provider, id, route.getId());
                             provider.mRoutes.set(sourceIndex, route);
+                            int routeIndex = findRouteByUniqueId(route.getId());
+                            mRoutes.set(routeIndex, route);
                         }
                         // 2. Reorder the route within the list.
                         Collections.swap(provider.mRoutes, sourceIndex, targetIndex++);
@@ -2562,7 +2564,8 @@ public final class MediaRouter {
                 RouteInfo route = provider.mRoutes.get(i);
                 route.maybeUpdateDescriptor(null);
                 // 2. Remove the route from the list.
-                mRoutes.remove(route);
+                int routeIndex = findRouteByUniqueId(route.getId());
+                mRoutes.remove(routeIndex);
             }
 
             // Update the selected route if needed.
