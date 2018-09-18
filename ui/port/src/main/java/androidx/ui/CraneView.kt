@@ -18,40 +18,59 @@ package androidx.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.View
+import android.view.ViewGroup
 import androidx.ui.compositing.Scene
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.window.Window
 import androidx.ui.engine.window.WindowPadding
 import androidx.ui.flow.CompositorContext
+import androidx.ui.foundation.Key
 import androidx.ui.painting.Canvas
 import androidx.ui.skia.SkMatrix
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.widgets.binding.WidgetsFlutterBinding
 import androidx.ui.widgets.binding.runApp
 import androidx.ui.widgets.framework.Widget
+import androidx.ui.widgets.view.ViewHost
 
 @SuppressLint("ViewConstructor")
 class CraneView(
     context: Context,
     private val widget: Widget
-) : View(context) {
+) : ViewGroup(context) {
 
+    private lateinit var widgetRoot: ViewHost
     private var scene: Scene? = null
     private var initialized: Boolean = false
     private val window = Window()
+
+    init {
+        setWillNotDraw(false)
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         updateMetrics()
         if (!initialized) {
             initialized = true
+            widgetRoot = ViewHost(this, Key.createKey("viewHost"), widget)
             window.renderDelegate = { newScene ->
                 scene = newScene
                 invalidate()
             }
-            runApp(widget, WidgetsFlutterBinding.create(window))
+            runApp(widgetRoot, WidgetsFlutterBinding.create(window))
         }
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        // TODO (njawad/Migration) skipping implementation to support simultaneous measure+ layout
+    }
+
+    override fun dispatchDraw(canvas: android.graphics.Canvas?) {
+        // TODO (njawad/Migration) skipping implementation to ensure proper interleaved draw
+        // ordering of Crane Widgets and traditional Views
+        // CraneView will draw it's widgets first view onDraw and default ViewGroup behavior will
+        // draw child Views after it draws itself
     }
 
     private fun updateMetrics() {

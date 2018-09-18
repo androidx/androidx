@@ -149,5 +149,5 @@ abstract class StatelessWidget(key: Key) : Widget(key) {
     // / See also:
     // /
     // /  * The discussion on performance considerations at [StatelessWidget].
-    internal abstract fun build(context: BuildContext): Widget
+    abstract fun build(context: BuildContext): Widget
 }

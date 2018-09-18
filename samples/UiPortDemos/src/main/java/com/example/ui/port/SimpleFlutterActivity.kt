@@ -17,20 +17,28 @@
 package com.example.ui.port
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.ui.CraneView
+import android.view.Gravity
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.ui.foundation.Key
 import androidx.ui.painting.Image
 import androidx.ui.widgets.basic.RawImage
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.State
 import androidx.ui.widgets.framework.StatefulWidget
+import androidx.ui.widgets.framework.StatelessWidget
 import androidx.ui.widgets.framework.Widget
+import androidx.ui.widgets.view.createViewWidget
 
 class SimpleFlutterActivity : Activity() {
 
@@ -38,8 +46,28 @@ class SimpleFlutterActivity : Activity() {
         super.onCreate(savedInstanceState)
         val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
 
-        val widget = MirrorImageWidget(Key.createKey("jetpack image widget!"), bitmap)
-        setContentView(CraneView(this, widget))
+        // val widget = MirrorImageWidget(Key.createKey("jetpack image widget!"), bitmap)
+
+        val view = View(this)
+        val frameLayoutParams = FrameLayout.LayoutParams(100, 100)
+        frameLayoutParams.gravity = Gravity.CENTER
+        view.layoutParams = frameLayoutParams
+        view.setBackgroundColor(Color.RED)
+
+        setContentView(CraneView(this,
+                ViewCompatTestWidget(Key.createKey("ViewCompatTestWidget"))))
+    }
+
+    class ViewCompatTestWidget(key: Key) : StatelessWidget(key) {
+
+        override fun build(context: BuildContext): Widget {
+            return createViewWidget(Key.createKey("testViewCompat")) {
+                context: Context ->
+                    val imageView = ImageView(context)
+                    imageView.setImageResource(R.drawable.test)
+                    imageView
+            }
+        }
     }
 
     class MirrorImageWidget(key: Key, private val bitmap: Bitmap) : StatefulWidget(key) {
