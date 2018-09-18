@@ -57,6 +57,7 @@ import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
 import androidx.media2.SubtitleData2;
 import androidx.media2.UriMediaItem2;
+import androidx.media2.XMediaPlayer;
 import androidx.media2.subtitle.Cea708CaptionRenderer;
 import androidx.media2.subtitle.ClosedCaptionRenderer;
 import androidx.media2.subtitle.SubtitleController;
@@ -101,12 +102,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private VideoTextureView mTextureView;
     private VideoSurfaceView mSurfaceView;
 
-    MediaPlayer2 mMediaPlayer;
+    VideoView2Player mMediaPlayer;
     MediaItem2 mMediaItem;
-    private List<MediaItem2> mPlayList;
     MediaControlView2 mMediaControlView;
     MediaSession2 mMediaSession;
-    VideoView2Player mVideoView2Player;
     private String mTitle;
     Executor mCallbackExecutor;
 
@@ -417,15 +416,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     @Override
     public void setMediaItem2(@NonNull MediaItem2 mediaItem) {
-        // TODO add an API such as "setPlayList(List<MediaItem2>)"
-        if (mPlayList != null) {
-            mPlayList.clear();
-        } else {
-            mPlayList = new ArrayList<MediaItem2>();
-        }
-        mPlayList.add(mediaItem);
-        mMediaItem = mediaItem;
         mSeekWhenPrepared = 0;
+        mMediaItem = mediaItem;
         openVideo();
     }
 
@@ -484,16 +476,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         // Note: MediaPlayer2 and MediaSession2 instances are created in onAttachedToWindow()
         // and closed in onDetachedFromWindow().
         if (mMediaPlayer == null) {
-            mMediaPlayer = MediaPlayer2.create(mInstance.getContext());
-            mVideoView2Player = new VideoView2Player(mMediaPlayer);
+            mMediaPlayer = new VideoView2Player(mInstance.getContext());
 
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
             mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer);
 
             if (mMediaSession != null) {
-                mMediaSession.updatePlayerConnector(mVideoView2Player,
-                        mMediaSession.getPlaylistAgent());
+                mMediaSession.updatePlayer(mMediaPlayer);
             }
         } else {
             if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
@@ -504,7 +494,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         if (mMediaSession == null) {
             final Context context = mInstance.getContext();
             mMediaSession = new MediaSession2.Builder(context)
-                    .setPlayer(mVideoView2Player)
+                    .setPlayer(mMediaPlayer)
                     .setId("VideoView2_" + mInstance.toString())
                     .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                     .build();
@@ -520,10 +510,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     @Override
     public void onDetachedFromWindowImpl() {
-        mMediaPlayer.close();
+        try {
+            mMediaPlayer.close();
+        } catch (Exception e) {
+        }
         mMediaSession.close();
         mMediaPlayer = null;
-        mVideoView2Player = null;
         mMediaSession = null;
     }
 
@@ -672,39 +664,32 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (isRemotePlayback()) {
                 mRoutePlayer.setMediaItem(mMediaItem);
                 return;
-            } else {
-                if (mMediaPlayer != null) {
-                    // TODO: Remove once b/110811730 is fixed.
-                    mMediaPlayer.setMediaItem(mMediaItem);
-                }
             }
         }
 
         try {
             if (mMediaPlayer == null) {
-                mMediaPlayer = MediaPlayer2.create(mInstance.getContext());
-                mVideoView2Player = new VideoView2Player(mMediaPlayer);
+                mMediaPlayer = new VideoView2Player(mInstance.getContext());
             }
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
             if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
                 Log.w(TAG, "failed to assign surface");
             }
-            mMediaPlayer.setEventCallback(mCallbackExecutor, mMediaPlayer2Callback);
+            mMediaPlayer.registerPlayerCallback(mCallbackExecutor, mMediaPlayerCallback);
             mMediaPlayer.setAudioAttributes(mAudioAttributes);
 
             if (mMediaSession == null) {
                 final Context context = mInstance.getContext();
                 mMediaSession = new MediaSession2.Builder(context)
-                        .setPlayer(mVideoView2Player)
+                        .setPlayer(mMediaPlayer)
                         .setId("VideoView2_" + mInstance.toString())
                         .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                         .build();
             } else {
-                mMediaSession.updatePlayerConnector(mVideoView2Player,
-                        mMediaSession.getPlaylistAgent());
+                mMediaSession.updatePlayer(mMediaPlayer);
             }
-            mMediaSession.setPlaylist(mPlayList, null);
+            mMediaPlayer.setMediaItem(mMediaItem);
 
             final Context context = mInstance.getContext();
             mSubtitleController = new SubtitleController(context);
@@ -721,8 +706,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             Log.w(TAG, "Unable to open content: " + mMediaItem, ex);
             mCurrentState = STATE_ERROR;
             mTargetState = STATE_ERROR;
-            mMediaPlayer2Callback.onError(mMediaPlayer, mMediaItem,
-                    MediaPlayer2.MEDIA_ERROR_UNKNOWN, MediaPlayer2.MEDIA_ERROR_IO);
         }
     }
 
@@ -783,7 +766,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     void extractTracks() {
-        List<MediaPlayer2.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
+        List<XMediaPlayer.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
         mVideoTrackIndices = new ArrayList<>();
         mAudioTrackIndices = new ArrayList<>();
         mSubtitleTracks = new SparseArray<>();
@@ -966,11 +949,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mCurrentMusicView = newMusicView;
     }
 
-    MediaPlayer2.EventCallback mMediaPlayer2Callback =
-            new MediaPlayer2.EventCallback() {
+    XMediaPlayer.PlayerCallback mMediaPlayerCallback =
+            new XMediaPlayer.PlayerCallback() {
                 @Override
                 public void onVideoSizeChanged(
-                        MediaPlayer2 mp, MediaItem2 dsd, int width, int height) {
+                        XMediaPlayer mp, MediaItem2 dsd, int width, int height) {
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): size: " + width + "/" + height);
                     }
@@ -993,7 +976,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onInfo(
-                        MediaPlayer2 mp, MediaItem2 dsd, int what, int extra) {
+                        XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                     if (DEBUG) {
                         Log.d(TAG, "onInfo()");
                     }
@@ -1014,7 +997,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onError(
-                        MediaPlayer2 mp, MediaItem2 dsd, int frameworkErr, int implErr) {
+                        XMediaPlayer mp, MediaItem2 dsd, int frameworkErr, int implErr) {
                     if (DEBUG) {
                         Log.d(TAG, "Error: " + frameworkErr + "," + implErr);
                     }
@@ -1032,7 +1015,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onSubtitleData(
-                        MediaPlayer2 mp, MediaItem2 dsd, SubtitleData2 data) {
+                        XMediaPlayer mp, MediaItem2 dsd, SubtitleData2 data) {
                     if (DEBUG) {
                         Log.d(TAG, "onSubtitleData(): getTrackIndex: " + data.getTrackIndex()
                                 + ", getCurrentPosition: " + mp.getCurrentPosition()
@@ -1057,7 +1040,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                 }
 
-                private void onPrepared(MediaPlayer2 mp, MediaItem2 dsd) {
+                private void onPrepared(XMediaPlayer mp, MediaItem2 dsd) {
                     if (DEBUG) {
                         Log.d(TAG, "OnPreparedListener(): "
                                 + ", mCurrentState=" + mCurrentState
@@ -1103,7 +1086,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                 }
 
-                private void onCompletion(MediaPlayer2 mp, MediaItem2 dsd) {
+                private void onCompletion(XMediaPlayer mp, MediaItem2 dsd) {
                     mCurrentState = STATE_PLAYBACK_COMPLETED;
                     mTargetState = STATE_PLAYBACK_COMPLETED;
                 }
@@ -1122,7 +1105,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             SessionCommandGroup2.Builder commandsBuilder = new SessionCommandGroup2.Builder()
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY)
-                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD)

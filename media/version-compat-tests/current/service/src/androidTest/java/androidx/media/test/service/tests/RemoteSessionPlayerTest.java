@@ -24,9 +24,8 @@ import static org.junit.Assert.assertTrue;
 import android.media.AudioManager;
 import android.os.Build;
 
-import androidx.media.test.service.MockPlayerConnector;
-import androidx.media.test.service.MockPlaylistAgent;
-import androidx.media.test.service.MockRemotePlayerConnector;
+import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockRemotePlayer;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.BaseRemoteMediaPlayerConnector;
 import androidx.media2.MediaSession2;
@@ -43,13 +42,13 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests whether the methods of {@link BaseRemoteMediaPlayerConnector} are triggered by the
+ * Tests whether the methods of {@link androidx.media2.RemoteSessionPlayer2} are triggered by the
  * controller.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class RemoteMediaPlayerConnectorTest extends MediaSession2TestBase {
+public class RemoteSessionPlayerTest extends MediaSession2TestBase {
 
     MediaSession2 mSession;
     RemoteMediaController2 mController2;
@@ -60,8 +59,7 @@ public class RemoteMediaPlayerConnectorTest extends MediaSession2TestBase {
         super.setUp();
         // Create this test specific MediaSession2 to use our own Handler.
         mSession = new MediaSession2.Builder(mContext)
-                .setPlayer(new MockPlayerConnector(1))
-                .setPlaylistAgent(new MockPlaylistAgent())
+                .setPlayer(new MockPlayer(1))
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                     @Override
                     public SessionCommandGroup2 onConnect(MediaSession2 session,
@@ -88,13 +86,13 @@ public class RemoteMediaPlayerConnectorTest extends MediaSession2TestBase {
     @Test
     public void testSetVolumeToByController() throws Exception {
         prepareLooper();
-        final float maxVolume = 100;
-        final float currentVolume = 23;
+        final int maxVolume = 100;
+        final int currentVolume = 23;
         final int volumeControlType = BaseRemoteMediaPlayerConnector.VOLUME_CONTROL_ABSOLUTE;
-        MockRemotePlayerConnector remotePlayer = new MockRemotePlayerConnector(
+        MockRemotePlayer remotePlayer = new MockRemotePlayer(
                 volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayerConnector(remotePlayer, null);
+        mSession.updatePlayer(remotePlayer);
 
         final int targetVolume = 50;
         mController2.setVolumeTo(targetVolume, 0 /* flags */);
@@ -107,14 +105,14 @@ public class RemoteMediaPlayerConnectorTest extends MediaSession2TestBase {
     @Test
     public void testAdjustVolumeByController() throws Exception {
         prepareLooper();
-        final float maxVolume = 100.0f;
-        final float currentVolume = 23.0f;
+        final int maxVolume = 100;
+        final int currentVolume = 23;
         final int volumeControlType = BaseRemoteMediaPlayerConnector.VOLUME_CONTROL_ABSOLUTE;
 
-        MockRemotePlayerConnector remotePlayer = new MockRemotePlayerConnector(
+        MockRemotePlayer remotePlayer = new MockRemotePlayer(
                 volumeControlType, maxVolume, currentVolume);
 
-        mSession.updatePlayerConnector(remotePlayer, null);
+        mSession.updatePlayer(remotePlayer);
 
         final int direction = AudioManager.ADJUST_RAISE;
         mController2.adjustVolume(direction, 0 /* flags */);

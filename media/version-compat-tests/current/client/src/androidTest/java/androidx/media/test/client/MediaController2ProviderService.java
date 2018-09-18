@@ -154,12 +154,6 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void reset(String controllerId) throws RemoteException {
-            MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.reset();
-        }
-
-        @Override
         public void prepare(String controllerId) throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
             controller2.prepare();

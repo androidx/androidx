@@ -28,7 +28,7 @@ interface IRemoteMediaSession2 {
     // MediaSession2 Methods
     ParcelImpl getToken(String sessionId);
     Bundle getCompatToken(String sessionId);
-    void updatePlayerConnector(String sessionId, in Bundle playerBundle, in Bundle agentBundle);
+    void updatePlayer(String sessionId, in Bundle playerBundle);
     void sendCustomCommand(String sessionId, in Bundle command, in Bundle args);
     void sendCustomCommand2(String sessionId, in Bundle controller, in Bundle command,
             in Bundle args, in ResultReceiver receiver);
@@ -48,8 +48,7 @@ interface IRemoteMediaSession2 {
     void notifyBufferingStateChanged(String sessionId, int itemIndex, int buffState);
     void notifyPlayerStateChanged(String sessionId, int state);
     void notifyPlaybackSpeedChanged(String sessionId, float speed);
-    void notifyCurrentDataSourceChanged(String sessionId, int index);
-    void notifyMediaPrepared(String sessionId, int index);
+    void notifyCurrentMediaItemChanged(String sessionId, int index);
 
     // MockPlaylistAgent Methods
     void setPlaylist(String sessionId, in List<Bundle> playlist);

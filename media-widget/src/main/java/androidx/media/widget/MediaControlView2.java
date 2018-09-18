@@ -1859,7 +1859,7 @@ public class MediaControlView2 extends BaseLayout {
     }
 
     void seekTo(long newPosition, boolean shouldSeekNow) {
-        int positionOnProgressBar = (mDuration == 0)
+        int positionOnProgressBar = (mDuration <= 0)
                 ? 0 : (int) (MAX_PROGRESS * newPosition / mDuration);
         mProgress.setProgress(positionOnProgressBar);
         mCurrentTime.setText(stringForTime(newPosition));
@@ -2313,9 +2313,8 @@ public class MediaControlView2 extends BaseLayout {
                 if (DEBUG) {
                     Log.d(TAG, "onSeekCompleted(): " + position);
                 }
-
                 // Update progress bar and time text.
-                int positionOnProgressBar = (mDuration == 0)
+                int positionOnProgressBar = (mDuration <= 0)
                         ? 0 : (int) (MAX_PROGRESS * position / mDuration);
                 mProgress.setProgress(positionOnProgressBar);
                 mCurrentTime.setText(stringForTime(position));

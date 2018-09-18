@@ -58,6 +58,7 @@ import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayerConnector;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionPlayer2;
 import androidx.media2.UriMediaItem2;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
@@ -125,7 +126,6 @@ public class VideoView2Test {
     @After
     public void tearDown() throws Throwable {
         if (mController != null) {
-            mController.reset();
             mController.close();
         }
     }
@@ -155,11 +155,11 @@ public class VideoView2Test {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController2.class), any(SessionCommandGroup2.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PAUSED));
+                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PAUSED));
 
         mController.play();
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(MediaPlayerConnector.PLAYER_STATE_PLAYING));
+                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PLAYING));
     }
 
     @Test

@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.ComponentName;
 
 import androidx.media.test.service.MockMediaSessionService2;
-import androidx.media.test.service.MockPlayerConnector;
+import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media.test.service.TestServiceRegistry;
 import androidx.media2.MediaSession2;
@@ -72,7 +72,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
                 new TestServiceRegistry.OnGetSessionHandler() {
                     @Override
                     public MediaSession2 onGetSession() {
-                        MockPlayerConnector player = new MockPlayerConnector(1);
+                        MockPlayer player = new MockPlayer(1);
                         MediaSession2 session = new MediaSession2.Builder(mContext)
                                 .setPlayer(player)
                                 .setSessionCallback(sHandlerExecutor,
@@ -124,7 +124,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
                 new TestServiceRegistry.OnGetSessionHandler() {
                     @Override
                     public MediaSession2 onGetSession() {
-                        MockPlayerConnector player = new MockPlayerConnector(1);
+                        MockPlayer player = new MockPlayer(1);
                         MediaSession2 session = new MediaSession2.Builder(mContext)
                                 .setPlayer(player)
                                 .setSessionCallback(sHandlerExecutor,
@@ -163,7 +163,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
         MediaSessionService2 service = TestServiceRegistry.getInstance().getServiceInstance();
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setId("testGetSessions")
-                .setPlayer(new MockPlayerConnector(0))
+                .setPlayer(new MockPlayer(0))
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() { })
                 .build()) {
             service.addSession(session);
@@ -184,7 +184,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
         MediaSessionService2 service = TestServiceRegistry.getInstance().getServiceInstance();
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setId("testAddSessions_removedWhenClose")
-                .setPlayer(new MockPlayerConnector(0))
+                .setPlayer(new MockPlayer(0))
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() { })
                 .build()) {
             service.addSession(session);

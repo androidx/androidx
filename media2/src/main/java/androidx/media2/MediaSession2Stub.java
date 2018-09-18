@@ -346,17 +346,6 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void reset(IMediaController2 caller) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYBACK_RESET,
-                new SessionRunnable() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.reset();
-                    }
-                });
-    }
-
-    @Override
     public void prepare(IMediaController2 caller) throws RuntimeException {
         onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE,
                 new SessionRunnable() {
