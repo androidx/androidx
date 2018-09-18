@@ -35,6 +35,7 @@
         <item name="drawerListId">@id/custom_drawer_list</item>
         <item name="drawerTitleId">@id/custom_drawer_title</item>
         <item name="drawerProgressId">@id/custom_drawer_progress</item>
+        <item name="drawerToolbarId">@id/custom_toolbar</item>
     </style>
 
     <!-- The style of the hamburger icon. This style affects the ripple color. -->

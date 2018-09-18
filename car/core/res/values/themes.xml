@@ -128,6 +128,9 @@ limitations under the License.
         <item name="drawerListId">@id/car_drawer_list</item>
         <item name="drawerTitleId">@id/car_drawer_title</item>
         <item name="drawerProgressId">@id/car_drawer_progress</item>
+        <item name="drawerNormalLayoutId">@layout/car_drawer_list_item_normal</item>
+        <item name="drawerSmallLayoutId">@layout/car_drawer_list_item_small</item>
+        <item name="drawerToolbarId">@id/drawer_toolbar</item>
         <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
         <item name="drawerBackgroundColor">@color/car_card_dark</item>
         <item name="drawerRippleColor">@color/car_card_ripple_background_light</item>
