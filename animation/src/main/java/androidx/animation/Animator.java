@@ -214,14 +214,14 @@ public abstract class Animator implements Cloneable {
     }
 
     /**
-     * The time interpolator used in calculating the elapsed fraction of the
+     * The interpolator used in calculating the elapsed fraction of the
      * animation. The interpolator determines whether the animation runs with
      * linear or non-linear motion, such as acceleration and deceleration. The
      * default value is {@link androidx.animation.AccelerateDecelerateInterpolator}.
      *
      * @param value the interpolator to be used by this animation
      */
-    public abstract void setInterpolator(@Nullable TimeInterpolator value);
+    public abstract void setInterpolator(@Nullable Interpolator value);
 
     /**
      * Returns the timing interpolator that this animation uses.
@@ -229,7 +229,7 @@ public abstract class Animator implements Cloneable {
      * @return The timing interpolator for this animation.
      */
     @Nullable
-    public TimeInterpolator getInterpolator() {
+    public Interpolator getInterpolator() {
         return null;
     }
 

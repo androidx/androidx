@@ -22,6 +22,8 @@ import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
+import androidx.annotation.FloatRange;
+
 /**
  * An interpolator where the rate of change starts out quickly and
  * and then decelerates.
@@ -61,7 +63,8 @@ public class DecelerateInterpolator implements Interpolator {
     }
 
     @Override
-    public float getInterpolation(float input) {
+    @FloatRange(from = 0, to = 1)
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
         float result;
         if (mFactor == 1.0f) {
             result = 1.0f - (1.0f - input) * (1.0f - input);

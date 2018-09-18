@@ -23,6 +23,7 @@ import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.InflateException;
 
+import androidx.annotation.FloatRange;
 import androidx.core.graphics.PathParser;
 
 
@@ -193,7 +194,7 @@ public class PathInterpolator implements Interpolator {
      * @see Interpolator#getInterpolation(float)
      */
     @Override
-    public float getInterpolation(float t) {
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float t) {
         if (t <= 0) {
             return 0;
         } else if (t >= 1) {

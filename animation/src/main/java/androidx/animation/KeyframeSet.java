@@ -37,7 +37,7 @@ class KeyframeSet<T> implements Keyframes<T> {
 
     Keyframe<T> mFirstKeyframe;
     Keyframe<T> mLastKeyframe;
-    TimeInterpolator mInterpolator; // only used in the 2-keyframe case
+    Interpolator mInterpolator; // only used in the 2-keyframe case
     List<Keyframe<T>> mKeyframes; // only used when there are not 2 keyframes
     TypeEvaluator<T> mEvaluator;
 
@@ -217,7 +217,7 @@ class KeyframeSet<T> implements Keyframes<T> {
         }
         if (fraction <= 0f) {
             final Keyframe<T> nextKeyframe = mKeyframes.get(1);
-            final TimeInterpolator interpolator = nextKeyframe.getInterpolator();
+            final Interpolator interpolator = nextKeyframe.getInterpolator();
             if (interpolator != null) {
                 fraction = interpolator.getInterpolation(fraction);
             }
@@ -228,7 +228,7 @@ class KeyframeSet<T> implements Keyframes<T> {
                     nextKeyframe.getValue());
         } else if (fraction >= 1f) {
             final Keyframe<T> prevKeyframe = mKeyframes.get(mNumKeyframes - 2);
-            final TimeInterpolator interpolator = mLastKeyframe.getInterpolator();
+            final Interpolator interpolator = mLastKeyframe.getInterpolator();
             if (interpolator != null) {
                 fraction = interpolator.getInterpolation(fraction);
             }
@@ -242,7 +242,7 @@ class KeyframeSet<T> implements Keyframes<T> {
         for (int i = 1; i < mNumKeyframes; ++i) {
             Keyframe<T> nextKeyframe = mKeyframes.get(i);
             if (fraction < nextKeyframe.getFraction()) {
-                final TimeInterpolator interpolator = nextKeyframe.getInterpolator();
+                final Interpolator interpolator = nextKeyframe.getInterpolator();
                 final float prevFraction = prevKeyframe.getFraction();
                 float intervalFraction = (fraction - prevFraction)
                         / (nextKeyframe.getFraction() - prevFraction);
