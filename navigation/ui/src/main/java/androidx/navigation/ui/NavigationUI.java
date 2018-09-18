@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -38,6 +39,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.navigation.NavController;
@@ -302,7 +304,7 @@ public class NavigationUI {
                                 ((DrawerLayout) parent).closeDrawer(navigationView);
                             } else {
                                 BottomSheetBehavior bottomSheetBehavior =
-                                        BottomSheetBehavior.from(navigationView);
+                                        findBottomSheetBehavior(navigationView);
                                 if (bottomSheetBehavior != null) {
                                     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                                 }
@@ -328,6 +330,29 @@ public class NavigationUI {
                 }
             }
         });
+    }
+
+    /**
+     * Walks up the view hierarchy, trying to determine if the given View is contained within
+     * a bottom sheet.
+     */
+    @SuppressWarnings("WeakerAccess")
+    static BottomSheetBehavior findBottomSheetBehavior(@NonNull View view) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        if (!(params instanceof CoordinatorLayout.LayoutParams)) {
+            ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                return findBottomSheetBehavior((View) parent);
+            }
+            return null;
+        }
+        CoordinatorLayout.Behavior behavior = ((CoordinatorLayout.LayoutParams) params)
+                .getBehavior();
+        if (!(behavior instanceof BottomSheetBehavior)) {
+            // We hit a CoordinatorLayout, but the View doesn't have the BottomSheetBehavior
+            return null;
+        }
+        return (BottomSheetBehavior) behavior;
     }
 
     /**
