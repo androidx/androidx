@@ -44,7 +44,7 @@ import java.io.IOException;
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(21)
 class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
-    private File getFile(ParcelFileDescriptor fd) {
+    private File getFile(@NonNull ParcelFileDescriptor fd) {
         try {
             final String path = Os.readlink("/proc/self/fd/" + fd.getFd());
             // Check if the symbolic link points the regular file.
@@ -68,6 +68,9 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
         final ContentResolver resolver = context.getContentResolver();
         try (ParcelFileDescriptor pfd =
                      resolver.openFileDescriptor(bestFont.getUri(), "r", cancellationSignal)) {
+            if (pfd == null) {
+                return null;
+            }
             final File file = getFile(pfd);
             if (file == null || !file.canRead()) {
                 // Unable to use the real file for creating Typeface. Fallback to copying
