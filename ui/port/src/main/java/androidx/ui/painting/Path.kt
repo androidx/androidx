@@ -332,17 +332,17 @@ class Path {
     fun addRRect(rrect: RRect) {
         rectF.set(rrect.left.toFloat(), rrect.top.toFloat(), rrect.right.toFloat(),
                 rrect.bottom.toFloat())
-        radii[0] = rrect.tlRadiusX.toFloat()
-        radii[1] = rrect.tlRadiusY.toFloat()
+        radii[0] = rrect.topLeftRadiusX.toFloat()
+        radii[1] = rrect.topLeftRadiusY.toFloat()
 
-        radii[2] = rrect.trRadiusX.toFloat()
-        radii[3] = rrect.trRadiusY.toFloat()
+        radii[2] = rrect.topRightRadiusX.toFloat()
+        radii[3] = rrect.topRightRadiusY.toFloat()
 
-        radii[4] = rrect.brRadiusX.toFloat()
-        radii[5] = rrect.brRadiusY.toFloat()
+        radii[4] = rrect.bottomRightRadiusX.toFloat()
+        radii[5] = rrect.bottomRightRadiusY.toFloat()
 
-        radii[6] = rrect.blRadiusX.toFloat()
-        radii[7] = rrect.blRadiusY.toFloat()
+        radii[6] = rrect.bottomLeftRadiusX.toFloat()
+        radii[7] = rrect.bottomLeftRadiusY.toFloat()
         internalPath.addRoundRect(rectF, radii, android.graphics.Path.Direction.CCW)
     }
 
