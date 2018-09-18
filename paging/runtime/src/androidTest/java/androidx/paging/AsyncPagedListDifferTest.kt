@@ -16,11 +16,11 @@
 
 package androidx.paging
 
-import androidx.test.filters.SmallTest
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -268,11 +268,16 @@ class AsyncPagedListDifferTest {
         assertNotNull(differ.currentList)
         assertTrue(differ.currentList!!.isImmutable)
 
-        // finally full drain, which signals nothing, since 1st pagedlist == 2nd pagedlist
-        drain()
+        // flush diff, which signals nothing, since 1st pagedlist == 2nd pagedlist
+        mDiffThread.executeAll()
+        mMainThread.executeAll()
         verifyNoMoreInteractions(callback)
         assertNotNull(differ.currentList)
         assertFalse(differ.currentList!!.isImmutable)
+
+        // finally, a full flush will complete the swap-triggered load within the new list
+        drain()
+        verify(callback).onChanged(8, 2, null)
     }
 
     @Test
@@ -347,6 +352,55 @@ class AsyncPagedListDifferTest {
         differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 20), 0))
         drain()
         assertEquals(differ.currentList!!.lastKey, 10)
+    }
+
+    @Test
+    fun submitSubset() {
+        // Page size large enough to load
+        val config = PagedList.Config.Builder()
+                .setInitialLoadSizeHint(4)
+                .setPageSize(2)
+                .setPrefetchDistance(1)
+                .setEnablePlaceholders(false)
+                .build()
+
+        val differ = createDiffer()
+
+        // mock RecyclerView interaction, where we load list where initial load doesn't fill the
+        // viewport, and it needs to load more
+        val first = createPagedListFromListAndPos(config, ALPHABET_LIST, 0)
+        differ.submitList(first)
+        assertEquals(4, differ.itemCount)
+        for (i in 0..3) {
+            differ.getItem(i)
+        }
+        // load more
+        drain()
+        assertEquals(6, differ.itemCount)
+        for (i in 4..5) {
+            differ.getItem(i)
+        }
+
+        // Update comes along with same initial data - a subset of current PagedList
+        val second = createPagedListFromListAndPos(config, ALPHABET_LIST, 0)
+        differ.submitList(second)
+        assertEquals(4, second.size)
+
+        // RecyclerView doesn't trigger any binds in this case, so no getItem() calls to
+        // AsyncPagedListDiffer / calls to PagedList.loadAround
+
+        // finish diff, but no further loading
+        mDiffThread.executeAll()
+        mMainThread.executeAll()
+
+        // 2nd list starts out at size 4
+        assertEquals(4, second.size)
+        assertEquals(4, differ.itemCount)
+
+        // but grows, despite not having explicit bind-triggered loads
+        drain()
+        assertEquals(6, second.size)
+        assertEquals(6, differ.itemCount)
     }
 
     @Test
