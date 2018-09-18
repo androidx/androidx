@@ -16,8 +16,6 @@
 
 package androidx.media.test.client.tests;
 
-import static androidx.media2.MediaItem2.FLAG_PLAYABLE;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -38,10 +36,10 @@ import androidx.media.test.lib.TestUtils;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
-import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaUtils2;
+import androidx.media2.SessionPlayer2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -94,8 +92,8 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         controllerCallback.reset(1);
         mControllerCompat.registerCallback(controllerCallback, sHandler);
 
-        mSession.getMockPlaylistAgent().setRepeatMode(testRepeatMode);
-        mSession.getMockPlaylistAgent().notifyRepeatModeChanged();
+        mSession.getMockPlayer().setRepeatMode(testRepeatMode);
+        mSession.getMockPlayer().notifyRepeatModeChanged();
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnRepeatModeChangedCalled);
         assertEquals(testRepeatMode, mControllerCompat.getRepeatMode());
@@ -110,8 +108,8 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         controllerCallback.reset(1);
         mControllerCompat.registerCallback(controllerCallback, sHandler);
 
-        mSession.getMockPlaylistAgent().setShuffleMode(testShuffleMode);
-        mSession.getMockPlaylistAgent().notifyShuffleModeChanged();
+        mSession.getMockPlayer().setShuffleMode(testShuffleMode);
+        mSession.getMockPlayer().notifyShuffleModeChanged();
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnShuffleModeChangedCalled);
         assertEquals(testShuffleMode, mControllerCompat.getShuffleMode());
@@ -132,7 +130,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
     @Test
     public void testUpdatePlayer() throws Exception {
         prepareLooper();
-        final int testState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
+        final int testState = SessionPlayer2.PLAYER_STATE_PLAYING;
         final int testBufferingPosition = 1500;
         final float testSpeed = 1.5f;
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
@@ -152,12 +150,11 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         }
         mControllerCompat.registerCallback(controllerCallback, sHandler);
 
-        Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
+        Bundle config = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 testState, 0 /* buffState */, 0 /* pos */, testBufferingPosition,
-                testSpeed, null /* audioAttrs */);
-        Bundle agentConfig = RemoteMediaSession2.createMockPlaylistAgentConfig(
-                testPlaylist, testPlaylist.get(0), testPlaylistMetadata);
-        mSession.updatePlayerConnector(playerConfig, agentConfig);
+                testSpeed, null /* audioAttrs */, testPlaylist, testPlaylist.get(0),
+                testPlaylistMetadata);
+        mSession.updatePlayer(config);
 
         assertTrue(controllerCallback.await(WAIT_TIME_MS));
         assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);
@@ -203,7 +200,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
 
         Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 controlType, maxVolume, currentVolume, null);
-        mSession.updatePlayerConnector(playerConfig, null);
+        mSession.updatePlayer(playerConfig);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
@@ -220,7 +217,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         Bundle prevPlayerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 10 /* maxVolume */,
                 1 /* currentVolume */, null /* audioAttrs */);
-        mSession.updatePlayerConnector(prevPlayerConfig, null);
+        mSession.updatePlayer(prevPlayerConfig);
 
         final int legacyStream = AudioManager.STREAM_RING;
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
@@ -243,7 +240,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 0 /* state */, 0 /* buffState */, 0 /* pos */, 0 /* bufferingPosition */,
                 1.0f /* speed */, attrs);
-        mSession.updatePlayerConnector(playerConfig, null);
+        mSession.updatePlayer(playerConfig);
 
         // In API 21 and 22, onAudioInfoChanged is not called when playback is changed to local.
         if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
@@ -280,7 +277,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 0 /* state */, 0 /* buffState */, 0 /* pos */, 0 /* bufferingPosition */,
                 1.0f /* speed */, attrs);
-        mSession.updatePlayerConnector(playerConfig, null);
+        mSession.updatePlayer(playerConfig);
 
         // In API 21+, onAudioInfoChanged() is not called when playbackType is not changed.
         if (Build.VERSION.SDK_INT >= 21) {
@@ -301,7 +298,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         Bundle prevPlayerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 10 /* maxVolume */,
                 1 /* currentVolume */, null /* audioAttrs */);
-        mSession.updatePlayerConnector(prevPlayerConfig, null);
+        mSession.updatePlayer(prevPlayerConfig);
 
         final int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
         final int maxVolume = 25;
@@ -325,7 +322,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
 
         Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 controlType, maxVolume, currentVolume, null);
-        mSession.updatePlayerConnector(playerConfig, null);
+        mSession.updatePlayer(playerConfig);
 
         // In API 21+, onAudioInfoChanged() is not called when playbackType is not changed.
         if (Build.VERSION.SDK_INT >= 21) {
@@ -345,7 +342,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
     @Test
     public void testPlayerStateChange() throws Exception {
         prepareLooper();
-        final int targetState = MediaPlayerConnector.PLAYER_STATE_PLAYING;
+        final int targetState = SessionPlayer2.PLAYER_STATE_PLAYING;
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
         controllerCallback.reset(1);
@@ -380,9 +377,9 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         prepareLooper();
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
         final int testItemIndex = 0;
-        final int testBufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final int testBufferingState = SessionPlayer2.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
-        mSession.getMockPlaylistAgent().setPlaylistWithDummyItem(testPlaylist);
+        mSession.getMockPlayer().setPlaylistWithDummyItem(testPlaylist);
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
         controllerCallback.reset(1);
@@ -406,7 +403,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         mControllerCompat.registerCallback(controllerCallback, sHandler);
 
         mSession.getMockPlayer().setCurrentPosition(testSeekPosition);
-        mSession.getMockPlayer().setPlayerState(MediaPlayerConnector.PLAYER_STATE_PAUSED);
+        mSession.getMockPlayer().setPlayerState(SessionPlayer2.PLAYER_STATE_PAUSED);
         mSession.getMockPlayer().notifySeekCompleted(testSeekPosition);
         assertTrue(controllerCallback.await(TIMEOUT_MS));
         assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);
@@ -445,14 +442,14 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         List<MediaItem2> playlist = MediaTestUtils.createPlaylist(5);
         final int testItemIndex = 3;
         playlist.set(testItemIndex, currentMediaItem);
-        mSession.getMockPlaylistAgent().setPlaylistWithDummyItem(playlist);
+        mSession.getMockPlayer().setPlaylistWithDummyItem(playlist);
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
         controllerCallback.reset(1);
         mControllerCompat.registerCallback(controllerCallback, sHandler);
 
-        mSession.getMockPlaylistAgent().setCurrentMediaItem(testItemIndex);
-        mSession.getMockPlayer().notifyCurrentDataSourceChanged(testItemIndex);
+        mSession.getMockPlayer().setCurrentMediaItem(testItemIndex);
+        mSession.getMockPlayer().notifyCurrentMediaItemChanged(testItemIndex);
 
         assertTrue(controllerCallback.await(TIMEOUT_MS));
         assertTrue(controllerCallback.mOnMetadataChangedCalled);
@@ -472,9 +469,9 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         controllerCallback.reset(2);
         mControllerCompat.registerCallback(controllerCallback, sHandler);
 
-        mSession.getMockPlaylistAgent().setPlaylist(playlist);
-        mSession.getMockPlaylistAgent().setPlaylistMetadata(playlistMetadata);
-        mSession.getMockPlaylistAgent().notifyPlaylistChanged();
+        mSession.getMockPlayer().setPlaylist(playlist);
+        mSession.getMockPlayer().setPlaylistMetadata(playlistMetadata);
+        mSession.getMockPlayer().notifyPlaylistChanged();
 
         assertTrue(controllerCallback.await(TIMEOUT_MS));
         assertTrue(controllerCallback.mOnQueueChangedCalled);
@@ -500,8 +497,8 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         controllerCallback.reset(1);
         mControllerCompat.registerCallback(controllerCallback, sHandler);
 
-        mSession.getMockPlaylistAgent().setPlaylistMetadata(playlistMetadata);
-        mSession.getMockPlaylistAgent().notifyPlaylistMetadataChanged();
+        mSession.getMockPlayer().setPlaylistMetadata(playlistMetadata);
+        mSession.getMockPlayer().notifyPlaylistMetadataChanged();
 
         assertTrue(controllerCallback.await(TIMEOUT_MS));
         assertTrue(controllerCallback.mOnQueueTitleChangedCalled);

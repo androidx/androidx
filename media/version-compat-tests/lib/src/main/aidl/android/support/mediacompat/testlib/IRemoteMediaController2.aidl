@@ -30,7 +30,6 @@ interface IRemoteMediaController2 {
     ParcelImpl getConnectedSessionToken(String controllerId);
     void play(String controllerId);
     void pause(String controllerId);
-    void reset(String controllerId);
     void prepare(String controllerId);
     void seekTo(String controllerId, long pos);
     void setPlaybackSpeed(String controllerId, float speed);

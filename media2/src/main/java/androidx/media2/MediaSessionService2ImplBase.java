@@ -110,7 +110,7 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
         if (session == null) {
             throw new IllegalArgumentException("session shouldn't be null");
         }
-        if (session.getPlayerConnector() == null) {
+        if (session.getPlayer() == null) {
             throw new IllegalArgumentException("session is already closed");
         }
         final MediaSession2 old;

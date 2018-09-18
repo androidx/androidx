@@ -109,7 +109,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             return (MediaLibrarySession) onGetSessionHandler.onGetSession();
         }
 
-        final MockPlayerConnector player = new MockPlayerConnector(1);
+        final MockPlayer player = new MockPlayer(1);
         final Executor executor = new Executor() {
             @Override
             public void execute(Runnable runnable) {

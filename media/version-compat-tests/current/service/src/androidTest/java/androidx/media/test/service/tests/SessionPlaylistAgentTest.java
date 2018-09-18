@@ -45,6 +45,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,6 +62,8 @@ import java.util.concurrent.TimeUnit;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@Ignore
+// TODO: Remove
 public class SessionPlaylistAgentTest extends MediaSession2TestBase {
     // Expected success
     private static final int WAIT_TIME_MS = 300;
@@ -338,7 +341,7 @@ public class SessionPlaylistAgentTest extends MediaSession2TestBase {
                 mPlaylistAgent.getCurShuffledIndex());
     }
 
-    // TODO(jaewan): Uncomment this when MediaSession supports SessionPlayer2.
+    // TODO(jaewan): Uncomment this when MediaSession supports MediaPlayerConnector.
 /*
     @Test
     public void testPlaylistWithInvalidItem() throws Exception {

@@ -51,13 +51,12 @@ import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
-import androidx.media2.MediaPlayerConnector;
-import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionPlayer2;
 import androidx.media2.SessionToken2;
 import androidx.versionedparcelable.ParcelUtils;
 
@@ -79,7 +78,6 @@ public class RemoteMediaSession2 {
     private ServiceConnection mServiceConnection;
     private IRemoteMediaSession2 mBinder;
     private RemoteMockPlayer mRemotePlayer;
-    private RemoteMockPlaylistAgent mRemotePlaylistAgent;
     private CountDownLatch mCountDownLatch;
 
     /**
@@ -112,18 +110,10 @@ public class RemoteMediaSession2 {
     }
 
     /**
-     * Gets {@link RemoteMockPlaylistAgent} for interact with the remote MockPlaylistAgent.
-     * Users can run MockPlaylistAgent methods remotely with this object.
-     */
-    public RemoteMockPlaylistAgent getMockPlaylistAgent() {
-        return mRemotePlaylistAgent;
-    }
-
-    /**
      * Create a {@link Bundle} which represents a configuration of local
-     * {@link MediaPlayerConnector} in order to create a new mock player in the service app.
+     * {@link SessionPlayer2} in order to create a new mock player in the service app.
      * <p>
-     * The returned value can be used in {@link #updatePlayerConnector(Bundle, Bundle)}.
+     * The returned value can be used in {@link #updatePlayer(Bundle)}.
      */
     public static Bundle createMockPlayerConnectorConfig(
             int state, int buffState, long pos, long buffPos, float speed,
@@ -142,9 +132,9 @@ public class RemoteMediaSession2 {
 
     /**
      * Create a {@link Bundle} which represents a configuration of remote
-     * {@link MediaPlayerConnector} in order to create a new mock player in the service app.
+     * {@link SessionPlayer2} in order to create a new mock player in the service app.
      * <p>
-     * The returned value can be used in {@link #updatePlayerConnector(Bundle, Bundle)}.
+     * The returned value can be used in {@link #updatePlayer(Bundle)}.
      */
     public static Bundle createMockPlayerConnectorConfig(
             int volumeControlType, int maxVolume, int currentVolume,
@@ -160,26 +150,28 @@ public class RemoteMediaSession2 {
     }
 
     /**
-     * Create a {@link Bundle} which represents a configuration of {@link MediaPlaylistAgent}
+     * Create a {@link Bundle} which represents a configuration of {@link SessionPlayer2}
      * in order to create a new mock playlist agent in the service app.
      * <p>
-     * The returned value can be used in {@link #updatePlayerConnector(Bundle, Bundle)}.
+     * The returned value can be used in {@link #updatePlayer(Bundle)}.
      */
-    public static Bundle createMockPlaylistAgentConfig(
-            @Nullable List<MediaItem2> playlist, @Nullable MediaItem2 currentItem,
-            @Nullable MediaMetadata2 metadata) {
-        Bundle agentBundle = new Bundle();
+    public static Bundle createMockPlayerConnectorConfig(
+            int state, int buffState, long pos, long buffPos, float speed,
+            @Nullable AudioAttributesCompat attr, @Nullable List<MediaItem2> playlist,
+            @Nullable MediaItem2 currentItem, @Nullable MediaMetadata2 metadata) {
+        Bundle bundle = createMockPlayerConnectorConfig(state, buffState, pos, buffPos, speed,
+                attr);
         if (playlist != null) {
-            agentBundle.putParcelableArrayList(KEY_PLAYLIST,
+            bundle.putParcelableArrayList(KEY_PLAYLIST,
                     MediaTestUtils.playlistToParcelableArrayList(playlist));
         }
         if (currentItem != null) {
-            agentBundle.putBundle(KEY_MEDIA_ITEM, currentItem.toBundle());
+            bundle.putBundle(KEY_MEDIA_ITEM, currentItem.toBundle());
         }
         if (metadata != null) {
-            agentBundle.putBundle(KEY_METADATA, metadata.toBundle());
+            bundle.putBundle(KEY_METADATA, metadata.toBundle());
         }
-        return agentBundle;
+        return bundle;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -222,9 +214,9 @@ public class RemoteMediaSession2 {
         return token;
     }
 
-    public void updatePlayerConnector(@NonNull Bundle playerConfig, @Nullable Bundle agentConfig) {
+    public void updatePlayer(@NonNull Bundle config) {
         try {
-            mBinder.updatePlayerConnector(mSessionId, playerConfig, agentConfig);
+            mBinder.updatePlayer(mSessionId, config);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call updatePlayerConnector()");
         }
@@ -377,28 +369,13 @@ public class RemoteMediaSession2 {
             }
         }
 
-        public void notifyCurrentDataSourceChanged(int index) {
+        public void notifyCurrentMediaItemChanged(int index) {
             try {
-                mBinder.notifyCurrentDataSourceChanged(mSessionId, index);
+                mBinder.notifyCurrentMediaItemChanged(mSessionId, index);
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call notifyCurrentDataSourceChanged()");
+                Log.e(TAG, "Failed to call notifyCurrentMediaItemChanged()");
             }
         }
-
-        public void notifyMediaPrepared(int index) {
-            try {
-                mBinder.notifyMediaPrepared(mSessionId, index);
-            } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call notifyMediaPrepared()");
-            }
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // MockPlaylistAgent methods
-    ////////////////////////////////////////////////////////////////////////////////
-
-    public class RemoteMockPlaylistAgent {
 
         public void setPlaylist(List<MediaItem2> playlist) {
             try {
@@ -532,7 +509,6 @@ public class RemoteMediaSession2 {
         try {
             mBinder.create(mSessionId);
             mRemotePlayer = new RemoteMockPlayer();
-            mRemotePlaylistAgent = new RemoteMockPlaylistAgent();
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to get session token. sessionId=" + mSessionId);
         }

@@ -284,7 +284,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        List<MediaItem2> playlist = mSessionImpl.getPlaylistAgent().getPlaylist();
+                        List<MediaItem2> playlist = mSessionImpl.getPlayer().getPlaylist();
                         if (playlist == null) {
                             return;
                         }

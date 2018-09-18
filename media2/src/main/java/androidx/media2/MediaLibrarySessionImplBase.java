@@ -45,10 +45,9 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();
 
     MediaLibrarySessionImplBase(MediaSession2 instance, Context context, String id,
-            MediaPlayerConnector player, MediaPlaylistAgent playlistAgent,
-            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
-        super(instance, context, id, player, playlistAgent, sessionActivity, callbackExecutor,
-                callback);
+            SessionPlayer2 player, PendingIntent sessionActivity, Executor callbackExecutor,
+            SessionCallback callback) {
+        super(instance, context, id, player, sessionActivity, callbackExecutor, callback);
     }
 
     @Override

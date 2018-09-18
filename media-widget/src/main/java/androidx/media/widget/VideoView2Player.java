@@ -16,141 +16,84 @@
 
 package androidx.media.widget;
 
-import androidx.media.AudioAttributesCompat;
+import android.content.Context;
+
+import androidx.media2.CommandResult2;
 import androidx.media2.MediaItem2;
-import androidx.media2.MediaPlayer2;
-import androidx.media2.MediaPlayerConnector;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.XMediaPlayer;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
-class VideoView2Player extends MediaPlayerConnector {
-    private MediaPlayer2 mMediaPlayer2;
-    private MediaPlayerConnector mMediaPlayerConnector;
+class VideoView2Player extends XMediaPlayer {
+    VideoView2Player(Context context) {
+        super(context);
+    }
 
-    VideoView2Player(MediaPlayer2 mediaPlayer2) {
-        mMediaPlayer2 = mediaPlayer2;
-        mMediaPlayerConnector = mMediaPlayer2.getMediaPlayerConnector();
+    private MediaItem2 mMediaItem;
+
+    @Override
+    public ListenableFuture<CommandResult2> seekTo(long position) {
+        return super.seekTo(position, SEEK_CLOSEST);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // Workarounds for not throwing UnsupportedOperationException.
+    // TODO: Remove overrides below.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public List<MediaItem2> getPlaylist() {
+        try {
+            return super.getPlaylist();
+        } finally {
+            ArrayList<MediaItem2> list = new ArrayList<>();
+            list.add(getCurrentMediaItem());
+            return list;
+        }
     }
 
     @Override
-    public void play() {
-        mMediaPlayer2.play();
+    public MediaMetadata2 getPlaylistMetadata() {
+        try {
+            return super.getPlaylistMetadata();
+        } finally {
+            return null;
+        }
     }
 
     @Override
-    public void prepare() {
-        mMediaPlayer2.prepare();
+    public int getRepeatMode() {
+        try {
+            return super.getRepeatMode();
+        } finally {
+            return REPEAT_MODE_NONE;
+        }
     }
 
     @Override
-    public void pause() {
-        mMediaPlayer2.pause();
+    public int getShuffleMode() {
+        try {
+            return super.getShuffleMode();
+        } finally {
+            return SHUFFLE_MODE_NONE;
+        }
     }
 
     @Override
-    public void reset() {
-        mMediaPlayer2.reset();
-    }
-
-    @Override
-    public void skipToNext() {
-        mMediaPlayer2.skipToNext();
-    }
-
-    @Override
-    public void seekTo(long pos) {
-        mMediaPlayer2.seekTo(pos, MediaPlayer2.SEEK_CLOSEST);
-    }
-
-    @Override
-    public long getCurrentPosition() {
-        return mMediaPlayer2.getCurrentPosition();
-    }
-
-    @Override
-    public long getDuration() {
-        return mMediaPlayer2.getDuration();
-    }
-
-    @Override
-    public long getBufferedPosition() {
-        return mMediaPlayer2.getBufferedPosition();
-    }
-
-    @Override
-    public int getPlayerState() {
-        return mMediaPlayerConnector.getPlayerState();
-    }
-
-    @Override
-    public int getBufferingState() {
-        return mMediaPlayerConnector.getBufferingState();
-    }
-
-    @Override
-    public void setAudioAttributes(AudioAttributesCompat attributes) {
-        mMediaPlayer2.setAudioAttributes(attributes);
-    }
-
-    @Override
-    public AudioAttributesCompat getAudioAttributes() {
-        return mMediaPlayer2.getAudioAttributes();
-    }
-
-    @Override
-    public void setMediaItem(MediaItem2 dsd) {
-        mMediaPlayer2.setMediaItem(dsd);
-    }
-
-    @Override
-    public void setNextMediaItem(MediaItem2 dsd) {
-        mMediaPlayer2.setNextMediaItem(dsd);
-    }
-
-    @Override
-    public void setNextMediaItems(List<MediaItem2> dsds) {
-        mMediaPlayer2.getNextMediaItems(dsds);
+    public ListenableFuture<CommandResult2> setMediaItem(MediaItem2 item) {
+        mMediaItem = item;
+        return super.setMediaItem(item);
     }
 
     @Override
     public MediaItem2 getCurrentMediaItem() {
-        return mMediaPlayer2.getCurrentMediaItem();
-    }
-
-    @Override
-    public void loopCurrent(boolean loop) {
-        mMediaPlayer2.loopCurrent(loop);
-    }
-
-    @Override
-    public void setPlaybackSpeed(float speed) {
-        mMediaPlayerConnector.setPlaybackSpeed(speed);
-    }
-
-    @Override
-    public void setPlayerVolume(float volume) {
-        mMediaPlayer2.setPlayerVolume(volume);
-    }
-
-    @Override
-    public float getPlayerVolume() {
-        return mMediaPlayer2.getPlayerVolume();
-    }
-
-    @Override
-    public void registerPlayerEventCallback(Executor e,
-            PlayerEventCallback cb) {
-        mMediaPlayerConnector.registerPlayerEventCallback(e, cb);
-    }
-
-    @Override
-    public void unregisterPlayerEventCallback(PlayerEventCallback cb) {
-        mMediaPlayerConnector.unregisterPlayerEventCallback(cb);
-    }
-
-    @Override
-    public void close() {
-        mMediaPlayer2.close();
+        try {
+            return super.getCurrentMediaItem();
+        } finally {
+            return mMediaItem;
+        }
     }
 }
