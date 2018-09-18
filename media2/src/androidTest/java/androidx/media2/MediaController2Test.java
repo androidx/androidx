@@ -158,6 +158,19 @@ public class MediaController2Test extends MediaSession2TestBase {
     }
 
     @Test
+    public void testPlay_autoPrepare() throws Exception {
+        prepareLooper();
+
+        final MockPlayer player = new MockPlayer(2);
+        player.mLastPlayerState = SessionPlayer2.PLAYER_STATE_IDLE;
+        mSession.updatePlayer(player);
+        mController.play();
+        assertTrue(player.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(player.mPlayCalled);
+        assertTrue(player.mPrepareCalled);
+    }
+
+    @Test
     public void testPause() {
         prepareLooper();
         mController.pause();
@@ -505,7 +518,7 @@ public class MediaController2Test extends MediaSession2TestBase {
             }
         };
         final MediaController2 controller = createController(mSession.getToken(), true, callback);
-        mSession.setPlaylist(testPlaylist, null);
+        mSession.getPlayer().setPlaylist(testPlaylist, null);
         mPlayer.mBufferedPosition = testBufferingPosition;
         mPlayer.notifyBufferingStateChanged(testItem, testBufferingState);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));

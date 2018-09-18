@@ -130,7 +130,7 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
             synchronized (mLock) {
                 handler = mNotificationHandler;
             }
-            handler.onPlayerStateChanged(session, session.getPlayerState());
+            handler.onPlayerStateChanged(session, session.getPlayer().getPlayerState());
             session.getCallback().setForegroundServiceEventCallback(handler);
         }
     }

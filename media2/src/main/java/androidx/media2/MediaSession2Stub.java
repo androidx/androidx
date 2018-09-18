@@ -537,7 +537,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().setPlaybackSpeed(speed);
+                        mSessionImpl.setPlaybackSpeed(speed);
                     }
                 });
     }
@@ -553,7 +553,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "setPlaylist(): Ignoring null playlist from " + controller);
                             return;
                         }
-                        mSessionImpl.getInstance().setPlaylist(
+                        mSessionImpl.setPlaylist(
                                 MediaUtils2.convertParcelImplListToMediaItem2List(playlist),
                                 MediaMetadata2.fromBundle(metadata));
                     }
@@ -566,7 +566,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().updatePlaylistMetadata(
+                        mSessionImpl.updatePlaylistMetadata(
                                 MediaMetadata2.fromBundle(metadata));
                     }
                 });
@@ -583,7 +583,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         // Resets the UUID from the incoming media id, so controller may reuse a
                         // media item multiple times for addPlaylistItem.
                         item.mParcelUuid = new ParcelUuid(UUID.randomUUID());
-                        mSessionImpl.getInstance().addPlaylistItem(index, item);
+                        mSessionImpl.addPlaylistItem(index, item);
                     }
                 });
     }
@@ -596,7 +596,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     public void run(ControllerInfo controller) throws RemoteException {
                         MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
                         // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        mSessionImpl.getInstance().removePlaylistItem(item);
+                        mSessionImpl.removePlaylistItem(item);
                     }
                 });
     }
@@ -612,7 +612,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         // Resets the UUID from the incoming media id, so controller may reuse a
                         // media item multiple times for replacePlaylistItem.
                         item.mParcelUuid = new ParcelUuid(UUID.randomUUID());
-                        mSessionImpl.getInstance().replacePlaylistItem(index, item);
+                        mSessionImpl.replacePlaylistItem(index, item);
                     }
                 });
     }
@@ -628,7 +628,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     + controller);
                         }
                         // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        mSessionImpl.getInstance().skipToPlaylistItem(
+                        mSessionImpl.skipToPlaylistItem(
                                 (MediaItem2) ParcelUtils.fromParcelable(mediaItem));
                     }
                 });
@@ -640,7 +640,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().skipToPreviousItem();
+                        mSessionImpl.skipToPreviousItem();
                     }
                 });
     }
@@ -651,7 +651,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().skipToNextItem();
+                        mSessionImpl.skipToNextItem();
                     }
                 });
     }
@@ -662,7 +662,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().setRepeatMode(repeatMode);
+                        mSessionImpl.setRepeatMode(repeatMode);
                     }
                 });
     }
@@ -673,7 +673,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().setShuffleMode(shuffleMode);
+                        mSessionImpl.setShuffleMode(shuffleMode);
                     }
                 });
     }

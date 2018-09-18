@@ -538,47 +538,20 @@ package androidx.media2 {
   }
 
   public class MediaSession2 implements java.lang.AutoCloseable {
-    method public void addPlaylistItem(int, androidx.media2.MediaItem2);
     method public void clearOnDataSourceMissingHelper();
     method public void close();
-    method public long getBufferedPosition();
-    method public int getBufferingState();
     method public java.util.List<androidx.media2.MediaSession2.ControllerInfo> getConnectedControllers();
-    method public androidx.media2.MediaItem2 getCurrentMediaItem();
-    method public long getCurrentPosition();
-    method public long getDuration();
     method public java.lang.String getId();
-    method public float getPlaybackSpeed();
     method public androidx.media2.MediaPlayerConnector getPlayerConnector();
-    method public int getPlayerState();
-    method public java.util.List<androidx.media2.MediaItem2> getPlaylist();
     method public androidx.media2.MediaPlaylistAgent getPlaylistAgent();
-    method public androidx.media2.MediaMetadata2 getPlaylistMetadata();
-    method public int getRepeatMode();
-    method public int getShuffleMode();
     method public androidx.media2.SessionToken2 getToken();
     method public void notifyError(int, android.os.Bundle);
-    method public void pause();
-    method public void play();
-    method public void prepare();
-    method public void removePlaylistItem(androidx.media2.MediaItem2);
-    method public void replacePlaylistItem(int, androidx.media2.MediaItem2);
-    method public void reset();
-    method public void seekTo(long);
     method public void sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle);
     method public void sendCustomCommand(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void setAllowedCommands(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommandGroup2);
     method public void setCustomLayout(androidx.media2.MediaSession2.ControllerInfo, java.util.List<androidx.media2.MediaSession2.CommandButton>);
     method public void setOnDataSourceMissingHelper(androidx.media2.MediaSession2.OnDataSourceMissingHelper);
-    method public void setPlaybackSpeed(float);
-    method public void setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
-    method public void setRepeatMode(int);
-    method public void setShuffleMode(int);
-    method public void skipToNextItem();
-    method public void skipToPlaylistItem(androidx.media2.MediaItem2);
-    method public void skipToPreviousItem();
     method public void updatePlayerConnector(androidx.media2.MediaPlayerConnector, androidx.media2.MediaPlaylistAgent);
-    method public void updatePlaylistMetadata(androidx.media2.MediaMetadata2);
     field public static final int ERROR_CODE_ACTION_ABORTED = 10; // 0xa
     field public static final int ERROR_CODE_APP_ERROR = 1; // 0x1
     field public static final int ERROR_CODE_AUTHENTICATION_EXPIRED = 3; // 0x3
@@ -633,29 +606,19 @@ package androidx.media2 {
 
   public static abstract class MediaSession2.SessionCallback {
     ctor public MediaSession2.SessionCallback();
-    method public void onBufferingStateChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlayerConnector, androidx.media2.MediaItem2, int);
     method public boolean onCommandRequest(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2);
     method public androidx.media2.SessionCommandGroup2 onConnect(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public void onCurrentMediaItemChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlayerConnector, androidx.media2.MediaItem2);
     method public void onCustomCommand(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void onDisconnected(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public void onFastForward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public void onMediaPrepared(androidx.media2.MediaSession2, androidx.media2.MediaPlayerConnector, androidx.media2.MediaItem2);
     method public void onPlayFromMediaId(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
     method public void onPlayFromSearch(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
     method public void onPlayFromUri(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, android.net.Uri, android.os.Bundle);
-    method public void onPlaybackSpeedChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlayerConnector, float);
-    method public void onPlayerStateChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlayerConnector, int);
-    method public void onPlaylistChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlaylistAgent, java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
-    method public void onPlaylistMetadataChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlaylistAgent, androidx.media2.MediaMetadata2);
     method public void onPrepareFromMediaId(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
     method public void onPrepareFromSearch(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
     method public void onPrepareFromUri(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, android.net.Uri, android.os.Bundle);
-    method public void onRepeatModeChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlaylistAgent, int);
     method public void onRewind(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public void onSeekCompleted(androidx.media2.MediaSession2, androidx.media2.MediaPlayerConnector, long);
     method public void onSetRating(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, androidx.media2.Rating2);
-    method public void onShuffleModeChanged(androidx.media2.MediaSession2, androidx.media2.MediaPlaylistAgent, int);
   }
 
   public final class MediaSessionManager2 {
