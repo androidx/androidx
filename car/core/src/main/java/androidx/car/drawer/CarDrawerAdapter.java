@@ -18,13 +18,16 @@ package androidx.car.drawer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsHelper;
@@ -59,6 +62,9 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
 
     private final CarUxRestrictionsHelper mUxRestrictionsHelper;
     private CarUxRestrictions mCurrentUxRestrictions;
+
+    @LayoutRes private final int mSmallLayoutResId;
+    @LayoutRes private final int mNormalLayoutResId;
 
     /**
      * Enables support for {@link CarUxRestrictions}.
@@ -99,6 +105,16 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         mEmptyListDrawable = context.getDrawable(R.drawable.ic_list_view_disable);
         mEmptyListDrawable.setColorFilter(context.getColor(R.color.car_tint),
                 PorterDuff.Mode.SRC_IN);
+
+        TypedValue outValue = new TypedValue();
+        Resources.Theme theme = context.getTheme();
+
+        mSmallLayoutResId = theme.resolveAttribute(R.attr.drawerSmallLayoutId, outValue, true)
+                ? outValue.resourceId
+                : R.layout.car_drawer_list_item_small;
+        mNormalLayoutResId = theme.resolveAttribute(R.attr.drawerNormalLayoutId, outValue, true)
+                ? outValue.resourceId
+                : R.layout.car_drawer_list_item_normal;
 
         mUxRestrictionsHelper =
                 new CarUxRestrictionsHelper(context, carUxRestrictions -> {
@@ -160,8 +176,8 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         }
 
         return usesSmallLayout(position)
-                ? R.layout.car_drawer_list_item_small
-                : R.layout.car_drawer_list_item_normal;
+                ? mSmallLayoutResId
+                : mNormalLayoutResId;
     }
 
     /**
