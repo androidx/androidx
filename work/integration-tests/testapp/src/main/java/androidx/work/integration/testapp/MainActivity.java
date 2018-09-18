@@ -19,10 +19,12 @@ package androidx.work.integration.testapp;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.ExistingWorkPolicy.REPLACE;
 
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +39,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
+import androidx.work.WorkStatus;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
@@ -51,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String UNIQUE_WORK_NAME = "importantUniqueWork";
+    private static final String REPLACE_COMPLETED_WORK = "replaceCompletedWork";
     private static final int NUM_WORKERS = 150;
 
     @Override
@@ -197,5 +201,44 @@ public class MainActivity extends AppCompatActivity {
                 return new OneTimeWorkRequest.Builder(TestWorker.class).build();
             }
         });
+
+        findViewById(R.id.replace_completed_work).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WorkManager workManager = WorkManager.getInstance();
+                workManager.getStatusesForUniqueWork(REPLACE_COMPLETED_WORK)
+                        .observe(MainActivity.this, new Observer<List<WorkStatus>>() {
+                            private int mCount;
+
+                            @Override
+                            public void onChanged(@Nullable List<WorkStatus> workStatuses) {
+                                if (workStatuses == null) {
+                                    return;
+                                }
+                                if (!workStatuses.isEmpty()) {
+                                    WorkStatus status = workStatuses.get(0);
+                                    if (status.getState().isFinished()) {
+                                        if (mCount < NUM_WORKERS) {
+                                            // Enqueue another worker.
+                                            workManager.beginUniqueWork(
+                                                    REPLACE_COMPLETED_WORK,
+                                                    ExistingWorkPolicy.REPLACE,
+                                                    OneTimeWorkRequest.from(
+                                                            TestWorker.class)).enqueue();
+                                            mCount += 1;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                workManager.beginUniqueWork(
+                        REPLACE_COMPLETED_WORK,
+                        ExistingWorkPolicy.REPLACE,
+                        OneTimeWorkRequest.from(TestWorker.class)).enqueue();
+
+            }
+        });
+
     }
 }

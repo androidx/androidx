@@ -20,5 +20,6 @@
     <string name="loop_unique_work">Loop Unique Work</string>
     <string name="enqueue_lots_of_work">Add Lots of Work</string>
     <string name="exploding_work">Test Exploding Work</string>
+    <string name="replace_completed_work">Test Replacing Completed Work</string>
     <string name="keep">Use KEEP</string>
 </resources>
