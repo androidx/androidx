@@ -20,9 +20,13 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     androidTestImplementation(JUNIT)
+    androidTestImplementation(MOCKITO_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
+        exclude group: 'org.mockito' // to keep control on the mockito version
+    }
     androidTestImplementation project(':internal-testutils'), {
         exclude group: 'androidx.core', module: 'core'
     }
