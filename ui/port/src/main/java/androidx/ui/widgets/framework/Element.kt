@@ -749,10 +749,10 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
             return null
     }
 
-    protected var _inheritedWidgets: HashMap<Type, InheritedElement>? = null
+    protected var _inheritedWidgets: MutableMap<Type, InheritedElement>? = null
 
-    protected fun getParentInheritedWidgets(): HashMap<Type, InheritedElement>? {
-        return _inheritedWidgets
+    protected fun getParentInheritedWidgets(): MutableMap<Type, InheritedElement>? {
+        return _parent?._inheritedWidgets
     }
 
     internal var _dependencies: MutableSet<InheritedElement>? = null

@@ -39,13 +39,14 @@ class CraneView(
     private val widget: Widget
 ) : ViewGroup(context) {
 
-    private lateinit var widgetRoot: ViewHost
+    private var widgetRoot: ViewHost
     private var scene: Scene? = null
     private var initialized: Boolean = false
     private val window = Window()
 
     init {
         setWillNotDraw(false)
+        widgetRoot = ViewHost(this, Key.createKey("viewHost"), widget)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -53,7 +54,6 @@ class CraneView(
         updateMetrics()
         if (!initialized) {
             initialized = true
-            widgetRoot = ViewHost(this, Key.createKey("viewHost"), widget)
             window.renderDelegate = { newScene ->
                 scene = newScene
                 invalidate()
