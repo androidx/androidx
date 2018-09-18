@@ -14,6 +14,8 @@ import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.DoubleProperty
 import androidx.ui.foundation.timelineWhitelistArguments
+import androidx.ui.gestures.hit_test.HitTestEntry
+import androidx.ui.gestures.hit_test.HitTestResult
 import androidx.ui.painting.matrixutils.transformRect
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
@@ -97,7 +99,7 @@ class RenderView(
 
     // We never call layout() on this class, so this should never get
     // checked. (This class is laid out using scheduleInitialLayout().)
-    override fun debugAssertDoesMeetConstraints() { assert(false); }
+    override fun debugAssertDoesMeetConstraints() { assert(false) }
 
     override fun performResize() {
         assert(false)
@@ -117,23 +119,24 @@ class RenderView(
         // is started from our performResize()
     }
 
-    // TODO(Migration/andrey): Needs HitTestResult
-//    /// Determines the set of render objects located at the given position.
-//    ///
-//    /// Returns true if the given point is contained in this render object or one
-//    /// of its descendants. Adds any render objects that contain the point to the
-//    /// given hit test result.
-//    ///
-//    /// The [position] argument is in the coordinate system of the render view,
-//    /// which is to say, in logical pixels. This is not necessarily the same
-//    /// coordinate system as that expected by the root [Layer], which will
-//    /// normally be in physical (device) pixels.
-//    fun hitTest(result : HitTestResult, position : Offset? = null) : Boolean {
-//        if (child != null)
-//            child.hitTest(result, position: position);
-//        result.add(new HitTestEntry(this));
-//        return true;
-//    }
+    /**
+     * Determines the set of render objects located at the given position.
+     *
+     * Returns true if the given point is contained in this render object or one
+     * of its descendants. Adds any render objects that contain the point to the
+     * given hit test result.
+     *
+     * The [position] argument is in the coordinate system of the render view,
+     * which is to say, in logical pixels. This is not necessarily the same
+     * coordinate system as that expected by the root [Layer], which will
+     * normally be in physical (device) pixels.
+     */
+    fun hitTest(result: HitTestResult, position: Offset): Boolean {
+        if (child != null)
+            child?.hitTest(result, position)
+        result.add(HitTestEntry(this))
+        return true
+    }
 
     override var isRepaintBoundary: Boolean = true
 

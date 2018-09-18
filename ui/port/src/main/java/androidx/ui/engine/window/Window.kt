@@ -4,7 +4,11 @@ import androidx.ui.async.Timer
 import androidx.ui.compositing.Scene
 import androidx.ui.engine.geometry.Size
 import androidx.ui.semantics.SemanticsUpdate
+import androidx.ui.ui.pointer.PointerDataPacket
 import kotlinx.coroutines.experimental.channels.BroadcastChannel
+
+// / Signature for [Window.onPointerDataPacket].
+typealias PointerDataPacketCallback = (PointerDataPacket) -> Unit
 
 /**
  * The most basic interface to the host operating system's user interface.
@@ -244,7 +248,7 @@ class Window {
      *  * [GestureBinding], the Flutter framework class which manages pointer
      *    events.
      */
-    val onPointerDataPacket: BroadcastChannel<Unit> = BroadcastChannel(1)
+    val onPointerDataPacket: BroadcastChannel<PointerDataPacket> = BroadcastChannel(1)
 
     /**
      * The route or path that the embedder requested when the application was

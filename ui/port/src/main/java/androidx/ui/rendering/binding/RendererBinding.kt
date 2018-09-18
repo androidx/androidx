@@ -2,9 +2,12 @@ package androidx.ui.rendering.binding
 
 import androidx.ui.assert
 import androidx.ui.developer.timeline.Timeline
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.binding.BindingBase
 import androidx.ui.foundation.timelineWhitelistArguments
+import androidx.ui.gestures.hit_test.HitTestResult
+import androidx.ui.gestures.hit_test.HitTestable
 import androidx.ui.rendering.obj.PipelineOwner
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.SemanticsHandle
@@ -41,8 +44,8 @@ class RendererBindingImpl(
     private val window: Window,
     base: BindingBase,
     scheduler: SchedulerBinding
-) : RendererMixinsWrapper(base, scheduler), RendererBinding {
-/*with ServicesBinding, HitTestable*/
+) : RendererMixinsWrapper(base, scheduler), RendererBinding, HitTestable {
+/*with ServicesBinding*/
 
     /**
      * The render tree's owner, which maintains dirty state for layout,
@@ -337,14 +340,13 @@ class RendererBindingImpl(
         }
     }
 
-    // TODO(Migration/Andrey): needs HitTestResult and RenderObject.hitTest
-//    @override
-//    fun hitTest(HitTestResult result, Offset position) {
-//        assert(renderView != null);
-//        renderView.hitTest(result, position: position);
-//        // This super call is safe since it will be bound to a mixed-in declaration.
-//        super.hitTest(result, position); // ignore: abstract_super_member_reference
-//    }
+    override fun hitTest(result: HitTestResult, position: Offset) {
+        assert(renderView != null)
+        renderView!!.hitTest(result, position)
+        // This is how Flutter did it, which is something we can't do.
+        // // This super call is safe since it will be bound to a mixed-in declaration.
+        // super.hitTest(result, position); // ignore: abstract_super_member_reference
+    }
 
     private fun _forceRepaintVisitor(child: RenderObject) {
         child.markNeedsPaint()

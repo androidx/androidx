@@ -20,6 +20,8 @@ typealias ServiceExtensionCallback = (Map<String, String>) -> Deferred<Map<Strin
 
 interface BindingBase {
 
+    val locked: Boolean
+
     fun reassembleApplication(): Deferred<Unit>
 
     fun performReassemble(): Deferred<Unit>
@@ -50,6 +52,16 @@ interface BindingBase {
         name: String,
         callback: ServiceExtensionCallback
     )
+
+    // / Called by [lockEvents] when events get unlocked.
+    // /
+    // / This should flush any events that were queued while [locked] was true.
+    // TODO(Migration/shepshapard): commented out @CallSuper below because of bug in lintDebug where
+    // super calls are not noticed and thus an error is thrown.
+    // @CallSuper
+    fun unlocked() {
+        assert(!locked)
+    }
 }
 
 // / Base class for mixins that provide singleton services (also known as
@@ -156,8 +168,11 @@ open class BindingBaseImpl : BindingBase {
     // / set, queue events instead of firing them.
     // /
     // / Events should be flushed when [unlocked] is called.
-    val locked
-        get() = _lockCount > 0
+    override val locked: Boolean
+        get() {
+            requireMainThread()
+            return _lockCount > 0
+        }
     private var _lockCount = 0
 
     // / Locks the dispatching of asynchronous events and callbacks until the
@@ -191,14 +206,6 @@ open class BindingBaseImpl : BindingBase {
             }
         }
         return future
-    }
-
-    // / Called by [lockEvents] when events get unlocked.
-    // /
-    // / This should flush any events that were queued while [locked] was true.
-    @CallSuper
-    fun unlocked() {
-        assert(!locked)
     }
 
     // / Cause the entire application to redraw, e.g. after a hot reload.
