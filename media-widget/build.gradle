@@ -27,6 +27,7 @@ dependencies {
     api(project(":mediarouter"))
     api(project(":appcompat"))
     api(project(":palette"))
+    implementation(project(":concurrent:concurrent-futures"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
