@@ -43,7 +43,7 @@ import java.util.HashMap;
  * <p>By default, ValueAnimator uses non-linear time interpolation, via the
  * {@link AccelerateDecelerateInterpolator} class, which accelerates into and decelerates
  * out of an animation. This behavior can be changed by calling
- * {@link ValueAnimator#setInterpolator(TimeInterpolator)}.</p>
+ * {@link ValueAnimator#setInterpolator(Interpolator)}.</p>
  *
  * <p>Animators can be created from either code or resource files. Here is an example
  * of a ValueAnimator resource file:</p>
@@ -105,8 +105,8 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      */
     private boolean mResumed = false;
 
-    // The time interpolator to be used if none is set on the animation
-    private static final TimeInterpolator sDefaultInterpolator =
+    // The interpolator to be used if none is set on the animation
+    private static final Interpolator sDefaultInterpolator =
             new AccelerateDecelerateInterpolator();
 
     /**
@@ -210,11 +210,11 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
     private boolean mSuppressSelfPulseRequested = false;
 
     /**
-     * The time interpolator to be used. The elapsed fraction of the animation will be passed
+     * The interpolator to be used. The elapsed fraction of the animation will be passed
      * through this interpolator to calculate the interpolated fraction, which is then used to
      * calculate the animated values.
      */
-    private TimeInterpolator mInterpolator = sDefaultInterpolator;
+    private Interpolator mInterpolator = sDefaultInterpolator;
 
     /**
      * The property/value sets being animated.
@@ -891,7 +891,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
     }
 
     /**
-     * The time interpolator used in calculating the elapsed fraction of this animation. The
+     * The interpolator used in calculating the elapsed fraction of this animation. The
      * interpolator determines whether the animation runs with linear or non-linear motion,
      * such as acceleration and deceleration. The default value is
      * {@link AccelerateDecelerateInterpolator}
@@ -900,7 +900,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      * will result in linear interpolation.
      */
     @Override
-    public void setInterpolator(@Nullable TimeInterpolator value) {
+    public void setInterpolator(@Nullable Interpolator value) {
         if (value != null) {
             mInterpolator = value;
         } else {
@@ -915,7 +915,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      */
     @Override
     @Nullable
-    public TimeInterpolator getInterpolator() {
+    public Interpolator getInterpolator() {
         return mInterpolator;
     }
 

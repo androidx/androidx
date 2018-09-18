@@ -16,6 +16,8 @@
 
 package androidx.animation;
 
+import androidx.annotation.FloatRange;
+
 /**
  * An interpolator where the rate of change starts and ends slowly but
  * accelerates through the middle.
@@ -25,7 +27,8 @@ public class AccelerateDecelerateInterpolator implements Interpolator {
     }
 
     @Override
-    public float getInterpolation(float input) {
+    @FloatRange(from = 0, to = 1)
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
         return (float) (Math.cos((input + 1) * Math.PI) / 2.0f) + 0.5f;
     }
 

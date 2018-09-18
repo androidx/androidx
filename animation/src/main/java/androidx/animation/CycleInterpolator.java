@@ -22,6 +22,8 @@ import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
+import androidx.annotation.FloatRange;
+
 /**
  * Repeats the animation for a specified number of cycles. The
  * rate of change follows a sinusoidal pattern.
@@ -50,7 +52,8 @@ public class CycleInterpolator implements Interpolator {
     }
 
     @Override
-    public float getInterpolation(float input) {
+    @FloatRange(from = 0, to = 1)
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
         return (float) (Math.sin(2 * mCycles * Math.PI * input));
     }
 

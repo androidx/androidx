@@ -61,7 +61,7 @@ class IntKeyframeSet extends KeyframeSet<Integer> implements Keyframes.IntKeyfra
             int nextValue = nextKeyframe.getIntValue();
             float prevFraction = prevKeyframe.getFraction();
             float nextFraction = nextKeyframe.getFraction();
-            final TimeInterpolator interpolator = nextKeyframe.getInterpolator();
+            final Interpolator interpolator = nextKeyframe.getInterpolator();
             if (interpolator != null) {
                 fraction = interpolator.getInterpolation(fraction);
             }
@@ -76,7 +76,7 @@ class IntKeyframeSet extends KeyframeSet<Integer> implements Keyframes.IntKeyfra
             int nextValue = nextKeyframe.getIntValue();
             float prevFraction = prevKeyframe.getFraction();
             float nextFraction = nextKeyframe.getFraction();
-            final TimeInterpolator interpolator = nextKeyframe.getInterpolator();
+            final Interpolator interpolator = nextKeyframe.getInterpolator();
             if (interpolator != null) {
                 fraction = interpolator.getInterpolation(fraction);
             }
@@ -89,7 +89,7 @@ class IntKeyframeSet extends KeyframeSet<Integer> implements Keyframes.IntKeyfra
         for (int i = 1; i < mNumKeyframes; ++i) {
             IntKeyframe nextKeyframe = (IntKeyframe) mKeyframes.get(i);
             if (fraction < nextKeyframe.getFraction()) {
-                final TimeInterpolator interpolator = nextKeyframe.getInterpolator();
+                final Interpolator interpolator = nextKeyframe.getInterpolator();
                 float intervalFraction = (fraction - prevKeyframe.getFraction())
                         / (nextKeyframe.getFraction() - prevKeyframe.getFraction());
                 int prevValue = prevKeyframe.getIntValue();

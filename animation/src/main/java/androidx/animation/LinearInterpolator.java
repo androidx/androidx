@@ -19,6 +19,8 @@ package androidx.animation;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import androidx.annotation.FloatRange;
+
 /**
  * An interpolator where the rate of change is constant
  */
@@ -32,7 +34,8 @@ public class LinearInterpolator implements Interpolator{
     }
 
     @Override
-    public float getInterpolation(float input) {
+    @FloatRange(from = 0, to = 1)
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
         return input;
     }
 
