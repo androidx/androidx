@@ -268,13 +268,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
 
     @Override
     public void reset() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
-            }
-            mControllerCompat.getTransportControls().stop();
-        }
+        throw new UnsupportedOperationException("This API will be removed soon.");
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -151,6 +152,44 @@ public final class TestUtils {
         Bundle bundle = new Bundle();
         bundle.putString("test_key", "test_value");
         return bundle;
+    }
+
+    /**
+     * Asserts if two lists equals
+     *
+     * @param a a list
+     * @param b another list
+     */
+    public static void assertMediaItemListEquals(List<MediaItem2> a, List<MediaItem2> b) {
+        if (a == null || b == null) {
+            assertEquals(a, b);
+        }
+        assertEquals(a.size(), b.size());
+
+        for (int i = 0; i < a.size(); i++) {
+            MediaItem2 aItem = a.get(i);
+            MediaItem2 bItem = b.get(i);
+
+            if (aItem == null || bItem == null) {
+                assertEquals(aItem, bItem);
+                continue;
+            }
+
+            assertEquals(aItem.getMediaId(), bItem.getMediaId());
+            assertEquals(aItem.getFlags(), bItem.getFlags());
+            TestUtils.assertMetadataEquals(aItem.getMetadata(), bItem.getMetadata());
+
+            // Note: Here it does not check whether MediaItem2 are equal,
+            // since there DataSourceDec is not comparable.
+        }
+    }
+
+    public static void assertMetadataEquals(MediaMetadata2 a, MediaMetadata2 b) {
+        if (a == null || b == null) {
+            assertEquals(a, b);
+        } else {
+            assertTrue(TestUtils.equals(a.toBundle(), b.toBundle()));
+        }
     }
 
     /**

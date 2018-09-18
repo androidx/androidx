@@ -20,7 +20,6 @@ import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE
 
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
@@ -56,7 +55,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.media.test.service.MediaTestUtils;
-import androidx.media.test.service.MockPlayerConnector;
+import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaSession2;
@@ -87,7 +86,7 @@ import java.util.concurrent.TimeUnit;
 public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     private static final String SESSION_ID = "MediaSession2Test_permission";
 
-    private MockPlayerConnector mPlayer;
+    private MockPlayer mPlayer;
     private MediaSession2 mSession;
     private MySessionCallback mCallback;
 
@@ -110,7 +109,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     }
 
     private MediaSession2 createSessionWithAllowedActions(final SessionCommandGroup2 commands) {
-        mPlayer = new MockPlayerConnector(0);
+        mPlayer = new MockPlayer(1);
         mCallback = new MySessionCallback() {
             @Override
             public SessionCommandGroup2 onConnect(MediaSession2 session,
@@ -178,17 +177,6 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.pause();
-            }
-        });
-    }
-
-    @Test
-    public void testReset() throws InterruptedException {
-        prepareLooper();
-        testOnCommandRequest(COMMAND_CODE_PLAYBACK_RESET, new PermissionTestRunnable() {
-            @Override
-            public void run(RemoteMediaController2 controller) {
-                controller.reset();
             }
         });
     }

@@ -43,7 +43,7 @@ import androidx.media.test.client.RemoteMediaSession2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaItem2;
-import androidx.media2.MediaPlayerConnector;
+import androidx.media2.SessionPlayer2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -150,7 +150,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
                 0f /* speed */, attrs);
-        mRemoteSession2.updatePlayerConnector(playerConfig, null);
+        mRemoteSession2.updatePlayer(playerConfig);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
@@ -192,7 +192,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
                 0f /* speed */, attrs);
-        mRemoteSession2.updatePlayerConnector(playerConfig, null);
+        mRemoteSession2.updatePlayer(playerConfig);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int direction = originalVolume == minVolume
@@ -248,19 +248,18 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGettersAfterConnected() throws InterruptedException {
         prepareLooper();
-        final int state = MediaPlayerConnector.PLAYER_STATE_PLAYING;
-        final int bufferingState = MediaPlayerConnector.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int state = SessionPlayer2.PLAYER_STATE_PLAYING;
+        final int bufferingState = SessionPlayer2.BUFFERING_STATE_BUFFERING_COMPLETE;
         final long position = 150000;
         final long bufferedPosition = 900000;
         final float speed = 0.5f;
         final long timeDiff = 102;
         final MediaItem2 currentMediaItem = MediaTestUtils.createMediaItemWithMetadata();
 
-        Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
-                state, bufferingState, position, bufferedPosition, speed, null /* audioAttrs */);
-        Bundle agentConfig = RemoteMediaSession2.createMockPlaylistAgentConfig(
+        Bundle config = RemoteMediaSession2.createMockPlayerConnectorConfig(
+                state, bufferingState, position, bufferedPosition, speed, null /* audioAttrs */,
                 null /* playlist */, currentMediaItem, null /* metadata */);
-        mRemoteSession2.updatePlayerConnector(playerConfig, agentConfig);
+        mRemoteSession2.updatePlayer(config);
 
         MediaController2 controller = createController(mRemoteSession2.getToken());
         controller.setTimeDiff(timeDiff);
@@ -281,7 +280,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         Bundle playerConfig = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
                 0f /* speed */, attrs);
-        mRemoteSession2.updatePlayerConnector(playerConfig, null);
+        mRemoteSession2.updatePlayer(playerConfig);
 
         final MediaController2 controller = createController(mRemoteSession2.getToken());
         PlaybackInfo info = controller.getPlaybackInfo();

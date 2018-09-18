@@ -16,6 +16,8 @@
 
 package androidx.media2;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +27,7 @@ import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
@@ -242,6 +245,16 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                 return super.setPlaylistAgent(playlistAgent);
             }
 
+            /**
+             * @hide
+             */
+            // TODO(jaewan): Unhide
+            @RestrictTo(LIBRARY_GROUP)
+            @Override
+            public @NonNull Builder setPlayer(SessionPlayer2 player) {
+                return super.setPlayer(player);
+            }
+
             @Override
             public @NonNull Builder setSessionActivity(@Nullable PendingIntent pi) {
                 return super.setSessionActivity(pi);
@@ -260,23 +273,23 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                 if (mCallback == null) {
                     mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
                 }
-                return new MediaLibrarySession(mContext, mId, mPlayer, mPlaylistAgent,
-                        mSessionActivity, mCallbackExecutor, mCallback);
+                return new MediaLibrarySession(mContext, mId, mSessionPlayer, mSessionActivity,
+                        mCallbackExecutor, mCallback);
             }
         }
 
-        MediaLibrarySession(Context context, String id, MediaPlayerConnector player,
-                MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
-                Executor callbackExecutor, MediaSession2.SessionCallback callback) {
-            super(context, id, player, playlistAgent, sessionActivity, callbackExecutor, callback);
+        MediaLibrarySession(Context context, String id, SessionPlayer2 player,
+                PendingIntent sessionActivity, Executor callbackExecutor,
+                MediaSession2.SessionCallback callback) {
+            super(context, id, player, sessionActivity, callbackExecutor, callback);
         }
 
         @Override
-        MediaLibrarySessionImpl createImpl(Context context, String id, MediaPlayerConnector player,
-                MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
-                Executor callbackExecutor, MediaSession2.SessionCallback callback) {
-            return new MediaLibrarySessionImplBase(this, context, id, player, playlistAgent,
-                    sessionActivity, callbackExecutor, callback);
+        MediaLibrarySessionImpl createImpl(Context context, String id, SessionPlayer2 player,
+                PendingIntent sessionActivity, Executor callbackExecutor,
+                MediaSession2.SessionCallback callback) {
+            return new MediaLibrarySessionImplBase(this, context, id, player, sessionActivity,
+                    callbackExecutor, callback);
         }
 
         @Override
