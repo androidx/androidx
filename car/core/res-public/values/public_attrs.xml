@@ -89,6 +89,9 @@
     <public type="attr" name="drawerListId" />
     <public type="attr" name="drawerTitleId" />
     <public type="attr" name="drawerProgressId" />
+    <public type='attr' name="drawerToolbarId" />
+    <public type='attr' name="drawerSmallLayoutId" />
+    <public type='attr' name="drawerNormalLayoutId" />
 
     <!-- CarToolbar attributes -->
     <public type="attr" name="navigationIcon" />
