@@ -25,6 +25,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.Logger;
+import androidx.work.State;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -192,31 +193,59 @@ public class CommandHandler implements ExecutionListener {
 
         WorkManagerImpl workManager = dispatcher.getWorkManager();
         WorkDatabase workDatabase = workManager.getWorkDatabase();
-        WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-        WorkSpec workSpec = workSpecDao.getWorkSpec(workSpecId);
-        long triggerAt = workSpec.calculateNextRunTime();
+        workDatabase.beginTransaction();
 
-        if (!workSpec.hasConstraints()) {
-            Logger.debug(TAG, String.format("Setting up Alarms for %s", workSpecId));
-            Alarms.setAlarm(mContext, dispatcher.getWorkManager(), workSpecId, triggerAt);
-        } else {
-            // Schedule an alarm irrespective of whether all constraints matched.
-            Logger.debug(TAG,
-                    String.format("Opportunistically setting an alarm for %s", workSpecId));
-            Alarms.setAlarm(
-                    mContext,
-                    dispatcher.getWorkManager(),
-                    workSpecId,
-                    triggerAt);
+        try {
+            WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+            WorkSpec workSpec = workSpecDao.getWorkSpec(workSpecId);
 
-            // Schedule an update for constraint proxies
-            // This in turn sets enables us to track changes in constraints
-            Intent constraintsUpdate = CommandHandler.createConstraintsChangedIntent(mContext);
-            dispatcher.postOnMainThread(
-                    new SystemAlarmDispatcher.AddRunnable(
-                            dispatcher,
-                            constraintsUpdate,
-                            startId));
+            // It is possible that this WorkSpec got cancelled/pruned since this isn't part of
+            // the same database transaction as marking it enqueued (for example, if we using
+            // any of the synchronous operations).  For now, handle this gracefully by exiting
+            // the loop.  When we plumb ListenableFutures all the way through, we can remove the
+            // *sync methods and return ListenableFutures, which will block on an operation on
+            // the background task thread so all database operations happen on the same thread.
+            // See b/114705286.
+            if (workSpec == null) {
+                Logger.warning(TAG,
+                        "Skipping scheduling " + workSpecId + " because it's no longer in "
+                        + "the DB");
+                return;
+            } else if (workSpec.state != State.ENQUEUED) {
+                Logger.warning(TAG,
+                        "Skipping scheduling " + workSpecId + " because it is no longer "
+                        + "enqueued");
+                return;
+            }
+
+            long triggerAt = workSpec.calculateNextRunTime();
+
+            if (!workSpec.hasConstraints()) {
+                Logger.debug(TAG, String.format("Setting up Alarms for %s", workSpecId));
+                Alarms.setAlarm(mContext, dispatcher.getWorkManager(), workSpecId, triggerAt);
+            } else {
+                // Schedule an alarm irrespective of whether all constraints matched.
+                Logger.debug(TAG,
+                        String.format("Opportunistically setting an alarm for %s", workSpecId));
+                Alarms.setAlarm(
+                        mContext,
+                        dispatcher.getWorkManager(),
+                        workSpecId,
+                        triggerAt);
+
+                // Schedule an update for constraint proxies
+                // This in turn sets enables us to track changes in constraints
+                Intent constraintsUpdate = CommandHandler.createConstraintsChangedIntent(mContext);
+                dispatcher.postOnMainThread(
+                        new SystemAlarmDispatcher.AddRunnable(
+                                dispatcher,
+                                constraintsUpdate,
+                                startId));
+            }
+
+            workDatabase.setTransactionSuccessful();
+        } finally {
+            workDatabase.endTransaction();
         }
     }
 
