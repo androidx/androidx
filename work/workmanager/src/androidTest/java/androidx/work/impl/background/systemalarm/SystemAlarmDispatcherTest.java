@@ -17,6 +17,8 @@
 package androidx.work.impl.background.systemalarm;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
@@ -160,7 +162,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void testSchedule() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .setInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS).build();
+                .setInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS)
+                .build();
 
         insertWork(work);
         String workSpecId = work.getStringId();
@@ -168,6 +171,24 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, intent, START_ID));
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+        assertThat(mDatabase.systemIdInfoDao().getSystemIdInfo(work.getStringId()),
+                is(notNullValue()));
+    }
+
+    @Test
+    public void testSchedule_whenOriginalWorkDoesNotExist() throws InterruptedException {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS)
+                .build();
+        // DO NOT insert it into the DB.
+        String workSpecId = work.getStringId();
+        final Intent intent = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
+        mSpyDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, intent, START_ID));
+        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+        assertThat(mDatabase.systemIdInfoDao().getSystemIdInfo(work.getStringId()),
+                is(nullValue()));
     }
 
     @Test
