@@ -18,7 +18,6 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
-import android.graphics.SurfaceTexture;
 import android.media.AudioAttributes;
 import android.media.DeniedByServerException;
 import android.media.MediaDataSource;
@@ -28,7 +27,6 @@ import android.media.MediaTimestamp;
 import android.media.PlaybackParams;
 import android.media.ResourceBusyException;
 import android.media.SubtitleData;
-import android.media.SyncParams;
 import android.media.TimedMetaData;
 import android.media.UnsupportedSchemeException;
 import android.os.Build;
@@ -68,6 +66,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * MediaPlayer2 implementation for platform version P (28).
  * @hide
  */
 @TargetApi(Build.VERSION_CODES.P)
@@ -183,10 +182,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         mPlayer = new MediaPlayerSourceQueue();
     }
 
-    /**
-     * Returns a {@link MediaPlayerConnector} implementation which runs based on
-     * this MediaPlayer2 instance.
-     */
     @Override
     public MediaPlayerConnector getMediaPlayerConnector() {
         synchronized (mLock) {
@@ -197,29 +192,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    /**
-     * Releases the resources held by this {@code MediaPlayer2} object.
-     *
-     * It is considered good practice to call this method when you're
-     * done using the MediaPlayer2. In particular, whenever an Activity
-     * of an application is paused (its onPause() method is called),
-     * or stopped (its onStop() method is called), this method should be
-     * invoked to release the MediaPlayer2 object, unless the application
-     * has a special need to keep the object around. In addition to
-     * unnecessary resources (such as memory and instances of codecs)
-     * being held, failure to call this method immediately if a
-     * MediaPlayer2 object is no longer needed may also lead to
-     * continuous battery consumption for mobile devices, and playback
-     * failure for other applications if no multiple instances of the
-     * same codec are supported on a device. Even if multiple instances
-     * of the same codec are supported, some performance degradation
-     * may be expected when unnecessary multiple instances are used
-     * at the same time.
-     *
-     * {@code close()} may be safely called after a prior {@code close()}.
-     * This class implements the Java {@code AutoCloseable} interface and
-     * may be used with try-with-resources.
-     */
     @Override
     public void close() {
         mPlayer.release();
@@ -229,12 +201,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    /**
-     * Starts or resumes playback. If playback had previously been paused,
-     * playback will continue from where it was paused. If playback had
-     * been stopped, or never started before, playback will start at the
-     * beginning.
-     */
     @Override
     public void play() {
         addTask(new Task(CALL_COMPLETED_PLAY, false) {
@@ -245,14 +211,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Prepares the player for playback, asynchronously.
-     *
-     * After setting the datasource and the display surface, you need to either
-     * call prepare(). For streams, you should call prepare(),
-     * which returns immediately, rather than blocking until enough data has been
-     * buffered.
-     */
     @Override
     public void prepare() {
         addTask(new Task(CALL_COMPLETED_PREPARE, true) {
@@ -263,9 +221,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Pauses playback. Call play() to resume.
-     */
     @Override
     public void pause() {
         addTask(new Task(CALL_COMPLETED_PAUSE, false) {
@@ -276,9 +231,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Tries to play next media item if applicable.
-     */
     @Override
     public void skipToNext() {
         addTask(new Task(CALL_COMPLETED_SKIP_TO_NEXT, false) {
@@ -289,47 +241,22 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Gets the current playback position.
-     *
-     * @return the current position in milliseconds
-     */
     @Override
     public long getCurrentPosition() {
         return mPlayer.getCurrentPosition();
     }
 
-    /**
-     * Gets the duration of the file.
-     *
-     * @return the duration in milliseconds, if no duration is available
-     * (for example, if streaming live content), -1 is returned.
-     */
     @Override
     public long getDuration() {
         return mPlayer.getDuration();
     }
 
-    /**
-     * Gets the current buffered media source position received through progressive downloading.
-     * The received buffering percentage indicates how much of the content has been buffered
-     * or played. For example a buffering update of 80 percent when half the content
-     * has already been played indicates that the next 30 percent of the
-     * content to play has been buffered.
-     *
-     * @return the current buffered media source position in milliseconds
-     */
     @Override
     public long getBufferedPosition() {
         // Use cached buffered percent for now.
         return mPlayer.getBufferedPosition();
     }
 
-    /**
-     * Gets the current MediaPlayer2 state.
-     *
-     * @return the current MediaPlayer2 state.
-     */
     @Override
     public @MediaPlayer2State int getState() {
         return mPlayer.getMediaPlayer2State();
@@ -348,14 +275,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         return  mPlayer.getBufferingState();
     }
 
-    /**
-     * Sets the audio attributes for this MediaPlayer2.
-     * See {@link AudioAttributes} for how to build and configure an instance of this class.
-     * You must call this method before {@link #prepare()} in order
-     * for the audio attributes to become effective thereafter.
-     * @param attributes a non-null set of audio attributes
-     * @throws IllegalArgumentException if the attributes are null or invalid.
-     */
     @Override
     public void setAudioAttributes(@NonNull final AudioAttributesCompat attributes) {
         addTask(new Task(CALL_COMPLETED_SET_AUDIO_ATTRIBUTES, false) {
@@ -371,13 +290,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         return mPlayer.getAudioAttributes();
     }
 
-    /**
-     * Sets the media item as described by a MediaItem2.
-     *
-     * @param item the descriptor of media item you want to play
-     * @throws IllegalStateException if it is called in an invalid state
-     * @throws NullPointerException if item is null
-     */
     @Override
     public void setMediaItem(@NonNull final MediaItem2 item) {
         addTask(new Task(CALL_COMPLETED_SET_DATA_SOURCE, false) {
@@ -394,14 +306,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Sets a single media item as described by a MediaItem2 which will be played
-     * after current media item is finished.
-     *
-     * @param item the descriptor of media item you want to play after current one
-     * @throws IllegalStateException if it is called in an invalid state
-     * @throws NullPointerException if item is null
-     */
     @Override
     public void setNextMediaItem(@NonNull final MediaItem2 item) {
         addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCE, false) {
@@ -413,13 +317,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Sets a list of media items to be played sequentially after current media item is done.
-     *
-     * @param items the list of media items you want to play after current one
-     * @throws IllegalStateException if it is called in an invalid state
-     * @throws IllegalArgumentException if items is null or empty, or contains null MediaItem2
-     */
     @Override
     public void getNextMediaItems(@NonNull final List<MediaItem2> items) {
         addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCES, false) {
@@ -444,10 +341,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         return mPlayer.getFirst().getDSD();
     }
 
-    /**
-     * Configures the player to loop on the current media item.
-     * @param loop true if the current media item is meant to loop.
-     */
     @Override
     public void loopCurrent(final boolean loop) {
         addTask(new Task(CALL_COMPLETED_LOOP_CURRENT, false) {
@@ -458,15 +351,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Sets the volume of the audio of the media to play, expressed as a linear multiplier
-     * on the audio samples.
-     * Note that this volume is specific to the player, and is separate from stream volume
-     * used across the platform.<br>
-     * A value of 0.0f indicates muting, a value of 1.0f is the nominal unattenuated and unamplified
-     * gain. See {@link #getMaxPlayerVolume()} for the volume range supported by this player.
-     * @param volume a value between 0.0f and {@link #getMaxPlayerVolume()}.
-     */
     @Override
     public void setPlayerVolume(final float volume) {
         addTask(new Task(CALL_COMPLETED_SET_PLAYER_VOLUME, false) {
@@ -477,19 +361,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Returns the current volume of this player to this player.
-     * Note that it does not take into account the associated stream volume.
-     * @return the player volume.
-     */
     @Override
     public float getPlayerVolume() {
         return mPlayer.getVolume();
     }
 
-    /**
-     * @return the maximum volume that can be used in {@link #setPlayerVolume(float)}.
-     */
     @Override
     public float getMaxPlayerVolume() {
         return 1.0f;
@@ -544,25 +420,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Sets the {@link Surface} to be used as the sink for the video portion of
-     * the media. Setting a Surface will un-set any Surface or SurfaceHolder that
-     * was previously set. A null surface will result in only the audio track
-     * being played.
-     *
-     * If the Surface sends frames to a {@link SurfaceTexture}, the timestamps
-     * returned from {@link SurfaceTexture#getTimestamp()} will have an
-     * unspecified zero point.  These timestamps cannot be directly compared
-     * between different media sources, different instances of the same media
-     * source, or multiple runs of the same program.  The timestamp is normally
-     * monotonically increasing and is unaffected by time-of-day adjustments,
-     * but it is reset when the position is set.
-     *
-     * @param surface The {@link Surface} to be used for the video portion of
-     * the media.
-     * @throws IllegalStateException if the internal player engine has not been
-     * initialized or has been released.
-     */
     @Override
     public void setSurface(final Surface surface) {
         addTask(new Task(CALL_COMPLETED_SET_SURFACE, false) {
@@ -573,9 +430,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Discards all pending commands.
-     */
     @Override
     public void clearPendingCommands() {
         synchronized (mTaskLock) {
@@ -657,31 +511,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    /**
-     * Returns the width of the video.
-     *
-     * @return the width of the video, or 0 if there is no video,
-     * no display surface was set, or the width has not been determined
-     * yet. The {@code MediaPlayer2EventCallback} can be registered via
-     * {@link #setEventCallback(Executor, EventCallback)} to provide a
-     * notification {@code MediaPlayer2EventCallback.onVideoSizeChanged} when the width
-     * is available.
-     */
     @Override
     public int getVideoWidth() {
         return mPlayer.getVideoWidth();
     }
 
-    /**
-     * Returns the height of the video.
-     *
-     * @return the height of the video, or 0 if there is no video,
-     * no display surface was set, or the height has not been determined
-     * yet. The {@code MediaPlayer2EventCallback} can be registered via
-     * {@link #setEventCallback(Executor, EventCallback)} to provide a
-     * notification {@code MediaPlayer2EventCallback.onVideoSizeChanged} when the height
-     * is available.
-     */
     @Override
     public int getVideoHeight() {
         return mPlayer.getVideoHeight();
@@ -692,20 +526,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         return mPlayer.getMetrics();
     }
 
-    /**
-     * Sets playback rate using {@link PlaybackParams2}. The object sets its internal
-     * PlaybackParams2 to the input, except that the object remembers previous speed
-     * when input speed is zero. This allows the object to resume at previous speed
-     * when play() is called. Calling it before the object is prepared does not change
-     * the object state. After the object is prepared, calling it with zero speed is
-     * equivalent to calling pause(). After the object is prepared, calling it with
-     * non-zero speed is equivalent to calling play().
-     *
-     * @param params the playback params.
-     * @throws IllegalStateException if the internal player engine has not been
-     * initialized or has been released.
-     * @throws IllegalArgumentException if params is not supported.
-     */
     @Override
     public void setPlaybackParams(@NonNull final PlaybackParams2 params) {
         addTask(new Task(CALL_COMPLETED_SET_PLAYBACK_PARAMS, false) {
@@ -716,49 +536,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Gets the playback params, containing the current playback rate.
-     *
-     * @return the playback params.
-     * @throws IllegalStateException if the internal player engine has not been
-     * initialized.
-     */
     @Override
     @NonNull
     public PlaybackParams2 getPlaybackParams() {
         return new PlaybackParams2.Builder(mPlayer.getPlaybackParams()).build();
     }
 
-    /**
-     * Moves the media to specified time position by considering the given mode.
-     * <p>
-     * When seekTo is finished, the user will be notified via OnSeekComplete supplied by the user.
-     * There is at most one active seekTo processed at any time. If there is a to-be-completed
-     * seekTo, new seekTo requests will be queued in such a way that only the last request
-     * is kept. When current seekTo is completed, the queued request will be processed if
-     * that request is different from just-finished seekTo operation, i.e., the requested
-     * position or mode is different.
-     *
-     * @param msec the offset in milliseconds from the start to seek to.
-     * When seeking to the given time position, there is no guarantee that the media item
-     * has a frame located at the position. When this happens, a frame nearby will be rendered.
-     * If msec is negative, time position zero will be used.
-     * If msec is larger than duration, duration will be used.
-     * @param mode the mode indicating where exactly to seek to.
-     * Use {@link #SEEK_PREVIOUS_SYNC} if one wants to seek to a sync frame
-     * that has a timestamp earlier than or the same as msec. Use
-     * {@link #SEEK_NEXT_SYNC} if one wants to seek to a sync frame
-     * that has a timestamp later than or the same as msec. Use
-     * {@link #SEEK_CLOSEST_SYNC} if one wants to seek to a sync frame
-     * that has a timestamp closest to or the same as msec. Use
-     * {@link #SEEK_CLOSEST} if one wants to seek to a frame that may
-     * or may not be a sync frame but is closest to or the same as msec.
-     * {@link #SEEK_CLOSEST} often has larger performance overhead compared
-     * to the other options if there is no sync frame located at msec.
-     * @throws IllegalStateException if the internal player engine has not been
-     * initialized
-     * @throws IllegalArgumentException if the mode is invalid.
-     */
     @Override
     public void seekTo(final long msec, @SeekMode final int mode) {
         addTask(new Task(CALL_COMPLETED_SEEK_TO, true) {
@@ -769,23 +552,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Get current playback position as a {@link MediaTimestamp2}.
-     * <p>
-     * The MediaTimestamp2 represents how the media time correlates to the system time in
-     * a linear fashion using an anchor and a clock rate. During regular playback, the media
-     * time moves fairly constantly (though the anchor frame may be rebased to a current
-     * system time, the linear correlation stays steady). Therefore, this method does not
-     * need to be called often.
-     * <p>
-     * To help users get current playback position, this method always anchors the timestamp
-     * to the current {@link System#nanoTime system time}, so
-     * {@link MediaTimestamp2#getAnchorMediaTimeUs} can be used as current playback position.
-     *
-     * @return a MediaTimestamp2 object if a timestamp is available, or {@code null} if no timestamp
-     * is available, e.g. because the media player has not been initialized.
-     * @see MediaTimestamp2
-     */
     @Override
     @Nullable
     public MediaTimestamp2 getTimestamp() {
@@ -802,23 +568,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         mPlayer.reset();
     }
 
-    /**
-     * Sets the audio session ID.
-     *
-     * @param sessionId the audio session ID.
-     * The audio session ID is a system wide unique identifier for the audio stream played by
-     * this MediaPlayer2 instance.
-     * The primary use of the audio session ID  is to associate audio effects to a particular
-     * instance of MediaPlayer2: if an audio session ID is provided when creating an audio effect,
-     * this effect will be applied only to the audio content of media players within the same
-     * audio session and not to the output mix.
-     * When created, a MediaPlayer2 instance automatically generates its own audio session ID.
-     * However, it is possible to force this player to be part of an already existing audio session
-     * by calling this method.
-     * This method must be called before one of the overloaded <code> setMediaItem </code> methods.
-     * @throws IllegalStateException if it is called in an invalid state
-     * @throws IllegalArgumentException if the sessionId is invalid.
-     */
     @Override
     public void setAudioSessionId(final int sessionId) {
         addTask(new Task(CALL_COMPLETED_SET_AUDIO_SESSION_ID, false) {
@@ -834,20 +583,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         return mPlayer.getAudioSessionId();
     }
 
-    /**
-     * Attaches an auxiliary effect to the player. A typical auxiliary effect is a reverberation
-     * effect which can be applied on any sound source that directs a certain amount of its
-     * energy to this effect. This amount is defined by setAuxEffectSendLevel().
-     * See {@link #setAuxEffectSendLevel(float)}.
-     * <p>After creating an auxiliary effect (e.g.
-     * {@link android.media.audiofx.EnvironmentalReverb}), retrieve its ID with
-     * {@link android.media.audiofx.AudioEffect#getId()} and use it when calling this method
-     * to attach the player to the effect.
-     * <p>To detach the effect from the player, call this method with a null effect id.
-     * <p>This method must be called after one of the overloaded <code> setMediaItem </code>
-     * methods.
-     * @param effectId system wide unique id of the effect to attach
-     */
     @Override
     public void attachAuxEffect(final int effectId) {
         addTask(new Task(CALL_COMPLETED_ATTACH_AUX_EFFECT, false) {
@@ -858,18 +593,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Sets the send level of the player to the attached auxiliary effect.
-     * See {@link #attachAuxEffect(int)}. The level value range is 0 to 1.0.
-     * <p>By default the send level is 0, so even if an effect is attached to the player
-     * this method must be called for the effect to be applied.
-     * <p>Note that the passed level value is a raw scalar. UI controls should be scaled
-     * logarithmically: the gain applied by audio framework ranges from -72dB to 0dB,
-     * so an appropriate conversion from linear UI input x to level is:
-     * x == 0 -> level = 0
-     * 0 < x <= R -> level = 10^(72*(x-R)/20/R)
-     * @param level send level scalar
-     */
     @Override
     public void setAuxEffectSendLevel(final float level) {
         addTask(new Task(CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL, false) {
@@ -880,14 +603,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Returns a List of track information.
-     *
-     * @return List of track info. The total number of tracks is the array length.
-     * Must be called again if an external timed text source has been added after
-     * addTimedTextSource method is called.
-     * @throws IllegalStateException if it is called in an invalid state.
-     */
     @Override
     public List<TrackInfo> getTrackInfo() {
         MediaPlayer.TrackInfo[] list = mPlayer.getTrackInfo();
@@ -898,56 +613,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         return trackList;
     }
 
-    /**
-     * Returns the index of the audio, video, or subtitle track currently selected for playback,
-     * The return value is an index into the array returned by {@link #getTrackInfo()}, and can
-     * be used in calls to {@link #selectTrack(int)} or {@link #deselectTrack(int)}.
-     *
-     * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
-     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or
-     * {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}
-     * @return index of the audio, video, or subtitle track currently selected for playback;
-     * a negative integer is returned when there is no selected track for {@code trackType} or
-     * when {@code trackType} is not one of audio, video, or subtitle.
-     * @throws IllegalStateException if called after {@link #close()}
-     *
-     * @see #getTrackInfo()
-     * @see #selectTrack(int)
-     * @see #deselectTrack(int)
-     */
     @Override
     public int getSelectedTrack(int trackType) {
         return mPlayer.getSelectedTrack(trackType);
     }
 
-    /**
-     * Selects a track.
-     * <p>
-     * If a MediaPlayer2 is in invalid state, it throws an IllegalStateException exception.
-     * If a MediaPlayer2 is in <em>Started</em> state, the selected track is presented immediately.
-     * If a MediaPlayer2 is not in Started state, it just marks the track to be played.
-     * </p>
-     * <p>
-     * In any valid state, if it is called multiple times on the same type of track (ie. Video,
-     * Audio, Timed Text), the most recent one will be chosen.
-     * </p>
-     * <p>
-     * The first audio and video tracks are selected by default if available, even though
-     * this method is not called. However, no timed text track will be selected until
-     * this function is called.
-     * </p>
-     * <p>
-     * Currently, only timed text tracks or audio tracks can be selected via this method.
-     * In addition, the support for selecting an audio track at runtime is pretty limited
-     * in that an audio track can only be selected in the <em>Prepared</em> state.
-     * </p>
-     *
-     * @param index the index of the track to be selected. The valid range of the index
-     * is 0..total number of track - 1. The total number of tracks as well as the type of
-     * each individual track can be found by calling {@link #getTrackInfo()} method.
-     * @throws IllegalStateException if called in an invalid state.
-     * @see MediaPlayer2#getTrackInfo
-     */
     @Override
     public void selectTrack(final int index) {
         addTask(new Task(CALL_COMPLETED_SELECT_TRACK, false) {
@@ -958,20 +628,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Deselect a track.
-     * <p>
-     * Currently, the track must be a timed text track and no audio or video tracks can be
-     * deselected. If the timed text track identified by index has not been
-     * selected before, it throws an exception.
-     * </p>
-     *
-     * @param index the index of the track to be deselected. The valid range of the index
-     * is 0..total number of tracks - 1. The total number of tracks as well as the type of
-     * each individual track can be found by calling {@link #getTrackInfo()} method.
-     * @throws IllegalStateException if called in an invalid state.
-     * @see MediaPlayer2#getTrackInfo
-     */
     @Override
     public void deselectTrack(final int index) {
         addTask(new Task(CALL_COMPLETED_DESELECT_TRACK, false) {
@@ -982,13 +638,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Register a callback to be invoked when the media source is ready
-     * for playback.
-     *
-     * @param eventCallback the callback that will be run
-     * @param executor the executor through which the callback should be invoked
-     */
     @Override
     public void setEventCallback(@NonNull Executor executor,
             @NonNull EventCallback eventCallback) {
@@ -1004,9 +653,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    /**
-     * Clears the {@link EventCallback}.
-     */
     @Override
     public void clearEventCallback() {
         synchronized (mLock) {
@@ -1016,14 +662,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     // Modular DRM begin
 
-    /**
-     * Register a callback to be invoked for configuration of the DRM object before
-     * the session is created.
-     * The callback will be invoked synchronously during the execution
-     * of {@link #prepareDrm(UUID uuid)}.
-     *
-     * @param listener the callback that will be run
-     */
     @Override
     public void setOnDrmConfigHelper(final OnDrmConfigHelper listener) {
         mPlayer.setOnDrmConfigHelper(new MediaPlayer.OnDrmConfigHelper() {
@@ -1036,13 +674,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Register a callback to be invoked when the media source is ready
-     * for playback.
-     *
-     * @param eventCallback the callback that will be run
-     * @param executor the executor through which the callback should be invoked
-     */
     @Override
     public void setDrmEventCallback(@NonNull Executor executor,
                                     @NonNull DrmEventCallback eventCallback) {
@@ -1058,9 +689,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    /**
-     * Clears the {@link DrmEventCallback}.
-     */
     @Override
     public void clearDrmEventCallback() {
         synchronized (mLock) {
@@ -1069,11 +697,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
 
-    /**
-     * Retrieves the DRM Info associated with the current source
-     *
-     * @throws IllegalStateException if called before prepare()
-     */
     @Override
     public DrmInfo getDrmInfo() {
         MediaPlayer.DrmInfo info = mPlayer.getDrmInfo();
@@ -1081,28 +704,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
 
-    /**
-     * Prepares the DRM for the current source
-     * <p>
-     * If {@link OnDrmConfigHelper} is registered, it will be called during
-     * preparation to allow configuration of the DRM properties before opening the
-     * DRM session. Note that the callback is called synchronously in the thread that called
-     * {@link #prepareDrm}. It should be used only for a series of {@code getDrmPropertyString}
-     * and {@code setDrmPropertyString} calls and refrain from any lengthy operation.
-     * <p>
-     * If the device has not been provisioned before, this call also provisions the device
-     * which involves accessing the provisioning server and can take a variable time to
-     * complete depending on the network connectivity.
-     * prepareDrm() runs in non-blocking mode by launching the provisioning in the background and
-     * returning. {@link DrmEventCallback#onDrmPrepared} will be called when provisioning and
-     * preparation has finished. The application should check the status code returned with
-     * {@link DrmEventCallback#onDrmPrepared} to proceed.
-     * <p>
-     *
-     * @param uuid The UUID of the crypto scheme. If not known beforehand, it can be retrieved
-     * from the source through {@#link getDrmInfo} or registering
-     * {@link DrmEventCallback#onDrmInfo}.
-     */
     @Override
     public void prepareDrm(@NonNull final UUID uuid) {
         addTask(new Task(CALL_COMPLETED_PREPARE_DRM, false) {
@@ -1133,15 +734,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    /**
-     * Releases the DRM session
-     * <p>
-     * The player has to have an active DRM session and be in stopped, or prepared
-     * state before this call is made.
-     * A {@code reset()} call will release the DRM session implicitly.
-     *
-     * @throws NoDrmSchemeException if there is no active DRM session to release
-     */
     @Override
     public void releaseDrm() throws NoDrmSchemeException {
         try {
@@ -1152,43 +744,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
 
-    /**
-     * A key request/response exchange occurs between the app and a license server
-     * to obtain or release keys used to decrypt encrypted content.
-     * <p>
-     * getDrmKeyRequest() is used to obtain an opaque key request byte array that is
-     * delivered to the license server.  The opaque key request byte array is returned
-     * in KeyRequest.data.  The recommended URL to deliver the key request to is
-     * returned in KeyRequest.defaultUrl.
-     * <p>
-     * After the app has received the key request response from the server,
-     * it should deliver to the response to the DRM engine plugin using the method
-     * {@link #provideDrmKeyResponse}.
-     *
-     * @param keySetId is the key-set identifier of the offline keys being released when keyType is
-     * {@link MediaDrm#KEY_TYPE_RELEASE}. It should be set to null for other key requests, when
-     * keyType is {@link MediaDrm#KEY_TYPE_STREAMING} or {@link MediaDrm#KEY_TYPE_OFFLINE}.
-     *
-     * @param initData is the container-specific initialization data when the keyType is
-     * {@link MediaDrm#KEY_TYPE_STREAMING} or {@link MediaDrm#KEY_TYPE_OFFLINE}. Its meaning is
-     * interpreted based on the mime type provided in the mimeType parameter.  It could
-     * contain, for example, the content ID, key ID or other data obtained from the content
-     * metadata that is required in generating the key request.
-     * When the keyType is {@link MediaDrm#KEY_TYPE_RELEASE}, it should be set to null.
-     *
-     * @param mimeType identifies the mime type of the content
-     *
-     * @param keyType specifies the type of the request. The request may be to acquire
-     * keys for streaming, {@link MediaDrm#KEY_TYPE_STREAMING}, or for offline content
-     * {@link MediaDrm#KEY_TYPE_OFFLINE}, or to release previously acquired
-     * keys ({@link MediaDrm#KEY_TYPE_RELEASE}), which are identified by a keySetId.
-     *
-     * @param optionalParameters are included in the key request message to
-     * allow a client application to provide additional message parameters to the server.
-     * This may be {@code null} if no additional parameters are to be sent.
-     *
-     * @throws NoDrmSchemeException if there is no active DRM session
-     */
     @Override
     @NonNull
     public MediaDrm.KeyRequest getDrmKeyRequest(@Nullable byte[] keySetId,
@@ -1203,25 +758,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
 
-    /**
-     * A key response is received from the license server by the app, then it is
-     * provided to the DRM engine plugin using provideDrmKeyResponse. When the
-     * response is for an offline key request, a key-set identifier is returned that
-     * can be used to later restore the keys to a new session with the method
-     * {@link #restoreDrmKeys}.
-     * When the response is for a streaming or release request, null is returned.
-     *
-     * @param keySetId When the response is for a release request, keySetId identifies
-     * the saved key associated with the release request (i.e., the same keySetId
-     * passed to the earlier {@link #getDrmKeyRequest} call. It MUST be null when the
-     * response is for either streaming or offline key requests.
-     *
-     * @param response the byte array response from the server
-     *
-     * @throws NoDrmSchemeException if there is no active DRM session
-     * @throws DeniedByServerException if the response indicates that the
-     * server rejected the request
-     */
     @Override
     public byte[] provideDrmKeyResponse(@Nullable byte[] keySetId, @NonNull byte[] response)
             throws NoDrmSchemeException, DeniedByServerException {
@@ -1233,12 +769,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
 
-    /**
-     * Restore persisted offline keys into a new session.  keySetId identifies the
-     * keys to load, obtained from a prior call to {@link #provideDrmKeyResponse}.
-     *
-     * @param keySetId identifies the saved key set to restore
-     */
     @Override
     public void restoreDrmKeys(@NonNull final byte[] keySetId)
             throws NoDrmSchemeException {
@@ -1250,17 +780,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
 
-    /**
-     * Read a DRM engine plugin String property value, given the property name string.
-     * <p>
-     *
-
-     * @param propertyName the property name
-     *
-     * Standard fields names are:
-     * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
-     * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
-     */
     @Override
     @NonNull
     public String getDrmPropertyString(@NonNull String propertyName)
@@ -1273,17 +792,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
 
-    /**
-     * Set a DRM engine plugin String property value.
-     * <p>
-     *
-     * @param propertyName the property name
-     * @param value the property value
-     *
-     * Standard fields names are:
-     * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
-     * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
-     */
     @Override
     public void setDrmPropertyString(@NonNull String propertyName,
                                      @NonNull String value)
@@ -1876,7 +1384,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         Float mAuxEffectSendLevel;
         AudioAttributesCompat mAudioAttributes;
         Integer mAudioSessionId;
-        SyncParams mSyncParams;
         PlaybackParams mPlaybackParams = DEFAULT_PLAYBACK_PARAMS;
         PlaybackParams mPlaybackParamsToSetWhenStarting;
         boolean mLooping;
@@ -2209,9 +1716,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             if (mAuxEffectSendLevel != null) {
                 src.getPlayer().setAuxEffectSendLevel(mAuxEffectSendLevel);
             }
-            if (mSyncParams != null) {
-                src.getPlayer().setSyncParams(mSyncParams);
-            }
             if (mPlaybackParams != DEFAULT_PLAYBACK_PARAMS) {
                 src.getPlayer().setPlaybackParams(mPlaybackParams);
             }
@@ -2325,15 +1829,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             return ret;
         }
 
-        synchronized void setSyncParams(SyncParams params) {
-            getCurrentPlayer().setSyncParams(params);
-            mSyncParams = params;
-        }
-
-        synchronized SyncParams getSyncParams() {
-            return getCurrentPlayer().getSyncParams();
-        }
-
         synchronized void seekTo(long msec, int mode) {
             getCurrentPlayer().seekTo(msec, mode);
         }
@@ -2348,7 +1843,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             mAuxEffectSendLevel = null;
             mAudioAttributes = null;
             mAudioSessionId = null;
-            mSyncParams = null;
             mPlaybackParams = DEFAULT_PLAYBACK_PARAMS;
             mPlaybackParamsToSetWhenStarting = null;
             mLooping = false;
