@@ -14,12 +14,14 @@
      limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFF"
-    android:orientation="vertical"
-    android:padding="16dp">
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:background="#FFFFFF"
+        android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +32,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_orientation" />
+            android:text="@string/label_orientation"
+            android:textAppearance="@android:style/TextAppearance.Medium"/>
 
         <Spinner
             android:id="@+id/orientation_spinner"
@@ -48,6 +51,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.Medium"
             android:text="@string/label_jump_to" />
 
         <Spinner
@@ -68,6 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
+            android:textAppearance="@android:style/TextAppearance.Medium"
             android:text="@string/checkbox_smoothscroll" />
 
         <Button
@@ -76,6 +81,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
+            android:textAppearance="@android:style/TextAppearance.Medium"
             android:text="@string/button_jump" />
 
     </LinearLayout>
@@ -84,12 +90,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical|start"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingBottom="8dp">
 
         <CheckBox
             android:id="@+id/rotate_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.Medium"
             android:text="@string/checkbox_rotate" />
 
         <CheckBox
@@ -98,6 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
+            android:textAppearance="@android:style/TextAppearance.Medium"
             android:text="@string/checkbox_translate" />
 
         <CheckBox
@@ -106,6 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
+            android:textAppearance="@android:style/TextAppearance.Medium"
             android:text="@string/checkbox_scale" />
 
     </LinearLayout>
