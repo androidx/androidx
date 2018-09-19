@@ -82,15 +82,12 @@
     <!-- Placeholder text indicating that the user is currently casting screen. [CHAR LIMIT=50] -->
     <string name="mr_controller_casting_screen">Casting screen</string>
 
-    <!-- TODO(b/111372602): Enable translation when releasing dynamic grouping-->
     <!-- Section header text of groupable route section in dialog [CHAR LIMIT=50] -->
-    <string name="mr_dialog_groupable_header" translatable="false">Add a device</string>
+    <string name="mr_dialog_groupable_header">Add a device</string>
 
-    <!-- TODO(b/111372602): Enable translation when releasing dynamic grouping-->
     <!-- Section header text of transferable route section in dialog [CHAR LIMIT=50] -->
-    <string name="mr_dialog_transferable_header" translatable="false">Play on a group</string>
+    <string name="mr_dialog_transferable_header">Play on a group</string>
 
-    <!-- TODO(b/111372602): Enable translation when releasing dynamic grouping-->
     <!-- Placeholder text for cast dialog title view [CHAR LIMIT=50] -->
-    <string name="mr_cast_dialog_title_view_placeholder" translatable="false">No info available</string>
+    <string name="mr_cast_dialog_title_view_placeholder">No info available</string>
 </resources>
