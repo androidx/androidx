@@ -2564,8 +2564,7 @@ public final class MediaRouter {
                 RouteInfo route = provider.mRoutes.get(i);
                 route.maybeUpdateDescriptor(null);
                 // 2. Remove the route from the list.
-                int routeIndex = findRouteByUniqueId(route.getId());
-                mRoutes.remove(routeIndex);
+                mRoutes.remove(route);
             }
 
             // Update the selected route if needed.
