@@ -407,7 +407,7 @@ public abstract class MediaPlayer2 {
      *
      * @return the current MediaItem2
      */
-    public abstract @NonNull MediaItem2 getCurrentMediaItem();
+    public abstract @Nullable MediaItem2 getCurrentMediaItem();
 
     /**
      * Configures the player to loop on the current media item.
