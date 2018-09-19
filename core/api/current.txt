@@ -504,14 +504,14 @@ package androidx.core.app {
     ctor public NotificationCompat.WearableExtender(android.app.Notification);
     method public androidx.core.app.NotificationCompat.WearableExtender addAction(androidx.core.app.NotificationCompat.Action);
     method public androidx.core.app.NotificationCompat.WearableExtender addActions(java.util.List<androidx.core.app.NotificationCompat.Action>);
-    method public androidx.core.app.NotificationCompat.WearableExtender addPage(android.app.Notification);
-    method public androidx.core.app.NotificationCompat.WearableExtender addPages(java.util.List<android.app.Notification>);
+    method public deprecated androidx.core.app.NotificationCompat.WearableExtender addPage(android.app.Notification);
+    method public deprecated androidx.core.app.NotificationCompat.WearableExtender addPages(java.util.List<android.app.Notification>);
     method public androidx.core.app.NotificationCompat.WearableExtender clearActions();
-    method public androidx.core.app.NotificationCompat.WearableExtender clearPages();
+    method public deprecated androidx.core.app.NotificationCompat.WearableExtender clearPages();
     method public androidx.core.app.NotificationCompat.WearableExtender clone();
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
     method public java.util.List<androidx.core.app.NotificationCompat.Action> getActions();
-    method public android.graphics.Bitmap getBackground();
+    method public deprecated android.graphics.Bitmap getBackground();
     method public java.lang.String getBridgeTag();
     method public int getContentAction();
     method public deprecated int getContentIcon();
@@ -520,17 +520,17 @@ package androidx.core.app {
     method public deprecated int getCustomContentHeight();
     method public deprecated int getCustomSizePreset();
     method public java.lang.String getDismissalId();
-    method public android.app.PendingIntent getDisplayIntent();
+    method public deprecated android.app.PendingIntent getDisplayIntent();
     method public deprecated int getGravity();
-    method public boolean getHintAmbientBigPicture();
+    method public deprecated boolean getHintAmbientBigPicture();
     method public deprecated boolean getHintAvoidBackgroundClipping();
     method public boolean getHintContentIntentLaunchesActivity();
     method public deprecated boolean getHintHideIcon();
     method public deprecated int getHintScreenTimeout();
     method public deprecated boolean getHintShowBackgroundOnly();
-    method public java.util.List<android.app.Notification> getPages();
+    method public deprecated java.util.List<android.app.Notification> getPages();
     method public boolean getStartScrollBottom();
-    method public androidx.core.app.NotificationCompat.WearableExtender setBackground(android.graphics.Bitmap);
+    method public deprecated androidx.core.app.NotificationCompat.WearableExtender setBackground(android.graphics.Bitmap);
     method public androidx.core.app.NotificationCompat.WearableExtender setBridgeTag(java.lang.String);
     method public androidx.core.app.NotificationCompat.WearableExtender setContentAction(int);
     method public deprecated androidx.core.app.NotificationCompat.WearableExtender setContentIcon(int);
@@ -539,23 +539,23 @@ package androidx.core.app {
     method public deprecated androidx.core.app.NotificationCompat.WearableExtender setCustomContentHeight(int);
     method public deprecated androidx.core.app.NotificationCompat.WearableExtender setCustomSizePreset(int);
     method public androidx.core.app.NotificationCompat.WearableExtender setDismissalId(java.lang.String);
-    method public androidx.core.app.NotificationCompat.WearableExtender setDisplayIntent(android.app.PendingIntent);
+    method public deprecated androidx.core.app.NotificationCompat.WearableExtender setDisplayIntent(android.app.PendingIntent);
     method public deprecated androidx.core.app.NotificationCompat.WearableExtender setGravity(int);
-    method public androidx.core.app.NotificationCompat.WearableExtender setHintAmbientBigPicture(boolean);
+    method public deprecated androidx.core.app.NotificationCompat.WearableExtender setHintAmbientBigPicture(boolean);
     method public deprecated androidx.core.app.NotificationCompat.WearableExtender setHintAvoidBackgroundClipping(boolean);
     method public androidx.core.app.NotificationCompat.WearableExtender setHintContentIntentLaunchesActivity(boolean);
     method public deprecated androidx.core.app.NotificationCompat.WearableExtender setHintHideIcon(boolean);
     method public deprecated androidx.core.app.NotificationCompat.WearableExtender setHintScreenTimeout(int);
     method public deprecated androidx.core.app.NotificationCompat.WearableExtender setHintShowBackgroundOnly(boolean);
     method public androidx.core.app.NotificationCompat.WearableExtender setStartScrollBottom(boolean);
-    field public static final int SCREEN_TIMEOUT_LONG = -1; // 0xffffffff
-    field public static final int SCREEN_TIMEOUT_SHORT = 0; // 0x0
-    field public static final int SIZE_DEFAULT = 0; // 0x0
-    field public static final int SIZE_FULL_SCREEN = 5; // 0x5
-    field public static final int SIZE_LARGE = 4; // 0x4
-    field public static final int SIZE_MEDIUM = 3; // 0x3
-    field public static final int SIZE_SMALL = 2; // 0x2
-    field public static final int SIZE_XSMALL = 1; // 0x1
+    field public static final deprecated int SCREEN_TIMEOUT_LONG = -1; // 0xffffffff
+    field public static final deprecated int SCREEN_TIMEOUT_SHORT = 0; // 0x0
+    field public static final deprecated int SIZE_DEFAULT = 0; // 0x0
+    field public static final deprecated int SIZE_FULL_SCREEN = 5; // 0x5
+    field public static final deprecated int SIZE_LARGE = 4; // 0x4
+    field public static final deprecated int SIZE_MEDIUM = 3; // 0x3
+    field public static final deprecated int SIZE_SMALL = 2; // 0x2
+    field public static final deprecated int SIZE_XSMALL = 1; // 0x1
     field public static final int UNSET_ACTION_INDEX = -1; // 0xffffffff
   }
 
