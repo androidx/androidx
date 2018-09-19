@@ -145,6 +145,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         String userAgent = Util.getUserAgent(context, USER_AGENT_NAME);
         mDataSourceFactory = new DefaultDataSourceFactory(context, userAgent);
         mPlayer = ExoPlayerFactory.newSimpleInstance(
+                context,
                 new DefaultRenderersFactory(context),
                 new DefaultTrackSelector(),
                 new DefaultLoadControl(),
