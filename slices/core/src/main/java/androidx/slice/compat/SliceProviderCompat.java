@@ -326,6 +326,7 @@ public class SliceProviderCompat {
             Log.e(TAG, "Unable to bind slice", e);
             return null;
         } finally {
+            holder.close();
         }
     }
 
@@ -411,6 +412,8 @@ public class SliceProviderCompat {
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to bind slice", e);
             return null;
+        } finally {
+            holder.close();
         }
     }
 
@@ -464,6 +467,8 @@ public class SliceProviderCompat {
             holder.mProvider.call(METHOD_PIN, ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to pin slice", e);
+        } finally {
+            holder.close();
         }
     }
 
@@ -485,6 +490,8 @@ public class SliceProviderCompat {
                 holder.mProvider.call(METHOD_UNPIN, ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
             } catch (RemoteException e) {
                 Log.e(TAG, "Unable to unpin slice", e);
+            } finally {
+                holder.close();
             }
         }
     }
@@ -507,6 +514,8 @@ public class SliceProviderCompat {
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get pinned specs", e);
+        } finally {
+            holder.close();
         }
         return null;
     }
