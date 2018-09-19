@@ -20,82 +20,140 @@
 # performance between different device models.
 
 if [ "`command -v getprop`" == "" ]; then
-  echo ""
-  echo "This script should run on your Android device, not on your computer."
-  echo "use './gradlew lockClocks', or adb push it and then run on device"
-  exit -1
+    if [ -n "`command -v adb`" ]; then
+        echo Pushing $0 and running it on device
+        dest=/data/local/tmp/`basename $0`
+        adb push $0 ${dest}
+        adb shell ${dest}
+        adb shell rm ${dest}
+        exit
+    else
+        echo "Could not find adb. Options are:"
+        echo "  1. Ensure adb is on your \$PATH"
+        echo "  2. Use './gradlew lockClocks'"
+        echo "  3. Manually adb push this script to your device, and run it there"
+        exit -1
+    fi
 fi
-
-set -e
-
-device=`getprop ro.product.device`
-
-echo "it's time to lock some clocks"
 
 # require root
 if [ "`id -u`" -ne "0" ]; then
-  echo "Not running as root, cannot lock clocks, aborting"
-  exit -1
+    echo "Not running as root, cannot lock clocks, aborting"
+    exit -1
 fi
 
+stop thermal-engine
+stop perfd
+stop vendor.thermal-engine
+stop vendor.perfd
 
-if [ $device == "walleye" ] || [ $device == "taimen" ]; then
-  stop thermal-engine
-  stop perfd
-  stop vendor.thermal-engine
-  stop vendor.perfd
+#################################################################################
+# Find max cpu freq, and associated list of available freqs
+#################################################################################
 
-  cpubase=/sys/devices/system/cpu
-  gov=cpufreq/scaling_governor
+CPU_BASE=/sys/devices/system/cpu
+GOV=cpufreq/scaling_governor
 
-  cpu=4
-  top=8
+cpuMaxFreq=0
+cpuAvailFreqCmpr=0
+cpuAvailFreq=0
+enableIndices=''
+disableIndices=''
 
-  # Enable the gold cores at medium-high frequency.
-  # 1248000 1344000 1478400 1555200 1900800 2457600
-  S=1555200
+cpu=0
+while [ -f ${CPU_BASE}/cpu${cpu}/online ]; do
+    # enable core, so we can find its frequencies
+    echo 1 > ${CPU_BASE}/cpu${cpu}/online
 
-  while [ $((cpu < $top)) -eq 1 ]; do
-    echo 1 > $cpubase/cpu${cpu}/online
-    echo userspace > $cpubase/cpu${cpu}/$gov
-    echo $S > $cpubase/cpu${cpu}/cpufreq/scaling_max_freq
-    echo $S > $cpubase/cpu${cpu}/cpufreq/scaling_min_freq
-    echo $S > $cpubase/cpu${cpu}/cpufreq/scaling_setspeed
+    maxFreq=`cat ${CPU_BASE}/cpu$cpu/cpufreq/cpuinfo_max_freq`
+    availFreq=`cat ${CPU_BASE}/cpu$cpu/cpufreq/scaling_available_frequencies`
+    availFreqCmpr=${availFreq// /-}
+
+    if [ ${maxFreq} -gt ${cpuMaxFreq} ]; then
+        # new highest max freq, look for cpus with same max freq and same avail freq list
+        cpuMaxFreq=${maxFreq}
+        cpuAvailFreq=${availFreq}
+        cpuAvailFreqCmpr=${availFreqCmpr}
+
+        if [ -z ${disableIndices} ]; then
+            disableIndices="$enableIndices"
+        else
+            disableIndices="$disableIndices $enableIndices"
+        fi
+        enableIndices=${cpu}
+    elif [ ${maxFreq} == ${cpuMaxFreq} ] && [ ${availFreqCmpr} == ${cpuAvailFreqCmpr} ]; then
+        enableIndices="$enableIndices $cpu"
+    else
+        disableIndices="$disableIndices $cpu"
+    fi
     cpu=$(($cpu + 1))
-  done
+done
 
-  cpu=0
-  top=4
-  # Disable the silver cores.
-  while [ $((cpu < $top)) -eq 1 ]; do
-    echo 0 > $cpubase/cpu${cpu}/online
-    cpu=$(($cpu + 1))
-  done
+#################################################################################
+# Chose a frequency to lock to that's >= 50% of max
+#################################################################################
 
-  ## TODO: had trouble with locking GPU clocks
-  ## on walleye/taimen, punting on this for now
+TARGET_PERCENT=50
+TARGET_FREQ_SCALED=`expr ${TARGET_PERCENT} \* ${cpuMaxFreq}`
+chosenFreq=0
+for freq in ${cpuAvailFreq}; do
+    freqScaled=`expr 100 \* $freq`
+    if [ ${freqScaled} -ge ${TARGET_FREQ_SCALED} ]; then
+        chosenFreq=${freq}
+        break
+    fi
+done
 
-elif [ $device == "marlin" ] || [ $device == "sailfish" ]; then
+#################################################################################
+# Lock to target freq - note: enable before disabling!
+#################################################################################
 
-  stop thermal-engine
-  stop perfd
-  stop vendor.thermal-engine
-  stop vendor.perfd
+# enable 'big' CPUs
+for cpu in ${enableIndices}; do
+    freq=${CPU_BASE}/cpu$cpu/cpufreq
 
-  echo 0 > /sys/devices/system/cpu/cpu0/online
-  echo 0 > /sys/devices/system/cpu/cpu1/online
+    echo 1 > ${CPU_BASE}/cpu${cpu}/online
+    echo userspace > ${CPU_BASE}/cpu${cpu}/${GOV}
+    echo ${chosenFreq} > ${freq}/scaling_max_freq
+    echo ${chosenFreq} > ${freq}/scaling_min_freq
+    echo ${chosenFreq} > ${freq}/scaling_setspeed
 
-  echo performance  > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor
-  echo 2150400 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    # validate setting the freq worked
+    obsCur=`cat ${freq}/scaling_cur_freq`
+    obsMin=`cat ${freq}/scaling_min_freq`
+    obsMax=`cat ${freq}/scaling_max_freq`
+    if [ obsCur -ne ${chosenFreq} ] || [ obsMin -ne ${chosenFreq} ] || [ obsMax -ne ${chosenFreq} ]; then
+        echo "Failed to set CPU$cpu to $chosenFreq Hz! Aborting..."
+        echo "scaling_cur_freq = $obsCur"
+        echo "scaling_min_freq = $obsMin"
+        echo "scaling_max_freq = $obsMax"
+        exit -1
+    fi
 
-  echo 13763 > /sys/class/devfreq/soc:qcom,gpubw/max_freq
-  echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
-  echo -n 624000000 > /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+done
+
+# disable other CPUs
+for cpu in ${disableIndices}; do
+  echo 0 > ${CPU_BASE}/cpu${cpu}/online
+done
+
+echo ""
+echo "Locked CPUs ${enableIndices// /,} to $chosenFreq / $maxFreq Hz"
+echo "Disabled CPUs ${disableIndices// /,}"
+
+#################################################################################
+# Memory bus / GPU clocks - hardcoded per-device for now
+#################################################################################
+
+device=`getprop ro.product.device`
+if [ ${device} == "marlin" ] || [ ${device} == "sailfish" ]; then
+    echo 13763 > /sys/class/devfreq/soc:qcom,gpubw/max_freq
+    echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
+    echo -n 624000000 > /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
 else
-  model=`getprop ro.product.model`
-  echo "This device - $model ($device) - is not currently supported"
-  exit -1
+    ## TODO: had trouble with locking GPU clocks on walleye/taimen, punting for now
+    model=`getprop ro.product.model`
+    echo "Note: Unable to lock memory bus / GPU clocks of $model ($device)."
 fi
 
-echo "$device clocks have been locked - to reset, reboot the device"
-
+echo "\n$device clocks have been locked - to reset, reboot the device"
