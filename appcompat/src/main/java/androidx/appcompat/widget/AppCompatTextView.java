@@ -23,6 +23,7 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.inputmethod.EditorInfo;
@@ -34,8 +35,9 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
@@ -48,18 +50,21 @@ import java.util.concurrent.Future;
  * A {@link TextView} which supports compatible features on older versions of the platform,
  * including:
  * <ul>
- *     <li>Allows dynamic tint of its background via the background tint methods in
- *     {@link androidx.core.view.ViewCompat}.</li>
- *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
- *     {@link R.attr#backgroundTintMode}.</li>
- *     <li>Supports auto-sizing via {@link androidx.core.widget.TextViewCompat} by allowing
- *     to instruct a {@link TextView} to let the size of the text expand or contract automatically
- *     to fill its layout based on the TextView's characteristics and boundaries. The
- *     style attributes associated with auto-sizing are {@link R.attr#autoSizeTextType},
- *     {@link R.attr#autoSizeMinTextSize}, {@link R.attr#autoSizeMaxTextSize},
- *     {@link R.attr#autoSizeStepGranularity} and {@link R.attr#autoSizePresetSizes}, all of
- *     which work back to
- *     {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH Ice Cream Sandwich}.</li>
+ * <li>Allows dynamic tint of its background via the background tint methods in
+ * {@link androidx.core.view.ViewCompat}.</li>
+ * <li>Allows setting of the background tint using
+ * {@link androidx.appcompat.R.attr#backgroundTint} and
+ * {@link androidx.appcompat.R.attr#backgroundTintMode}.</li>
+ * <li>Supports auto-sizing via {@link androidx.core.widget.TextViewCompat} by allowing to instruct
+ * a {@link TextView} to let the size of the text expand or contract automatically to fill its
+ * layout based on the TextView's characteristics and boundaries. The style attributes associated
+ * with auto-sizing are
+ * {@link androidx.appcompat.R.attr#autoSizeTextType},
+ * {@link androidx.appcompat.R.attr#autoSizeMinTextSize},
+ * {@link androidx.appcompat.R.attr#autoSizeMaxTextSize},
+ * {@link androidx.appcompat.R.attr#autoSizeStepGranularity} and
+ * {@link androidx.appcompat.R.attr#autoSizePresetSizes}, all of which work back to
+ * {@link VERSION_CODES#ICE_CREAM_SANDWICH Ice Cream Sandwich}.</li>
  * </ul>
  *
  * <p>This will automatically be used when you use {@link TextView} in your layouts
@@ -73,7 +78,8 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
 
-    private @Nullable Future<PrecomputedTextCompat> mPrecomputedTextFuture;
+    @Nullable
+    private Future<PrecomputedTextCompat> mPrecomputedTextFuture;
 
     public AppCompatTextView(Context context) {
         this(context, null);
@@ -215,7 +221,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     /**
      * This should be accessed via
      * {@link androidx.core.widget.TextViewCompat#setAutoSizeTextTypeWithDefaults(
-     *        TextView, int)}
+     *TextView, int)}
      *
      * @hide
      */
@@ -235,7 +241,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     /**
      * This should be accessed via
      * {@link androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithConfiguration(
-     *        TextView, int, int, int, int)}
+     *TextView, int, int, int, int)}
      *
      * @hide
      */
@@ -260,7 +266,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     /**
      * This should be accessed via
      * {@link androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithPresetSizes(
-     *        TextView, int[], int)}
+     *TextView, int[], int)}
      *
      * @hide
      */
@@ -433,7 +439,8 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * @return a current {@link PrecomputedTextCompat.Params}
      * @see PrecomputedTextCompat
      */
-    public @NonNull PrecomputedTextCompat.Params getTextMetricsParamsCompat() {
+    @NonNull
+    public PrecomputedTextCompat.Params getTextMetricsParamsCompat() {
         return TextViewCompat.getTextMetricsParams(this);
     }
 
@@ -441,6 +448,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * Apply the text layout parameter.
      *
      * Update the TextView parameters to be compatible with {@link PrecomputedTextCompat.Params}.
+     *
      * @see PrecomputedTextCompat
      */
     public void setTextMetricsParamsCompat(@NonNull PrecomputedTextCompat.Params params) {
@@ -503,4 +511,25 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    @Override
+    public void setCompoundDrawablesWithIntrinsicBounds(int left, int top, int right, int bottom) {
+        final Context context = getContext();
+        setCompoundDrawablesWithIntrinsicBounds(
+                left != 0 ? AppCompatResources.getDrawable(context, left) : null,
+                top != 0 ? AppCompatResources.getDrawable(context, top) : null,
+                right != 0 ? AppCompatResources.getDrawable(context, right) : null,
+                bottom != 0 ? AppCompatResources.getDrawable(context, bottom) : null);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    @Override
+    public void setCompoundDrawablesRelativeWithIntrinsicBounds(
+            int start, int top, int end, int bottom) {
+        final Context context = getContext();
+        setCompoundDrawablesRelativeWithIntrinsicBounds(
+                start != 0 ? AppCompatResources.getDrawable(context, start) : null,
+                top != 0 ? AppCompatResources.getDrawable(context, top) : null,
+                end != 0 ? AppCompatResources.getDrawable(context, end) : null,
+                bottom != 0 ? AppCompatResources.getDrawable(context, bottom) : null);
+    }
 }

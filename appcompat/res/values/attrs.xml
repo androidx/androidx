@@ -881,8 +881,16 @@
         <!-- Distance from the bottom of the TextView to the last text baseline. If set, this
              overrides the value set for paddingBottom. -->
         <attr name="lastBaselineToBottomHeight" format="dimension" />
-        <!-- OpenType font variation settings, available aftear api 26. -->
+        <!-- OpenType font variation settings, available after api 26. -->
         <attr name="fontVariationSettings" format="string" />
+        <!-- Compound drawables allowing the use of vector drawable when running on older versions
+             of the platform. -->
+        <attr name="drawableLeftCompat" format="reference" />
+        <attr name="drawableTopCompat" format="reference" />
+        <attr name="drawableRightCompat" format="reference" />
+        <attr name="drawableBottomCompat" format="reference" />
+        <attr name="drawableStartCompat" format="reference" />
+        <attr name="drawableEndCompat" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="LinearLayoutCompat">

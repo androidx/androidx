@@ -55,7 +55,8 @@ class AppCompatTextHelper {
     private TintInfo mDrawableStartTint;
     private TintInfo mDrawableEndTint;
 
-    private final @NonNull AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
+    @NonNull
+    private final AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
 
     private int mStyle = Typeface.NORMAL;
     private Typeface mFontTypeface;
@@ -96,11 +97,11 @@ class AppCompatTextHelper {
         if (Build.VERSION.SDK_INT >= 17) {
             if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableStart)) {
                 mDrawableStartTint = createTintInfo(context, drawableManager,
-                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableStart, 0));
+                        a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableStart, 0));
             }
             if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableEnd)) {
                 mDrawableEndTint = createTintInfo(context, drawableManager,
-                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableEnd, 0));
+                        a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableEnd, 0));
             }
         }
 
@@ -232,12 +233,50 @@ class AppCompatTextHelper {
 
         // Read line and baseline heights attributes.
         a = TintTypedArray.obtainStyledAttributes(context, attrs, R.styleable.AppCompatTextView);
+
+        // Load compat compound drawables, allowing vector backport
+        Drawable drawableLeft = null, drawableTop = null, drawableRight = null,
+                drawableBottom = null, drawableStart = null, drawableEnd = null;
+        final int drawableLeftId = a.getResourceId(
+                R.styleable.AppCompatTextView_drawableLeftCompat, -1);
+        if (drawableLeftId != -1) {
+            drawableLeft = drawableManager.getDrawable(context, drawableLeftId);
+        }
+        final int drawableTopId = a.getResourceId(
+                R.styleable.AppCompatTextView_drawableTopCompat, -1);
+        if (drawableTopId != -1) {
+            drawableTop = drawableManager.getDrawable(context, drawableTopId);
+        }
+        final int drawableRightId = a.getResourceId(
+                R.styleable.AppCompatTextView_drawableRightCompat, -1);
+        if (drawableRightId != -1) {
+            drawableRight = drawableManager.getDrawable(context, drawableRightId);
+        }
+        final int drawableBottomId = a.getResourceId(
+                R.styleable.AppCompatTextView_drawableBottomCompat, -1);
+        if (drawableBottomId != -1) {
+            drawableBottom = drawableManager.getDrawable(context, drawableBottomId);
+        }
+        final int drawableStartId = a.getResourceId(
+                R.styleable.AppCompatTextView_drawableStartCompat, -1);
+        if (drawableStartId != -1) {
+            drawableStart = drawableManager.getDrawable(context, drawableStartId);
+        }
+        final int drawableEndId = a.getResourceId(
+                R.styleable.AppCompatTextView_drawableEndCompat, -1);
+        if (drawableEndId != -1) {
+            drawableEnd = drawableManager.getDrawable(context, drawableEndId);
+        }
+        setCompoundDrawables(drawableLeft, drawableTop, drawableRight, drawableBottom,
+                drawableStart, drawableEnd);
+
         final int firstBaselineToTopHeight = a.getDimensionPixelSize(
                 R.styleable.AppCompatTextView_firstBaselineToTopHeight, -1);
         final int lastBaselineToBottomHeight = a.getDimensionPixelSize(
                 R.styleable.AppCompatTextView_lastBaselineToBottomHeight, -1);
         final int lineHeight = a.getDimensionPixelSize(
                 R.styleable.AppCompatTextView_lineHeight, -1);
+
         a.recycle();
         if (firstBaselineToTopHeight != -1) {
             TextViewCompat.setFirstBaselineToTopHeight(mView, firstBaselineToTopHeight);
@@ -476,5 +515,43 @@ class AppCompatTextHelper {
 
     int[] getAutoSizeTextAvailableSizes() {
         return mAutoSizeTextHelper.getAutoSizeTextAvailableSizes();
+    }
+
+    private void setCompoundDrawables(Drawable drawableLeft, Drawable drawableTop,
+            Drawable drawableRight, Drawable drawableBottom, Drawable drawableStart,
+            Drawable drawableEnd) {
+        // Mirror TextView logic: if start/end drawables supplied, ignore left/right
+        if (Build.VERSION.SDK_INT >= 17 && (drawableStart != null || drawableEnd != null)) {
+            final Drawable[] existingRel = mView.getCompoundDrawablesRelative();
+            mView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    drawableStart != null ? drawableStart : existingRel[0],
+                    drawableTop != null ? drawableTop : existingRel[1],
+                    drawableEnd != null ? drawableEnd : existingRel[2],
+                    drawableBottom != null ? drawableBottom : existingRel[3]
+            );
+        } else if (drawableLeft != null || drawableTop != null
+                || drawableRight != null || drawableBottom != null) {
+            // If have non-compat relative drawables, then ignore leftCompat/rightCompat
+            if (Build.VERSION.SDK_INT >= 17) {
+                final Drawable[] existingRel = mView.getCompoundDrawablesRelative();
+                if (existingRel[0] != null || existingRel[2] != null) {
+                    mView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            existingRel[0],
+                            drawableTop != null ? drawableTop : existingRel[1],
+                            existingRel[2],
+                            drawableBottom != null ? drawableBottom : existingRel[3]
+                    );
+                    return;
+                }
+            }
+            // No relative drawables, so just set any compat drawables
+            final Drawable[] existingAbs = mView.getCompoundDrawables();
+            mView.setCompoundDrawablesWithIntrinsicBounds(
+                    drawableLeft != null ? drawableLeft : existingAbs[0],
+                    drawableTop != null ? drawableTop : existingAbs[1],
+                    drawableRight != null ? drawableRight : existingAbs[2],
+                    drawableBottom != null ? drawableBottom : existingAbs[3]
+            );
+        }
     }
 }
