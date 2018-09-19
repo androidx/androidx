@@ -29,14 +29,14 @@ class SingleChildRenderObjectElement(
     override fun mount(parent: Element?, newSlot: Any?) {
         val singleChildWidget = widget as SingleChildRenderObjectWidget
         super.mount(parent, newSlot)
-        _child = updateChild(_child, singleChildWidget, null)
+        _child = updateChild(_child, singleChildWidget.child!!, null)
     }
 
     override fun update(newWidget: Widget) {
         val singleChildWidget = newWidget as SingleChildRenderObjectWidget
         super.update(newWidget)
         assert(widget == newWidget)
-        _child = updateChild(_child, singleChildWidget, null)
+        _child = updateChild(_child, singleChildWidget.child!!, null)
     }
 
     override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {

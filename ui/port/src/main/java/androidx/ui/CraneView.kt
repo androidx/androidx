@@ -36,7 +36,7 @@ import androidx.ui.widgets.view.ViewHost
 @SuppressLint("ViewConstructor")
 class CraneView(
     context: Context,
-    private val widget: Widget
+    widget: Widget
 ) : ViewGroup(context) {
 
     private var widgetRoot: ViewHost
