@@ -37,8 +37,10 @@ fun debugWordWrap(message: String, width: Int, wrapIndent: String = ""): Iterabl
             }
 
             // TODO(Filip): Changed mathching, not sure if it still works
+            // TODO(Migration/ryanmentley): Changed matching again, hope it works now
             val matcher = _indentPattern.matcher(message)
-            val prefixMatch = matcher.matches()
+            // Find the first match (should be the only one due to ^)
+            val prefixMatch = matcher.find()
             val prefix = wrapIndent + " ".repeat(matcher.group(0).length)
             var start = 0
             var startForLengthCalculations = 0

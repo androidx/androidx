@@ -1,5 +1,6 @@
 package androidx.ui.rendering.obj
 
+import androidx.annotation.CallSuper
 import androidx.ui.assert
 import androidx.ui.core.Duration
 import androidx.ui.engine.geometry.Offset
@@ -377,10 +378,10 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             _needsPaint = false
             markNeedsPaint()
         }
-        if (_needsSemanticsUpdate && _semanticsConfiguration.isSemanticBoundary) {
+        if (needsSemanticsUpdate && _semanticsConfiguration.isSemanticBoundary) {
             // Don't enter this block if we've never updated semantics at all;
             // scheduleInitialSemantics() will handle it
-            _needsSemanticsUpdate = false
+            needsSemanticsUpdate = false
             markNeedsSemanticsUpdate()
         }
     }
@@ -1378,7 +1379,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * the viewport scrolls implicitly when moving the accessibility focus from
      * a the last visible node in the viewport to the first hidden one.
      */
-//    open fun describeSemanticsClip(child: RenderObject): Rect? = null
+    open fun describeSemanticsClip(child: RenderObject): Rect? = null
 
     // SEMANTICS
 
@@ -1391,16 +1392,16 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      *
      * See [RendererBinding] for an example of how this function is used.
      */
-//    fun scheduleInitialSemantics() {
-//        assert(attached);
-//        assert(parent !is RenderObject);
-//        assert(!owner!!._debugDoingSemantics);
-//        assert(_semantics == null);
-//        assert(_needsSemanticsUpdate);
-//        assert(owner!!.semanticsOwner != null);
-//        owner!!._nodesNeedingSemantics.add(this);
-//        owner!!.requestVisualUpdate();
-//    }
+    fun scheduleInitialSemantics() {
+        assert(attached)
+        assert(parent !is RenderObject)
+        assert(!owner!!._debugDoingSemantics)
+        assert(_semantics == null)
+        assert(needsSemanticsUpdate)
+        assert(owner!!.semanticsOwner != null)
+        owner!!._nodesNeedingSemantics.add(this)
+        owner!!.requestVisualUpdate()
+    }
 
     /**
      * Report the semantics of this node, for example for accessibility purposes.
@@ -1481,8 +1482,8 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      */
     open val semanticBounds: Rect? = null
 
-    private var _needsSemanticsUpdate = true
-    private var _semantics: SemanticsNode? = null
+    internal var needsSemanticsUpdate = true
+    internal var _semantics: SemanticsNode? = null
 
     /**
      * The semantics of this render object.
@@ -1494,15 +1495,15 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * Only valid when asserts are enabled. In release builds, always returns
      * null.
      */
-//    val debugSemantics: SemanticsNode?
-//        get() {
-//            var result: SemanticsNode? = null
-//            assert({
-//                result = _semantics;
-//                true;
-//            }());
-//            return result;
-//        }
+    val debugSemantics: SemanticsNode?
+        get() {
+            var result: SemanticsNode? = null
+            assert {
+                result = _semantics
+                true
+            }
+            return result
+        }
 
     /**
      * Removes all semantics from this render object and its descendants.
@@ -1512,14 +1513,14 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * Override this method if you instantiate new [SemanticsNode]s in an
      * overridden [assembleSemanticsNode] method, to dispose of those nodes.
      */
-//    @CallSuper
-//    fun clearSemantics() {
-//        _needsSemanticsUpdate = true;
-//        _semantics = null;
-//        visitChildren { child ->
-//            child.clearSemantics();
-//        };
-//    }
+    @CallSuper
+    fun clearSemantics() {
+        needsSemanticsUpdate = true
+        _semantics = null
+        visitChildren { child ->
+            child.clearSemantics()
+        }
+    }
 
     /**
      * Mark this node as needing an update to its semantics description.
@@ -1548,9 +1549,9 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         var node = this
 
         while (!isEffectiveSemanticsBoundary && node.parent is RenderObject) {
-            if (node != this && node._needsSemanticsUpdate)
+            if (node != this && node.needsSemanticsUpdate)
                 break
-            node._needsSemanticsUpdate = true
+            node.needsSemanticsUpdate = true
 
             node = node.parent as RenderObject
             isEffectiveSemanticsBoundary = node._semanticsConfiguration.isSemanticBoundary
@@ -1561,7 +1562,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                 return
             }
         }
-        if (node != this && _semantics != null && _needsSemanticsUpdate) {
+        if (node != this && _semantics != null && needsSemanticsUpdate) {
             // If `this` node has already been added to [owner._nodesNeedingSemantics]
             // remove it as it is no longer guaranteed that its semantics
             // node will continue to be in the tree. If it still is in the tree, the
@@ -1571,8 +1572,8 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             // (See semantics_10_test.dart for an example why this is required).
             owner?._nodesNeedingSemantics?.remove(this)
         }
-        if (!node._needsSemanticsUpdate) {
-            node._needsSemanticsUpdate = true
+        if (!node.needsSemanticsUpdate) {
+            node.needsSemanticsUpdate = true
             if (owner != null) {
                 assert(node._semanticsConfiguration.isSemanticBoundary ||
                         node.parent !is RenderObject)
@@ -1585,98 +1586,98 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
     /**
      * Updates the semantic information of the render object.
      */
-//    private fun updateSemantics() {
-//        assert(_semanticsConfiguration._isSemanticBoundary || parent !is RenderObject);
-//        val fragment: _SemanticsFragment = getSemanticsForParent(
-//                mergeIntoParent = _semantics?.parent?.isPartOfNodeMerging ?: false
-//        );
-//        assert(fragment is _InterestingSemanticsFragment)
-//        val interestingFragment = fragment as _InterestingSemanticsFragment
-//        val node: SemanticsNode = interestingFragment.compileChildren(
-//                parentSemanticsClipRect = _semantics?.parentSemanticsClipRect,
-//                parentPaintClipRect = _semantics?.parentPaintClipRect
-//        ).first();
-//        // Fragment only wants to add this node's SemanticsNode to the parent.
-//        assert(interestingFragment.config == null && node == _semantics);
-//    }
+    internal fun updateSemantics() {
+        assert(_semanticsConfiguration.isSemanticBoundary || parent !is RenderObject)
+        val fragment: _SemanticsFragment = getSemanticsForParent(
+                mergeIntoParent = _semantics?.parent?.isPartOfNodeMerging ?: false
+        )
+        assert(fragment is _InterestingSemanticsFragment)
+        val interestingFragment = fragment as _InterestingSemanticsFragment
+        val node: SemanticsNode = interestingFragment.compileChildren(
+                parentSemanticsClipRect = _semantics?.parentSemanticsClipRect,
+                parentPaintClipRect = _semantics?.parentPaintClipRect
+        ).first()
+        // Fragment only wants to add this node's SemanticsNode to the parent.
+        assert(interestingFragment.config == null && node == _semantics)
+    }
 
     /**
      * Returns the semantics that this node would like to add to its parent.
      */
-//    private fun getSemanticsForParent(mergeIntoParent: Boolean): _SemanticsFragment {
-//        val config = _semanticsConfiguration
-//        var dropSemanticsOfPreviousSiblings = config.isBlockingSemanticsOfPreviouslyPaintedNodes
-//
-//        val producesForkingFragment = !config.hasBeenAnnotated && !config._isSemanticBoundary
-//        val fragments = mutableListOf<_InterestingSemanticsFragment>()
-//        val toBeMarkedExplicit = mutableSetOf<_InterestingSemanticsFragment>()
-//        val childrenMergeIntoParent = mergeIntoParent || config.isMergingSemanticsOfDescendants
-//
-//        visitChildrenForSemantics { renderChild ->
-//            val fragment: _SemanticsFragment = renderChild.getSemanticsForParent(
-//                    mergeIntoParent = childrenMergeIntoParent)
-//            if (fragment.dropsSemanticsOfPreviousSiblings) {
-//                fragments.clear()
-//                toBeMarkedExplicit.clear()
-//                if (!config._isSemanticBoundary)
-//                    dropSemanticsOfPreviousSiblings = true
-//            }
-//            // Figure out which child fragments are to be made explicit.
-//            for (fragment in fragment.interestingFragments) {
-//                fragments.add(fragment)
-//                fragment.addAncestor(this)
-//                fragment.addTags(config.tagsForChildren)
-//                if (config.explicitChildNodes || parent !is RenderObject) {
-//                    fragment.markAsExplicit()
-//                    continue
-//                }
-//                if (!fragment.hasConfigForParent || producesForkingFragment)
-//                    continue
-//                if (!config.isCompatibleWith(fragment.config))
-//                    toBeMarkedExplicit.add(fragment)
-//                for (siblingFragment in fragments.subList(0, fragments.size - 1)) {
-//                    if (!fragment.config!!.isCompatibleWith(siblingFragment.config)) {
-//                        toBeMarkedExplicit.add(fragment)
-//                        toBeMarkedExplicit.add(siblingFragment)
-//                    }
-//                }
-//            }
-//        }
-//
-//        for (fragment in toBeMarkedExplicit) {
-//            fragment.markAsExplicit()
-//        }
-//
-//        _needsSemanticsUpdate = false
-//
-//        var result: _SemanticsFragment? = null
-//        if (parent !is RenderObject) {
-//            assert(!config.hasBeenAnnotated)
-//            assert(!mergeIntoParent)
-//            result = _RootSemanticsFragment(
-//                    owner = this,
-//                    dropsSemanticsOfPreviousSiblings = dropSemanticsOfPreviousSiblings
-//            )
-//        } else if (producesForkingFragment) {
-//            result = _ContainerSemanticsFragment(
-//                    dropsSemanticsOfPreviousSiblings = dropSemanticsOfPreviousSiblings
-//            )
-//        } else {
-//            result = _SwitchableSemanticsFragment(
-//                    config = config,
-//                    mergeIntoParent = mergeIntoParent,
-//                    owner = this,
-//                    dropsSemanticsOfPreviousSiblings = dropSemanticsOfPreviousSiblings)
-//            if (config._isSemanticBoundary) {
-//                val fragment = result
-//                fragment.markAsExplicit()
-//            }
-//        }
-//
-//        result.addAll(fragments)
-//
-//        return result
-//    }
+    private fun getSemanticsForParent(mergeIntoParent: Boolean): _SemanticsFragment {
+        val config = _semanticsConfiguration
+        var dropSemanticsOfPreviousSiblings = config.isBlockingSemanticsOfPreviouslyPaintedNodes
+
+        val producesForkingFragment = !config.hasBeenAnnotated && !config.isSemanticBoundary
+        val fragments = mutableListOf<_InterestingSemanticsFragment>()
+        val toBeMarkedExplicit = mutableSetOf<_InterestingSemanticsFragment>()
+        val childrenMergeIntoParent = mergeIntoParent || config.isMergingSemanticsOfDescendants
+
+        visitChildrenForSemantics { renderChild ->
+            val fragment: _SemanticsFragment = renderChild.getSemanticsForParent(
+                    mergeIntoParent = childrenMergeIntoParent)
+            if (fragment.dropsSemanticsOfPreviousSiblings) {
+                fragments.clear()
+                toBeMarkedExplicit.clear()
+                if (!config.isSemanticBoundary)
+                    dropSemanticsOfPreviousSiblings = true
+            }
+            // Figure out which child fragments are to be made explicit.
+            for (fragment in fragment.interestingFragments) {
+                fragments.add(fragment)
+                fragment.addAncestor(this)
+                fragment.addTags(config.tagsForChildren)
+                if (config.explicitChildNodes || parent !is RenderObject) {
+                    fragment.markAsExplicit()
+                    continue
+                }
+                if (!fragment.hasConfigForParent || producesForkingFragment)
+                    continue
+                if (!config.isCompatibleWith(fragment.config))
+                    toBeMarkedExplicit.add(fragment)
+                for (siblingFragment in fragments.subList(0, fragments.size - 1)) {
+                    if (!fragment.config!!.isCompatibleWith(siblingFragment.config)) {
+                        toBeMarkedExplicit.add(fragment)
+                        toBeMarkedExplicit.add(siblingFragment)
+                    }
+                }
+            }
+        }
+
+        for (fragment in toBeMarkedExplicit) {
+            fragment.markAsExplicit()
+        }
+
+        needsSemanticsUpdate = false
+
+        var result: _SemanticsFragment? = null
+        if (parent !is RenderObject) {
+            assert(!config.hasBeenAnnotated)
+            assert(!mergeIntoParent)
+            result = _RootSemanticsFragment(
+                    owner = this,
+                    dropsSemanticsOfPreviousSiblings = dropSemanticsOfPreviousSiblings
+            )
+        } else if (producesForkingFragment) {
+            result = _ContainerSemanticsFragment(
+                dropsSemanticsOfPreviousSiblings = dropSemanticsOfPreviousSiblings
+            )
+        } else {
+            result = _SwitchableSemanticsFragment(
+                    config = config,
+                    mergeIntoParent = mergeIntoParent,
+                    owner = this,
+                    dropsSemanticsOfPreviousSiblings = dropSemanticsOfPreviousSiblings)
+            if (config.isSemanticBoundary) {
+                val fragment = result
+                fragment.markAsExplicit()
+            }
+        }
+
+        result.addAll(fragments)
+
+        return result
+    }
 
     /**
      * Called when collecting the semantics of this node.
@@ -1688,9 +1689,9 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * The default implementation mirrors the behavior of
      * [visitChildren()] (which is supposed to walk all the children).
      */
-//    fun visitChildrenForSemantics(visitor: RenderObjectVisitor) {
-//        visitChildren(visitor)
-//    }
+    fun visitChildrenForSemantics(visitor: RenderObjectVisitor) {
+        visitChildren(visitor)
+    }
 
     /**
      * Assemble the [SemanticsNode] for this [RenderObject].
@@ -1707,13 +1708,14 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * to the tree. If new [SemanticsNode]s are instantiated in this method
      * they must be disposed in [clearSemantics].
      */
-//    fun assembleSemanticsNode(
-//            node: SemanticsNode,
-//            config: SemanticsConfiguration,
-//            children: Iterable<SemanticsNode>) {
-//        assert(node == _semantics);
-//        node.updateWith(config = config, childrenInInversePaintOrder = children);
-//    }
+    fun assembleSemanticsNode(
+        node: SemanticsNode,
+        config: SemanticsConfiguration,
+        children: Iterable<SemanticsNode>
+    ) {
+        assert(node == _semantics)
+        node.updateWith(config = config, childrenInInversePaintOrder = children.toList())
+    }
 
     // EVENTS
 
@@ -1847,12 +1849,12 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * If [child] is provided, that [RenderObject] is made visible. If [child] is
      * omitted, this [RenderObject] is made visible.
      */
-//    fun showOnScreen(child: RenderObject?) {
-//        if (parent is RenderObject) {
-//            val renderParent = parent as RenderObject
-//            renderParent.showOnScreen(child ?: this);
-//        }
-//    }
+    fun showOnScreen(child: RenderObject? = null) {
+        if (parent is RenderObject) {
+            val renderParent = parent as RenderObject
+            renderParent.showOnScreen(child ?: this)
+        }
+    }
 
     // ComponentNode's logic start
 

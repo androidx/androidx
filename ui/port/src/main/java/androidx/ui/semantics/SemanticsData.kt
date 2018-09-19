@@ -1,8 +1,16 @@
 package androidx.ui.semantics
 
+import androidx.ui.describeEnum
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.EnumProperty
+import androidx.ui.foundation.diagnostics.IterableProperty
+import androidx.ui.foundation.diagnostics.MessageProperty
+import androidx.ui.foundation.diagnostics.StringProperty
+import androidx.ui.painting.matrixutils.TransformProperty
 import androidx.ui.runtimeType
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.services.text_editing.TextSelection
@@ -129,19 +137,7 @@ data class SemanticsData(
      * transformation (i.e., that this node has the same coordinate system as its
      * parent).
      */
-    val transform: Matrix4?,
-
-    /**
-     * The identifiers for the custom semantics actions and standard action
-     * overrides for this node.
-     *
-     * The list must be sorted in increasing order.
-     *
-     * See also:
-     *
-     *   * [CustomSemanticsAction], for an explanation of custom actions.
-     */
-    val customSemanticsActionIds: List<Int>
+    val transform: Matrix4?
 ) : Diagnosticable {
 
     init {
@@ -166,39 +162,74 @@ data class SemanticsData(
         return runtimeType().toString()
     }
 
+    override fun toString(): String {
+        return toStringDiagnostic()
+    }
+
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        TODO()
-//    super.debugFillProperties(properties);
-//    properties.add(new DiagnosticsProperty<Rect>('rect', rect, showName: false));
-//    properties.add(new TransformProperty('transform', transform, showName: false, defaultValue: null));
-//    final List<String> actionSummary = <String>[];
-//    for (SemanticsAction action in SemanticsAction.values.values) {
-//      if ((actions & action.index) != 0)
-//        actionSummary.add(describeEnum(action));
-//    }
-//    final List<String> customSemanticsActionSummary = customSemanticsActionIds
-//      .map<String>((int actionId) => CustomSemanticsAction.getAction(actionId).label)
-//      .toList();
-//    properties.add(new IterableProperty<String>('actions', actionSummary, ifEmpty: null));
-//    properties.add(new IterableProperty<String>('customActions', customSemanticsActionSummary, ifEmpty: null));
-//
-//    final List<String> flagSummary = <String>[];
-//    for (SemanticsFlag flag in SemanticsFlag.values.values) {
-//      if ((flags & flag.index) != 0)
-//        flagSummary.add(describeEnum(flag));
-//    }
-//    properties.add(new IterableProperty<String>('flags', flagSummary, ifEmpty: null));
-//    properties.add(new StringProperty('label', label, defaultValue: ""));
-//    properties.add(new StringProperty('value', value, defaultValue: ""));
-//    properties.add(new StringProperty('increasedValue', increasedValue, defaultValue: ""));
-//    properties.add(new StringProperty('decreasedValue', decreasedValue, defaultValue: ""));
-//    properties.add(new StringProperty('hint', hint, defaultValue: ""));
-//    properties.add(new EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
-//    if (textSelection?.isValid == true)
-//      properties.add(new MessageProperty('textSelection', '[${textSelection.start}, ${textSelection.end}]'));
-//    properties.add(new DoubleProperty('scrollExtentMin', scrollExtentMin, defaultValue: null));
-//    properties.add(new DoubleProperty('scrollPosition', scrollPosition, defaultValue: null));
-//    properties.add(new DoubleProperty('scrollExtentMax', scrollExtentMax, defaultValue: null));
+        super.debugFillProperties(properties)
+        properties.add(DiagnosticsProperty.create("rect", rect, showName = false))
+        properties.add(
+            TransformProperty(
+                "transform",
+                transform,
+                showName = false,
+                defaultValue = null
+            )
+        )
+        val actionSummary: MutableList<String> = mutableListOf()
+        for (action in SemanticsAction.values.values) {
+            if ((actions and action.index) != 0)
+                actionSummary.add(describeEnum(action))
+        }
+        properties.add(IterableProperty<String>("actions", actionSummary, ifEmpty = null))
+
+        val flagSummary: MutableList<String> = mutableListOf()
+        for (flag in SemanticsFlag.values.values) {
+            if ((flags and flag.index) != 0)
+                flagSummary.add(describeEnum(flag))
+        }
+        properties.add(IterableProperty<String>("flags", flagSummary, ifEmpty = null))
+        properties.add(StringProperty("label", label, defaultValue = ""))
+        properties.add(StringProperty("value", value, defaultValue = ""))
+        properties.add(StringProperty("increasedValue", increasedValue, defaultValue = ""))
+        properties.add(StringProperty("decreasedValue", decreasedValue, defaultValue = ""))
+        properties.add(StringProperty("hint", hint, defaultValue = ""))
+        properties.add(
+            EnumProperty<TextDirection>(
+                "textDirection",
+                textDirection,
+                defaultValue = null
+            )
+        )
+        if (textSelection?.isValid == true)
+            properties.add(
+                MessageProperty(
+                    "textSelection",
+                    "[${textSelection.start}, ${textSelection.end}]"
+                )
+            )
+        properties.add(
+            DoubleProperty.create(
+                "scrollExtentMin",
+                scrollExtentMin,
+                defaultValue = null
+            )
+        )
+        properties.add(
+            DoubleProperty.create(
+                "scrollPosition",
+                scrollPosition,
+                defaultValue = null
+            )
+        )
+        properties.add(
+            DoubleProperty.create(
+                "scrollExtentMax",
+                scrollExtentMax,
+                defaultValue = null
+            )
+        )
     }
 
     //  Not needed for data class

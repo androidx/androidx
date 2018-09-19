@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.ui.rendering.obj
 
-/**
- * Signature for a function that is called during layout.
- *
- * Used by [RenderObject.invokeLayoutCallback].
- */
-typealias LayoutCallback = (Constraints) -> Unit
+// / A container used when a [RenderObject] wants to add multiple independent
+// / [_InterestingSemanticsFragment]s to its parent.
+// /
+// / The [_InterestingSemanticsFragment] to be added to the parent can be
+// / obtained via [interestingFragments].
+internal class _ContainerSemanticsFragment(dropsSemanticsOfPreviousSiblings: Boolean) :
+    _SemanticsFragment(dropsSemanticsOfPreviousSiblings) {
 
-// These are just a stubbed class to remove warnings:
-class GlobalKey
+    override fun addAll(fragments: Iterable<_InterestingSemanticsFragment>) {
+        interestingFragments.addAll(fragments)
+    }
+
+    override val interestingFragments: MutableList<_InterestingSemanticsFragment> = mutableListOf()
+}

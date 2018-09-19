@@ -39,7 +39,6 @@ fun _initIdentityTransform(): Float64List {
 }
 
 private val _kEmptyChildList: Int32List = Int32List(0)
-private val _kEmptyCustomSemanticsActionsList: Int32List = Int32List(0)
 private val _kIdentityTransform = _initIdentityTransform()
 
 // /// Converts `point` to the `node`'s parent's coordinate system.
@@ -145,7 +144,7 @@ class SemanticsNode internal constructor(
      * transferred to the engine.
      */
     val key: Key?,
-    private val showOnScreen: VoidCallback?,
+    internal val showOnScreen: VoidCallback?,
     /**
      * The unique identifier for this node.
      *
@@ -464,8 +463,8 @@ class SemanticsNode internal constructor(
 
     // AbstractNode OVERRIDES
 
-    override val owner: SemanticsOwner
-        get() = super.owner as SemanticsOwner
+    override val owner: SemanticsOwner?
+        get() = super.owner as SemanticsOwner?
 
     // TODO(Migration/ryanmentley): The use of types and overriding here is kind of messy.
     // It requires private backing properties to get around type requirements, which feels like
@@ -496,12 +495,17 @@ class SemanticsNode internal constructor(
         }
     }
 
+    // TODO(Migration/ryanmentley): Should we make this API idempotent so that it works if detached
+    // more than once?
     override fun detach() {
-        assert(owner._nodes.containsKey(id))
-        assert(!owner._detachedNodes.contains(this))
-        owner._nodes.remove(id)
-        owner._detachedNodes.add(this)
+        owner!!.let {
+            assert(it._nodes.containsKey(id))
+            assert(!it._detachedNodes.contains(this))
+            it._nodes.remove(id)
+            it._detachedNodes.add(this)
+        }
         super.detach()
+        assert(owner == null)
         _children?.let {
             for (child in it) {
                 // The list of children may be stale and may contain nodes that have
@@ -518,15 +522,17 @@ class SemanticsNode internal constructor(
 
 // DIRTY MANAGEMENT
 
-    private var _dirty: Boolean = false
+    internal var _dirty: Boolean = false
 
     fun _markDirty() {
         if (_dirty)
             return
         _dirty = true
         if (attached) {
-            assert(!owner._detachedNodes.contains(this))
-            owner._dirtyNodes.add(this)
+            owner!!.let {
+                assert(!it._detachedNodes.contains(this))
+                it._dirtyNodes.add(this)
+            }
         }
     }
 
@@ -550,8 +556,6 @@ class SemanticsNode internal constructor(
     // TAGS, LABELS, ACTIONS
 
     var _actions: Map<SemanticsAction, _SemanticsActionHandler> = _kEmptyConfig._actions
-    var _customSemanticsActions: Map<CustomSemanticsAction, VoidCallback> =
-        _kEmptyConfig.customSemanticsActions
 
     var _actionsAsBits = _kEmptyConfig._actionsAsBits
 
@@ -610,19 +614,10 @@ class SemanticsNode internal constructor(
     var increasedValue: String = _kEmptyConfig.increasedValue
         private set
 
-    /**
-     * A brief description of the result of performing an action on this node.
-     *
-     * The reading direction is given by [textDirection].
-     */
+    // / A brief description of the result of performing an action on this node.
+    // /
+    // / The reading direction is given by [textDirection].
     var hint: String = _kEmptyConfig.hint
-        private set
-
-    /**
-     * Provides hint values which override the default hints on supported
-     * platforms.
-     */
-    var hintOverrides: SemanticsHintOverrides? = _kEmptyConfig.hintOverrides
         private set
 
     /**
@@ -691,7 +686,7 @@ class SemanticsNode internal constructor(
     var scrollExtentMin: Double? = null
         private set
 
-    private fun _canPerformAction(action: SemanticsAction) = _actions.containsKey(action)
+    internal fun _canPerformAction(action: SemanticsAction) = _actions.containsKey(action)
 
     /**
      * Reconfigures the properties of this object to describe the configuration
@@ -706,7 +701,7 @@ class SemanticsNode internal constructor(
      */
     fun updateWith(
         config: SemanticsConfiguration?,
-        childrenInInversePaintOrder: List<SemanticsNode>
+        childrenInInversePaintOrder: List<SemanticsNode>?
     ) {
         val sourceConfig = config ?: _kEmptyConfig
         if (_isDifferentFromCurrentSemanticAnnotation(sourceConfig))
@@ -717,19 +712,17 @@ class SemanticsNode internal constructor(
         value = sourceConfig.value
         increasedValue = sourceConfig.increasedValue
         hint = sourceConfig.hint
-        hintOverrides = sourceConfig.hintOverrides
         _flags = sourceConfig._flags
         textDirection = sourceConfig.textDirection
         sortKey = sourceConfig.sortKey
         _actions = sourceConfig._actions.toMap()
-        _customSemanticsActions = sourceConfig.customSemanticsActions.toMap()
         _actionsAsBits = sourceConfig._actionsAsBits
         textSelection = sourceConfig.textSelection
         scrollPosition = sourceConfig.scrollPosition
         scrollExtentMax = sourceConfig.scrollExtentMax
         scrollExtentMin = sourceConfig.scrollExtentMin
         mergeAllDescendantsIntoThisNode = sourceConfig.isMergingSemanticsOfDescendants
-        _replaceChildren(childrenInInversePaintOrder)
+        _replaceChildren(childrenInInversePaintOrder ?: listOf())
 
         assert(
             !_canPerformAction(
@@ -770,25 +763,6 @@ class SemanticsNode internal constructor(
         var scrollPosition = scrollPosition
         var scrollExtentMax = scrollExtentMax
         var scrollExtentMin = scrollExtentMin
-        val customSemanticsActionIds: MutableSet<Int> = _customSemanticsActions.keys
-            .map { CustomSemanticsAction.getIdentifier(it) }
-            .toMutableSet()
-        hintOverrides?.let {
-            it.onTapHint?.let {
-                val action: CustomSemanticsAction = CustomSemanticsAction.overridingAction(
-                    hint = it,
-                    action = SemanticsAction.tap
-                )
-                customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action))
-            }
-            it.onLongPressHint?.let {
-                val action: CustomSemanticsAction = CustomSemanticsAction.overridingAction(
-                    hint = it,
-                    action = SemanticsAction.longPress
-                )
-                customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action))
-            }
-        }
 
         if (mergeAllDescendantsIntoThisNode) {
             _visitDescendants { node: SemanticsNode ->
@@ -812,22 +786,6 @@ class SemanticsNode internal constructor(
                 node.tags?.let {
                     val localMergedTags = mergedTags
                     localMergedTags.addAll(it)
-                }
-                for (action in _customSemanticsActions.keys)
-                    customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action))
-                node.hintOverrides?.onTapHint?.let {
-                    val action = CustomSemanticsAction.overridingAction(
-                        hint = it,
-                        action = SemanticsAction.tap
-                    )
-                    customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action))
-                }
-                node.hintOverrides?.onLongPressHint?.let {
-                    val action = CustomSemanticsAction.overridingAction(
-                        hint = it,
-                        action = SemanticsAction.longPress
-                    )
-                    customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action))
                 }
 
                 label = _concatStrings(
@@ -861,8 +819,7 @@ class SemanticsNode internal constructor(
             textSelection = textSelection,
             scrollPosition = scrollPosition,
             scrollExtentMax = scrollExtentMax,
-            scrollExtentMin = scrollExtentMin,
-            customSemanticsActionIds = customSemanticsActionIds.sorted()
+            scrollExtentMin = scrollExtentMin
         )
     }
 
@@ -894,14 +851,6 @@ class SemanticsNode internal constructor(
                 childrenInHitTestOrder[i] = _children!![childCount - i - 1].id
             }
         }
-        var customSemanticsActionIds: Int32List? = null
-        if (data.customSemanticsActionIds.isNotEmpty()) {
-            customSemanticsActionIds = Int32List(data.customSemanticsActionIds.size)
-            for (i in 0 until data.customSemanticsActionIds.size) {
-                customSemanticsActionIds[i] = data.customSemanticsActionIds[i]
-                customSemanticsActionIdsUpdate.add(data.customSemanticsActionIds[i])
-            }
-        }
         builder.updateNode(
             id = id,
             flags = data.flags,
@@ -928,8 +877,7 @@ class SemanticsNode internal constructor(
             scrollExtentMin = data.scrollExtentMin ?: Double.NaN,
             transform = data.transform?.m4storage?.toDoubleArray() ?: _kIdentityTransform,
             childrenInTraversalOrder = childrenInTraversalOrder,
-            childrenInHitTestOrder = childrenInHitTestOrder,
-            additionalActions = customSemanticsActionIds ?: _kEmptyCustomSemanticsActionsList
+            childrenInHitTestOrder = childrenInHitTestOrder
         )
         _dirty = false
     }
@@ -1025,10 +973,9 @@ class SemanticsNode internal constructor(
     override fun toStringShort() = "${runtimeType()}#$id"
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-//        TODO()
         var hideOwner = true
         if (_dirty) {
-            val inDirtyNodes = owner._dirtyNodes.contains(this)
+            val inDirtyNodes = owner?._dirtyNodes?.contains(this) == true
             properties.add(
                 FlagProperty(
                     "inDirtyNodes",
@@ -1097,16 +1044,7 @@ class SemanticsNode internal constructor(
         val actions: List<String> = _actions.keys.map { action: SemanticsAction ->
             describeEnum(action)
         }.sorted()
-        val customSemanticsActions: List<String> = _customSemanticsActions.keys
-            .map({ action: CustomSemanticsAction -> action.label })
-            .toList()
-        properties.add(IterableProperty<String>("actions", actions, ifEmpty = null))
-        properties.add(
-            IterableProperty<String>(
-                "customActions", customSemanticsActions,
-                ifEmpty = null
-            )
-        )
+        properties.add(IterableProperty("actions", actions, ifEmpty = null))
         val flags: List<String> = SemanticsFlag.values.values
             .filter { flag: SemanticsFlag -> _hasFlag(flag) }
             .map { flag: SemanticsFlag -> flag.toString().substring("SemanticsFlag.".length) }
@@ -1183,13 +1121,16 @@ class SemanticsNode internal constructor(
     }
 
     fun toStringDeep(
-        prefixLineOne: String,
-        prefixOtherLines: String,
-        minLevel: DiagnosticLevel,
+        prefixLineOne: String = "",
+        prefixOtherLines: String = "",
+        minLevel: DiagnosticLevel = DiagnosticLevel.debug,
         childOrder: DebugSemanticsDumpOrder = DebugSemanticsDumpOrder.traversalOrder
     ): String {
-        TODO("Not implemented")
-//    return toDiagnosticsNode(childOrder: childOrder).toStringDeep(prefixLineOne: prefixLineOne, prefixOtherLines: prefixOtherLines, minLevel: minLevel);
+        return toDiagnosticsNode(childOrder = childOrder).toStringDeep(
+            prefixLineOne = prefixLineOne,
+            prefixOtherLines = prefixOtherLines,
+            minLevel = minLevel
+        )
     }
 
     override fun toDiagnosticsNode(
@@ -1205,8 +1146,8 @@ class SemanticsNode internal constructor(
     }
 
     fun toDiagnosticsNode(
-        name: String?,
-        style: DiagnosticsTreeStyle,
+        name: String? = null,
+        style: DiagnosticsTreeStyle = DiagnosticsTreeStyle.sparse,
         childOrder: DebugSemanticsDumpOrder
     ): DiagnosticsNode {
         return _SemanticsDiagnosticableNode(
@@ -1226,10 +1167,9 @@ class SemanticsNode internal constructor(
     fun debugDescribeChildren(
         childOrder: DebugSemanticsDumpOrder
     ): List<DiagnosticsNode> {
-        TODO("Overloads on toDiagnosticsNode are somehow wrong")
-//        return debugListChildrenInOrder(childOrder)
-//            .map { node: SemanticsNode -> node.toDiagnosticsNode(childOrder = childOrder) }
-//            .toList();
+        return debugListChildrenInOrder(childOrder)
+            .map { node: SemanticsNode -> node.toDiagnosticsNode(childOrder = childOrder) }
+            .toList()
     }
 
     /** Returns the list of direct children of this node in the specified order. */

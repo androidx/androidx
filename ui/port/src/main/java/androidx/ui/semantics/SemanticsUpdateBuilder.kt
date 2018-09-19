@@ -100,10 +100,7 @@ class SemanticsUpdateBuilder /* TODO(Migration): NativeFieldWrapperClass2 */ {
         textDirection: TextDirection?,
         transform: Float64List,
         childrenInTraversalOrder: Int32List,
-        childrenInHitTestOrder: Int32List,
-//    @Deprecated("use additionalActions instead") // TODO(Migration): Put this back somehow
-        customAcccessibilityActions: Int32List? = null,
-        additionalActions: Int32List?
+        childrenInHitTestOrder: Int32List
     ) {
         if (transform.size != 16) {
             throw IllegalArgumentException("transform argument must have 16 entries.")
@@ -129,8 +126,7 @@ class SemanticsUpdateBuilder /* TODO(Migration): NativeFieldWrapperClass2 */ {
             if (textDirection != null) textDirection.ordinal + 1 else 0,
             transform,
             childrenInTraversalOrder,
-            childrenInHitTestOrder,
-            additionalActions ?: customAcccessibilityActions
+            childrenInHitTestOrder
         )
     }
 
@@ -155,42 +151,19 @@ class SemanticsUpdateBuilder /* TODO(Migration): NativeFieldWrapperClass2 */ {
         textDirection: Int,
         transform: Float64List,
         childrenIntraversalOrder: Int32List,
-        childrenInHitTestOrder: Int32List,
-        additionalActions: Int32List?
+        childrenInHitTestOrder: Int32List
     ) {
-        TODO()
+        TODO("Needs native code")
         // native "SemanticsUpdateBuilder_updateNode";
     }
 
-/**
- * Update the custom semantics action associated with the given `id`.
- *
- * The name of the action exposed to the user is the `label`. For overriden
- * standard actions this value is ignored.
- *
- * The `hint` should describe what happens when an action occurs, not the
- * manner in which a tap is accomplished. For example, use "delete" instead
- * of "double tap to delete".
- *
- * The text direction of the `hint` and `label` is the same as the global
- * window.
- *
- * For overriden standard actions, `overrideId` corresponds with a
- * [SemanticsAction.index] value. For custom actions this argument should not be
- * provided.
- */
-//  fun updateCustomAction({int id, String label, String hint, int overrideId = -1}) {
-//        TODO()
-//    assert(id != null);
-//    assert(overrideId != null);
-//    _updateCustomAction(id, label, hint, overrideId);
-//  }
-//  void _updateCustomAction(int id, String label, String hint, int overrideId) native 'SemanticsUpdateBuilder_updateCustomAction';
-//
-//  /// Creates a [SemanticsUpdate] object that encapsulates the updates recorded
-//  /// by this object.
-//  ///
-//  /// The returned object can be passed to [Window.updateSemantics] to actually
-//  /// update the semantics retained by the system.
-//  SemanticsUpdate build() native 'SemanticsUpdateBuilder_build';
+    // / Creates a [SemanticsUpdate] object that encapsulates the updates recorded
+    // / by this object.
+    // /
+    // / The returned object can be passed to [Window.updateSemantics] to actually
+    // / update the semantics retained by the system.
+    fun build(): SemanticsUpdate {
+        // native 'SemanticsUpdateBuilder_build';
+        TODO("Needs native code")
+    }
 }

@@ -248,14 +248,12 @@ class RendererBindingImpl(
 //    }
 
     private fun _handleSemanticsOwnerCreated() {
-        TODO("Migration/Andrey: needs semantics code from RenderOwner")
-//        renderView.scheduleInitialSemantics();
+        renderView!!.scheduleInitialSemantics()
     }
 
     // TODO(Migration/Andrey): needs semantics code from RenderOwner
     private fun _handleSemanticsOwnerDisposed() {
-        TODO("Migration/Andrey: needs semantics code from RenderOwner")
-//        renderView.clearSemantics();
+        renderView!!.clearSemantics()
     }
 
     /**

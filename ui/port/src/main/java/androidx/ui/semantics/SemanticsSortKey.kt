@@ -2,6 +2,8 @@ package androidx.ui.semantics
 
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
+import androidx.ui.foundation.diagnostics.StringProperty
+import androidx.ui.runtimeType
 
 /**
  * Base class for all sort keys for [Semantics] accessibility traversal order
@@ -43,30 +45,27 @@ abstract class SemanticsSortKey(
     val name: String?
 ) : Diagnosticable, Comparable<SemanticsSortKey> {
 
-//  @override
-//  int compareTo(SemanticsSortKey other) {
-//    // The sorting algorithm must not compare incomparable keys.
-//    assert(runtimeType == other.runtimeType);
-//    assert(name == other.name);
-//    return doCompare(other);
-//  }
-//
-//  /// The implementation of [compareTo].
-//  ///
-//  /// The argument is guaranteed to be of the same type as this object and have
-//  /// the same [name].
-//  ///
-//  /// The method should return a negative number if this object comes earlier in
-//  /// the sort order than the argument; and a positive number if it comes later
-//  /// in the sort order. Returning zero causes the system to use default sort
-//  /// order.
-//  @protected
-//  int doCompare(covariant SemanticsSortKey other);
-//
+    override fun compareTo(other: SemanticsSortKey): Int {
+        // The sorting algorithm must not compare incomparable keys.
+        assert(runtimeType == other.runtimeType)
+        assert(name == other.name)
+        return doCompare(other)
+    }
+
+    // / The implementation of [compareTo].
+    // /
+    // / The argument is guaranteed to be of the same type as this object and have
+    // / the same [name].
+    // /
+    // / The method should return a negative number if this object comes earlier in
+    // / the sort order than the argument; and a positive number if it comes later
+    // / in the sort order. Returning zero causes the system to use default sort
+    // / order.
+    // TODO(Migration/ryanmentley): covariant removed
+    protected abstract fun doCompare(other: SemanticsSortKey): Int
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        TODO("Not implemented")
-//    super.debugFillProperties(properties);
-//    properties.add(new StringProperty('name', name, defaultValue: null));
+        super.debugFillProperties(properties)
+        properties.add(StringProperty("name", name, defaultValue = null))
     }
 }
