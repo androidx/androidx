@@ -336,7 +336,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         });
     }
 
-    @Override public @NonNull
+    @Override public @Nullable
     MediaItem2 getCurrentMediaItem() {
         return mPlayer.getFirst().getDSD();
     }
