@@ -163,12 +163,12 @@ public class MediaBrowser2 extends MediaController2 {
      * Get the library root. Result would be sent back asynchronously with the
      * {@link BrowserCallback#onGetLibraryRootDone(MediaBrowser2, Bundle, String, Bundle)}.
      *
-     * @param extras extras for getting root
+     * @param rootHints rootHints for getting root
      * @see BrowserCallback#onGetLibraryRootDone(MediaBrowser2, Bundle, String, Bundle)
      */
-    public void getLibraryRoot(@Nullable final Bundle extras) {
+    public void getLibraryRoot(@Nullable final Bundle rootHints) {
         if (isConnected()) {
-            getImpl().getLibraryRoot(extras);
+            getImpl().getLibraryRoot(rootHints);
         }
     }
 
