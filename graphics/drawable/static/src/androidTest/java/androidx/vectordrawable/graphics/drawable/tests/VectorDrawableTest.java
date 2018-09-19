@@ -34,6 +34,10 @@ import android.content.res.Resources.Theme;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -506,5 +510,53 @@ public class VectorDrawableTest {
         Canvas canvas = new Canvas(bitmap);
         d.draw(canvas);
         assertEquals(0xff00fff0, bitmap.getPixel(32, 32));
+    }
+
+    @Test
+    public void testGetColorFilter() {
+        VectorDrawableCompat d =
+                VectorDrawableCompat.create(mResources, R.drawable.heart, mTheme);
+
+        d.setBounds(0, 0, 64, 64);
+
+        int color = Color.BLACK;
+        ColorFilter blackFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER);
+        d.setColorFilter(blackFilter);
+        assertEquals(blackFilter, d.getColorFilter());
+
+        Bitmap bitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        d.draw(canvas);
+        assertEquals(color, bitmap.getPixel(32, 32));
+
+        color = Color.WHITE;
+        ColorFilter whiteFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER);
+        d.setColorFilter(whiteFilter);
+        assertEquals(whiteFilter, d.getColorFilter());
+
+        d.draw(canvas);
+        assertEquals(color, bitmap.getPixel(32, 32));
+    }
+
+    /**
+     * Test VectorDrawableCompat#setColorFilter(int, Mode)
+     */
+    @Test
+    public void testSetColorFilter() {
+        VectorDrawableCompat d =
+                VectorDrawableCompat.create(mResources, R.drawable.heart, mTheme);
+        int color = Color.CYAN;
+        d.setBounds(0, 0, 64, 64);
+        d.setColorFilter(color, PorterDuff.Mode.SRC_OVER);
+
+        Bitmap bitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        d.draw(canvas);
+        assertEquals(color, bitmap.getPixel(32, 32));
+
+        color = Color.YELLOW;
+        d.setColorFilter(color, PorterDuff.Mode.SRC_OVER);
+        d.draw(canvas);
+        assertEquals(color, bitmap.getPixel(32, 32));
     }
 }
