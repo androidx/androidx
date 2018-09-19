@@ -3133,4 +3133,21 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                         MediaPlayer2.CALL_STATUS_NO_ERROR),
                 commandsCompleted.get(4));
     }
+
+    @Test
+    @MediumTest
+    public void testClose() throws Exception {
+        assertTrue(loadResource(R.raw.testmp3_2));
+        AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                .build();
+        mPlayer.setAudioAttributes(attributes);
+        mPlayer.prepare();
+        mPlayer.play();
+        mPlayer.close();
+        mExecutor.shutdown();
+
+        // Tests whether the notification from the player after the close() doesn't crash.
+        Thread.sleep(SLEEP_TIME);
+    }
 }
