@@ -188,7 +188,7 @@ data class SemanticsData(
 //  bool operator ==(dynamic other) {
 //    if (other is! SemanticsData)
 //      return false;
-//    final SemanticsData typedOther = other;
+//    val typedOther: SemanticsData = other;
 //    return typedOther.flags == flags
 //        && typedOther.actions == actions
 //        && typedOther.label == label
@@ -229,7 +229,7 @@ data class SemanticsData(
 //    );
 //    }
 
-//  static bool _sortedListsEqual(List<int> left, List<int> right) {
+//  static Boolean _sortedListsEqual(List<int> left, List<int> right) {
 //    if (left == null && right == null)
 //      return true;
 //    if (left != null && right != null) {

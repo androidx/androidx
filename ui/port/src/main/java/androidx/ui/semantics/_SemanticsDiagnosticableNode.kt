@@ -4,7 +4,7 @@ import androidx.ui.foundation.diagnostics.DiagnosticableNode
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
 
-private class _SemanticsDiagnosticableNode(
+internal class _SemanticsDiagnosticableNode(
     name: String? = null,
     value: SemanticsNode,
     style: DiagnosticsTreeStyle,

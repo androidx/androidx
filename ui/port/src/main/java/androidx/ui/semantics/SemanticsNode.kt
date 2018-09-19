@@ -3,11 +3,17 @@ package androidx.ui.semantics
 import SemanticsNodeVisitor
 import _SemanticsActionHandler
 import _concatStrings
+import android.annotation.SuppressLint
+import androidx.ui.Float64List
+import androidx.ui.Int32List
 import androidx.ui.VoidCallback
+import androidx.ui.assert
 import androidx.ui.describeEnum
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.AbstractNode
 import androidx.ui.foundation.Key
+import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.diagnostics.DiagnosticLevel
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticableTree
@@ -23,18 +29,102 @@ import androidx.ui.foundation.diagnostics.StringProperty
 import androidx.ui.painting.matrixutils.getAsScale
 import androidx.ui.painting.matrixutils.getAsTranslation
 import androidx.ui.painting.matrixutils.isIdentity
+import androidx.ui.painting.matrixutils.matrixEquals
 import androidx.ui.runtimeType
 import androidx.ui.text.TextDirection
 import androidx.ui.text.TextSelection
 import androidx.ui.toStringAsFixed
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.Vector3
 
-//
-// /// In tests use this function to reset the counter used to generate
-// /// [SemanticsNode.id].
-// void debugResetSemanticsIdCounter() {
-//  SemanticsNode._lastIdentifier = 0;
-// }
+fun _initIdentityTransform(): Float64List {
+    return Matrix4.identity().m4storage.toDoubleArray()
+}
+
+private val _kEmptyChildList: Int32List = Int32List(0)
+private val _kEmptyCustomSemanticsActionsList: Int32List = Int32List(0)
+private val _kIdentityTransform = _initIdentityTransform()
+
+// /// Converts `point` to the `node`'s parent's coordinate system.
+fun _pointInParentCoordinates(node: SemanticsNode, point: Offset): Offset {
+    if (node.transform == null) {
+        return point
+    }
+    val vector: Vector3 = Vector3(point.dx, point.dy, 0.0)
+    TODO("Needs Matrix4.transform3")
+//    node.transform.transform3(vector);
+    return Offset(vector.x, vector.y)
+}
+
+// / Sorts `children` using the default sorting algorithm, and returns them as a
+// / new list.
+// /
+// / The algorithm first breaks up children into groups such that no two nodes
+// / from different groups overlap vertically. These groups are sorted vertically
+// / according to their [_SemanticsSortGroup.startOffset].
+// /
+// / Within each group, the nodes are sorted using
+// / [_SemanticsSortGroup.sortedWithinVerticalGroup].
+// /
+// / For an illustration of the algorithm see http://bit.ly/flutter-default-traversal.
+private fun _childrenInDefaultOrder(
+    children: List<SemanticsNode>,
+    textDirection: TextDirection
+): List<SemanticsNode> {
+    val edges: MutableList<_BoxEdge> = mutableListOf()
+    for (child in children) {
+        edges.add(
+            _BoxEdge(
+                isLeadingEdge = true,
+                offset = _pointInParentCoordinates(child, child.rect.getTopLeft()).dy,
+                node = child
+            )
+        )
+        edges.add(
+            _BoxEdge(
+                isLeadingEdge = false,
+                offset = _pointInParentCoordinates(child, child.rect.getBottomRight()).dy,
+                node = child
+            )
+        )
+    }
+    edges.sort()
+
+    val verticalGroups: MutableList<_SemanticsSortGroup> = mutableListOf()
+    var group: _SemanticsSortGroup? = null
+    var depth = 0
+    for (edge in edges) {
+        if (edge.isLeadingEdge) {
+            depth += 1
+            group = group ?: _SemanticsSortGroup(
+                startOffset = edge.offset,
+                textDirection = textDirection
+            )
+            group.nodes.add(edge.node)
+        } else {
+            depth -= 1
+        }
+        if (depth == 0) {
+            verticalGroups.add(group!!)
+            group = null
+        }
+    }
+    verticalGroups.sort()
+
+    val result: MutableList<SemanticsNode> = mutableListOf()
+    for (group in verticalGroups) {
+        val sortedGroupNodes = group.sortedWithinVerticalGroup()
+        result.addAll(sortedGroupNodes)
+    }
+    return result
+}
+
+// / In tests use this function to reset the counter used to generate
+// / [SemanticsNode.id].
+fun debugResetSemanticsIdCounter() {
+    SemanticsNode._lastIdentifier = 0
+}
+
 //
 // / A node that represents some semantic data.
 // /
@@ -99,11 +189,10 @@ class SemanticsNode internal constructor(
     // / parent).
     var transform: Matrix4? = null
         set(value) {
-            TODO()
-//        if (!MatrixUtils.matrixEquals(field, value)) {
-//            _transform = MatrixUtils.isIdentity(value) ? null : value;
-//            _markDirty();
-//        }
+            if (!matrixEquals(field, value)) {
+                field = if (value?.isIdentity() == true) null else value
+                _markDirty()
+            }
         }
 
     // / The bounding box for this node in its coordinate system.
@@ -199,111 +288,120 @@ class SemanticsNode internal constructor(
     // / A snapshot of `newChildren` passed to [_replaceChildren] that we keep in
     // / debug mode. It supports the assertion that user does not mutate the list
     // / of children.
+    // TODO(Migration/ryanmentley): Could maybe be non-null?
     var _debugPreviousSnapshot: List<SemanticsNode>? = null
 
     fun _replaceChildren(newChildren: List<SemanticsNode>) {
-        TODO()
-//    assert(!newChildren.any((SemanticsNode child) => child == this));
-//    assert(() {
-//      if (identical(newChildren, _children)) {
-//        final StringBuffer mutationErrors = new StringBuffer();
-//        if (newChildren.length != _debugPreviousSnapshot.length) {
-//          mutationErrors.writeln(
-//            'The list\'s length has changed from ${_debugPreviousSnapshot.length} '
-//            'to ${newChildren.length}.'
-//          );
-//        } else {
-//          for (int i = 0; i < newChildren.length; i++) {
-//            if (!identical(newChildren[i], _debugPreviousSnapshot[i])) {
-//              mutationErrors.writeln(
-//                'Child node at position $i was replaced:\n'
-//                'Previous child: ${newChildren[i]}\n'
-//                'New child: ${_debugPreviousSnapshot[i]}\n'
-//              );
-//            }
-//          }
-//        }
-//        if (mutationErrors.isNotEmpty) {
-//          throw new FlutterError(
-//            'Failed to replace child semantics nodes because the list of `SemanticsNode`s was mutated.\n'
-//            'Instead of mutating the existing list, create a new list containing the desired `SemanticsNode`s.\n'
-//            'Error details:\n'
-//            '$mutationErrors'
-//          );
-//        }
-//      }
-//      assert(!newChildren.any((SemanticsNode node) => node.isMergedIntoParent) || isPartOfNodeMerging);
-//
-//      _debugPreviousSnapshot = new List<SemanticsNode>.from(newChildren);
-//
-//      SemanticsNode ancestor = this;
-//      while (ancestor.parent is SemanticsNode)
-//        ancestor = ancestor.parent;
-//      assert(!newChildren.any((SemanticsNode child) => child == ancestor));
-//      return true;
-//    }());
-//    assert(() {
-//      final Set<SemanticsNode> seenChildren = new Set<SemanticsNode>();
-//      for (SemanticsNode child in newChildren)
-//        assert(seenChildren.add(child)); // check for duplicate adds
-//      return true;
-//    }());
-//
-//    // The goal of this function is updating sawChange.
-//    if (_children != null) {
-//      for (SemanticsNode child in _children)
-//        child._dead = true;
-//    }
-//    if (newChildren != null) {
-//      for (SemanticsNode child in newChildren) {
-//        assert(!child.isInvisible, 'Child $child is invisible and should not be added as a child of $this.');
-//        child._dead = false;
-//      }
-//    }
-//    bool sawChange = false;
-//    if (_children != null) {
-//      for (SemanticsNode child in _children) {
-//        if (child._dead) {
-//          if (child.parent == this) {
-//            // we might have already had our child stolen from us by
-//            // another node that is deeper in the tree.
-//            dropChild(child);
-//          }
-//          sawChange = true;
-//        }
-//      }
-//    }
-//    if (newChildren != null) {
-//      for (SemanticsNode child in newChildren) {
-//        if (child.parent != this) {
-//          if (child.parent != null) {
-//            // we're rebuilding the tree from the bottom up, so it's possible
-//            // that our child was, in the last pass, a child of one of our
-//            // ancestors. In that case, we drop the child eagerly here.
-//            // TODO(ianh): Find a way to assert that the same node didn't
-//            // actually appear in the tree in two places.
-//            child.parent?.dropChild(child);
-//          }
-//          assert(!child.attached);
-//          adoptChild(child);
-//          sawChange = true;
-//        }
-//      }
-//    }
-//    if (!sawChange && _children != null) {
-//      assert(newChildren != null);
-//      assert(newChildren.length == _children.length);
-//      // Did the order change?
-//      for (int i = 0; i < _children.length; i++) {
-//        if (_children[i].id != newChildren[i].id) {
-//          sawChange = true;
-//          break;
-//        }
-//      }
-//    }
-//    _children = newChildren;
-//    if (sawChange)
-//      _markDirty();
+        assert(!newChildren.any { child: SemanticsNode -> child == this })
+        assert {
+            if (newChildren === _children) {
+                val mutationErrors = StringBuilder()
+                if (newChildren.size != _debugPreviousSnapshot?.size) {
+                    mutationErrors.append(
+                        "The list\'s length has changed from ${_debugPreviousSnapshot!!.size}" +
+                                "to ${newChildren.size}.\n"
+                    )
+                } else {
+                    for (i in 1 until newChildren.size) {
+                        if (newChildren[i] !== _debugPreviousSnapshot?.get(i)) {
+                            mutationErrors.append(
+                                "Child node at position $i was replaced:\n" +
+                                        "Previous child: ${newChildren[i]}\n" +
+                                        "New child: ${_debugPreviousSnapshot?.get(i)}\n\n"
+                            )
+                        }
+                    }
+                }
+                if (mutationErrors.isNotEmpty()) {
+                    throw FlutterError(
+                        "Failed to replace child semantics nodes because the list of " +
+                                "`SemanticsNode`s was mutated.\n" +
+                                "Instead of mutating the existing list, create a new list " +
+                                "containing the desired `SemanticsNode`s.\n" +
+                                "Error details:\n" +
+                                "$mutationErrors"
+                    )
+                }
+            }
+            assert(!newChildren.any {
+                node: SemanticsNode -> node.isMergedIntoParent
+            } || isPartOfNodeMerging)
+
+            _debugPreviousSnapshot = newChildren.toList()
+
+            var ancestor: SemanticsNode = this
+            while (ancestor.parent is SemanticsNode) {
+                ancestor = ancestor.parent as SemanticsNode
+            }
+            assert(!newChildren.any { child: SemanticsNode -> child == ancestor })
+            true
+        }
+        assert {
+            val seenChildren: MutableSet<SemanticsNode> = mutableSetOf()
+            for (child in newChildren) {
+                assert(seenChildren.add(child)); // check for duplicate adds
+            }
+            true
+        }
+
+        // The goal of this function is updating sawChange.
+        _children?.let {
+            for (child in it)
+                child._dead = true
+        }
+        newChildren?.let {
+            for (child in it) {
+                assert(!child.isInvisible) {
+                    "Child $child is invisible and should not be added as a child of $this."
+                }
+                child._dead = false
+            }
+        }
+        var sawChange = false
+        _children?.let {
+            for (child in it) {
+                if (child._dead) {
+                    if (child.parent == this) {
+                        // we might have already had our child stolen from us by
+                        // another node that is deeper in the tree.
+                        dropChild(child)
+                    }
+                    sawChange = true
+                }
+            }
+        }
+        newChildren?.let {
+            for (child in it) {
+                if (child.parent != this) {
+                    // we're rebuilding the tree from the bottom up, so it's possible
+                    // that our child was, in the last pass, a child of one of our
+                    // ancestors. In that case, we drop the child eagerly here.
+                    // TODO(ianh): Find a way to assert that the same node didn't
+                    // actually appear in the tree in two places.
+                    child.parent?.dropChild(child)
+
+                    assert(!child.attached)
+                    adoptChild(child)
+                    sawChange = true
+                }
+            }
+        }
+        if (!sawChange) {
+            _children?.let {
+                assert(newChildren != null)
+                assert(newChildren.size == it.size)
+                // Did the order change?
+                for (i in 0 until it.size) {
+                    if (it[i].id != newChildren[i].id) {
+                        sawChange = true
+                        break
+                    }
+                }
+            }
+        }
+        _children = newChildren
+        if (sawChange)
+            _markDirty()
     }
 
     // / Whether this node has a non-zero number of children.
@@ -316,20 +414,19 @@ class SemanticsNode internal constructor(
     val childrenCount
         get() = if (hasChildren) _children!!.size else 0
 
-    //  /// Visits the immediate children of this node.
-//  ///
-//  /// This function calls visitor for each immediate child until visitor returns
-//  /// false. Returns true if all the visitor calls returned true, otherwise
-//  /// returns false.
-//  void visitChildren(SemanticsNodeVisitor visitor) {
-//    if (_children != null) {
-//      for (SemanticsNode child in _children) {
-//        if (!visitor(child))
-//          return;
-//      }
-//    }
-//  }
-//
+    // / Visits the immediate children of this node.
+    // /
+    // / This function calls visitor for each immediate child until visitor returns
+    // / false. Returns true if all the visitor calls returned true, otherwise
+    // / returns false.
+    fun visitChildren(visitor: SemanticsNodeVisitor) {
+        _children?.forEach {
+            if (!visitor(it)) {
+                return
+            }
+        }
+    }
+
     // / Visit all the descendants of this node.
     // /
     // / This function calls visitor for each descendant in a pre-order traversal
@@ -724,132 +821,141 @@ class SemanticsNode internal constructor(
         )
     }
 
-    //
-//  static Float64List _initIdentityTransform() {
-//    return new Matrix4.identity().storage;
-//  }
-//
-//  static final Int32List _kEmptyChildList = new Int32List(0);
-//  static final Int32List _kEmptyCustomSemanticsActionsList = new Int32List(0);
-//  static final Float64List _kIdentityTransform = _initIdentityTransform();
-//
-    fun _addToUpdate(builder: SemanticsUpdateBuilder, customSemanticsActionIdsUpdate: Set<Int>) {
-        TODO()
-//    assert(_dirty);
-//    final SemanticsData data = getSemanticsData();
-//    Int32List childrenInTraversalOrder;
-//    Int32List childrenInHitTestOrder;
-//    if (!hasChildren || mergeAllDescendantsIntoThisNode) {
-//      childrenInTraversalOrder = _kEmptyChildList;
-//      childrenInHitTestOrder = _kEmptyChildList;
-//    } else {
-//      final int childCount = _children.length;
-//      final List<SemanticsNode> sortedChildren = _childrenInTraversalOrder();
-//      childrenInTraversalOrder = new Int32List(childCount);
-//      for (int i = 0; i < childCount; i += 1) {
-//        childrenInTraversalOrder[i] = sortedChildren[i].id;
-//      }
-//      // _children is sorted in paint order, so we invert it to get the hit test
-//      // order.
-//      childrenInHitTestOrder = new Int32List(childCount);
-//      for (int i = childCount - 1; i >= 0; i -= 1) {
-//        childrenInHitTestOrder[i] = _children[childCount - i - 1].id;
-//      }
-//    }
-//    Int32List customSemanticsActionIds;
-//    if (data.customSemanticsActionIds?.isNotEmpty == true) {
-//      customSemanticsActionIds = new Int32List(data.customSemanticsActionIds.length);
-//      for (int i = 0; i < data.customSemanticsActionIds.length; i++) {
-//        customSemanticsActionIds[i] = data.customSemanticsActionIds[i];
-//        customSemanticsActionIdsUpdate.add(data.customSemanticsActionIds[i]);
-//      }
-//    }
-//    builder.updateNode(
-//      id = id,
-//      flags = data.flags,
-//      actions = data.actions,
-//      rect = data.rect,
-//      label = data.label,
-//      value = data.value,
-//      decreasedValue = data.decreasedValue,
-//      increasedValue = data.increasedValue,
-//      hint = data.hint,
-//      textDirection = data.textDirection,
-//      textSelectionBase = data.textSelection != null ? data.textSelection.baseOffset : -1,
-//      textSelectionExtent = data.textSelection != null ? data.textSelection.extentOffset : -1,
-//      scrollPosition = data.scrollPosition != null ? data.scrollPosition : Double.nan,
-//      scrollExtentMax = data.scrollExtentMax != null ? data.scrollExtentMax : Double.nan,
-//      scrollExtentMin = data.scrollExtentMin != null ? data.scrollExtentMin : Double.nan,
-//      transform = data.transform?.storage ?? _kIdentityTransform,
-//      childrenInTraversalOrder = childrenInTraversalOrder,
-//      childrenInHitTestOrder = childrenInHitTestOrder,
-//      additionalActions = customSemanticsActionIds ?? _kEmptyCustomSemanticsActionsList,
-//    );
-//    _dirty = false;
+    // TODO(Migration/ryanmentley): remove synthetic accessors?
+    // _kEmptyChildList, _kIdentityTransform, _kEmptyCustomSemanticsActionsList
+    @SuppressLint("SyntheticAccessor")
+    fun _addToUpdate(
+        builder: SemanticsUpdateBuilder,
+        customSemanticsActionIdsUpdate: MutableSet<Int>
+    ) {
+        assert(_dirty)
+        val data: SemanticsData = getSemanticsData()
+        val childrenInTraversalOrder: Int32List
+        val childrenInHitTestOrder: Int32List
+        if (!hasChildren || mergeAllDescendantsIntoThisNode) {
+            childrenInTraversalOrder = _kEmptyChildList
+            childrenInHitTestOrder = _kEmptyChildList
+        } else {
+            val childCount = _children!!.size
+            val sortedChildren = _childrenInTraversalOrder()
+            childrenInTraversalOrder = Int32List(childCount)
+            for (i in 0 until childCount) {
+                childrenInTraversalOrder[i] = sortedChildren[i].id
+            }
+            // _children is sorted in paint order, so we invert it to get the hit test
+            // order.
+            childrenInHitTestOrder = Int32List(childCount)
+            for (i in childCount - 1 downTo 0) {
+                childrenInHitTestOrder[i] = _children!![childCount - i - 1].id
+            }
+        }
+        var customSemanticsActionIds: Int32List? = null
+        if (data.customSemanticsActionIds?.isNotEmpty()) {
+            customSemanticsActionIds = Int32List(data.customSemanticsActionIds.size)
+            for (i in 0 until data.customSemanticsActionIds.size) {
+                customSemanticsActionIds[i] = data.customSemanticsActionIds[i]
+                customSemanticsActionIdsUpdate.add(data.customSemanticsActionIds[i])
+            }
+        }
+        builder.updateNode(
+            id = id,
+            flags = data.flags,
+            actions = data.actions,
+            rect = data.rect,
+            label = data.label,
+            value = data.value,
+            decreasedValue = data.decreasedValue,
+            increasedValue = data.increasedValue,
+            hint = data.hint,
+            textDirection = data.textDirection,
+            textSelectionBase = if (data.textSelection != null) {
+                data.textSelection.baseOffset
+            } else {
+                -1
+            },
+            textSelectionExtent = if (data.textSelection != null) {
+                data.textSelection.extentOffset
+            } else {
+                -1
+            },
+            scrollPosition = data.scrollPosition ?: Double.NaN,
+            scrollExtentMax = data.scrollExtentMax ?: Double.NaN,
+            scrollExtentMin = data.scrollExtentMin ?: Double.NaN,
+            transform = data.transform?.m4storage?.toDoubleArray() ?: _kIdentityTransform,
+            childrenInTraversalOrder = childrenInTraversalOrder,
+            childrenInHitTestOrder = childrenInHitTestOrder,
+            additionalActions = customSemanticsActionIds ?: _kEmptyCustomSemanticsActionsList
+        )
+        _dirty = false
     }
 
-    //
-//  /// Builds a new list made of [_children] sorted in semantic traversal order.
+    // TODO(Migration/ryanmentley): remove synthetic accessors?
+    // _childrenInDefaultOrder
+    @SuppressLint("SyntheticAccessor")
+    // / Builds a new list made of [_children] sorted in semantic traversal order.
     fun _childrenInTraversalOrder(): List<SemanticsNode> {
-        TODO()
-//    TextDirection inheritedTextDirection = textDirection;
-//    SemanticsNode ancestor = parent;
-//    while (inheritedTextDirection == null && ancestor != null) {
-//      inheritedTextDirection = ancestor.textDirection;
-//      ancestor = ancestor.parent;
-//    }textDirection
-//
-//    List<SemanticsNode> childrenInDefaultOrder;
-//    if (inheritedTextDirection != null) {
-//      childrenInDefaultOrder = _childrenInDefaultOrder(_children, inheritedTextDirection);
-//    } else {
-//      // In the absence of text direction default to paint order.
-//      childrenInDefaultOrder = _children;
-//    }
-//
-//    // List.sort does not guarantee stable sort order. Therefore, children are
-//    // first partitioned into groups that have compatible sort keys, i.e. keys
-//    // in the same group can be compared to each other. These groups stay in
-//    // the same place. Only children within the same group are sorted.
-//    final List<_TraversalSortNode> everythingSorted = <_TraversalSortNode>[];
-//    final List<_TraversalSortNode> sortNodes = <_TraversalSortNode>[];
-//    SemanticsSortKey lastSortKey;
-//    for (int position = 0; position < childrenInDefaultOrder.length; position += 1) {
-//      final SemanticsNode child = childrenInDefaultOrder[position];
-//      final SemanticsSortKey sortKey = child.sortKey;
-//      lastSortKey = position > 0
-//          ? childrenInDefaultOrder[position - 1].sortKey
-//          : null;
-//      final bool isCompatibleWithPreviousSortKey = position == 0 ||
-//          sortKey.runtimeType == lastSortKey.runtimeType &&
-//          (sortKey == null || sortKey.name == lastSortKey.name);
-//      if (!isCompatibleWithPreviousSortKey && sortNodes.isNotEmpty) {
-//        // Do not sort groups with null sort keys. List.sort does not guarantee
-//        // a stable sort order.
-//        if (lastSortKey != null) {
-//          sortNodes.sort();
-//        }
-//        everythingSorted.addAll(sortNodes);
-//        sortNodes.clear();
-//      }
-//
-//      sortNodes.add(new _TraversalSortNode(
-//        node = child,
-//        sortKey = sortKey,
-//        position = position,
-//      ));
-//    }
-//
-//    // Do not sort groups with null sort keys. List.sort does not guarantee
-//    // a stable sort order.
-//    if (lastSortKey != null) {
-//      sortNodes.sort();
-//    }
-//    everythingSorted.addAll(sortNodes);
-//
-//    return everythingSorted
-//      .map<SemanticsNode>((_TraversalSortNode sortNode) => sortNode.node)
-//      .toList();
+        var inheritedTextDirection = textDirection
+        var ancestor = parent
+        while (inheritedTextDirection == null && ancestor != null) {
+            inheritedTextDirection = ancestor.textDirection
+            ancestor = ancestor.parent
+        }
+
+        val childrenInDefaultOrder: List<SemanticsNode>
+        if (inheritedTextDirection != null) {
+            childrenInDefaultOrder = _childrenInDefaultOrder(_children!!, inheritedTextDirection)
+        } else {
+            // In the absence of text direction default to paint order.
+            childrenInDefaultOrder = _children!!
+        }
+
+        // List.sort does not guarantee stable sort order. Therefore, children are
+        // first partitioned into groups that have compatible sort keys, i.e. keys
+        // in the same group can be compared to each other. These groups stay in
+        // the same place. Only children within the same group are sorted.
+        val everythingSorted: MutableList<_TraversalSortNode> = mutableListOf()
+        val sortNodes: MutableList<_TraversalSortNode> = mutableListOf()
+        var lastSortKey: SemanticsSortKey? = null
+        for (position in 0 until childrenInDefaultOrder.size) {
+            val child: SemanticsNode = childrenInDefaultOrder[position]
+            val sortKey: SemanticsSortKey? = child.sortKey
+            lastSortKey = if (position > 0) {
+                childrenInDefaultOrder[position - 1].sortKey
+            } else {
+                null
+            }
+            val isCompatibleWithPreviousSortKey: Boolean = position == 0 ||
+                    sortKey?.runtimeType() == lastSortKey?.runtimeType() &&
+                    (sortKey == null || sortKey.name == lastSortKey!!.name)
+            if (!isCompatibleWithPreviousSortKey && sortNodes.isNotEmpty()) {
+                // Do not sort groups with null sort keys. List.sort does not guarantee
+                // a stable sort order.
+                if (lastSortKey != null) {
+                    sortNodes.sort()
+                }
+                everythingSorted.addAll(sortNodes)
+                sortNodes.clear()
+            }
+
+            sortNodes.add(
+                _TraversalSortNode(
+                    node = child,
+                    sortKey = sortKey,
+                    position = position
+                )
+            )
+        }
+
+        // Do not sort groups with null sort keys. List.sort does not guarantee
+        // a stable sort order.
+        if (lastSortKey != null) {
+            sortNodes.sort()
+        }
+        everythingSorted.addAll(sortNodes)
+
+        return everythingSorted
+            .map { sortNode: _TraversalSortNode -> sortNode.node }
+            .toList()
     }
 
     // / Sends a [SemanticsEvent] associated with this [SemanticsNode].
@@ -863,7 +969,7 @@ class SemanticsNode internal constructor(
     // / about the state of the UI (e.g. on Android a ping sound is played to
     // / indicate a successful scroll in accessibility mode).
     fun sendEvent(event: SemanticsEvent) {
-        TODO()
+        TODO("needs channels")
 //    if (!attached)
 //      return;
 //    SystemChannels.accessibility.send(event.toMap(nodeId = id));
@@ -1009,13 +1115,11 @@ class SemanticsNode internal constructor(
             DoubleProperty.create("scrollExtentMax", scrollExtentMax, defaultValue = null)
         )
     }
-//
-//  /// Returns a string representation of this node and its descendants.
-//  ///
-//  /// The order in which the children of the [SemanticsNode] will be printed is
-//  /// controlled by the [childOrder] parameter.
-//  @override
 
+    // / Returns a string representation of this node and its descendants.
+    // /
+    // / The order in which the children of the [SemanticsNode] will be printed is
+    // / controlled by the [childOrder] parameter.
     override fun toStringDeep(
         prefixLineOne: String,
         prefixOtherLines: String,
@@ -1057,13 +1161,12 @@ class SemanticsNode internal constructor(
         style: DiagnosticsTreeStyle,
         childOrder: DebugSemanticsDumpOrder
     ): DiagnosticsNode {
-        TODO("Not implemented")
-//    return new _SemanticsDiagnosticableNode(
-//      name: name,
-//      value: this,
-//      style: style,
-//      childOrder: childOrder,
-//    );
+        return _SemanticsDiagnosticableNode(
+            name = name,
+            value = this,
+            style = style,
+            childOrder = childOrder
+        )
     }
 
     override fun toString() = toStringDiagnostic()
@@ -1075,25 +1178,22 @@ class SemanticsNode internal constructor(
     fun debugDescribeChildren(
         childOrder: DebugSemanticsDumpOrder
     ): List<DiagnosticsNode> {
-        TODO("Not implemented")
-//    return debugListChildrenInOrder(childOrder)
-//      .map<DiagnosticsNode>((SemanticsNode node) => node.toDiagnosticsNode(childOrder: childOrder))
-//      .toList();
+        TODO("Overloads on toDiagnosticsNode are somehow wrong")
+//        return debugListChildrenInOrder(childOrder)
+//            .map { node: SemanticsNode -> node.toDiagnosticsNode(childOrder = childOrder) }
+//            .toList();
     }
 
-//  /// Returns the list of direct children of this node in the specified order.
-//  List<SemanticsNode> debugListChildrenInOrder(DebugSemanticsDumpOrder childOrder) {
-//    assert(childOrder != null);
-//    if (_children == null)
-//      return const <SemanticsNode>[];
-//
-//    switch (childOrder) {
-//      case DebugSemanticsDumpOrder.inverseHitTest:
-//        return _children;
-//      case DebugSemanticsDumpOrder.traversalOrder:
-//        return _childrenInTraversalOrder();
-//    }
-//    assert(false);
-//    return null;
-//  }
+    // / Returns the list of direct children of this node in the specified order.
+    fun debugListChildrenInOrder(childOrder: DebugSemanticsDumpOrder): List<SemanticsNode> {
+        assert(childOrder != null)
+        val localChildren = _children ?: return listOf()
+
+        return when (childOrder) {
+            DebugSemanticsDumpOrder.inverseHitTest ->
+                localChildren
+            DebugSemanticsDumpOrder.traversalOrder ->
+                _childrenInTraversalOrder()
+        }
+    }
 }

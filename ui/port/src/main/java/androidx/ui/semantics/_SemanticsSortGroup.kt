@@ -1,40 +1,41 @@
 package androidx.ui.semantics
 
+import androidx.ui.text.TextDirection
+import kotlin.math.sign
+
 // / A group of [nodes] that are disjoint vertically or horizontally from other
 // / nodes that share the same [SemanticsNode] parent.
 // /
 // / The [nodes] are sorted among each other separately from other nodes.
-private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
-    override fun compareTo(other: _SemanticsSortGroup): Int {
-        TODO("not implemented")
+internal data class _SemanticsSortGroup(
+    // / The offset from the start edge of the parent [SemanticsNode] in the
+    // / direction of the traversal.
+    // /
+    // / This value is equal to the [_BoxEdge.offset] of the first node in the
+    // / [nodes] list being considered.
+    val startOffset: Double,
+
+    val textDirection: TextDirection?
+
+) : Comparable<_SemanticsSortGroup> {
+    init {
+        assert(startOffset != null)
     }
-//  _SemanticsSortGroup({
-//    @required this.startOffset,
-//    @required this.textDirection,
-//  }) : assert(startOffset != null);
-//
-//  /// The offset from the start edge of the parent [SemanticsNode] in the
-//  /// direction of the traversal.
-//  ///
-//  /// This value is equal to the [_BoxEdge.offset] of the first node in the
-//  /// [nodes] list being considered.
-//  final double startOffset;
-//
-//  final TextDirection textDirection;
-//
-//  /// The nodes that are sorted among each other.
-//  final List<SemanticsNode> nodes = <SemanticsNode>[];
-//
-//  @override
-//  int compareTo(_SemanticsSortGroup other) {
-//    return (startOffset - other.startOffset).sign.toInt();
-//  }
-//
+
+    // / The nodes that are sorted among each other.
+    val nodes: MutableList<SemanticsNode> = mutableListOf()
+
+    override fun compareTo(other: _SemanticsSortGroup): Int {
+        return (startOffset - other.startOffset).sign.toInt()
+    }
+
+    //
 //  /// Sorts this group assuming that [nodes] belong to the same vertical group.
 //  ///
 //  /// This method breaks up this group into horizontal [_SemanticsSortGroup]s
 //  /// then sorts them using [sortedWithinKnot].
-//  List<SemanticsNode> sortedWithinVerticalGroup() {
+    fun sortedWithinVerticalGroup(): List<SemanticsNode> {
+        TODO()
 //    final List<_BoxEdge> edges = <_BoxEdge>[];
 //    for (SemanticsNode child in nodes) {
 //      edges.add(new _BoxEdge(
@@ -81,7 +82,7 @@ private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
 //      result.addAll(sortedKnotNodes);
 //    }
 //    return result;
-//  }
+    }
 //
 //  /// Sorts [nodes] where nodes intersect both vertically and horizontally.
 //  ///
@@ -107,7 +108,7 @@ private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
 //    final Map<int, int> edges = <int, int>{};
 //    for (SemanticsNode node in nodes) {
 //      nodeMap[node.id] = node;
-//      final Offset center = _pointInParentCoordinates(node, node.rect.center);
+//      val center: Offset = _pointInParentCoordinates(node, node.rect.center);
 //      for (SemanticsNode nextNode in nodes) {
 //        if (identical(node, nextNode) || edges[nextNode.id] == node.id) {
 //          // Skip self or when we've already established that the next node
@@ -115,13 +116,13 @@ private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
 //          continue;
 //        }
 //
-//        final Offset nextCenter = _pointInParentCoordinates(nextNode, nextNode.rect.center);
-//        final Offset centerDelta = nextCenter - center;
+//        val nextCenter: Offset = _pointInParentCoordinates(nextNode, nextNode.rect.center);
+//        val centerDelta: Offset = nextCenter - center;
 //        // When centers coincide, direction is 0.0.
-//        final double direction = centerDelta.direction;
-//        final bool isLtrAndForward = textDirection == TextDirection.ltr &&
+//        val direction: Double = centerDelta.direction;
+//        val isLtrAndForward: Boolean = textDirection == TextDirection.ltr &&
 //            -math.pi / 4 < direction && direction < 3 * math.pi / 4;
-//        final bool isRtlAndForward = textDirection == TextDirection.rtl &&
+//        val isRtlAndForward: Boolean = textDirection == TextDirection.rtl &&
 //            (direction < -3 * math.pi / 4 || direction > 3 * math.pi / 4);
 //        if (isLtrAndForward || isRtlAndForward) {
 //          edges[node.id] = nextNode.id;
@@ -132,9 +133,9 @@ private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
 //    final List<int> sortedIds = <int>[];
 //    final Set<int> visitedIds = new Set<int>();
 //    final List<SemanticsNode> startNodes = nodes.toList()..sort((SemanticsNode a, SemanticsNode b) {
-//      final Offset aTopLeft = _pointInParentCoordinates(a, a.rect.topLeft);
-//      final Offset bTopLeft = _pointInParentCoordinates(b, b.rect.topLeft);
-//      final int verticalDiff = aTopLeft.dy.compareTo(bTopLeft.dy);
+//      val aTopLeft: Offset = _pointInParentCoordinates(a, a.rect.topLeft);
+//      val bTopLeft: Offset = _pointInParentCoordinates(b, b.rect.topLeft);
+//      val verticalDiff: int = aTopLeft.dy.compareTo(bTopLeft.dy);
 //      if (verticalDiff != 0) {
 //        return -verticalDiff;
 //      }
@@ -155,4 +156,13 @@ private class _SemanticsSortGroup : Comparable<_SemanticsSortGroup> {
 //    startNodes.map((SemanticsNode node) => node.id).forEach(search);
 //    return sortedIds.map<SemanticsNode>((int id) => nodeMap[id]).toList().reversed.toList();
 //  }
+
+    // TODO(Migration/ryanmentley): Should these compare by values?
+    override fun equals(other: Any?): Boolean {
+        return this === other
+    }
+
+    override fun hashCode(): Int {
+        return System.identityHashCode(this)
+    }
 }

@@ -1,6 +1,6 @@
 package androidx.ui.semantics
 
-// / A [SemanticsSortKey] that sorts simply based on the `double` value it is
+// / A [SemanticsSortKey] that sorts simply based on the `Double` value it is
 // / given.
 // /
 // / The [OrdinalSortKey] compares itself with other [OrdinalSortKey]s
@@ -8,8 +8,8 @@ package androidx.ui.semantics
 // /
 // / The ordinal value `order` is typically a whole number, though it can be
 // / fractional, e.g. in order to fit between two other consecutive whole
-// / numbers. The value must be finite (it cannot be [double.nan],
-// / [double.infinity], or [double.negativeInfinity]).
+// / numbers. The value must be finite (it cannot be [Double.nan],
+// / [Double.infinity], or [Double.negativeInfinity]).
 // /
 // / See also:
 // /
@@ -26,16 +26,16 @@ class OrdinalSortKey(
     override fun compareTo(other: SemanticsSortKey): Int {
         TODO("not implemented")
     }
-//  /// Creates a semantics sort key that uses a [double] as its key value.
+//  /// Creates a semantics sort key that uses a [Double] as its key value.
 //  ///
 //  /// The [order] must be a finite number.
 //  const OrdinalSortKey(
 //    this.order, {
 //    String name,
 //  }) : assert(order != null),
-//       assert(order != double.nan),
-//       assert(order > double.negativeInfinity),
-//       assert(order < double.infinity),
+//       assert(order != Double.nan),
+//       assert(order > Double.negativeInfinity),
+//       assert(order < Double.infinity),
 //       super(name: name);
 //
 //

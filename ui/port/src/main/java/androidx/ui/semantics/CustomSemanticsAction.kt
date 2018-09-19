@@ -91,7 +91,7 @@ data class CustomSemanticsAction(
         TODO("Not implemented")
 //    if (other.runtimeType != runtimeType)
 //      return false;
-//    final CustomSemanticsAction typedOther = other;
+//    val typedOther: CustomSemanticsAction = other;
 //    return typedOther.label == label
 //      && typedOther.hint == hint
 //      && typedOther.action == action;

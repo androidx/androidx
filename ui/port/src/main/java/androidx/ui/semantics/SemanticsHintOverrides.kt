@@ -49,7 +49,7 @@ data class SemanticsHintOverrides(
 //    override fun equals(other: Any?): Boolean {
 //    if (other.runtimeType != runtimeType)
 //      return false;
-//    final SemanticsHintOverrides typedOther = other;
+//    val typedOther: SemanticsHintOverrides = other;
 //    return typedOther.onTapHint == onTapHint
 //      && typedOther.onLongPressHint == onLongPressHint;
 //    }

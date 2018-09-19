@@ -69,7 +69,7 @@ class SemanticsOwner : ChangeNotifier() {
 //    }
 //    _dirtyNodes.clear();
 //    for (int actionId in customSemanticsActionIds) {
-//      final CustomSemanticsAction action = CustomSemanticsAction.getAction(actionId);
+//      val action: CustomSemanticsAction = CustomSemanticsAction.getAction(actionId);
 //      builder.updateCustomAction(id: actionId, label: action.label, hint: action.hint, overrideId: action.action?.index ?? -1);
 //    }
 //    ui.window.updateSemantics(builder.build());
@@ -101,7 +101,7 @@ class SemanticsOwner : ChangeNotifier() {
 //  /// the `args` parameter.
 //  void performAction(int id, SemanticsAction action, [dynamic args]) {
 //    assert(action != null);
-//    final _SemanticsActionHandler handler = _getSemanticsActionHandlerForId(id, action);
+//    val handler: _SemanticsActionHandler = _getSemanticsActionHandlerForId(id, action);
 //    if (handler != null) {
 //      handler(args);
 //      return;
@@ -114,7 +114,7 @@ class SemanticsOwner : ChangeNotifier() {
 //
 //  _SemanticsActionHandler _getSemanticsActionHandlerForPosition(SemanticsNode node, Offset position, SemanticsAction action) {
 //    if (node.transform != null) {
-//      final Matrix4 inverse = new Matrix4.identity();
+//      val inverse: Matrix4 = new Matrix4.identity();
 //      if (inverse.copyInverse(node.transform) == 0.0)
 //        return null;
 //      position = MatrixUtils.transformPoint(inverse, position);
@@ -134,7 +134,7 @@ class SemanticsOwner : ChangeNotifier() {
 //    }
 //    if (node.hasChildren) {
 //      for (SemanticsNode child in node._children.reversed) {
-//        final _SemanticsActionHandler handler = _getSemanticsActionHandlerForPosition(child, position, action);
+//        val handler: _SemanticsActionHandler = _getSemanticsActionHandlerForPosition(child, position, action);
 //        if (handler != null)
 //          return handler;
 //      }
@@ -151,10 +151,10 @@ class SemanticsOwner : ChangeNotifier() {
 //  /// the `args` parameter.
 //  void performActionAt(Offset position, SemanticsAction action, [dynamic args]) {
 //    assert(action != null);
-//    final SemanticsNode node = rootSemanticsNode;
+//    val node: SemanticsNode = rootSemanticsNode;
 //    if (node == null)
 //      return;
-//    final _SemanticsActionHandler handler = _getSemanticsActionHandlerForPosition(node, position, action);
+//    val handler: _SemanticsActionHandler = _getSemanticsActionHandlerForPosition(node, position, action);
 //    if (handler != null)
 //      handler(args);
 //  }

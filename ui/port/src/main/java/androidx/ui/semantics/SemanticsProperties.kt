@@ -408,8 +408,8 @@ class SemanticsProperties(
 //  @override
 //  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
 //    super.debugFillProperties(properties);
-//    properties.add(new DiagnosticsProperty<bool>('checked', checked, defaultValue: null));
-//    properties.add(new DiagnosticsProperty<bool>('selected', selected, defaultValue: null));
+//    properties.add(new DiagnosticsProperty<Boolean>('checked', checked, defaultValue: null));
+//    properties.add(new DiagnosticsProperty<Boolean>('selected', selected, defaultValue: null));
 //    properties.add(new StringProperty('label', label, defaultValue: ''));
 //    properties.add(new StringProperty('value', value));
 //    properties.add(new StringProperty('hint', hint));
