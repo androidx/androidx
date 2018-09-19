@@ -1,4 +1,5 @@
-import androidx.ui.semantics.SemanticsNode
+package androidx.ui.semantics
+
 import androidx.ui.text.TextDirection
 import androidx.ui.text.TextSelection
 
