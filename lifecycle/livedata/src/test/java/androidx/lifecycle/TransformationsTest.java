@@ -17,6 +17,7 @@
 package androidx.lifecycle;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.util.InstantTaskExecutor;
@@ -35,11 +37,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.concurrent.Executor;
+
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
 public class TransformationsTest {
 
     private LifecycleOwner mOwner;
+    private Executor mSynchronousExecutor;
 
     @Before
     public void swapExecutorDelegate() {
@@ -53,6 +58,12 @@ public class TransformationsTest {
         when(mOwner.getLifecycle()).thenReturn(registry);
         registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         registry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mSynchronousExecutor = new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
+        };
     }
 
     @Test
@@ -212,5 +223,56 @@ public class TransformationsTest {
         numbers.setValue(2);
         squared.observeForever(observer);
         verify(observer, only()).onChanged(4);
+    }
+
+    @Test
+    public void testDistinctUntilChanged_triggersOnInitialNullValue() {
+        MutableLiveData<String> originalLiveData = new MutableLiveData<>();
+        originalLiveData.setValue(null);
+
+        LiveData<String> dedupedLiveData = Transformations.distinctUntilChanged(originalLiveData);
+        assertThat(dedupedLiveData.getValue(), is(nullValue()));
+
+        CountingObserver<String> observer = new CountingObserver<>();
+        dedupedLiveData.observe(mOwner, observer);
+        assertThat(observer.mTimesUpdated, is(1));
+        assertThat(dedupedLiveData.getValue(), is(nullValue()));
+    }
+
+    @Test
+    public void testDistinctUntilChanged_dedupesValues() {
+        MutableLiveData<String> originalLiveData = new MutableLiveData<>();
+        LiveData<String> dedupedLiveData = Transformations.distinctUntilChanged(originalLiveData);
+        assertThat(dedupedLiveData.getValue(), is(nullValue()));
+
+        CountingObserver<String> observer = new CountingObserver<>();
+        dedupedLiveData.observe(mOwner, observer);
+        assertThat(observer.mTimesUpdated, is(0));
+
+        String value = "new value";
+        originalLiveData.setValue(value);
+        assertThat(dedupedLiveData.getValue(), is(value));
+        assertThat(observer.mTimesUpdated, is(1));
+
+        originalLiveData.setValue(value);
+        assertThat(dedupedLiveData.getValue(), is(value));
+        assertThat(observer.mTimesUpdated, is(1));
+
+        String newerValue = "newer value";
+        originalLiveData.setValue(newerValue);
+        assertThat(dedupedLiveData.getValue(), is(newerValue));
+        assertThat(observer.mTimesUpdated, is(2));
+
+        dedupedLiveData.removeObservers(mOwner);
+    }
+
+    private static class CountingObserver<T> implements Observer<T> {
+
+        int mTimesUpdated;
+
+        @Override
+        public void onChanged(@Nullable T t) {
+            ++mTimesUpdated;
+        }
     }
 }
