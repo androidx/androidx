@@ -166,6 +166,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
     Map<String, Integer> mBeforeMuteVolumeMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mIsSelectingRoute;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsAnimatingVolumeSliderLayout;
 
     private boolean mUpdateRoutesViewDeferred;
     private boolean mUpdateMetadataViewsDeferred;
@@ -455,7 +457,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         // Since onRouteUnselected is triggered before onRouteSelected when transferring to
         // another route, pending update if mIsSelectingRoute is true to prevent dialog from
         // being dismissed in the process of selecting route.
-        if (mRouteForVolumeUpdatingByUser != null || mIsSelectingRoute) {
+        if (mRouteForVolumeUpdatingByUser != null || mIsSelectingRoute
+                || mIsAnimatingVolumeSliderLayout) {
             return true;
         }
         // Defer updating views if corresponding views aren't created yet.
@@ -1093,6 +1096,22 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     }
                 };
 
+                anim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        mIsAnimatingVolumeSliderLayout = true;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        mIsAnimatingVolumeSliderLayout = false;
+                        updateViewsIfNeeded();
+                    }
+                });
                 anim.setDuration(mLayoutAnimationDurationMs);
                 anim.setInterpolator(mAccelerateDecelerateInterpolator);
                 view.startAnimation(anim);
@@ -1163,27 +1182,15 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     mProgressBar.setVisibility(View.INVISIBLE);
                     mImageView.setVisibility(View.VISIBLE);
 
-                    // Set enabled state of checkbox and visibility or height of volume slider
-                    // layout.
-                    if (enabled) {
-                        mCheckBox.setEnabled(true);
-                        mCheckBox.setOnClickListener(mCheckBoxClickListener);
-                        int layoutHeight = mVolumeSliderLayout.getLayoutParams().height;
-                        boolean isAnimating = layoutHeight > mCollapsedLayoutHeight
-                                && layoutHeight < mExpandedLayoutHeight;
-                        if (isAnimating) {
-                            animateLayoutHeight(mVolumeSliderLayout, selected
-                                    ? mExpandedLayoutHeight : mCollapsedLayoutHeight);
-                        } else {
-                            setLayoutHeight(mVolumeSliderLayout, selected
-                                    ? mExpandedLayoutHeight : mCollapsedLayoutHeight);
-                        }
-                        mItemView.setAlpha(1.0f);
-                    } else {
-                        mCheckBox.setEnabled(false);
-                        setLayoutHeight(mVolumeSliderLayout, mCollapsedLayoutHeight);
-                        mItemView.setAlpha(mDisabledAlpha);
-                    }
+                    // Set enabled states of views, height of volume slider layout and alpha value
+                    // of itemView.
+                    mCheckBox.setEnabled(enabled);
+                    mMuteButton.setEnabled(enabled);
+                    mVolumeSlider.setEnabled(enabled);
+                    mCheckBox.setOnClickListener(mCheckBoxClickListener);
+                    setLayoutHeight(mVolumeSliderLayout, selected
+                            ? mExpandedLayoutHeight : mCollapsedLayoutHeight);
+                    mItemView.setAlpha(enabled ? 1.0f : mDisabledAlpha);
                 } else {
                     mCheckBox.setVisibility(View.GONE);
                     mProgressBar.setVisibility(View.INVISIBLE);
