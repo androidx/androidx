@@ -403,34 +403,6 @@ public class MediaSession2 implements AutoCloseable {
     }
 
     /**
-     * Sets the media item missing helper. Helper will be used to provide default implementation of
-     * {@link SessionPlayer2} when it isn't set by developer.
-     * <p>
-     * If it's not set, playback wouldn't happen for the item without media item descriptor.
-     * <p>
-     * The helper will be run on the executor that was specified by
-     * {@link Builder#setSessionCallback(Executor, SessionCallback)}.
-     *
-     * @param helper a media item missing helper.
-     * @throws IllegalStateException when the helper is set when the playlist agent is set
-     * @see SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)
-     * @see SessionCommand2#COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM
-     * @see SessionCommand2#COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM
-     */
-    public void setOnDataSourceMissingHelper(@NonNull OnDataSourceMissingHelper helper) {
-        mImpl.setOnDataSourceMissingHelper(helper);
-    }
-
-    /**
-     * Clears the media item missing helper.
-     *
-     * @see #setOnDataSourceMissingHelper(OnDataSourceMissingHelper)
-     */
-    public void clearOnDataSourceMissingHelper() {
-        mImpl.clearOnDataSourceMissingHelper();
-    }
-
-    /**
      * @hide
      * @return Bundle
      */
@@ -454,31 +426,6 @@ public class MediaSession2 implements AutoCloseable {
 
     IBinder getLegacyBrowerServiceBinder() {
         return mImpl.getLegacyBrowserServiceBinder();
-    }
-
-    /**
-     * Interface definition of a callback to be invoked when a {@link MediaItem2} in the playlist
-     * didn't have a {@link MediaItem2} but it's needed now for preparing or playing it.
-     *
-     * #see #setOnDataSourceMissingHelper
-     */
-    public interface OnDataSourceMissingHelper {
-        /**
-         * Called when a {@link MediaItem2} in the playlist didn't have a {@link MediaItem2}
-         * but it's needed now for preparing or playing it. Returned media item descriptor will be
-         * sent to the player directly to prepare or play the contents.
-         * <p>
-         * An exception may be thrown if the returned {@link MediaItem2} is duplicated in the
-         * playlist, so items cannot be differentiated.
-         *
-         * @param session the session for this event
-         * @param item media item from the controller
-         * @return a media item descriptor if the media item. Can be {@code null} if the content
-         *        isn't available.
-         */
-        @Nullable
-        MediaItem2 onDataSourceMissing(@NonNull MediaSession2 session,
-                @NonNull MediaItem2 item);
     }
 
     /**
@@ -555,6 +502,52 @@ public class MediaSession2 implements AutoCloseable {
         public boolean onCommandRequest(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull SessionCommand2 command) {
             return true;
+        }
+
+        /**
+         * Called when a controller has sent a command with a {@link MediaItem2} to add a new media
+         * item to this session. Being specific, this will be called for following APIs.
+         * <ol>
+         * <li>{@link MediaController2#addPlaylistItem(int, MediaItem2)}
+         * <li>{@link MediaController2#replacePlaylistItem(int, MediaItem2)}
+         * <li>{@link MediaController2#setPlaylist(List, MediaMetadata2)}
+         * <li>{@link MediaController2#setMediaItem(MediaItem2)}
+         * </ol>
+         * Override this to translate incoming media items to be understood by your player. It's
+         * highly recommended to create and return a new media item here. Otherwise session player
+         * may reject the command.
+         * <p>
+         * For example, a player may only understand {@link FileMediaItem2}, {@link UriMediaItem2},
+         * and {@link CallbackMediaItem2} while the media item from the controller would be
+         * sanitized not to contain subclass information. In that case you need to override this
+         * method to create a media item for player from given media item.
+         * <p>
+         * You may return {@code null} if the given item is invalid. Here's the behavior when it
+         * happens.
+         * <table border="0" cellspacing="0" cellpadding="0">
+         * <tr><th>Controller command</th> <th>Behavior when {@code null} is returned</th></tr>
+         * <tr><td>addPlaylistItem</td> <td>Ignore</td></tr>
+         * <tr><td>replacePlaylistItem</td> <td>Ignore</td></tr>
+         * <tr><td>setPlaylist</td>
+         *     <td>Ignore {@code null} items, and build a list with non-{@code null} items. Call
+         *         {@link SessionPlayer2#setPlaylist(List, MediaMetadata2)} with the list</td></tr>
+         * <tr><td>setMediaItem</td> <td>Ignore</td></tr>
+         * </table>
+         * <p>
+         * This will be called on the same thread where {@link #onCommandRequest} and commands with
+         * the media controller will be executed.
+         * <p>
+         * Default implementation simply returns the media item from the controller although the
+         * player may ignore or throw an exception.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @param item incoming media item from the controller
+         * @return translated media item for player. Can be {@code null} to ignore
+         */
+        public @Nullable MediaItem2 onCreateMediaItem(@NonNull MediaSession2 session,
+                @NonNull ControllerInfo controller, @NonNull MediaItem2 item) {
+            return item;
         }
 
         /**

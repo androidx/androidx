@@ -47,9 +47,6 @@ class MediaInterface2 {
     }
 
     interface SessionPlaylistControl {
-        void setOnDataSourceMissingHelper(MediaSession2.OnDataSourceMissingHelper helper);
-        void clearOnDataSourceMissingHelper();
-
         List<MediaItem2> getPlaylist();
         MediaMetadata2 getPlaylistMetadata();
         void setPlaylist(List<MediaItem2> list, MediaMetadata2 metadata);

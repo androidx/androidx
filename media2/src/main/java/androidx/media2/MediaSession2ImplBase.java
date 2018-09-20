@@ -18,7 +18,6 @@ package androidx.media2;
 
 import static androidx.media2.MediaSession2.ControllerCb;
 import static androidx.media2.MediaSession2.ControllerInfo;
-import static androidx.media2.MediaSession2.OnDataSourceMissingHelper;
 import static androidx.media2.MediaSession2.SessionCallback;
 import static androidx.media2.SessionPlayer2.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.SessionPlayer2.PLAYER_STATE_IDLE;
@@ -98,8 +97,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
 
     @GuardedBy("mLock")
     private SessionPlayer2 mPlayer;
-    @GuardedBy("mLock")
-    private OnDataSourceMissingHelper mDsmHelper;
     @GuardedBy("mLock")
     private MediaBrowserServiceCompat mBrowserServiceLegacyStub;
 
@@ -597,24 +594,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             player.setPlaybackSpeed(speed);
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-    }
-
-    @Override
-    public void setOnDataSourceMissingHelper(
-            @NonNull OnDataSourceMissingHelper helper) {
-        if (helper == null) {
-            throw new IllegalArgumentException("helper shouldn't be null");
-        }
-        synchronized (mLock) {
-            mDsmHelper = helper;
-        }
-    }
-
-    @Override
-    public void clearOnDataSourceMissingHelper() {
-        synchronized (mLock) {
-            mDsmHelper = null;
         }
     }
 
