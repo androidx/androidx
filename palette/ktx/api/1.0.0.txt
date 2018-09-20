@@ -1,3 +1,4 @@
+// Signature format: 2.0
 package androidx.palette.graphics {
 
   public final class PaletteKt {
