@@ -16,8 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import argparse
-import subprocess
+import argparse, os, subprocess, sys
 
 NAME_HELP = '''
   The name of the artifact you want to add to the prebuilts folder.
@@ -29,6 +28,7 @@ def main():
     """Parses the command line arguments, and executes the gradle script
     which downloads the maven artifacts.
     """
+    os.chdir(os.path.dirname(sys.argv[0]))
     parser = argparse.ArgumentParser(
         description='Helps download maven artifacts to prebuilts.')
     parser.add_argument('-n', '--name', help=NAME_HELP,
