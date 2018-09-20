@@ -1,4 +1,3 @@
-// Signature format: 2.0
 package androidx.lifecycle {
 
   public class AndroidViewModel extends androidx.lifecycle.ViewModel {
@@ -14,8 +13,8 @@ package androidx.lifecycle {
   public class ViewModelProvider {
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.Factory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.Factory);
-    method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(Class<T>);
-    method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(String, Class<T>);
+    method public <T extends androidx.lifecycle.ViewModel> T get(java.lang.Class<T>);
+    method public <T extends androidx.lifecycle.ViewModel> T get(java.lang.String, java.lang.Class<T>);
   }
 
   public static class ViewModelProvider.AndroidViewModelFactory extends androidx.lifecycle.ViewModelProvider.NewInstanceFactory {
@@ -23,13 +22,13 @@ package androidx.lifecycle {
     method public static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application);
   }
 
-  public static interface ViewModelProvider.Factory {
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T>);
+  public static abstract interface ViewModelProvider.Factory {
+    method public abstract <T extends androidx.lifecycle.ViewModel> T create(java.lang.Class<T>);
   }
 
   public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
     ctor public ViewModelProvider.NewInstanceFactory();
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T>);
+    method public <T extends androidx.lifecycle.ViewModel> T create(java.lang.Class<T>);
   }
 
   public class ViewModelStore {
@@ -37,8 +36,8 @@ package androidx.lifecycle {
     method public final void clear();
   }
 
-  public interface ViewModelStoreOwner {
-    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+  public abstract interface ViewModelStoreOwner {
+    method public abstract androidx.lifecycle.ViewModelStore getViewModelStore();
   }
 
 }
