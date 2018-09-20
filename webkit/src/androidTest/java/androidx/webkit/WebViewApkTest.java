@@ -23,16 +23,13 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
-import androidx.webkit.internal.WebViewGlueCommunicator;
 
-import org.chromium.support_lib_boundary.util.Features;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -111,73 +108,6 @@ public class WebViewApkTest {
         return new WebViewVersion(installedVersionName);
     }
 
-    @Test
-    public void testApkSupportsExpectedFeatures() {
-        final WebViewVersion apkVersion = getInstalledWebViewVersionFromPackage();
-
-        // For simplicity, we require this test to run on at least the first WebView canary
-        // supporting the bulk of WebView features (there's nothing interesting to test before the
-        // first M67).
-        final String minimumSupportedVersion = "67.0.3396.0";
-        final String msg = "Installed APK (" + apkVersion
-                + ") is below the minimum version for which we test features ("
-                + minimumSupportedVersion + ")";
-        Assume.assumeTrue(msg,
-                apkVersion.compareTo(new WebViewVersion(minimumSupportedVersion)) >= 0);
-
-        // Add/remove Features for each WebView version. Use http://go/find-releases (or the commits
-        // tab in go/chromiumdash) to figure out the first canary which declares support for the
-        // Feature. If that CL is cherry-picked, also include the first beta containing this
-        // Feature.
-        final HashSet<String> expectedFeatures = new HashSet<>();
-
-        expectedFeatures.add(Features.SERVICE_WORKER_BASIC_USAGE);
-        expectedFeatures.add(Features.WEB_RESOURCE_ERROR_GET_CODE);
-        expectedFeatures.add(Features.SHOULD_OVERRIDE_WITH_REDIRECTS);
-        expectedFeatures.add(Features.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL);
-        expectedFeatures.add(Features.VISUAL_STATE_CALLBACK);
-        expectedFeatures.add(Features.SAFE_BROWSING_PRIVACY_POLICY_URL);
-        expectedFeatures.add(Features.SAFE_BROWSING_HIT);
-        expectedFeatures.add(Features.OFF_SCREEN_PRERASTER);
-        expectedFeatures.add(Features.WEB_RESOURCE_REQUEST_IS_REDIRECT);
-        expectedFeatures.add(Features.SAFE_BROWSING_WHITELIST);
-        expectedFeatures.add(Features.SERVICE_WORKER_FILE_ACCESS);
-        expectedFeatures.add(Features.SERVICE_WORKER_CONTENT_ACCESS);
-        expectedFeatures.add(Features.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY);
-        expectedFeatures.add(Features.SERVICE_WORKER_BLOCK_NETWORK_LOADS);
-        expectedFeatures.add(Features.SERVICE_WORKER_CACHE_MODE);
-        expectedFeatures.add(Features.SAFE_BROWSING_ENABLE);
-        expectedFeatures.add(Features.RECEIVE_HTTP_ERROR);
-        expectedFeatures.add(Features.SAFE_BROWSING_RESPONSE_PROCEED);
-        expectedFeatures.add(Features.DISABLED_ACTION_MODE_MENU_ITEMS);
-        expectedFeatures.add(Features.RECEIVE_WEB_RESOURCE_ERROR);
-        expectedFeatures.add(Features.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST);
-        expectedFeatures.add(Features.START_SAFE_BROWSING);
-        expectedFeatures.add(Features.WEB_RESOURCE_ERROR_GET_DESCRIPTION);
-
-        if (apkVersion.compareTo(new WebViewVersion("68.0.3432.0")) >= 0) {
-            expectedFeatures.add(Features.WEB_MESSAGE_PORT_POST_MESSAGE);
-            expectedFeatures.add(Features.WEB_MESSAGE_PORT_CLOSE);
-            expectedFeatures.add(Features.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK);
-            expectedFeatures.add(Features.CREATE_WEB_MESSAGE_CHANNEL);
-            expectedFeatures.add(Features.POST_WEB_MESSAGE);
-            expectedFeatures.add(Features.WEB_MESSAGE_CALLBACK_ON_MESSAGE);
-        }
-
-        if (apkVersion.compareTo(new WebViewVersion("69.0.3461.0")) >= 0) {
-            expectedFeatures.add(Features.GET_WEB_VIEW_CLIENT);
-        }
-
-        if (apkVersion.compareTo(new WebViewVersion("69.0.3468.0")) >= 0) {
-            expectedFeatures.add(Features.GET_WEB_CHROME_CLIENT);
-        }
-
-        final HashSet<String> apkFeatures = new HashSet<>(
-                Arrays.asList(WebViewGlueCommunicator.getFactory().getWebViewFeatures()));
-
-        Assert.assertEquals(expectedFeatures, apkFeatures);
-    }
-
     /**
      * A test ensuring that our test configuration is correct. In each configuration file we declare
      * which WebView APK to install, and pass an argument to our instrumentation declaring the
@@ -188,15 +118,16 @@ public class WebViewApkTest {
     @Test
     public void testWebViewVersionMatchesInstrumentationArgs() {
         // WebView version: e.g. 46.0.2490.14, or 67.0.3396.17.
-        String expectedWebViewVersion =
+        String expectedWebViewVersionString =
                 InstrumentationRegistry.getArguments().getString("webview-version");
         // Use assumeTrue instead of using assumeNotNull so that we can provide a more descriptive
         // message.
         Assume.assumeTrue("Did not receive a WebView version as an instrumentation argument",
-                expectedWebViewVersion != null);
-        String actualWebViewVersion =
-                WebViewCompat.getCurrentWebViewPackage(
-                        InstrumentationRegistry.getTargetContext()).versionName;
+                expectedWebViewVersionString != null);
+        // Convert to a WebViewVersion as a sanity check to ensure these are well-formed
+        // Chromium-style version strings.
+        WebViewVersion expectedWebViewVersion = new WebViewVersion(expectedWebViewVersionString);
+        WebViewVersion actualWebViewVersion = getInstalledWebViewVersionFromPackage();
         Assert.assertEquals(expectedWebViewVersion, actualWebViewVersion);
     }
 }
