@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.CallSuper;
@@ -70,8 +71,10 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
     // Do not update the route list immediately to avoid unnatural dialog change.
     static final int MSG_UPDATE_ROUTES = 1;
 
-    private final MediaRouter mRouter;
+    final MediaRouter mRouter;
     private final MediaRouteDevicePickerDialog.MediaRouterCallback mCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsSelectingDynamicRoute;
 
     Context mContext;
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
@@ -257,7 +260,14 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
         @Override
         public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
-            refreshRoutes();
+            // When selecting dynamic route, dynamic group route of selecting route is created at
+            // this point. So, the dialog can finally be dismissed.
+            if (mIsSelectingDynamicRoute && mRouter.getSelectedRoute() == info) {
+                mIsSelectingDynamicRoute = false;
+                dismiss();
+            } else {
+                refreshRoutes();
+            }
         }
 
         @Override
@@ -272,6 +282,12 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
         @Override
         public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
+            // When selecting dynamic route, dynamic group route of selecting route is not created
+            // at this point. So, defer dismissing dialog until onRouteAdded is triggered with
+            // selected route of MediaRouter.
+            if (mIsSelectingDynamicRoute) {
+                return;
+            }
             dismiss();
         }
     }
@@ -452,24 +468,34 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
         // ViewHolder for route list item
         private class RouteViewHolder extends RecyclerView.ViewHolder {
-            View mItemView;
-            TextView mTextView;
-            ImageView mImageView;
+            final View mItemView;
+            final ImageView mImageView;
+            final ProgressBar mProgressBar;
+            final TextView mTextView;
 
             RouteViewHolder(View itemView) {
                 super(itemView);
                 mItemView = itemView;
-                mTextView = itemView.findViewById(R.id.mr_picker_route_name);
                 mImageView = itemView.findViewById(R.id.mr_picker_route_icon);
+                mProgressBar = itemView.findViewById(R.id.mr_picker_route_progress_bar);
+                mTextView = itemView.findViewById(R.id.mr_picker_route_name);
+
+                MediaRouterThemeHelper.setIndeterminateProgressBarColor(mContext, mProgressBar);
             }
 
             public void bindRouteView(final Item item) {
                 final MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) item.getData();
-
+                mItemView.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.INVISIBLE);
                 mItemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (route instanceof MediaRouter.DynamicGroupInfo) {
+                            mIsSelectingDynamicRoute = true;
+                        }
                         route.select();
+                        mImageView.setVisibility(View.INVISIBLE);
+                        mProgressBar.setVisibility(View.VISIBLE);
                     }
                 });
                 mTextView.setText(route.getName());

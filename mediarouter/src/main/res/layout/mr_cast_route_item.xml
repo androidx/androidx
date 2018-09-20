@@ -31,7 +31,7 @@
                        android:layout_width="match_parent"
                        android:layout_height="match_parent"
                        android:scaleType="fitCenter" />
-            <ProgressBar android:id="@+id/mr_cast_progress_bar"
+            <ProgressBar android:id="@+id/mr_cast_route_progress_bar"
                          android:layout_width="match_parent"
                          android:layout_height="match_parent"
                          android:indeterminate="true"
