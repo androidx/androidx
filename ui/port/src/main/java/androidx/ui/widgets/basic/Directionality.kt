@@ -16,7 +16,6 @@
 
 package androidx.ui.widgets.basic
 
-import androidx.ui.Type
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.EnumProperty
@@ -60,9 +59,12 @@ class Directionality(
         // / TextDirection textDirection = Directionality.of(context);
         // / ```
         fun of(context: BuildContext): TextDirection {
-            val widget = context.inheritFromWidgetOfExactType(
-                    Type(Directionality::class.java)) as Directionality
-            return widget?.textDirection
+            // TODO(Migration/ njawad insert Directionality inherited widget within widget hierarchy
+            // For now default to LTR text direction
+//            val widget = context.inheritFromWidgetOfExactType(
+//                    Type(Directionality::class.java)) as Directionality
+//            return widget?.textDirection
+            return TextDirection.LTR
         }
     }
 

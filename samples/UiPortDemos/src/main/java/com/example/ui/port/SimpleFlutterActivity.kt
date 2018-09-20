@@ -20,14 +20,18 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.ViewGroup
 import androidx.ui.CraneView
 import android.widget.ImageView
 import androidx.ui.foundation.Key
 import androidx.ui.painting.Image
+import androidx.ui.painting.alignment.Alignment
+import androidx.ui.widgets.basic.Align
 import androidx.ui.widgets.basic.RawImage
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.State
@@ -48,12 +52,18 @@ class SimpleFlutterActivity : Activity() {
     class ViewCompatTestWidget(key: Key) : StatelessWidget(key) {
 
         override fun build(context: BuildContext): Widget {
-            return createViewWidget(Key.createKey("testViewCompat")) {
-                context: Context ->
-                    val imageView = ImageView(context)
+            return Align(
+                    alignment = Alignment.bottomCenter,
+                    key = Key.createKey("align"),
+                    child = createViewWidget(Key.createKey("testViewCompat")) {
+                ctx: Context ->
+                    val imageView = ImageView(ctx)
+                    imageView.setBackgroundColor(Color.DKGRAY)
                     imageView.setImageResource(R.drawable.test)
+                    imageView.layoutParams = ViewGroup.LayoutParams(250, 250)
                     imageView
-            }
+                }
+            )
         }
     }
 

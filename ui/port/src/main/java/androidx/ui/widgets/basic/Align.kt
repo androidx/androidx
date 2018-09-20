@@ -56,12 +56,12 @@ open class Align(
     val alignment: Alignment = Alignment.center,
         // / If non-null, sets its width to the child's width multiplied by this factor.
         // /
-        // / Can be both greater and less than 1.0 but must be positive.
-    val widthFactor: Double?,
+        // / Can be both greater and less than 1.0 but must be non-negative.
+    val widthFactor: Double? = null,
         // / If non-null, sets its height to the child's height multiplied by this factor.
         // /
-        // / Can be both greater and less than 1.0 but must be positive.
-    val heightFactor: Double?,
+        // / Can be both greater and less than 1.0 but must be non-negative.
+    val heightFactor: Double? = null,
     child: Widget
 ) : SingleChildRenderObjectWidget(key = key, child = child) {
 

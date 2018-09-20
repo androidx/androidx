@@ -44,11 +44,25 @@ class ViewHost(private val container: ViewGroup, key: Key, child: Widget) :
         return true
     }
 
-    fun addView(view: View) {
-        container.addView(view)
+    fun addView(view: View): Boolean {
+        if (!container.hasView(view)) {
+            container.addView(view)
+            return true
+        } else {
+            return false
+        }
     }
 
-    fun removeView(view: View) {
-        container.removeView(view)
+    fun childCount(): Int = container.childCount
+
+    fun removeView(view: View): Boolean {
+        if (container.hasView(view)) {
+            container.removeView(view)
+            return true
+        } else {
+            return false
+        }
     }
+
+    private fun ViewGroup.hasView(view: View): Boolean = indexOfChild(view) != -1
 }

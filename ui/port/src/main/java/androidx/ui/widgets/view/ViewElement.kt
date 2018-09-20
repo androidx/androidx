@@ -17,7 +17,6 @@
 package androidx.ui.widgets.view
 
 import android.view.View
-import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.widgets.framework.Element
 import androidx.ui.widgets.framework.LeafRenderObjectElement
 
@@ -27,25 +26,20 @@ import androidx.ui.widgets.framework.LeafRenderObjectElement
  */
 class ViewElement<T>(widget: ViewWidget<T>) : LeafRenderObjectElement(widget) where T : View {
 
-    override fun forgetChild(child: Element) {
-        TODO("njawad/Migration figure out how to handle forgetChild appropriately")
+    // Cached ViewHost instance that is resolved in mount
+    // note, ViewHost cannot be queried before usage as the inherited widget map is cleared
+    // in Element#deactivate which is invoked before unmmount
+    lateinit var viewHost: ViewHost
+
+    override fun mount(parent: Element?, newSlot: Any?) {
+        super.mount(parent, newSlot)
+        viewHost = obtainViewHost(this)
+        // Add the target View once this element has been active for the first time
+        viewHost.addView((renderObject as ViewRenderObject).view)
     }
 
-    override fun performRebuild() {
-        TODO("njawad/Migration figure out how to handle performRebuild appropriately")
-    }
-
-    override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
-        val viewHost = obtainViewHost(this)
-        viewHost.addView((child as ViewRenderObject).view)
-    }
-
-    override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
-        TODO("njawad/Migration figure out how to handle moveChildRenderObject appropriately")
-    }
-
-    override fun removeChildRenderObject(child: RenderObject?) {
-        val viewHost = obtainViewHost(this)
-        viewHost.removeView((child as ViewRenderObject).view)
+    override fun unmount() {
+        viewHost.removeView((renderObject as ViewRenderObject).view)
+        super.unmount()
     }
 }
