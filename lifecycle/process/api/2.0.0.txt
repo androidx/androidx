@@ -1,4 +1,3 @@
-// Signature format: 2.0
 package androidx.lifecycle {
 
   public class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {

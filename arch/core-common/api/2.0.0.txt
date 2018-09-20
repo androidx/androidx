@@ -1,8 +1,7 @@
-// Signature format: 2.0
 package androidx.arch.core.util {
 
-  public interface Function<I, O> {
-    method public O! apply(I!);
+  public abstract interface Function<I, O> {
+    method public abstract O apply(I);
   }
 
 }
