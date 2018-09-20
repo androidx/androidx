@@ -25,8 +25,10 @@ import android.os.Build;
 import android.system.Os;
 import android.system.OsConstants;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Preconditions;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.upstream.BaseDataSource;
 import androidx.media2.exoplayer.external.upstream.DataSource;
@@ -52,6 +54,19 @@ import java.lang.reflect.Method;
 public class FileDescriptorDataSource extends BaseDataSource {
 
     // TODO(b/80232248): Move into core ExoPlayer library and delete this class.
+
+    /**
+     * {@link OsConstants} was added in API 21 and initializes its fields lazily, so we directly
+     * specify the constant for the {@code lseek} {@code whence} argument for earlier API versions.
+     */
+    private static final int SEEK_SET = 0;
+
+    // Before API 21 we access the hidden Posix.lseek API using reflection.
+    private static final Object sPosixLockV14 = new Object();
+    @GuardedBy("sPosixLockV14")
+    private static @Nullable Object sPosixObjectV14;
+    @GuardedBy("sPosixLockV14")
+    private static @Nullable Method sLseekMethodV14;
 
     /**
      * Returns a factory for {@link FileDescriptorDataSource}s.
@@ -91,22 +106,10 @@ public class FileDescriptorDataSource extends BaseDataSource {
     public long open(DataSpec dataSpec) throws IOException {
         mUri = dataSpec.uri;
         transferInitializing(dataSpec);
-        // TODO(b/80232248): Seek the file descriptor to the skip position below.
-        if (Util.SDK_INT >= 21) {
-            resetFdV21(mFileDescriptor);
-        } else if (Util.SDK_INT >= 19) {
-            resetFdV19(mFileDescriptor);
-        } else {
-            throw new IllegalStateException();
-        }
+        seekFileDescriptor(mFileDescriptor, mOffset + dataSpec.position);
         mInputStream = new FileInputStream(mFileDescriptor);
-        long skipped = mInputStream.skip(mOffset + dataSpec.position) - mOffset;
-        if (skipped != dataSpec.position) {
-            // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
-            // skip beyond the end of the data.
-            throw new EOFException();
-        }
-        mBytesRemaining = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : mLength;
+        mBytesRemaining =
+                dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : (mLength - dataSpec.position);
         mOpened = true;
         transferStarted(dataSpec);
         return mBytesRemaining;
@@ -120,26 +123,13 @@ public class FileDescriptorDataSource extends BaseDataSource {
         } else if (mBytesRemaining == 0) {
             return C.RESULT_END_OF_INPUT;
         }
-
-        int bytesRead;
-        try {
-            int bytesToRead = mBytesRemaining == C.LENGTH_UNSET ? readLength
-                    : (int) Math.min(mBytesRemaining, readLength);
-            bytesRead = mInputStream.read(buffer, offset, bytesToRead);
-        } catch (IOException e) {
-            throw e;
-        }
-
+        int bytesToRead = mBytesRemaining == C.LENGTH_UNSET
+                ? readLength : (int) Math.min(mBytesRemaining, readLength);
+        int bytesRead = Preconditions.checkNotNull(mInputStream).read(buffer, offset, bytesToRead);
         if (bytesRead == -1) {
-            if (mBytesRemaining != C.LENGTH_UNSET) {
-                // End of stream reached having not read sufficient data.
-                throw new EOFException();
-            }
-            return C.RESULT_END_OF_INPUT;
+            throw new EOFException();
         }
-        if (mBytesRemaining != C.LENGTH_UNSET) {
-            mBytesRemaining -= bytesRead;
-        }
+        mBytesRemaining -= bytesRead;
         bytesTransferred(bytesRead);
         return bytesRead;
     }
@@ -156,8 +146,6 @@ public class FileDescriptorDataSource extends BaseDataSource {
             if (mInputStream != null) {
                 mInputStream.close();
             }
-        } catch (IOException e) {
-            throw e;
         } finally {
             mInputStream = null;
             if (mOpened) {
@@ -167,30 +155,46 @@ public class FileDescriptorDataSource extends BaseDataSource {
         }
     }
 
-    @SuppressLint("PrivateApi")
-    private static void resetFdV19(FileDescriptor fileDescriptor) throws IOException {
-        try {
-            // TODO(b/80232248): Figure out why this seems to be a no-op on Android K.
-            Class<?> posixClass = Class.forName("libcore.io.Posix");
-            Constructor constructor = posixClass.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            Object posixObject = constructor.newInstance();
-            Method lseek =
-                    posixClass.getMethod("lseek", FileDescriptor.class, Long.TYPE, Integer.TYPE);
-            lseek.invoke(posixObject, fileDescriptor, 0L, 0);
-        } catch (Exception e) {
-            // We don't have a way to reset the file descriptor.
-            throw new IllegalStateException();
+    private static void seekFileDescriptor(FileDescriptor fileDescriptor, long position)
+            throws IOException {
+        if (Util.SDK_INT >= 21) {
+            seekFileDescriptorV21(fileDescriptor, position);
+        } else {
+            seekFileDescriptorV14(fileDescriptor, position);
         }
     }
 
     @TargetApi(21)
-    private static void resetFdV21(FileDescriptor fileDescriptor) throws IOException {
+    private static void seekFileDescriptorV21(FileDescriptor fileDescriptor, long position)
+            throws IOException {
         try {
-            Os.lseek(fileDescriptor, /* offset= */ 0L, OsConstants.SEEK_SET);
+            Os.lseek(fileDescriptor, position, /* whence= */ OsConstants.SEEK_SET);
         } catch (Exception e) {
-            throw new IOException(e);
+            throw new IOException("Failed to seek the file descriptor", e);
         }
     }
 
+    @SuppressLint("PrivateApi")
+    private static void seekFileDescriptorV14(FileDescriptor fileDescriptor, long position)
+            throws IOException {
+        try {
+            Method method;
+            Object object;
+            synchronized (sPosixLockV14) {
+                if (sPosixObjectV14 == null) {
+                    Class<?> posixClass = Class.forName("libcore.io.Posix");
+                    Constructor<?> constructor = posixClass.getDeclaredConstructor();
+                    constructor.setAccessible(true);
+                    sLseekMethodV14 = posixClass.getMethod(
+                            "lseek", FileDescriptor.class, Long.TYPE, Integer.TYPE);
+                    sPosixObjectV14 = constructor.newInstance();
+                }
+                object = sPosixObjectV14;
+                method = sLseekMethodV14;
+            }
+            method.invoke(object, fileDescriptor, position, /* whence= */ SEEK_SET);
+        } catch (Exception e) {
+            throw new IOException("Failed to seek the file descriptor", e);
+        }
+    }
 }
