@@ -467,10 +467,10 @@ public class BiometricPrompt implements BiometricConstants {
             if (mBiometricFragment == null) {
                 // Create the fragment that wraps BiometricPrompt
                 mBiometricFragment = BiometricFragment.newInstance(bundle);
-                mBiometricFragment.setCryptoObject(crypto);
                 mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
                         mAuthenticationCallback);
             }
+            mBiometricFragment.setCryptoObject(crypto);
             mFragmentActivity.getSupportFragmentManager().beginTransaction()
                     .add(mBiometricFragment, BIOMETRIC_FRAGMENT_TAG).commit();
         } else {
@@ -485,10 +485,10 @@ public class BiometricPrompt implements BiometricConstants {
             // Create the connection to FingerprintManager
             if (mFingerprintHelperFragment == null) {
                 mFingerprintHelperFragment = FingerprintHelperFragment.newInstance();
-                mFingerprintHelperFragment.setCryptoObject(crypto);
                 mFingerprintHelperFragment.setCallback(mExecutor, mAuthenticationCallback);
                 mFingerprintHelperFragment.setHandler(mFingerprintDialogFragment.getHandler());
             }
+            mFingerprintHelperFragment.setCryptoObject(crypto);
             mFragmentActivity.getSupportFragmentManager().beginTransaction()
                     .add(mFingerprintHelperFragment, FINGERPRINT_HELPER_FRAGMENT_TAG).commit();
         }
