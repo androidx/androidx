@@ -460,6 +460,14 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         invalidateSelf();
     }
 
+    @Override
+    public ColorFilter getColorFilter() {
+        if (mDelegateDrawable != null) {
+            return DrawableCompat.getColorFilter(mDelegateDrawable);
+        }
+        return mColorFilter;
+    }
+
     /**
      * Ensures the tint filter is consistent with the current tint color and
      * mode.
