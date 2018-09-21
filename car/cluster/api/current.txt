@@ -1,33 +1,32 @@
+// Signature format: 2.0
 package androidx.car.cluster.navigation {
 
   public final class Destination implements androidx.versionedparcelable.VersionedParcelable {
-    method public java.lang.String getAddress();
-    method public androidx.car.cluster.navigation.Distance getDistance();
-    method public java.time.ZonedDateTime getEta();
-    method public android.location.Location getLocation();
-    method public java.lang.String getTitle();
+    method public String getAddress();
+    method public androidx.car.cluster.navigation.Distance? getDistance();
+    method public java.time.ZonedDateTime? getEta();
+    method public android.location.Location? getLocation();
+    method public String getTitle();
   }
 
   public static final class Destination.Builder {
     ctor public Destination.Builder();
     method public androidx.car.cluster.navigation.Destination build();
-    method public androidx.car.cluster.navigation.Destination.Builder setAddress(java.lang.String);
-    method public androidx.car.cluster.navigation.Destination.Builder setDistance(androidx.car.cluster.navigation.Distance);
-    method public androidx.car.cluster.navigation.Destination.Builder setEta(java.time.ZonedDateTime);
-    method public androidx.car.cluster.navigation.Destination.Builder setLocation(android.location.Location);
-    method public androidx.car.cluster.navigation.Destination.Builder setTitle(java.lang.String);
+    method public androidx.car.cluster.navigation.Destination.Builder setAddress(String);
+    method public androidx.car.cluster.navigation.Destination.Builder setDistance(androidx.car.cluster.navigation.Distance?);
+    method public androidx.car.cluster.navigation.Destination.Builder setEta(java.time.ZonedDateTime?);
+    method public androidx.car.cluster.navigation.Destination.Builder setLocation(android.location.Location?);
+    method public androidx.car.cluster.navigation.Destination.Builder setTitle(String);
   }
 
   public final class Distance implements androidx.versionedparcelable.VersionedParcelable {
-    ctor public Distance(int, java.lang.String, androidx.car.cluster.navigation.Distance.Unit);
+    ctor public Distance(int, String, androidx.car.cluster.navigation.Distance.Unit);
     method public androidx.car.cluster.navigation.Distance.Unit getDisplayUnit();
-    method public java.lang.String getDisplayValue();
+    method public String getDisplayValue();
     method public int getMeters();
   }
 
-  public static final class Distance.Unit extends java.lang.Enum {
-    method public static androidx.car.cluster.navigation.Distance.Unit valueOf(java.lang.String);
-    method public static final androidx.car.cluster.navigation.Distance.Unit[] values();
+  public static enum Distance.Unit {
     enum_constant public static final androidx.car.cluster.navigation.Distance.Unit FEET;
     enum_constant public static final androidx.car.cluster.navigation.Distance.Unit KILOMETERS;
     enum_constant public static final androidx.car.cluster.navigation.Distance.Unit METERS;
@@ -58,9 +57,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.LaneDirection.Builder setShape(androidx.car.cluster.navigation.LaneDirection.Shape, androidx.car.cluster.navigation.LaneDirection.Shape...);
   }
 
-  public static final class LaneDirection.Shape extends java.lang.Enum {
-    method public static androidx.car.cluster.navigation.LaneDirection.Shape valueOf(java.lang.String);
-    method public static final androidx.car.cluster.navigation.LaneDirection.Shape[] values();
+  public static enum LaneDirection.Shape {
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape NORMAL_LEFT;
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape NORMAL_RIGHT;
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SHARP_LEFT;
@@ -85,9 +82,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.Maneuver.Builder setType(androidx.car.cluster.navigation.Maneuver.Type, androidx.car.cluster.navigation.Maneuver.Type...);
   }
 
-  public static final class Maneuver.Type extends java.lang.Enum {
-    method public static androidx.car.cluster.navigation.Maneuver.Type valueOf(java.lang.String);
-    method public static final androidx.car.cluster.navigation.Maneuver.Type[] values();
+  public static enum Maneuver.Type {
     enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DEPART;
     enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DESTINATION;
     enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DESTINATION_LEFT;
@@ -145,7 +140,7 @@ package androidx.car.cluster.navigation {
   }
 
   public final class NavigationState implements androidx.versionedparcelable.VersionedParcelable {
-    method public static androidx.car.cluster.navigation.NavigationState fromParcelable(android.os.Parcelable);
+    method public static androidx.car.cluster.navigation.NavigationState! fromParcelable(android.os.Parcelable?);
     method public java.util.List<androidx.car.cluster.navigation.Destination> getDestinations();
     method public java.util.List<androidx.car.cluster.navigation.Step> getSteps();
     method public android.os.Parcelable toParcelable();
@@ -159,17 +154,17 @@ package androidx.car.cluster.navigation {
   }
 
   public final class Step implements androidx.versionedparcelable.VersionedParcelable {
-    method public androidx.car.cluster.navigation.Distance getDistance();
+    method public androidx.car.cluster.navigation.Distance? getDistance();
     method public java.util.List<androidx.car.cluster.navigation.Lane> getLanes();
-    method public androidx.car.cluster.navigation.Maneuver getManeuver();
+    method public androidx.car.cluster.navigation.Maneuver? getManeuver();
   }
 
   public static final class Step.Builder {
     ctor public Step.Builder();
     method public androidx.car.cluster.navigation.Step.Builder addLane(androidx.car.cluster.navigation.Lane);
     method public androidx.car.cluster.navigation.Step build();
-    method public androidx.car.cluster.navigation.Step.Builder setDistance(androidx.car.cluster.navigation.Distance);
-    method public androidx.car.cluster.navigation.Step.Builder setManeuver(androidx.car.cluster.navigation.Maneuver);
+    method public androidx.car.cluster.navigation.Step.Builder setDistance(androidx.car.cluster.navigation.Distance?);
+    method public androidx.car.cluster.navigation.Step.Builder setManeuver(androidx.car.cluster.navigation.Maneuver?);
   }
 
 }

@@ -1,179 +1,208 @@
+// Signature format: 2.0
 package androidx.annotation {
 
-  public abstract class AnimRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface AnimRes {
   }
 
-  public abstract class AnimatorRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface AnimatorRes {
   }
 
-  public abstract class AnyRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface AnyRes {
   }
 
-  public abstract class AnyThread implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface AnyThread {
   }
 
-  public abstract class ArrayRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface ArrayRes {
   }
 
-  public abstract class AttrRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface AttrRes {
   }
 
-  public abstract class BinderThread implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface BinderThread {
   }
 
-  public abstract class BoolRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface BoolRes {
   }
 
-  public abstract class CallSuper implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface CallSuper {
   }
 
-  public abstract class CheckResult implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface CheckResult {
+    method public abstract String suggest() default "";
   }
 
-  public abstract class ColorInt implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.FIELD}) public @interface ColorInt {
   }
 
-  public abstract class ColorLong implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.FIELD}) public @interface ColorLong {
   }
 
-  public abstract class ColorRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface ColorRes {
   }
 
-  public abstract class DimenRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface DimenRes {
   }
 
-  public abstract class Dimension implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface Dimension {
+    method @DimensionUnit public abstract int unit() default androidx.annotation.Dimension.PX;
     field public static final int DP = 0; // 0x0
     field public static final int PX = 1; // 0x1
     field public static final int SP = 2; // 0x2
   }
 
-  public abstract class DrawableRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface DrawableRes {
   }
 
-  public abstract class FloatRange implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface FloatRange {
+    method public abstract double from() default java.lang.Double.NEGATIVE_INFINITY;
+    method public abstract boolean fromInclusive() default true;
+    method public abstract double to() default java.lang.Double.POSITIVE_INFINITY;
+    method public abstract boolean toInclusive() default true;
   }
 
-  public abstract class FontRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface FontRes {
   }
 
-  public abstract class FractionRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface FractionRes {
   }
 
-  public abstract class GuardedBy implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface GuardedBy {
+    method public abstract String value();
   }
 
-  public abstract class HalfFloat implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.FIELD}) public @interface HalfFloat {
   }
 
-  public abstract class IdRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface IdRes {
   }
 
-  public abstract class IntDef implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface IntDef {
+    method public abstract boolean flag() default false;
+    method public abstract int[] value() default {};
   }
 
-  public abstract class IntRange implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface IntRange {
+    method public abstract long from() default java.lang.Long.MIN_VALUE;
+    method public abstract long to() default java.lang.Long.MAX_VALUE;
   }
 
-  public abstract class IntegerRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface IntegerRes {
   }
 
-  public abstract class InterpolatorRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface InterpolatorRes {
   }
 
-  public abstract class Keep implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.FIELD}) public @interface Keep {
   }
 
-  public abstract class LayoutRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface LayoutRes {
   }
 
-  public abstract class LongDef implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface LongDef {
+    method public abstract boolean flag() default false;
+    method public abstract long[] value() default {};
   }
 
-  public abstract class MainThread implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface MainThread {
   }
 
-  public abstract class MenuRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface MenuRes {
   }
 
-  public abstract class NavigationRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface NavigationRes {
   }
 
-  public abstract class NonNull implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE}) public @interface NonNull {
   }
 
-  public abstract class Nullable implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE}) public @interface Nullable {
   }
 
-  public abstract class PluralsRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface PluralsRes {
   }
 
-  public abstract class Px implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) @Dimension(unit=androidx.annotation.Dimension.PX) public @interface Px {
   }
 
-  public abstract class RawRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface RawRes {
   }
 
-  public abstract class RequiresApi implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.PACKAGE}) public @interface RequiresApi {
+    method @IntRange(from=1) public abstract int api() default 1;
+    method @IntRange(from=1) public abstract int value() default 1;
   }
 
-  public abstract class RequiresFeature implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR}) public @interface RequiresFeature {
+    method public abstract String enforcement();
+    method public abstract String name();
   }
 
-  public abstract class RequiresPermission implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.PARAMETER}) public @interface RequiresPermission {
+    method public abstract String[] allOf() default {};
+    method public abstract String[] anyOf() default {};
+    method public abstract boolean conditional() default false;
+    method public abstract String value() default "";
   }
 
-  public static abstract class RequiresPermission.Read implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface RequiresPermission.Read {
+    method public abstract androidx.annotation.RequiresPermission value() default @androidx.annotation.RequiresPermission;
   }
 
-  public static abstract class RequiresPermission.Write implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface RequiresPermission.Write {
+    method public abstract androidx.annotation.RequiresPermission value() default @androidx.annotation.RequiresPermission;
   }
 
-  public abstract class RestrictTo implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.PACKAGE}) public @interface RestrictTo {
+    method public abstract androidx.annotation.RestrictTo.Scope[] value();
   }
 
-  public static final class RestrictTo.Scope extends java.lang.Enum {
-    method public static androidx.annotation.RestrictTo.Scope valueOf(java.lang.String);
-    method public static final androidx.annotation.RestrictTo.Scope[] values();
-    enum_constant public static final deprecated androidx.annotation.RestrictTo.Scope GROUP_ID;
+  public static enum RestrictTo.Scope {
+    enum_constant @Deprecated public static final androidx.annotation.RestrictTo.Scope GROUP_ID;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY_GROUP;
     enum_constant public static final androidx.annotation.RestrictTo.Scope SUBCLASSES;
     enum_constant public static final androidx.annotation.RestrictTo.Scope TESTS;
   }
 
-  public abstract class Size implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface Size {
+    method public abstract long max() default java.lang.Long.MAX_VALUE;
+    method public abstract long min() default java.lang.Long.MIN_VALUE;
+    method public abstract long multiple() default 1;
+    method public abstract long value() default -1;
   }
 
-  public abstract class StringDef implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface StringDef {
+    method public abstract String[] value() default {};
   }
 
-  public abstract class StringRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface StringRes {
   }
 
-  public abstract class StyleRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface StyleRes {
   }
 
-  public abstract class StyleableRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface StyleableRes {
   }
 
-  public abstract class TransitionRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD}) public @interface TransitionRes {
   }
 
-  public abstract class UiThread implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface UiThread {
   }
 
-  public abstract class VisibleForTesting implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface VisibleForTesting {
+    method @ProductionVisibility public abstract int otherwise() default androidx.annotation.VisibleForTesting.PRIVATE;
     field public static final int NONE = 5; // 0x5
     field public static final int PACKAGE_PRIVATE = 3; // 0x3
     field public static final int PRIVATE = 2; // 0x2
     field public static final int PROTECTED = 4; // 0x4
   }
 
-  public abstract class WorkerThread implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface WorkerThread {
   }
 
-  public abstract class XmlRes implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface XmlRes {
   }
 
 }

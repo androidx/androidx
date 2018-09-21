@@ -1,3 +1,4 @@
+// Signature format: 2.0
 package androidx.activity {
 
   public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.lifecycle.LifecycleOwner {
