@@ -32,7 +32,7 @@ public class BuildCompat {
      * @return {@code true} if N APIs are available for use
      * @deprecated Android N is a finalized release and this method is no longer necessary. It will
      *             be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.SDK_INT >= Build.VERSION_CODES.N}.
+     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.N}.
      */
     @Deprecated
     public static boolean isAtLeastN() {
@@ -45,7 +45,7 @@ public class BuildCompat {
      * @return {@code true} if N MR1 APIs are available for use
      * @deprecated Android N MR1 is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.SDK_INT >= Build.VERSION_CODES.N_MR1}.
+     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1}.
      */
     @Deprecated
     public static boolean isAtLeastNMR1() {
@@ -58,7 +58,7 @@ public class BuildCompat {
      * @return {@code true} if O APIs are available for use, {@code false} otherwise
      * @deprecated Android O is a finalized release and this method is no longer necessary. It will
      *             be removed in a future release of the Support Library. Instead use
-     *             {@code Build.SDK_INT >= Build.VERSION_CODES.O}.
+     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.O}.
      */
     @Deprecated
     public static boolean isAtLeastO() {
@@ -71,7 +71,7 @@ public class BuildCompat {
      * @return {@code true} if O MR1 APIs are available for use, {@code false} otherwise
      * @deprecated Android O MR1 is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.SDK_INT >= Build.VERSION_CODES.O_MR1}.
+     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1}.
      */
     @Deprecated
     public static boolean isAtLeastOMR1() {
@@ -84,7 +84,7 @@ public class BuildCompat {
      * @return {@code true} if P APIs are available for use, {@code false} otherwise
      * @deprecated Android P is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.SDK_INT >= Build.VERSION_CODES.P}.
+     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.P}.
      */
     @Deprecated
     public static boolean isAtLeastP() {
@@ -96,7 +96,7 @@ public class BuildCompat {
      * <p>
      * <strong>Note:</strong> This method will return {@code false} on devices running release
      * versions of Android. When Android Q is finalized for release, this method will be deprecated
-     * and all calls should be replaced with {@code Build.SDK_INT >= Build.VERSION_CODES.Q}.
+     * and all calls should be replaced with {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}.
      *
      * @return {@code true} if Q APIs are available for use, {@code false} otherwise
      */
