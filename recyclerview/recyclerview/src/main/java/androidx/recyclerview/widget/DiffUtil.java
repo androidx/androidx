@@ -668,9 +668,9 @@ public class DiffUtil {
          * @see #convertNewPositionToOld(int)
          */
         public int convertOldPositionToNew(@IntRange(from = 0) int oldListPosition) {
-            if (oldListPosition < 0 || oldListPosition >= mOldItemStatuses.length) {
+            if (oldListPosition < 0 || oldListPosition >= mOldListSize) {
                 throw new IndexOutOfBoundsException("Index out of bounds - passed position = "
-                        + oldListPosition + ", old list size = " + mOldItemStatuses.length);
+                        + oldListPosition + ", old list size = " + mOldListSize);
             }
             final int status = mOldItemStatuses[oldListPosition];
             if ((status & FLAG_MASK) == 0) {
@@ -692,9 +692,9 @@ public class DiffUtil {
          * @see #convertOldPositionToNew(int)
          */
         public int convertNewPositionToOld(@IntRange(from = 0) int newListPosition) {
-            if (newListPosition < 0 || newListPosition >= mNewItemStatuses.length) {
+            if (newListPosition < 0 || newListPosition >= mNewListSize) {
                 throw new IndexOutOfBoundsException("Index out of bounds - passed position = "
-                        + newListPosition + ", new list size = " + mNewItemStatuses.length);
+                        + newListPosition + ", new list size = " + mNewListSize);
             }
             final int status = mNewItemStatuses[newListPosition];
             if ((status & FLAG_MASK) == 0) {

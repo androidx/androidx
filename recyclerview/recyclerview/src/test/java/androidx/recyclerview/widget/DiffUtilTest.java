@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import androidx.annotation.Nullable;
 import androidx.test.filters.SmallTest;
@@ -361,6 +362,13 @@ public class DiffUtilTest {
                 assertFalse(mAfter.contains(mBefore.get(oldPos)));
             }
         }
+
+        try {
+            result.convertOldPositionToNew(mBefore.size());
+            fail("out of bounds should occur");
+        } catch (IndexOutOfBoundsException e) {
+            // expected
+        }
         for (int newPos = 0; newPos < mAfter.size(); newPos++) {
             int oldPos = result.convertNewPositionToOld(newPos);
             if (oldPos != DiffUtil.DiffResult.NO_POSITION) {
@@ -368,6 +376,12 @@ public class DiffUtilTest {
             } else {
                 assertFalse(mBefore.contains(mAfter.get(newPos)));
             }
+        }
+        try {
+            result.convertNewPositionToOld(mAfter.size());
+            fail("out of bounds should occur");
+        } catch (IndexOutOfBoundsException e) {
+            // expected
         }
     }
 
