@@ -31,9 +31,11 @@ import com.example.androidx.viewpager2.cards.Card;
 import com.example.androidx.viewpager2.cards.CardView;
 
 /**
- * Shows how to use {@link androidx.viewpager2.adapter.FragmentStateAdapter}
+ * Shows how to use a {@link androidx.viewpager2.widget.ViewPager2} with Fragments, via a
+ * {@link androidx.viewpager2.adapter.FragmentStateAdapter}
  *
- * @see CardActivity
+ * @see CardActivity for an example of using {@link androidx.viewpager2.widget.ViewPager2} with
+ * Views.
  */
 public class CardFragmentActivity extends BaseCardActivity {
 

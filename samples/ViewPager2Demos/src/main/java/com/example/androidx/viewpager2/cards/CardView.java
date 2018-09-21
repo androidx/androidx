@@ -43,13 +43,12 @@ public class CardView {
      * Updates the view to represent the passed in card
      */
     public void bind(Card card) {
-        mTextSuite.setText(Character.toString(card.getSuit()));
+        mTextSuite.setText(card.getSuit());
         mView.setBackgroundResource(getColorRes(card));
 
         String cornerLabel = card.getCornerLabel();
         mTextCorner1.setText(cornerLabel);
         mTextCorner2.setText(cornerLabel);
-        mTextCorner2.setRotation(180);
     }
 
     public View getView() {
@@ -65,41 +64,39 @@ public class CardView {
 
     private int getShade(Card card) {
         switch (card.getValue()) {
-            case '2':
-            case '6':
-            case '⒑':
-            case 'A':
+            case "2":
+            case "6":
+            case "10":
+            case "A":
                 return 2;
-            case '3':
-            case '7':
-            case 'J':
+            case "3":
+            case "7":
+            case "J":
                 return 3;
-            case '4':
-            case '8':
-            case 'Q':
+            case "4":
+            case "8":
+            case "Q":
                 return 0;
-            case '5':
-            case '9':
-            case 'K':
+            case "5":
+            case "9":
+            case "K":
                 return 1;
         }
-        throw new IllegalStateException(String.format("Card value cannot be %c (0x%X)",
-                card.getValue(), (int) card.getValue()));
+        throw new IllegalStateException(String.format("Card value cannot be %s", card.getValue()));
     }
 
     private int getColor(Card card) {
         switch (card.getSuit()) {
-            case '♣':
+            case "♣":
                 return 0;
-            case '♦':
+            case "♦":
                 return 1;
-            case '♥':
+            case "♥":
                 return 2;
-            case '♠':
+            case "♠":
                 return 3;
         }
-        throw new IllegalStateException(String.format("Card suit cannot be %c (0x%X)",
-                card.getSuit(), (int) card.getSuit()));
+        throw new IllegalStateException(String.format("Card suit cannot be %s", card.getSuit()));
     }
 
     private static final int[][] COLOR_MAP = {

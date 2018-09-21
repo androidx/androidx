@@ -47,7 +47,6 @@ public abstract class BaseCardActivity extends FragmentActivity {
     private static final String VERTICAL = "vertical";
 
     protected ViewPager2 mViewPager;
-    private Spinner mOrientationSelector;
     private Spinner mValueSelector;
     private Spinner mSuitSelector;
     private CheckBox mSmoothScrollCheckBox;
@@ -55,6 +54,7 @@ public abstract class BaseCardActivity extends FragmentActivity {
     private CheckBox mTranslateCheckBox;
     private CheckBox mScaleCheckBox;
     private Button mGotoPage;
+    private Spinner mOrientationSelector;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -104,9 +104,9 @@ public abstract class BaseCardActivity extends FragmentActivity {
         });
     }
 
-    private SpinnerAdapter createAdapter(Set<Character> values) {
-        ArrayAdapter<Character> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, values.toArray(new Character[0]));
+    private SpinnerAdapter createAdapter(Set<String> values) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, values.toArray(new String[0]));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         return adapter;
     }

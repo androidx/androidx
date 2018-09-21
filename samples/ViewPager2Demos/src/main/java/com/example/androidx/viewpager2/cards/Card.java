@@ -32,24 +32,24 @@ import java.util.Set;
 public class Card {
     private static final String ARGS_BUNDLE = Card.class.getName() + ":Bundle";
 
-    public static final Set<Character> SUITS = unmodifiableSet(new LinkedHashSet<>(
-            asList('♣' /* clubs*/, '♦' /* diamonds*/, '♥' /* hearts*/, '♠' /*spades*/)));
-    public static final Set<Character> VALUES = unmodifiableSet(new LinkedHashSet<>(
-            asList('2', '3', '4', '5', '6', '7', '8', '9', '⒑', 'J', 'Q', 'K', 'A')));
+    public static final Set<String> SUITS = unmodifiableSet(new LinkedHashSet<>(
+            asList("♣" /* clubs*/, "♦" /* diamonds*/, "♥" /* hearts*/, "♠" /*spades*/)));
+    public static final Set<String> VALUES = unmodifiableSet(new LinkedHashSet<>(
+            asList("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")));
 
-    private final char mSuit;
-    private final char mValue;
+    private final String mSuit;
+    private final String mValue;
 
-    public Card(char suit, char value) {
+    public Card(String suit, String value) {
         this.mSuit = checkValidValue(suit, SUITS);
         this.mValue = checkValidValue(value, VALUES);
     }
 
-    char getSuit() {
+    String getSuit() {
         return mSuit;
     }
 
-    char getValue() {
+    String getValue() {
         return mValue;
     }
 
@@ -60,17 +60,17 @@ public class Card {
     /** Use in conjunction with {@link Card#fromBundle(Bundle)} */
     public Bundle toBundle() {
         Bundle args = new Bundle(1);
-        args.putCharArray(ARGS_BUNDLE, new char[]{mSuit, mValue});
+        args.putStringArray(ARGS_BUNDLE, new String[]{mSuit, mValue});
         return args;
     }
 
     /** Use in conjunction with {@link Card#toBundle()} */
     public static Card fromBundle(Bundle bundle) {
-        char[] spec = bundle.getCharArray(ARGS_BUNDLE);
+        String[] spec = bundle.getStringArray(ARGS_BUNDLE);
         return new Card(spec[0], spec[1]);
     }
 
-    private static char checkValidValue(char value, Set<Character> allowed) {
+    private static String checkValidValue(String value, Set<String> allowed) {
         if (allowed.contains(value)) {
             return value;
         }
@@ -82,8 +82,8 @@ public class Card {
      */
     public static List<Card> createDeck52() {
         List<Card> result = new ArrayList<>(52);
-        for (Character suit : SUITS) {
-            for (Character value : VALUES) {
+        for (String suit : SUITS) {
+            for (String value : VALUES) {
                 result.add(new Card(suit, value));
             }
         }
