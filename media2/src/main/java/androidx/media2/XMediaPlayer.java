@@ -22,6 +22,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.media.DeniedByServerException;
+import android.media.MediaDrm;
+import android.media.MediaDrmException;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.PersistableBundle;
@@ -47,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -366,6 +370,52 @@ public class XMediaPlayer extends SessionPlayer2 {
     @RestrictTo(LIBRARY_GROUP)
     public @interface SeekMode {}
 
+    /**
+     * The status codes for {@link PlayerCallback#onDrmPrepared} listener.
+     * <p>
+     *
+     * DRM preparation has succeeded.
+     */
+    public static final int PREPARE_DRM_STATUS_SUCCESS = 0;
+
+    /**
+     * The device required DRM provisioning but couldn't reach the provisioning server.
+     */
+    public static final int PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR = 1;
+
+    /**
+     * The device required DRM provisioning but the provisioning server denied the request.
+     */
+    public static final int PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR = 2;
+
+    /**
+     * The DRM preparation has failed.
+     */
+    public static final int PREPARE_DRM_STATUS_PREPARATION_ERROR = 3;
+
+    /**
+     * The crypto scheme UUID that is not supported by the device.
+     */
+    public static final int PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME = 4;
+
+    /**
+     * The hardware resources are not available, due to being in use.
+     */
+    public static final int PREPARE_DRM_STATUS_RESOURCE_BUSY = 5;
+
+    /** @hide */
+    @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
+            PREPARE_DRM_STATUS_SUCCESS,
+            PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
+            PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
+            PREPARE_DRM_STATUS_PREPARATION_ERROR,
+            PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME,
+            PREPARE_DRM_STATUS_RESOURCE_BUSY,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface PrepareDrmStatusCode {}
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sResultCodeMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -374,6 +424,8 @@ public class XMediaPlayer extends SessionPlayer2 {
     static ArrayMap<Integer, Integer> sInfoCodeMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sSeekModeMap;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayMap<Integer, Integer> sPrepareDrmStatusMap;
 
     static {
         sResultCodeMap = new ArrayMap<>();
@@ -419,6 +471,20 @@ public class XMediaPlayer extends SessionPlayer2 {
         sSeekModeMap.put(SEEK_NEXT_SYNC, MediaPlayer2.SEEK_NEXT_SYNC);
         sSeekModeMap.put(SEEK_CLOSEST_SYNC, MediaPlayer2.SEEK_CLOSEST_SYNC);
         sSeekModeMap.put(SEEK_CLOSEST, MediaPlayer2.SEEK_CLOSEST);
+
+        sPrepareDrmStatusMap = new ArrayMap<>();
+        sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_SUCCESS,
+                PREPARE_DRM_STATUS_SUCCESS);
+        sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
+                PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR);
+        sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
+                PREPARE_DRM_STATUS_PREPARATION_ERROR);
+        sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PREPARATION_ERROR,
+                PREPARE_DRM_STATUS_PREPARATION_ERROR);
+        sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME,
+                PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME);
+        sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_RESOURCE_BUSY,
+                PREPARE_DRM_STATUS_RESOURCE_BUSY);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -441,6 +507,7 @@ public class XMediaPlayer extends SessionPlayer2 {
         mPlayer = MediaPlayer2.create(context);
         mExecutor = Executors.newFixedThreadPool(1);
         mPlayer.setEventCallback(mExecutor, new Mp2Callback());
+        mPlayer.setDrmEventCallback(mExecutor, new Mp2DrmCallback());
     }
 
     @Override
@@ -1045,6 +1112,209 @@ public class XMediaPlayer extends SessionPlayer2 {
         return future;
     }
 
+    /**
+     * Retrieves the DRM Info associated with the current media item.
+     *
+     * @throws IllegalStateException if called before being prepared
+     */
+    public DrmInfo getDrmInfo() {
+        MediaPlayer2.DrmInfo info = mPlayer.getDrmInfo();
+        return info == null ? null : new DrmInfo(info);
+    }
+
+    /**
+     * Prepares the DRM for the current media item.
+     * <p>
+     * If {@link OnDrmConfigHelper} is registered, it will be called during
+     * preparation to allow configuration of the DRM properties before opening the
+     * DRM session. Note that the callback is called synchronously in the thread that called
+     * {@link #prepareDrm}. It should be used only for a series of {@code getDrmPropertyString}
+     * and {@code setDrmPropertyString} calls and refrain from any lengthy operation.
+     * <p>
+     * If the device has not been provisioned before, this call also provisions the device
+     * which involves accessing the provisioning server and can take a variable time to
+     * complete depending on the network connectivity.
+     * prepareDrm() runs in non-blocking mode by launching the provisioning in the background and
+     * returning. {@link PlayerCallback#onDrmPrepared} will be called when provisioning and
+     * preparation has finished. The application should check the status code returned with
+     * {@link PlayerCallback#onDrmPrepared} to proceed.
+     * <p>
+     *
+     * @param uuid The UUID of the crypto scheme. If not known beforehand, it can be retrieved
+     * from the source through {#link getDrmInfo} or registering
+     * {@link PlayerCallback#onDrmInfo}.
+     */
+    // This is an asynchronous call.
+    public void prepareDrm(@NonNull UUID uuid) {
+        mPlayer.prepareDrm(uuid);
+    }
+
+    /**
+     * Releases the DRM session
+     * <p>
+     * The player has to have an active DRM session and be in stopped, or prepared
+     * state before this call is made.
+     * A {@code reset()} call will release the DRM session implicitly.
+     *
+     * @throws NoDrmSchemeException if there is no active DRM session to release
+     */
+    public void releaseDrm() throws NoDrmSchemeException {
+        try {
+            mPlayer.releaseDrm();
+        } catch (MediaPlayer2.NoDrmSchemeException e) {
+            throw new NoDrmSchemeException(e.getMessage());
+        }
+    }
+
+    /**
+     * A key request/response exchange occurs between the app and a license server
+     * to obtain or release keys used to decrypt encrypted content.
+     * <p>
+     * getDrmKeyRequest() is used to obtain an opaque key request byte array that is
+     * delivered to the license server.  The opaque key request byte array is returned
+     * in KeyRequest.data.  The recommended URL to deliver the key request to is
+     * returned in KeyRequest.defaultUrl.
+     * <p>
+     * After the app has received the key request response from the server,
+     * it should deliver to the response to the DRM engine plugin using the method
+     * {@link #provideDrmKeyResponse}.
+     *
+     * @param keySetId is the key-set identifier of the offline keys being released when keyType is
+     * {@link MediaDrm#KEY_TYPE_RELEASE}. It should be set to null for other key requests, when
+     * keyType is {@link MediaDrm#KEY_TYPE_STREAMING} or {@link MediaDrm#KEY_TYPE_OFFLINE}.
+     *
+     * @param initData is the container-specific initialization data when the keyType is
+     * {@link MediaDrm#KEY_TYPE_STREAMING} or {@link MediaDrm#KEY_TYPE_OFFLINE}. Its meaning is
+     * interpreted based on the mime type provided in the mimeType parameter.  It could
+     * contain, for example, the content ID, key ID or other data obtained from the content
+     * metadata that is required in generating the key request.
+     * When the keyType is {@link MediaDrm#KEY_TYPE_RELEASE}, it should be set to null.
+     *
+     * @param mimeType identifies the mime type of the content
+     *
+     * @param keyType specifies the type of the request. The request may be to acquire
+     * keys for streaming, {@link MediaDrm#KEY_TYPE_STREAMING}, or for offline content
+     * {@link MediaDrm#KEY_TYPE_OFFLINE}, or to release previously acquired
+     * keys ({@link MediaDrm#KEY_TYPE_RELEASE}), which are identified by a keySetId.
+     *
+     * @param optionalParameters are included in the key request message to
+     * allow a client application to provide additional message parameters to the server.
+     * This may be {@code null} if no additional parameters are to be sent.
+     *
+     * @throws NoDrmSchemeException if there is no active DRM session
+     */
+    @NonNull
+    public MediaDrm.KeyRequest getDrmKeyRequest(
+            @Nullable byte[] keySetId, @Nullable byte[] initData,
+            @Nullable String mimeType, int keyType,
+            @Nullable Map<String, String> optionalParameters)
+            throws NoDrmSchemeException {
+        try {
+            return mPlayer.getDrmKeyRequest(
+                    keySetId, initData, mimeType, keyType, optionalParameters);
+        } catch (MediaPlayer2.NoDrmSchemeException e) {
+            throw new NoDrmSchemeException(e.getMessage());
+        }
+    }
+
+    /**
+     * A key response is received from the license server by the app, then it is
+     * provided to the DRM engine plugin using provideDrmKeyResponse. When the
+     * response is for an offline key request, a key-set identifier is returned that
+     * can be used to later restore the keys to a new session with the method
+     * {@link #restoreDrmKeys}.
+     * When the response is for a streaming or release request, null is returned.
+     *
+     * @param keySetId When the response is for a release request, keySetId identifies
+     * the saved key associated with the release request (i.e., the same keySetId
+     * passed to the earlier {@link #getDrmKeyRequest} call. It MUST be null when the
+     * response is for either streaming or offline key requests.
+     *
+     * @param response the byte array response from the server
+     *
+     * @throws NoDrmSchemeException if there is no active DRM session
+     * @throws DeniedByServerException if the response indicates that the
+     * server rejected the request
+     */
+    public byte[] provideDrmKeyResponse(
+            @Nullable byte[] keySetId, @NonNull byte[] response)
+            throws NoDrmSchemeException, DeniedByServerException {
+        try {
+            return mPlayer.provideDrmKeyResponse(keySetId, response);
+        } catch (MediaPlayer2.NoDrmSchemeException e) {
+            throw new NoDrmSchemeException(e.getMessage());
+        }
+    }
+
+    /**
+     * Restore persisted offline keys into a new session.  keySetId identifies the
+     * keys to load, obtained from a prior call to {@link #provideDrmKeyResponse}.
+     *
+     * @param keySetId identifies the saved key set to restore
+     */
+    public void restoreDrmKeys(@NonNull byte[] keySetId) throws NoDrmSchemeException {
+        try {
+            mPlayer.restoreDrmKeys(keySetId);
+        } catch (MediaPlayer2.NoDrmSchemeException e) {
+            throw new NoDrmSchemeException(e.getMessage());
+        }
+    }
+
+    /**
+     * Read a DRM engine plugin String property value, given the property name string.
+     * <p>
+     * @param propertyName the property name
+     *
+     * Standard fields names are:
+     * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
+     * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
+     */
+    @NonNull
+    public String getDrmPropertyString(@NonNull String propertyName) throws NoDrmSchemeException {
+        try {
+            return mPlayer.getDrmPropertyString(propertyName);
+        } catch (MediaPlayer2.NoDrmSchemeException e) {
+            throw new NoDrmSchemeException(e.getMessage());
+        }
+    }
+
+    /**
+     * Set a DRM engine plugin String property value.
+     * <p>
+     * @param propertyName the property name
+     * @param value the property value
+     *
+     * Standard fields names are:
+     * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
+     * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
+     */
+    public void setDrmPropertyString(@NonNull String propertyName, @NonNull String value)
+            throws NoDrmSchemeException {
+        try {
+            mPlayer.setDrmPropertyString(propertyName, value);
+        } catch (MediaPlayer2.NoDrmSchemeException e) {
+            throw new NoDrmSchemeException(e.getMessage());
+        }
+    }
+
+    /**
+     * Register a callback to be invoked for configuration of the DRM object before
+     * the session is created.
+     * The callback will be invoked synchronously during the execution
+     * of {@link #prepareDrm(UUID uuid)}.
+     *
+     * @param listener the callback that will be run
+     */
+    public void setOnDrmConfigHelper(final OnDrmConfigHelper listener) {
+        mPlayer.setOnDrmConfigHelper(listener == null ? null :
+                new MediaPlayer2.OnDrmConfigHelper() {
+                    @Override
+                    public void onDrmConfig(MediaPlayer2 mp, MediaItem2 item) {
+                        listener.onDrmConfig(XMediaPlayer.this, item);
+                    }
+                });
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void setState(@PlayerState final int state) {
         boolean needToNotify = false;
@@ -1114,6 +1384,33 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     private interface XMediaPlayerCallbackNotifier {
         void callCallback(PlayerCallback callback);
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    class Mp2DrmCallback extends MediaPlayer2.DrmEventCallback {
+        @Override
+        public void onDrmInfo(
+                MediaPlayer2 mp, final MediaItem2 item, final MediaPlayer2.DrmInfo drmInfo) {
+            notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
+                @Override
+                public void callCallback(PlayerCallback callback) {
+                    callback.onDrmInfo(XMediaPlayer.this, item,
+                            drmInfo == null ? null : new DrmInfo(drmInfo));
+                }
+            });
+        }
+
+        @Override
+        public void onDrmPrepared(MediaPlayer2 mp, final MediaItem2 item, final int status) {
+            notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
+                @Override
+                public void callCallback(PlayerCallback callback) {
+                    int prepareDrmStatus = sPrepareDrmStatusMap.getOrDefault(
+                            status, PREPARE_DRM_STATUS_PREPARATION_ERROR);
+                    callback.onDrmPrepared(XMediaPlayer.this, item, prepareDrmStatus);
+                }
+            });
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1351,6 +1648,27 @@ public class XMediaPlayer extends SessionPlayer2 {
          */
         public void onSubtitleData(
                 XMediaPlayer mp, MediaItem2 item, @NonNull SubtitleData2 data) { }
+
+        /**
+         * Called to indicate DRM info is available
+         *
+         * @param mp the {@code MediaPlayer2} associated with this callback
+         * @param item the MediaItem2 of this media item
+         * @param drmInfo DRM info of the source including PSSH, and subset
+         *                of crypto schemes supported by this device
+         */
+        public void onDrmInfo(XMediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) { }
+
+        /**
+         * Called to notify the client that {@link #prepareDrm} is finished and ready for
+         * key request/response.
+         *
+         * @param mp the {@code MediaPlayer2} associated with this callback
+         * @param item the MediaItem2 of this media item
+         * @param status the result of DRM preparation.
+         */
+        public void onDrmPrepared(
+                XMediaPlayer mp, MediaItem2 item, @PrepareDrmStatusCode int status) { }
     }
 
     /**
@@ -1430,6 +1748,63 @@ public class XMediaPlayer extends SessionPlayer2 {
             out.append(", " + mFormat.toString());
             out.append("}");
             return out.toString();
+        }
+    }
+
+    /**
+     * Encapsulates the DRM properties of the source.
+     */
+    public static final class DrmInfo {
+        private final MediaPlayer2.DrmInfo mMp2DrmInfo;
+
+        /**
+         * Returns the PSSH info of the media item for each supported DRM scheme.
+         */
+        public Map<UUID, byte[]> getPssh() {
+            return mMp2DrmInfo.getPssh();
+        }
+
+        /**
+         * Returns the intersection of the media item and the device DRM schemes.
+         * It effectively identifies the subset of the source's DRM schemes which
+         * are supported by the device too.
+         */
+        public List<UUID> getSupportedSchemes() {
+            return mMp2DrmInfo.getSupportedSchemes();
+        }
+
+        DrmInfo(MediaPlayer2.DrmInfo info) {
+            mMp2DrmInfo = info;
+        }
+    };
+
+    /**
+     * Interface definition of a callback to be invoked when the app
+     * can do DRM configuration (get/set properties) before the session
+     * is opened. This facilitates configuration of the properties, like
+     * 'securityLevel', which has to be set after DRM scheme creation but
+     * before the DRM session is opened.
+     *
+     * The only allowed DRM calls in this listener are {@link #getDrmPropertyString}
+     * and {@link #setDrmPropertyString}.
+     */
+    public interface OnDrmConfigHelper {
+        /**
+         * Called to give the app the opportunity to configure DRM before the session is created
+         *
+         * @param mp the {@code XMediaPlayer} associated with this callback
+         * @param item the MediaItem2 of this media item
+         */
+        void onDrmConfig(XMediaPlayer mp, MediaItem2 item);
+    }
+
+    /**
+     * Thrown when a DRM method is called before preparing a DRM scheme through prepareDrm().
+     * Extends MediaDrm.MediaDrmException
+     */
+    public static class NoDrmSchemeException extends MediaDrmException {
+        public NoDrmSchemeException(String detailMessage) {
+            super(detailMessage);
         }
     }
 
