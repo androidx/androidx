@@ -74,6 +74,12 @@
             android:layout_height="wrap_content"
             android:text="@string/sample_text1" />
 
+        <androidx.appcompat.widget.AppCompatToggleButton
+                android:id="@+id/ac_togglebutton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sample_text1" />
+
         <ScrollView
             android:id="@+id/scrollview"
             android:layout_width="match_parent"

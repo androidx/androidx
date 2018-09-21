@@ -176,6 +176,7 @@ public class SwitchCompat extends CompoundButton {
     private Layout mOffLayout;
     private TransformationMethod mSwitchTransformationMethod;
     ObjectAnimator mPositionAnimator;
+    private final AppCompatTextHelper mTextHelper;
 
     @SuppressWarnings("hiding")
     private final Rect mTempRect = new Rect();
@@ -278,6 +279,9 @@ public class SwitchCompat extends CompoundButton {
         if (appearance != 0) {
             setSwitchTextAppearance(context, appearance);
         }
+
+        mTextHelper = new AppCompatTextHelper(this);
+        mTextHelper.loadFromAttributes(attrs, defStyleAttr);
 
         a.recycle();
 

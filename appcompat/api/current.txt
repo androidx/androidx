@@ -323,6 +323,7 @@ package androidx.appcompat.app {
     method protected androidx.appcompat.widget.AppCompatSeekBar createSeekBar(android.content.Context, android.util.AttributeSet);
     method protected androidx.appcompat.widget.AppCompatSpinner createSpinner(android.content.Context, android.util.AttributeSet);
     method protected androidx.appcompat.widget.AppCompatTextView createTextView(android.content.Context, android.util.AttributeSet);
+    method protected androidx.appcompat.widget.AppCompatToggleButton createToggleButton(android.content.Context, android.util.AttributeSet);
     method protected android.view.View createView(android.content.Context, java.lang.String, android.util.AttributeSet);
   }
 
@@ -617,6 +618,12 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context, int);
     method public void setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat>);
     method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
+  }
+
+  public class AppCompatToggleButton extends android.widget.ToggleButton {
+    ctor public AppCompatToggleButton(android.content.Context);
+    ctor public AppCompatToggleButton(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatToggleButton(android.content.Context, android.util.AttributeSet, int);
   }
 
   public class LinearLayoutCompat extends android.view.ViewGroup {

@@ -18,8 +18,6 @@ package androidx.appcompat.app.inflater;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +25,7 @@ import androidx.appcompat.app.AppCompatViewInflater;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.AppCompatToggleButton;
 
 /**
  * Custom view inflater that takes over the inflation of a few widget types.
@@ -76,22 +75,17 @@ public class CustomViewInflater extends AppCompatViewInflater {
         }
     }
 
-    public static class CustomToggleButton extends ToggleButton {
-        public CustomToggleButton(Context context, AttributeSet attrs, int defStyleAttr,
-                int defStyleRes) {
-            super(context, attrs, defStyleAttr, defStyleRes);
-        }
-
-        public CustomToggleButton(Context context, AttributeSet attrs, int defStyleAttr) {
-            super(context, attrs, defStyleAttr);
+    public static class CustomToggleButton extends AppCompatToggleButton {
+        public CustomToggleButton(Context context) {
+            super(context);
         }
 
         public CustomToggleButton(Context context, AttributeSet attrs) {
             super(context, attrs);
         }
 
-        public CustomToggleButton(Context context) {
-            super(context);
+        public CustomToggleButton(Context context, AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
         }
     }
 
@@ -113,12 +107,9 @@ public class CustomViewInflater extends AppCompatViewInflater {
         return new CustomImageButton(context, attrs);
     }
 
-    @Nullable
+    @NonNull
     @Override
-    protected View createView(Context context, String name, AttributeSet attrs) {
-        if (name.equals("ToggleButton")) {
-            return new CustomToggleButton(context, attrs);
-        }
-        return null;
+    protected AppCompatToggleButton createToggleButton(Context context, AttributeSet attrs) {
+        return new CustomToggleButton(context, attrs);
     }
 }
