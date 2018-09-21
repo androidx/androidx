@@ -27,9 +27,9 @@ import com.example.androidx.viewpager2.cards.Card;
 import com.example.androidx.viewpager2.cards.CardView;
 
 /**
- * Shows how to use {@link ViewPager2#setAdapter(RecyclerView.Adapter)}
+ * Shows how to use {@link ViewPager2#setAdapter(RecyclerView.Adapter)} with Views.
  *
- * @see CardFragmentActivity
+ * @see CardFragmentActivity for an example of using {@link ViewPager2} with Fragments.
  */
 public class CardActivity extends BaseCardActivity {
 
@@ -58,18 +58,15 @@ public class CardActivity extends BaseCardActivity {
                 });
     }
 
-    /** @inheritDoc */
     public static class CardViewHolder extends RecyclerView.ViewHolder {
         private final CardView mCardView;
 
-        /** {@inheritDoc} */
-        public CardViewHolder(CardView cardView) {
+        CardViewHolder(CardView cardView) {
             super(cardView.getView());
             mCardView = cardView;
         }
 
-        /** @see CardView#bind(Card) */
-        public void bind(Card card) {
+        void bind(Card card) {
             mCardView.bind(card);
         }
     }
