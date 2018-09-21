@@ -24,9 +24,6 @@ import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.Locale;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -83,33 +80,27 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
 
     static {
         AtomicHelper helper;
-        Throwable thrownUnsafeFailure = null;
         Throwable thrownAtomicReferenceFieldUpdaterFailure = null;
 
+        // The access control checks that ARFU does means the caller class has to be
+        // AbstractFuture instead of SafeAtomicHelper, so we annoyingly define these here
         try {
-            helper = new UnsafeAtomicHelper();
-        } catch (Throwable unsafeFailure) {
-            thrownUnsafeFailure = unsafeFailure;
-            // catch absolutely everything and fall through to our 'SafeAtomicHelper'
-            // The access control checks that ARFU does means the caller class has to be
-            // AbstractFuture instead of SafeAtomicHelper, so we annoyingly define these here
-            try {
-                helper =
-                        new SafeAtomicHelper(
-                                newUpdater(Waiter.class, Thread.class, "thread"),
-                                newUpdater(Waiter.class, Waiter.class, "next"),
-                                newUpdater(AbstractFuture.class, Waiter.class, "waiters"),
-                                newUpdater(AbstractFuture.class, Listener.class, "listeners"),
-                                newUpdater(AbstractFuture.class, Object.class, "value"));
-            } catch (Throwable atomicReferenceFieldUpdaterFailure) {
-                // Some Android 5.0.x Samsung devices have bugs in JDK reflection APIs that cause
-                // getDeclaredField to throw a NoSuchFieldException when the field is definitely
-                // there. For these users fallback to a suboptimal implementation,
-                // based on synchronized. This will be a definite performance hit to those users.
-                thrownAtomicReferenceFieldUpdaterFailure = atomicReferenceFieldUpdaterFailure;
-                helper = new SynchronizedHelper();
-            }
+            helper =
+                    new SafeAtomicHelper(
+                            newUpdater(Waiter.class, Thread.class, "thread"),
+                            newUpdater(Waiter.class, Waiter.class, "next"),
+                            newUpdater(AbstractFuture.class, Waiter.class, "waiters"),
+                            newUpdater(AbstractFuture.class, Listener.class, "listeners"),
+                            newUpdater(AbstractFuture.class, Object.class, "value"));
+        } catch (Throwable atomicReferenceFieldUpdaterFailure) {
+            // Some Android 5.0.x Samsung devices have bugs in JDK reflection APIs that cause
+            // getDeclaredField to throw a NoSuchFieldException when the field is definitely
+            // there. For these users fallback to a suboptimal implementation,
+            // based on synchronized. This will be a definite performance hit to those users.
+            thrownAtomicReferenceFieldUpdaterFailure = atomicReferenceFieldUpdaterFailure;
+            helper = new SynchronizedHelper();
         }
+
         ATOMIC_HELPER = helper;
 
         // Prevent rare disastrous classloading in first call to LockSupport.park.
@@ -120,9 +111,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
         // Log after all static init is finished; if an installed logger uses any Futures
         // methods, it shouldn't break in cases where reflection is missing/broken.
         if (thrownAtomicReferenceFieldUpdaterFailure != null) {
-            log.log(Level.SEVERE, "UnsafeAtomicHelper is broken!", thrownUnsafeFailure);
-            log.log(
-                    Level.SEVERE, "SafeAtomicHelper is broken!",
+            log.log(Level.SEVERE, "SafeAtomicHelper is broken!",
                     thrownAtomicReferenceFieldUpdaterFailure);
         }
     }
@@ -1085,96 +1074,6 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
         abstract boolean casValue(AbstractFuture<?> future, Object expect, Object update);
     }
 
-    /**
-     * {@link AtomicHelper} based on {@link sun.misc.Unsafe}.
-     *
-     * <p>Static initialization of this class will fail if the {@link sun.misc.Unsafe} object cannot
-     * be accessed.
-     */
-    private static final class UnsafeAtomicHelper extends AtomicHelper {
-        static final sun.misc.Unsafe UNSAFE;
-        static final long LISTENERS_OFFSET;
-        static final long WAITERS_OFFSET;
-        static final long VALUE_OFFSET;
-        static final long WAITER_THREAD_OFFSET;
-        static final long WAITER_NEXT_OFFSET;
-
-        static {
-            sun.misc.Unsafe unsafe = null;
-            try {
-                unsafe = sun.misc.Unsafe.getUnsafe();
-            } catch (SecurityException tryReflectionInstead) {
-                try {
-                    unsafe =
-                            AccessController.doPrivileged(
-                                    new PrivilegedExceptionAction<sun.misc.Unsafe>() {
-                                        @Override
-                                        public sun.misc.Unsafe run() throws Exception {
-                                            Class<sun.misc.Unsafe> k = sun.misc.Unsafe.class;
-                                            for (java.lang.reflect.Field f : k.getDeclaredFields()) {
-                                                f.setAccessible(true);
-                                                Object x = f.get(null);
-                                                if (k.isInstance(x)) {
-                                                    return k.cast(x);
-                                                }
-                                            }
-                                            throw new NoSuchFieldError("the Unsafe");
-                                        }
-                                    });
-                } catch (PrivilegedActionException e) {
-                    throw new RuntimeException("Could not initialize intrinsics", e.getCause());
-                }
-            }
-            try {
-                Class<?> abstractFuture = AbstractFuture.class;
-                WAITERS_OFFSET = unsafe.objectFieldOffset(
-                        abstractFuture.getDeclaredField("waiters"));
-                LISTENERS_OFFSET = unsafe.objectFieldOffset(
-                        abstractFuture.getDeclaredField("listeners"));
-                VALUE_OFFSET = unsafe.objectFieldOffset(abstractFuture.getDeclaredField("value"));
-                WAITER_THREAD_OFFSET = unsafe.objectFieldOffset(
-                        Waiter.class.getDeclaredField("thread"));
-                WAITER_NEXT_OFFSET = unsafe.objectFieldOffset(
-                        Waiter.class.getDeclaredField("next"));
-                UNSAFE = unsafe;
-            } catch (Exception e) {
-                throwIfUnchecked(e);
-                throw new RuntimeException(e);
-            }
-        }
-
-        UnsafeAtomicHelper() {
-        }
-
-        @Override
-        void putThread(Waiter waiter, Thread newValue) {
-            UNSAFE.putObject(waiter, WAITER_THREAD_OFFSET, newValue);
-        }
-
-        @Override
-        void putNext(Waiter waiter, Waiter newValue) {
-            UNSAFE.putObject(waiter, WAITER_NEXT_OFFSET, newValue);
-        }
-
-        /** Performs a CAS operation on the {@link #waiters} field. */
-        @Override
-        boolean casWaiters(AbstractFuture<?> future, Waiter expect, Waiter update) {
-            return UNSAFE.compareAndSwapObject(future, WAITERS_OFFSET, expect, update);
-        }
-
-        /** Performs a CAS operation on the {@link #listeners} field. */
-        @Override
-        boolean casListeners(AbstractFuture<?> future, Listener expect, Listener update) {
-            return UNSAFE.compareAndSwapObject(future, LISTENERS_OFFSET, expect, update);
-        }
-
-        /** Performs a CAS operation on the {@link #value} field. */
-        @Override
-        boolean casValue(AbstractFuture<?> future, Object expect, Object update) {
-            return UNSAFE.compareAndSwapObject(future, VALUE_OFFSET, expect, update);
-        }
-    }
-
     /** {@link AtomicHelper} based on {@link AtomicReferenceFieldUpdater}. */
     private static final class SafeAtomicHelper extends AtomicHelper {
         final AtomicReferenceFieldUpdater<Waiter, Thread> waiterThreadUpdater;
@@ -1281,17 +1180,6 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
         CancellationException exception = new CancellationException(message);
         exception.initCause(cause);
         return exception;
-    }
-
-    @SuppressWarnings("WeakerAccess") // Avoiding synthetic accessor.
-    static void throwIfUnchecked(Throwable throwable) {
-        checkNotNull(throwable);
-        if (throwable instanceof RuntimeException) {
-            throw (RuntimeException) throwable;
-        }
-        if (throwable instanceof Error) {
-            throw (Error) throwable;
-        }
     }
 
     @SuppressWarnings("WeakerAccess") // Avoiding synthetic accessor.
