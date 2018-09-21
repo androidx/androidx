@@ -18,8 +18,6 @@ package androidx.car.cluster.navigation;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.location.Location;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -45,7 +43,7 @@ public final class Destination implements VersionedParcelable {
     @ParcelField(4)
     Time mEta;
     @ParcelField(5)
-    Location mLocation;
+    LatLng mLatLng;
 
     /**
      * Used by {@link VersionedParcelable}
@@ -61,12 +59,12 @@ public final class Destination implements VersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP)
     Destination(@NonNull String title, @NonNull String address, @Nullable Distance distance,
-            @Nullable Time eta, @Nullable Location location) {
+            @Nullable Time eta, @Nullable LatLng latlng) {
         mTitle = title;
         mAddress = address;
         mDistance = distance;
         mEta = eta;
-        mLocation = location;
+        mLatLng = latlng;
     }
 
     /**
@@ -77,7 +75,7 @@ public final class Destination implements VersionedParcelable {
         String mAddress;
         Distance mDistance;
         Time mEta;
-        Location mLocation;
+        LatLng mLatLng;
 
         /**
          * Sets the destination title (formatted for the current user's locale), or empty if there
@@ -133,8 +131,8 @@ public final class Destination implements VersionedParcelable {
          * @return this object for chaining
          */
         @NonNull
-        public Builder setLocation(@Nullable Location location) {
-            mLocation = location;
+        public Builder setLocation(@Nullable LatLng latlng) {
+            mLatLng = latlng;
             return this;
         }
 
@@ -143,7 +141,7 @@ public final class Destination implements VersionedParcelable {
          */
         @NonNull
         public Destination build() {
-            return new Destination(mTitle, mAddress, mDistance, mEta, mLocation);
+            return new Destination(mTitle, mAddress, mDistance, mEta, mLatLng);
         }
     }
 
@@ -187,8 +185,8 @@ public final class Destination implements VersionedParcelable {
      * Returns the geo-location of this destination, or null if it was not provided or is unknown.
      */
     @Nullable
-    public Location getLocation() {
-        return mLocation;
+    public LatLng getLocation() {
+        return mLatLng;
     }
 
     @Override
@@ -215,6 +213,6 @@ public final class Destination implements VersionedParcelable {
     @Override
     public String toString() {
         return String.format("{title: %s, address: %s, distance: %s, location: %s, eta: %s}",
-                mTitle, mAddress, mDistance, mLocation, mEta);
+                mTitle, mAddress, mDistance, mLatLng, mEta);
     }
 }
