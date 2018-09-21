@@ -1104,6 +1104,22 @@ public class XMediaPlayerTest {
         mPlayer.unregisterPlayerCallback(callback);
     }
 
+    @Test
+    @MediumTest
+    public void testClose() throws Exception {
+        assertTrue(loadResource(R.raw.testmp3_2));
+        AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                .build();
+        mPlayer.setAudioAttributes(attributes);
+        mPlayer.prepare();
+        mPlayer.play();
+        mPlayer.close();
+
+        // Tests whether the notification from the player after the close() doesn't crash.
+        Thread.sleep(SLEEP_TIME);
+    }
+
     private boolean loadResource(int resid) throws Exception {
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         try {

@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Surface;
 
@@ -66,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * An implementation of {@link MediaPlayer2} based on a repackaged version of ExoPlayer.
@@ -77,6 +79,7 @@ import java.util.concurrent.Executor;
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
+    private static final String TAG = "ExoPlayerMediaPlayer2";
     private static final String USER_AGENT_NAME = "MediaPlayer2";
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -242,12 +245,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         if (executorAndEventCallback != null) {
             Executor executor = executorAndEventCallback.first;
             final EventCallback eventCallback = executorAndEventCallback.second;
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    notifier.notify(eventCallback);
-                }
-            });
+            try {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifier.notify(eventCallback);
+                    }
+                });
+            } catch (RejectedExecutionException e) {
+                // The given executor is shutting down.
+                Log.w(TAG, "The given executor is shutting down. Ignoring the player event.");
+            }
         }
     }
 
@@ -261,12 +269,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         for (int i = 0; i < callbackCount; i++) {
             final Executor executor = map.valueAt(i);
             final MediaPlayerConnector.PlayerEventCallback eventCallback = map.keyAt(i);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    notifier.notify(eventCallback);
-                }
-            });
+            try {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifier.notify(eventCallback);
+                    }
+                });
+            } catch (RejectedExecutionException e) {
+                // The given executor is shutting down.
+                Log.w(TAG, "The given executor is shutting down. Ignoring the player event.");
+            }
         }
     }
 
@@ -417,6 +430,10 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void close() {
+        synchronized (mLock) {
+            mExecutorByPlayerEventCallback.clear();
+            mExecutorAndEventCallback = null;
+        }
         synchronized (mPlayerLock) {
             mPlayer.release();
         }
