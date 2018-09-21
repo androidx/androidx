@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelStore;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * FragmentManagerNonConfig stores the retained instance fragments across
@@ -35,12 +36,12 @@ import java.util.List;
  */
 public class FragmentManagerNonConfig {
     private final @Nullable List<Fragment> mFragments;
-    private final @Nullable List<FragmentManagerNonConfig> mChildNonConfigs;
-    private final @Nullable List<ViewModelStore> mViewModelStores;
+    private final @Nullable Map<String, FragmentManagerNonConfig> mChildNonConfigs;
+    private final @Nullable Map<String, ViewModelStore> mViewModelStores;
 
     FragmentManagerNonConfig(@Nullable List<Fragment> fragments,
-            @Nullable List<FragmentManagerNonConfig> childNonConfigs,
-            @Nullable List<ViewModelStore> viewModelStores) {
+            @Nullable Map<String, FragmentManagerNonConfig> childNonConfigs,
+            @Nullable Map<String, ViewModelStore> viewModelStores) {
         mFragments = fragments;
         mChildNonConfigs = childNonConfigs;
         mViewModelStores = viewModelStores;
@@ -58,7 +59,7 @@ public class FragmentManagerNonConfig {
      * @return the FragmentManagerNonConfigs from any applicable fragment's child FragmentManager
      */
     @Nullable
-    List<FragmentManagerNonConfig> getChildNonConfigs() {
+    Map<String, FragmentManagerNonConfig> getChildNonConfigs() {
         return mChildNonConfigs;
     }
 
@@ -66,7 +67,7 @@ public class FragmentManagerNonConfig {
      * @return the ViewModelStores for all fragments associated with the FragmentManager
      */
     @Nullable
-    List<ViewModelStore> getViewModelStores() {
+    Map<String, ViewModelStore> getViewModelStores() {
         return mViewModelStores;
     }
 }

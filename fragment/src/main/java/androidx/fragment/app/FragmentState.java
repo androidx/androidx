@@ -27,7 +27,7 @@ import androidx.lifecycle.ViewModelStore;
 
 final class FragmentState implements Parcelable {
     final String mClassName;
-    final int mIndex;
+    final String mWho;
     final boolean mFromLayout;
     final int mFragmentId;
     final int mContainerId;
@@ -43,7 +43,7 @@ final class FragmentState implements Parcelable {
 
     FragmentState(Fragment frag) {
         mClassName = frag.getClass().getName();
-        mIndex = frag.mIndex;
+        mWho = frag.mWho;
         mFromLayout = frag.mFromLayout;
         mFragmentId = frag.mFragmentId;
         mContainerId = frag.mContainerId;
@@ -56,7 +56,7 @@ final class FragmentState implements Parcelable {
 
     FragmentState(Parcel in) {
         mClassName = in.readString();
-        mIndex = in.readInt();
+        mWho = in.readString();
         mFromLayout = in.readInt() != 0;
         mFragmentId = in.readInt();
         mContainerId = in.readInt();
@@ -85,7 +85,7 @@ final class FragmentState implements Parcelable {
                 mSavedFragmentState.setClassLoader(classLoader);
                 mInstance.mSavedFragmentState = mSavedFragmentState;
             }
-            mInstance.setIndex(mIndex, parent);
+            mInstance.mWho = mWho;
             mInstance.mFromLayout = mFromLayout;
             mInstance.mRestored = true;
             mInstance.mFragmentId = mFragmentId;
@@ -113,7 +113,7 @@ final class FragmentState implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mClassName);
-        dest.writeInt(mIndex);
+        dest.writeString(mWho);
         dest.writeInt(mFromLayout ? 1 : 0);
         dest.writeInt(mFragmentId);
         dest.writeInt(mContainerId);

@@ -19,22 +19,24 @@ package androidx.fragment.app;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 @SuppressWarnings("BanParcelableUsage")
 final class FragmentManagerState implements Parcelable {
-    FragmentState[] mActive;
-    int[] mAdded;
+    ArrayList<FragmentState> mActive;
+    ArrayList<String> mAdded;
     BackStackState[] mBackStack;
-    int mPrimaryNavActiveIndex = -1;
+    String mPrimaryNavActiveWho = null;
     int mNextFragmentIndex;
 
     public FragmentManagerState() {
     }
 
     public FragmentManagerState(Parcel in) {
-        mActive = in.createTypedArray(FragmentState.CREATOR);
-        mAdded = in.createIntArray();
+        mActive = in.createTypedArrayList(FragmentState.CREATOR);
+        mAdded = in.createStringArrayList();
         mBackStack = in.createTypedArray(BackStackState.CREATOR);
-        mPrimaryNavActiveIndex = in.readInt();
+        mPrimaryNavActiveWho = in.readString();
         mNextFragmentIndex = in.readInt();
     }
 
@@ -45,10 +47,10 @@ final class FragmentManagerState implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeTypedArray(mActive, flags);
-        dest.writeIntArray(mAdded);
+        dest.writeTypedList(mActive);
+        dest.writeStringList(mAdded);
         dest.writeTypedArray(mBackStack, flags);
-        dest.writeInt(mPrimaryNavActiveIndex);
+        dest.writeString(mPrimaryNavActiveWho);
         dest.writeInt(mNextFragmentIndex);
     }
 

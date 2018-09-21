@@ -102,9 +102,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // it is stored here
     @Nullable Boolean mSavedUserVisibleHint;
 
-    // Index into active fragment array.
-    int mIndex = -1;
-
     // Internal unique name for this fragment;
     String mWho;
 
@@ -114,8 +111,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // Target fragment.
     Fragment mTarget;
 
-    // For use when retaining a fragment: this is the index of the last mTarget.
-    int mTargetIndex = -1;
+    // For use when retaining a fragment: this is the who of the last mTarget.
+    String mTargetWho = null;
 
     // Target request code.
     int mTargetRequestCode;
@@ -487,15 +484,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
-    final void setIndex(int index, Fragment parent) {
-        mIndex = index;
-        if (parent != null) {
-            mWho = parent.mWho + ":" + mIndex;
-        } else {
-            mWho = "android:fragment:" + mIndex;
-        }
-    }
-
     final boolean isInBackStack() {
         return mBackStackNesting > 0;
     }
@@ -519,9 +507,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public String toString() {
         StringBuilder sb = new StringBuilder(128);
         DebugUtils.buildShortClassTag(this, sb);
-        if (mIndex >= 0) {
-            sb.append(" #");
-            sb.append(mIndex);
+        if (mWho != null) {
+            sb.append(" (");
+            sb.append(mWho);
+            sb.append(")");
         }
         if (mFragmentId != 0) {
             sb.append(" id=0x");
@@ -560,7 +549,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * if {@link #isStateSaved()} would return true.</p>
      */
     public void setArguments(@Nullable Bundle args) {
-        if (mIndex >= 0 && isStateSaved()) {
+        if (mWho != null && isStateSaved()) {
             throw new IllegalStateException("Fragment already active and state has been saved");
         }
         mArguments = args;
@@ -599,7 +588,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param state The state the fragment should be restored from.
      */
     public void setInitialSavedState(@Nullable SavedState state) {
-        if (mIndex >= 0) {
+        if (mWho != null) {
             throw new IllegalStateException("Fragment already active");
         }
         mSavedFragmentState = state != null && state.mState != null
@@ -1732,7 +1721,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * internally manages, not things the application sets.
      */
     void initState() {
-        mIndex = -1;
         mWho = null;
         mAdded = false;
         mRemoving = false;
@@ -2292,7 +2280,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 writer.print(Integer.toHexString(mContainerId));
                 writer.print(" mTag="); writer.println(mTag);
         writer.print(prefix); writer.print("mState="); writer.print(mState);
-                writer.print(" mIndex="); writer.print(mIndex);
                 writer.print(" mWho="); writer.print(mWho);
                 writer.print(" mBackStackNesting="); writer.println(mBackStackNesting);
         writer.print(prefix); writer.print("mAdded="); writer.print(mAdded);
