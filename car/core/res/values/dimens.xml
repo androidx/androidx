@@ -71,6 +71,7 @@ limitations under the License.
     <dimen name="car_secondary_icon_size">24dp</dimen>
     <dimen name="car_fab_icon_size">76dp</dimen>
     <dimen name="car_app_icon_size">76dp</dimen>
+    <dimen name="car_spinner_dropdown_arrow_size">48dp</dimen>
 
     <!-- Avatars -->
     <dimen name="car_avatar_size">56dp</dimen>
