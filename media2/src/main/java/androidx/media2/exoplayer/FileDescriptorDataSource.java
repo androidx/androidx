@@ -33,7 +33,6 @@ import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.upstream.BaseDataSource;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.upstream.DataSpec;
-import androidx.media2.exoplayer.external.util.Util;
 
 import java.io.EOFException;
 import java.io.FileDescriptor;
@@ -157,7 +156,7 @@ public class FileDescriptorDataSource extends BaseDataSource {
 
     private static void seekFileDescriptor(FileDescriptor fileDescriptor, long position)
             throws IOException {
-        if (Util.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             seekFileDescriptorV21(fileDescriptor, position);
         } else {
             seekFileDescriptorV14(fileDescriptor, position);
