@@ -24,7 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/android:Theme.Holo.Light">
 
-        <activity android:name=".CardActivity" android:label="CardsDemo">
+        <activity android:name=".CardViewActivity" android:label="CardsDemo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.SAMPLE_CODE"/>

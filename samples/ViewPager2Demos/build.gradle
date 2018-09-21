@@ -1,3 +1,5 @@
+import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
+
 /*
  * Copyright (C) 2017 The Android Open Source Project
  *
@@ -17,8 +19,10 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    api(KOTLIN_STDLIB)
     implementation(project(":viewpager2"))
 }
