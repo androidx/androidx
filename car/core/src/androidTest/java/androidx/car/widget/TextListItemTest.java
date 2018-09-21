@@ -774,29 +774,6 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testSettingTitleOrBodyAsPrimaryText() {
-        // Create 2 items, one with Title as primary (default) and one with Body.
-        // The primary text, regardless of view, should have consistent look (as primary).
-        TextListItem item0 = new TextListItem(mActivity);
-        item0.setTitle("title");
-        item0.setBody("body");
-
-        TextListItem item1 = new TextListItem(mActivity);
-        item1.setTitle("title");
-        item1.setBody("body", true);
-
-        List<TextListItem> items = Arrays.asList(item0, item1);
-        setupPagedListView(items);
-
-        TextListItem.ViewHolder titlePrimary = getViewHolderAtPosition(0);
-        TextListItem.ViewHolder bodyPrimary = getViewHolderAtPosition(1);
-        assertThat(titlePrimary.getTitle().getTextSize(),
-                is(equalTo(bodyPrimary.getBody().getTextSize())));
-        assertThat(titlePrimary.getTitle().getTextColors(),
-                is(equalTo(bodyPrimary.getBody().getTextColors())));
-    }
-
-    @Test
     public void testNoCarriedOverOnClickListener() throws Throwable {
         boolean[] clicked = new boolean[] {false};
         TextListItem item0 = new TextListItem(mActivity);
