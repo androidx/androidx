@@ -132,7 +132,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
     private CharSequence mTitle;
     private CharSequence mBody;
-    private boolean mIsBodyPrimary;
 
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
     private Drawable mSupplementalIconDrawable;
@@ -343,23 +342,13 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             mBinders.add(vh -> {
                 vh.getTitle().setVisibility(View.VISIBLE);
                 vh.getTitle().setText(mTitle);
+                vh.getTitle().setTextAppearance(getTitleTextAppearance());
             });
         }
         if (!TextUtils.isEmpty(mBody)) {
             mBinders.add(vh -> {
                 vh.getBody().setVisibility(View.VISIBLE);
                 vh.getBody().setText(mBody);
-            });
-        }
-
-        if (mIsBodyPrimary) {
-            mBinders.add(vh -> {
-                vh.getTitle().setTextAppearance(getBodyTextAppearance());
-                vh.getBody().setTextAppearance(getTitleTextAppearance());
-            });
-        } else {
-            mBinders.add(vh -> {
-                vh.getTitle().setTextAppearance(getTitleTextAppearance());
                 vh.getBody().setTextAppearance(getBodyTextAppearance());
             });
         }
@@ -578,7 +567,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * Sets the title of item.
      *
      * <p>Primary text is {@code Title} by default. It can be set by
-     * {@link #setBody(CharSequence, boolean)}
+     * {@link #setBody(CharSequence)}
      *
      * <p>{@code Title} text is limited to one line, and ellipses at the end.
      *
@@ -592,24 +581,12 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     /**
      * Sets the body text of item.
      *
-     * <p>Text beyond length required by regulation will be truncated. Defaults {@code Title}
-     * text as the primary.
+     * <p>Text beyond length required by regulation will be truncated.
+     *
      * @param body text to be displayed.
      */
     public void setBody(CharSequence body) {
-        setBody(body, false);
-    }
-
-    /**
-     * Sets the body text of item.
-     *
-     * @param body text to be displayed.
-     * @param asPrimary sets {@code Body Text} as primary text of item.
-     */
-    public void setBody(CharSequence body, boolean asPrimary) {
         mBody = body;
-        mIsBodyPrimary = asPrimary;
-
         markDirty();
     }
 
