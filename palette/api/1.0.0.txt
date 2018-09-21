@@ -1,30 +1,31 @@
+// Signature format: 2.0
 package androidx.palette.graphics {
 
   public final class Palette {
     method public static androidx.palette.graphics.Palette.Builder from(android.graphics.Bitmap);
     method public static androidx.palette.graphics.Palette from(java.util.List<androidx.palette.graphics.Palette.Swatch>);
-    method public static deprecated androidx.palette.graphics.Palette generate(android.graphics.Bitmap);
-    method public static deprecated androidx.palette.graphics.Palette generate(android.graphics.Bitmap, int);
-    method public static deprecated android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, androidx.palette.graphics.Palette> generateAsync(android.graphics.Bitmap, androidx.palette.graphics.Palette.PaletteAsyncListener);
-    method public static deprecated android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, androidx.palette.graphics.Palette> generateAsync(android.graphics.Bitmap, int, androidx.palette.graphics.Palette.PaletteAsyncListener);
-    method public int getColorForTarget(androidx.palette.graphics.Target, int);
-    method public int getDarkMutedColor(int);
-    method public androidx.palette.graphics.Palette.Swatch getDarkMutedSwatch();
-    method public int getDarkVibrantColor(int);
-    method public androidx.palette.graphics.Palette.Swatch getDarkVibrantSwatch();
-    method public int getDominantColor(int);
-    method public androidx.palette.graphics.Palette.Swatch getDominantSwatch();
-    method public int getLightMutedColor(int);
-    method public androidx.palette.graphics.Palette.Swatch getLightMutedSwatch();
-    method public int getLightVibrantColor(int);
-    method public androidx.palette.graphics.Palette.Swatch getLightVibrantSwatch();
-    method public int getMutedColor(int);
-    method public androidx.palette.graphics.Palette.Swatch getMutedSwatch();
-    method public androidx.palette.graphics.Palette.Swatch getSwatchForTarget(androidx.palette.graphics.Target);
+    method @Deprecated public static androidx.palette.graphics.Palette generate(android.graphics.Bitmap);
+    method @Deprecated public static androidx.palette.graphics.Palette generate(android.graphics.Bitmap, int);
+    method @Deprecated public static android.os.AsyncTask<android.graphics.Bitmap,java.lang.Void,androidx.palette.graphics.Palette> generateAsync(android.graphics.Bitmap, androidx.palette.graphics.Palette.PaletteAsyncListener);
+    method @Deprecated public static android.os.AsyncTask<android.graphics.Bitmap,java.lang.Void,androidx.palette.graphics.Palette> generateAsync(android.graphics.Bitmap, int, androidx.palette.graphics.Palette.PaletteAsyncListener);
+    method @ColorInt public int getColorForTarget(androidx.palette.graphics.Target, @ColorInt int);
+    method @ColorInt public int getDarkMutedColor(@ColorInt int);
+    method public androidx.palette.graphics.Palette.Swatch? getDarkMutedSwatch();
+    method @ColorInt public int getDarkVibrantColor(@ColorInt int);
+    method public androidx.palette.graphics.Palette.Swatch? getDarkVibrantSwatch();
+    method @ColorInt public int getDominantColor(@ColorInt int);
+    method public androidx.palette.graphics.Palette.Swatch? getDominantSwatch();
+    method @ColorInt public int getLightMutedColor(@ColorInt int);
+    method public androidx.palette.graphics.Palette.Swatch? getLightMutedSwatch();
+    method @ColorInt public int getLightVibrantColor(@ColorInt int);
+    method public androidx.palette.graphics.Palette.Swatch? getLightVibrantSwatch();
+    method @ColorInt public int getMutedColor(@ColorInt int);
+    method public androidx.palette.graphics.Palette.Swatch? getMutedSwatch();
+    method public androidx.palette.graphics.Palette.Swatch? getSwatchForTarget(androidx.palette.graphics.Target);
     method public java.util.List<androidx.palette.graphics.Palette.Swatch> getSwatches();
     method public java.util.List<androidx.palette.graphics.Target> getTargets();
-    method public int getVibrantColor(int);
-    method public androidx.palette.graphics.Palette.Swatch getVibrantSwatch();
+    method @ColorInt public int getVibrantColor(@ColorInt int);
+    method public androidx.palette.graphics.Palette.Swatch? getVibrantSwatch();
   }
 
   public static final class Palette.Builder {
@@ -36,40 +37,40 @@ package androidx.palette.graphics {
     method public androidx.palette.graphics.Palette.Builder clearRegion();
     method public androidx.palette.graphics.Palette.Builder clearTargets();
     method public androidx.palette.graphics.Palette generate();
-    method public android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, androidx.palette.graphics.Palette> generate(androidx.palette.graphics.Palette.PaletteAsyncListener);
+    method public android.os.AsyncTask<android.graphics.Bitmap,java.lang.Void,androidx.palette.graphics.Palette> generate(androidx.palette.graphics.Palette.PaletteAsyncListener);
     method public androidx.palette.graphics.Palette.Builder maximumColorCount(int);
     method public androidx.palette.graphics.Palette.Builder resizeBitmapArea(int);
-    method public deprecated androidx.palette.graphics.Palette.Builder resizeBitmapSize(int);
-    method public androidx.palette.graphics.Palette.Builder setRegion(int, int, int, int);
+    method @Deprecated public androidx.palette.graphics.Palette.Builder resizeBitmapSize(int);
+    method public androidx.palette.graphics.Palette.Builder setRegion(@Px int, @Px int, @Px int, @Px int);
   }
 
-  public static abstract interface Palette.Filter {
-    method public abstract boolean isAllowed(int, float[]);
+  public static interface Palette.Filter {
+    method public boolean isAllowed(@ColorInt int, float[]);
   }
 
-  public static abstract interface Palette.PaletteAsyncListener {
-    method public abstract void onGenerated(androidx.palette.graphics.Palette);
+  public static interface Palette.PaletteAsyncListener {
+    method public void onGenerated(androidx.palette.graphics.Palette?);
   }
 
   public static final class Palette.Swatch {
-    ctor public Palette.Swatch(int, int);
-    method public int getBodyTextColor();
+    ctor public Palette.Swatch(@ColorInt int, int);
+    method @ColorInt public int getBodyTextColor();
     method public float[] getHsl();
     method public int getPopulation();
-    method public int getRgb();
-    method public int getTitleTextColor();
+    method @ColorInt public int getRgb();
+    method @ColorInt public int getTitleTextColor();
   }
 
   public final class Target {
     method public float getLightnessWeight();
-    method public float getMaximumLightness();
-    method public float getMaximumSaturation();
-    method public float getMinimumLightness();
-    method public float getMinimumSaturation();
+    method @FloatRange(from=0, to=1) public float getMaximumLightness();
+    method @FloatRange(from=0, to=1) public float getMaximumSaturation();
+    method @FloatRange(from=0, to=1) public float getMinimumLightness();
+    method @FloatRange(from=0, to=1) public float getMinimumSaturation();
     method public float getPopulationWeight();
     method public float getSaturationWeight();
-    method public float getTargetLightness();
-    method public float getTargetSaturation();
+    method @FloatRange(from=0, to=1) public float getTargetLightness();
+    method @FloatRange(from=0, to=1) public float getTargetSaturation();
     method public boolean isExclusive();
     field public static final androidx.palette.graphics.Target DARK_MUTED;
     field public static final androidx.palette.graphics.Target DARK_VIBRANT;
@@ -84,15 +85,15 @@ package androidx.palette.graphics {
     ctor public Target.Builder(androidx.palette.graphics.Target);
     method public androidx.palette.graphics.Target build();
     method public androidx.palette.graphics.Target.Builder setExclusive(boolean);
-    method public androidx.palette.graphics.Target.Builder setLightnessWeight(float);
-    method public androidx.palette.graphics.Target.Builder setMaximumLightness(float);
-    method public androidx.palette.graphics.Target.Builder setMaximumSaturation(float);
-    method public androidx.palette.graphics.Target.Builder setMinimumLightness(float);
-    method public androidx.palette.graphics.Target.Builder setMinimumSaturation(float);
-    method public androidx.palette.graphics.Target.Builder setPopulationWeight(float);
-    method public androidx.palette.graphics.Target.Builder setSaturationWeight(float);
-    method public androidx.palette.graphics.Target.Builder setTargetLightness(float);
-    method public androidx.palette.graphics.Target.Builder setTargetSaturation(float);
+    method public androidx.palette.graphics.Target.Builder setLightnessWeight(@FloatRange(from=0) float);
+    method public androidx.palette.graphics.Target.Builder setMaximumLightness(@FloatRange(from=0, to=1) float);
+    method public androidx.palette.graphics.Target.Builder setMaximumSaturation(@FloatRange(from=0, to=1) float);
+    method public androidx.palette.graphics.Target.Builder setMinimumLightness(@FloatRange(from=0, to=1) float);
+    method public androidx.palette.graphics.Target.Builder setMinimumSaturation(@FloatRange(from=0, to=1) float);
+    method public androidx.palette.graphics.Target.Builder setPopulationWeight(@FloatRange(from=0) float);
+    method public androidx.palette.graphics.Target.Builder setSaturationWeight(@FloatRange(from=0) float);
+    method public androidx.palette.graphics.Target.Builder setTargetLightness(@FloatRange(from=0, to=1) float);
+    method public androidx.palette.graphics.Target.Builder setTargetSaturation(@FloatRange(from=0, to=1) float);
   }
 
 }

@@ -1,10 +1,11 @@
+// Signature format: 2.0
 package androidx.lifecycle {
 
   public class LifecycleService extends android.app.Service implements androidx.lifecycle.LifecycleOwner {
     ctor public LifecycleService();
     method public androidx.lifecycle.Lifecycle getLifecycle();
-    method public android.os.IBinder onBind(android.content.Intent);
-    method public void onStart(android.content.Intent, int);
+    method @CallSuper public android.os.IBinder? onBind(android.content.Intent);
+    method @CallSuper public void onStart(android.content.Intent, int);
   }
 
   public class ServiceLifecycleDispatcher {
