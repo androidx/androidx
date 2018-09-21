@@ -538,7 +538,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public PersistableBundle getMetrics() {
-        if (Util.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             PersistableBundle bundle = new PersistableBundle();
             TrackGroupArray trackGroupArray;
             long durationMs;
