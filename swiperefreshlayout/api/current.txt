@@ -1,9 +1,8 @@
-// Signature format: 2.0
 package androidx.swiperefreshlayout.widget {
 
   public class CircularProgressDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Animatable {
     ctor public CircularProgressDrawable(android.content.Context);
-    method public void draw(android.graphics.Canvas!);
+    method public void draw(android.graphics.Canvas);
     method public boolean getArrowEnabled();
     method public float getArrowHeight();
     method public float getArrowScale();
@@ -24,7 +23,7 @@ package androidx.swiperefreshlayout.widget {
     method public void setArrowScale(float);
     method public void setBackgroundColor(int);
     method public void setCenterRadius(float);
-    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setColorFilter(android.graphics.ColorFilter);
     method public void setColorSchemeColors(int...);
     method public void setProgressRotation(float);
     method public void setStartEndTrim(float, float);
@@ -39,37 +38,37 @@ package androidx.swiperefreshlayout.widget {
 
   public class SwipeRefreshLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingChild androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingChild3 androidx.core.view.NestedScrollingParent androidx.core.view.NestedScrollingParent2 androidx.core.view.NestedScrollingParent3 {
     ctor public SwipeRefreshLayout(android.content.Context);
-    ctor public SwipeRefreshLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public SwipeRefreshLayout(android.content.Context, android.util.AttributeSet);
     method public boolean canChildScrollUp();
-    method public boolean dispatchNestedPreScroll(int, int, int[]!, int[]!, int);
-    method public void dispatchNestedScroll(int, int, int, int, int[]?, int, int[]);
-    method public boolean dispatchNestedScroll(int, int, int, int, int[]!, int);
+    method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public void dispatchNestedScroll(int, int, int, int, int[], int, int[]);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
     method public int getProgressCircleDiameter();
     method public int getProgressViewEndOffset();
     method public int getProgressViewStartOffset();
     method public boolean hasNestedScrollingParent(int);
     method public boolean isRefreshing();
     method public void onMeasure(int, int);
-    method public void onNestedPreScroll(android.view.View!, int, int, int[]!, int);
+    method public void onNestedPreScroll(android.view.View, int, int, int[], int);
     method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
-    method public void onNestedScroll(android.view.View!, int, int, int, int, int);
-    method public void onNestedScrollAccepted(android.view.View!, android.view.View!, int, int);
-    method public boolean onStartNestedScroll(android.view.View!, android.view.View!, int, int);
-    method public void onStopNestedScroll(android.view.View!, int);
-    method @Deprecated public void setColorScheme(@ColorRes int...!);
-    method public void setColorSchemeColors(@ColorInt int...!);
-    method public void setColorSchemeResources(@ColorRes int...!);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.view.View, int);
+    method public deprecated void setColorScheme(int...);
+    method public void setColorSchemeColors(int...);
+    method public void setColorSchemeResources(int...);
     method public void setDistanceToTriggerSync(int);
-    method public void setOnChildScrollUpCallback(androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChildScrollUpCallback?);
-    method public void setOnRefreshListener(androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener?);
-    method @Deprecated public void setProgressBackgroundColor(int);
-    method public void setProgressBackgroundColorSchemeColor(@ColorInt int);
-    method public void setProgressBackgroundColorSchemeResource(@ColorRes int);
+    method public void setOnChildScrollUpCallback(androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChildScrollUpCallback);
+    method public void setOnRefreshListener(androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener);
+    method public deprecated void setProgressBackgroundColor(int);
+    method public void setProgressBackgroundColorSchemeColor(int);
+    method public void setProgressBackgroundColorSchemeResource(int);
     method public void setProgressViewEndTarget(boolean, int);
     method public void setProgressViewOffset(boolean, int, int);
     method public void setRefreshing(boolean);
     method public void setSize(int);
-    method public void setSlingshotDistance(@Px int);
+    method public void setSlingshotDistance(int);
     method public boolean startNestedScroll(int, int);
     method public void stopNestedScroll(int);
     field public static final int DEFAULT = 1; // 0x1
@@ -79,12 +78,12 @@ package androidx.swiperefreshlayout.widget {
     field protected int mOriginalOffsetTop;
   }
 
-  public static interface SwipeRefreshLayout.OnChildScrollUpCallback {
-    method public boolean canChildScrollUp(androidx.swiperefreshlayout.widget.SwipeRefreshLayout, android.view.View?);
+  public static abstract interface SwipeRefreshLayout.OnChildScrollUpCallback {
+    method public abstract boolean canChildScrollUp(androidx.swiperefreshlayout.widget.SwipeRefreshLayout, android.view.View);
   }
 
-  public static interface SwipeRefreshLayout.OnRefreshListener {
-    method public void onRefresh();
+  public static abstract interface SwipeRefreshLayout.OnRefreshListener {
+    method public abstract void onRefresh();
   }
 
 }

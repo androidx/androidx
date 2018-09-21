@@ -1,24 +1,23 @@
-// Signature format: 2.0
 package androidx.car.moderator {
 
   public class ContentRateLimiter {
-    ctor public ContentRateLimiter(@FloatRange(from=0, fromInclusive=false) double, @FloatRange(from=0) double, @IntRange(from=0) long);
-    method @MainThread public double getAvailablePermits();
+    ctor public ContentRateLimiter(double, double, long);
+    method public double getAvailablePermits();
     method public double getMaxStoredPermits();
-    method public void setAcquiredPermitsRate(@FloatRange(from=0, fromInclusive=false) double);
-    method @MainThread public void setAvailablePermits(double);
-    method public void setMaxStoredPermits(@FloatRange(from=0) double);
-    method public void setPermitFillDelay(@IntRange(from=0) long);
+    method public void setAcquiredPermitsRate(double);
+    method public void setAvailablePermits(double);
+    method public void setMaxStoredPermits(double);
+    method public void setPermitFillDelay(long);
     method public void setUnlimitedMode(boolean);
-    method @MainThread public boolean tryAcquire();
-    method @MainThread public boolean tryAcquire(int);
+    method public boolean tryAcquire();
+    method public boolean tryAcquire(int);
   }
 
   public class SpeedBumpView extends android.widget.FrameLayout {
-    ctor public SpeedBumpView(android.content.Context!);
-    ctor public SpeedBumpView(android.content.Context!, android.util.AttributeSet!);
-    ctor public SpeedBumpView(android.content.Context!, android.util.AttributeSet!, int);
-    ctor public SpeedBumpView(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public SpeedBumpView(android.content.Context);
+    ctor public SpeedBumpView(android.content.Context, android.util.AttributeSet);
+    ctor public SpeedBumpView(android.content.Context, android.util.AttributeSet, int);
+    ctor public SpeedBumpView(android.content.Context, android.util.AttributeSet, int, int);
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
   }

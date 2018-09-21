@@ -1,15 +1,14 @@
-// Signature format: 2.0
 package androidx.customview.view {
 
   public abstract class AbsSavedState implements android.os.Parcelable {
     ctor protected AbsSavedState(android.os.Parcelable);
     ctor protected AbsSavedState(android.os.Parcel);
-    ctor protected AbsSavedState(android.os.Parcel, ClassLoader?);
+    ctor protected AbsSavedState(android.os.Parcel, java.lang.ClassLoader);
     method public int describeContents();
-    method public final android.os.Parcelable? getSuperState();
-    method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<androidx.customview.view.AbsSavedState>! CREATOR;
-    field public static final androidx.customview.view.AbsSavedState! EMPTY_STATE;
+    method public final android.os.Parcelable getSuperState();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.customview.view.AbsSavedState> CREATOR;
+    field public static final androidx.customview.view.AbsSavedState EMPTY_STATE;
   }
 
 }
@@ -22,15 +21,15 @@ package androidx.customview.widget {
     method public final boolean dispatchHoverEvent(android.view.MotionEvent);
     method public final boolean dispatchKeyEvent(android.view.KeyEvent);
     method public final int getAccessibilityFocusedVirtualViewId();
-    method @Deprecated public int getFocusedVirtualView();
+    method public deprecated int getFocusedVirtualView();
     method public final int getKeyboardFocusedVirtualViewId();
     method protected abstract int getVirtualViewAt(float, float);
-    method protected abstract void getVisibleVirtualViews(java.util.List<java.lang.Integer>!);
+    method protected abstract void getVisibleVirtualViews(java.util.List<java.lang.Integer>);
     method public final void invalidateRoot();
     method public final void invalidateVirtualView(int);
     method public final void invalidateVirtualView(int, int);
-    method public final void onFocusChanged(boolean, int, android.graphics.Rect?);
-    method protected abstract boolean onPerformActionForVirtualView(int, int, android.os.Bundle?);
+    method public final void onFocusChanged(boolean, int, android.graphics.Rect);
+    method protected abstract boolean onPerformActionForVirtualView(int, int, android.os.Bundle);
     method protected void onPopulateEventForHost(android.view.accessibility.AccessibilityEvent);
     method protected void onPopulateEventForVirtualView(int, android.view.accessibility.AccessibilityEvent);
     method protected void onPopulateNodeForHost(androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
@@ -50,21 +49,21 @@ package androidx.customview.widget {
     method public boolean checkTouchSlop(int);
     method public boolean checkTouchSlop(int, int);
     method public boolean continueSettling(boolean);
-    method public static androidx.customview.widget.ViewDragHelper! create(android.view.ViewGroup, androidx.customview.widget.ViewDragHelper.Callback);
-    method public static androidx.customview.widget.ViewDragHelper! create(android.view.ViewGroup, float, androidx.customview.widget.ViewDragHelper.Callback);
-    method public android.view.View? findTopChildUnder(int, int);
+    method public static androidx.customview.widget.ViewDragHelper create(android.view.ViewGroup, androidx.customview.widget.ViewDragHelper.Callback);
+    method public static androidx.customview.widget.ViewDragHelper create(android.view.ViewGroup, float, androidx.customview.widget.ViewDragHelper.Callback);
+    method public android.view.View findTopChildUnder(int, int);
     method public void flingCapturedView(int, int, int, int);
     method public int getActivePointerId();
-    method public android.view.View? getCapturedView();
-    method @Px public int getEdgeSize();
+    method public android.view.View getCapturedView();
+    method public int getEdgeSize();
     method public float getMinVelocity();
-    method @Px public int getTouchSlop();
+    method public int getTouchSlop();
     method public int getViewDragState();
     method public boolean isCapturedViewUnder(int, int);
     method public boolean isEdgeTouched(int);
     method public boolean isEdgeTouched(int, int);
     method public boolean isPointerDown(int);
-    method public boolean isViewUnder(android.view.View?, int, int);
+    method public boolean isViewUnder(android.view.View, int, int);
     method public void processTouchEvent(android.view.MotionEvent);
     method public void setEdgeTrackingEnabled(int);
     method public void setMinVelocity(float);
@@ -85,7 +84,7 @@ package androidx.customview.widget {
     field public static final int STATE_SETTLING = 2; // 0x2
   }
 
-  public abstract static class ViewDragHelper.Callback {
+  public static abstract class ViewDragHelper.Callback {
     ctor public ViewDragHelper.Callback();
     method public int clampViewPositionHorizontal(android.view.View, int, int);
     method public int clampViewPositionVertical(android.view.View, int, int);
@@ -97,7 +96,7 @@ package androidx.customview.widget {
     method public void onEdgeTouched(int, int);
     method public void onViewCaptured(android.view.View, int);
     method public void onViewDragStateChanged(int);
-    method public void onViewPositionChanged(android.view.View, int, int, @Px int, @Px int);
+    method public void onViewPositionChanged(android.view.View, int, int, int, int);
     method public void onViewReleased(android.view.View, float, float);
     method public abstract boolean tryCaptureView(android.view.View, int);
   }
