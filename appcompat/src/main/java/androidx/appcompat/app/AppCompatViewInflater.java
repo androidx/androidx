@@ -42,6 +42,7 @@ import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.appcompat.widget.AppCompatSeekBar;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.appcompat.widget.TintContextWrapper;
 import androidx.collection.ArrayMap;
 import androidx.core.view.ViewCompat;
@@ -150,6 +151,10 @@ public class AppCompatViewInflater {
                 view = createSeekBar(context, attrs);
                 verifyNotNull(view, name);
                 break;
+            case "ToggleButton":
+                view = createToggleButton(context, attrs);
+                verifyNotNull(view, name);
+                break;
             default:
                 // The fallback that allows extending class to take over view inflation
                 // for other tags. Note that we don't check that the result is not-null.
@@ -237,6 +242,11 @@ public class AppCompatViewInflater {
     @NonNull
     protected AppCompatSeekBar createSeekBar(Context context, AttributeSet attrs) {
         return new AppCompatSeekBar(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatToggleButton createToggleButton(Context context, AttributeSet attrs) {
+        return new AppCompatToggleButton(context, attrs);
     }
 
     private void verifyNotNull(View view, String name) {

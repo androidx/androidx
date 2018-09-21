@@ -109,23 +109,23 @@
                 android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatCheckBoxActivity"
-                android:label="@string/app_compat_checkbox_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
-
-        <activity
-                android:name="androidx.appcompat.widget.AppCompatCheckBoxActivity"
-                android:label="@string/app_compat_checkbox_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
-
-        <activity
                 android:name="androidx.appcompat.widget.AppCompatRadioButtonActivity"
                 android:label="@string/app_compat_radio_button_activity"
                 android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.SearchViewTestActivity"
-                android:label="@string/search_view_activity"
+                android:name="androidx.appcompat.widget.AppCompatCheckBoxActivity"
+                android:label="@string/app_compat_checkbox_activity"
+                android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+                android:name="androidx.appcompat.widget.AppCompatToggleButtonActivity"
+                android:label="@string/app_compat_toggle_button_activity"
+                android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+                android:name="androidx.appcompat.widget.SwitchCompatActivity"
+                android:label="@string/switch_compat_activity"
                 android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
