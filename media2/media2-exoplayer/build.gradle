@@ -38,7 +38,7 @@ afterEvaluate {
     android.libraryVariants.all { variant ->
         project.tasks.getByName("compile${variant.name.capitalize()}JavaWithJavac").doLast {
             copy {
-              from zipTree("${projectDir}/src/main/libs/exoplayer-core-media2.jar")
+              from zipTree("${projectDir}/src/main/libs/exoplayer-media2.jar")
               into("${buildDir}/intermediates/javac/${variant.name}/" +
                       "compile${variant.name.capitalize()}JavaWithJavac/classes")
             }
