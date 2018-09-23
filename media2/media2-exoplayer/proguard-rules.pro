@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Proguard rules specific to the core module.
-
 # Constructors accessed via reflection in DefaultRenderersFactory
 -dontnote androidx.media2.exoplayer.external.ext.vp9.LibvpxVideoRenderer
 -keepclassmembers class androidx.media2.exoplayer.external.ext.vp9.LibvpxVideoRenderer {
