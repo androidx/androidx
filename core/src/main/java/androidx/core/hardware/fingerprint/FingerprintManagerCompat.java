@@ -38,7 +38,10 @@ import javax.crypto.Mac;
  * <p>
  * On platforms before {@link android.os.Build.VERSION_CODES#M}, this class behaves as there would
  * be no fingerprint hardware available.
+ *
+ * @deprecated Use {@code androidx.biometrics.BiometricPrompt} instead.
  */
+@Deprecated
 public final class FingerprintManagerCompat {
 
     private final Context mContext;
