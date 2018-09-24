@@ -20,6 +20,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -29,8 +30,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.car.R;
@@ -43,6 +47,7 @@ import androidx.car.R;
  */
 public class CarAlertDialog extends Dialog {
     private final CharSequence mTitle;
+    private final Icon mIcon;
     private final CharSequence mBody;
     private final CharSequence mPositiveButtonText;
     private final OnClickListener mPositiveButtonListener;
@@ -56,7 +61,9 @@ public class CarAlertDialog extends Dialog {
     private final int mButtonSpacing;
 
     private View mContentView;
+    private View mHeaderView;
     private TextView mTitleView;
+    private ImageView mIconView;
     private TextView mBodyView;
 
     private View mButtonPanel;
@@ -68,6 +75,7 @@ public class CarAlertDialog extends Dialog {
         super(context, getDialogTheme(context));
 
         mTitle = builder.mTitle;
+        mIcon = builder.mIcon;
         mBody = builder.mBody;
         mPositiveButtonText = builder.mPositiveButtonText;
         mPositiveButtonListener = builder.mPositiveButtonListener;
@@ -102,30 +110,57 @@ public class CarAlertDialog extends Dialog {
         setBody(mBody);
         setPositiveButton(mPositiveButtonText);
         setNegativeButton(mNegativeButtonText);
-        // setTitleInternal() should be called last because we want to center title and adjust
-        // padding depending on body/button configuration.
+        setHeaderIcon(mIcon);
         setTitleInternal(mTitle);
+        // setupHeader() should be called last because we want to center title and adjust
+        // padding depending on icon/body/button configuration.
+        setupHeader();
+    }
+
+    private void setHeaderIcon(@Nullable Icon icon) {
+        if (icon != null) {
+            mIconView.setImageIcon(icon);
+            mIconView.setVisibility(View.VISIBLE);
+        } else {
+            mIconView.setVisibility(View.GONE);
+        }
     }
 
     private void setTitleInternal(CharSequence title) {
         boolean hasTitle = !TextUtils.isEmpty(title);
-        boolean hasBody = mBodyView.getVisibility() == View.VISIBLE;
-        boolean hasButton = mButtonPanel.getVisibility() == View.VISIBLE;
 
         mTitleView.setText(title);
         mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
+    }
+
+    private void setupHeader() {
+        boolean hasTitle = mTitleView.getVisibility() == View.VISIBLE;
+        boolean hasIcon = mIconView.getVisibility() == View.VISIBLE;
+        boolean hasBody = mBodyView.getVisibility() == View.VISIBLE;
+        boolean hasButton = mButtonPanel.getVisibility() == View.VISIBLE;
+        boolean onlyTitle = !hasIcon && !hasButton && !hasBody;
 
         // If there's a title, then remove the padding at the top of the content view.
-        int topPadding = hasTitle ? 0 : mTopPadding;
+        int topPadding = (hasTitle || hasIcon) ? 0 : mTopPadding;
 
         // If there is only title, also remove the padding at the bottom so title is
         // vertically centered.
-        int bottomPadding = !hasButton && !hasBody ? 0 : mContentView.getPaddingBottom();
+        int bottomPadding = onlyTitle ? 0 : mContentView.getPaddingBottom();
         mContentView.setPaddingRelative(
                 mContentView.getPaddingStart(),
                 topPadding,
                 mContentView.getPaddingEnd(),
                 bottomPadding);
+
+        // Remove the Header padding if there's an icon.
+        int headerTopPadding = hasIcon ? mHeaderView.getPaddingTop() : 0;
+        int headerBottomPadding = hasIcon ? mHeaderView.getPaddingBottom() : 0;
+
+        mHeaderView.setPaddingRelative(
+                mHeaderView.getPaddingStart(),
+                headerTopPadding,
+                mHeaderView.getPaddingEnd(),
+                headerBottomPadding);
     }
 
     private void setBody(CharSequence body) {
@@ -273,6 +308,8 @@ public class CarAlertDialog extends Dialog {
         Window window = getWindow();
 
         mContentView = window.findViewById(R.id.content_view);
+        mHeaderView = window.findViewById(R.id.header_view);
+        mIconView = window.findViewById(R.id.icon_view);
         mTitleView = window.findViewById(R.id.title);
         mBodyView = window.findViewById(R.id.body);
 
@@ -361,6 +398,7 @@ public class CarAlertDialog extends Dialog {
     public static final class Builder {
         private final Context mContext;
 
+        Icon mIcon;
         CharSequence mTitle;
         CharSequence mBody;
         CharSequence mPositiveButtonText;
@@ -379,6 +417,33 @@ public class CarAlertDialog extends Dialog {
          */
         public Builder(Context context) {
             mContext = context;
+        }
+
+        /**
+         * Sets the header icon of the dialog to be the given int resource id.
+         * Passing-in an invalid id will throw a NotFoundException.
+         *
+         * @param iconId The resource id of the Icon to be used as the header icon.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         */
+        @NonNull
+        public Builder setHeaderIcon(@DrawableRes int iconId) {
+            String resource  = mContext.getResources().getResourceTypeName(iconId);
+            mIcon = Icon.createWithResource(mContext, iconId);
+            return this;
+        }
+
+        /**
+         * Sets the header icon of the dialog to be the given Icon.
+         * Passing-in a null icon will hide the ImageView in the header.
+         *
+         * @param icon The Icon to be used as the header icon.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         */
+        @NonNull
+        public Builder setHeaderIcon(@Nullable Icon icon) {
+            mIcon = icon;
+            return this;
         }
 
         /**

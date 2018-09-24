@@ -9,6 +9,8 @@ package androidx.car.app {
     method public androidx.car.app.CarAlertDialog.Builder setBody(int);
     method public androidx.car.app.CarAlertDialog.Builder setBody(java.lang.CharSequence);
     method public androidx.car.app.CarAlertDialog.Builder setCancelable(boolean);
+    method public androidx.car.app.CarAlertDialog.Builder setHeaderIcon(int);
+    method public androidx.car.app.CarAlertDialog.Builder setHeaderIcon(android.graphics.drawable.Icon);
     method public androidx.car.app.CarAlertDialog.Builder setNegativeButton(int, android.content.DialogInterface.OnClickListener);
     method public androidx.car.app.CarAlertDialog.Builder setNegativeButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
     method public androidx.car.app.CarAlertDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
