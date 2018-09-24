@@ -21,6 +21,7 @@ import com.android.tools.build.jetifier.core.config.Config
 import com.android.tools.build.jetifier.core.pom.DependencyVersions
 import com.android.tools.build.jetifier.core.type.JavaType
 import com.android.tools.build.jetifier.core.utils.Log
+import java.nio.file.Path
 import java.util.regex.Pattern
 
 /**
@@ -93,12 +94,12 @@ class TransformationContext(
      * Reports that there was a package reference found in a manifest file during a support library
      * artifact rewrite but no mapping was found for it.
      */
-    fun reportNoPackageMappingFoundFailure(tag: String, packageName: String, fileName: String) {
+    fun reportNoPackageMappingFoundFailure(tag: String, packageName: String, filePath: Path) {
         if (!useFallbackIfTypeIsMissing || (rewritingSupportLib && isInReversedMode)) {
             packageMappingNotFoundFailuresCounts++
-            Log.e(tag, "No mapping for package '%s' in '%s'", packageName, fileName)
+            Log.e(tag, "No mapping for package '%s' in '%s'", packageName, filePath)
         } else {
-            Log.w(tag, "No mapping for package '%s' in '%s'", packageName, fileName)
+            Log.w(tag, "No mapping for package '%s' in '%s'", packageName, filePath)
         }
     }
 }

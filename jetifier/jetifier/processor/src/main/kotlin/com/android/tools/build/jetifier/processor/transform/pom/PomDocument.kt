@@ -155,7 +155,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
             context.reportNoPackageMappingFoundFailure(
                 TAG,
                 dependency.toStringNotation(),
-                file.relativePath.toString())
+                file.relativePath)
         }
 
         // No rule to rewrite => keep it

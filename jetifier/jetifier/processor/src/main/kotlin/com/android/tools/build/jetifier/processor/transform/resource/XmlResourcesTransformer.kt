@@ -25,6 +25,7 @@ import com.android.tools.build.jetifier.processor.transform.TransformationContex
 import com.android.tools.build.jetifier.processor.transform.Transformer
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 import java.util.regex.Pattern
 import javax.xml.stream.XMLInputFactory
 
@@ -56,7 +57,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
      */
     private val patterns = listOf(
         Pattern.compile("</?([a-zA-Z0-9.]+)"), // </{candidate} or <{candidate}
-        Pattern.compile("[a-zA-Z0-9:]+=\"([a-zA-Z0-9.\$_]+)\""), // any="{candidate}"
+        Pattern.compile("[a-zA-Z0-9:]+=\"([^\"]+)\""), // any="{candidate}"
         Pattern.compile(">\\s*([a-zA-Z0-9.\$_]+)<") // >{candidate}<
     )
 
@@ -71,9 +72,16 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         val charset = getCharset(file.data)
         val sb = StringBuilder(file.data.toString(charset))
 
-        val changesDone = replaceWithPatterns(sb, patterns, file.relativePath.toString())
+        val changesDone = replaceWithPatterns(sb, patterns, file.relativePath)
         if (changesDone) {
             file.setNewData(sb.toString().toByteArray(charset))
+        }
+
+        // If we are dealing with linter annotations we need to move the xml files also
+        if (context.isInReversedMode &&
+                changesDone &&
+                file.relativePath.toString().endsWith("annotations.xml")) {
+            file.updateRelativePath(rewriteAnnotationsXmlPath(file.relativePath))
         }
     }
 
@@ -99,7 +107,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
     private fun replaceWithPatterns(
         sb: StringBuilder,
         patterns: List<Pattern>,
-        fileName: String
+        filePath: Path
     ): Boolean {
         var changesDone = false
 
@@ -116,11 +124,19 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
 
                 val toReplace = matcher.group(PATTERN_TYPE_GROUP)
                 val matched = matcher.group(0)
-                val replacement = if (isPackage(toReplace)) {
-                    rewritePackage(toReplace, fileName)
+                var replacement = if (isPackage(toReplace)) {
+                    rewritePackage(toReplace, filePath)
                 } else {
                     rewriteType(toReplace)
                 }
+
+                // Try if we are rewriting annotations file and replace symbols there
+                if (context.isInReversedMode &&
+                        replacement == toReplace &&
+                        filePath.toString().endsWith("annotations.xml")) {
+                    replacement = tryToRewriteTypesInAnnotationFile(toReplace)
+                }
+
                 changesDone = changesDone || replacement != toReplace
 
                 val localStart = matcher.start(PATTERN_TYPE_GROUP) - matcher.start()
@@ -148,6 +164,10 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
     }
 
     private fun rewriteType(typeName: String): String {
+        if (typeName.contains(" ")) {
+            return typeName
+        }
+
         val type = JavaType.fromDotVersion(typeName)
         val result = context.typeRewriter.rewriteType(type)
         if (result != null) {
@@ -158,7 +178,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         return typeName
     }
 
-    private fun rewritePackage(packageName: String, fileName: String): String {
+    private fun rewritePackage(packageName: String, filePath: Path): String {
         if (!packageName.contains('.')) {
             // Single word packages are not something we need or should rewrite
             return packageName
@@ -172,9 +192,45 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         }
 
         if (context.config.isEligibleForRewrite(pckg)) {
-            context.reportNoPackageMappingFoundFailure(TAG, packageName, fileName)
+            context.reportNoPackageMappingFoundFailure(TAG, packageName, filePath)
         }
 
         return packageName
+    }
+
+    /**
+     * This is supposed to be used to rewrite tokens in annotation files. These are special in the
+     * way that they contain method declarations. Rewriting these requires to cut them into tokens
+     * first.
+     */
+    private fun tryToRewriteTypesInAnnotationFile(type: String): String {
+        // Cut the input into tokens to separate androidx references
+        val tokens = type.split(" ", ",", "(", ")", "{", "}", ";")
+        var result = type
+
+        tokens.forEach {
+            val rewritten = rewriteType(it)
+            if (rewritten != it) {
+                result = result.replace(it, rewritten)
+            }
+        }
+
+        return result
+    }
+
+    private fun rewriteAnnotationsXmlPath(path: Path): Path {
+        val owner = path.toFile().path.replace('\\', '/').removeSuffix(".xml")
+        val type = JavaType(owner)
+
+        val result = context.typeRewriter.rewriteType(type)
+        if (result == null) {
+            context.reportNoMappingFoundFailure("PathRewrite", type)
+            return path
+        }
+
+        if (result != type) {
+            return path.fileSystem.getPath(result.fullName + ".xml")
+        }
+        return path
     }
 }
