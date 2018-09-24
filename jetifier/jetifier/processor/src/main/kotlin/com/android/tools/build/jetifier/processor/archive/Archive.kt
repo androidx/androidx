@@ -38,8 +38,12 @@ import java.util.zip.ZipOutputStream
  */
 class Archive(
     override val relativePath: Path,
-    val files: List<ArchiveItem>
+    files: List<ArchiveItem>
 ) : ArchiveItem {
+
+    private val _files: MutableList<ArchiveItem> = files.toMutableList()
+
+    val files: List<ArchiveItem> = _files
 
     companion object {
         /** Defines file extensions that are recognized as archives */
@@ -75,6 +79,14 @@ class Archive(
 
     fun writeSelf(): File {
         return writeSelfToFile(targetPath)
+    }
+
+    fun removeItem(item: ArchiveItem) {
+        _files.remove(item)
+    }
+
+    fun addItem(item: ArchiveItem) {
+        _files.add(item)
     }
 
     @Throws(IOException::class)

@@ -129,19 +129,19 @@ class Processor private constructor(
     }
 
     private val oldDependenciesRegex: List<Regex> = context.config.pomRewriteRules.map {
-        Regex(".*"
-            + it.from.groupId!!.replace(".", "[./\\\\]")
-            + "[./\\\\]"
-            + it.from.artifactId
-            + "[./\\\\].*")
+        Regex(".*" +
+            it.from.groupId!!.replace(".", "[./\\\\]") +
+            "[./\\\\]" +
+            it.from.artifactId +
+            "[./\\\\].*")
     }
 
     private val newDependenciesRegex: List<Regex> = context.config.pomRewriteRules.map {
-        Regex(".*"
-            + it.to.groupId!!.replace(".", "[./\\\\]")
-            + "[./\\\\]"
-            + it.to.artifactId
-            + "[./\\\\].*")
+        Regex(".*" +
+            it.to.groupId!!.replace(".", "[./\\\\]") +
+            "[./\\\\]" +
+            it.to.artifactId +
+            "[./\\\\].*")
     }
 
     /**
@@ -248,8 +248,8 @@ class Processor private constructor(
      */
     fun getDependenciesMap(filterOutBaseLibrary: Boolean = true): Map<String, String> {
         return context.config.pomRewriteRules
-            .filter { !filterOutBaseLibrary || !(it.from.artifactId == "baseLibrary"
-                    && it.from.groupId == "com.android.databinding") }
+            .filter { !filterOutBaseLibrary || !(it.from.artifactId == "baseLibrary" &&
+                    it.from.groupId == "com.android.databinding") }
             .map {
                 (context.versions.applyOnConfigPomDep(it.from).toStringNotationWithoutVersion()
                     to context.versions.applyOnConfigPomDep(it.to).toStringNotation()) }
@@ -314,6 +314,12 @@ class Processor private constructor(
 
     override fun visit(archive: Archive) {
         archive.files.forEach { it.accept(this) }
+
+        // This is an ugly workaround to merge annotations files due to having old and new
+        // namespaces  at the same time
+        if (context.isInReversedMode) {
+            AnnotationFilesMerger.tryMergeFilesInArchive(archive)
+        }
     }
 
     override fun visit(archiveFile: ArchiveFile) {
