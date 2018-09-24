@@ -19,6 +19,7 @@ package androidx.ui.gestures.team
 import androidx.ui.gestures.arena.GestureArenaEntry
 import androidx.ui.gestures.arena.GestureArenaMember
 import androidx.ui.gestures.arena.GestureDisposition
+import androidx.ui.gestures.binding.GestureBinding
 
 // TODO(Migration/shepshapard): Need tests, which are dependent on OneSequenceGestureRecognizer
 internal class _CombiningGestureArenaMember(
@@ -52,19 +53,18 @@ internal class _CombiningGestureArenaMember(
         }
     }
 
-    fun _close() {
+    internal fun _close() {
         assert(!_resolved)
         _resolved = true
         val combiner: _CombiningGestureArenaMember? = _owner._combiners.remove(_pointer)
         assert(combiner == this)
     }
 
-    fun _add(pointer: Int, member: GestureArenaMember): GestureArenaEntry {
+    internal fun _add(pointer: Int, member: GestureArenaMember): GestureArenaEntry {
         assert(!_resolved)
         assert(_pointer == pointer)
         _members.add(member)
-        // TODO(Migration/shepshapard): GestureBinding needed...
-        // _entry = _entry ?: GestureBinding.instance.gestureArena.add(pointer, this)
+        _entry = _entry ?: GestureBinding.instance!!.gestureArena.add(pointer, this)
         return _CombiningGestureArenaEntry(this, member)
     }
 

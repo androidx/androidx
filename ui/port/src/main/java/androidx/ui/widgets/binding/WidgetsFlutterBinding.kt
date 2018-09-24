@@ -2,6 +2,7 @@ package androidx.ui.widgets.binding
 
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.binding.BindingBaseImpl
+import androidx.ui.gestures.binding.GestureBinding
 import androidx.ui.rendering.binding.RendererBindingImpl
 import androidx.ui.scheduler.binding.SchedulerBindingImpl
 import androidx.ui.services.ServicesBindingImpl
@@ -14,15 +15,28 @@ class WidgetsFlutterBinding {
     companion object {
 
         fun create(window: Window): WidgetsBinding {
+
             val base = BindingBaseImpl()
-            return WidgetsBindingImpl(
+
+            val rendererBinding = RendererBindingImpl(
+                window,
+                base,
+                SchedulerBindingImpl(
                     window,
                     base,
-                    RendererBindingImpl(window,
-                            base,
-                            SchedulerBindingImpl(window,
-                                    base,
-                                    ServicesBindingImpl(base)))
+                    ServicesBindingImpl(base)
+                )
+            )
+
+            return WidgetsBindingImpl(
+                window,
+                base,
+                GestureBinding.initInstance(
+                    window,
+                    base,
+                    rendererBinding
+                ),
+                rendererBinding
             )
         }
     }

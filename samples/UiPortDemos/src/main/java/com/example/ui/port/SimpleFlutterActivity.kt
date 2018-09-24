@@ -46,7 +46,7 @@ class SimpleFlutterActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         setContentView(CraneView(this,
-                ViewCompatTestWidget(Key.createKey("ViewCompatTestWidget"))))
+                createTestMirrorImageWidget()))
     }
 
     class ViewCompatTestWidget(key: Key) : StatelessWidget(key) {

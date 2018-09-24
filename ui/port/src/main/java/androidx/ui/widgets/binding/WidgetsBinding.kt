@@ -9,6 +9,7 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.binding.BindingBase
+import androidx.ui.gestures.binding.GestureBinding
 import androidx.ui.rendering.binding.RendererBinding
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
@@ -37,6 +38,7 @@ open class WidgetsMixinsWrapper(
 class WidgetsBindingImpl(
     window: Window,
     base: BindingBase,
+    gesture: GestureBinding,
     renderer: RendererBinding
 ) : WidgetsMixinsWrapper(base, renderer), WidgetsBinding /* with GestureBinding */ {
 

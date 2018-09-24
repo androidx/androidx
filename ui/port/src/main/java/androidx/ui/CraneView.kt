@@ -18,8 +18,11 @@ package androidx.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
 import android.view.ViewGroup
 import androidx.ui.compositing.Scene
+import androidx.ui.core.Duration
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.window.Window
 import androidx.ui.engine.window.WindowPadding
@@ -27,6 +30,9 @@ import androidx.ui.flow.CompositorContext
 import androidx.ui.foundation.Key
 import androidx.ui.painting.Canvas
 import androidx.ui.skia.SkMatrix
+import androidx.ui.ui.pointer.PointerChange
+import androidx.ui.ui.pointer.PointerData
+import androidx.ui.ui.pointer.PointerDataPacket
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.widgets.binding.WidgetsFlutterBinding
 import androidx.ui.widgets.binding.runApp
@@ -71,6 +77,25 @@ class CraneView(
         // ordering of Crane Widgets and traditional Views
         // CraneView will draw it's widgets first view onDraw and default ViewGroup behavior will
         // draw child Views after it draws itself
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val pointerDataPacket = PointerDataPacket()
+        val change =
+            when (event.actionMasked) {
+                ACTION_DOWN -> PointerChange.down
+                else -> PointerChange.up
+            }
+        pointerDataPacket.data.add(PointerData(
+            timeStamp = Duration.create(milliseconds = event.eventTime),
+            change = change,
+            physicalX = event.x.toDouble(),
+            physicalY = event.y.toDouble()
+        ))
+
+        window.onPointerDataPacket.offer(pointerDataPacket)
+
+        return true
     }
 
     private fun updateMetrics() {

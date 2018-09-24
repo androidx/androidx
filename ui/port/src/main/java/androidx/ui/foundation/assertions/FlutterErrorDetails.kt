@@ -31,11 +31,11 @@ open class FlutterErrorDetails(
         // / callback, then [FlutterError.defaultStackFilter] is used instead. That
         // / function expects the stack to be in the format used by
         // / [StackTrace.toString].
-    val stack: Array<StackTraceElement> = arrayOf(),
+    val stack: Array<StackTraceElement>? = null,
         // / A human-readable brief name describing the library that caught the error
         // / message. This is used by the default error handler in the header dumped to
         // / the console.
-    val library: String = "Flutter framework",
+    val library: String? = "Flutter framework",
         // / A human-readable description of where the error was caught (as opposed to
         // / where it was thrown).
     val context: String? = null,

@@ -46,7 +46,8 @@ import androidx.ui.gestures.arena.GestureArenaMember
 // /
 // / To assign a gesture recognizer to a team, set
 // / [OneSequenceGestureRecognizer.team] to an instance of [GestureArenaTeam].
-// TODO(Migration/shepshapard): Need tests, which are dependent on OneSequenceGestureRecognizer
+// TODO(Migration/shepshapard): Need tests, which are dependent on HorizontalDragGestureRecognizer
+// and VerticalDragGestureRecognizer
 class GestureArenaTeam {
     internal val _combiners: MutableMap<Int, _CombiningGestureArenaMember> = mutableMapOf()
 
