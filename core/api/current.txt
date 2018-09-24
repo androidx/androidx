@@ -1077,7 +1077,7 @@ package androidx.core.hardware.display {
 
 package androidx.core.hardware.fingerprint {
 
-  public final class FingerprintManagerCompat {
+  public final deprecated class FingerprintManagerCompat {
     method public void authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler);
     method public static androidx.core.hardware.fingerprint.FingerprintManagerCompat from(android.content.Context);
     method public boolean hasEnrolledFingerprints();
