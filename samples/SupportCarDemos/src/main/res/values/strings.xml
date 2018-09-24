@@ -82,6 +82,7 @@
 
     <!-- Strings for CarAlertDialog Demo. -->
     <string name="alert_dialog_checkbox_title">Title</string>
+    <string name="alert_dialog_checkbox_image">Image</string>
     <string name="alert_dialog_checkbox_body">Body</string>
     <string name="alert_dialog_checkbox_single_line_body">Single Line Body</string>
     <string name="alert_dialog_checkbox_action1">Action 1</string>
