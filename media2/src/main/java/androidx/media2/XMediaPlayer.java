@@ -655,7 +655,7 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     @Override
     public MediaItem2 getCurrentMediaItem() {
-        throw new UnsupportedOperationException();
+        return mPlayer.getCurrentMediaItem();
     }
 
     @Override
@@ -670,9 +670,13 @@ public class XMediaPlayer extends SessionPlayer2 {
      * media item and calling {@link #prepare()}.
      */
     public void reset() {
+        mPlayer.reset();
         synchronized (mCallTypeAndFutures) {
+            // Cancel the pending futures.
+            for (Pair<Integer, SettableFuture<CommandResult2>> pair : mCallTypeAndFutures) {
+                pair.second.cancel(true);
+            }
             mCallTypeAndFutures.clear();
-            mPlayer.reset();
         }
         synchronized (mStateLock) {
             mState = PLAYER_STATE_IDLE;
@@ -1189,8 +1193,12 @@ public class XMediaPlayer extends SessionPlayer2 {
             synchronized (mCallTypeAndFutures) {
                 pair = mCallTypeAndFutures.pollFirst();
             }
+            if (pair == null) {
+                Log.i(TAG, "No matching call type for " + what + ". Possibly because of reset().");
+                return;
+            }
             if (what != pair.first) {
-                Log.w(TAG, "Call type does not match. expeced:" + pair.first + " actual:" + what);
+                Log.w(TAG, "Call type does not match. expected:" + pair.first + " actual:" + what);
                 status = MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN;
             }
             if (status == MediaPlayer2.CALL_STATUS_NO_ERROR) {

@@ -567,6 +567,25 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      */
     @Override
     public void reset() {
+        clearPendingCommands();
+        mEndPositionHandler.removeCallbacksAndMessages(null);
+        mTaskHandler.removeCallbacksAndMessages(null);
+
+        // Make sure that the current task finishes.
+        Task currentTask;
+        synchronized (mTaskLock) {
+            currentTask = mCurrentTask;
+        }
+        if (currentTask != null) {
+            synchronized (currentTask) {
+                try {
+                    while (!currentTask.mDone) {
+                        currentTask.wait();
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        }
         mPlayer.reset();
     }
 
@@ -910,6 +929,22 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 }
             }
         }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void clearListeners(final MediaPlayerSource src) {
+        MediaPlayer p = src.getPlayer();
+        p.setOnPreparedListener(null);
+        p.setOnVideoSizeChangedListener(null);
+        p.setOnInfoListener(null);
+        p.setOnCompletionListener(null);
+        p.setOnErrorListener(null);
+        p.setOnSeekCompleteListener(null);
+        p.setOnTimedMetaDataAvailableListener(null);
+        p.setOnBufferingUpdateListener(null);
+        p.clearOnMediaTimeDiscontinuityListener();
+        p.clearOnSubtitleDataListener();
+        p.setOnDrmInfoListener(null);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1274,6 +1309,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         final boolean mNeedToWaitForEventToComplete;
         MediaItem2 mDSD;
         boolean mSkip;
+        @GuardedBy("this")
+        boolean mDone;
 
         Task(int mediaCallType, boolean needToWaitForEventToComplete) {
             mMediaCallType = mediaCallType;
@@ -1322,6 +1359,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     mCurrentTask = null;
                     processPendingTask_l();
                 }
+            }
+            // reset() might be waiting for this task. Notify that the task is done.
+            synchronized (this) {
+                mDone = true;
+                this.notifyAll();
             }
         }
 
@@ -1381,6 +1423,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
             return mPlayer;
         }
+
+        void release() {
+            clearListeners(this);
+            mPlayer.release();
+        }
     }
 
     private class MediaPlayerSourceQueue {
@@ -1430,7 +1477,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             // Clear next media items if any.
             while (mQueue.size() >= 2) {
                 MediaPlayerSource src = mQueue.remove(1);
-                src.mPlayer.release();
+                src.release();
             }
             MediaPlayerSource src = new MediaPlayerSource(item);
             mQueue.add(1, src);
@@ -1444,7 +1491,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             // Clear next media items if any.
             while (mQueue.size() >= 2) {
                 MediaPlayerSource src = mQueue.remove(1);
-                src.mPlayer.release();
+                src.release();
             }
             List<MediaPlayerSource> sources = new ArrayList<>();
             for (MediaItem2 item: descs) {
@@ -1658,7 +1705,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         synchronized void moveToNext() {
             final MediaPlayerSource src1 = mQueue.remove(0);
-            src1.getPlayer().release();
+            src1.release();
             if (mQueue.isEmpty()) {
                 throw new IllegalStateException("player/source queue emptied");
             }
@@ -1743,7 +1790,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
             MediaPlayerSource src = mQueue.get(n);
             try {
-                // Apply audio session ID before calling setMediaItem().
+                // Apply audio session ID before calling setDataSource().
                 if (mAudioSessionId != null) {
                     src.getPlayer().setAudioSessionId(mAudioSessionId);
                 }
@@ -1841,9 +1888,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized void reset() {
-            MediaPlayerSource src = mQueue.get(0);
-            src.getPlayer().reset();
-            src.mBufferedPercentage.set(0);
             mVolume = 1.0f;
             mSurface = null;
             mAuxEffect = null;
@@ -1854,8 +1898,15 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             mPlaybackParamsToSetWhenStarting = null;
             mLooping = false;
 
-            setMp2State(src.getPlayer(), PLAYER_STATE_IDLE);
-            setBufferingState(src.getPlayer(), MediaPlayerConnector.BUFFERING_STATE_UNKNOWN);
+            MediaPlayerSource first = mQueue.get(0);
+            setMp2State(first.getPlayer(), PLAYER_STATE_IDLE);
+            setBufferingState(first.getPlayer(), MediaPlayerConnector.BUFFERING_STATE_UNKNOWN);
+
+            for (MediaPlayerSource src : mQueue) {
+                src.release();
+            }
+            mQueue.clear();
+            mQueue.add(new MediaPlayerSource(null));
         }
 
         synchronized MediaTimestamp2 getTimestamp() {
