@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+    <!-- The animation consists of 2 parts:
+     1. The dialog will shrink to 95% of the original size
+     2. The opacity will go from 100% to 0% -->
+
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:anim/accelerate_interpolator">
+  <alpha xmlns:android="http://schemas.android.com/apk/res/android"
+      android:fromAlpha="1.0"
+      android:toAlpha="0.0"
+      android:delay="@integer/car_dialog_exit_start_delay_ms"
+      android:duration="@integer/car_dialog_exit_duration_ms" />
+  <scale xmlns:android="http://schemas.android.com/apk/res/android"
+      android:fromXScale="1.0"
+      android:toXScale="@dimen/car_dialog_anim_exit_scale_small"
+      android:fromYScale="1.0"
+      android:toYScale="@dimen/car_dialog_anim_exit_scale_small"
+      android:pivotX="50%"
+      android:pivotY="50%"
+      android:delay="@integer/car_dialog_exit_start_delay_ms"
+      android:duration="@integer/car_dialog_exit_duration_delayed_ms"/>
+</set>
