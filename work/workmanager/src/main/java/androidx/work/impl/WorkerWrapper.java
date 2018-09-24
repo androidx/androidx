@@ -250,14 +250,15 @@ public class WorkerWrapper implements Runnable {
                     // turn into a no-op. We still need to notify potential observers
                     // holding on to wake locks on our behalf.
                     notifyListener(false);
+                    isWorkFinished = true;
                 } else if (state == RUNNING) {
                     handleResult(result);
+                    // Update state after a call to handleResult()
+                    state = mWorkSpecDao.getState(mWorkSpecId);
+                    isWorkFinished = state.isFinished();
                 } else if (!state.isFinished()) {
                     rescheduleAndNotify();
                 }
-                // Update state after a call to handleResult()
-                state = mWorkSpecDao.getState(mWorkSpecId);
-                isWorkFinished = state.isFinished();
                 mWorkDatabase.setTransactionSuccessful();
             } finally {
                 mWorkDatabase.endTransaction();
