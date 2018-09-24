@@ -174,7 +174,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void notifyWhenCommandLabelReached(final Object label) {
-        addTask(new Task(CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED, false) {
+        _notifyWhenCommandLabelReached(label);
+    }
+
+    @Override
+    public Object _notifyWhenCommandLabelReached(final Object label) {
+        return addTask(new Task(CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED, false) {
             @Override
             void process() {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
@@ -194,7 +199,14 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private void addTask(Task task) {
+    @Override
+    public boolean cancel(Object token) {
+        synchronized (mTaskLock) {
+            return mPendingTasks.remove(token);
+        }
+    }
+
+    private Object addTask(Task task) {
         synchronized (mTaskLock) {
             if (task.mMediaCallType == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
                 Task previous = mPendingTasks.peekLast();
@@ -206,6 +218,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             mPendingTasks.add(task);
             processPendingTask();
         }
+        return task;
     }
 
     @GuardedBy("mTaskLock")
@@ -296,7 +309,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void setMediaItem(final MediaItem2 item) {
-        addTask(new Task(CALL_COMPLETED_SET_DATA_SOURCE, false) {
+        _setMediaItem(item);
+    }
+
+    @Override
+    public Object _setMediaItem(final MediaItem2 item) {
+        return addTask(new Task(CALL_COMPLETED_SET_DATA_SOURCE, false) {
             @Override
             void process() {
                 Preconditions.checkNotNull(item);
@@ -317,7 +335,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void prepare() {
-        addTask(new Task(CALL_COMPLETED_PREPARE, true) {
+        _prepare();
+    }
+
+    @Override
+    public Object _prepare() {
+        return addTask(new Task(CALL_COMPLETED_PREPARE, true) {
             @Override
             void process() {
                 MediaItem2 item = getCurrentMediaItem();
@@ -332,7 +355,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void play() {
-        addTask(new Task(CALL_COMPLETED_PLAY, false) {
+        _play();
+    }
+
+    @Override
+    public Object _play() {
+        return addTask(new Task(CALL_COMPLETED_PLAY, false) {
             @Override
             void process() {
                 synchronized (mPlayerLock) {
@@ -344,7 +372,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void pause() {
-        addTask(new Task(CALL_COMPLETED_PAUSE, false) {
+        _pause();
+    }
+
+    @Override
+    public Object _pause() {
+        return addTask(new Task(CALL_COMPLETED_PAUSE, false) {
             @Override
             void process() {
                 synchronized (mPlayerLock) {
@@ -417,7 +450,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void loopCurrent(final boolean loop) {
-        addTask(new Task(CALL_COMPLETED_LOOP_CURRENT, false) {
+        _loopCurrent(loop);
+    }
+
+    @Override
+    public Object _loopCurrent(final boolean loop) {
+        return addTask(new Task(CALL_COMPLETED_LOOP_CURRENT, false) {
             @Override
             void process() {
                 synchronized (mPlayerLock) {
@@ -453,7 +491,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void setAudioAttributes(final AudioAttributesCompat attributes) {
-        addTask(new Task(CALL_COMPLETED_SET_AUDIO_ATTRIBUTES, false) {
+        _setAudioAttributes(attributes);
+    }
+
+    @Override
+    public Object _setAudioAttributes(final AudioAttributesCompat attributes) {
+        return addTask(new Task(CALL_COMPLETED_SET_AUDIO_ATTRIBUTES, false) {
             @Override
             void process() {
                 synchronized (mPlayerLock) {
@@ -473,8 +516,13 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void attachAuxEffect(final int effectId) {
-        addTask(new Task(CALL_COMPLETED_ATTACH_AUX_EFFECT, false) {
+    public void attachAuxEffect(int effectId) {
+        _attachAuxEffect(effectId);
+    }
+
+    @Override
+    public Object _attachAuxEffect(final int effectId) {
+        return addTask(new Task(CALL_COMPLETED_ATTACH_AUX_EFFECT, false) {
             @Override
             void process() {
                 float auxEffectSendLevel;
@@ -490,8 +538,13 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setAuxEffectSendLevel(final float auxEffectSendLevel) {
-        addTask(new Task(CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL, false) {
+    public void setAuxEffectSendLevel(float level) {
+        _setAuxEffectSendLevel(level);
+    }
+
+    @Override
+    public Object _setAuxEffectSendLevel(final float auxEffectSendLevel) {
+        return addTask(new Task(CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL, false) {
             @Override
             void process() {
                 int auxEffectId;
@@ -522,7 +575,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void setSurface(final Surface surface) {
-        addTask(new Task(CALL_COMPLETED_SET_SURFACE, false) {
+        _setSurface(surface);
+    }
+
+    @Override
+    public Object _setSurface(final Surface surface) {
+        return addTask(new Task(CALL_COMPLETED_SET_SURFACE, false) {
             @Override
             void process() {
                 synchronized (mPlayerLock) {
@@ -534,7 +592,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void setPlayerVolume(final float volume) {
-        addTask(new Task(CALL_COMPLETED_SET_PLAYER_VOLUME, false) {
+        _setPlayerVolume(volume);
+    }
+
+    @Override
+    public Object _setPlayerVolume(final float volume) {
+        return addTask(new Task(CALL_COMPLETED_SET_PLAYER_VOLUME, false) {
             @Override
             void process() {
                 synchronized (mPlayerLock) {
@@ -627,7 +690,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
+    public Object _skipToNext() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setNextMediaItem(MediaItem2 item) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object _setNextMediaItem(MediaItem2 item) {
         throw new UnsupportedOperationException();
     }
 
@@ -637,7 +710,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
+    public Object _setNextMediaItems(List<MediaItem2> items) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setPlaybackParams(PlaybackParams2 params) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object _setPlaybackParams(PlaybackParams2 params) {
         throw new UnsupportedOperationException();
     }
 
@@ -652,12 +735,22 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
+    public Object _seekTo(long msec, int mode) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public MediaTimestamp2 getTimestamp() {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setAudioSessionId(int sessionId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object _setAudioSessionId(int sessionId) {
         throw new UnsupportedOperationException();
     }
 
@@ -677,7 +770,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
+    public Object _selectTrack(int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void deselectTrack(int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object _deselectTrack(int index) {
         throw new UnsupportedOperationException();
     }
 
