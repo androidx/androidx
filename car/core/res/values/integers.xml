@@ -24,6 +24,12 @@ limitations under the License.
 
     <!-- Dialogs -->
     <integer name="car_dialog_column_number">10</integer>
+    <integer name="car_dialog_enter_duration_ms">233</integer>
+    <integer name="car_dialog_enter_duration_scaleup_ms">133</integer>
+    <integer name="car_dialog_enter_duration_scaledown_ms">100</integer>
+    <integer name="car_dialog_exit_duration_ms">75</integer>
+    <integer name="car_dialog_exit_start_delay_ms">25</integer>
+    <integer name="car_dialog_exit_duration_delayed_ms">50</integer>
 
     <!-- Slide Up Menu -->
     <integer name="car_slide_up_menu_column_number">4</integer>
