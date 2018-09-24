@@ -25,7 +25,9 @@ limitations under the License.
     android:elevation="@dimen/car_dialog_elevation"
     app:cardBackgroundColor="?attr/dialogBackgroundColor"
     app:cardCornerRadius="@dimen/car_radius_3">
-
+    <!-- Using multiple nested LinearLayouts because the Dialog will support partial
+         components (i.e. allow removing some components such as the Icon, Title, or
+         body. Relative or Constraint Layouts will not perform well in this case.-->
     <LinearLayout
         android:id="@+id/content_view"
         android:layout_width="match_parent"
@@ -36,14 +38,30 @@ limitations under the License.
         android:paddingBottom="@dimen/car_padding_4"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/title"
+        <LinearLayout
+            android:id="@+id/header_view"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/car_dialog_header_height"
-            android:gravity="center_vertical|start"
-            android:visibility="gone"
-            style="?attr/dialogTitleStyle" />
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/car_padding_4"
+            android:paddingBottom="@dimen/car_padding_2"
+            android:orientation="horizontal">
 
+            <ImageView
+                android:id="@+id/icon_view"
+                android:layout_height="@dimen/car_app_icon_size"
+                android:layout_width="@dimen/car_app_icon_size"
+                android:gravity="start"
+                android:visibility="gone"
+                android:layout_marginEnd="@dimen/car_padding_4"/>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/car_dialog_header_height"
+                android:gravity="center_vertical|start"
+                android:visibility="gone"
+                style="?attr/dialogTitleStyle" />
+        </LinearLayout>
         <TextView
             android:id="@+id/body"
             android:layout_width="wrap_content"
@@ -61,7 +79,6 @@ limitations under the License.
 
             <Button
                 android:id="@+id/positive_button"
-                android:layout_marginEnd="@dimen/car_padding_4"
                 android:layout_width="wrap_content"
                 android:minWidth="0dp"
                 android:padding="0dp"
