@@ -37,7 +37,11 @@ class TransformLayer : ContainerLayer() {
 
 //        TODO(Migration/Andrey): Not porting SkAutoCanvasRestore for now
 //        SkAutoCanvasRestore save(context.canvas, true)
-        context.canvas.concat(transform!!)
+        // Note Flutter pre-scales the canvas here and always renders in density independent pixels
+        // instead of physical pixels.
+        // Stick to physical pixels in Crane
+
+        // context.canvas.concat(transform!!)
         PaintChildren(context)
     }
 
