@@ -6,15 +6,17 @@ import androidx.ui.runtimeType
 import androidx.ui.widgets.framework.State
 import androidx.ui.widgets.framework.StatefulWidget
 
-// / A global key with a debugging label.
-// /
-// / The debug label is useful for documentation and for debugging. The label
-// / does not affect the key's identity.
-// /
-// / Ctor comment:
-// / Creates a global key with a debugging label.
-// /
-// / The label does not affect the key's identity.
+/**
+ * A global key with a debugging label.
+ *
+ * The debug label is useful for documentation and for debugging. The label
+ * does not affect the key's identity.
+ *
+ * Ctor comment:
+ * Creates a global key with a debugging label.
+ *
+ * The label does not affect the key's identity.
+ */
 // ignore: prefer_const_constructors_in_immutables , never use const for this class
 class LabeledGlobalKey<T : State<StatefulWidget>>(
     private val _debugLabel: String

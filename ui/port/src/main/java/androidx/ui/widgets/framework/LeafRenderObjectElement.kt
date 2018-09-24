@@ -3,7 +3,7 @@ package androidx.ui.widgets.framework
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.rendering.obj.RenderObject
 
-// / An [Element] that uses a [LeafRenderObjectWidget] as its configuration.
+/** An [Element] that uses a [LeafRenderObjectWidget] as its configuration. */
 open class LeafRenderObjectElement(widget: LeafRenderObjectWidget) : RenderObjectElement(widget) {
 
     override fun forgetChild(child: Element) {

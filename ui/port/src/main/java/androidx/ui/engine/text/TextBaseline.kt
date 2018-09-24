@@ -16,12 +16,12 @@
 
 package androidx.ui.engine.text
 
-// / A horizontal line used for aligning text.
+/** A horizontal line used for aligning text. */
 enum class TextBaseline {
-    // / The horizontal line used to align the bottom of glyphs for alphabetic characters.
+    /** The horizontal line used to align the bottom of glyphs for alphabetic characters. */
     alphabetic,
 
     // TODO(Migration/siyamed): We cannot support this in current system, afaik.
-    // / The horizontal line used to align ideographic characters.
+    /** The horizontal line used to align ideographic characters. */
     ideographic
 }

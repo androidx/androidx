@@ -16,17 +16,17 @@
 
 package androidx.ui.gestures.lsq_solver
 
-// / Uses the least-squares algorithm to fit a polynomial to a set of data.
+/** Uses the least-squares algorithm to fit a polynomial to a set of data. */
 class LeastSquaresSolver(
-    // / The x-coordinates of each data point.
+    /** The x-coordinates of each data point. */
     val x: DoubleArray,
-    // / The y-coordinates of each data point.
+    /** The y-coordinates of each data point. */
     val y: DoubleArray,
-    // / The weight to use for each data point.
+    /** The weight to use for each data point. */
     val w: DoubleArray
 ) {
 
-    // / Fits a polynomial of the given degree to the data points.
+    /** Fits a polynomial of the given degree to the data points. */
     fun solve(degree: Int): PolynomialFit? {
         if (degree > x.size) {
             return null

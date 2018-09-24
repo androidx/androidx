@@ -32,15 +32,19 @@ package androidx.ui.gestures.lsq_solver
  * limitations under the License.
  */
 
-// / An nth degree polynomial fit to a dataset.
-// / There are n + 1 coefficients in a fit of degree n.
+/**
+ * An nth degree polynomial fit to a dataset.
+ * There are n + 1 coefficients in a fit of degree n.
+ */
 class PolynomialFit(degree: Int) {
 
-    // / The polynomial coefficients of the fit.
+    /** The polynomial coefficients of the fit. */
     val coefficients: Array<Double> = Array(degree + 1) { 0.0 }
 
-    // / An indicator of the quality of the fit.
-    // /
-    // / Larger values indicate greater quality.
+    /**
+     * An indicator of the quality of the fit.
+     *
+     * Larger values indicate greater quality.
+     */
     var confidence: Double = 0.0
 }

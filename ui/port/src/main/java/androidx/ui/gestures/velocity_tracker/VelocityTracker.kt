@@ -22,23 +22,25 @@ import androidx.ui.gestures.lsq_solver.LeastSquaresSolver
 import androidx.ui.gestures.lsq_solver.PolynomialFit
 import kotlin.math.absoluteValue
 
-// / Computes a pointer's velocity based on data from [PointerMoveEvent]s.
-// /
-// / The input data is provided by calling [addPosition]. Adding data is cheap.
-// /
-// / To obtain a velocity, call [getVelocity] or [getVelocityEstimate]. This will
-// / compute the velocity based on the data added so far. Only call these when
-// / you need to use the velocity, as they are comparatively expensive.
-// /
-// / The quality of the velocity estimation will be better if more data points
-// / have been received.
+/**
+ * Computes a pointer's velocity based on data from [PointerMoveEvent]s.
+ *
+ * The input data is provided by calling [addPosition]. Adding data is cheap.
+ *
+ * To obtain a velocity, call [getVelocity] or [getVelocityEstimate]. This will
+ * compute the velocity based on the data added so far. Only call these when
+ * you need to use the velocity, as they are comparatively expensive.
+ *
+ * The quality of the velocity estimation will be better if more data points
+ * have been received.
+ */
 open class VelocityTracker {
 
     // Circular buffer; current sample at _index.
     private val _samples: Array<_PointAtTime?> = Array(_kHistorySize) { null }
     private var _index: Int = 0
 
-    // / Adds a position as the given time to the tracker.
+    /** Adds a position as the given time to the tracker. */
     fun addPosition(time: Duration, position: Offset) {
         _index += 1
         if (_index == _kHistorySize) {
@@ -47,12 +49,14 @@ open class VelocityTracker {
         _samples[_index] = _PointAtTime(position, time)
     }
 
-    // / Returns an estimate of the velocity of the object being tracked by the
-    // / tracker given the current information available to the tracker.
-    // /
-    // / Information is added using [addPosition].
-    // /
-    // / Returns null if there is no data on which to base an estimate.
+    /**
+     * Returns an estimate of the velocity of the object being tracked by the
+     * tracker given the current information available to the tracker.
+     *
+     * Information is added using [addPosition].
+     *
+     * Returns null if there is no data on which to base an estimate.
+     */
     open fun getVelocityEstimate(): VelocityEstimate? {
         val x: MutableList<Double> = mutableListOf()
         val y: MutableList<Double> = mutableListOf()
@@ -123,13 +127,15 @@ open class VelocityTracker {
         )
     }
 
-    // / Computes the velocity of the pointer at the time of the last
-    // / provided data point.
-    // /
-    // / This can be expensive. Only call this when you need the velocity.
-    // /
-    // / Returns [Velocity.zero] if there is no data from which to compute an
-    // / estimate or if the estimated velocity is zero.
+    /**
+     * Computes the velocity of the pointer at the time of the last
+     * provided data point.
+     *
+     * This can be expensive. Only call this when you need the velocity.
+     *
+     * Returns [Velocity.zero] if there is no data from which to compute an
+     * estimate or if the estimated velocity is zero.
+     */
     open fun getVelocity(): Velocity {
         val estimate: VelocityEstimate? = this.getVelocityEstimate()
         if (estimate == null || estimate.pixelsPerSecond == Offset.zero) {

@@ -16,11 +16,11 @@
 
 package androidx.ui.gestures.arena
 
-// / Whether the gesture was accepted or rejected.
+/** Whether the gesture was accepted or rejected. */
 enum class GestureDisposition {
-    // / This gesture was accepted as the interpretation of the user's input.
+    /** This gesture was accepted as the interpretation of the user's input. */
     accepted,
 
-    // / This gesture was rejected as the interpretation of the user's input.
+    /** This gesture was rejected as the interpretation of the user's input. */
     rejected
 }

@@ -16,11 +16,13 @@
 
 package androidx.ui.rendering.box
 
-// / A mixin that provides useful default behaviors for boxes with children
-// / managed by the [ContainerRenderObjectMixin] mixin.
-// /
-// / By convention, this class doesn't override any members of the superclass.
-// / Instead, it provides helpful functions that subclasses can call as
-// / appropriate.
+/**
+ * A mixin that provides useful default behaviors for boxes with children
+ * managed by the [ContainerRenderObjectMixin] mixin.
+ *
+ * By convention, this class doesn't override any members of the superclass.
+ * Instead, it provides helpful functions that subclasses can call as
+ * appropriate.
+ */
 // Note(Migration/Mihai): the contents supposed to be in this file were
 //                        moved to ContainerRenderObjectMixin

@@ -21,23 +21,27 @@ import androidx.ui.foundation.assertions.InformationCollector
 import androidx.ui.gestures.events.PointerEvent
 import androidx.ui.gestures.hit_test.HitTestEntry
 
-// / Variant of [FlutterErrorDetails] with extra fields for the gesture
-// / library's binding's pointer event dispatcher ([GestureBinding.dispatchEvent]).
-// /
-// / See also [FlutterErrorDetailsForPointerRouter], which is also used by the
-// / gesture library.
+/**
+ * Variant of [FlutterErrorDetails] with extra fields for the gesture
+ * library's binding's pointer event dispatcher ([GestureBinding.dispatchEvent]).
+ *
+ * See also [FlutterErrorDetailsForPointerRouter], which is also used by the
+ * gesture library.
+ */
 class FlutterErrorDetailsForPointerEventDispatcher(
     exception: Exception,
     stack: Array<StackTraceElement>? = null,
     library: String? = null,
     context: String? = null,
-    // / The pointer event that was being routed when the exception was raised.
+    /** The pointer event that was being routed when the exception was raised. */
     val event: PointerEvent? = null,
-    // / The hit test result entry for the object whose handleEvent method threw
-    // / the exception.
-    // /
-    // / The target object itself is given by the [HitTestEntry.target] property of
-    // / the hitTestEntry object.
+    /**
+     * The hit test result entry for the object whose handleEvent method threw
+     * the exception.
+     *
+     * The target object itself is given by the [HitTestEntry.target] property of
+     * the hitTestEntry object.
+     */
     val hitTestEntry: HitTestEntry? = null,
     informationCollector: InformationCollector? = null,
     silent: Boolean = false

@@ -1,62 +1,68 @@
 package androidx.ui.foundation.diagnostics
 
-// / Property where the description is either [ifTrue] or [ifFalse] depending on
-// / whether [value] is true or false.
-// /
-// / Using [FlagProperty] instead of [DiagnosticsProperty<bool>] can make
-// / diagnostics display more polished. For example, given a property named
-// / `visible` that is typically true, the following code will return 'hidden'
-// / when `visible` is false and nothing when visible is true, in contrast to
-// / `visible: true` or `visible: false`.
-// /
-// / ## Sample code
-// /
-// / ```dart
-// / new FlagProperty(
-// /   'visible',
-// /   value: true,
-// /   ifFalse: 'hidden',
-// / )
-// / ```
-// /
-// / [FlagProperty] should also be used instead of [DiagnosticsProperty<bool>]
-// / if showing the bool value would not clearly indicate the meaning of the
-// / property value.
-// /
-// / ```dart
-// / new FlagProperty(
-// /   'inherit',
-// /   value: inherit,
-// /   ifTrue: '<all styles inherited>',
-// /   ifFalse: '<no style specified>',
-// / )
-// / ```
-// /
-// / See also:
-// /
-// /  * [ObjectFlagProperty], which provides similar behavior describing whether
-// /    a [value] is null.
-// /
-// /
-// / Ctor comment:
-// / Constructs a FlagProperty with the given descriptions with the specified descriptions.
-// /
-// / [showName] defaults to false as typically [ifTrue] and [ifFalse] should
-// / be descriptions that make the property name redundant.
-// /
-// / The [showName] and [level] arguments must not be null.
+/**
+ * Property where the description is either [ifTrue] or [ifFalse] depending on
+ * whether [value] is true or false.
+ *
+ * Using [FlagProperty] instead of [DiagnosticsProperty<bool>] can make
+ * diagnostics display more polished. For example, given a property named
+ * `visible` that is typically true, the following code will return 'hidden'
+ * when `visible` is false and nothing when visible is true, in contrast to
+ * `visible: true` or `visible: false`.
+ *
+ * ## Sample code
+ *
+ * ```dart
+ * new FlagProperty(
+ *   'visible',
+ *   value: true,
+ *   ifFalse: 'hidden',
+ * )
+ * ```
+ *
+ * [FlagProperty] should also be used instead of [DiagnosticsProperty<bool>]
+ * if showing the bool value would not clearly indicate the meaning of the
+ * property value.
+ *
+ * ```dart
+ * new FlagProperty(
+ *   'inherit',
+ *   value: inherit,
+ *   ifTrue: '<all styles inherited>',
+ *   ifFalse: '<no style specified>',
+ * )
+ * ```
+ *
+ * See also:
+ *
+ *  * [ObjectFlagProperty], which provides similar behavior describing whether
+ *    a [value] is null.
+ *
+ *
+ * Ctor comment:
+ * Constructs a FlagProperty with the given descriptions with the specified descriptions.
+ *
+ * [showName] defaults to false as typically [ifTrue] and [ifFalse] should
+ * be descriptions that make the property name redundant.
+ *
+ * The [showName] and [level] arguments must not be null.
+ */
 class FlagProperty(
     name: String,
     value: Boolean,
-        // / Description to use if the property [value] is true.
-        // /
-        // / If not specified and [value] equals true the property's priority [level]
-        // / will be [DiagnosticLevel.hidden].
+    /**
+     * Description to use if the property [value] is true.
+     *
+     * If not specified and [value] equals true the property's priority [level]
+     * will be [DiagnosticLevel.hidden].
+     */
     val ifTrue: String? = null,
-        // / Description to use if the property value is false.
-        // /
-        // / If not specified and [value] equals false, the property's priority [level]
-        // / will be [DiagnosticLevel.hidden].
+    /**
+     * Description to use if the property value is false.
+     *
+     * If not specified and [value] equals false, the property's priority [level]
+     * will be [DiagnosticLevel.hidden].
+     */
     val ifFalse: String? = null,
     showName: Boolean = false,
     defaultValue: Any = kNoDefaultValue,

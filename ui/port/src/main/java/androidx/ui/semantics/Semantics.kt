@@ -3,21 +3,27 @@ package androidx.ui.semantics
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.text.TextSelection
 
-// / Signature for a function that is called for each [SemanticsNode].
-// /
-// / Return false to stop visiting nodes.
-// /
-// / Used by [SemanticsNode.visitChildren].
+/**
+ * Signature for a function that is called for each [SemanticsNode].
+ *
+ * Return false to stop visiting nodes.
+ *
+ * Used by [SemanticsNode.visitChildren].
+ */
 typealias SemanticsNodeVisitor = (node: SemanticsNode) -> Boolean
 
-// / Signature for [SemanticsAction]s that move the cursor.
-// /
-// / If `extendSelection` is set to true the cursor movement should extend the
-// / current selection or (if nothing is currently selected) start a selection.
+/**
+ * Signature for [SemanticsAction]s that move the cursor.
+ *
+ * If `extendSelection` is set to true the cursor movement should extend the
+ * current selection or (if nothing is currently selected) start a selection.
+ */
 typealias MoveCursorHandler = (extendSelection: Boolean) -> Unit
 
-// / Signature for the [SemanticsAction.setSelection] handlers to change the
-// / text selection (or re-position the cursor) to `selection`.
+/**
+ * Signature for the [SemanticsAction.setSelection] handlers to change the
+ * text selection (or re-position the cursor) to `selection`.
+ */
 typealias SetSelectionHandler = (selection: TextSelection) -> Unit
 
 typealias _SemanticsActionHandler = (args: Any?) -> Unit

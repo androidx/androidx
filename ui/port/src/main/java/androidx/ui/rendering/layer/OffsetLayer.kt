@@ -5,28 +5,32 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 
-// / A layer that is displayed at an offset from its parent layer.
-// /
-// / Offset layers are key to efficient repainting because they are created by
-// / repaint boundaries in the [RenderObject] tree (see
-// / [RenderObject.isRepaintBoundary]). When a render object that is a repaint
-// / boundary is asked to paint at given offset in a [PaintingContext], the
-// / render object first checks whether it needs to repaint itself. If not, it
-// / reuses its existing [OffsetLayer] (and its entire subtree) by mutating its
-// / [offset] property, cutting off the paint walk.
-// /
-// / Creates an offset layer.
-// /
-// / By default, [offset] is zero. It must be non-null before the compositing
-// / phase of the pipeline.
+/**
+ * A layer that is displayed at an offset from its parent layer.
+ *
+ * Offset layers are key to efficient repainting because they are created by
+ * repaint boundaries in the [RenderObject] tree (see
+ * [RenderObject.isRepaintBoundary]). When a render object that is a repaint
+ * boundary is asked to paint at given offset in a [PaintingContext], the
+ * render object first checks whether it needs to repaint itself. If not, it
+ * reuses its existing [OffsetLayer] (and its entire subtree) by mutating its
+ * [offset] property, cutting off the paint walk.
+ *
+ * Creates an offset layer.
+ *
+ * By default, [offset] is zero. It must be non-null before the compositing
+ * phase of the pipeline.
+ */
 open class OffsetLayer(
-        // / Offset from parent in the parent's coordinate system.
-        // /
-        // / The scene must be explicitly recomposited after this property is changed
-        // / (as described at [Layer]).
-        // /
-        // / The [offset] property must be non-null before the compositing phase of the
-        // / pipeline.
+    /**
+     * Offset from parent in the parent's coordinate system.
+     *
+     * The scene must be explicitly recomposited after this property is changed
+     * (as described at [Layer]).
+     *
+     * The [offset] property must be non-null before the compositing phase of the
+     * pipeline.
+     */
     var offset: Offset = Offset.zero
 ) : ContainerLayer() {
 

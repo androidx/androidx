@@ -26,23 +26,25 @@ import androidx.ui.widgets.framework.ErrorWidget
 import androidx.ui.widgets.framework.RootRenderObjectElement
 import androidx.ui.widgets.framework.Widget
 
-// / A [RootRenderObjectElement] that is hosted by a [RenderObject].
-// /
-// / This element class is the instantiation of a [RenderObjectToWidgetAdapter]
-// / widget. It can be used only as the root of an [Element] tree (it cannot be
-// / mounted into another [Element]; it's parent must be null).
-// /
-// / In typical usage, it will be instantiated for a [RenderObjectToWidgetAdapter]
-// / whose container is the [RenderView] that connects to the Flutter engine. In
-// / this usage, it is normally instantiated by the bootstrapping logic in the
-// / [WidgetsFlutterBinding] singleton created by [runApp].
-// /
-// / Ctor comment:
-// / Creates an element that is hosted by a [RenderObject].
-// /
-// / The [RenderObject] created by this element is not automatically set as a
-// / child of the hosting [RenderObject]. To actually attach this element to
-// / the render tree, call [RenderObjectToWidgetAdapter.attachToRenderTree].
+/**
+ * A [RootRenderObjectElement] that is hosted by a [RenderObject].
+ *
+ * This element class is the instantiation of a [RenderObjectToWidgetAdapter]
+ * widget. It can be used only as the root of an [Element] tree (it cannot be
+ * mounted into another [Element]; it's parent must be null).
+ *
+ * In typical usage, it will be instantiated for a [RenderObjectToWidgetAdapter]
+ * whose container is the [RenderView] that connects to the Flutter engine. In
+ * this usage, it is normally instantiated by the bootstrapping logic in the
+ * [WidgetsFlutterBinding] singleton created by [runApp].
+ *
+ * Ctor comment:
+ * Creates an element that is hosted by a [RenderObject].
+ *
+ * The [RenderObject] created by this element is not automatically set as a
+ * child of the hosting [RenderObject]. To actually attach this element to
+ * the render tree, call [RenderObjectToWidgetAdapter.attachToRenderTree].
+ */
 class RenderObjectToWidgetElement<T : RenderObject>(
     widget: RenderObjectToWidgetAdapter<T>
 ) : RootRenderObjectElement(widget) {

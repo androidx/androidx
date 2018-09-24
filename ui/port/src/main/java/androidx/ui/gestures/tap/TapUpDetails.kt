@@ -18,8 +18,8 @@ package androidx.ui.gestures.tap
 
 import androidx.ui.engine.geometry.Offset
 
-// / Details for [GestureTapUpCallback], such as position.
+/** Details for [GestureTapUpCallback], such as position. */
 class TapUpDetails(
-    // / The global position at which the pointer contacted the screen.
+    /** The global position at which the pointer contacted the screen. */
     val globalPosition: Offset = Offset.zero
 )

@@ -5,11 +5,13 @@ abstract class _NumProperty<T : Number>(
     value: T?,
     computeValue: ComputePropertyValueCallback<T?>? = null,
     ifNull: String? = null,
-        // / Optional unit the [value] is measured in.
-        // /
-        // / Unit must be acceptable to display immediately after a number with no
-        // / spaces. For example: 'physical pixels per logical pixel' should be a
-        // / [tooltip] not a [unit].
+    /**
+     * Optional unit the [value] is measured in.
+     *
+     * Unit must be acceptable to display immediately after a number with no
+     * spaces. For example: 'physical pixels per logical pixel' should be a
+     * [tooltip] not a [unit].
+     */
     val unit: String?,
     showName: Boolean = true,
     defaultValue: Any? = kNoDefaultValue,
@@ -35,7 +37,7 @@ abstract class _NumProperty<T : Number>(
         return json
     }
 
-    // / String describing just the numeric [value] without a unit suffix.
+    /** String describing just the numeric [value] without a unit suffix. */
     abstract fun numberToString(): String
 
     override fun valueToString(parentConfiguration: TextTreeConfiguration?): String {

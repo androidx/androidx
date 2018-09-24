@@ -3,44 +3,54 @@ package androidx.ui.foundation.diagnostics
 import androidx.annotation.CallSuper
 import androidx.ui.runtimeType
 
-// / Defines diagnostics data for a [value].
-// /
-// / [DiagnosticsNode] provides a high quality multi-line string dump via
-// / [toStringDeep]. The core members are the [name], [toDescription],
-// / [getProperties], [value], and [getChildren]. All other members exist
-// / typically to provide hints for how [toStringDeep] and debugging tools should
-// / format output.
+/**
+ * Defines diagnostics data for a [value].
+ *
+ * [DiagnosticsNode] provides a high quality multi-line string dump via
+ * [toStringDeep]. The core members are the [name], [toDescription],
+ * [getProperties], [value], and [getChildren]. All other members exist
+ * typically to provide hints for how [toStringDeep] and debugging tools should
+ * format output.
+ */
 abstract class DiagnosticsNode(
-        // / Label describing the [DiagnosticsNode], typically shown before a separator
-        // / (see [showSeparator]).
-        // /
-        // / The name will be omitted if the [showName] property is false.
+    /**
+     * Label describing the [DiagnosticsNode], typically shown before a separator
+     * (see [showSeparator]).
+     *
+     * The name will be omitted if the [showName] property is false.
+     */
     val name: String?,
-        // / Hint for how the node should be displaye
+    /** Hint for how the node should be displaye */
     private val style: DiagnosticsTreeStyle?,
-        // / Whether the name of the property should be shown when showing the default
-        // / view of the tree.
-        // /
-        // / This could be set to false (hiding the name) if the value's description
-        // / will make the name self-evident.
+    /**
+     * Whether the name of the property should be shown when showing the default
+     * view of the tree.
+     *
+     * This could be set to false (hiding the name) if the value's description
+     * will make the name self-evident.
+     */
     private val showName: Boolean = true,
-        // / Whether to show a separator between [name] and description.
-        // /
-        // / If false, name and description should be shown with no separation.
-        // / `:` is typically used as a separator when displaying as text.
+    /**
+     * Whether to show a separator between [name] and description.
+     *
+     * If false, name and description should be shown with no separation.
+     * `:` is typically used as a separator when displaying as text.
+     */
     val showSeparator: Boolean = true
 ) {
 
     companion object {
-        // / Diagnostics containing just a string `message` and not a concrete name or
-        // / value.
-        // /
-        // / The [style] and [level] arguments must not be null.
-        // /
-        // / See also:
-        // /
-        // /  * [MessageProperty], which is better suited to messages that are to be
-        // /    formatted like a property with a separate name and message.
+        /**
+         * Diagnostics containing just a string `message` and not a concrete name or
+         * value.
+         *
+         * The [style] and [level] arguments must not be null.
+         *
+         * See also:
+         *
+         *  * [MessageProperty], which is better suited to messages that are to be
+         *    formatted like a property with a separate name and message.
+         */
         fun message(
             message: String,
             style: DiagnosticsTreeStyle = DiagnosticsTreeStyle.singleLine,
@@ -66,68 +76,80 @@ abstract class DiagnosticsNode(
         }
     }
 
-    // / Returns a description with a short summary of the node itself not
-    // / including children or properties.
-    // /
-    // / `parentConfiguration` specifies how the parent is rendered as text art.
-    // / For example, if the parent does not line break between properties, the
-    // / description of a property should also be a single line if possible.
+    /**
+     * Returns a description with a short summary of the node itself not
+     * including children or properties.
+     *
+     * `parentConfiguration` specifies how the parent is rendered as text art.
+     * For example, if the parent does not line break between properties, the
+     * description of a property should also be a single line if possible.
+     */
     abstract fun toDescription(parentConfiguration: TextTreeConfiguration? = null): String
 
-    // / Whether the diagnostic should be filtered due to its [level] being lower
-    // / than `minLevel`.
-    // /
-    // / If `minLevel` is [DiagnosticLevel.hidden] no diagnostics will be filtered.
-    // / If `minLevel` is [DiagnosticsLevel.off] all diagnostics will be filtered.
+    /**
+     * Whether the diagnostic should be filtered due to its [level] being lower
+     * than `minLevel`.
+     *
+     * If `minLevel` is [DiagnosticLevel.hidden] no diagnostics will be filtered.
+     * If `minLevel` is [DiagnosticsLevel.off] all diagnostics will be filtered.
+     */
     fun isFiltered(minLevel: DiagnosticLevel): Boolean = getLevel() < minLevel
 
-    // / Priority level of the diagnostic used to control which diagnostics should
-    // / be shown and filtered.
-    // /
-    // / Typically this only makes sense to set to a different value than
-    // / [DiagnosticLevel.info] for diagnostics representing properties. Some
-    // / subclasses have a `level` argument to their constructor which influences
-    // / the value returned here but other factors also influence it. For example,
-    // / whether an exception is thrown computing a property value
-    // / [DiagnosticLevel.error] is returned.
+    /**
+     * Priority level of the diagnostic used to control which diagnostics should
+     * be shown and filtered.
+     *
+     * Typically this only makes sense to set to a different value than
+     * [DiagnosticLevel.info] for diagnostics representing properties. Some
+     * subclasses have a `level` argument to their constructor which influences
+     * the value returned here but other factors also influence it. For example,
+     * whether an exception is thrown computing a property value
+     * [DiagnosticLevel.error] is returned.
+     */
     open fun getLevel(): DiagnosticLevel = DiagnosticLevel.info
 
     open fun getShowName(): Boolean = showName
 
     open fun getStyle(): DiagnosticsTreeStyle? = style
 
-    // / Description to show if the node has no displayed properties or children.
+    /** Description to show if the node has no displayed properties or children. */
     open fun getEmptyBodyDescription(): String? = null
 
-    // / The actual object this is diagnostics data for.
+/** The actual object this is diagnostics data for. */
 
     abstract fun getValue(): Any?
 
-    // / Properties of this [DiagnosticsNode].
-    // /
-    // / Properties and children are kept distinct even though they are both
-    // / [List<DiagnosticsNode>] because they should be grouped differently.
+    /**
+     * Properties of this [DiagnosticsNode].
+     *
+     * Properties and children are kept distinct even though they are both
+     * [List<DiagnosticsNode>] because they should be grouped differently.
+     */
     abstract fun getProperties(): List<DiagnosticsNode>
 
-    // / Children of this [DiagnosticsNode].
-    // /
-    // / See also:
-    // /
-    // /  * [getProperties]
+    /**
+     * Children of this [DiagnosticsNode].
+     *
+     * See also:
+     *
+     *  * [getProperties]
+     */
     abstract fun getChildren(): List<DiagnosticsNode>
 
     private val separator: String = if (showSeparator) ":" else ""
 
-    // / Serialize the node excluding its descendents to a JSON map.
-    // /
-    // / Subclasses should override if they have additional properties that are
-    // / useful for the GUI tools that consume this JSON.
-    // /
-    // / See also:
-    // /
-    // /  * [WidgetInspectorService], which forms the bridge between JSON returned
-    // /    by this method and interactive tree views in the Flutter IntelliJ
-    // /    plugin.
+    /**
+     * Serialize the node excluding its descendents to a JSON map.
+     *
+     * Subclasses should override if they have additional properties that are
+     * useful for the GUI tools that consume this JSON.
+     *
+     * See also:
+     *
+     *  * [WidgetInspectorService], which forms the bridge between JSON returned
+     *    by this method and interactive tree views in the Flutter IntelliJ
+     *    plugin.
+     */
     @CallSuper
     open fun toJsonMap(): Map<String, Any> {
         return mapOf(
@@ -144,15 +166,17 @@ abstract class DiagnosticsNode(
         )
     }
 
-    // / Returns a string representation of this diagnostic that is compatible with
-    // / the style of the parent if the node is not the root.
-    // /
-    // / `parentConfiguration` specifies how the parent is rendered as text art.
-    // / For example, if the parent places all properties on one line, the
-    // / [toString] for each property should avoid line breaks if possible.
-    // /
-    // / `minLevel` specifies the minimum [DiagnosticLevel] for properties included
-    // / in the output.
+    /**
+     * Returns a string representation of this diagnostic that is compatible with
+     * the style of the parent if the node is not the root.
+     *
+     * `parentConfiguration` specifies how the parent is rendered as text art.
+     * For example, if the parent places all properties on one line, the
+     * [toString] for each property should avoid line breaks if possible.
+     *
+     * `minLevel` specifies the minimum [DiagnosticLevel] for properties included
+     * in the output.
+     */
     open fun toStringParametrized(
         parentConfiguration: TextTreeConfiguration? = null,
         minLevel: DiagnosticLevel = DiagnosticLevel.info
@@ -178,8 +202,10 @@ abstract class DiagnosticsNode(
         return toStringParametrized()
     }
 
-    // / Returns a configuration specifying how this object should be rendered
-    // / as text art.
+    /**
+     * Returns a configuration specifying how this object should be rendered
+     * as text art.
+     */
     protected fun getTextTreeConfiguration(): TextTreeConfiguration? {
         assert(getStyle() != null)
 
@@ -194,12 +220,14 @@ abstract class DiagnosticsNode(
         }
     }
 
-    // / Text configuration to use to connect this node to a `child`.
-    // /
-    // / The singleLine style is special cased because the connection from the
-    // / parent to the child should be consistent with the parent's style as the
-    // / single line style does not provide any meaningful style for how children
-    // / should be connected to their parents.
+    /**
+     * Text configuration to use to connect this node to a `child`.
+     *
+     * The singleLine style is special cased because the connection from the
+     * parent to the child should be consistent with the parent's style as the
+     * single line style does not provide any meaningful style for how children
+     * should be connected to their parents.
+     */
     private fun _childTextConfiguration(
         child: DiagnosticsNode?,
         textStyle: TextTreeConfiguration
@@ -211,24 +239,26 @@ abstract class DiagnosticsNode(
         }
     }
 
-    // / Returns a string representation of this node and its descendants.
-    // /
-    // / `prefixLineOne` will be added to the front of the first line of the
-    // / output. `prefixOtherLines` will be added to the front of each other line.
-    // / If `prefixOtherLines` is null, the `prefixLineOne` is used for every line.
-    // / By default, there is no prefix.
-    // /
-    // / `minLevel` specifies the minimum [DiagnosticLevel] for properties included
-    // / in the output.
-    // /
-    // / The [toStringDeep] method takes other arguments, but those are intended
-    // / for internal use when recursing to the descendants, and so can be ignored.
-    // /
-    // / See also:
-    // /
-    // /  * [toString], for a brief description of the [value] but not its children.
-    // /  * [toStringShallow], for a detailed description of the [value] but not its
-    // /    children.
+    /**
+     * Returns a string representation of this node and its descendants.
+     *
+     * `prefixLineOne` will be added to the front of the first line of the
+     * output. `prefixOtherLines` will be added to the front of each other line.
+     * If `prefixOtherLines` is null, the `prefixLineOne` is used for every line.
+     * By default, there is no prefix.
+     *
+     * `minLevel` specifies the minimum [DiagnosticLevel] for properties included
+     * in the output.
+     *
+     * The [toStringDeep] method takes other arguments, but those are intended
+     * for internal use when recursing to the descendants, and so can be ignored.
+     *
+     * See also:
+     *
+     *  * [toString], for a brief description of the [value] but not its children.
+     *  * [toStringShallow], for a detailed description of the [value] but not its
+     *    children.
+     */
     fun toStringDeep(
         prefixLineOne: String = "",
         prefixOtherLines: String? = null,

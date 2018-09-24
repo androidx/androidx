@@ -3,16 +3,20 @@ package androidx.ui.semantics
 import androidx.ui.engine.text.TextDirection
 import kotlin.math.sign
 
-// / A group of [nodes] that are disjoint vertically or horizontally from other
-// / nodes that share the same [SemanticsNode] parent.
-// /
-// / The [nodes] are sorted among each other separately from other nodes.
+/**
+ * A group of [nodes] that are disjoint vertically or horizontally from other
+ * nodes that share the same [SemanticsNode] parent.
+ *
+ * The [nodes] are sorted among each other separately from other nodes.
+ */
 internal data class _SemanticsSortGroup(
-    // / The offset from the start edge of the parent [SemanticsNode] in the
-    // / direction of the traversal.
-    // /
-    // / This value is equal to the [_BoxEdge.offset] of the first node in the
-    // / [nodes] list being considered.
+    /**
+     * The offset from the start edge of the parent [SemanticsNode] in the
+     * direction of the traversal.
+     *
+     * This value is equal to the [_BoxEdge.offset] of the first node in the
+     * [nodes] list being considered.
+     */
     val startOffset: Double,
 
     val textDirection: TextDirection?
@@ -22,7 +26,7 @@ internal data class _SemanticsSortGroup(
         assert(startOffset != null)
     }
 
-    // / The nodes that are sorted among each other.
+    /** The nodes that are sorted among each other. */
     val nodes: MutableList<SemanticsNode> = mutableListOf()
 
     override fun compareTo(other: _SemanticsSortGroup): Int {

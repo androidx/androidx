@@ -22,16 +22,20 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 
-// / A composite layer that clips its children using a rectangle.
-// /
-// / When debugging, setting [debugDisableClipLayers] to true will cause this
-// / layer to be skipped (directly replaced by its children). This can be helpful
-// / to track down the cause of performance problems.
+/**
+ * A composite layer that clips its children using a rectangle.
+ *
+ * When debugging, setting [debugDisableClipLayers] to true will cause this
+ * layer to be skipped (directly replaced by its children). This can be helpful
+ * to track down the cause of performance problems.
+ */
 
-// / The constructor taks the rectangle to clip in the parent's coordinate system.
-// /
-// / The scene must be explicitly recomposited after this property is changed
-// / (as described at [Layer]).
+/**
+ * The constructor taks the rectangle to clip in the parent's coordinate system.
+ *
+ * The scene must be explicitly recomposited after this property is changed
+ * (as described at [Layer]).
+ */
 class ClipRectLayer(private val clipRect: Rect) : ContainerLayer() {
 
     override fun addToScene(builder: SceneBuilder, layerOffset: Offset) {

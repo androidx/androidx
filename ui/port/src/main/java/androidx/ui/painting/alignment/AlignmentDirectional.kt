@@ -21,39 +21,45 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.toStringAsFixed
 import androidx.ui.truncDiv
 
-// / An offset that's expressed as a fraction of a [Size], but whose horizontal
-// / component is dependent on the writing direction.
-// /
-// / This can be used to indicate an offset from the left in [TextDirection.ltr]
-// / text and an offset from the right in [TextDirection.rtl] text without having
-// / to be aware of the current text direction.
-// /
-// / See also:
-// /
-// /  * [Alignment], a variant that is defined in physical terms (i.e.
-// /    whose horizontal component does not depend on the text direction).
+/**
+ * An offset that's expressed as a fraction of a [Size], but whose horizontal
+ * component is dependent on the writing direction.
+ *
+ * This can be used to indicate an offset from the left in [TextDirection.ltr]
+ * text and an offset from the right in [TextDirection.rtl] text without having
+ * to be aware of the current text direction.
+ *
+ * See also:
+ *
+ *  * [Alignment], a variant that is defined in physical terms (i.e.
+ *    whose horizontal component does not depend on the text direction).
+ */
 class AlignmentDirectional(
-        // / The distance fraction in the horizontal direction.
-        // /
-        // / A value of -1.0 corresponds to the edge on the "start" side, which is the
-        // / left side in [TextDirection.ltr] contexts and the right side in
-        // / [TextDirection.rtl] contexts. A value of 1.0 corresponds to the opposite
-        // / edge, the "end" side. Values are not limited to that range; values less
-        // / than -1.0 represent positions beyond the start edge, and values greater than
-        // / 1.0 represent positions beyond the end edge.
-        // /
-        // / This value is normalized into a [Alignment.x] value by the [resolve]
-        // / method.
+    /**
+     * The distance fraction in the horizontal direction.
+     *
+     * A value of -1.0 corresponds to the edge on the "start" side, which is the
+     * left side in [TextDirection.ltr] contexts and the right side in
+     * [TextDirection.rtl] contexts. A value of 1.0 corresponds to the opposite
+     * edge, the "end" side. Values are not limited to that range; values less
+     * than -1.0 represent positions beyond the start edge, and values greater than
+     * 1.0 represent positions beyond the end edge.
+     *
+     * This value is normalized into a [Alignment.x] value by the [resolve]
+     * method.
+     */
     val start: Double,
-        // / The distance fraction in the vertical direction.
-        // /
-        // / A value of -1.0 corresponds to the topmost edge. A value of 1.0
-        // / corresponds to the bottommost edge. Values are not limited to that range;
-        // / values less than -1.0 represent positions above the top, and values
-        // / greater than 1.0 represent positions below the bottom.
-        // /
-        // / This value is passed through to [Alignment.y] unmodified by the
-        // / [resolve] method.
+    /**
+     * The distance fraction in the vertical direction.
+     *
+     * A value of -1.0 corresponds to the topmost edge. A value of 1.0
+     * corresponds to the bottommost edge. Values are not limited to that range;
+     * values less than -1.0 represent positions above the top, and values
+     * greater than 1.0 represent positions below the bottom.
+     *
+     * This value is passed through to [Alignment.y] unmodified by the
+     * [resolve] method.
+     */
     val y: Double
 
 ) : AlignmentGeometry() {
@@ -70,57 +76,65 @@ class AlignmentDirectional(
     override val _y: Double = y
 
     companion object {
-        // / The top corner on the "start" side.
+        /** The top corner on the "start" side. */
         val topStart = AlignmentDirectional(-1.0, -1.0)
 
-        // / The center point along the top edge.
-        // /
-        // / Consider using [Alignment.topCenter] instead, as it does not need
-        // / to be [resolve]d to be used.
+        /**
+         * The center point along the top edge.
+         *
+         * Consider using [Alignment.topCenter] instead, as it does not need
+         * to be [resolve]d to be used.
+         */
         val topCenter = AlignmentDirectional(0.0, -1.0)
 
-        // / The top corner on the "end" side.
+        /** The top corner on the "end" side. */
         val topEnd = AlignmentDirectional(1.0, -1.0)
 
-        // / The center point along the "start" edge.
+        /** The center point along the "start" edge. */
         val centerStart = AlignmentDirectional(-1.0, 0.0)
 
-        // / The center point, both horizontally and vertically.
-        // /
-        // / Consider using [Alignment.center] instead, as it does not need to
-        // / be [resolve]d to be used.
+        /**
+         * The center point, both horizontally and vertically.
+         *
+         * Consider using [Alignment.center] instead, as it does not need to
+         * be [resolve]d to be used.
+         */
         val center = AlignmentDirectional(0.0, 0.0)
 
-        // / The center point along the "end" edge.
+        /** The center point along the "end" edge. */
         val centerEnd = AlignmentDirectional(1.0, 0.0)
 
-        // / The bottom corner on the "start" side.
+        /** The bottom corner on the "start" side. */
         val bottomStart = AlignmentDirectional(-1.0, 1.0)
 
-        // / The center point along the bottom edge.
-        // /
-        // / Consider using [Alignment.bottomCenter] instead, as it does not
-        // / need to be [resolve]d to be used.
+        /**
+         * The center point along the bottom edge.
+         *
+         * Consider using [Alignment.bottomCenter] instead, as it does not
+         * need to be [resolve]d to be used.
+         */
         val bottomCenter = AlignmentDirectional(0.0, 1.0)
 
-        // / The bottom corner on the "end" side.
+        /** The bottom corner on the "end" side. */
         val bottomEnd = AlignmentDirectional(1.0, 1.0)
 
-        // / Linearly interpolate between two [AlignmentDirectional]s.
-        // /
-        // / If either is null, this function interpolates from [AlignmentDirectional.center].
-        // /
-        // / The `t` argument represents position on the timeline, with 0.0 meaning
-        // / that the interpolation has not started, returning `a` (or something
-        // / equivalent to `a`), 1.0 meaning that the interpolation has finished,
-        // / returning `b` (or something equivalent to `b`), and values in between
-        // / meaning that the interpolation is at the relevant point on the timeline
-        // / between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
-        // / 1.0, so negative values and values greater than 1.0 are valid (and can
-        // / easily be generated by curves such as [Curves.elasticInOut]).
-        // /
-        // / Values for `t` are usually obtained from an [Animation<double>], such as
-        // / an [AnimationController].
+        /**
+         * Linearly interpolate between two [AlignmentDirectional]s.
+         *
+         * If either is null, this function interpolates from [AlignmentDirectional.center].
+         *
+         * The `t` argument represents position on the timeline, with 0.0 meaning
+         * that the interpolation has not started, returning `a` (or something
+         * equivalent to `a`), 1.0 meaning that the interpolation has finished,
+         * returning `b` (or something equivalent to `b`), and values in between
+         * meaning that the interpolation is at the relevant point on the timeline
+         * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+         * 1.0, so negative values and values greater than 1.0 are valid (and can
+         * easily be generated by curves such as [Curves.elasticInOut]).
+         *
+         * Values for `t` are usually obtained from an [Animation<double>], such as
+         * an [AnimationController].
+         */
         fun lerp(
             a: AlignmentDirectional?,
             b: AlignmentDirectional?,
@@ -166,39 +180,39 @@ class AlignmentDirectional(
         return super.add(other)
     }
 
-    // / Returns the difference between two [AlignmentDirectional]s.
+    /** Returns the difference between two [AlignmentDirectional]s. */
     operator fun minus(other: AlignmentDirectional): AlignmentGeometry {
         return AlignmentDirectional(start - other.start, y - other.y)
     }
 
-    // / Returns the sum of two [AlignmentDirectional]s.
+    /** Returns the sum of two [AlignmentDirectional]s. */
     operator fun plus(other: AlignmentDirectional): AlignmentDirectional {
         return AlignmentDirectional(start + other.start, y + other.y)
     }
 
-    // / Returns the negation of the given [AlignmentDirectional].
+    /** Returns the negation of the given [AlignmentDirectional]. */
     override operator fun unaryMinus(): AlignmentDirectional {
         return AlignmentDirectional(-start, -y)
     }
 
-    // / Scales the [AlignmentDirectional] in each dimension by the given factor.
+    /** Scales the [AlignmentDirectional] in each dimension by the given factor. */
     override operator fun times(other: Double): AlignmentGeometry {
         return AlignmentDirectional(start * other, y * other)
     }
 
-    // / Divides the [AlignmentDirectional] in each dimension by the given factor.
+    /** Divides the [AlignmentDirectional] in each dimension by the given factor. */
     override operator fun div(other: Double): AlignmentGeometry {
         return AlignmentDirectional(start / other, y / other)
     }
 
-    // / Integer divides the [AlignmentDirectional] in each dimension by the given factor.
+    /** Integer divides the [AlignmentDirectional] in each dimension by the given factor. */
     override fun truncDiv(other: Double): AlignmentGeometry {
         return AlignmentDirectional(
                 (start.truncDiv(other)).toDouble(),
                 (y.truncDiv(other)).toDouble())
     }
 
-    // / Computes the remainder in each dimension by the given factor.
+    /** Computes the remainder in each dimension by the given factor. */
     override operator fun rem(other: Double): AlignmentGeometry {
         return AlignmentDirectional(start % other, y % other)
     }

@@ -8,113 +8,139 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.text.TextSelection
 import androidx.ui.vectormath64.Matrix4
 
-// / Summary information about a [SemanticsNode] object.
-// /
-// / A semantics node might [SemanticsNode.mergeAllDescendantsIntoThisNode],
-// / which means the individual fields on the semantics node don't fully describe
-// / the semantics at that node. This data structure contains the full semantics
-// / for the node.
-// /
-// / Typically obtained from [SemanticsNode.getSemanticsData].
-// / The [flags], [actions], [label], and [Rect] arguments must not be null.
-// /
-// / If [label] is not empty, then [textDirection] must also not be null.
+/**
+ * Summary information about a [SemanticsNode] object.
+ *
+ * A semantics node might [SemanticsNode.mergeAllDescendantsIntoThisNode],
+ * which means the individual fields on the semantics node don't fully describe
+ * the semantics at that node. This data structure contains the full semantics
+ * for the node.
+ *
+ * Typically obtained from [SemanticsNode.getSemanticsData].
+ * The [flags], [actions], [label], and [Rect] arguments must not be null.
+ *
+ * If [label] is not empty, then [textDirection] must also not be null.
+ */
 // @immutable
 data class SemanticsData(
-    // / A bit field of [SemanticsFlag]s that apply to this node.
+    /** A bit field of [SemanticsFlag]s that apply to this node. */
     val flags: Int,
 
-    // / A bit field of [SemanticsAction]s that apply to this node.
+    /** A bit field of [SemanticsAction]s that apply to this node. */
     val actions: Int,
 
-    // / A textual description of this node.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * A textual description of this node.
+     *
+     * The reading direction is given by [textDirection].
+     */
     val label: String,
 
-    // / The value that [value] will become after performing a
-    // / [SemanticsAction.increase] action.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * The value that [value] will become after performing a
+     * [SemanticsAction.increase] action.
+     *
+     * The reading direction is given by [textDirection].
+     */
     val increasedValue: String,
 
-    // / A textual description for the current value of the node.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * A textual description for the current value of the node.
+     *
+     * The reading direction is given by [textDirection].
+     */
     val value: String,
 
-    // / The value that [value] will become after performing a
-    // / [SemanticsAction.decrease] action.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * The value that [value] will become after performing a
+     * [SemanticsAction.decrease] action.
+     *
+     * The reading direction is given by [textDirection].
+     */
     val decreasedValue: String,
 
-    // / A brief description of the result of performing an action on this node.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * A brief description of the result of performing an action on this node.
+     *
+     * The reading direction is given by [textDirection].
+     */
     val hint: String,
 
-    // / The reading direction for the text in [label], [value], [hint],
-    // / [increasedValue], and [decreasedValue].
+    /**
+     * The reading direction for the text in [label], [value], [hint],
+     * [increasedValue], and [decreasedValue].
+     */
     val textDirection: TextDirection?,
 
-    // / The bounding box for this node in its coordinate system.
+    /** The bounding box for this node in its coordinate system. */
     val rect: Rect,
 
-    // / The currently selected text (or the position of the cursor) within [value]
-    // / if this node represents a text field.
+    /**
+     * The currently selected text (or the position of the cursor) within [value]
+     * if this node represents a text field.
+     */
     val textSelection: TextSelection?,
 
-    // / Indicates the current scrolling position in logical pixels if the node is
-    // / scrollable.
-    // /
-    // / The properties [scrollExtentMin] and [scrollExtentMax] indicate the valid
-    // / in-range values for this property. The value for [scrollPosition] may
-    // / (temporarily) be outside that range, e.g. during an overscroll.
-    // /
-    // / See also:
-    // /
-    // /  * [ScrollPosition.pixels], from where this value is usually taken.
+    /**
+     * Indicates the current scrolling position in logical pixels if the node is
+     * scrollable.
+     *
+     * The properties [scrollExtentMin] and [scrollExtentMax] indicate the valid
+     * in-range values for this property. The value for [scrollPosition] may
+     * (temporarily) be outside that range, e.g. during an overscroll.
+     *
+     * See also:
+     *
+     *  * [ScrollPosition.pixels], from where this value is usually taken.
+     */
     val scrollPosition: Double?,
 
-    // / Indicates the maximum in-range value for [scrollPosition] if the node is
-    // / scrollable.
-    // /
-    // / This value may be infinity if the scroll is unbound.
-    // /
-    // / See also:
-    // /
-    // /  * [ScrollPosition.maxScrollExtent], from where this value is usually taken.
+    /**
+     * Indicates the maximum in-range value for [scrollPosition] if the node is
+     * scrollable.
+     *
+     * This value may be infinity if the scroll is unbound.
+     *
+     * See also:
+     *
+     *  * [ScrollPosition.maxScrollExtent], from where this value is usually taken.
+     */
     val scrollExtentMax: Double?,
 
-    // / Indicates the minimum in-range value for [scrollPosition] if the node is
-    // / scrollable.
-    // /
-    // / This value may be infinity if the scroll is unbound.
-    // /
-    // / See also:
-    // /
-    // /  * [ScrollPosition.minScrollExtent], from where this value is usually taken.
+    /**
+     * Indicates the minimum in-range value for [scrollPosition] if the node is
+     * scrollable.
+     *
+     * This value may be infinity if the scroll is unbound.
+     *
+     * See also:
+     *
+     *  * [ScrollPosition.minScrollExtent], from where this value is usually taken.
+     */
     val scrollExtentMin: Double?,
 
-    // / The set of [SemanticsTag]s associated with this node.
+    /** The set of [SemanticsTag]s associated with this node. */
     val tags: Set<SemanticsTag>,
 
-    // / The transform from this node's coordinate system to its parent's coordinate system.
-    // /
-    // / By default, the transform is null, which represents the identity
-    // / transformation (i.e., that this node has the same coordinate system as its
-    // / parent).
+    /**
+     * The transform from this node's coordinate system to its parent's coordinate system.
+     *
+     * By default, the transform is null, which represents the identity
+     * transformation (i.e., that this node has the same coordinate system as its
+     * parent).
+     */
     val transform: Matrix4?,
 
-    // / The identifiers for the custom semantics actions and standard action
-    // / overrides for this node.
-    // /
-    // / The list must be sorted in increasing order.
-    // /
-    // / See also:
-    // /
-    // /   * [CustomSemanticsAction], for an explanation of custom actions.
+    /**
+     * The identifiers for the custom semantics actions and standard action
+     * overrides for this node.
+     *
+     * The list must be sorted in increasing order.
+     *
+     * See also:
+     *
+     *   * [CustomSemanticsAction], for an explanation of custom actions.
+     */
     val customSemanticsActionIds: List<Int>
 ) : Diagnosticable {
 

@@ -10,50 +10,60 @@ import androidx.ui.VoidCallback
 // import 'diagnostics.dart';
 // import 'observer_list.dart';
 
-// / An object that maintains a list of listeners.
+/** An object that maintains a list of listeners. */
 interface Listenable {
     companion object {
-        // / Return a [Listenable] that triggers when any of the given [Listenable]s
-        // / themselves trigger.
-        // /
-        // / The list must not be changed after this method has been called. Doing so
-        // / will lead to memory leaks or exceptions.
-        // /
-        // / The list may contain nulls; they are ignored.
+        /**
+         * Return a [Listenable] that triggers when any of the given [Listenable]s
+         * themselves trigger.
+         *
+         * The list must not be changed after this method has been called. Doing so
+         * will lead to memory leaks or exceptions.
+         *
+         * The list may contain nulls; they are ignored.
+         */
         fun merge(listenables: List<Listenable>) {
 //            =_MergingListenable;
             TODO("not implemented")
         }
     }
 
-    // / Register a closure to be called when the object notifies its listeners.
+    /** Register a closure to be called when the object notifies its listeners. */
     fun addListener(listener: VoidCallback)
 
-    // / Remove a previously registered closure from the list of closures that the
-    // / object notifies.
+    /**
+     * Remove a previously registered closure from the list of closures that the
+     * object notifies.
+     */
     fun removeListener(listener: VoidCallback)
 }
 
-// / An interface for subclasses of [Listenable] that expose a [value].
-// /
-// / This interface is implemented by [ValueNotifier<T>] and [Animation<T>], and
-// / allows other APIs to accept either of those implementations interchangeably.
+/**
+ * An interface for subclasses of [Listenable] that expose a [value].
+ *
+ * This interface is implemented by [ValueNotifier<T>] and [Animation<T>], and
+ * allows other APIs to accept either of those implementations interchangeably.
+ */
 interface ValueListenable<T> : Listenable {
-    // / The current value of the object. When the value changes, the callbacks
-    // / registered with [addListener] will be invoked.
+    /**
+     * The current value of the object. When the value changes, the callbacks
+     * registered with [addListener] will be invoked.
+     */
     val value: T
 }
 
-// / A class that can be extended or mixed in that provides a change notification
-// / API using [VoidCallback] for notifications.
-// /
-// / [ChangeNotifier] is optimized for small numbers (one or two) of listeners.
-// / It is O(N) for adding and removing listeners and O(N²) for dispatching
-// / notifications (where N is the number of listeners).
-// /
-// / See also:
-// /
-// /  * [ValueNotifier], which is a [ChangeNotifier] that wraps a single value.
+/**
+ * A class that can be extended or mixed in that provides a change notification
+ * API using [VoidCallback] for notifications.
+ *
+ * [ChangeNotifier] is optimized for small numbers (one or two) of listeners.
+ * It is O(N) for adding and removing listeners and O(N²) for dispatching
+ * notifications (where N is the number of listeners).
+ *
+ * See also:
+ *
+ *  * [ValueNotifier], which is a [ChangeNotifier] that wraps a single value.
+ */
 open class ChangeNotifier : Listenable {
     override fun addListener(listener: VoidCallback) {
         TODO("not implemented")
@@ -208,9 +218,11 @@ private class _MergingListenable : ChangeNotifier() {
 //  }
 }
 
-// / A [ChangeNotifier] that holds a single value.
-// /
-// / When [value] is replaced, this class notifies its listeners.
+/**
+ * A [ChangeNotifier] that holds a single value.
+ *
+ * When [value] is replaced, this class notifies its listeners.
+ */
 class ValueNotifier<T> : ChangeNotifier(), ValueListenable<T> {
     override var value: T
         get() = TODO("not implemented")

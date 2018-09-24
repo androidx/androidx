@@ -18,13 +18,15 @@ package androidx.ui.rendering.obj
 
 import androidx.annotation.CallSuper
 
-// / Base class for data associated with a [RenderObject] by its parent.
-// /
-// / Some render objects wish to store data on their children, such as their
-// / input parameters to the parent's layout algorithm or their position relative
-// / to other children.
+/**
+ * Base class for data associated with a [RenderObject] by its parent.
+ *
+ * Some render objects wish to store data on their children, such as their
+ * input parameters to the parent's layout algorithm or their position relative
+ * to other children.
+ */
 open class ParentData {
-    // / Called when the RenderObject is removed from the tree.
+    /** Called when the RenderObject is removed from the tree. */
     @CallSuper
     internal open fun detach() { }
 

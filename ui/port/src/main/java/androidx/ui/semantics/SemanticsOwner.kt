@@ -2,21 +2,25 @@ package androidx.ui.semantics
 
 import androidx.ui.foundation.change_notifier.ChangeNotifier
 
-// / Owns [SemanticsNode] objects and notifies listeners of changes to the
-// / render tree semantics.
-// /
-// / To listen for semantic updates, call [PipelineOwner.ensureSemantics] to
-// / obtain a [SemanticsHandle]. This will create a [SemanticsOwner] if
-// / necessary.
+/**
+ * Owns [SemanticsNode] objects and notifies listeners of changes to the
+ * render tree semantics.
+ *
+ * To listen for semantic updates, call [PipelineOwner.ensureSemantics] to
+ * obtain a [SemanticsHandle]. This will create a [SemanticsOwner] if
+ * necessary.
+ */
 class SemanticsOwner : ChangeNotifier() {
     internal val _dirtyNodes: MutableSet<SemanticsNode> = mutableSetOf()
     internal val _nodes: MutableMap<Int, SemanticsNode> = mutableMapOf()
     internal val _detachedNodes: MutableSet<SemanticsNode> = mutableSetOf()
     private val _actions: MutableMap<Int, CustomSemanticsAction> = mutableMapOf()
 
-    // / The root node of the semantics tree, if any.
-    // /
-    // / If the semantics tree is empty, returns null.
+    /**
+     * The root node of the semantics tree, if any.
+     *
+     * If the semantics tree is empty, returns null.
+     */
     val rootSemanticsNode: SemanticsNode?
         get() = _nodes[0]
 

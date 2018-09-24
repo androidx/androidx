@@ -19,7 +19,7 @@ package androidx.ui
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Color
 
-// /  A set of vertex data used by [Canvas.drawVertices].
+/**  A set of vertex data used by [Canvas.drawVertices]. */
 class Vertices(
     val vertexMode: VertexMode,
     positions: List<Offset>,

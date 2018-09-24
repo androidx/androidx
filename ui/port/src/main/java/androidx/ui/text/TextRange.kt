@@ -16,24 +16,30 @@
 
 package androidx.ui.text
 
-// / A range of characters in a string of text.
-// /
-// / The [start] and [end] arguments must not be null. Both the [start] and
-// / [end] must either be greater than or equal to zero or both exactly -1.
-// /
-// / Instead of creating an empty text range, consider using the [empty]
-// / constant.
+/**
+ * A range of characters in a string of text.
+ *
+ * The [start] and [end] arguments must not be null. Both the [start] and
+ * [end] must either be greater than or equal to zero or both exactly -1.
+ *
+ * Instead of creating an empty text range, consider using the [empty]
+ * constant.
+ */
 
 // @immutable
 open class TextRange(
-    // / The index of the first character in the range.
-    // /
-    // / If [start] and [end] are both -1, the text range is empty.
+    /**
+     * The index of the first character in the range.
+     *
+     * If [start] and [end] are both -1, the text range is empty.
+     */
     val start: Int,
 
-    // / The next index after the characters in this range.
-    // /
-    // / If [start] and [end] are both -1, the text range is empty.
+    /**
+     * The next index after the characters in this range.
+     *
+     * If [start] and [end] are both -1, the text range is empty.
+     */
     val end: Int
 ) {
 
@@ -43,9 +49,11 @@ open class TextRange(
     }
 
     companion object {
-        // / A text range that starts and ends at offset.
-        // /
-        // / The [offset] argument must be non-null and greater than or equal to -1.
+        /**
+         * A text range that starts and ends at offset.
+         *
+         * The [offset] argument must be non-null and greater than or equal to -1.
+         */
         fun collapsed(offset: Int): TextRange {
             assert(offset != null && offset >= -1)
             return TextRange(
@@ -54,35 +62,35 @@ open class TextRange(
             )
         }
 
-        // / A text range that contains nothing and is not in the text.
+        /** A text range that contains nothing and is not in the text. */
         val empty: TextRange = TextRange(start = -1, end = -1)
     }
 
-    // / Whether this range represents a valid position in the text.
+    /** Whether this range represents a valid position in the text. */
     val isValid: Boolean
         get() = start >= 0 && end >= 0
 
-    // / Whether this range is empty (but still potentially placed inside the text).
+    /** Whether this range is empty (but still potentially placed inside the text). */
     val isCollapsed: Boolean
         get() = start == end
 
-    // / Whether the start of this range precedes the end.
+    /** Whether the start of this range precedes the end. */
     val isNormalized: Boolean
         get() = end >= start
 
-    // / The text before this range.
+    /** The text before this range. */
     fun textBefore(text: String): String {
         assert(isNormalized)
         return text.substring(0, start)
     }
 
-    // / The text after this range.
+    /** The text after this range. */
     fun textAfter(text: String): String {
         assert(isNormalized)
         return text.substring(end)
     }
 
-    // / The text inside this range.
+    /** The text inside this range. */
     fun textInside(text: String): String {
         assert(isNormalized)
         return text.substring(start, end)

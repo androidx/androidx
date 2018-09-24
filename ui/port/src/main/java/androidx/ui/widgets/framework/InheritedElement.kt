@@ -3,7 +3,7 @@ package androidx.ui.widgets.framework
 import androidx.ui.Type
 import androidx.ui.assert
 
-// / An [Element] that uses a [InheritedWidget] as its configuration.
+/** An [Element] that uses a [InheritedWidget] as its configuration. */
 class InheritedElement(widget: InheritedWidget) : ProxyElement(widget) {
 
     val _dependents: MutableSet<Element> = mutableSetOf()
@@ -23,17 +23,19 @@ class InheritedElement(widget: InheritedWidget) : ProxyElement(widget) {
         super.debugDeactivated()
     }
 
-    // / Calls [Element.didChangeDependencies] of all dependent elements, if
-    // / [InheritedWidget.updateShouldNotify] returns true.
-    // /
-    // / Notifies all dependent elements that this inherited widget has changed.
-    // /
-    // / [InheritedElement] calls this function if the [widget]'s
-    // / [InheritedWidget.updateShouldNotify] returns true.
-    // /
-    // / This method must be called during the build phase. Usually this method is
-    // / called automatically when an inherited widget is rebuilt, e.g. as a
-    // / result of calling [State.setState] above the inherited widget.
+    /**
+     * Calls [Element.didChangeDependencies] of all dependent elements, if
+     * [InheritedWidget.updateShouldNotify] returns true.
+     *
+     * Notifies all dependent elements that this inherited widget has changed.
+     *
+     * [InheritedElement] calls this function if the [widget]'s
+     * [InheritedWidget.updateShouldNotify] returns true.
+     *
+     * This method must be called during the build phase. Usually this method is
+     * called automatically when an inherited widget is rebuilt, e.g. as a
+     * result of calling [State.setState] above the inherited widget.
+     */
     override fun notifyClients(oldWidget: Widget) {
         val inheritedWidget = oldWidget as InheritedWidget
         if (inheritedWidget.updateShouldNotify(oldWidget))

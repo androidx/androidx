@@ -16,18 +16,20 @@
 
 package androidx.ui.gestures.arena
 
-// / Represents an object participating in an arena.
-// /
-// / Receives callbacks from the GestureArena to notify the object when it wins
-// / or loses a gesture negotiation. Exactly one of [acceptGesture] or
-// / [rejectGesture] will be called for each arena this member was added to,
-// / regardless of what caused the arena to be resolved. For example, if a
-// / member resolves the arena itself, that member still receives an
-// / [acceptGesture] callback.
+/**
+ * Represents an object participating in an arena.
+ *
+ * Receives callbacks from the GestureArena to notify the object when it wins
+ * or loses a gesture negotiation. Exactly one of [acceptGesture] or
+ * [rejectGesture] will be called for each arena this member was added to,
+ * regardless of what caused the arena to be resolved. For example, if a
+ * member resolves the arena itself, that member still receives an
+ * [acceptGesture] callback.
+ */
 interface GestureArenaMember {
-    // / Called when this member wins the arena for the given pointer id.
+    /** Called when this member wins the arena for the given pointer id. */
     fun acceptGesture(pointer: Int)
 
-    // / Called when this member loses the arena for the given pointer id.
+    /** Called when this member loses the arena for the given pointer id. */
     fun rejectGesture(pointer: Int)
 }

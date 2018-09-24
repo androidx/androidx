@@ -18,5 +18,5 @@ package androidx.ui.gestures.pointer_router
 
 import androidx.ui.gestures.events.PointerEvent
 
-// / A callback that receives a [PointerEvent]
+/** A callback that receives a [PointerEvent] */
 typealias PointerRoute = (PointerEvent) -> Unit

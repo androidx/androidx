@@ -12,25 +12,29 @@ import androidx.ui.widgets.debugPrintScheduleBuildForStacks
 import androidx.ui.widgets.focusmanager.FocusManager
 import androidx.ui.widgets.framework.key.GlobalKey
 
-// / Manager class for the widgets framework.
-// /
-// / This class tracks which widgets need rebuilding, and handles other tasks
-// / that apply to widget trees as a whole, such as managing the inactive element
-// / list for the tree and triggering the "reassemble" command when necessary
-// / during hot reload when debugging.
-// /
-// / The main build owner is typically owned by the [WidgetsBinding], and is
-// / driven from the operating system along with the rest of the
-// / build/layout/paint pipeline.
-// /
-// / Additional build owners can be built to manage off-screen widget trees.
-// /
-// / To assign a build owner to a tree, use the
-// / [RootRenderObjectElement.assignOwner] method on the root element of the
-// / widget tree.
+/**
+ * Manager class for the widgets framework.
+ *
+ * This class tracks which widgets need rebuilding, and handles other tasks
+ * that apply to widget trees as a whole, such as managing the inactive element
+ * list for the tree and triggering the "reassemble" command when necessary
+ * during hot reload when debugging.
+ *
+ * The main build owner is typically owned by the [WidgetsBinding], and is
+ * driven from the operating system along with the rest of the
+ * build/layout/paint pipeline.
+ *
+ * Additional build owners can be built to manage off-screen widget trees.
+ *
+ * To assign a build owner to a tree, use the
+ * [RootRenderObjectElement.assignOwner] method on the root element of the
+ * widget tree.
+ */
 class BuildOwner(
-        // / Called on each build pass when the first buildable element is marked
-        // / dirty.
+    /**
+     * Called on each build pass when the first buildable element is marked
+     * dirty.
+     */
     var onBuildScheduled: VoidCallback = {},
     /**
      * Added for ComponentNodes to react on widgets tree rebuilds
@@ -52,8 +56,10 @@ class BuildOwner(
 //    /// See [FocusManager] for more details.
     val focusManager = FocusManager()
 //
-    // / Adds an element to the dirty elements list so that it will be rebuilt
-    // / when [WidgetsBinding.drawFrame] calls [buildScope].
+    /**
+     * Adds an element to the dirty elements list so that it will be rebuilt
+     * when [WidgetsBinding.drawFrame] calls [buildScope].
+     */
     fun scheduleBuildFor(element: Element) {
         assert(element != null)
         assert(element.owner == this)
@@ -113,19 +119,23 @@ class BuildOwner(
     internal var _debugStateLockLevel = 0
     val _debugStateLocked: Boolean get() = _debugStateLockLevel > 0
 
-    // / Whether this widget tree is in the build phase.
-    // /
-    // / Only valid when asserts are enabled.
+    /**
+     * Whether this widget tree is in the build phase.
+     *
+     * Only valid when asserts are enabled.
+     */
     var debugBuilding: Boolean = false
         private set
 
     internal var _debugCurrentBuildTarget: Element? = null
 
-    // / Establishes a scope in which calls to [State.setState] are forbidden, and
-    // / calls the given `callback`.
-    // /
-    // / This mechanism is used to ensure that, for instance, [State.dispose] does
-    // / not call [State.setState].
+    /**
+     * Establishes a scope in which calls to [State.setState] are forbidden, and
+     * calls the given `callback`.
+     *
+     * This mechanism is used to ensure that, for instance, [State.dispose] does
+     * not call [State.setState].
+     */
     fun lockState(callback: () -> Unit) {
         assert(callback != null)
         assert(_debugStateLockLevel >= 0)
@@ -144,31 +154,33 @@ class BuildOwner(
         assert(_debugStateLockLevel >= 0)
     }
 
-    // / Establishes a scope for updating the widget tree, and calls the given
-    // / `callback`, if any. Then, builds all the elements that were marked as
-    // / dirty using [scheduleBuildFor], in depth order.
-    // /
-    // / This mechanism prevents build methods from transitively requiring other
-    // / build methods to run, potentially causing infinite loops.
-    // /
-    // / The dirty list is processed after `callback` returns, building all the
-    // / elements that were marked as dirty using [scheduleBuildFor], in depth
-    // / order. If elements are marked as dirty while this method is running, they
-    // / must be deeper than the `context` node, and deeper than any
-    // / previously-built node in this pass.
-    // /
-    // / To flush the current dirty list without performing any other work, this
-    // / function can be called with no callback. This is what the framework does
-    // / each frame, in [WidgetsBinding.drawFrame].
-    // /
-    // / Only one [buildScope] can be active at a time.
-    // /
-    // / A [buildScope] implies a [lockState] scope as well.
-    // /
-    // / To print a console message every time this method is called, set
-    // / [debugPrintBuildScope] to true. This is useful when debugging problems
-    // / involving widgets not getting marked dirty, or getting marked dirty too
-    // / often.
+    /**
+     * Establishes a scope for updating the widget tree, and calls the given
+     * `callback`, if any. Then, builds all the elements that were marked as
+     * dirty using [scheduleBuildFor], in depth order.
+     *
+     * This mechanism prevents build methods from transitively requiring other
+     * build methods to run, potentially causing infinite loops.
+     *
+     * The dirty list is processed after `callback` returns, building all the
+     * elements that were marked as dirty using [scheduleBuildFor], in depth
+     * order. If elements are marked as dirty while this method is running, they
+     * must be deeper than the `context` node, and deeper than any
+     * previously-built node in this pass.
+     *
+     * To flush the current dirty list without performing any other work, this
+     * function can be called with no callback. This is what the framework does
+     * each frame, in [WidgetsBinding.drawFrame].
+     *
+     * Only one [buildScope] can be active at a time.
+     *
+     * A [buildScope] implies a [lockState] scope as well.
+     *
+     * To print a console message every time this method is called, set
+     * [debugPrintBuildScope] to true. This is useful when debugging problems
+     * involving widgets not getting marked dirty, or getting marked dirty too
+     * often.
+     */
     fun buildScope(context: Element, callback: VoidCallback?) {
         if (callback == null && _dirtyElements.isEmpty())
             return
@@ -304,16 +316,18 @@ class BuildOwner(
         _debugElementsToBeRebuiltDueToGlobalKeyShenanigans?.remove(node)
     }
 
-    // / Complete the element build pass by unmounting any elements that are no
-    // / longer active.
-    // /
-    // / This is called by [WidgetsBinding.drawFrame].
-    // /
-    // / In debug mode, this also runs some sanity checks, for example checking for
-    // / duplicate global keys.
-    // /
-    // / After the current call stack unwinds, a microtask that notifies listeners
-    // / about changes to global keys will run.
+    /**
+     * Complete the element build pass by unmounting any elements that are no
+     * longer active.
+     *
+     * This is called by [WidgetsBinding.drawFrame].
+     *
+     * In debug mode, this also runs some sanity checks, for example checking for
+     * duplicate global keys.
+     *
+     * After the current call stack unwinds, a microtask that notifies listeners
+     * about changes to global keys will run.
+     */
     fun finalizeTree() {
         Timeline.startSync("Finalize tree", timelineWhitelistArguments)
         try {
@@ -422,12 +436,14 @@ class BuildOwner(
         }
     }
 
-    // / Cause the entire subtree rooted at the given [Element] to be entirely
-    // / rebuilt. This is used by development tools when the application code has
-    // / changed and is being hot-reloaded, to cause the widget tree to pick up any
-    // / changed implementations.
-    // /
-    // / This is expensive and should not be called except during development.
+    /**
+     * Cause the entire subtree rooted at the given [Element] to be entirely
+     * rebuilt. This is used by development tools when the application code has
+     * changed and is being hot-reloaded, to cause the widget tree to pick up any
+     * changed implementations.
+     *
+     * This is expensive and should not be called except during development.
+     */
     fun reassemble(root: Element) {
         Timeline.startSync("Dirty Element Tree")
         try {

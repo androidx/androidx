@@ -21,12 +21,14 @@ import androidx.ui.rendering.obj.ContainerRenderObjectMixin
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.widgets.debugChildrenHaveDuplicateKeys
 
-// / An [Element] that uses a [MultiChildRenderObjectWidget] as its configuration.
-// /
-// / This element subclass can be used for RenderObjectWidgets whose
-// / RenderObjects use the [ContainerRenderObjectMixin] mixin with a parent data
-// / type that implements [ContainerParentDataMixin<RenderObject>]. Such widgets
-// / are expected to inherit from [MultiChildRenderObjectWidget].
+/**
+ * An [Element] that uses a [MultiChildRenderObjectWidget] as its configuration.
+ *
+ * This element subclass can be used for RenderObjectWidgets whose
+ * RenderObjects use the [ContainerRenderObjectMixin] mixin with a parent data
+ * type that implements [ContainerParentDataMixin<RenderObject>]. Such widgets
+ * are expected to inherit from [MultiChildRenderObjectWidget].
+ */
 class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
     : RenderObjectElement(widget) {
 
@@ -34,10 +36,12 @@ class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
         assert(!debugChildrenHaveDuplicateKeys(widget, widget.children))
     }
 
-    // / The current list of children of this element.
-    // /
-    // / This list is filtered to hide elements that have been forgotten (using
-    // / [forgetChild]).
+    /**
+     * The current list of children of this element.
+     *
+     * This list is filtered to hide elements that have been forgotten (using
+     * [forgetChild]).
+     */
     protected val children get() = _children.filter { !_forgottenChildren.contains(it) }
 
     private var _children: List<Element> = emptyList()

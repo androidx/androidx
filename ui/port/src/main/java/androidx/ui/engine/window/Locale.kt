@@ -1,39 +1,41 @@
 package androidx.ui.engine.window
 
-// / An identifier used to select a user's language and formatting preferences,
-// / consisting of a language and a country. This is a subset of locale
-// / identifiers as defined by BCP 47.
-// /
-// / Locales are canonicalized according to the "preferred value" entries in the
-// / [IANA Language Subtag
-// / Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
-// / For example, `const Locale('he')` and `const Locale('iw')` are equal and
-// / both have the [languageCode] `he`, because `iw` is a deprecated language
-// / subtag that was replaced by the subtag `he`.
-// /
-// / See also:
-// /
-// /  * [Window.locale], which specifies the system's currently selected
-// /    [Locale].
-
-// / The default constructor creates a new Locale object. The first argument is the
-// / primary language subtag, the second is the region subtag.
-// /
-// / For example:
-// /
-// / ```dart
-// / const Locale swissFrench = const Locale('fr', 'CH');
-// / const Locale canadianFrench = const Locale('fr', 'CA');
-// / ```
-// /
-// / The primary language subtag must not be null. The region subtag is
-// / optional.
-// /
-// / The values are _case sensitive_, and should match the case of the relevant
-// / subtags in the [IANA Language Subtag
-// / Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
-// / Typically this means the primary language subtag should be lowercase and
-// / the region subtag should be uppercase.
+/**
+ * An identifier used to select a user's language and formatting preferences,
+ * consisting of a language and a country. This is a subset of locale
+ * identifiers as defined by BCP 47.
+ *
+ * Locales are canonicalized according to the "preferred value" entries in the
+ * [IANA Language Subtag
+ * Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
+ * For example, `const Locale('he')` and `const Locale('iw')` are equal and
+ * both have the [languageCode] `he`, because `iw` is a deprecated language
+ * subtag that was replaced by the subtag `he`.
+ *
+ * See also:
+ *
+ *  * [Window.locale], which specifies the system's currently selected
+ *    [Locale].
+ *
+ * The default constructor creates a new Locale object. The first argument is the
+ * primary language subtag, the second is the region subtag.
+ *
+ * For example:
+ *
+ * ```dart
+ * const Locale swissFrench = const Locale('fr', 'CH');
+ * const Locale canadianFrench = const Locale('fr', 'CA');
+ * ```
+ *
+ * The primary language subtag must not be null. The region subtag is
+ * optional.
+ *
+ * The values are _case sensitive_, and should match the case of the relevant
+ * subtags in the [IANA Language Subtag
+ * Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
+ * Typically this means the primary language subtag should be lowercase and
+ * the region subtag should be uppercase.
+ */
 data class Locale(
     val _languageCode: String,
     val _countryCode: String? = null
@@ -42,37 +44,41 @@ data class Locale(
     // TODO(Migration/siyamed): I saw this class, and I feel like it  might be too limited.
     // I think we might want to wrap system locale, or yuse system locale.
 
-    // / The primary language subtag for the locale.
-    // /
-    // / This must not be null.
-    // /
-    // / This is expected to be string registered in the [IANA Language Subtag
-    // / Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry)
-    // / with the type "language". The string specified must match the case of the
-    // / string in the registry.
-    // /
-    // / Language subtags that are deprecated in the registry and have a preferred
-    // / code are changed to their preferred code. For example, `const
-    // / Locale('he')` and `const Locale('iw')` are equal, and both have the
-    // / [languageCode] `he`, because `iw` is a deprecated language subtag that was
-    // / replaced by the subtag `he`.
+    /**
+     * The primary language subtag for the locale.
+     *
+     * This must not be null.
+     *
+     * This is expected to be string registered in the [IANA Language Subtag
+     * Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry)
+     * with the type "language". The string specified must match the case of the
+     * string in the registry.
+     *
+     * Language subtags that are deprecated in the registry and have a preferred
+     * code are changed to their preferred code. For example, `const
+     * Locale('he')` and `const Locale('iw')` are equal, and both have the
+     * [languageCode] `he`, because `iw` is a deprecated language subtag that was
+     * replaced by the subtag `he`.
+     */
     val languageCode: String
         get() = _canonicalizeLanguageCode(_languageCode)
 
-    // / The region subtag for the locale.
-    // /
-    // / This can be null.
-    // /
-    // / This is expected to be string registered in the [IANA Language Subtag
-    // / Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry)
-    // / with the type "region". The string specified must match the case of the
-    // / string in the registry.
-    // /
-    // / Region subtags that are deprecated in the registry and have a preferred
-    // / code are changed to their preferred code. For example, `const Locale('de',
-    // / 'DE')` and `const Locale('de', 'DD')` are equal, and both have the
-    // / [countryCode] `DE`, because `DD` is a deprecated language subtag that was
-    // / replaced by the subtag `DE`.
+    /**
+     * The region subtag for the locale.
+     *
+     * This can be null.
+     *
+     * This is expected to be string registered in the [IANA Language Subtag
+     * Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry)
+     * with the type "region". The string specified must match the case of the
+     * string in the registry.
+     *
+     * Region subtags that are deprecated in the registry and have a preferred
+     * code are changed to their preferred code. For example, `const Locale('de',
+     * 'DE')` and `const Locale('de', 'DD')` are equal, and both have the
+     * [countryCode] `DE`, because `DD` is a deprecated language subtag that was
+     * replaced by the subtag `DE`.
+     */
     val countryCode
         get() = if (_countryCode != null) _canonicalizeRegionCode(_countryCode) else null
 

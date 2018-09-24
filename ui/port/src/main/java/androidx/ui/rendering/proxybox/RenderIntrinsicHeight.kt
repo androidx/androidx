@@ -18,20 +18,22 @@ package androidx.ui.rendering.proxybox
 
 import androidx.ui.rendering.box.RenderBox
 
-// / Sizes its child to the child's intrinsic height.
-// /
-// / This class is useful, for example, when unlimited height is available and
-// / you would like a child that would otherwise attempt to expand infinitely to
-// / instead size itself to a more reasonable height.
-// /
-// / This class is relatively expensive, because it adds a speculative layout
-// / pass before the final layout phase. Avoid using it where possible. In the
-// / worst case, this render object can result in a layout that is O(N²) in the
-// / depth of the tree.
+/**
+ * Sizes its child to the child's intrinsic height.
+ *
+ * This class is useful, for example, when unlimited height is available and
+ * you would like a child that would otherwise attempt to expand infinitely to
+ * instead size itself to a more reasonable height.
+ *
+ * This class is relatively expensive, because it adds a speculative layout
+ * pass before the final layout phase. Avoid using it where possible. In the
+ * worst case, this render object can result in a layout that is O(N²) in the
+ * depth of the tree.
+ */
 class RenderIntrinsicHeight(
     child: RenderBox? = null
 ) : RenderProxyBox(child) {
-    // / Creates a render object that sizes itself to its child's intrinsic height.
+/** Creates a render object that sizes itself to its child's intrinsic height. */
 
     override fun computeMinIntrinsicWidth(height: Double): Double {
         if (child == null)

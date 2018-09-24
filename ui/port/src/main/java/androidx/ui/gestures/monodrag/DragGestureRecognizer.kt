@@ -36,22 +36,24 @@ import androidx.ui.gestures.velocity_tracker.Velocity
 import androidx.ui.gestures.velocity_tracker.VelocityEstimate
 import androidx.ui.gestures.velocity_tracker.VelocityTracker
 
-// / Recognizes movement.
-// /
-// / In contrast to [MultiDragGestureRecognizer], [DragGestureRecognizer]
-// / recognizes a single gesture sequence for all the pointers it watches, which
-// / means that the recognizer has at most one drag sequence active at any given
-// / time regardless of how many pointers are in contact with the screen.
-// /
-// / [DragGestureRecognizer] is not intended to be used directly. Instead,
-// / consider using one of its subclasses to recognize specific types for drag
-// / gestures.
-// /
-// / See also:
-// /
-// /  * [HorizontalDragGestureRecognizer], for left and right drags.
-// /  * [VerticalDragGestureRecognizer], for up and down drags.
-// /  * [PanGestureRecognizer], for drags that are not locked to a single axis.
+/**
+ * Recognizes movement.
+ *
+ * In contrast to [MultiDragGestureRecognizer], [DragGestureRecognizer]
+ * recognizes a single gesture sequence for all the pointers it watches, which
+ * means that the recognizer has at most one drag sequence active at any given
+ * time regardless of how many pointers are in contact with the screen.
+ *
+ * [DragGestureRecognizer] is not intended to be used directly. Instead,
+ * consider using one of its subclasses to recognize specific types for drag
+ * gestures.
+ *
+ * See also:
+ *
+ *  * [HorizontalDragGestureRecognizer], for left and right drags.
+ *  * [VerticalDragGestureRecognizer], for up and down drags.
+ *  * [PanGestureRecognizer], for drags that are not locked to a single axis.
+ */
 // TODO(Migration/shepshapard): Needs tests, which rely on some Mixin stuff.
 abstract class DragGestureRecognizer(
     debugOwner: Any? = null
@@ -59,52 +61,66 @@ abstract class DragGestureRecognizer(
     debugOwner
 ) {
 
-    // / A pointer has contacted the screen and might begin to move.
-    // /
-    // / The position of the pointer is provided in the callback's `details`
-    // / argument, which is a [DragDownDetails] object.
+    /**
+     * A pointer has contacted the screen and might begin to move.
+     *
+     * The position of the pointer is provided in the callback's `details`
+     * argument, which is a [DragDownDetails] object.
+     */
     var onDown: GestureDragDownCallback? = null
 
-    // / A pointer has contacted the screen and has begun to move.
-    // /
-    // / The position of the pointer is provided in the callback's `details`
-    // / argument, which is a [DragStartDetails] object.
+    /**
+     * A pointer has contacted the screen and has begun to move.
+     *
+     * The position of the pointer is provided in the callback's `details`
+     * argument, which is a [DragStartDetails] object.
+     */
     var onStart: GestureDragStartCallback? = null
 
-    // / A pointer that is in contact with the screen and moving has moved again.
-    // /
-    // / The distance travelled by the pointer since the last update is provided in
-    // / the callback's `details` argument, which is a [DragUpdateDetails] object.
+    /**
+     * A pointer that is in contact with the screen and moving has moved again.
+     *
+     * The distance travelled by the pointer since the last update is provided in
+     * the callback's `details` argument, which is a [DragUpdateDetails] object.
+     */
     var onUpdate: GestureDragUpdateCallback? = null
 
-    // / A pointer that was previously in contact with the screen and moving is no
-    // / longer in contact with the screen and was moving at a specific velocity
-    // / when it stopped contacting the screen.
-    // /
-    // / The velocity is provided in the callback's `details` argument, which is a
-    // / [DragEndDetails] object.
+    /**
+     * A pointer that was previously in contact with the screen and moving is no
+     * longer in contact with the screen and was moving at a specific velocity
+     * when it stopped contacting the screen.
+     *
+     * The velocity is provided in the callback's `details` argument, which is a
+     * [DragEndDetails] object.
+     */
     var onEnd: GestureDragEndCallback? = null
 
-    // / The pointer that previously triggered [onDown] did not complete.
+    /** The pointer that previously triggered [onDown] did not complete. */
     var onCancel: GestureDragCancelCallback? = null
 
-    // / The minimum distance an input pointer drag must have moved to
-    // / to be considered a fling gesture.
-    // /
-    // / This value is typically compared with the distance traveled along the
-    // / scrolling axis. If null then [kTouchSlop] is used.
+    /**
+     * The minimum distance an input pointer drag must have moved to
+     * to be considered a fling gesture.
+     *
+     * This value is typically compared with the distance traveled along the
+     * scrolling axis. If null then [kTouchSlop] is used.
+     */
     var minFlingDistance: Double? = null
 
-    // / The minimum velocity for an input pointer drag to be considered fling.
-    // /
-    // / This value is typically compared with the magnitude of fling gesture's
-    // / velocity along the scrolling axis. If null then [kMinFlingVelocity]
-    // / is used.
+    /**
+     * The minimum velocity for an input pointer drag to be considered fling.
+     *
+     * This value is typically compared with the magnitude of fling gesture's
+     * velocity along the scrolling axis. If null then [kMinFlingVelocity]
+     * is used.
+     */
     var minFlingVelocity: Double? = null
 
-    // / Fling velocity magnitudes will be clamped to this value.
-    // /
-    // / If null then [kMaxFlingVelocity] is used.
+    /**
+     * Fling velocity magnitudes will be clamped to this value.
+     *
+     * If null then [kMaxFlingVelocity] is used.
+     */
     var maxFlingVelocity: Double? = null
 
     private var _state: _DragState = _DragState.ready

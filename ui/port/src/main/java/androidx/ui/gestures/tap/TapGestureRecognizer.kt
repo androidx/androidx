@@ -28,33 +28,41 @@ import androidx.ui.gestures.kPressTimeout
 import androidx.ui.gestures.recognizer.GestureRecognizerState
 import androidx.ui.gestures.recognizer.PrimaryPointerGestureRecognizer
 
-// / Recognizes taps.
-// /
-// / [TapGestureRecognizer] considers all the pointers involved in the pointer
-// / event sequence as contributing to one gesture. For this reason, extra
-// / pointer interactions during a tap sequence are not recognized as additional
-// / taps. For example, down-1, down-2, up-1, up-2 produces only one tap on up-1.
-// /
-// / See also:
-// /
-// /  * [MultiTapGestureRecognizer]
+/**
+ * Recognizes taps.
+ *
+ * [TapGestureRecognizer] considers all the pointers involved in the pointer
+ * event sequence as contributing to one gesture. For this reason, extra
+ * pointer interactions during a tap sequence are not recognized as additional
+ * taps. For example, down-1, down-2, up-1, up-2 produces only one tap on up-1.
+ *
+ * See also:
+ *
+ *  * [MultiTapGestureRecognizer]
+ */
 class TapGestureRecognizer(debugOwner: Any? = null) : PrimaryPointerGestureRecognizer(
     kPressTimeout,
     debugOwner
 ) {
-    // / A pointer that might cause a tap has contacted the screen at a particular
-    // / location.
+    /**
+     * A pointer that might cause a tap has contacted the screen at a particular
+     * location.
+     */
     var onTapDown: GestureTapDownCallback? = null
 
-    // / A pointer that will trigger a tap has stopped contacting the screen at a
-    // / particular location.
+    /**
+     * A pointer that will trigger a tap has stopped contacting the screen at a
+     * particular location.
+     */
     var onTapUp: GestureTapUpCallback? = null
 
-    // / A tap has occurred.
+    /** A tap has occurred. */
     var onTap: GestureTapCallback? = null
 
-    // / The pointer that previously triggered [onTapDown] will not end up causing
-    // / a tap.
+    /**
+     * The pointer that previously triggered [onTapDown] will not end up causing
+     * a tap.
+     */
     var onTapCancel: GestureTapCancelCallback? = null
 
     private var _sentTapDown: Boolean = false

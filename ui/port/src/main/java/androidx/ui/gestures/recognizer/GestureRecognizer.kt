@@ -29,61 +29,73 @@ import androidx.ui.gestures.debugPrintGestureArenaDiagnostics
 import androidx.ui.gestures.debugPrintRecognizerCallbacksTrace
 import androidx.ui.gestures.events.PointerDownEvent
 
-// / The base class that all gesture recognizers inherit from.
-// /
-// / Provides a basic API that can be used by classes that work with
-// / gesture recognizers but don't care about the specific details of
-// / the gestures recognizers themselves.
-// /
-// / See also:
-// /
-// /  * [GestureDetector], the widget that is used to detect gestures.
-// /  * [debugPrintRecognizerCallbacksTrace], a flag that can be set to help
-// /    debug issues with gesture recognizers.
+/**
+ * The base class that all gesture recognizers inherit from.
+ *
+ * Provides a basic API that can be used by classes that work with
+ * gesture recognizers but don't care about the specific details of
+ * the gestures recognizers themselves.
+ *
+ * See also:
+ *
+ *  * [GestureDetector], the widget that is used to detect gestures.
+ *  * [debugPrintRecognizerCallbacksTrace], a flag that can be set to help
+ *    debug issues with gesture recognizers.
+ */
 abstract class GestureRecognizer(
-    // / The recognizer's owner.
-    // /
-    // / This is used in the [toString] serialization to report the object for which
-    // / this gesture recognizer was created, to aid in debugging.
+    /**
+     * The recognizer's owner.
+     *
+     * This is used in the [toString] serialization to report the object for which
+     * this gesture recognizer was created, to aid in debugging.
+     */
     val debugOwner: Any? = null
 ) : GestureArenaMember, DiagnosticableTree {
-    // / Registers a new pointer that might be relevant to this gesture
-    // / detector.
-    // /
-    // / The owner of this gesture recognizer calls addPointer() with the
-    // / PointerDownEvent of each pointer that should be considered for
-    // / this gesture.
-    // /
-    // / It's the GestureRecognizer's responsibility to then add itself
-    // / to the global pointer router (see [PointerRouter]) to receive
-    // / subsequent events for this pointer, and to add the pointer to
-    // / the global gesture arena manager (see [GestureArenaManager]) to track
-    // / that pointer.
+    /**
+     * Registers a new pointer that might be relevant to this gesture
+     * detector.
+     *
+     * The owner of this gesture recognizer calls addPointer() with the
+     * PointerDownEvent of each pointer that should be considered for
+     * this gesture.
+     *
+     * It's the GestureRecognizer's responsibility to then add itself
+     * to the global pointer router (see [PointerRouter]) to receive
+     * subsequent events for this pointer, and to add the pointer to
+     * the global gesture arena manager (see [GestureArenaManager]) to track
+     * that pointer.
+     */
     abstract fun addPointer(event: PointerDownEvent)
 
-    // / Releases any resources used by the object.
-    // /
-    // / This method is called by the owner of this gesture recognizer
-    // / when the object is no longer needed (e.g. when a gesture
-    // / recognizer is being unregistered from a [GestureDetector], the
-    // / GestureDetector widget calls this method).
+    /**
+     * Releases any resources used by the object.
+     *
+     * This method is called by the owner of this gesture recognizer
+     * when the object is no longer needed (e.g. when a gesture
+     * recognizer is being unregistered from a [GestureDetector], the
+     * GestureDetector widget calls this method).
+     */
     @CallSuper
     open fun dispose() {
     }
 
-    // / Returns a very short pretty description of the gesture that the
-    // / recognizer looks for, like 'tap' or 'horizontal drag'.
+    /**
+     * Returns a very short pretty description of the gesture that the
+     * recognizer looks for, like 'tap' or 'horizontal drag'.
+     */
     abstract val debugDescription: String
 
-    // / Invoke a callback provided by the application, catching and logging any
-    // / exceptions.
-    // /
-    // / The `name` argument is ignored except when reporting exceptions.
-    // /
-    // / The `debugReport` argument is optional and is used when
-    // / [debugPrintRecognizerCallbacksTrace] is true. If specified, it must be a
-    // / callback that returns a string describing useful debugging information,
-    // / e.g. the arguments passed to the callback.
+    /**
+     * Invoke a callback provided by the application, catching and logging any
+     * exceptions.
+     *
+     * The `name` argument is ignored except when reporting exceptions.
+     *
+     * The `debugReport` argument is optional and is used when
+     * [debugPrintRecognizerCallbacksTrace] is true. If specified, it must be a
+     * callback that returns a string describing useful debugging information,
+     * e.g. the arguments passed to the callback.
+     */
     protected fun <T> invokeCallback(
         name: String,
         callback: RecognizerCallback<T>,

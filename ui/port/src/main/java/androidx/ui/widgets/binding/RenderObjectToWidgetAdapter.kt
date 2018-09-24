@@ -27,27 +27,31 @@ import androidx.ui.widgets.framework.StatefulWidget
 import androidx.ui.widgets.framework.Widget
 import androidx.ui.widgets.framework.key.GlobalObjectKey
 
-// / A bridge from a [RenderObject] to an [Element] tree.
-// /
-// / The given container is the [RenderObject] that the [Element] tree should be
-// / inserted into. It must be a [RenderObject] that implements the
-// / [RenderObjectWithChildMixin] protocol. The type argument `T` is the kind of
-// / [RenderObject] that the container expects as its child.
-// /
-// / Used by [runApp] to bootstrap applications.
-// /
-// / Ctor comment:
-// / Creates a bridge from a [RenderObject] to an [Element] tree.
-// /
-// / Used by [WidgetsBinding] to attach the root widget to the [RenderView].
+/**
+ * A bridge from a [RenderObject] to an [Element] tree.
+ *
+ * The given container is the [RenderObject] that the [Element] tree should be
+ * inserted into. It must be a [RenderObject] that implements the
+ * [RenderObjectWithChildMixin] protocol. The type argument `T` is the kind of
+ * [RenderObject] that the container expects as its child.
+ *
+ * Used by [runApp] to bootstrap applications.
+ *
+ * Ctor comment:
+ * Creates a bridge from a [RenderObject] to an [Element] tree.
+ *
+ * Used by [WidgetsBinding] to attach the root widget to the [RenderView].
+ */
 class RenderObjectToWidgetAdapter<T : RenderObject>(
-        // / The widget below this widget in the tree.
-        // /
-        // / {@macro flutter.widgets.child}
+    /**
+     * The widget below this widget in the tree.
+     *
+     * {@macro flutter.widgets.child}
+     */
     val child: Widget,
-        // / The [RenderObject] that is the parent of the [Element] created by this widget.
+    /** The [RenderObject] that is the parent of the [Element] created by this widget. */
     val container: RenderObjectWithChildMixin<T>,
-        // / A short description of this widget used by debugging aids.
+    /** A short description of this widget used by debugging aids. */
     val debugShortDescription: String?
 // TODO(Migration/Filip): Added artificial generic argument below
 ) : RenderObjectWidget(key = GlobalObjectKey<State<StatefulWidget>>(container)) {
@@ -60,13 +64,15 @@ class RenderObjectToWidgetAdapter<T : RenderObject>(
 
     override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) { }
 
-    // / Inflate this widget and actually set the resulting [RenderObject] as the
-    // / child of [container].
-    // /
-    // / If `element` is null, this function will create a new element. Otherwise,
-    // / the given element will have an update scheduled to switch to this widget.
-    // /
-    // / Used by [runApp] to bootstrap applications.
+    /**
+     * Inflate this widget and actually set the resulting [RenderObject] as the
+     * child of [container].
+     *
+     * If `element` is null, this function will create a new element. Otherwise,
+     * the given element will have an update scheduled to switch to this widget.
+     *
+     * Used by [runApp] to bootstrap applications.
+     */
     fun attachToRenderTree(
         owner: BuildOwner,
         // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets

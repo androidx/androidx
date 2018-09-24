@@ -16,23 +16,29 @@
 
 package androidx.ui.gestures.tap
 
-// / Signature for when a pointer that might cause a tap has contacted the
-// / screen.
-// /
-// / The position at which the pointer contacted the screen is available in the
-// / `details`.
+/**
+ * Signature for when a pointer that might cause a tap has contacted the
+ * screen.
+ *
+ * The position at which the pointer contacted the screen is available in the
+ * `details`.
+ */
 typealias GestureTapDownCallback = (details: TapDownDetails) -> Unit
 
-// / Signature for when a pointer that will trigger a tap has stopped contacting
-// / the screen.
-// /
-// / The position at which the pointer stopped contacting the screen is available
-// / in the `details`.
+/**
+ * Signature for when a pointer that will trigger a tap has stopped contacting
+ * the screen.
+ *
+ * The position at which the pointer stopped contacting the screen is available
+ * in the `details`.
+ */
 typealias GestureTapUpCallback = (details: TapUpDetails) -> Unit
 
-// / Signature for when a tap has occurred.
+/** Signature for when a tap has occurred. */
 typealias GestureTapCallback = () -> Unit
 
-// / Signature for when the pointer that previously triggered a
-// / [GestureTapDownCallback] will not end up causing a tap.
+/**
+ * Signature for when the pointer that previously triggered a
+ * [GestureTapDownCallback] will not end up causing a tap.
+ */
 typealias GestureTapCancelCallback = () -> Unit

@@ -2,15 +2,17 @@ package androidx.ui.foundation.diagnostics
 
 import androidx.ui.describeEnum
 
-// / An property than displays enum values tersely.
-// /
-// / The enum value is displayed with the class name stripped. For example:
-// / [HitTestBehavior.deferToChild] is shown as `deferToChild`.
-// /
-// / See also:
-// /
-// /  * [DiagnosticsProperty] which documents named parameters common to all
-// /    [DiagnosticsProperty]
+/**
+ * An property than displays enum values tersely.
+ *
+ * The enum value is displayed with the class name stripped. For example:
+ * [HitTestBehavior.deferToChild] is shown as `deferToChild`.
+ *
+ * See also:
+ *
+ *  * [DiagnosticsProperty] which documents named parameters common to all
+ *    [DiagnosticsProperty]
+ */
 class EnumProperty<T : Any>(
     name: String,
     value: T?,

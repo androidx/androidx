@@ -7,14 +7,16 @@ import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.runtimeType
 
-// / An [Element] that uses a [StatefulWidget] as its configuration.
+/** An [Element] that uses a [StatefulWidget] as its configuration. */
 class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
 
-    // / The [State] instance associated with this location in the tree.
-    // /
-    // / There is a one-to-one relationship between [State] objects and the
-    // / [StatefulElement] objects that hold them. The [State] objects are created
-    // / by [StatefulElement] in [mount].
+    /**
+     * The [State] instance associated with this location in the tree.
+     *
+     * There is a one-to-one relationship between [State] objects and the
+     * [StatefulElement] objects that hold them. The [State] objects are created
+     * by [StatefulElement] in [mount].
+     */
     var state: State<StatefulWidget>? = widget.createState()
         private set
 

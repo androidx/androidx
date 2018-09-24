@@ -38,20 +38,22 @@ import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.engine.text.TextDirection
 
-// / An image in the render tree.
-// /
-// / The render image attempts to find a size for itself that fits in the given
-// / constraints and preserves the image's intrinsic aspect ratio.
-// /
-// / The image is painted using [paintImage], which describes the meanings of the
-// / various fields on this class in more detail.
-// /
-// / Ctor comment:
-// / Creates a render box that displays an image.
-// /
-// / The [scale], [alignment], [repeat], and [matchTextDirection] arguments
-// / must not be null. The [textDirection] argument must not be null if
-// / [alignment] will need resolving or if [matchTextDirection] is true.
+/**
+ * An image in the render tree.
+ *
+ * The render image attempts to find a size for itself that fits in the given
+ * constraints and preserves the image's intrinsic aspect ratio.
+ *
+ * The image is painted using [paintImage], which describes the meanings of the
+ * various fields on this class in more detail.
+ *
+ * Ctor comment:
+ * Creates a render box that displays an image.
+ *
+ * The [scale], [alignment], [repeat], and [matchTextDirection] arguments
+ * must not be null. The [textDirection] argument must not be null if
+ * [alignment] will need resolving or if [matchTextDirection] is true.
+ */
 class RenderImage(
     image: Image? = null,
     width: Double? = null,
@@ -104,7 +106,7 @@ class RenderImage(
         markNeedsPaint()
     }
 
-    // / The image to display.
+    /** The image to display. */
     var image: Image?
         get() = _image
         set(value) = run {
@@ -116,10 +118,12 @@ class RenderImage(
                 markNeedsLayout()
         }
 
-    // / If non-null, requires the image to have this width.
-    // /
-    // / If null, the image will pick a size that best preserves its intrinsic
-    // / aspect ratio.
+    /**
+     * If non-null, requires the image to have this width.
+     *
+     * If null, the image will pick a size that best preserves its intrinsic
+     * aspect ratio.
+     */
     var width: Double?
         get() = _width
         set(value) = run {
@@ -129,10 +133,12 @@ class RenderImage(
             markNeedsLayout()
         }
 
-    // / If non-null, require the image to have this height.
-    // /
-    // / If null, the image will pick a size that best preserves its intrinsic
-    // / aspect ratio.
+    /**
+     * If non-null, require the image to have this height.
+     *
+     * If null, the image will pick a size that best preserves its intrinsic
+     * aspect ratio.
+     */
     var height: Double?
         get() = _height
         set(value) = run {
@@ -142,9 +148,11 @@ class RenderImage(
             markNeedsLayout()
         }
 
-    // / Specifies the image's scale.
-    // /
-    // / Used when determining the best display size for the image.
+    /**
+     * Specifies the image's scale.
+     *
+     * Used when determining the best display size for the image.
+     */
     var scale: Double
         get() = _scale
         set(value) = run {
@@ -164,7 +172,7 @@ class RenderImage(
             _colorFilter = ColorFilter(_color!!, _colorBlendMode ?: BlendMode.srcIn)
     }
 
-    // / If non-null, this color is blended with each image pixel using [colorBlendMode].
+    /** If non-null, this color is blended with each image pixel using [colorBlendMode]. */
     var color: Color?
         get() = _color
         set(value) = run {
@@ -175,14 +183,16 @@ class RenderImage(
             markNeedsLayout()
         }
 
-    // / Used to combine [color] with this image.
-    // /
-    // / The default is [BlendMode.srcIn]. In terms of the blend mode, [color] is
-    // / the source and this image is the destination.
-    // /
-    // / See also:
-    // /
-    // /  * [BlendMode], which includes an illustration of the effect of each blend mode.
+    /**
+     * Used to combine [color] with this image.
+     *
+     * The default is [BlendMode.srcIn]. In terms of the blend mode, [color] is
+     * the source and this image is the destination.
+     *
+     * See also:
+     *
+     *  * [BlendMode], which includes an illustration of the effect of each blend mode.
+     */
     var colorBlendMode: BlendMode?
         get() = _colorBlendMode
         set(value) = run {
@@ -193,10 +203,12 @@ class RenderImage(
             markNeedsLayout()
         }
 
-    // / How to inscribe the image into the space allocated during layout.
-    // /
-    // / The default varies based on the other fields. See the discussion at
-    // / [paintImage].
+    /**
+     * How to inscribe the image into the space allocated during layout.
+     *
+     * The default varies based on the other fields. See the discussion at
+     * [paintImage].
+     */
     var fit: BoxFit?
         get() = _fit
         set(value) = run {
@@ -206,10 +218,12 @@ class RenderImage(
             markNeedsLayout()
         }
 
-    // / How to align the image within its bounds.
-    // /
-    // / If this is set to a text-direction-dependent value, [textDirection] must
-    // / not be null.
+    /**
+     * How to align the image within its bounds.
+     *
+     * If this is set to a text-direction-dependent value, [textDirection] must
+     * not be null.
+     */
     var alignment: AlignmentGeometry
         get() = _alignment
         set(value) = run {
@@ -220,7 +234,7 @@ class RenderImage(
             _markNeedResolution()
         }
 
-    // / How to repeat this image if it doesn't fill its layout bounds.
+    /** How to repeat this image if it doesn't fill its layout bounds. */
     var repeat: ImageRepeat
         get() = _repeat
         set(value) = run {
@@ -231,13 +245,15 @@ class RenderImage(
             markNeedsPaint()
         }
 
-    // / The center slice for a nine-patch image.
-    // /
-    // / The region of the image inside the center slice will be stretched both
-    // / horizontally and vertically to fit the image into its destination. The
-    // / region of the image above and below the center slice will be stretched
-    // / only horizontally and the region of the image to the left and right of
-    // / the center slice will be stretched only vertically.
+    /**
+     * The center slice for a nine-patch image.
+     *
+     * The region of the image inside the center slice will be stretched both
+     * horizontally and vertically to fit the image into its destination. The
+     * region of the image above and below the center slice will be stretched
+     * only horizontally and the region of the image to the left and right of
+     * the center slice will be stretched only vertically.
+     */
     var centerSlice: Rect?
         get() = _centerSlice
         set(value) = run {
@@ -247,20 +263,22 @@ class RenderImage(
             markNeedsPaint()
         }
 
-    // / Whether to paint the image in the direction of the [TextDirection].
-    // /
-    // / If this is true, then in [TextDirection.ltr] contexts, the image will be
-    // / drawn with its origin in the top left (the "normal" painting direction for
-    // / images); and in [TextDirection.rtl] contexts, the image will be drawn with
-    // / a scaling factor of -1 in the horizontal direction so that the origin is
-    // / in the top right.
-    // /
-    // / This is occasionally used with images in right-to-left environments, for
-    // / images that were designed for left-to-right locales. Be careful, when
-    // / using this, to not flip images with integral shadows, text, or other
-    // / effects that will look incorrect when flipped.
-    // /
-    // / If this is set to true, [textDirection] must not be null.
+    /**
+     * Whether to paint the image in the direction of the [TextDirection].
+     *
+     * If this is true, then in [TextDirection.ltr] contexts, the image will be
+     * drawn with its origin in the top left (the "normal" painting direction for
+     * images); and in [TextDirection.rtl] contexts, the image will be drawn with
+     * a scaling factor of -1 in the horizontal direction so that the origin is
+     * in the top right.
+     *
+     * This is occasionally used with images in right-to-left environments, for
+     * images that were designed for left-to-right locales. Be careful, when
+     * using this, to not flip images with integral shadows, text, or other
+     * effects that will look incorrect when flipped.
+     *
+     * If this is set to true, [textDirection] must not be null.
+     */
     var matchTextDirection: Boolean
         get() = _matchTextDirection
         set(value) = run {
@@ -271,11 +289,13 @@ class RenderImage(
             _markNeedResolution()
         }
 
-    // / The text direction with which to resolve [alignment].
-    // /
-    // / This may be changed to null, but only after the [alignment] and
-    // / [matchTextDirection] properties have been changed to values that do not
-    // / depend on the direction.
+    /**
+     * The text direction with which to resolve [alignment].
+     *
+     * This may be changed to null, but only after the [alignment] and
+     * [matchTextDirection] properties have been changed to values that do not
+     * depend on the direction.
+     */
     var textDirection: TextDirection?
         get() = _textDirection
         set(value) = run {
@@ -286,13 +306,15 @@ class RenderImage(
             _markNeedResolution()
         }
 
-    // / Find a size for the render image within the given constraints.
-    // /
-    // /  - The dimensions of the RenderImage must fit within the constraints.
-    // /  - The aspect ratio of the RenderImage matches the intrinsic aspect
-    // /    ratio of the image.
-    // /  - The RenderImage's dimension are maximal subject to being smaller than
-    // /    the intrinsic size of the image.
+    /**
+     * Find a size for the render image within the given constraints.
+     *
+     *  - The dimensions of the RenderImage must fit within the constraints.
+     *  - The aspect ratio of the RenderImage matches the intrinsic aspect
+     *    ratio of the image.
+     *  - The RenderImage's dimension are maximal subject to being smaller than
+     *    the intrinsic size of the image.
+     */
     fun _sizeForConstraints(constraints: BoxConstraints): Size {
         // Folds the given |width| and |height| into |constraints| so they can all
         // be treated uniformly.

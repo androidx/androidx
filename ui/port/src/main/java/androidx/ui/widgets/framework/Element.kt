@@ -22,56 +22,58 @@ import androidx.ui.widgets.debugPrintGlobalKeyedWidgetLifecycle
 import androidx.ui.widgets.debugPrintRebuildDirtyWidgets
 import androidx.ui.widgets.framework.key.GlobalKey
 
-// / An instantiation of a [Widget] at a particular location in the tree.
-// /
-// / Widgets describe how to configure a subtree but the same widget can be used
-// / to configure multiple subtrees simultaneously because widgets are immutable.
-// / An [Element] represents the use of a widget to configure a specific location
-// / in the tree. Over time, the widget associated with a given element can
-// / change, for example, if the parent widget rebuilds and creates a new widget
-// / for this location.
-// /
-// / Elements form a tree. Most elements have a unique child, but some widgets
-// / (e.g., subclasses of [RenderObjectElement]) can have multiple children.
-// /
-// / Elements have the following lifecycle:
-// /
-// /  * The framework creates an element by calling [Widget.createElement] on the
-// /    widget that will be used as the element's initial configuration.
-// /  * The framework calls [mount] to add the newly created element to the tree
-// /    at a given slot in a given parent. The [mount] method is responsible for
-// /    inflating any child widgets and calling [attachRenderObject] as
-// /    necessary to attach any associated render objects to the render tree.
-// /  * At this point, the element is considered "active" and might appear on
-// /    screen.
-// /  * At some point, the parent might decide to change the widget used to
-// /    configure this element, for example because the parent rebuilt with new
-// /    state. When this happens, the framework will call [update] with the new
-// /    widget. The new widget will always have the same [runtimeType] and key as
-// /    old widget. If the parent wishes to change the [runtimeType] or key of
-// /    the widget at this location in the tree, can do so by unmounting this
-// /    element and inflating the new widget at this location.
-// /  * At some point, an ancestor might decide to remove this element (or an
-// /    intermediate ancestor) from the tree, which the ancestor does by calling
-// /    [deactivateChild] on itself. Deactivating the intermediate ancestor will
-// /    remove that element's render object from the render tree and add this
-// /    element to the [owner]'s list of inactive elements, causing the framework
-// /    to call [deactivate] on this element.
-// /  * At this point, the element is considered "inactive" and will not appear
-// /    on screen. An element can remain in the inactive state only until
-// /    the end of the current animation frame. At the end of the animation
-// /    frame, any elements that are still inactive will be unmounted.
-// /  * If the element gets reincorporated into the tree (e.g., because it or one
-// /    of its ancestors has a global key that is reused), the framework will
-// /    remove the element from the [owner]'s list of inactive elements, call
-// /    [activate] on the element, and reattach the element's render object to
-// /    the render tree. (At this point, the element is again considered "active"
-// /    and might appear on screen.)
-// /  * If the element does not get reincorporated into the tree by the end of
-// /    the current animation frame, the framework will call [unmount] on the
-// /    element.
-// /  * At this point, the element is considered "defunct" and will not be
-// /    incorporated into the tree in the future.
+/**
+ * An instantiation of a [Widget] at a particular location in the tree.
+ *
+ * Widgets describe how to configure a subtree but the same widget can be used
+ * to configure multiple subtrees simultaneously because widgets are immutable.
+ * An [Element] represents the use of a widget to configure a specific location
+ * in the tree. Over time, the widget associated with a given element can
+ * change, for example, if the parent widget rebuilds and creates a new widget
+ * for this location.
+ *
+ * Elements form a tree. Most elements have a unique child, but some widgets
+ * (e.g., subclasses of [RenderObjectElement]) can have multiple children.
+ *
+ * Elements have the following lifecycle:
+ *
+ *  * The framework creates an element by calling [Widget.createElement] on the
+ *    widget that will be used as the element's initial configuration.
+ *  * The framework calls [mount] to add the newly created element to the tree
+ *    at a given slot in a given parent. The [mount] method is responsible for
+ *    inflating any child widgets and calling [attachRenderObject] as
+ *    necessary to attach any associated render objects to the render tree.
+ *  * At this point, the element is considered "active" and might appear on
+ *    screen.
+ *  * At some point, the parent might decide to change the widget used to
+ *    configure this element, for example because the parent rebuilt with new
+ *    state. When this happens, the framework will call [update] with the new
+ *    widget. The new widget will always have the same [runtimeType] and key as
+ *    old widget. If the parent wishes to change the [runtimeType] or key of
+ *    the widget at this location in the tree, can do so by unmounting this
+ *    element and inflating the new widget at this location.
+ *  * At some point, an ancestor might decide to remove this element (or an
+ *    intermediate ancestor) from the tree, which the ancestor does by calling
+ *    [deactivateChild] on itself. Deactivating the intermediate ancestor will
+ *    remove that element's render object from the render tree and add this
+ *    element to the [owner]'s list of inactive elements, causing the framework
+ *    to call [deactivate] on this element.
+ *  * At this point, the element is considered "inactive" and will not appear
+ *    on screen. An element can remain in the inactive state only until
+ *    the end of the current animation frame. At the end of the animation
+ *    frame, any elements that are still inactive will be unmounted.
+ *  * If the element gets reincorporated into the tree (e.g., because it or one
+ *    of its ancestors has a global key that is reused), the framework will
+ *    remove the element from the [owner]'s list of inactive elements, call
+ *    [activate] on the element, and reattach the element's render object to
+ *    the render tree. (At this point, the element is again considered "active"
+ *    and might appear on screen.)
+ *  * If the element does not get reincorporated into the tree by the end of
+ *    the current animation frame, the framework will call [unmount] on the
+ *    element.
+ *  * At this point, the element is considered "defunct" and will not be
+ *    incorporated into the tree in the future.
+ */
 abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildContext {
 
     val _cachedHash: Int = run {
@@ -121,20 +123,24 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
 
     override fun toString() = toStringDiagnostic()
 
-    // / Information set by parent to define where this child fits in its parent's
-    // / child list.
-    // /
-    // / Subclasses of Element that only have one child should use null for
-    // / the slot for that child.
+    /**
+     * Information set by parent to define where this child fits in its parent's
+     * child list.
+     *
+     * Subclasses of Element that only have one child should use null for
+     * the slot for that child.
+     */
     var slot: Any? = null
         internal set
 
-    // / An integer that is guaranteed to be greater than the parent's, if any.
-    // / The element at the root of the tree must have a depth greater than 0.
+    /**
+     * An integer that is guaranteed to be greater than the parent's, if any.
+     * The element at the root of the tree must have a depth greater than 0.
+     */
     var depth: Int = 0
         private set
 
-    // / The object that manages the lifecycle of this element.
+    /** The object that manages the lifecycle of this element. */
     override var owner: BuildOwner? = null
 
     // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets
@@ -160,13 +166,15 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return false
     }
 
-    // / The render object at (or below) this location in the tree.
-    // /
-    // / If this object is a [RenderObjectElement], the render object is the one at
-    // / this location in the tree. Otherwise, this getter will walk down the tree
-    // / until it finds a [RenderObjectElement].
-    // / TODO(migration/Mihai): this was renamed from "getRenderObject" to avoid JVM naming
-    // /                        conflict with the renderObject property in RenderObjectElement
+    /**
+     * The render object at (or below) this location in the tree.
+     *
+     * If this object is a [RenderObjectElement], the render object is the one at
+     * this location in the tree. Otherwise, this getter will walk down the tree
+     * until it finds a [RenderObjectElement].
+     * TODO(migration/Mihai): this was renamed from "getRenderObject" to avoid JVM naming
+     *                        conflict with the renderObject property in RenderObjectElement
+     */
     fun retrieveRenderObject(): RenderObject {
 
         var result: RenderObject? = null
@@ -189,41 +197,45 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     internal var _debugLifecycleState: _ElementLifecycle = _ElementLifecycle.initial
         private set
 
-    // / Calls the argument for each child. Must be overridden by subclasses that
-    // / support having children.
-    // /
-    // / There is no guaranteed order in which the children will be visited, though
-    // / it should be consistent over time.
-    // /
-    // / Calling this during build is dangerous: the child list might still be
-    // / being updated at that point, so the children might not be constructed yet,
-    // / or might be old children that are going to be replaced. This method should
-    // / only be called if it is provable that the children are available.
+    /**
+     * Calls the argument for each child. Must be overridden by subclasses that
+     * support having children.
+     *
+     * There is no guaranteed order in which the children will be visited, though
+     * it should be consistent over time.
+     *
+     * Calling this during build is dangerous: the child list might still be
+     * being updated at that point, so the children might not be constructed yet,
+     * or might be old children that are going to be replaced. This method should
+     * only be called if it is provable that the children are available.
+     */
     open fun visitChildren(visitor: ElementVisitor) { }
 
-    // / Calls the argument for each child considered onstage.
-    // /
-    // / Classes like [Offstage] and [Overlay] override this method to hide their
-    // / children.
-    // /
-    // / Being onstage affects the element's discoverability during testing when
-    // / you use Flutter's [Finder] objects. For example, when you instruct the
-    // / test framework to tap on a widget, by default the finder will look for
-    // / onstage elements and ignore the offstage ones.
-    // /
-    // / The default implementation defers to [visitChildren] and therefore treats
-    // / the element as onstage.
-    // /
-    // / See also:
-    // /
-    // / - [Offstage] widget that hides its children.
-    // / - [Finder] that skips offstage widgets by default.
-    // / - [RenderObject.visitChildrenForSemantics], in contrast to this method,
-    // /   designed specifically for excluding parts of the UI from the semantics
-    // /   tree.
+    /**
+     * Calls the argument for each child considered onstage.
+     *
+     * Classes like [Offstage] and [Overlay] override this method to hide their
+     * children.
+     *
+     * Being onstage affects the element's discoverability during testing when
+     * you use Flutter's [Finder] objects. For example, when you instruct the
+     * test framework to tap on a widget, by default the finder will look for
+     * onstage elements and ignore the offstage ones.
+     *
+     * The default implementation defers to [visitChildren] and therefore treats
+     * the element as onstage.
+     *
+     * See also:
+     *
+     * - [Offstage] widget that hides its children.
+     * - [Finder] that skips offstage widgets by default.
+     * - [RenderObject.visitChildrenForSemantics], in contrast to this method,
+     *   designed specifically for excluding parts of the UI from the semantics
+     *   tree.
+     */
     fun debugVisitOnstageChildren(visitor: ElementVisitor) = visitChildren(visitor)
 
-    // / Wrapper around [visitChildren] for [BuildContext].
+    /** Wrapper around [visitChildren] for [BuildContext]. */
     override fun visitChildElements(visitor: ElementVisitor) {
         assert {
             if (owner == null || !owner!!._debugStateLocked)
@@ -239,37 +251,39 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         visitChildren(visitor)
     }
 
-    // / Update the given child with the given new configuration.
-    // /
-    // / This method is the core of the widgets system. It is called each time we
-    // / are to add, update, or remove a child based on an updated configuration.
-    // /
-    // / If the `child` is null, and the `newWidget` is not null, then we have a new
-    // / child for which we need to create an [Element], configured with `newWidget`.
-    // /
-    // / If the `newWidget` is null, and the `child` is not null, then we need to
-    // / remove it because it no longer has a configuration.
-    // /
-    // / If neither are null, then we need to update the `child`'s configuration to
-    // / be the new configuration given by `newWidget`. If `newWidget` can be given
-    // / to the existing child (as determined by [Widget.canUpdate]), then it is so
-    // / given. Otherwise, the old child needs to be disposed and a new child
-    // / created for the new configuration.
-    // /
-    // / If both are null, then we don't have a child and won't have a child, so we
-    // / do nothing.
-    // /
-    // / The [updateChild] method returns the new child, if it had to create one,
-    // / or the child that was passed in, if it just had to update the child, or
-    // / null, if it removed the child and did not replace it.
-    // /
-    // / The following table summarizes the above:
-    // /
-    // / <table>
-    // / <tr><th><th>`newWidget == null`<th>`newWidget != null`
-    // / <tr><th>`child == null`<td>Returns null.<td>Returns new [Element].
-    // / <tr><th>`child != null`<td>Old child is removed, returns null.<td>Old child updated if possible, returns child or new [Element].
-    // / </table>
+    /**
+     * Update the given child with the given new configuration.
+     *
+     * This method is the core of the widgets system. It is called each time we
+     * are to add, update, or remove a child based on an updated configuration.
+     *
+     * If the `child` is null, and the `newWidget` is not null, then we have a new
+     * child for which we need to create an [Element], configured with `newWidget`.
+     *
+     * If the `newWidget` is null, and the `child` is not null, then we need to
+     * remove it because it no longer has a configuration.
+     *
+     * If neither are null, then we need to update the `child`'s configuration to
+     * be the new configuration given by `newWidget`. If `newWidget` can be given
+     * to the existing child (as determined by [Widget.canUpdate]), then it is so
+     * given. Otherwise, the old child needs to be disposed and a new child
+     * created for the new configuration.
+     *
+     * If both are null, then we don't have a child and won't have a child, so we
+     * do nothing.
+     *
+     * The [updateChild] method returns the new child, if it had to create one,
+     * or the child that was passed in, if it just had to update the child, or
+     * null, if it removed the child and did not replace it.
+     *
+     * The following table summarizes the above:
+     *
+     * <table>
+     * <tr><th><th>`newWidget == null`<th>`newWidget != null`
+     * <tr><th>`child == null`<td>Returns null.<td>Returns new [Element].
+     * <tr><th>`child != null`<td>Old child is removed, returns null.<td>Old child updated if possible, returns child or new [Element].
+     * </table>
+     */
     protected fun updateChild(child: Element?, newWidget: Widget, newSlot: Any?): Element {
         assert {
             if (newWidget != null && newWidget.key is GlobalKey<*>) {
@@ -306,15 +320,17 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return inflateWidget(newWidget, newSlot)
     }
 
-    // / Add this element to the tree in the given slot of the given parent.
-    // /
-    // / The framework calls this function when a newly created element is added to
-    // / the tree for the first time. Use this method to initialize state that
-    // / depends on having a parent. State that is independent of the parent can
-    // / more easily be initialized in the constructor.
-    // /
-    // / This method transitions the element from the "initial" lifecycle state to
-    // / the "active" lifecycle state.
+    /**
+     * Add this element to the tree in the given slot of the given parent.
+     *
+     * The framework calls this function when a newly created element is added to
+     * the tree for the first time. Use this method to initialize state that
+     * depends on having a parent. State that is independent of the parent can
+     * more easily be initialized in the constructor.
+     *
+     * This method transitions the element from the "initial" lifecycle state to
+     * the "active" lifecycle state.
+     */
     @CallSuper
     open fun mount(parent: Element?, newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.initial)
@@ -341,13 +357,15 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         assert { _debugLifecycleState = _ElementLifecycle.active; true; }
     }
 
-    // / Change the widget used to configure this element.
-    // /
-    // / The framework calls this function when the parent wishes to use a
-    // / different widget to configure this element. The new widget is guaranteed
-    // / to have the same [runtimeType] as the old widget.
-    // /
-    // / This function is called only during the "active" lifecycle state.
+    /**
+     * Change the widget used to configure this element.
+     *
+     * The framework calls this function when the parent wishes to use a
+     * different widget to configure this element. The new widget is guaranteed
+     * to have the same [runtimeType] as the old widget.
+     *
+     * This function is called only during the "active" lifecycle state.
+     */
     @CallSuper
     open fun update(newWidget: Widget) {
         // This code is hot when hot reloading, so we try to
@@ -362,11 +380,13 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         widget = newWidget
     }
 
-    // / Change the slot that the given child occupies in its parent.
-    // /
-    // / Called by [MultiChildRenderObjectElement], and other [RenderObjectElement]
-    // / subclasses that have multiple children, when child moves from one position
-    // / to another in this element's child list.
+    /**
+     * Change the slot that the given child occupies in its parent.
+     *
+     * Called by [MultiChildRenderObjectElement], and other [RenderObjectElement]
+     * subclasses that have multiple children, when child moves from one position
+     * to another in this element's child list.
+     */
     protected fun updateSlotForChild(child: Element, newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.active)
         assert(child != null)
@@ -398,14 +418,16 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         }
     }
 
-    // / Remove [renderObject] from the render tree.
-    // /
-    // / The default implementation of this function simply calls
-    // / [detachRenderObject] recursively on its child. The
-    // / [RenderObjectElement.detachRenderObject] override does the actual work of
-    // / removing [renderObject] from the render tree.
-    // /
-    // / This is called by [deactivateChild].
+    /**
+     * Remove [renderObject] from the render tree.
+     *
+     * The default implementation of this function simply calls
+     * [detachRenderObject] recursively on its child. The
+     * [RenderObjectElement.detachRenderObject] override does the actual work of
+     * removing [renderObject] from the render tree.
+     *
+     * This is called by [deactivateChild].
+     */
     open fun detachRenderObject() {
         visitChildren {
             child -> child.detachRenderObject()
@@ -413,12 +435,14 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         slot = null
     }
 
-    // / Add [renderObject] to the render tree at the location specified by [slot].
-    // /
-    // / The default implementation of this function simply calls
-    // / [attachRenderObject] recursively on its child. The
-    // / [RenderObjectElement.attachRenderObject] override does the actual work of
-    // / adding [renderObject] to the render tree.
+    /**
+     * Add [renderObject] to the render tree at the location specified by [slot].
+     *
+     * The default implementation of this function simply calls
+     * [attachRenderObject] recursively on its child. The
+     * [RenderObjectElement.attachRenderObject] override does the actual work of
+     * adding [renderObject] to the render tree.
+     */
     open fun attachRenderObject(newSlot: Any?) {
         assert(slot == null)
         visitChildren { child ->
@@ -476,20 +500,22 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return element
     }
 
-    // / Create an element for the given widget and add it as a child of this
-    // / element in the given slot.
-    // /
-    // / This method is typically called by [updateChild] but can be called
-    // / directly by subclasses that need finer-grained control over creating
-    // / elements.
-    // /
-    // / If the given widget has a global key and an element already exists that
-    // / has a widget with that global key, this function will reuse that element
-    // / (potentially grafting it from another location in the tree or reactivating
-    // / it from the list of inactive elements) rather than creating a new element.
-    // /
-    // / The element returned by this function will already have been mounted and
-    // / will be in the "active" lifecycle state.
+    /**
+     * Create an element for the given widget and add it as a child of this
+     * element in the given slot.
+     *
+     * This method is typically called by [updateChild] but can be called
+     * directly by subclasses that need finer-grained control over creating
+     * elements.
+     *
+     * If the given widget has a global key and an element already exists that
+     * has a widget with that global key, this function will reuse that element
+     * (potentially grafting it from another location in the tree or reactivating
+     * it from the list of inactive elements) rather than creating a new element.
+     *
+     * The element returned by this function will already have been mounted and
+     * will be in the "active" lifecycle state.
+     */
     protected fun inflateWidget(newWidget: Widget, newSlot: Any?): Element {
         assert(newWidget != null)
         val key = newWidget.key
@@ -522,20 +548,22 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         }
     }
 
-    // / Move the given element to the list of inactive elements and detach its
-    // / render object from the render tree.
-    // /
-    // / This method stops the given element from being a child of this element by
-    // / detaching its render object from the render tree and moving the element to
-    // / the list of inactive elements.
-    // /
-    // / This method (indirectly) calls [deactivate] on the child.
-    // /
-    // / The caller is responsible for removing the child from its child model.
-    // / Typically [deactivateChild] is called by the element itself while it is
-    // / updating its child model; however, during [GlobalKey] reparenting, the new
-    // / parent proactively calls the old parent's [deactivateChild], first using
-    // / [forgetChild] to cause the old parent to update its child model.
+    /**
+     * Move the given element to the list of inactive elements and detach its
+     * render object from the render tree.
+     *
+     * This method stops the given element from being a child of this element by
+     * detaching its render object from the render tree and moving the element to
+     * the list of inactive elements.
+     *
+     * This method (indirectly) calls [deactivate] on the child.
+     *
+     * The caller is responsible for removing the child from its child model.
+     * Typically [deactivateChild] is called by the element itself while it is
+     * updating its child model; however, during [GlobalKey] reparenting, the new
+     * parent proactively calls the old parent's [deactivateChild], first using
+     * [forgetChild] to cause the old parent to update its child model.
+     */
     protected fun deactivateChild(child: Element) {
         assert(child != null)
         assert(child._parent == this)
@@ -551,14 +579,16 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         }
     }
 
-    // / Remove the given child from the element's child list, in preparation for
-    // / the child being reused elsewhere in the element tree.
-    // /
-    // / This updates the child model such that, e.g., [visitChildren] does not
-    // / walk that child anymore.
-    // /
-    // / The element will still have a valid parent when this is called. After this
-    // / is called, [deactivateChild] is called to sever the link to this object.
+    /**
+     * Remove the given child from the element's child list, in preparation for
+     * the child being reused elsewhere in the element tree.
+     *
+     * This updates the child model such that, e.g., [visitChildren] does not
+     * walk that child anymore.
+     *
+     * The element will still have a valid parent when this is called. After this
+     * is called, [deactivateChild] is called to sever the link to this object.
+     */
     protected abstract fun forgetChild(child: Element)
 
     fun _activateWithParent(parent: Element, newSlot: Any?) {
@@ -575,14 +605,16 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         assert(_debugLifecycleState == _ElementLifecycle.active)
     }
 
-    // / Transition from the "inactive" to the "active" lifecycle state.
-    // /
-    // / The framework calls this method when a previously deactivated element has
-    // / been reincorporated into the tree. The framework does not call this method
-    // / the first time an element becomes active (i.e., from the "initial"
-    // / lifecycle state). Instead, the framework calls [mount] in that situation.
-    // /
-    // / See the lifecycle documentation for [Element] for additional information.
+    /**
+     * Transition from the "inactive" to the "active" lifecycle state.
+     *
+     * The framework calls this method when a previously deactivated element has
+     * been reincorporated into the tree. The framework does not call this method
+     * the first time an element becomes active (i.e., from the "initial"
+     * lifecycle state). Instead, the framework calls [mount] in that situation.
+     *
+     * See the lifecycle documentation for [Element] for additional information.
+     */
     @CallSuper
     open fun activate() {
         assert(_debugLifecycleState == _ElementLifecycle.inactive)
@@ -605,18 +637,20 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
             didChangeDependencies()
     }
 
-    // / Transition from the "active" to the "inactive" lifecycle state.
-    // /
-    // / The framework calls this method when a previously active element is moved
-    // / to the list of inactive elements. While in the inactive state, the element
-    // / will not appear on screen. The element can remain in the inactive state
-    // / only until the end of the current animation frame. At the end of the
-    // / animation frame, if the element has not be reactivated, the framework will
-    // / unmount the element.
-    // /
-    // / This is (indirectly) called by [deactivateChild].
-    // /
-    // / See the lifecycle documentation for [Element] for additional information.
+    /**
+     * Transition from the "active" to the "inactive" lifecycle state.
+     *
+     * The framework calls this method when a previously active element is moved
+     * to the list of inactive elements. While in the inactive state, the element
+     * will not appear on screen. The element can remain in the inactive state
+     * only until the end of the current animation frame. At the end of the
+     * animation frame, if the element has not be reactivated, the framework will
+     * unmount the element.
+     *
+     * This is (indirectly) called by [deactivateChild].
+     *
+     * See the lifecycle documentation for [Element] for additional information.
+     */
     @CallSuper
     open fun deactivate() {
         assert(_debugLifecycleState == _ElementLifecycle.active)
@@ -638,25 +672,29 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         assert { _debugLifecycleState = _ElementLifecycle.inactive; true; }
     }
 
-    // / Called, in debug mode, after children have been deactivated (see [deactivate]).
-    // /
-    // / This method is not called in release builds.
+    /**
+     * Called, in debug mode, after children have been deactivated (see [deactivate]).
+     *
+     * This method is not called in release builds.
+     */
     @CallSuper
     open fun debugDeactivated() {
         assert(_debugLifecycleState == _ElementLifecycle.inactive)
     }
 
-    // / Transition from the "inactive" to the "defunct" lifecycle state.
-    // /
-    // / Called when the framework determines that an inactive element will never
-    // / be reactivated. At the end of each animation frame, the framework calls
-    // / [unmount] on any remaining inactive elements, preventing inactive elements
-    // / from remaining inactive for longer than a single animation frame.
-    // /
-    // / After this function is called, the element will not be incorporated into
-    // / the tree again.
-    // /
-    // / See the lifecycle documentation for [Element] for additional information.
+    /**
+     * Transition from the "inactive" to the "defunct" lifecycle state.
+     *
+     * Called when the framework determines that an inactive element will never
+     * be reactivated. At the end of each animation frame, the framework calls
+     * [unmount] on any remaining inactive elements, preventing inactive elements
+     * from remaining inactive for longer than a single animation frame.
+     *
+     * After this function is called, the element will not be incorporated into
+     * the tree again.
+     *
+     * See the lifecycle documentation for [Element] for additional information.
+     */
     @CallSuper
     open fun unmount() {
         assert(_debugLifecycleState == _ElementLifecycle.inactive)
@@ -861,14 +899,16 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
             ancestor = ancestor._parent
     }
 
-    // / Called when a dependency of this element changes.
-    // /
-    // / The [inheritFromWidgetOfExactType] registers this element as depending on
-    // / inherited information of the given type. When the information of that type
-    // / changes at this location in the tree (e.g., because the [InheritedElement]
-    // / updated to a new [InheritedWidget] and
-    // / [InheritedWidget.updateShouldNotify] returned true), the framework calls
-    // / this function to notify this element of the change.
+    /**
+     * Called when a dependency of this element changes.
+     *
+     * The [inheritFromWidgetOfExactType] registers this element as depending on
+     * inherited information of the given type. When the information of that type
+     * changes at this location in the tree (e.g., because the [InheritedElement]
+     * updated to a new [InheritedWidget] and
+     * [InheritedWidget.updateShouldNotify] returned true), the framework calls
+     * this function to notify this element of the change.
+     */
     @CallSuper
     open fun didChangeDependencies() {
         assert(_active); // otherwise markNeedsBuild is a no-op
@@ -896,9 +936,11 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return true
     }
 
-    // / Returns a description of what caused this element to be created.
-    // /
-    // / Useful for debugging the source of an element.
+    /**
+     * Returns a description of what caused this element to be created.
+     *
+     * Useful for debugging the source of an element.
+     */
     fun debugGetCreatorChain(limit: Int): String {
         val chain = mutableListOf<String>()
         var node: Element? = this
@@ -911,10 +953,12 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return chain.joinToString(" \u2190 ")
     }
 
-    // / Returns the parent chain from this element back to the root of the tree.
-    // /
-    // / Useful for debug display of a tree of Elements with only nodes in the path
-    // / from the root to this Element expanded.
+    /**
+     * Returns the parent chain from this element back to the root of the tree.
+     *
+     * Useful for debug display of a tree of Elements with only nodes in the path
+     * from the root to this Element expanded.
+     */
     fun debugGetDiagnosticChain(): List<Element> {
         val chain = mutableListOf<Element>(this)
         var node: Element? = _parent
@@ -925,7 +969,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return chain
     }
 
-    // / A short, textual description of this element.
+    /** A short, textual description of this element. */
     override fun toStringShort(): String {
         return if (widget != null) "${widget.toStringShort()}" else "[${runtimeType()}]"
     }
@@ -960,7 +1004,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return children
     }
 
-    // / Returns true if the element has been marked as needing rebuilding.
+    /** Returns true if the element has been marked as needing rebuilding. */
     internal var dirty = true
 
     // Whether this is in owner._dirtyElements. This is used to know whether we
@@ -981,13 +1025,15 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         return true
     }
 
-    // / Marks the element as dirty and adds it to the global list of widgets to
-    // / rebuild in the next frame.
-    // /
-    // / Since it is inefficient to build an element twice in one frame,
-    // / applications and widgets should be structured so as to only mark
-    // / widgets dirty during event handlers before the frame begins, not during
-    // / the build itself.
+    /**
+     * Marks the element as dirty and adds it to the global list of widgets to
+     * rebuild in the next frame.
+     *
+     * Since it is inefficient to build an element twice in one frame,
+     * applications and widgets should be structured so as to only mark
+     * widgets dirty during event handlers before the frame begins, not during
+     * the build itself.
+     */
     fun markNeedsBuild() {
         assert(_debugLifecycleState != _ElementLifecycle.defunct)
         if (!_active)
@@ -1042,9 +1088,11 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         owner!!.scheduleBuildFor(this)
     }
 
-    // / Called by the [BuildOwner] when [BuildOwner.scheduleBuildFor] has been
-    // / called to mark this element dirty, by [mount] when the element is first
-    // / built, and by [update] when the widget has changed.
+    /**
+     * Called by the [BuildOwner] when [BuildOwner.scheduleBuildFor] has been
+     * called to mark this element dirty, by [mount] when the element is first
+     * built, and by [update] when the widget has changed.
+     */
     fun rebuild() {
         assert(_debugLifecycleState != _ElementLifecycle.initial)
         if (!_active || !dirty)
@@ -1077,6 +1125,6 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         assert(!dirty)
     }
 
-    // / Called by rebuild() after the appropriate checks have been made.
+    /** Called by rebuild() after the appropriate checks have been made. */
     protected abstract fun performRebuild()
 }

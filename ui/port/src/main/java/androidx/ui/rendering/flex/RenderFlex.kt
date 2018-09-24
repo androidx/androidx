@@ -50,57 +50,59 @@ internal fun startIsTopLeft(
         if (verticalDirection != null) verticalDirection == VerticalDirection.DOWN else null
 }
 
-// / Displays its children in a one-dimensional array.
-// /
-// / ## Layout algorithm
-// /
-// / _This section describes how the framework causes [RenderFlex] to position
-// / its children._
-// / _See [BoxConstraints] for an introduction to box layout models._
-// /
-// / Layout for a [RenderFlex] proceeds in six steps:
-// /
-// / 1. Layout each child a null or zero flex factor with unbounded main axis
-// /    constraints and the incoming cross axis constraints. If the
-// /    [crossAxisAlignment] is [CrossAxisAlignment.STRETCH], instead use tight
-// /    cross axis constraints that match the incoming max extent in the cross
-// /    axis.
-// / 2. Divide the remaining main axis space among the children with non-zero
-// /    flex factors according to their flex factor. For example, a child with a
-// /    flex factor of 2.0 will receive twice the amount of main axis space as a
-// /    child with a flex factor of 1.0.
-// / 3. Layout each of the remaining children with the same cross axis
-// /    constraints as in step 1, but instead of using unbounded main axis
-// /    constraints, use max axis constraints based on the amount of space
-// /    allocated in step 2. Children with [Flexible.fit] properties that are
-// /    [FlexFit.TIGHT] are given tight constraints (i.e., forced to fill the
-// /    allocated space), and children with [Flexible.fit] properties that are
-// /    [FlexFit.LOOSE] are given loose constraints (i.e., not forced to fill the
-// /    allocated space).
-// / 4. The cross axis extent of the [RenderFlex] is the maximum cross axis
-// /    extent of the children (which will always satisfy the incoming
-// /    constraints).
-// / 5. The main axis extent of the [RenderFlex] is determined by the
-// /    [mainAxisSize] property. If the [mainAxisSize] property is
-// /    [MainAxisAlignment.MAX], then the main axis extent of the [RenderFlex] is the
-// /    max extent of the incoming main axis constraints. If the [mainAxisSize]
-// /    property is [MainAxisAlignment.MIN], then the main axis extent of the [Flex]
-// /    is the sum of the main axis extents of the children (subject to the
-// /    incoming constraints).
-// / 6. Determine the position for each child according to the
-// /    [mainAxisAlignment] and the [crossAxisAlignment]. For example, if the
-// /    [mainAxisAlignment] is [MainAxisAlignment.SPACE_BETWEEN], any main axis
-// /    space that has not been allocated to children is divided evenly and
-// /    placed between the children.
-// /
-// / See also:
-// /
-// /  * [Flex], the widget equivalent.
-// /  * [Row] and [Column], direction-specific variants of [Flex].
-// / The primary constructor:
-// /
-// / By default, the flex layout is horizontal and children are aligned to the
-// / start of the main axis and the center of the cross axis.
+/**
+ * Displays its children in a one-dimensional array.
+ *
+ * ## Layout algorithm
+ *
+ * _This section describes how the framework causes [RenderFlex] to position
+ * its children._
+ * _See [BoxConstraints] for an introduction to box layout models._
+ *
+ * Layout for a [RenderFlex] proceeds in six steps:
+ *
+ * 1. Layout each child a null or zero flex factor with unbounded main axis
+ *    constraints and the incoming cross axis constraints. If the
+ *    [crossAxisAlignment] is [CrossAxisAlignment.STRETCH], instead use tight
+ *    cross axis constraints that match the incoming max extent in the cross
+ *    axis.
+ * 2. Divide the remaining main axis space among the children with non-zero
+ *    flex factors according to their flex factor. For example, a child with a
+ *    flex factor of 2.0 will receive twice the amount of main axis space as a
+ *    child with a flex factor of 1.0.
+ * 3. Layout each of the remaining children with the same cross axis
+ *    constraints as in step 1, but instead of using unbounded main axis
+ *    constraints, use max axis constraints based on the amount of space
+ *    allocated in step 2. Children with [Flexible.fit] properties that are
+ *    [FlexFit.TIGHT] are given tight constraints (i.e., forced to fill the
+ *    allocated space), and children with [Flexible.fit] properties that are
+ *    [FlexFit.LOOSE] are given loose constraints (i.e., not forced to fill the
+ *    allocated space).
+ * 4. The cross axis extent of the [RenderFlex] is the maximum cross axis
+ *    extent of the children (which will always satisfy the incoming
+ *    constraints).
+ * 5. The main axis extent of the [RenderFlex] is determined by the
+ *    [mainAxisSize] property. If the [mainAxisSize] property is
+ *    [MainAxisAlignment.MAX], then the main axis extent of the [RenderFlex] is the
+ *    max extent of the incoming main axis constraints. If the [mainAxisSize]
+ *    property is [MainAxisAlignment.MIN], then the main axis extent of the [Flex]
+ *    is the sum of the main axis extents of the children (subject to the
+ *    incoming constraints).
+ * 6. Determine the position for each child according to the
+ *    [mainAxisAlignment] and the [crossAxisAlignment]. For example, if the
+ *    [mainAxisAlignment] is [MainAxisAlignment.SPACE_BETWEEN], any main axis
+ *    space that has not been allocated to children is divided evenly and
+ *    placed between the children.
+ *
+ * See also:
+ *
+ *  * [Flex], the widget equivalent.
+ *  * [Row] and [Column], direction-specific variants of [Flex].
+ * The primary constructor:
+ *
+ * By default, the flex layout is horizontal and children are aligned to the
+ * start of the main axis and the center of the cross axis.
+ */
 // TODO(migration/Mihai): inheriting from ContainerRenderObjectMixin to workaround mixins
 class RenderFlex(
     children: List<RenderBox>? = null,
@@ -116,7 +118,7 @@ class RenderFlex(
      * copy pasted to ContainerRenderObjectMixin, so the logic exists */
     /* DebugOverflowIndicatorMixin*/ {
 
-    // / The direction to use as the main axis.
+    /** The direction to use as the main axis. */
     var direction: Axis
         get() = _direction
         set(value) {
@@ -126,15 +128,17 @@ class RenderFlex(
             }
         }
 
-    // / How the children should be placed along the main axis.
-    // /
-    // / If the [direction] is [Axis.HORIZONTAL], and the [mainAxisAlignment] is
-    // / either [MainAxisAlignment.START] or [MainAxisAlignment.END], then the
-    // / [textDirection] must not be null.
-    // /
-    // / If the [direction] is [Axis.VERTICAL], and the [mainAxisAlignment] is
-    // / either [MainAxisAlignment.START] or [MainAxisAlignment.END], then the
-    // / [verticalDirection] must not be null.
+    /**
+     * How the children should be placed along the main axis.
+     *
+     * If the [direction] is [Axis.HORIZONTAL], and the [mainAxisAlignment] is
+     * either [MainAxisAlignment.START] or [MainAxisAlignment.END], then the
+     * [textDirection] must not be null.
+     *
+     * If the [direction] is [Axis.VERTICAL], and the [mainAxisAlignment] is
+     * either [MainAxisAlignment.START] or [MainAxisAlignment.END], then the
+     * [verticalDirection] must not be null.
+     */
     var mainAxisAlignment: MainAxisAlignment
         get() = _mainAxisAlignment
         set(value) {
@@ -144,16 +148,18 @@ class RenderFlex(
             }
         }
 
-    // / How much space should be occupied in the main axis.
-    // /
-    // / After allocating space to children, there might be some remaining free
-    // / space. This value controls whether to maximize or minimize the amount of
-    // / free space, subject to the incoming layout constraints.
-    // /
-    // / If some children have a non-zero flex factors (and none have a fit of
-    // / [FlexFit.LOOSE]), they will expand to consume all the available space and
-    // / there will be no remaining free space to maximize or minimize, making this
-    // / value irrelevant to the final layout.
+    /**
+     * How much space should be occupied in the main axis.
+     *
+     * After allocating space to children, there might be some remaining free
+     * space. This value controls whether to maximize or minimize the amount of
+     * free space, subject to the incoming layout constraints.
+     *
+     * If some children have a non-zero flex factors (and none have a fit of
+     * [FlexFit.LOOSE]), they will expand to consume all the available space and
+     * there will be no remaining free space to maximize or minimize, making this
+     * value irrelevant to the final layout.
+     */
     var mainAxisSize: MainAxisSize
         get() = _mainAxisSize
         set(value) {
@@ -163,15 +169,17 @@ class RenderFlex(
             }
         }
 
-    // / How the children should be placed along the cross axis.
-    // /
-    // / If the [direction] is [Axis.HORIZONTAL], and the [crossAxisAlignment] is
-    // / either [CrossAxisAlignment.START] or [CrossAxisAlignment.END], then the
-    // / [verticalDirection] must not be null.
-    // /
-    // / If the [direction] is [Axis.VERTICAL], and the [crossAxisAlignment] is
-    // / either [CrossAxisAlignment.START] or [CrossAxisAlignment.END], then the
-    // / [textDirection] must not be null.
+    /**
+     * How the children should be placed along the cross axis.
+     *
+     * If the [direction] is [Axis.HORIZONTAL], and the [crossAxisAlignment] is
+     * either [CrossAxisAlignment.START] or [CrossAxisAlignment.END], then the
+     * [verticalDirection] must not be null.
+     *
+     * If the [direction] is [Axis.VERTICAL], and the [crossAxisAlignment] is
+     * either [CrossAxisAlignment.START] or [CrossAxisAlignment.END], then the
+     * [textDirection] must not be null.
+     */
     var crossAxisAlignment: CrossAxisAlignment
         get() = _crossAxisAlignment
         set(value) {
@@ -181,26 +189,28 @@ class RenderFlex(
             }
         }
 
-    // / Determines the order to lay children out horizontally and how to interpret
-    // / `start` and `end` in the horizontal direction.
-    // /
-    // / If the [direction] is [Axis.HORIZONTAL], this controls the order in which
-    // / children are positioned (left-to-right or right-to-left), and the meaning
-    // / of the [mainAxisAlignment] property's [MainAxisAlignment.START] and
-    // / [MainAxisAlignment.END] values.
-    // /
-    // / If the [direction] is [Axis.HORIZONTAL], and either the
-    // / [mainAxisAlignment] is either [MainAxisAlignment.START] or
-    // / [MainAxisAlignment.END], or there's more than one child, then the
-    // / [textDirection] must not be null.
-    // /
-    // / If the [direction] is [Axis.VERTICAL], this controls the meaning of the
-    // / [crossAxisAlignment] property's [CrossAxisAlignment.START] and
-    // / [CrossAxisAlignment.END] values.
-    // /
-    // / If the [direction] is [Axis.VERTICAL], and the [crossAxisAlignment] is
-    // / either [CrossAxisAlignment.START] or [CrossAxisAlignment.END], then the
-    // / [textDirection] must not be null.
+    /**
+     * Determines the order to lay children out horizontally and how to interpret
+     * `start` and `end` in the horizontal direction.
+     *
+     * If the [direction] is [Axis.HORIZONTAL], this controls the order in which
+     * children are positioned (left-to-right or right-to-left), and the meaning
+     * of the [mainAxisAlignment] property's [MainAxisAlignment.START] and
+     * [MainAxisAlignment.END] values.
+     *
+     * If the [direction] is [Axis.HORIZONTAL], and either the
+     * [mainAxisAlignment] is either [MainAxisAlignment.START] or
+     * [MainAxisAlignment.END], or there's more than one child, then the
+     * [textDirection] must not be null.
+     *
+     * If the [direction] is [Axis.VERTICAL], this controls the meaning of the
+     * [crossAxisAlignment] property's [CrossAxisAlignment.START] and
+     * [CrossAxisAlignment.END] values.
+     *
+     * If the [direction] is [Axis.VERTICAL], and the [crossAxisAlignment] is
+     * either [CrossAxisAlignment.START] or [CrossAxisAlignment.END], then the
+     * [textDirection] must not be null.
+     */
     var textDirection: TextDirection?
         get() = _textDirection
         set(value) {
@@ -210,24 +220,26 @@ class RenderFlex(
             }
         }
 
-    // / Determines the order to lay children out vertically and how to interpret
-    // / `start` and `end` in the vertical direction.
-    // /
-    // / If the [direction] is [Axis.VERTICAL], this controls which order children
-    // / are painted in (down or up), the meaning of the [mainAxisAlignment]
-    // / property's [MainAxisAlignment.START] and [MainAxisAlignment.END] values.
-    // /
-    // / If the [direction] is [Axis.VERTICAL], and either the [mainAxisAlignment]
-    // / is either [MainAxisAlignment.START] or [MainAxisAlignment.END], or there's
-    // / more than one child, then the [verticalDirection] must not be null.
-    // /
-    // / If the [direction] is [Axis.HORIZONTAL], this controls the meaning of the
-    // / [crossAxisAlignment] property's [CrossAxisAlignment.START] and
-    // / [CrossAxisAlignment.END] values.
-    // /
-    // / If the [direction] is [Axis.HORIZONTAL], and the [crossAxisAlignment] is
-    // / either [CrossAxisAlignment.START] or [CrossAxisAlignment.END], then the
-    // / [verticalDirection] must not be null.
+    /**
+     * Determines the order to lay children out vertically and how to interpret
+     * `start` and `end` in the vertical direction.
+     *
+     * If the [direction] is [Axis.VERTICAL], this controls which order children
+     * are painted in (down or up), the meaning of the [mainAxisAlignment]
+     * property's [MainAxisAlignment.START] and [MainAxisAlignment.END] values.
+     *
+     * If the [direction] is [Axis.VERTICAL], and either the [mainAxisAlignment]
+     * is either [MainAxisAlignment.START] or [MainAxisAlignment.END], or there's
+     * more than one child, then the [verticalDirection] must not be null.
+     *
+     * If the [direction] is [Axis.HORIZONTAL], this controls the meaning of the
+     * [crossAxisAlignment] property's [CrossAxisAlignment.START] and
+     * [CrossAxisAlignment.END] values.
+     *
+     * If the [direction] is [Axis.HORIZONTAL], and the [crossAxisAlignment] is
+     * either [CrossAxisAlignment.START] or [CrossAxisAlignment.END], then the
+     * [verticalDirection] must not be null.
+     */
     var verticalDirection: VerticalDirection
         get() = _verticalDirection
         set(value) {
@@ -237,9 +249,11 @@ class RenderFlex(
             }
         }
 
-    // / If aligning items according to their baseline, which baseline to use.
-    // /
-    // / Must not be null if [crossAxisAlignment] is [CrossAxisAlignment.BASELINE].
+    /**
+     * If aligning items according to their baseline, which baseline to use.
+     *
+     * Must not be null if [crossAxisAlignment] is [CrossAxisAlignment.BASELINE].
+     */
     var textBaseline: TextBaseline?
         get() = _textBaseline
         set(value) {

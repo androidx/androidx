@@ -24,20 +24,22 @@ import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.InheritedWidget
 import androidx.ui.widgets.framework.Widget
 
-// / A widget that determines the ambient directionality of text and
-// / text-direction-sensitive render objects.
-// /
-// / For example, [Padding] depends on the [Directionality] to resolve
-// / [EdgeInsetsDirectional] objects into absolute [EdgeInsets] objects.
-// /
-// / Ctor comment:
-// / Creates a widget that determines the directionality of text and
-// / text-direction-sensitive render objects.
-// /
-// / The [textDirection] and [child] arguments must not be null.
+/**
+ * A widget that determines the ambient directionality of text and
+ * text-direction-sensitive render objects.
+ *
+ * For example, [Padding] depends on the [Directionality] to resolve
+ * [EdgeInsetsDirectional] objects into absolute [EdgeInsets] objects.
+ *
+ * Ctor comment:
+ * Creates a widget that determines the directionality of text and
+ * text-direction-sensitive render objects.
+ *
+ * The [textDirection] and [child] arguments must not be null.
+ */
 class Directionality(
     key: Key,
-        // / The text direction for this subtree.
+    /** The text direction for this subtree. */
     val textDirection: TextDirection,
     child: Widget
 ) : InheritedWidget(key = key, child = child) {
@@ -47,17 +49,19 @@ class Directionality(
     }
 
     companion object {
-        // / The text direction from the closest instance of this class that encloses
-        // / the given context.
-        // /
-        // / If there is no [Directionality] ancestor widget in the tree at the given
-        // / context, then this will return null.
-        // /
-        // / Typical usage is as follows:
-        // /
-        // / ```dart
-        // / TextDirection textDirection = Directionality.of(context);
-        // / ```
+        /**
+         * The text direction from the closest instance of this class that encloses
+         * the given context.
+         *
+         * If there is no [Directionality] ancestor widget in the tree at the given
+         * context, then this will return null.
+         *
+         * Typical usage is as follows:
+         *
+         * ```dart
+         * TextDirection textDirection = Directionality.of(context);
+         * ```
+         */
         fun of(context: BuildContext): TextDirection {
             // TODO(Migration/ njawad insert Directionality inherited widget within widget hierarchy
             // For now default to LTR text direction

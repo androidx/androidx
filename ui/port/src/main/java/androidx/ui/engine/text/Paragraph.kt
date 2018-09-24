@@ -4,20 +4,22 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
 import kotlin.math.floor
 
-// / A paragraph of text.
-// /
-// / A paragraph retains the size and position of each glyph in the text and can
-// / be efficiently resized and painted.
-// /
-// / To create a [Paragraph] object, use a [ParagraphBuilder].
-// /
-// / Paragraphs can be displayed on a [Canvas] using the [Canvas.drawParagraph]
-// / method.
-// /
-// / This class is created by the engine, and should not be instantiated
-// / or extended directly.
-// /
-// / To create a [Paragraph] object, use a [ParagraphBuilder].
+/**
+ * A paragraph of text.
+ *
+ * A paragraph retains the size and position of each glyph in the text and can
+ * be efficiently resized and painted.
+ *
+ * To create a [Paragraph] object, use a [ParagraphBuilder].
+ *
+ * Paragraphs can be displayed on a [Canvas] using the [Canvas.drawParagraph]
+ * method.
+ *
+ * This class is created by the engine, and should not be instantiated
+ * or extended directly.
+ *
+ * To create a [Paragraph] object, use a [ParagraphBuilder].
+ */
 //
 // TODO(Migration/siyamed): actually this goes into native, but for now added the constructor to
 // include the styles.
@@ -29,49 +31,63 @@ class Paragraph internal constructor(
     // TODO(Migration/siyamed): width having -1 but others having 0 as default value is counter
     // intuitive
 
-    // / The amount of horizontal space this paragraph occupies.
-    // /
-    // / Valid only after [layout] has been called.
+    /**
+     * The amount of horizontal space this paragraph occupies.
+     *
+     * Valid only after [layout] has been called.
+     */
     var width: Double = -1.0
         private set
 
-    // / The amount of vertical space this paragraph occupies.
-    // /
-    // / Valid only after [layout] has been called.
+    /**
+     * The amount of vertical space this paragraph occupies.
+     *
+     * Valid only after [layout] has been called.
+     */
     var height: Double = 0.0
         private set
 
-    // / The minimum width that this paragraph could be without failing to paint
-    // / its contents within itself.
-    // /
-    // / Valid only after [layout] has been called.
+    /**
+     * The minimum width that this paragraph could be without failing to paint
+     * its contents within itself.
+     *
+     * Valid only after [layout] has been called.
+     */
     var minIntrinsicWidth: Double = 0.0
         private set
 
-    // / Returns the smallest width beyond which increasing the width never
-    // / decreases the height.
-    // /
-    // / Valid only after [layout] has been called.
+    /**
+     * Returns the smallest width beyond which increasing the width never
+     * decreases the height.
+     *
+     * Valid only after [layout] has been called.
+     */
     var maxIntrinsicWidth: Double = 0.0
         private set
 
-    // / The distance from the top of the paragraph to the alphabetic
-    // / baseline of the first line, in logical pixels.
+    /**
+     * The distance from the top of the paragraph to the alphabetic
+     * baseline of the first line, in logical pixels.
+     */
     var alphabeticBaseline: Double = 0.0
         private set
 
-    // / The distance from the top of the paragraph to the ideographic
-    // / baseline of the first line, in logical pixels.
+    /**
+     * The distance from the top of the paragraph to the ideographic
+     * baseline of the first line, in logical pixels.
+     */
     var ideographicBaseline: Double = 0.0
         private set
 
-    // / True if there is more vertical content, but the text was truncated, either
-    // / because we reached `maxLines` lines of text or because the `maxLines` was
-    // / null, `ellipsis` was not null, and one of the lines exceeded the width
-    // / constraint.
-    // /
-    // / See the discussion of the `maxLines` and `ellipsis` arguments at [new
-    // / ParagraphStyle].
+    /**
+     * True if there is more vertical content, but the text was truncated, either
+     * because we reached `maxLines` lines of text or because the `maxLines` was
+     * null, `ellipsis` was not null, and one of the lines exceeded the width
+     * constraint.
+     *
+     * See the discussion of the `maxLines` and `ellipsis` arguments at [new
+     * ParagraphStyle].
+     */
     var didExceedMaxLines: Boolean = false
         private set
 
@@ -95,9 +111,11 @@ class Paragraph internal constructor(
     //    paragraph_style_ = style;
     // }
 
-    // / Computes the size and position of each glyph in the paragraph.
-    // /
-    // / The [ParagraphConstraints] control how wide the text is allowed to be.
+    /**
+     * Computes the size and position of each glyph in the paragraph.
+     *
+     * The [ParagraphConstraints] control how wide the text is allowed to be.
+     */
     fun layout(constraints: ParagraphConstraints) {
         _layout(constraints.width)
     }
@@ -111,7 +129,7 @@ class Paragraph internal constructor(
         this.width = floor(width)
     }
 
-    // / Returns a list of text boxes that enclose the given text range.
+    /** Returns a list of text boxes that enclose the given text range. */
     fun getBoxesForRange(start: Int, end: Int): List<TextBox> {
         TODO()
         // native 'Paragraph_getRectsForRange';
@@ -130,7 +148,7 @@ class Paragraph internal constructor(
         //    }
     }
 
-    // / Returns the text position closest to the given offset.
+    /** Returns the text position closest to the given offset. */
     fun getPositionForOffset(offset: Offset): TextPosition {
         var encoded: List<Int> = _getPositionForOffset(offset.dx, offset.dy)
         return TextPosition(
@@ -145,11 +163,13 @@ class Paragraph internal constructor(
         // native 'Paragraph_getPositionForOffset';
     }
 
-    // / Returns the [start, end] of the word at the given offset. Characters not
-    // / part of a word, such as spaces, symbols, and punctuation, have word breaks
-    // / on both sides. In such cases, this method will return [offset, offset+1].
-    // / Word boundaries are defined more precisely in Unicode Standard Annex #29
-    // / http://www.unicode.org/reports/tr29/#Word_Boundaries
+    /**
+     * Returns the [start, end] of the word at the given offset. Characters not
+     * part of a word, such as spaces, symbols, and punctuation, have word breaks
+     * on both sides. In such cases, this method will return [offset, offset+1].
+     * Word boundaries are defined more precisely in Unicode Standard Annex #29
+     * http://www.unicode.org/reports/tr29/#Word_Boundaries
+     */
     fun getWordBoundary(offset: Int): List<Int> {
         TODO()
         // native 'Paragraph_getWordBoundary';

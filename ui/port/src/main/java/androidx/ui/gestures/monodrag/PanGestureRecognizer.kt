@@ -22,15 +22,17 @@ import androidx.ui.gestures.kPanSlop
 import androidx.ui.gestures.kTouchSlop
 import androidx.ui.gestures.velocity_tracker.VelocityEstimate
 
-// / Recognizes movement both horizontally and vertically.
-// /
-// / See also:
-// /
-// /  * [ImmediateMultiDragGestureRecognizer], for a similar recognizer that
-// /    tracks each touch point independently.
-// /  * [DelayedMultiDragGestureRecognizer], for a similar recognizer that
-// /    tracks each touch point independently, but that doesn't start until
-// /    some time has passed.
+/**
+ * Recognizes movement both horizontally and vertically.
+ *
+ * See also:
+ *
+ *  * [ImmediateMultiDragGestureRecognizer], for a similar recognizer that
+ *    tracks each touch point independently.
+ *  * [DelayedMultiDragGestureRecognizer], for a similar recognizer that
+ *    tracks each touch point independently, but that doesn't start until
+ *    some time has passed.
+ */
 // TODO(Migration/shepshapard): Needs tests, which rely on some Mixin stuff.
 class PanGestureRecognizer(debugOwner: Any?) : DragGestureRecognizer(debugOwner = debugOwner) {
 

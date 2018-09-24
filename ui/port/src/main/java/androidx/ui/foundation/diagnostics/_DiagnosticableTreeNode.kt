@@ -1,6 +1,6 @@
 package androidx.ui.foundation.diagnostics
 
-// / [DiagnosticsNode] for an instance of [DiagnosticableTree].
+/** [DiagnosticsNode] for an instance of [DiagnosticableTree]. */
 class _DiagnosticableTreeNode(
     name: String?,
     value: DiagnosticableTree,

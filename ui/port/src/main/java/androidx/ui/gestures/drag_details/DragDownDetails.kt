@@ -19,27 +19,33 @@ package androidx.ui.gestures.drag_details
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.runtimeType
 
-// / Details object for callbacks that use [GestureDragDownCallback].
-// /
-// / See also:
-// /
-// /  * [DragGestureRecognizer.onDown], which uses [GestureDragDownCallback].
-// /  * [DragStartDetails], the details for [GestureDragStartCallback].
-// /  * [DragUpdateDetails], the details for [GestureDragUpdateCallback].
-// /  * [DragEndDetails], the details for [GestureDragEndCallback].
+/**
+ * Details object for callbacks that use [GestureDragDownCallback].
+ *
+ * See also:
+ *
+ *  * [DragGestureRecognizer.onDown], which uses [GestureDragDownCallback].
+ *  * [DragStartDetails], the details for [GestureDragStartCallback].
+ *  * [DragUpdateDetails], the details for [GestureDragUpdateCallback].
+ *  * [DragEndDetails], the details for [GestureDragEndCallback].
+ */
 class DragDownDetails(
-    // / The global position at which the pointer contacted the screen.
-    // /
-    // / Defaults to the origin if not specified in the constructor.
+    /**
+     * The global position at which the pointer contacted the screen.
+     *
+     * Defaults to the origin if not specified in the constructor.
+     */
     val globalPosition: Offset = Offset.zero
 ) {
     override fun toString(): String = "${runtimeType()}(${globalPosition})"
 }
 
-// / Signature for when a pointer has contacted the screen and might begin to
-// / move.
-// /
-// / The `details` object provides the position of the touch.
-// /
-// / See [DragGestureRecognizer.onDown].
+/**
+ * Signature for when a pointer has contacted the screen and might begin to
+ * move.
+ *
+ * The `details` object provides the position of the touch.
+ *
+ * See [DragGestureRecognizer.onDown].
+ */
 typealias GestureDragDownCallback = (DragDownDetails) -> Unit

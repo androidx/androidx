@@ -19,31 +19,35 @@ package androidx.ui.gestures.pointer_router
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.gestures.events.PointerEvent
 
-// / A routing table for [PointerEvent] events.
+/** A routing table for [PointerEvent] events. */
 class PointerRouter {
     private val _routeMap: MutableMap<Int, LinkedHashSet<PointerRoute>> = mutableMapOf()
     private val _globalRoutes: LinkedHashSet<PointerRoute> = LinkedHashSet()
 
-    // / Adds a route to the routing table.
-    // /
-    // / Whenever this object routes a [PointerEvent] corresponding to
-    // / pointer, call route.
-    // /
-    // / Routes added reentrantly within [PointerRouter.route] will take effect when
-    // / routing the next event.
+    /**
+     * Adds a route to the routing table.
+     *
+     * Whenever this object routes a [PointerEvent] corresponding to
+     * pointer, call route.
+     *
+     * Routes added reentrantly within [PointerRouter.route] will take effect when
+     * routing the next event.
+     */
     fun addRoute(pointer: Int, route: PointerRoute) {
         val routes: LinkedHashSet<PointerRoute> = _routeMap.getOrPut(pointer) { LinkedHashSet() }
         assert(!routes.contains(route))
         routes.add(route)
     }
 
-    // / Removes a route from the routing table.
-    // /
-    // / No longer call route when routing a [PointerEvent] corresponding to
-    // / pointer. Requires that this route was previously added to the router.
-    // /
-    // / Routes removed reentrantly within [PointerRouter.route] will take effect
-    // / immediately.
+    /**
+     * Removes a route from the routing table.
+     *
+     * No longer call route when routing a [PointerEvent] corresponding to
+     * pointer. Requires that this route was previously added to the router.
+     *
+     * Routes removed reentrantly within [PointerRouter.route] will take effect
+     * immediately.
+     */
     fun removeRoute(pointer: Int, route: PointerRoute) {
         assert(_routeMap.containsKey(pointer))
         val routes: LinkedHashSet<PointerRoute> = _routeMap[pointer]!!
@@ -53,24 +57,28 @@ class PointerRouter {
             _routeMap.remove(pointer)
     }
 
-    // / Adds a route to the global entry in the routing table.
-    // /
-    // / Whenever this object routes a [PointerEvent], call route.
-    // /
-    // / Routes added reentrantly within [PointerRouter.route] will take effect when
-    // / routing the next event.
+    /**
+     * Adds a route to the global entry in the routing table.
+     *
+     * Whenever this object routes a [PointerEvent], call route.
+     *
+     * Routes added reentrantly within [PointerRouter.route] will take effect when
+     * routing the next event.
+     */
     fun addGlobalRoute(route: PointerRoute) {
         assert(!_globalRoutes.contains(route))
         _globalRoutes.add(route)
     }
 
-    // / Removes a route from the global entry in the routing table.
-    // /
-    // / No longer call route when routing a [PointerEvent]. Requires that this
-    // / route was previously added via [addGlobalRoute].
-    // /
-    // / Routes removed reentrantly within [PointerRouter.route] will take effect
-    // / immediately.
+    /**
+     * Removes a route from the global entry in the routing table.
+     *
+     * No longer call route when routing a [PointerEvent]. Requires that this
+     * route was previously added via [addGlobalRoute].
+     *
+     * Routes removed reentrantly within [PointerRouter.route] will take effect
+     * immediately.
+     */
     fun removeGlobalRoute(route: PointerRoute) {
         assert(_globalRoutes.contains(route))
         _globalRoutes.remove(route)
@@ -98,10 +106,12 @@ class PointerRouter {
         }
     }
 
-    // / Calls the routes registered for this pointer event.
-    // /
-    // / Routes are called in the order in which they were added to the
-    // / PointerRouter object.
+    /**
+     * Calls the routes registered for this pointer event.
+     *
+     * Routes are called in the order in which they were added to the
+     * PointerRouter object.
+     */
     fun route(event: PointerEvent) {
         val routes: LinkedHashSet<PointerRoute>? = _routeMap[event.pointer]
         val globalRoutes: List<PointerRoute> = _globalRoutes.toList()

@@ -32,16 +32,18 @@ import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.engine.text.TextDirection
 
-// / Positions its child using a [AlignmentGeometry].
-// /
-// / For example, to align a box at the bottom right, you would pass this box a
-// / tight constraint that is bigger than the child's natural size,
-// / with an alignment of [Alignment.bottomRight].
-// /
-// / By default, sizes to be as big as possible in both axes. If either axis is
-// / unconstrained, then in that direction it will be sized to fit the child's
-// / dimensions. Using widthFactor and heightFactor you can force this latter
-// / behavior in all cases.
+/**
+ * Positions its child using a [AlignmentGeometry].
+ *
+ * For example, to align a box at the bottom right, you would pass this box a
+ * tight constraint that is bigger than the child's natural size,
+ * with an alignment of [Alignment.bottomRight].
+ *
+ * By default, sizes to be as big as possible in both axes. If either axis is
+ * unconstrained, then in that direction it will be sized to fit the child's
+ * dimensions. Using widthFactor and heightFactor you can force this latter
+ * behavior in all cases.
+ */
 class RenderPositionedBox(
     child: RenderBox? = null,
     widthFactor: Double? = null,
@@ -62,9 +64,11 @@ class RenderPositionedBox(
     var _widthFactor: Double? = widthFactor
     var _heightFactor: Double? = heightFactor
 
-    // / If non-null, sets its width to the child's width multiplied by this factor.
-    // /
-    // / Can be both greater and less than 1.0 but must be positive.
+    /**
+     * If non-null, sets its width to the child's width multiplied by this factor.
+     *
+     * Can be both greater and less than 1.0 but must be positive.
+     */
     var widthFactor: Double?
         get() = _widthFactor
         set(value) {
@@ -75,9 +79,11 @@ class RenderPositionedBox(
             markNeedsLayout()
         }
 
-    // / If non-null, sets its height to the child's height multiplied by this factor.
-    // /
-    // / Can be both greater and less than 1.0 but must be positive.
+    /**
+     * If non-null, sets its height to the child's height multiplied by this factor.
+     *
+     * Can be both greater and less than 1.0 but must be positive.
+     */
     var heightFactor: Double?
         get() = _heightFactor
         set(value) {

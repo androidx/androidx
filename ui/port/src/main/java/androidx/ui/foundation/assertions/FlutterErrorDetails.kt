@@ -2,89 +2,107 @@ package androidx.ui.foundation.assertions
 
 import androidx.ui.foundation.IterableFilter
 
-// / Class for information provided to [FlutterExceptionHandler] callbacks.
-// /
-// / See [FlutterError.onError].
-// /
-// / Ctor comment:
-// / Creates a [FlutterErrorDetails] object with the given arguments setting
-// / the object's properties.
-// /
-// / The framework calls this constructor when catching an exception that will
-// / subsequently be reported using [FlutterError.onError].
-// /
-// / The [exception] must not be null; other arguments can be left to
-// / their default values. (`throw null` results in a
-// / [NullThrownError] exception.)
+/**
+ * Class for information provided to [FlutterExceptionHandler] callbacks.
+ *
+ * See [FlutterError.onError].
+ *
+ * Ctor comment:
+ * Creates a [FlutterErrorDetails] object with the given arguments setting
+ * the object's properties.
+ *
+ * The framework calls this constructor when catching an exception that will
+ * subsequently be reported using [FlutterError.onError].
+ *
+ * The [exception] must not be null; other arguments can be left to
+ * their default values. (`throw null` results in a
+ * [NullThrownError] exception.)
+ */
 open class FlutterErrorDetails(
-        // / The exception. Often this will be an [AssertionError], maybe specifically
-        // / a [FlutterError]. However, this could be any value at all.
+    /**
+     * The exception. Often this will be an [AssertionError], maybe specifically
+     * a [FlutterError]. However, this could be any value at all.
+     */
     val exception: Any,
-        // / The stack trace from where the [exception] was thrown (as opposed to where
-        // / it was caught).
-        // /
-        // / StackTrace objects are opaque except for their [toString] function.
-        // /
-        // / If this field is not null, then the [stackFilter] callback, if any, will
-        // / be called with the result of calling [toString] on this object and
-        // / splitting that result on line breaks. If there's no [stackFilter]
-        // / callback, then [FlutterError.defaultStackFilter] is used instead. That
-        // / function expects the stack to be in the format used by
-        // / [StackTrace.toString].
+    /**
+     * The stack trace from where the [exception] was thrown (as opposed to where
+     * it was caught).
+     *
+     * StackTrace objects are opaque except for their [toString] function.
+     *
+     * If this field is not null, then the [stackFilter] callback, if any, will
+     * be called with the result of calling [toString] on this object and
+     * splitting that result on line breaks. If there's no [stackFilter]
+     * callback, then [FlutterError.defaultStackFilter] is used instead. That
+     * function expects the stack to be in the format used by
+     * [StackTrace.toString].
+     */
     val stack: Array<StackTraceElement>? = null,
-        // / A human-readable brief name describing the library that caught the error
-        // / message. This is used by the default error handler in the header dumped to
-        // / the console.
+    /**
+     * A human-readable brief name describing the library that caught the error
+     * message. This is used by the default error handler in the header dumped to
+     * the console.
+     */
     val library: String? = "Flutter framework",
-        // / A human-readable description of where the error was caught (as opposed to
-        // / where it was thrown).
+    /**
+     * A human-readable description of where the error was caught (as opposed to
+     * where it was thrown).
+     */
     val context: String? = null,
-        // / A callback which filters the [stack] trace. Receives an iterable of
-        // / strings representing the frames encoded in the way that
-        // / [StackTrace.toString()] provides. Should return an iterable of lines to
-        // / output for the stack.
-        // /
-        // / If this is not provided, then [FlutterError.dumpErrorToConsole] will use
-        // / [FlutterError.defaultStackFilter] instead.
-        // /
-        // / If the [FlutterError.defaultStackFilter] behavior is desired, then the
-        // / callback should manually call that function. That function expects the
-        // / incoming list to be in the [StackTrace.toString()] format. The output of
-        // / that function, however, does not always follow this format.
-        // /
-        // / This won't be called if [stack] is null.
+    /**
+     * A callback which filters the [stack] trace. Receives an iterable of
+     * strings representing the frames encoded in the way that
+     * [StackTrace.toString()] provides. Should return an iterable of lines to
+     * output for the stack.
+     *
+     * If this is not provided, then [FlutterError.dumpErrorToConsole] will use
+     * [FlutterError.defaultStackFilter] instead.
+     *
+     * If the [FlutterError.defaultStackFilter] behavior is desired, then the
+     * callback should manually call that function. That function expects the
+     * incoming list to be in the [StackTrace.toString()] format. The output of
+     * that function, however, does not always follow this format.
+     *
+     * This won't be called if [stack] is null.
+     */
     val stackFilter: IterableFilter<String>? = null,
-        // / A callback which, when called with a [StringBuffer] will write to that buffer
-        // / information that could help with debugging the problem.
-        // /
-        // / Information collector callbacks can be expensive, so the generated information
-        // / should be cached, rather than the callback being called multiple times.
-        // /
-        // / The text written to the information argument may contain newlines but should
-        // / not end with a newline.
+    /**
+     * A callback which, when called with a [StringBuffer] will write to that buffer
+     * information that could help with debugging the problem.
+     *
+     * Information collector callbacks can be expensive, so the generated information
+     * should be cached, rather than the callback being called multiple times.
+     *
+     * The text written to the information argument may contain newlines but should
+     * not end with a newline.
+     */
     val informationCollector: InformationCollector? = null,
-        // / Whether this error should be ignored by the default error reporting
-        // / behavior in release mode.
-        // /
-        // / If this is false, the default, then the default error handler will always
-        // / dump this error to the console.
-        // /
-        // / If this is true, then the default error handler would only dump this error
-        // / to the console in checked mode. In release mode, the error is ignored.
-        // /
-        // / This is used by certain exception handlers that catch errors that could be
-        // / triggered by environmental conditions (as opposed to logic errors). For
-        // / example, the HTTP library sets this flag so as to not report every 404
-        // / error to the console on end-user devices, while still allowing a custom
-        // / error handler to see the errors even in release builds.
+    /**
+     * Whether this error should be ignored by the default error reporting
+     * behavior in release mode.
+     *
+     * If this is false, the default, then the default error handler will always
+     * dump this error to the console.
+     *
+     * If this is true, then the default error handler would only dump this error
+     * to the console in checked mode. In release mode, the error is ignored.
+     *
+     * This is used by certain exception handlers that catch errors that could be
+     * triggered by environmental conditions (as opposed to logic errors). For
+     * example, the HTTP library sets this flag so as to not report every 404
+     * error to the console on end-user devices, while still allowing a custom
+     * error handler to see the errors even in release builds.
+     */
     val silent: Boolean = false
 ) {
 
-    // / Converts the [exception] to a string.
-    // /
-    // / This applies some additional logic to make [AssertionError] exceptions
-    // / prettier, to handle exceptions that stringify to empty strings, to handle
-    // / objects that don't inherit from [Exception] or [Error], and so forth.
+    /**
+     * Converts the [exception] to a string.
+     *
+     * This applies some additional logic to make [AssertionError] exceptions
+     * prettier, to handle exceptions that stringify to empty strings, to handle
+     * objects that don't inherit from [Exception] or [Error], and so forth.
+     */
     fun exceptionAsString(): String {
         var longMessage: String = ""
         if (exception is AssertionError) {

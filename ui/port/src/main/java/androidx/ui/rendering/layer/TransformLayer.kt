@@ -6,26 +6,32 @@ import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.painting.matrixutils.TransformProperty
 import androidx.ui.vectormath64.Matrix4
 
-// / A composited layer that applies a given transformation matrix to its
-// / children.
-// /
-// / This class inherits from [OffsetLayer] to make it one of the layers that
-// / can be used at the root of a [RenderObject] hierarchy.
+/**
+ * A composited layer that applies a given transformation matrix to its
+ * children.
+ *
+ * This class inherits from [OffsetLayer] to make it one of the layers that
+ * can be used at the root of a [RenderObject] hierarchy.
+ */
 //
-// / Creates a transform layer.
-// /
-// / The [transform] and [offset] properties must be non-null before the
-// / compositing phase of the pipeline.
+/**
+ * Creates a transform layer.
+ *
+ * The [transform] and [offset] properties must be non-null before the
+ * compositing phase of the pipeline.
+ */
 class TransformLayer(
-        // / The matrix to apply.
-        // /
-        // / The scene must be explicitly recomposited after this property is changed
-        // / (as described at [Layer]).
-        // /
-        // / This transform is applied before [offset], if both are set.
-        // /
-        // / The [transform] property must be non-null before the compositing phase of
-        // / the pipeline.
+    /**
+     * The matrix to apply.
+     *
+     * The scene must be explicitly recomposited after this property is changed
+     * (as described at [Layer]).
+     *
+     * This transform is applied before [offset], if both are set.
+     *
+     * The [transform] property must be non-null before the compositing phase of
+     * the pipeline.
+     */
     private val transform: Matrix4,
     offset: Offset = Offset.zero
 ) : OffsetLayer(offset) {

@@ -22,10 +22,12 @@ import androidx.ui.gestures.hit_test.HitTestResult
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.flex.ContainerBoxParentData
 
-// / Generic mixin for render objects with a list of children.
-// /
-// / Provides a child model for a render object subclass that has a doubly-linked
-// / list of children.
+/**
+ * Generic mixin for render objects with a list of children.
+ *
+ * Provides a child model for a render object subclass that has a doubly-linked
+ * list of children.
+ */
 // TODO(migration/Mihai): complete this class, has many commented out parts
 // TODO(migration/Mihai): inheriting from RenderBox to workaround mixins for flex, but this a hack
 abstract class ContainerRenderObjectMixin<
@@ -55,16 +57,18 @@ abstract class ContainerRenderObjectMixin<
 //        return child == equals;
 //    }
 
-    // / The number of children.
+    /** The number of children. */
     var childCount = 0
         private set
 
-    // / Checks whether the given render object has the correct [runtimeType] to be
-    // / a child of this render object.
-    // /
-    // / Does nothing if assertions are disabled.
-    // /
-    // / Always returns true.
+/**
+ * Checks whether the given render object has the correct [runtimeType] to be
+ * a child of this render object.
+ *
+ * Does nothing if assertions are disabled.
+ *
+ * Always returns true.
+ */
 //    bool debugValidateChild(RenderObject child) {
 //        assert(() {
 //            if (child is! ChildType) {
@@ -89,10 +93,10 @@ abstract class ContainerRenderObjectMixin<
 //        return true;
 //    }
 
-    // / The first child in the child list.
+    /** The first child in the child list. */
     var firstChild: ChildType? = null
         private set
-    // / The last child in the child list.
+    /** The last child in the child list. */
     var lastChild: ChildType? = null
         private set
 
@@ -141,10 +145,12 @@ abstract class ContainerRenderObjectMixin<
             }
         }
     }
-    // / Insert child into this render object's child list after the given child.
-    // /
-    // / If `after` is null, then this inserts the child at the start of the list,
-    // / and the child becomes the new [firstChild].
+    /**
+     * Insert child into this render object's child list after the given child.
+     *
+     * If `after` is null, then this inserts the child at the start of the list,
+     * and the child becomes the new [firstChild].
+     */
     fun insert(child: ChildType, after: ChildType? = null) {
         assert(child != this, { "A RenderObject cannot be inserted into itself." })
         assert(after != this, { "A RenderObject cannot simultaneously be both the parent" +
@@ -156,12 +162,12 @@ abstract class ContainerRenderObjectMixin<
         insertIntoChildList(child, after = after)
     }
 
-    // / Append child to the end of this render object's child list.
+    /** Append child to the end of this render object's child list. */
     fun add(child: ChildType) {
         insert(child, after = lastChild)
     }
 
-    // / Add all the children to the end of this render object's child list.
+    /** Add all the children to the end of this render object's child list. */
     fun addAll(children: List<ChildType>?) {
         children?.forEach {
             add(it)
@@ -192,17 +198,21 @@ abstract class ContainerRenderObjectMixin<
 //        _childCount -= 1;
 //    }
 
-    // / Remove this child from the child list.
-    // /
-    // / Requires the child to be present in the child list.
+/**
+ * Remove this child from the child list.
+ *
+ * Requires the child to be present in the child list.
+ */
 //    void remove(ChildType child) {
 //        _removeFromChildList(child);
 //        dropChild(child);
 //    }
 
-    // / Remove all their children from this render object's child list.
-    // /
-    // / More efficient than removing them individually.
+/**
+ * Remove all their children from this render object's child list.
+ *
+ * More efficient than removing them individually.
+ */
 //    void removeAll() {
 //        ChildType child = firstChild;
 //        while (child != null) {
@@ -218,11 +228,13 @@ abstract class ContainerRenderObjectMixin<
 //        _childCount = 0;
 //    }
 
-    // / Move this child in the child list to be before the given child.
-    // /
-    // / More efficient than removing and re-adding the child. Requires the child
-    // / to already be in the child list at some position. Pass null for before to
-    // / move the child to the end of the child list.
+/**
+ * Move this child in the child list to be before the given child.
+ *
+ * More efficient than removing and re-adding the child. Requires the child
+ * to already be in the child list at some position. Pass null for before to
+ * move the child to the end of the child list.
+ */
 //    void move(ChildType child, { ChildType after }) {
 //        assert(child != this);
 //        assert(after != this);
@@ -274,7 +286,7 @@ abstract class ContainerRenderObjectMixin<
         }
     }
 
-    // / The previous child before the given child in the child list.
+    /** The previous child before the given child in the child list. */
     fun childBefore(child: ChildType): ChildType? {
         assert(child != null)
         assert(child.parent == this)
@@ -282,7 +294,7 @@ abstract class ContainerRenderObjectMixin<
         return childParentData.previousSibling
     }
 
-    // / The next child after the given child in the child list.
+    /** The next child after the given child in the child list. */
     fun childAfter(child: ChildType): ChildType? {
         assert(child != null)
         assert(child.parent == this)
@@ -311,10 +323,12 @@ abstract class ContainerRenderObjectMixin<
     // TODO(Migration/Mihai): these are the contents of RenderBoxContainerDefaultsMixin
     // Putting them here as a work around for mixins..
 
-    // / Returns the baseline of the first child with a baseline.
-    // /
-    // / Useful when the children are displayed vertically in the same order they
-    // / appear in the child list.
+    /**
+     * Returns the baseline of the first child with a baseline.
+     *
+     * Useful when the children are displayed vertically in the same order they
+     * appear in the child list.
+     */
     fun defaultComputeDistanceToFirstActualBaseline(baseline: TextBaseline): Double {
         TODO("Migration/Mihai: baselines")
 //        assert(!debugNeedsLayout);
@@ -329,10 +343,12 @@ abstract class ContainerRenderObjectMixin<
 //        return null;
     }
 
-    // / Returns the minimum baseline value among every child.
-    // /
-    // / Useful when the vertical position of the children isn't determined by the
-    // / order in the child list.
+    /**
+     * Returns the minimum baseline value among every child.
+     *
+     * Useful when the vertical position of the children isn't determined by the
+     * order in the child list.
+     */
     fun defaultComputeDistanceToHighestActualBaseline(baseline: TextBaseline): Double {
         TODO("Migration/Mihai: baselines")
 //        assert(!debugNeedsLayout);
@@ -353,15 +369,17 @@ abstract class ContainerRenderObjectMixin<
 //        return result;
     }
 
-    // / Performs a hit test on each child by walking the child list backwards.
-    // /
-    // / Stops walking once after the first child reports that it contains the
-    // / given point. Returns whether any children contain the given point.
-    // /
-    // / See also:
-    // /
-    // /  * [defaultPaint], which paints the children appropriate for this
-    // /    hit-testing strategy.
+    /**
+     * Performs a hit test on each child by walking the child list backwards.
+     *
+     * Stops walking once after the first child reports that it contains the
+     * given point. Returns whether any children contain the given point.
+     *
+     * See also:
+     *
+     *  * [defaultPaint], which paints the children appropriate for this
+     *    hit-testing strategy.
+     */
     fun defaultHitTestChildren(result: HitTestResult, position: Offset? = null) {
         TODO("Migration/Mihai: flex hit test")
 //        // the x, y parameters have the top left of the node's box as the origin
@@ -375,12 +393,14 @@ abstract class ContainerRenderObjectMixin<
 //        return false;
     }
 
-    // / Paints each child by walking the child list forwards.
-    // /
-    // / See also:
-    // /
-    // /  * [defaultHitTestChildren], which implements hit-testing of the children
-    // /    in a manner appropriate for this painting strategy.
+    /**
+     * Paints each child by walking the child list forwards.
+     *
+     * See also:
+     *
+     *  * [defaultHitTestChildren], which implements hit-testing of the children
+     *    in a manner appropriate for this painting strategy.
+     */
     fun defaultPaint(context: PaintingContext, offset: Offset) {
         var child: RenderBox? = firstChild as RenderBox
         while (child != null) {
@@ -390,11 +410,13 @@ abstract class ContainerRenderObjectMixin<
         }
     }
 
-    // / Returns a list containing the children of this render object.
-    // /
-    // / This function is useful when you need random-access to the children of
-    // / this render object. If you're accessing the children in order, consider
-    // / walking the child list directly.
+    /**
+     * Returns a list containing the children of this render object.
+     *
+     * This function is useful when you need random-access to the children of
+     * this render object. If you're accessing the children in order, consider
+     * walking the child list directly.
+     */
     fun getChildrenAsList(): List<ChildType> {
         val result = mutableListOf<ChildType>()
         var child: RenderBox? = firstChild as RenderBox

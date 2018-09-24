@@ -1,16 +1,18 @@
 package androidx.ui.foundation.diagnostics
 
-// / Property which encloses its string [value] in quotes.
-// /
-// / See also:
-// /
-// /  * [MessageProperty], which is a better fit for showing a message
-// /    instead of describing a property with a string value.
-// /
-// / Ctor comment:
-// / Create a diagnostics property for strings.
-// /
-// / The [showName], [quoted], and [level] arguments must not be null.
+/**
+ * Property which encloses its string [value] in quotes.
+ *
+ * See also:
+ *
+ *  * [MessageProperty], which is a better fit for showing a message
+ *    instead of describing a property with a string value.
+ *
+ * Ctor comment:
+ * Create a diagnostics property for strings.
+ *
+ * The [showName], [quoted], and [level] arguments must not be null.
+ */
 class StringProperty(
     name: String,
     value: String?,
@@ -18,7 +20,7 @@ class StringProperty(
     ifEmpty: String? = null,
     showName: Boolean = true,
     defaultValue: Any? = kNoDefaultValue,
-        // / Whether the value is enclosed in double quotes.
+    /** Whether the value is enclosed in double quotes. */
     val quoted: Boolean = true,
     tooltip: String? = null,
     level: DiagnosticLevel = DiagnosticLevel.info

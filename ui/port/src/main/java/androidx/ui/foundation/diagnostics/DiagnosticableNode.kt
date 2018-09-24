@@ -1,7 +1,9 @@
 package androidx.ui.foundation.diagnostics
 
-// / [DiagnosticsNode] that lazily calls the associated [Diagnosticable] [value]
-// / to implement [getChildren] and [getProperties].
+/**
+ * [DiagnosticsNode] that lazily calls the associated [Diagnosticable] [value]
+ * to implement [getChildren] and [getProperties].
+ */
 open class DiagnosticableNode<T : Diagnosticable>(
     name: String?,
     val value: T,

@@ -18,7 +18,7 @@ package androidx.ui.rendering.obj
 
 import androidx.ui.rendering.box.BoxParentData
 
-// / Parent data to support a doubly-linked list of children.
+/** Parent data to support a doubly-linked list of children. */
 // TODO(migration/Mihai): this should inherit from ParentData(), but specializing it here
 //                        to inherit from BoxParentData as a workaround for mixins
 abstract class ContainerParentDataMixin<ChildType : RenderObject> : BoxParentData() {
@@ -26,12 +26,12 @@ abstract class ContainerParentDataMixin<ChildType : RenderObject> : BoxParentDat
     // extended directly.
 //    factory ContainerParentDataMixin._() => null;
 
-    // / The previous sibling in the parent's child list.
+    /** The previous sibling in the parent's child list. */
     var previousSibling: ChildType? = null
-    // / The next sibling in the parent's child list.
+    /** The next sibling in the parent's child list. */
     var nextSibling: ChildType? = null
 
-    // / Clear the sibling pointers.
+    /** Clear the sibling pointers. */
     override fun detach() {
         super.detach()
         if (previousSibling != null) {

@@ -8,7 +8,7 @@ import androidx.ui.semantics.SemanticsUpdate
 import androidx.ui.ui.pointer.PointerDataPacket
 import kotlinx.coroutines.experimental.channels.BroadcastChannel
 
-// / Signature for [Window.onPointerDataPacket].
+/** Signature for [Window.onPointerDataPacket]. */
 typealias PointerDataPacketCallback = (PointerDataPacket) -> Unit
 
 /**

@@ -7,16 +7,18 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.vectormath64.Matrix4
 
-// / A composited layer that has a list of children.
-// /
-// / A [ContainerLayer] instance merely takes a list of children and inserts them
-// / into the composited rendering in order. There are subclasses of
-// / [ContainerLayer] which apply more elaborate effects in the process.
+/**
+ * A composited layer that has a list of children.
+ *
+ * A [ContainerLayer] instance merely takes a list of children and inserts them
+ * into the composited rendering in order. There are subclasses of
+ * [ContainerLayer] which apply more elaborate effects in the process.
+ */
 open class ContainerLayer : Layer() {
 
-    // / The first composited layer in this layer's child list.
+    /** The first composited layer in this layer's child list. */
     internal var firstChild: Layer? = null
-    // / The last composited layer in this layer's child list.
+    /** The last composited layer in this layer's child list. */
     internal var lastChild: Layer? = null
 
     private fun _debugUltimatePreviousSiblingOf(child: Layer, equals: Layer? = null): Boolean {
@@ -59,7 +61,7 @@ open class ContainerLayer : Layer() {
         }
     }
 
-    // / Adds the given layer to the end of this layer's child list.
+    /** Adds the given layer to the end of this layer's child list. */
     fun append(child: Layer) {
         assert(child != this)
         assert(child != firstChild)
@@ -112,7 +114,7 @@ open class ContainerLayer : Layer() {
         assert(!child.attached)
     }
 
-    // / Removes all of this layer's children from its child list.
+    /** Removes all of this layer's children from its child list. */
     fun removeAllChildren() {
         var child = firstChild
         while (child != null) {
@@ -131,13 +133,15 @@ open class ContainerLayer : Layer() {
         addChildrenToScene(builder, layerOffset)
     }
 
-    // / Uploads all of this layer's children to the engine.
-    // /
-    // / This method is typically used by [addToScene] to insert the children into
-    // / the scene. Subclasses of [ContainerLayer] typically override [addToScene]
-    // / to apply effects to the scene using the [SceneBuilder] API, then insert
-    // / their children using [addChildrenToScene], then reverse the aforementioned
-    // / effects before returning from [addToScene].
+    /**
+     * Uploads all of this layer's children to the engine.
+     *
+     * This method is typically used by [addToScene] to insert the children into
+     * the scene. Subclasses of [ContainerLayer] typically override [addToScene]
+     * to apply effects to the scene using the [SceneBuilder] API, then insert
+     * their children using [addChildrenToScene], then reverse the aforementioned
+     * effects before returning from [addToScene].
+     */
     fun addChildrenToScene(builder: SceneBuilder, childOffset: Offset) {
         var child = firstChild
         while (child != null) {
@@ -146,39 +150,41 @@ open class ContainerLayer : Layer() {
         }
     }
 
-    // / Applies the transform that would be applied when compositing the given
-    // / child to the given matrix.
-    // /
-    // / Specifically, this should apply the transform that is applied to child's
-    // / _origin_. When using [applyTransform] with a chain of layers, results will
-    // / be unreliable unless the deepest layer in the chain collapses the
-    // / `layerOffset` in [addToScene] to zero, meaning that it passes
-    // / [Offset.zero] to its children, and bakes any incoming `layerOffset` into
-    // / the [SceneBuilder] as (for instance) a transform (which is then also
-    // / included in the transformation applied by [applyTransform]).
-    // /
-    // / For example, if [addToScene] applies the `layerOffset` and then
-    // / passes [Offset.zero] to the children, then it should be included in the
-    // / transform applied here, whereas if [addToScene] just passes the
-    // / `layerOffset` to the child, then it should not be included in the
-    // / transform applied here.
-    // /
-    // / This method is only valid immediately after [addToScene] has been called,
-    // / before any of the properties have been changed.
-    // /
-    // / The default implementation does nothing, since [ContainerLayer], by
-    // / default, composites its children at the origin of the [ContainerLayer]
-    // / itself.
-    // /
-    // / The `child` argument should generally not be null, since in principle a
-    // / layer could transform each child independently. However, certain layers
-    // / may explicitly allow null as a value, for example if they know that they
-    // / transform all their children identically.
-    // /
-    // / The `transform` argument must not be null.
-    // /
-    // / Used by [FollowerLayer] to transform its child to a [LeaderLayer]'s
-    // / position.
+    /**
+     * Applies the transform that would be applied when compositing the given
+     * child to the given matrix.
+     *
+     * Specifically, this should apply the transform that is applied to child's
+     * _origin_. When using [applyTransform] with a chain of layers, results will
+     * be unreliable unless the deepest layer in the chain collapses the
+     * `layerOffset` in [addToScene] to zero, meaning that it passes
+     * [Offset.zero] to its children, and bakes any incoming `layerOffset` into
+     * the [SceneBuilder] as (for instance) a transform (which is then also
+     * included in the transformation applied by [applyTransform]).
+     *
+     * For example, if [addToScene] applies the `layerOffset` and then
+     * passes [Offset.zero] to the children, then it should be included in the
+     * transform applied here, whereas if [addToScene] just passes the
+     * `layerOffset` to the child, then it should not be included in the
+     * transform applied here.
+     *
+     * This method is only valid immediately after [addToScene] has been called,
+     * before any of the properties have been changed.
+     *
+     * The default implementation does nothing, since [ContainerLayer], by
+     * default, composites its children at the origin of the [ContainerLayer]
+     * itself.
+     *
+     * The `child` argument should generally not be null, since in principle a
+     * layer could transform each child independently. However, certain layers
+     * may explicitly allow null as a value, for example if they know that they
+     * transform all their children identically.
+     *
+     * The `transform` argument must not be null.
+     *
+     * Used by [FollowerLayer] to transform its child to a [LeaderLayer]'s
+     * position.
+     */
     open fun applyTransform(child: Layer, transform: Matrix4) {
         assert(child != null)
         assert(transform != null)

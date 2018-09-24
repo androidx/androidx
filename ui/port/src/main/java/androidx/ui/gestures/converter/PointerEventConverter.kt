@@ -30,11 +30,13 @@ import androidx.ui.ui.pointer.PointerData
 import androidx.ui.ui.pointer.PointerDeviceKind
 import kotlin.coroutines.experimental.buildSequence
 
-// / Converts from engine pointer data to framework pointer events.
-// /
-// / This takes [PointerDataPacket] objects, as received from the engine via
-// / [dart:ui.Window.onPointerDataPacket], and converts them to [PointerEvent]
-// / objects.
+/**
+ * Converts from engine pointer data to framework pointer events.
+ *
+ * This takes [PointerDataPacket] objects, as received from the engine via
+ * [dart:ui.Window.onPointerDataPacket], and converts them to [PointerEvent]
+ * objects.
+ */
 object PointerEventConverter {
 
     // Map from platform pointer identifiers to PointerEvent pointer identifiers.
@@ -46,12 +48,14 @@ object PointerEventConverter {
         }
     }
 
-    // / Expand the given packet of pointer data into a sequence of framework pointer events.
-    // /
-    // / The `devicePixelRatio` argument (usually given the value from
-    // / [dart:ui.Window.devicePixelRatio]) is used to convert the incoming data
-    // / from physical coordinates to logical pixels. See the discussion at
-    // / [PointerEvent] for more details on the [PointerEvent] coordinate space.
+    /**
+     * Expand the given packet of pointer data into a sequence of framework pointer events.
+     *
+     * The `devicePixelRatio` argument (usually given the value from
+     * [dart:ui.Window.devicePixelRatio]) is used to convert the incoming data
+     * from physical coordinates to logical pixels. See the discussion at
+     * [PointerEvent] for more details on the [PointerEvent] coordinate space.
+     */
     fun expand(data: Iterable<PointerData>, devicePixelRatio: Double) = buildSequence {
         data.forEach {
             val position: Offset = Offset(it.physicalX, it.physicalY) / devicePixelRatio

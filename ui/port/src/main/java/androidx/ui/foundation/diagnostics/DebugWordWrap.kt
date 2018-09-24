@@ -9,22 +9,24 @@ internal enum class _WordWrapParseMode {
     inSpace, inWord, atBreak
 }
 
-// / Wraps the given string at the given width.
-// /
-// / Wrapping occurs at space characters (U+0020). Lines that start with an
-// / octothorpe ("#", U+0023) are not wrapped (so for example, Dart stack traces
-// / won't be wrapped).
-// /
-// / Subsequent lines attempt to duplicate the indentation of the first line, for
-// / example if the first line starts with multiple spaces. In addition, if a
-// / `wrapIndent` argument is provided, each line after the first is prefixed by
-// / that string.
-// /
-// / This is not suitable for use with arbitrary Unicode text. For example, it
-// / doesn't implement UAX #14, can't handle ideographic text, doesn't hyphenate,
-// / and so forth. It is only intended for formatting error messages.
-// /
-// / The default [debugPrint] implementation uses this for its line wrapping.
+/**
+ * Wraps the given string at the given width.
+ *
+ * Wrapping occurs at space characters (U+0020). Lines that start with an
+ * octothorpe ("#", U+0023) are not wrapped (so for example, Dart stack traces
+ * won't be wrapped).
+ *
+ * Subsequent lines attempt to duplicate the indentation of the first line, for
+ * example if the first line starts with multiple spaces. In addition, if a
+ * `wrapIndent` argument is provided, each line after the first is prefixed by
+ * that string.
+ *
+ * This is not suitable for use with arbitrary Unicode text. For example, it
+ * doesn't implement UAX #14, can't handle ideographic text, doesn't hyphenate,
+ * and so forth. It is only intended for formatting error messages.
+ *
+ * The default [debugPrint] implementation uses this for its line wrapping.
+ */
 // TODO(Migration/Filip): Sync*?
 fun debugWordWrap(message: String, width: Int, wrapIndent: String = ""): Iterable<String> {
     return Iterable {

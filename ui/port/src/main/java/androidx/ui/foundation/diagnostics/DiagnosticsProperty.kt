@@ -5,39 +5,47 @@ import androidx.ui.runtimeType
 
 typealias ComputePropertyValueCallback<T> = () -> T
 
-// / Property with a [value] of type [T].
-// /
-// / If the default `value.toString()` does not provide an adequate description
-// / of the value, specify `description` defining a custom description.
-// /
-// / The [showSeparator] property indicates whether a separator should be placed
-// / between the property [name] and its [value].
+/**
+ * Property with a [value] of type [T].
+ *
+ * If the default `value.toString()` does not provide an adequate description
+ * of the value, specify `description` defining a custom description.
+ *
+ * The [showSeparator] property indicates whether a separator should be placed
+ * between the property [name] and its [value].
+ */
 open class DiagnosticsProperty<T : Any> protected constructor(
     name: String,
     value: T? = null,
     private val computeValue: ComputePropertyValueCallback<T?>? = null,
     val description: String? = null,
-        // / Description if the property [value] is null.
+    /** Description if the property [value] is null. */
     var ifNull: String? = null,
-        // / Description if the property description would otherwise be empty.
+    /** Description if the property description would otherwise be empty. */
     val ifEmpty: String? = null,
     showName: Boolean = true,
     showSeparator: Boolean = true,
-        // / If the [value] of the property equals [defaultValue] the priority [level]
-        // / of the property is downgraded to [DiagnosticLevel.fine] as the property
-        // / value is uninteresting.
-        // /
-        // / [defaultValue] has type [T] or is [kNoDefaultValue].
+    /**
+     * If the [value] of the property equals [defaultValue] the priority [level]
+     * of the property is downgraded to [DiagnosticLevel.fine] as the property
+     * value is uninteresting.
+     *
+     * [defaultValue] has type [T] or is [kNoDefaultValue].
+     */
     val defaultValue: Any? = kNoDefaultValue,
-        // / Optional tooltip typically describing the property.
-        // /
-        // / Example tooltip: 'physical pixels per logical pixel'
-        // /
-        // / If present, the tooltip is added in parenthesis after the raw value when
-        // / generating the string description.
+    /**
+     * Optional tooltip typically describing the property.
+     *
+     * Example tooltip: 'physical pixels per logical pixel'
+     *
+     * If present, the tooltip is added in parenthesis after the raw value when
+     * generating the string description.
+     */
     val tooltip: String? = null,
-        // / Whether a [value] of null causes the property to have [level]
-        // / [DiagnosticLevel.warning] warning that the property is missing a [value].
+    /**
+     * Whether a [value] of null causes the property to have [level]
+     * [DiagnosticLevel.warning] warning that the property is missing a [value].
+     */
     val missingIfNull: Boolean = false,
     style: DiagnosticsTreeStyle = DiagnosticsTreeStyle.singleLine,
     private val level: DiagnosticLevel = DiagnosticLevel.info
@@ -106,18 +114,20 @@ open class DiagnosticsProperty<T : Any> protected constructor(
             )
         }
 
-        // / Property with a [value] that is computed only when needed.
-        // /
-        // / Use if computing the property [value] may throw an exception or is
-        // / expensive.
-        // /
-        // / The [showName], [showSeparator], [style], [missingIfNull], and [level]
-        // / arguments must not be null.
-        // /
-        // / The [level] argument is just a suggestion and can be overridden if
-        // / if something else about the property causes it to have a lower or higher
-        // / level. For example, if calling `computeValue` throws an exception, [level]
-        // / will always return [DiagnosticLevel.error].
+        /**
+         * Property with a [value] that is computed only when needed.
+         *
+         * Use if computing the property [value] may throw an exception or is
+         * expensive.
+         *
+         * The [showName], [showSeparator], [style], [missingIfNull], and [level]
+         * arguments must not be null.
+         *
+         * The [level] argument is just a suggestion and can be overridden if
+         * if something else about the property causes it to have a lower or higher
+         * level. For example, if calling `computeValue` throws an exception, [level]
+         * will always return [DiagnosticLevel.error].
+         */
         fun <T : Any> createLazy(
             name: String,
             computeValue: ComputePropertyValueCallback<T?>,
@@ -171,19 +181,21 @@ open class DiagnosticsProperty<T : Any> protected constructor(
         return json
     }
 
-    // / Returns a string representation of the property value.
-    // /
-    // / Subclasses should override this method instead of [toDescription] to
-    // / customize how property values are converted to strings.
-    // /
-    // / Overriding this method ensures that behavior controlling how property
-    // / values are decorated to generate a nice [toDescription] are consistent
-    // / across all implementations. Debugging tools may also choose to use
-    // / [valueToString] directly instead of [toDescription].
-    // /
-    // / `parentConfiguration` specifies how the parent is rendered as text art.
-    // / For example, if the parent places all properties on one line, the value
-    // / of the property should be displayed without line breaks if possible.
+    /**
+     * Returns a string representation of the property value.
+     *
+     * Subclasses should override this method instead of [toDescription] to
+     * customize how property values are converted to strings.
+     *
+     * Overriding this method ensures that behavior controlling how property
+     * values are decorated to generate a nice [toDescription] are consistent
+     * across all implementations. Debugging tools may also choose to use
+     * [valueToString] directly instead of [toDescription].
+     *
+     * `parentConfiguration` specifies how the parent is rendered as text art.
+     * For example, if the parent places all properties on one line, the value
+     * of the property should be displayed without line breaks if possible.
+     */
     open fun valueToString(parentConfiguration: TextTreeConfiguration? = null): String {
         val v = getValue()
         // DiagnosticableTree values are shown using the shorter toStringShort()
@@ -212,49 +224,57 @@ open class DiagnosticsProperty<T : Any> protected constructor(
         return addTooltip(result)
     }
 
-    // / If a [tooltip] is specified, add the tooltip it to the end of `text`
-    // / enclosing it parenthesis to disambiguate the tooltip from the rest of
-    // / the text.
-    // /
-    // / `text` must not be null.
+    /**
+     * If a [tooltip] is specified, add the tooltip it to the end of `text`
+     * enclosing it parenthesis to disambiguate the tooltip from the rest of
+     * the text.
+     *
+     * `text` must not be null.
+     */
     private fun addTooltip(text: String): String {
         tooltip ?: return text
         return "$text ($tooltip)"
     }
 
-    // / The type of the property [value].
-    // /
-    // / This is determined from the type argument `T` used to instantiate the
-    // / [DiagnosticsProperty] class. This means that the type is available even if
-    // / [value] is null, but it also means that the [propertyType] is only as
-    // / accurate as the type provided when invoking the constructor.
-    // /
-    // / Generally, this is only useful for diagnostic tools that should display
-    // / null values in a manner consistent with the property type. For example, a
-    // / tool might display a null [Color] value as an empty rectangle instead of
-    // / the word "null".
+    /**
+     * The type of the property [value].
+     *
+     * This is determined from the type argument `T` used to instantiate the
+     * [DiagnosticsProperty] class. This means that the type is available even if
+     * [value] is null, but it also means that the [propertyType] is only as
+     * accurate as the type provided when invoking the constructor.
+     *
+     * Generally, this is only useful for diagnostic tools that should display
+     * null values in a manner consistent with the property type. For example, a
+     * tool might display a null [Color] value as an empty rectangle instead of
+     * the word "null".
+     */
     // TODO(Migration/Filip): We can't do T::class.java in Kotlin. Need to revisit this.
     fun propertyType() =
             Type.fromObject(if (getValue() == null) Any::class.java else getValue()!!::class.java)
 
-    // / Returns the value of the property either from cache or by invoking a
-    // / [ComputePropertyValueCallback].
-    // /
-    // / If an exception is thrown invoking the [ComputePropertyValueCallback],
-    // / [value] returns null and the exception thrown can be found via the
-    // / [exception] property.
-    // /
-    // / See also:
-    // /
-    // /  * [valueToString], which converts the property value to a string.
+    /**
+     * Returns the value of the property either from cache or by invoking a
+     * [ComputePropertyValueCallback].
+     *
+     * If an exception is thrown invoking the [ComputePropertyValueCallback],
+     * [value] returns null and the exception thrown can be found via the
+     * [exception] property.
+     *
+     * See also:
+     *
+     *  * [valueToString], which converts the property value to a string.
+     */
     override fun getValue(): T? {
         maybeCacheValue()
         return _value
     }
 
-    // / Exception thrown if accessing the property [value] threw an exception.
-    // /
-    // / Returns null if computing the property value did not throw an exception.
+    /**
+     * Exception thrown if accessing the property [value] threw an exception.
+     *
+     * Returns null if computing the property value did not throw an exception.
+     */
     fun getException(): Throwable? {
         maybeCacheValue()
         return _exception
@@ -275,16 +295,18 @@ open class DiagnosticsProperty<T : Any> protected constructor(
         }
     }
 
-    // / Priority level of the diagnostic used to control which diagnostics should
-    // / be shown and filtered.
-    // /
-    // / The property level defaults to the value specified by the `level`
-    // / constructor argument. The level is raised to [DiagnosticLevel.error] if
-    // / an [exception] was thrown getting the property [value]. The level is
-    // / raised to [DiagnosticLevel.warning] if the property [value] is null and
-    // / the property is not allowed to be null due to [missingIfNull]. The
-    // / priority level is lowered to [DiagnosticLevel.fine] if the property
-    // / [value] equals [defaultValue].
+    /**
+     * Priority level of the diagnostic used to control which diagnostics should
+     * be shown and filtered.
+     *
+     * The property level defaults to the value specified by the `level`
+     * constructor argument. The level is raised to [DiagnosticLevel.error] if
+     * an [exception] was thrown getting the property [value]. The level is
+     * raised to [DiagnosticLevel.warning] if the property [value] is null and
+     * the property is not allowed to be null due to [missingIfNull]. The
+     * priority level is lowered to [DiagnosticLevel.fine] if the property
+     * [value] equals [defaultValue].
+     */
     override fun getLevel(): DiagnosticLevel {
         if (_defaultLevel == DiagnosticLevel.hidden)
             return _defaultLevel

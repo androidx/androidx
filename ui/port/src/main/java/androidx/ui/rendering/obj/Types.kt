@@ -20,9 +20,11 @@ import androidx.ui.semantics.SemanticsConfiguration
 import androidx.ui.semantics.SemanticsNode
 import androidx.ui.semantics.SemanticsTag
 
-// / Signature for a function that is called during layout.
-// /
-// / Used by [RenderObject.invokeLayoutCallback].
+/**
+ * Signature for a function that is called during layout.
+ *
+ * Used by [RenderObject.invokeLayoutCallback].
+ */
 typealias LayoutCallback = (Constraints) -> Unit
 
 // These are just a stubbed class to remove warnings:

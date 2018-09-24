@@ -16,25 +16,31 @@
 
 package androidx.ui.engine.text
 
-// / Whether a [TextPosition] is visually upstream or downstream of its offset.
-// /
-// / For example, when a text position exists at a line break, a single offset has
-// / two visual positions, one prior to the line break (at the end of the first
-// / line) and one after the line break (at the start of the second line). A text
-// / affinity disambiguates between those cases. (Something similar happens with
-// / between runs of bidirectional text.)
+/**
+ * Whether a [TextPosition] is visually upstream or downstream of its offset.
+ *
+ * For example, when a text position exists at a line break, a single offset has
+ * two visual positions, one prior to the line break (at the end of the first
+ * line) and one after the line break (at the start of the second line). A text
+ * affinity disambiguates between those cases. (Something similar happens with
+ * between runs of bidirectional text.)
+ */
 enum class TextAffinity {
     // TODO(Migration/siyamed): Afaik we do not currently have support for affinity
 
-    // / The position has affinity for the upstream side of the text position.
-    // /
-    // / For example, if the offset of the text position is a line break, the
-    // / position represents the end of the first line.
+    /**
+     * The position has affinity for the upstream side of the text position.
+     *
+     * For example, if the offset of the text position is a line break, the
+     * position represents the end of the first line.
+     */
     upstream,
 
-    // / The position has affinity for the downstream side of the text position.
-    // /
-    // / For example, if the offset of the text position is a line break, the
-    // / position represents the start of the second line.
+    /**
+     * The position has affinity for the downstream side of the text position.
+     *
+     * For example, if the offset of the text position is a line break, the
+     * position represents the start of the second line.
+     */
     downstream,
 }

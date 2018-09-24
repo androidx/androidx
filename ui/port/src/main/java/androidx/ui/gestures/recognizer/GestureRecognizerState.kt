@@ -16,24 +16,30 @@
 
 package androidx.ui.gestures.recognizer
 
-// / The possible states of a [PrimaryPointerGestureRecognizer].
-// /
-// / The recognizer advances from [ready] to [possible] when starts tracking a
-// / primary pointer. When the primary pointer is resolve (either accepted or
-// / or rejected), the recognizers advances to [defunct]. Once the recognizer
-// / has stopped tracking any remaining pointers, the recognizer returns to
-// / [ready].
+/**
+ * The possible states of a [PrimaryPointerGestureRecognizer].
+ *
+ * The recognizer advances from [ready] to [possible] when starts tracking a
+ * primary pointer. When the primary pointer is resolve (either accepted or
+ * or rejected), the recognizers advances to [defunct]. Once the recognizer
+ * has stopped tracking any remaining pointers, the recognizer returns to
+ * [ready].
+ */
 enum class GestureRecognizerState {
-    // / The recognizer is ready to start recognizing a gesture.
+    /** The recognizer is ready to start recognizing a gesture. */
     ready,
 
-    // / The sequence of pointer events seen thus far is consistent with the
-    // / gesture the recognizer is attempting to recognize but the gesture has not
-    // / been accepted definitively.
+    /**
+     * The sequence of pointer events seen thus far is consistent with the
+     * gesture the recognizer is attempting to recognize but the gesture has not
+     * been accepted definitively.
+     */
     possible,
 
-    // / Further pointer events cannot cause this recognizer to recognize the
-    // / gesture until the recognizer returns to the [ready] state (typically when
-    // / all the pointers the recognizer is tracking are removed from the screen).
+    /**
+     * Further pointer events cannot cause this recognizer to recognize the
+     * gesture until the recognizer returns to the [ready] state (typically when
+     * all the pointers the recognizer is tracking are removed from the screen).
+     */
     defunct
 }

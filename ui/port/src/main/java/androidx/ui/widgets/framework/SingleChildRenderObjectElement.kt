@@ -3,13 +3,15 @@ package androidx.ui.widgets.framework
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 
-// / An [Element] that uses a [SingleChildRenderObjectWidget] as its configuration.
-// /
-// / The child is optional.
-// /
-// / This element subclass can be used for RenderObjectWidgets whose
-// / RenderObjects use the [RenderObjectWithChildMixin] mixin. Such widgets are
-// / expected to inherit from [SingleChildRenderObjectWidget].
+/**
+ * An [Element] that uses a [SingleChildRenderObjectWidget] as its configuration.
+ *
+ * The child is optional.
+ *
+ * This element subclass can be used for RenderObjectWidgets whose
+ * RenderObjects use the [RenderObjectWithChildMixin] mixin. Such widgets are
+ * expected to inherit from [SingleChildRenderObjectWidget].
+ */
 class SingleChildRenderObjectElement(
     widget: SingleChildRenderObjectWidget
 ) : RenderObjectElement(widget) {

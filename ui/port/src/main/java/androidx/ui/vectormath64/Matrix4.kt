@@ -54,13 +54,13 @@ data class Matrix4(
             )
         }
 
-        // / Rotation of [radians_] around X.
+        /** Rotation of [radians_] around X. */
         fun rotationX(radians: Double) = Matrix4.zero().apply {
             set(3, 3, 1.0)
             rotateX(radians)
         }
 
-        // / Rotation of [radians_] around Y.
+        /** Rotation of [radians_] around Y. */
         fun rotationY(radians: Double) = Matrix4.zero().apply {
             set(3, 3, 1.0)
             rotateY(radians)
@@ -219,8 +219,10 @@ data class Matrix4(
 
     // ***** Required methods from dart's matrix4 *****
 
-    // / Transform [arg] of type [Vector3] using the perspective transformation
-    // / defined by [this].
+    /**
+     * Transform [arg] of type [Vector3] using the perspective transformation
+     * defined by [this].
+     */
     fun perspectiveTransform(arg: Vector3): Vector3 {
         val argStorage = arg.v3storage
         val x_ = m4storage[0] * argStorage[0] +
@@ -245,7 +247,7 @@ data class Matrix4(
         return arg
     }
 
-    // / Returns the determinant of this matrix.
+    /** Returns the determinant of this matrix. */
     val determinant: Double
     get() {
         val det2_01_01 = m4storage[0] * m4storage[5] - m4storage[1] * m4storage[4]
@@ -266,10 +268,10 @@ data class Matrix4(
                 det3_201_013 * m4storage[14] + det3_201_012 * m4storage[15].toDouble()
     }
 
-    // / Invert [this].
+    /** Invert [this]. */
     fun invert() = copyInverse(this)
 
-    // / Set this matrix to be the inverse of [arg]
+    /** Set this matrix to be the inverse of [arg] */
     fun copyInverse(arg: Matrix4): Double {
         val argStorage = arg.m4storage
         val a00 = argStorage[0]
@@ -328,7 +330,7 @@ data class Matrix4(
         return det
     }
 
-    // / Sets the entire matrix to the matrix in [arg].
+    /** Sets the entire matrix to the matrix in [arg]. */
     fun setFrom(arg: Matrix4) {
         assignFromStorage(arg.m4storage)
     }
@@ -352,7 +354,7 @@ data class Matrix4(
         assignFromStorage(newStorage)
     }
 
-    // / Sets the upper 3x3 to a rotation of [radians] around Y
+    /** Sets the upper 3x3 to a rotation of [radians] around Y */
     fun rotateY(radians: Double) {
         val c = cos(radians)
         val s = sin(radians)
@@ -372,7 +374,7 @@ data class Matrix4(
         assignFromStorage(newStorage)
     }
 
-    // / Sets the upper 3x3 to a rotation of [radians] around Z
+    /** Sets the upper 3x3 to a rotation of [radians] around Z */
     fun rotateZ(radians: Double) {
         val c = cos(radians)
         val s = sin(radians)
@@ -392,14 +394,14 @@ data class Matrix4(
         assignFromStorage(newStorage)
     }
 
-    // / Sets the translation vector in this homogeneous transformation matrix.
+    /** Sets the translation vector in this homogeneous transformation matrix. */
     fun setTranslationRaw(x: Double, y: Double, z: Double) {
         set(3, 0, x)
         set(3, 1, y)
         set(3, 2, z)
     }
 
-    // / Scale this matrix by a [Vector3], [Vector4], or x,y,z
+    /** Scale this matrix by a [Vector3], [Vector4], or x,y,z */
     fun scale(x: Any, y: Double? = null, z: Double? = null) {
         var sx: Double? = null
         var sy: Double? = null
@@ -441,7 +443,7 @@ data class Matrix4(
         assignFromStorage(newStorage)
     }
 
-    // / Translate this matrix by a [Vector3], [Vector4], or x,y,z
+    /** Translate this matrix by a [Vector3], [Vector4], or x,y,z */
     fun translate(x: Any, y: Double = 0.0, z: Double = 0.0) {
         var tx: Double? = null
         var ty: Double? = null

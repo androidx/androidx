@@ -8,17 +8,21 @@ package androidx.ui.semantics
 // /// This implementation considers a [node]'s [sortKey] and its position within
 // /// the list of its siblings. [sortKey] takes precedence over position.
 internal data class _TraversalSortNode(
-    // / The node whose position this sort node determines.
+    /** The node whose position this sort node determines. */
     val node: SemanticsNode,
 
-    // / Determines the position of this node among its siblings.
-    // /
-    // / Sort keys take precedence over other attributes, such as
-    // / [position].
+    /**
+     * Determines the position of this node among its siblings.
+     *
+     * Sort keys take precedence over other attributes, such as
+     * [position].
+     */
     val sortKey: SemanticsSortKey? = null,
 
-    // / Position within the list of siblings as determined by the default sort
-    // / order.
+    /**
+     * Position within the list of siblings as determined by the default sort
+     * order.
+     */
     val position: Int
 ) : Comparable<_TraversalSortNode> {
 

@@ -22,16 +22,18 @@ import androidx.ui.gestures.kTouchSlop
 import androidx.ui.gestures.velocity_tracker.VelocityEstimate
 import kotlin.math.absoluteValue
 
-// / Recognizes movement in the vertical direction.
-// /
-// / Used for vertical scrolling.
-// /
-// / See also:
-// /
-// /  * [HorizontalDragGestureRecognizer], for a similar recognizer but for
-// /    horizontal movement.
-// /  * [MultiDragGestureRecognizer], for a family of gesture recognizers that
-// /    track each touch point independently.
+/**
+ * Recognizes movement in the vertical direction.
+ *
+ * Used for vertical scrolling.
+ *
+ * See also:
+ *
+ *  * [HorizontalDragGestureRecognizer], for a similar recognizer but for
+ *    horizontal movement.
+ *  * [MultiDragGestureRecognizer], for a family of gesture recognizers that
+ *    track each touch point independently.
+ */
 // TODO(Migration/shepshapard): Needs tests, which rely on some Mixin stuff.
 class VerticalDragGestureRecognizer(debugOwner: Any? = null) : DragGestureRecognizer(debugOwner) {
 

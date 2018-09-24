@@ -36,103 +36,121 @@ import androidx.ui.widgets.debugCheckHasDirectionality
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.LeafRenderObjectWidget
 
-// / A widget that displays a [dart:ui.Image] directly.
-// /
-// / The image is painted using [paintImage], which describes the meanings of the
-// / various fields on this class in more detail.
-// /
-// / This widget is rarely used directly. Instead, consider using [Image].
-// /
-// / Ctor comment:
-// / Creates a widget that displays an image.
-// /
-// / The [scale], [alignment], [repeat], and [matchTextDirection] arguments must
-// / not be null.
+/**
+ * A widget that displays a [dart:ui.Image] directly.
+ *
+ * The image is painted using [paintImage], which describes the meanings of the
+ * various fields on this class in more detail.
+ *
+ * This widget is rarely used directly. Instead, consider using [Image].
+ *
+ * Ctor comment:
+ * Creates a widget that displays an image.
+ *
+ * The [scale], [alignment], [repeat], and [matchTextDirection] arguments must
+ * not be null.
+ */
 class RawImage(
     key: Key,
-        // / The image to display.
+    /** The image to display. */
     val image: Image,
-        // / If non-null, require the image to have this width.
-        // /
-        // / If null, the image will pick a size that best preserves its intrinsic
-        // / aspect ratio.
+    /**
+     * If non-null, require the image to have this width.
+     *
+     * If null, the image will pick a size that best preserves its intrinsic
+     * aspect ratio.
+     */
     val width: Double? = null,
-        // / If non-null, require the image to have this height.
-        // /
-        // / If null, the image will pick a size that best preserves its intrinsic
-        // / aspect ratio.
+    /**
+     * If non-null, require the image to have this height.
+     *
+     * If null, the image will pick a size that best preserves its intrinsic
+     * aspect ratio.
+     */
     val height: Double? = null,
-        // / Specifies the image's scale.
-        // /
-        // / Used when determining the best display size for the image.
+    /**
+     * Specifies the image's scale.
+     *
+     * Used when determining the best display size for the image.
+     */
     val scale: Double = 1.0,
-        // / If non-null, this color is blended with each image pixel using [colorBlendMode].
+    /** If non-null, this color is blended with each image pixel using [colorBlendMode]. */
     val color: Color? = null,
-        // / Used to combine [color] with this image.
-        // /
-        // / The default is [BlendMode.srcIn]. In terms of the blend mode, [color] is
-        // / the source and this image is the destination.
-        // /
-        // / See also:
-        // /
-        // /  * [BlendMode], which includes an illustration of the effect of each blend mode.
+    /**
+     * Used to combine [color] with this image.
+     *
+     * The default is [BlendMode.srcIn]. In terms of the blend mode, [color] is
+     * the source and this image is the destination.
+     *
+     * See also:
+     *
+     *  * [BlendMode], which includes an illustration of the effect of each blend mode.
+     */
     val colorBlendMode: BlendMode? = null,
-        // / How to inscribe the image into the space allocated during layout.
-        // /
-        // / The default varies based on the other fields. See the discussion at
-        // / [paintImage].
+    /**
+     * How to inscribe the image into the space allocated during layout.
+     *
+     * The default varies based on the other fields. See the discussion at
+     * [paintImage].
+     */
     val fit: BoxFit? = null,
-        // / How to align the image within its bounds.
-        // /
-        // / The alignment aligns the given position in the image to the given position
-        // / in the layout bounds. For example, an [Alignment] alignment of (-1.0,
-        // / -1.0) aligns the image to the top-left corner of its layout bounds, while a
-        // / [Alignment] alignment of (1.0, 1.0) aligns the bottom right of the
-        // / image with the bottom right corner of its layout bounds. Similarly, an
-        // / alignment of (0.0, 1.0) aligns the bottom middle of the image with the
-        // / middle of the bottom edge of its layout bounds.
-        // /
-        // / To display a subpart of an image, consider using a [CustomPainter] and
-        // / [Canvas.drawImageRect].
-        // /
-        // / If the [alignment] is [TextDirection]-dependent (i.e. if it is a
-        // / [AlignmentDirectional]), then an ambient [Directionality] widget
-        // / must be in scope.
-        // /
-        // / Defaults to [Alignment.center].
-        // /
-        // / See also:
-        // /
-        // /  * [Alignment], a class with convenient constants typically used to
-        // /    specify an [AlignmentGeometry].
-        // /  * [AlignmentDirectional], like [Alignment] for specifying alignments
-        // /    relative to text direction.
+    /**
+     * How to align the image within its bounds.
+     *
+     * The alignment aligns the given position in the image to the given position
+     * in the layout bounds. For example, an [Alignment] alignment of (-1.0,
+     * -1.0) aligns the image to the top-left corner of its layout bounds, while a
+     * [Alignment] alignment of (1.0, 1.0) aligns the bottom right of the
+     * image with the bottom right corner of its layout bounds. Similarly, an
+     * alignment of (0.0, 1.0) aligns the bottom middle of the image with the
+     * middle of the bottom edge of its layout bounds.
+     *
+     * To display a subpart of an image, consider using a [CustomPainter] and
+     * [Canvas.drawImageRect].
+     *
+     * If the [alignment] is [TextDirection]-dependent (i.e. if it is a
+     * [AlignmentDirectional]), then an ambient [Directionality] widget
+     * must be in scope.
+     *
+     * Defaults to [Alignment.center].
+     *
+     * See also:
+     *
+     *  * [Alignment], a class with convenient constants typically used to
+     *    specify an [AlignmentGeometry].
+     *  * [AlignmentDirectional], like [Alignment] for specifying alignments
+     *    relative to text direction.
+     */
     val alignment: AlignmentGeometry = Alignment.center,
-        // / How to paint any portions of the layout bounds not covered by the image.
+    /** How to paint any portions of the layout bounds not covered by the image. */
     val repeat: ImageRepeat = ImageRepeat.noRepeat,
-        // / The center slice for a nine-patch image.
-        // /
-        // / The region of the image inside the center slice will be stretched both
-        // / horizontally and vertically to fit the image into its destination. The
-        // / region of the image above and below the center slice will be stretched
-        // / only horizontally and the region of the image to the left and right of
-        // / the center slice will be stretched only vertically.
+    /**
+     * The center slice for a nine-patch image.
+     *
+     * The region of the image inside the center slice will be stretched both
+     * horizontally and vertically to fit the image into its destination. The
+     * region of the image above and below the center slice will be stretched
+     * only horizontally and the region of the image to the left and right of
+     * the center slice will be stretched only vertically.
+     */
     val centerSlice: Rect? = null,
-        // / Whether to paint the image in the direction of the [TextDirection].
-        // /
-        // / If this is true, then in [TextDirection.ltr] contexts, the image will be
-        // / drawn with its origin in the top left (the "normal" painting direction for
-        // / images); and in [TextDirection.rtl] contexts, the image will be drawn with
-        // / a scaling factor of -1 in the horizontal direction so that the origin is
-        // / in the top right.
-        // /
-        // / This is occasionally used with images in right-to-left environments, for
-        // / images that were designed for left-to-right locales. Be careful, when
-        // / using this, to not flip images with integral shadows, text, or other
-        // / effects that will look incorrect when flipped.
-        // /
-        // / If this is true, there must be an ambient [Directionality] widget in
-        // / scope.
+    /**
+     * Whether to paint the image in the direction of the [TextDirection].
+     *
+     * If this is true, then in [TextDirection.ltr] contexts, the image will be
+     * drawn with its origin in the top left (the "normal" painting direction for
+     * images); and in [TextDirection.rtl] contexts, the image will be drawn with
+     * a scaling factor of -1 in the horizontal direction so that the origin is
+     * in the top right.
+     *
+     * This is occasionally used with images in right-to-left environments, for
+     * images that were designed for left-to-right locales. Be careful, when
+     * using this, to not flip images with integral shadows, text, or other
+     * effects that will look incorrect when flipped.
+     *
+     * If this is true, there must be an ambient [Directionality] widget in
+     * scope.
+     */
     val matchTextDirection: Boolean = false
 ) : LeafRenderObjectWidget(key) {
 

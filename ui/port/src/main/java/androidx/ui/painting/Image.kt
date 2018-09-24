@@ -23,33 +23,39 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 // Opaque handle to raw decoded image data (pixels).
-// /
-// / To obtain an [Image] object, use [instantiateImageCodec].
-// /
-// / To draw an [Image], use one of the methods on the [Canvas] class, such as
-// / [Canvas.drawImage].
+/**
+ *
+ * To obtain an [Image] object, use [instantiateImageCodec].
+ *
+ * To draw an [Image], use one of the methods on the [Canvas] class, such as
+ * [Canvas.drawImage].
+ */
 
-// / This class is created by the engine, and should not be instantiated
-// / or extended directly.
-// /
-// / To obtain an [Image] object, use [instantiateImageCodec].
+/**
+ * This class is created by the engine, and should not be instantiated
+ * or extended directly.
+ *
+ * To obtain an [Image] object, use [instantiateImageCodec].
+ */
 class Image constructor(
     internal val bitmap: android.graphics.Bitmap
 )/* extends NativeFieldWrapperClass2 */ {
 
-    // / The number of image pixels along the image's horizontal axis.
+    /** The number of image pixels along the image's horizontal axis. */
     val width: Int = bitmap.width
 
-    // / The number of image pixels along the image's vertical axis.
+    /** The number of image pixels along the image's vertical axis. */
     val height: Int = bitmap.height
 
-    // / Converts the [Image] object into a byte array.
-    // /
-    // / The [format] argument specifies the format in which the bytes will be
-    // / returned.
-    // /
-    // / Returns a future that completes with the binary image data or an error
-    // / if encoding fails.
+    /**
+     * Converts the [Image] object into a byte array.
+     *
+     * The [format] argument specifies the format in which the bytes will be
+     * returned.
+     *
+     * Returns a future that completes with the binary image data or an error
+     * if encoding fails.
+     */
     fun toByteData(format: ImageByteFormat = ImageByteFormat.rawRgba): Deferred<ByteBuffer> {
         return async {
             when (format) {
@@ -91,8 +97,10 @@ class Image constructor(
 //    /// Returns an error message on failure, null on success.
 //    String _toByteData(int format, _Callback<Uint8List> callback) native 'Image_toByteData';
 //
-    // / Release the resources used by this object. The object is no longer usable
-    // / after this method is called.
+    /**
+     * Release the resources used by this object. The object is no longer usable
+     * after this method is called.
+     */
     fun dispose() = bitmap.recycle()
 
     override fun toString(): String {

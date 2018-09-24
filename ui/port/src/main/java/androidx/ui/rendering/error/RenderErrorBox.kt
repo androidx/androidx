@@ -28,28 +28,32 @@ const val _kMaxHeight: Double = 100000.0
 const val _kLine: String = "\n\n────────────────────\n\n"
 
 // A render object used as a placeholder when an error occurs.
-// /
-// / The box will be painted in the color given by the
-// / [RenderErrorBox.backgroundColor] static property.
-// /
-// / A message can be provided. To simplify the class and thus help reduce the
-// / likelihood of this class itself being the source of errors, the message
-// / cannot be changed once the object has been created. If provided, the text
-// / will be painted on top of the background, using the styles given by the
-// / [RenderErrorBox.textStyle] and [RenderErrorBox.paragraphStyle] static
-// / properties.
-// /
-// / Again to help simplify the class, this box tries to be 100000.0 pixels wide
-// / and high, to approximate being infinitely high but without using infinities.
+/**
+ *
+ * The box will be painted in the color given by the
+ * [RenderErrorBox.backgroundColor] static property.
+ *
+ * A message can be provided. To simplify the class and thus help reduce the
+ * likelihood of this class itself being the source of errors, the message
+ * cannot be changed once the object has been created. If provided, the text
+ * will be painted on top of the background, using the styles given by the
+ * [RenderErrorBox.textStyle] and [RenderErrorBox.paragraphStyle] static
+ * properties.
+ *
+ * Again to help simplify the class, this box tries to be 100000.0 pixels wide
+ * and high, to approximate being infinitely high but without using infinities.
+ */
 class RenderErrorBox(
-        // / The message to attempt to display at paint time.
+    /** The message to attempt to display at paint time. */
     val message: String = ""
 ) : RenderBox() {
 
-    // / Creates a RenderErrorBox render object.
-    // /
-    // / A message can optionally be provided. If a message is provided, an attempt
-    // / will be made to render the message when the box paints.
+    /**
+     * Creates a RenderErrorBox render object.
+     *
+     * A message can optionally be provided. If a message is provided, an attempt
+     * will be made to render the message when the box paints.
+     */
     init {
 //        if (message != "") {
 //            // This class is intentionally doing things using the low-level

@@ -53,17 +53,19 @@ fun _pointInParentCoordinates(node: SemanticsNode, point: Offset): Offset {
     return Offset(vector.x, vector.y)
 }
 
-// / Sorts `children` using the default sorting algorithm, and returns them as a
-// / new list.
-// /
-// / The algorithm first breaks up children into groups such that no two nodes
-// / from different groups overlap vertically. These groups are sorted vertically
-// / according to their [_SemanticsSortGroup.startOffset].
-// /
-// / Within each group, the nodes are sorted using
-// / [_SemanticsSortGroup.sortedWithinVerticalGroup].
-// /
-// / For an illustration of the algorithm see http://bit.ly/flutter-default-traversal.
+/**
+ * Sorts `children` using the default sorting algorithm, and returns them as a
+ * new list.
+ *
+ * The algorithm first breaks up children into groups such that no two nodes
+ * from different groups overlap vertically. These groups are sorted vertically
+ * according to their [_SemanticsSortGroup.startOffset].
+ *
+ * Within each group, the nodes are sorted using
+ * [_SemanticsSortGroup.sortedWithinVerticalGroup].
+ *
+ * For an illustration of the algorithm see http://bit.ly/flutter-default-traversal.
+ */
 private fun _childrenInDefaultOrder(
     children: List<SemanticsNode>,
     textDirection: TextDirection
@@ -116,32 +118,40 @@ private fun _childrenInDefaultOrder(
     return result
 }
 
-// / In tests use this function to reset the counter used to generate
-// / [SemanticsNode.id].
+/**
+ * In tests use this function to reset the counter used to generate
+ * [SemanticsNode.id].
+ */
 fun debugResetSemanticsIdCounter() {
     SemanticsNode._lastIdentifier = 0
 }
 
 //
-// / A node that represents some semantic data.
-// /
-// / The semantics tree is maintained during the semantics phase of the pipeline
-// / (i.e., during [PipelineOwner.flushSemantics]), which happens after
-// / compositing. The semantics tree is then uploaded into the engine for use
-// / by assistive technology.
+/**
+ * A node that represents some semantic data.
+ *
+ * The semantics tree is maintained during the semantics phase of the pipeline
+ * (i.e., during [PipelineOwner.flushSemantics]), which happens after
+ * compositing. The semantics tree is then uploaded into the engine for use
+ * by assistive technology.
+ */
 // TODO(Migration/ryanmentley): This constructor should be private, but the resulting synthetic
 // constructor breaks the Kotlin compiler
 class SemanticsNode internal constructor(
-    // / Uniquely identifies this node in the list of sibling nodes.
-    // /
-    // / Keys are used during the construction of the semantics tree. They are not
-    // / transferred to the engine.
+    /**
+     * Uniquely identifies this node in the list of sibling nodes.
+     *
+     * Keys are used during the construction of the semantics tree. They are not
+     * transferred to the engine.
+     */
     val key: Key?,
     private val showOnScreen: VoidCallback?,
-    // / The unique identifier for this node.
-    // /
-    // / The root node has an id of zero. Other nodes are given a unique id when
-    // / they are created.
+    /**
+     * The unique identifier for this node.
+     *
+     * The root node has an id of zero. Other nodes are given a unique id when
+     * they are created.
+     */
     val id: Int
 ) : AbstractNode(),
     DiagnosticableTree {
@@ -168,10 +178,12 @@ class SemanticsNode internal constructor(
         }
     }
 
-    // / Creates a semantic node.
-    // /
-    // / Each semantic node has a unique identifier that is assigned when the node
-    // / is created.
+    /**
+     * Creates a semantic node.
+     *
+     * Each semantic node has a unique identifier that is assigned when the node
+     * is created.
+     */
     constructor(
         key: Key? = null,
         showOnScreen: VoidCallback? = null
@@ -179,11 +191,13 @@ class SemanticsNode internal constructor(
 
     // GEOMETRY
 
-    // / The transform from this node's coordinate system to its parent's coordinate system.
-    // /
-    // / By default, the transform is null, which represents the identity
-    // / transformation (i.e., that this node has the same coordinate system as its
-    // / parent).
+    /**
+     * The transform from this node's coordinate system to its parent's coordinate system.
+     *
+     * By default, the transform is null, which represents the identity
+     * transformation (i.e., that this node has the same coordinate system as its
+     * parent).
+     */
     var transform: Matrix4? = null
         set(value) {
             if (!matrixEquals(field, value)) {
@@ -192,7 +206,7 @@ class SemanticsNode internal constructor(
             }
         }
 
-    // / The bounding box for this node in its coordinate system.
+    /** The bounding box for this node in its coordinate system. */
     var rect: Rect = Rect.zero
         set(value) {
             assert(value != null)
@@ -202,56 +216,62 @@ class SemanticsNode internal constructor(
             }
         }
 
-    // / The semantic clip from an ancestor that was applied to this node.
-    // /
-    // / Expressed in the coordinate system of the node. May be null if no clip has
-    // / been applied.
-    // /
-    // / Descendant [SemanticsNode]s that are positioned outside of this rect will
-    // / be excluded from the semantics tree. Descendant [SemanticsNode]s that are
-    // / overlapping with this rect, but are outside of [parentPaintClipRect] will
-    // / be included in the tree, but they will be marked as hidden because they
-    // / are assumed to be not visible on screen.
-    // /
-    // / If this rect is null, all descendant [SemanticsNode]s outside of
-    // / [parentPaintClipRect] will be excluded from the tree.
-    // /
-    // / If this rect is non-null it has to completely enclose
-    // / [parentPaintClipRect]. If [parentPaintClipRect] is null this property is
-    // / also null.
+    /**
+     * The semantic clip from an ancestor that was applied to this node.
+     *
+     * Expressed in the coordinate system of the node. May be null if no clip has
+     * been applied.
+     *
+     * Descendant [SemanticsNode]s that are positioned outside of this rect will
+     * be excluded from the semantics tree. Descendant [SemanticsNode]s that are
+     * overlapping with this rect, but are outside of [parentPaintClipRect] will
+     * be included in the tree, but they will be marked as hidden because they
+     * are assumed to be not visible on screen.
+     *
+     * If this rect is null, all descendant [SemanticsNode]s outside of
+     * [parentPaintClipRect] will be excluded from the tree.
+     *
+     * If this rect is non-null it has to completely enclose
+     * [parentPaintClipRect]. If [parentPaintClipRect] is null this property is
+     * also null.
+     */
     var parentSemanticsClipRect: Rect? = null
 
-    // / The paint clip from an ancestor that was applied to this node.
-    // /
-    // / Expressed in the coordinate system of the node. May be null if no clip has
-    // / been applied.
-    // /
-    // / Descendant [SemanticsNode]s that are positioned outside of this rect will
-    // / either be excluded from the semantics tree (if they have no overlap with
-    // / [parentSemanticsClipRect]) or they will be included and marked as hidden
-    // / (if they are overlapping with [parentSemanticsClipRect]).
-    // /
-    // / This rect is completely enclosed by [parentSemanticsClipRect].
-    // /
-    // / If this rect is null [parentSemanticsClipRect] also has to be null.
+    /**
+     * The paint clip from an ancestor that was applied to this node.
+     *
+     * Expressed in the coordinate system of the node. May be null if no clip has
+     * been applied.
+     *
+     * Descendant [SemanticsNode]s that are positioned outside of this rect will
+     * either be excluded from the semantics tree (if they have no overlap with
+     * [parentSemanticsClipRect]) or they will be included and marked as hidden
+     * (if they are overlapping with [parentSemanticsClipRect]).
+     *
+     * This rect is completely enclosed by [parentSemanticsClipRect].
+     *
+     * If this rect is null [parentSemanticsClipRect] also has to be null.
+     */
     var parentPaintClipRect: Rect? = null
 
-    // / Whether the node is invisible.
-    // /
-    // / A node whose [rect] is outside of the bounds of the screen and hence not
-    // / reachable for users is considered invisible if its semantic information
-    // / is not merged into a (partially) visible parent as indicated by
-    // / [isMergedIntoParent].
-    // /
-    // / An invisible node can be safely dropped from the semantic tree without
-    // / loosing semantic information that is relevant for describing the content
-    // / currently shown on screen.
+    /**
+     * Whether the node is invisible.
+     *
+     * A node whose [rect] is outside of the bounds of the screen and hence not
+     * reachable for users is considered invisible if its semantic information
+     * is not merged into a (partially) visible parent as indicated by
+     * [isMergedIntoParent].
+     *
+     * An invisible node can be safely dropped from the semantic tree without
+     * loosing semantic information that is relevant for describing the content
+     * currently shown on screen.
+     */
     val isInvisible: Boolean
         get() = !isMergedIntoParent && rect.isEmpty()
 
     // MERGING
 
-    // / Whether this node merges its semantic information into an ancestor node.
+    /** Whether this node merges its semantic information into an ancestor node. */
     var isMergedIntoParent: Boolean = false
         set(value) {
             assert(value != null)
@@ -261,30 +281,34 @@ class SemanticsNode internal constructor(
             _markDirty()
         }
 
-    // / Whether this node is taking part in a merge of semantic information.
-    // /
-    // / This returns true if the node is either merged into an ancestor node or if
-    // / decedent nodes are merged into this node.
-    // /
-    // / See also:
-    // /
-    // /  * [isMergedIntoParent]
-    // /  * [mergeAllDescendantsIntoThisNode]
+    /**
+     * Whether this node is taking part in a merge of semantic information.
+     *
+     * This returns true if the node is either merged into an ancestor node or if
+     * decedent nodes are merged into this node.
+     *
+     * See also:
+     *
+     *  * [isMergedIntoParent]
+     *  * [mergeAllDescendantsIntoThisNode]
+     */
     val isPartOfNodeMerging
         get() = mergeAllDescendantsIntoThisNode || isMergedIntoParent
 
-    // / Whether this node and all of its descendants should be treated as one logical entity.
+    /** Whether this node and all of its descendants should be treated as one logical entity. */
     var mergeAllDescendantsIntoThisNode = _kEmptyConfig.isMergingSemanticsOfDescendants
         private set
 
     // CHILDREN
 
-    // / Contains the children in inverse hit test order (i.e. paint order).
+    /** Contains the children in inverse hit test order (i.e. paint order). */
     var _children: List<SemanticsNode>? = null
 
-    // / A snapshot of `newChildren` passed to [_replaceChildren] that we keep in
-    // / debug mode. It supports the assertion that user does not mutate the list
-    // / of children.
+    /**
+     * A snapshot of `newChildren` passed to [_replaceChildren] that we keep in
+     * debug mode. It supports the assertion that user does not mutate the list
+     * of children.
+     */
     // TODO(Migration/ryanmentley): Could maybe be non-null?
     var _debugPreviousSnapshot: List<SemanticsNode>? = null
 
@@ -401,21 +425,23 @@ class SemanticsNode internal constructor(
             _markDirty()
     }
 
-    // / Whether this node has a non-zero number of children.
+    /** Whether this node has a non-zero number of children. */
     val hasChildren
         get() = _children?.isNotEmpty() ?: false
 
     private var _dead = false
 
-    // / The number of children this node has.
+    /** The number of children this node has. */
     val childrenCount
         get() = if (hasChildren) _children!!.size else 0
 
-    // / Visits the immediate children of this node.
-    // /
-    // / This function calls visitor for each immediate child until visitor returns
-    // / false. Returns true if all the visitor calls returned true, otherwise
-    // / returns false.
+    /**
+     * Visits the immediate children of this node.
+     *
+     * This function calls visitor for each immediate child until visitor returns
+     * false. Returns true if all the visitor calls returned true, otherwise
+     * returns false.
+     */
     fun visitChildren(visitor: SemanticsNodeVisitor) {
         _children?.forEach {
             if (!visitor(it)) {
@@ -424,11 +450,13 @@ class SemanticsNode internal constructor(
         }
     }
 
-    // / Visit all the descendants of this node.
-    // /
-    // / This function calls visitor for each descendant in a pre-order traversal
-    // / until visitor returns false. Returns true if all the visitor calls
-    // / returned true, otherwise returns false.
+    /**
+     * Visit all the descendants of this node.
+     *
+     * This function calls visitor for each descendant in a pre-order traversal
+     * until visitor returns false. Returns true if all the visitor calls
+     * returned true, otherwise returns false.
+     */
     fun _visitDescendants(visitor: SemanticsNodeVisitor): Boolean {
         _children?.forEach {
             if (!visitor(it) || !it._visitDescendants(visitor))
@@ -531,127 +559,155 @@ class SemanticsNode internal constructor(
 
     var _actionsAsBits = _kEmptyConfig._actionsAsBits
 
-    // / The [SemanticsTag]s this node is tagged with.
-    // /
-    // / Tags are used during the construction of the semantics tree. They are not
-    // / transferred to the engine.
+    /**
+     * The [SemanticsTag]s this node is tagged with.
+     *
+     * Tags are used during the construction of the semantics tree. They are not
+     * transferred to the engine.
+     */
     var tags: Set<SemanticsTag>? = null
 
-    // / Whether this node is tagged with `tag`.
+    /** Whether this node is tagged with `tag`. */
     fun isTagged(tag: SemanticsTag) = tags?.contains(tag) == true
 
     private var _flags: Int = _kEmptyConfig._flags
 
     private fun _hasFlag(flag: SemanticsFlag) = _flags and flag.index != 0
 
-    // / A textual description of this node.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * A textual description of this node.
+     *
+     * The reading direction is given by [textDirection].
+     */
     var label: String = _kEmptyConfig.label
         private set
 
-    // / A textual description for the current value of the node.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * A textual description for the current value of the node.
+     *
+     * The reading direction is given by [textDirection].
+     */
     var value: String = _kEmptyConfig.value
         private set
 
-    // / The value that [value] will have after a [SemanticsAction.decrease] action
-    // / has been performed.
-    // /
-    // / This property is only valid if the [SemanticsAction.decrease] action is
-    // / available on this node.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * The value that [value] will have after a [SemanticsAction.decrease] action
+     * has been performed.
+     *
+     * This property is only valid if the [SemanticsAction.decrease] action is
+     * available on this node.
+     *
+     * The reading direction is given by [textDirection].
+     */
     var decreasedValue: String = _kEmptyConfig.decreasedValue
         private set
 
-    // / The value that [value] will have after a [SemanticsAction.increase] action
-    // / has been performed.
-    // /
-    // / This property is only valid if the [SemanticsAction.increase] action is
-    // / available on this node.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * The value that [value] will have after a [SemanticsAction.increase] action
+     * has been performed.
+     *
+     * This property is only valid if the [SemanticsAction.increase] action is
+     * available on this node.
+     *
+     * The reading direction is given by [textDirection].
+     */
     var increasedValue: String = _kEmptyConfig.increasedValue
         private set
 
-    // / A brief description of the result of performing an action on this node.
-    // /
-    // / The reading direction is given by [textDirection].
+    /**
+     * A brief description of the result of performing an action on this node.
+     *
+     * The reading direction is given by [textDirection].
+     */
     var hint: String = _kEmptyConfig.hint
         private set
 
-    // / Provides hint values which override the default hints on supported
-    // / platforms.
+    /**
+     * Provides hint values which override the default hints on supported
+     * platforms.
+     */
     var hintOverrides: SemanticsHintOverrides? = _kEmptyConfig.hintOverrides
         private set
 
-    // / The reading direction for [label], [value], [hint], [increasedValue], and
-    // / [decreasedValue].
+    /**
+     * The reading direction for [label], [value], [hint], [increasedValue], and
+     * [decreasedValue].
+     */
     var textDirection: TextDirection? = _kEmptyConfig.textDirection
         private set
 
-    // / Determines the position of this node among its siblings in the traversal
-    // / sort order.
-    // /
-    // / This is used to describe the order in which the semantic node should be
-    // / traversed by the accessibility services on the platform (e.g. VoiceOver
-    // / on iOS and TalkBack on Android).
+    /**
+     * Determines the position of this node among its siblings in the traversal
+     * sort order.
+     *
+     * This is used to describe the order in which the semantic node should be
+     * traversed by the accessibility services on the platform (e.g. VoiceOver
+     * on iOS and TalkBack on Android).
+     */
     var sortKey: SemanticsSortKey? = null
         private set
 
-    // / The currently selected text (or the position of the cursor) within [value]
-    // / if this node represents a text field.
+    /**
+     * The currently selected text (or the position of the cursor) within [value]
+     * if this node represents a text field.
+     */
     var textSelection: TextSelection? = null
         private set
 
-    // / Indicates the current scrolling position in logical pixels if the node is
-    // / scrollable.
-    // /
-    // / The properties [scrollExtentMin] and [scrollExtentMax] indicate the valid
-    // / in-range values for this property. The value for [scrollPosition] may
-    // / (temporarily) be outside that range, e.g. during an overscroll.
-    // /
-    // / See also:
-    // /
-    // /  * [ScrollPosition.pixels], from where this value is usually taken.
+    /**
+     * Indicates the current scrolling position in logical pixels if the node is
+     * scrollable.
+     *
+     * The properties [scrollExtentMin] and [scrollExtentMax] indicate the valid
+     * in-range values for this property. The value for [scrollPosition] may
+     * (temporarily) be outside that range, e.g. during an overscroll.
+     *
+     * See also:
+     *
+     *  * [ScrollPosition.pixels], from where this value is usually taken.
+     */
     var scrollPosition: Double? = null
         private set
 
-    // / Indicates the maximum in-range value for [scrollPosition] if the node is
-    // / scrollable.
-    // /
-    // / This value may be infinity if the scroll is unbound.
-    // /
-    // / See also:
-    // /
-    // /  * [ScrollPosition.maxScrollExtent], from where this value is usually taken.
+    /**
+     * Indicates the maximum in-range value for [scrollPosition] if the node is
+     * scrollable.
+     *
+     * This value may be infinity if the scroll is unbound.
+     *
+     * See also:
+     *
+     *  * [ScrollPosition.maxScrollExtent], from where this value is usually taken.
+     */
     var scrollExtentMax: Double? = null
         private set
 
-    // / Indicates the minimum in-range value for [scrollPosition] if the node is
-    // / scrollable.
-    // /
-    // / This value may be infinity if the scroll is unbound.
-    // /
-    // / See also:
-    // /
-    // /  * [ScrollPosition.minScrollExtent] from where this value is usually taken.
+    /**
+     * Indicates the minimum in-range value for [scrollPosition] if the node is
+     * scrollable.
+     *
+     * This value may be infinity if the scroll is unbound.
+     *
+     * See also:
+     *
+     *  * [ScrollPosition.minScrollExtent] from where this value is usually taken.
+     */
     var scrollExtentMin: Double? = null
         private set
 
     private fun _canPerformAction(action: SemanticsAction) = _actions.containsKey(action)
 
-    // / Reconfigures the properties of this object to describe the configuration
-    // / provided in the `config` argument and the children listed in the
-    // / `childrenInInversePaintOrder` argument.
-    // /
-    // / The arguments may be null; this represents an empty configuration (all
-    // / values at their defaults, no children).
-    // /
-    // / No reference is kept to the [SemanticsConfiguration] object, but the child
-    // / list is used as-is and should therefore not be changed after this call.
+    /**
+     * Reconfigures the properties of this object to describe the configuration
+     * provided in the `config` argument and the children listed in the
+     * `childrenInInversePaintOrder` argument.
+     *
+     * The arguments may be null; this represents an empty configuration (all
+     * values at their defaults, no children).
+     *
+     * No reference is kept to the [SemanticsConfiguration] object, but the child
+     * list is used as-is and should therefore not be changed after this call.
+     */
     fun updateWith(
         config: SemanticsConfiguration?,
         childrenInInversePaintOrder: List<SemanticsNode>
@@ -697,11 +753,13 @@ class SemanticsNode internal constructor(
         }
     }
 
-    // / Returns a summary of the semantics for this node.
-    // /
-    // / If this node has [mergeAllDescendantsIntoThisNode], then the returned data
-    // / includes the information from this node's descendants. Otherwise, the
-    // / returned data matches the data on this node.
+    /**
+     * Returns a summary of the semantics for this node.
+     *
+     * If this node has [mergeAllDescendantsIntoThisNode], then the returned data
+     * includes the information from this node's descendants. Otherwise, the
+     * returned data matches the data on this node.
+     */
     fun getSemanticsData(): SemanticsData {
         var flags = _flags
         var actions = _actionsAsBits
@@ -889,7 +947,7 @@ class SemanticsNode internal constructor(
     // TODO(Migration/ryanmentley): remove synthetic accessors?
     // _childrenInDefaultOrder
     @SuppressLint("SyntheticAccessor")
-    // / Builds a new list made of [_children] sorted in semantic traversal order.
+    /** Builds a new list made of [_children] sorted in semantic traversal order. */
     fun _childrenInTraversalOrder(): List<SemanticsNode> {
         var inheritedTextDirection = textDirection
         var ancestor = parent
@@ -955,16 +1013,18 @@ class SemanticsNode internal constructor(
             .toList()
     }
 
-    // / Sends a [SemanticsEvent] associated with this [SemanticsNode].
-    // /
-    // / Semantics events should be sent to inform interested parties (like
-    // / the accessibility system of the operating system) about changes to the UI.
-    // /
-    // / For example, if this semantics node represents a scrollable list, a
-    // / [ScrollCompletedSemanticsEvent] should be sent after a scroll action is completed.
-    // / That way, the operating system can give additional feedback to the user
-    // / about the state of the UI (e.g. on Android a ping sound is played to
-    // / indicate a successful scroll in accessibility mode).
+    /**
+     * Sends a [SemanticsEvent] associated with this [SemanticsNode].
+     *
+     * Semantics events should be sent to inform interested parties (like
+     * the accessibility system of the operating system) about changes to the UI.
+     *
+     * For example, if this semantics node represents a scrollable list, a
+     * [ScrollCompletedSemanticsEvent] should be sent after a scroll action is completed.
+     * That way, the operating system can give additional feedback to the user
+     * about the state of the UI (e.g. on Android a ping sound is played to
+     * indicate a successful scroll in accessibility mode).
+     */
     fun sendEvent(event: SemanticsEvent) {
         TODO("needs channels")
 //    if (!attached)
@@ -1113,10 +1173,12 @@ class SemanticsNode internal constructor(
         )
     }
 
-    // / Returns a string representation of this node and its descendants.
-    // /
-    // / The order in which the children of the [SemanticsNode] will be printed is
-    // / controlled by the [childOrder] parameter.
+    /**
+     * Returns a string representation of this node and its descendants.
+     *
+     * The order in which the children of the [SemanticsNode] will be printed is
+     * controlled by the [childOrder] parameter.
+     */
     override fun toStringDeep(
         prefixLineOne: String,
         prefixOtherLines: String,
@@ -1181,7 +1243,7 @@ class SemanticsNode internal constructor(
 //            .toList();
     }
 
-    // / Returns the list of direct children of this node in the specified order.
+    /** Returns the list of direct children of this node in the specified order. */
     fun debugListChildrenInOrder(childOrder: DebugSemanticsDumpOrder): List<SemanticsNode> {
         assert(childOrder != null)
         val localChildren = _children ?: return listOf()

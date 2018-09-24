@@ -19,26 +19,32 @@ package androidx.ui.gestures.drag
 import androidx.ui.gestures.drag_details.DragEndDetails
 import androidx.ui.gestures.drag_details.DragUpdateDetails
 
-// / Interface for objects that receive updates about drags.
-// /
-// / This interface is used in various ways. For example,
-// / [MultiDragGestureRecognizer] uses it to update its clients when it
-// / recognizes a gesture. Similarly, the scrolling infrastructure in the widgets
-// / library uses it to notify the [DragScrollActivity] when the user drags the
-// / scrollable.
+/**
+ * Interface for objects that receive updates about drags.
+ *
+ * This interface is used in various ways. For example,
+ * [MultiDragGestureRecognizer] uses it to update its clients when it
+ * recognizes a gesture. Similarly, the scrolling infrastructure in the widgets
+ * library uses it to notify the [DragScrollActivity] when the user drags the
+ * scrollable.
+ */
 internal abstract class Drag {
-    // / The pointer has moved.
+    /** The pointer has moved. */
     fun update(details: DragUpdateDetails) {}
 
-    // / The pointer is no longer in contact with the screen.
-    // /
-    // / The velocity at which the pointer was moving when it stopped contacting
-    // / the screen is available in the `details`.
+    /**
+     * The pointer is no longer in contact with the screen.
+     *
+     * The velocity at which the pointer was moving when it stopped contacting
+     * the screen is available in the `details`.
+     */
     fun end(details: DragEndDetails) {}
 
-    // / The input from the pointer is no longer directed towards this receiver.
-    // /
-    // / For example, the user might have been interrupted by a system-modal dialog
-    // / in the middle of the drag.
+    /**
+     * The input from the pointer is no longer directed towards this receiver.
+     *
+     * For example, the user might have been interrupted by a system-modal dialog
+     * in the middle of the drag.
+     */
     fun cancel() {}
 }

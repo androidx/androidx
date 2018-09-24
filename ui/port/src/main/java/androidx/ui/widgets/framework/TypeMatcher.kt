@@ -1,6 +1,9 @@
 package androidx.ui.widgets.framework
 
-// / This class is a work-around for the "is" operator not accepting a variable value as its right operand
+/**
+ * This class is a work-around for the "is" operator not accepting
+ * a variable value as its right operand
+ */
 class TypeMatcher protected constructor(private val clazz: Class<*>) {
 
     companion object {

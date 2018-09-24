@@ -9,13 +9,15 @@ import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.runBlocking
 
-// / Signature for service extensions.
-// /
-// / The returned map must not contain the keys "type" or "method", as
-// / they will be replaced before the value is sent to the client. The
-// / "type" key will be set to the string `_extensionType` to indicate
-// / that this is a return value from a service extension, and the
-// / "method" key will be set to the full name of the method.
+/**
+ * Signature for service extensions.
+ *
+ * The returned map must not contain the keys "type" or "method", as
+ * they will be replaced before the value is sent to the client. The
+ * "type" key will be set to the string `_extensionType` to indicate
+ * that this is a return value from a service extension, and the
+ * "method" key will be set to the full name of the method.
+ */
 typealias ServiceExtensionCallback = (Map<String, String>) -> Deferred<Map<String, Any?>>
 
 interface BindingBase {
@@ -28,34 +30,40 @@ interface BindingBase {
 
     fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit>
 
-    // / Registers a service extension method with the given name (full
-    // / name "ext.flutter.name"), which takes no arguments and returns
-    // / no value.
-    // /
-    // / Calls the `callback` callback when the service extension is called.
+    /**
+     * Registers a service extension method with the given name (full
+     * name "ext.flutter.name"), which takes no arguments and returns
+     * no value.
+     *
+     * Calls the `callback` callback when the service extension is called.
+     */
     fun registerSignalServiceExtension(
         name: String,
         callback: Deferred<Unit>
     )
 
-    // / Registers a service extension method with the given name (full
-    // / name "ext.flutter.name"). The given callback is called when the
-    // / extension method is called. The callback must return a [Future]
-    // / that either eventually completes to a return value in the form
-    // / of a name/value map where the values can all be converted to
-    // / JSON using `json.encode()` (see [JsonEncoder]), or fails. In case of failure, the
-    // / failure is reported to the remote caller and is dumped to the
-    // / logs.
-    // /
-    // / The returned map will be mutated.
+    /**
+     * Registers a service extension method with the given name (full
+     * name "ext.flutter.name"). The given callback is called when the
+     * extension method is called. The callback must return a [Future]
+     * that either eventually completes to a return value in the form
+     * of a name/value map where the values can all be converted to
+     * JSON using `json.encode()` (see [JsonEncoder]), or fails. In case of failure, the
+     * failure is reported to the remote caller and is dumped to the
+     * logs.
+     *
+     * The returned map will be mutated.
+     */
     fun registerServiceExtension(
         name: String,
         callback: ServiceExtensionCallback
     )
 
-    // / Called by [lockEvents] when events get unlocked.
-    // /
-    // / This should flush any events that were queued while [locked] was true.
+    /**
+     * Called by [lockEvents] when events get unlocked.
+     *
+     * This should flush any events that were queued while [locked] was true.
+     */
     // TODO(Migration/shepshapard): commented out @CallSuper below because of bug in lintDebug where
     // super calls are not noticed and thus an error is thrown.
     // @CallSuper
@@ -64,29 +72,33 @@ interface BindingBase {
     }
 }
 
-// / Base class for mixins that provide singleton services (also known as
-// / "bindings").
-// /
-// / To use this class in a mixin, inherit from it and implement
-// / [initInstances()]. The mixin is guaranteed to only be constructed once in
-// / the lifetime of the app (more precisely, it will assert if constructed twice
-// / in checked mode).
-// /
-// / The top-most layer used to write the application will have a concrete class
-// / that inherits from [BindingBase] and uses all the various [BindingBase]
-// / mixins (such as [ServicesBinding]). For example, the Widgets library in
-// / Flutter introduces a binding called [WidgetsFlutterBinding]. The relevant
-// / library defines how to create the binding. It could be implied (for example,
-// / [WidgetsFlutterBinding] is automatically started from [runApp]), or the
-// / application might be required to explicitly call the constructor.
+/**
+ * Base class for mixins that provide singleton services (also known as
+ * "bindings").
+ *
+ * To use this class in a mixin, inherit from it and implement
+ * [initInstances()]. The mixin is guaranteed to only be constructed once in
+ * the lifetime of the app (more precisely, it will assert if constructed twice
+ * in checked mode).
+ *
+ * The top-most layer used to write the application will have a concrete class
+ * that inherits from [BindingBase] and uses all the various [BindingBase]
+ * mixins (such as [ServicesBinding]). For example, the Widgets library in
+ * Flutter introduces a binding called [WidgetsFlutterBinding]. The relevant
+ * library defines how to create the binding. It could be implied (for example,
+ * [WidgetsFlutterBinding] is automatically started from [runApp]), or the
+ * application might be required to explicitly call the constructor.
+ */
 open class BindingBaseImpl : BindingBase {
 
-    // / Default abstract constructor for bindings.
-    // /
-    // / First calls [initInstances] to have bindings initialize their
-    // / instance pointers and other state, then calls
-    // / [initServiceExtensions] to have bindings initialize their
-    // / observatory service extensions, if any.
+    /**
+     * Default abstract constructor for bindings.
+     *
+     * First calls [initInstances] to have bindings initialize their
+     * instance pointers and other state, then calls
+     * [initServiceExtensions] to have bindings initialize their
+     * observatory service extensions, if any.
+     */
     init {
         Timeline.startSync("BindingBase initialization")
 
@@ -95,26 +107,28 @@ open class BindingBaseImpl : BindingBase {
         Timeline.finishSync()
     }
 
-    // / Called when the binding is initialized, to register service
-    // / extensions.
-    // /
-    // / Bindings that want to expose service extensions should overload
-    // / this method to register them using calls to
-    // / [registerSignalServiceExtension],
-    // / [registerBoolServiceExtension],
-    // / [registerNumericServiceExtension], and
-    // / [registerServiceExtension] (in increasing order of complexity).
-    // /
-    // / Implementations of this method must call their superclass
-    // / implementation.
-    // /
-    // / Service extensions are only exposed when the observatory is
-    // / included in the build, which should only happen in checked mode
-    // / and in profile mode.
-    // /
-    // / See also:
-    // /
-    // /  * <https://github.com/dart-lang/sdk/blob/master/runtime/vm/service/service.md#rpcs-requests-and-responses>
+    /**
+     * Called when the binding is initialized, to register service
+     * extensions.
+     *
+     * Bindings that want to expose service extensions should overload
+     * this method to register them using calls to
+     * [registerSignalServiceExtension],
+     * [registerBoolServiceExtension],
+     * [registerNumericServiceExtension], and
+     * [registerServiceExtension] (in increasing order of complexity).
+     *
+     * Implementations of this method must call their superclass
+     * implementation.
+     *
+     * Service extensions are only exposed when the observatory is
+     * included in the build, which should only happen in checked mode
+     * and in profile mode.
+     *
+     * See also:
+     *
+     *  * <https://github.com/dart-lang/sdk/blob/master/runtime/vm/service/service.md#rpcs-requests-and-responses>
+     */
     init { // was initServiceExtensions
         // TODO(migration/popam): Implement this
 //        registerSignalServiceExtension(
@@ -162,12 +176,14 @@ open class BindingBaseImpl : BindingBase {
 //        assert(() { _debugServiceExtensionsRegistered = true; return true; }());
     }
 
-    // / Whether [lockEvents] is currently locking events.
-    // /
-    // / Binding subclasses that fire events should check this first, and if it is
-    // / set, queue events instead of firing them.
-    // /
-    // / Events should be flushed when [unlocked] is called.
+    /**
+     * Whether [lockEvents] is currently locking events.
+     *
+     * Binding subclasses that fire events should check this first, and if it is
+     * set, queue events instead of firing them.
+     *
+     * Events should be flushed when [unlocked] is called.
+     */
     override val locked: Boolean
         get() {
             requireMainThread()
@@ -175,15 +191,17 @@ open class BindingBaseImpl : BindingBase {
         }
     private var _lockCount = 0
 
-    // / Locks the dispatching of asynchronous events and callbacks until the
-    // / callback's future completes.
-    // /
-    // / This causes input lag and should therefore be avoided when possible. It is
-    // / primarily intended for use during non-user-interactive time such as to
-    // / allow [reassembleApplication] to block input while it walks the tree
-    // / (which it partially does asynchronously).
-    // /
-    // / The [Future] returned by the `callback` argument is returned by [lockEvents].
+    /**
+     * Locks the dispatching of asynchronous events and callbacks until the
+     * callback's future completes.
+     *
+     * This causes input lag and should therefore be avoided when possible. It is
+     * primarily intended for use during non-user-interactive time such as to
+     * allow [reassembleApplication] to block input while it walks the tree
+     * (which it partially does asynchronously).
+     *
+     * The [Future] returned by the `callback` argument is returned by [lockEvents].
+     */
     override fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit> {
         // TODO(Migration/Andrey): Flutter's use of Deferred is not for multithreading.
         requireMainThread()
@@ -208,49 +226,55 @@ open class BindingBaseImpl : BindingBase {
         return future
     }
 
-    // / Cause the entire application to redraw, e.g. after a hot reload.
-    // /
-    // / This is used by development tools when the application code has changed,
-    // / to cause the application to pick up any changed code. It can be triggered
-    // / manually by sending the `ext.flutter.reassemble` service extension signal.
-    // /
-    // / This method is very computationally expensive and should not be used in
-    // / production code. There is never a valid reason to cause the entire
-    // / application to repaint in production. All aspects of the Flutter framework
-    // / know how to redraw when necessary. It is only necessary in development
-    // / when the code is literally changed on the fly (e.g. in hot reload) or when
-    // / debug flags are being toggled.
-    // /
-    // / While this method runs, events are locked (e.g. pointer events are not
-    // / dispatched).
-    // /
-    // / Subclasses (binding classes) should override [performReassemble] to react
-    // / to this method being called. This method itself should not be overridden.
+    /**
+     * Cause the entire application to redraw, e.g. after a hot reload.
+     *
+     * This is used by development tools when the application code has changed,
+     * to cause the application to pick up any changed code. It can be triggered
+     * manually by sending the `ext.flutter.reassemble` service extension signal.
+     *
+     * This method is very computationally expensive and should not be used in
+     * production code. There is never a valid reason to cause the entire
+     * application to repaint in production. All aspects of the Flutter framework
+     * know how to redraw when necessary. It is only necessary in development
+     * when the code is literally changed on the fly (e.g. in hot reload) or when
+     * debug flags are being toggled.
+     *
+     * While this method runs, events are locked (e.g. pointer events are not
+     * dispatched).
+     *
+     * Subclasses (binding classes) should override [performReassemble] to react
+     * to this method being called. This method itself should not be overridden.
+     */
     override fun reassembleApplication(): Deferred<Unit> {
         return lockEvents(::performReassemble)
     }
 
-    // / This method is called by [reassembleApplication] to actually cause the
-    // / application to reassemble, e.g. after a hot reload.
-    // /
-    // / Bindings are expected to use this method to reregister anything that uses
-    // / closures, so that they do not keep pointing to old code, and to flush any
-    // / caches of previously computed values, in case the new code would compute
-    // / them differently. For example, the rendering layer triggers the entire
-    // / application to repaint when this is called.
-    // /
-    // / Do not call this method directly. Instead, use [reassembleApplication].
+    /**
+     * This method is called by [reassembleApplication] to actually cause the
+     * application to reassemble, e.g. after a hot reload.
+     *
+     * Bindings are expected to use this method to reregister anything that uses
+     * closures, so that they do not keep pointing to old code, and to flush any
+     * caches of previously computed values, in case the new code would compute
+     * them differently. For example, the rendering layer triggers the entire
+     * application to repaint when this is called.
+     *
+     * Do not call this method directly. Instead, use [reassembleApplication].
+     */
     @CallSuper
     override fun performReassemble(): Deferred<Unit> {
         FlutterError.resetErrorCount()
         return async { }
     }
 
-    // / Registers a service extension method with the given name (full
-    // / name "ext.flutter.name"), which takes no arguments and returns
-    // / no value.
-    // /
-    // / Calls the `callback` callback when the service extension is called.
+    /**
+     * Registers a service extension method with the given name (full
+     * name "ext.flutter.name"), which takes no arguments and returns
+     * no value.
+     *
+     * Calls the `callback` callback when the service extension is called.
+     */
     override fun registerSignalServiceExtension(
         name: String,
         callback: Deferred<Unit>
@@ -268,18 +292,20 @@ open class BindingBaseImpl : BindingBase {
         )
     }
 
-    // / Registers a service extension method with the given name (full
-    // / name "ext.flutter.name"), which takes a single argument
-    // / "enabled" which can have the value "true" or the value "false"
-    // / or can be omitted to read the current value. (Any value other
-    // / than "true" is considered equivalent to "false". Other arguments
-    // / are ignored.)
-    // /
-    // / Calls the `getter` callback to obtain the value when
-    // / responding to the service extension method being called.
-    // /
-    // / Calls the `setter` callback with the new value when the
-    // / service extension method is called with a new value.
+/**
+ * Registers a service extension method with the given name (full
+ * name "ext.flutter.name"), which takes a single argument
+ * "enabled" which can have the value "true" or the value "false"
+ * or can be omitted to read the current value. (Any value other
+ * than "true" is considered equivalent to "false". Other arguments
+ * are ignored.)
+ *
+ * Calls the `getter` callback to obtain the value when
+ * responding to the service extension method being called.
+ *
+ * Calls the `setter` callback with the new value when the
+ * service extension method is called with a new value.
+ */
 //    @protected
 //    void registerBoolServiceExtension({
 //        @required String name,
@@ -299,17 +325,19 @@ open class BindingBaseImpl : BindingBase {
 //        );
 //    }
 
-    // / Registers a service extension method with the given name (full
-    // / name "ext.flutter.name"), which takes a single argument with the
-    // / same name as the method which, if present, must have a value
-    // / that can be parsed by [double.parse], and can be omitted to read
-    // / the current value. (Other arguments are ignored.)
-    // /
-    // / Calls the `getter` callback to obtain the value when
-    // / responding to the service extension method being called.
-    // /
-    // / Calls the `setter` callback with the new value when the
-    // / service extension method is called with a new value.
+/**
+ * Registers a service extension method with the given name (full
+ * name "ext.flutter.name"), which takes a single argument with the
+ * same name as the method which, if present, must have a value
+ * that can be parsed by [double.parse], and can be omitted to read
+ * the current value. (Other arguments are ignored.)
+ *
+ * Calls the `getter` callback to obtain the value when
+ * responding to the service extension method being called.
+ *
+ * Calls the `setter` callback with the new value when the
+ * service extension method is called with a new value.
+ */
 // //    @protected
 //    fun registerNumericServiceExtension(
 //        name: String,
@@ -358,16 +386,18 @@ open class BindingBaseImpl : BindingBase {
 //        );
 //    }
 
-    // / Registers a service extension method with the given name (full
-    // / name "ext.flutter.name"). The given callback is called when the
-    // / extension method is called. The callback must return a [Future]
-    // / that either eventually completes to a return value in the form
-    // / of a name/value map where the values can all be converted to
-    // / JSON using `json.encode()` (see [JsonEncoder]), or fails. In case of failure, the
-    // / failure is reported to the remote caller and is dumped to the
-    // / logs.
-    // /
-    // / The returned map will be mutated.
+    /**
+     * Registers a service extension method with the given name (full
+     * name "ext.flutter.name"). The given callback is called when the
+     * extension method is called. The callback must return a [Future]
+     * that either eventually completes to a return value in the form
+     * of a name/value map where the values can all be converted to
+     * JSON using `json.encode()` (see [JsonEncoder]), or fails. In case of failure, the
+     * failure is reported to the remote caller and is dumped to the
+     * logs.
+     *
+     * The returned map will be mutated.
+     */
     override fun registerServiceExtension(
         name: String,
         callback: ServiceExtensionCallback
@@ -435,7 +465,7 @@ open class BindingBaseImpl : BindingBase {
 }
 
 // TODO(migration/popam)
-// / Terminate the Flutter application.
+/** Terminate the Flutter application. */
 // Future<Null> _exitApplication() async {
 //    exit(0);
 // }

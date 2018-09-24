@@ -27,26 +27,32 @@ import androidx.ui.gestures.events.PointerEvent
 import androidx.ui.gestures.events.PointerMoveEvent
 import androidx.ui.gestures.kTouchSlop
 
-// / A base class for gesture recognizers that track a single primary pointer.
-// /
-// / Gestures based on this class will reject the gesture if the primary pointer
-// / travels beyond [kTouchSlop] pixels from the original contact point.
+/**
+ * A base class for gesture recognizers that track a single primary pointer.
+ *
+ * Gestures based on this class will reject the gesture if the primary pointer
+ * travels beyond [kTouchSlop] pixels from the original contact point.
+ */
 abstract class PrimaryPointerGestureRecognizer(
-    // / If non-null, the recognizer will call [didExceedDeadline] after this
-    // / amount of time has elapsed since starting to track the primary pointer.
+    /**
+     * If non-null, the recognizer will call [didExceedDeadline] after this
+     * amount of time has elapsed since starting to track the primary pointer.
+     */
     val deadline: Duration? = null,
     debugOwner: Any?
 ) : OneSequenceGestureRecognizer(debugOwner) {
 
-    // / The current state of the recognizer.
-    // /
-    // / See [GestureRecognizerState] for a description of the states.
+    /**
+     * The current state of the recognizer.
+     *
+     * See [GestureRecognizerState] for a description of the states.
+     */
     var state: GestureRecognizerState = GestureRecognizerState.ready
 
-    // / The ID of the primary pointer this recognizer is tracking.
+    /** The ID of the primary pointer this recognizer is tracking. */
     var primaryPointer: Int = 0
 
-    // / The global location at which the primary pointer contacted the screen.
+    /** The global location at which the primary pointer contacted the screen. */
     var initialPosition: Offset? = null
 
     var _timer: Timer? = null
@@ -76,12 +82,14 @@ abstract class PrimaryPointerGestureRecognizer(
         stopTrackingIfPointerNoLongerDown(event)
     }
 
-    // / Override to provide behavior for the primary pointer when the gesture is still possible.
+    /** Override to provide behavior for the primary pointer when the gesture is still possible. */
     protected abstract fun handlePrimaryPointer(event: PointerEvent)
 
-    // / Override to be notified when [deadline] is exceeded.
-    // /
-    // / You must override this method if you supply a [deadline].
+    /**
+     * Override to be notified when [deadline] is exceeded.
+     *
+     * You must override this method if you supply a [deadline].
+     */
     protected open fun didExceedDeadline() {
         assert(deadline == null)
     }

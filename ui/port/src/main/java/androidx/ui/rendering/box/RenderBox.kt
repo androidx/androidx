@@ -1390,16 +1390,18 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         return false
     }
 
-    // / Multiply the transform from the parent's coordinate system to this box's
-    // / coordinate system into the given transform.
-    // /
-    // / This function is used to convert coordinate systems between boxes.
-    // / Subclasses that apply transforms during painting should override this
-    // / function to factor those transforms into the calculation.
-    // /
-    // / The [RenderBox] implementation takes care of adjusting the matrix for the
-    // / position of the given child as determined during layout and stored on the
-    // / child's [parentData] in the [BoxParentData.offset] field.
+    /**
+     * Multiply the transform from the parent's coordinate system to this box's
+     * coordinate system into the given transform.
+     *
+     * This function is used to convert coordinate systems between boxes.
+     * Subclasses that apply transforms during painting should override this
+     * function to factor those transforms into the calculation.
+     *
+     * The [RenderBox] implementation takes care of adjusting the matrix for the
+     * position of the given child as determined during layout and stored on the
+     * child's [parentData] in the [BoxParentData.offset] field.
+     */
     override fun applyPaintTransform(child: RenderObject, transform: Matrix4) {
         assert(child != null)
         assert(child.parent == this)
@@ -1426,17 +1428,19 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         transform.translate(offset.dx, offset.dy)
     }
 
-    // / Convert the given point from the global coordinate system in logical pixels
-    // / to the local coordinate system for this box.
-    // /
-    // / If the transform from global coordinates to local coordinates is
-    // / degenerate, this function returns [Offset.zero].
-    // /
-    // / If `ancestor` is non-null, this function converts the given point from the
-    // / coordinate system of `ancestor` (which must be an ancestor of this render
-    // / object) instead of from the global coordinate system.
-    // /
-    // / This method is implemented in terms of [getTransformTo].
+    /**
+     * Convert the given point from the global coordinate system in logical pixels
+     * to the local coordinate system for this box.
+     *
+     * If the transform from global coordinates to local coordinates is
+     * degenerate, this function returns [Offset.zero].
+     *
+     * If `ancestor` is non-null, this function converts the given point from the
+     * coordinate system of `ancestor` (which must be an ancestor of this render
+     * object) instead of from the global coordinate system.
+     *
+     * This method is implemented in terms of [getTransformTo].
+     */
     fun globalToLocal(point: Offset, ancestor: RenderObject? = null): Offset {
         val transform = getTransformTo(ancestor)
         val det = transform.invert()
@@ -1445,14 +1449,16 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         return transform.transformPoint(point)
     }
 
-    // / Convert the given point from the local coordinate system for this box to
-    // / the global coordinate system in logical pixels.
-    // /
-    // / If `ancestor` is non-null, this function converts the given point to the
-    // / coordinate system of `ancestor` (which must be an ancestor of this render
-    // / object) instead of to the global coordinate system.
-    // /
-    // / This method is implemented in terms of [getTransformTo].
+    /**
+     * Convert the given point from the local coordinate system for this box to
+     * the global coordinate system in logical pixels.
+     *
+     * If `ancestor` is non-null, this function converts the given point to the
+     * coordinate system of `ancestor` (which must be an ancestor of this render
+     * object) instead of to the global coordinate system.
+     *
+     * This method is implemented in terms of [getTransformTo].
+     */
     fun localToGlobal(point: Offset, ancestor: RenderObject? = null): Offset {
         return getTransformTo(ancestor).transformPoint(point)
     }

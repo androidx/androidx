@@ -79,10 +79,12 @@ class GestureBinding internal constructor(
             _flushPointerEventQueue()
     }
 
-    // / Dispatch a [PointerCancelEvent] for the given pointer soon.
-    // /
-    // / The pointer event will be dispatch before the next pointer event and
-    // / before the end of the microtask but not within this function call.
+    /**
+     * Dispatch a [PointerCancelEvent] for the given pointer soon.
+     *
+     * The pointer event will be dispatch before the next pointer event and
+     * before the end of the microtask but not within this function call.
+     */
     fun cancelPointer(pointer: Int) {
         if (_pendingPointerEvents.isEmpty() && !locked)
 
@@ -99,17 +101,21 @@ class GestureBinding internal constructor(
             _handlePointerEvent(_pendingPointerEvents.removeFirst())
     }
 
-    // / A router that routes all pointer events received from the engine.
+    /** A router that routes all pointer events received from the engine. */
     val pointerRouter = PointerRouter()
 
-    // / The gesture arenas used for disambiguating the meaning of sequences of
-    // / pointer events.
+    /**
+     * The gesture arenas used for disambiguating the meaning of sequences of
+     * pointer events.
+     */
     val gestureArena = GestureArenaManager()
 
-    // / State for all pointers which are currently down.
-    // /
-    // / The state of hovering pointers is not tracked because that would require
-    // / hit-testing on every frame.
+    /**
+     * State for all pointers which are currently down.
+     *
+     * The state of hovering pointers is not tracked because that would require
+     * hit-testing on every frame.
+     */
     val _hitTests: MutableMap<Int, HitTestResult> = mutableMapOf()
 
     private fun _handlePointerEvent(event: PointerEvent) {
@@ -136,17 +142,19 @@ class GestureBinding internal constructor(
             dispatchEvent(event, result)
     }
 
-    // / Determine which [HitTestTarget] objects are located at a given position.
+    /** Determine which [HitTestTarget] objects are located at a given position. */
     override fun hitTest(result: HitTestResult, position: Offset) {
         hitTestDelegate.hitTest(result, position)
         result.add(HitTestEntry(this))
     }
 
-    // / Dispatch an event to a hit test result's path.
-    // /
-    // / This sends the given event to every [HitTestTarget] in the entries
-    // / of the given [HitTestResult], and catches exceptions that any of
-    // / the handlers might throw. The `result` argument must not be null.
+    /**
+     * Dispatch an event to a hit test result's path.
+     *
+     * This sends the given event to every [HitTestTarget] in the entries
+     * of the given [HitTestResult], and catches exceptions that any of
+     * the handlers might throw. The `result` argument must not be null.
+     */
     // from HitTestDispatcher
     override fun dispatchEvent(event: PointerEvent, result: HitTestResult) {
         assert(!locked)

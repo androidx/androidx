@@ -2,9 +2,11 @@ package androidx.ui.rendering.obj
 
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 
-// / Generic mixin for render objects with one child.
-// /
-// / Provides a child model for a render object subclass that has a unique child.
+/**
+ * Generic mixin for render objects with one child.
+ *
+ * Provides a child model for a render object subclass that has a unique child.
+ */
 // TODO(Migration/andrey): in this specific case we can use abstract class instead of mixin
 abstract class RenderObjectWithChildMixin<ChildType : RenderObject> : RenderObject() {
 //    // This class is intended to be used as a mixin, and should not be
@@ -12,12 +14,14 @@ abstract class RenderObjectWithChildMixin<ChildType : RenderObject> : RenderObje
 //    factory RenderObjectWithChildMixin._() => null;
 
     // TODO(Migration/andrey): no way to have (child is! ChildType) in Kotlin. but maybe we don't need this method anyway
-    // / Checks whether the given render object has the correct [runtimeType] to be
-    // / a child of this render object.
-    // /
-    // / Does nothing if assertions are disabled.
-    // /
-    // / Always returns true.
+    /**
+     * Checks whether the given render object has the correct [runtimeType] to be
+     * a child of this render object.
+     *
+     * Does nothing if assertions are disabled.
+     *
+     * Always returns true.
+     */
     fun debugValidateChild(child: RenderObject?): Boolean {
         // TODO(Migration/andrey): no way to have (child is! ChildType) in Kotlin. but maybe we don't need this method anyway
 //        assert(() {
@@ -43,7 +47,7 @@ abstract class RenderObjectWithChildMixin<ChildType : RenderObject> : RenderObje
         return true
     }
 
-    // / The render object's unique child
+    /** The render object's unique child */
     var child: ChildType? = null
         set(value) {
             field?.let { dropChild(it) }

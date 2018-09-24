@@ -16,8 +16,10 @@
 
 package androidx.ui.gestures.recognizer
 
-// / Generic signature for callbacks passed to
-// / [GestureRecognizer.invokeCallback]. This allows the
-// / [GestureRecognizer.invokeCallback] mechanism to be generically used with
-// / anonymous functions that return objects of particular types.
+/**
+ * Generic signature for callbacks passed to
+ * [GestureRecognizer.invokeCallback]. This allows the
+ * [GestureRecognizer.invokeCallback] mechanism to be generically used with
+ * anonymous functions that return objects of particular types.
+ */
 typealias RecognizerCallback<T> = () -> T?

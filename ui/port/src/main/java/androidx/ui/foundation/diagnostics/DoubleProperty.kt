@@ -2,9 +2,11 @@ package androidx.ui.foundation.diagnostics
 
 import androidx.ui.toStringAsFixed
 
-// / Property describing a [double] [value] with an optional [unit] of measurement.
-// /
-// / Numeric formatting is optimized for debug message readability.
+/**
+ * Property describing a [double] [value] with an optional [unit] of measurement.
+ *
+ * Numeric formatting is optimized for debug message readability.
+ */
 open class DoubleProperty protected constructor(
     name: String,
     value: Double? = null,
@@ -29,9 +31,11 @@ open class DoubleProperty protected constructor(
 
     companion object {
 
-        // / If specified, [unit] describes the unit for the [value] (e.g. px).
-        // /
-        // / The [showName] and [level] arguments must not be null.
+        /**
+         * If specified, [unit] describes the unit for the [value] (e.g. px).
+         *
+         * The [showName] and [level] arguments must not be null.
+         */
         fun create(
             name: String,
             value: Double? = null,
@@ -54,12 +58,14 @@ open class DoubleProperty protected constructor(
             )
         }
 
-        // / Property with a [value] that is computed only when needed.
-        // /
-        // / Use if computing the property [value] may throw an exception or is
-        // / expensive.
-        // /
-        // / The [showName] and [level] arguments must not be null.
+        /**
+         * Property with a [value] that is computed only when needed.
+         *
+         * Use if computing the property [value] may throw an exception or is
+         * expensive.
+         *
+         * The [showName] and [level] arguments must not be null.
+         */
         fun createLazy(
             name: String,
             computeValue: ComputePropertyValueCallback<Double?>,

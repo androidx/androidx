@@ -9,36 +9,40 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.skia.SkMatrix
 
 // TODO(Migration/njawad): Copy the class here
-// / An interface for recording graphical operations.
-// /
-// / [Canvas] objects are used in creating [Picture] objects, which can
-// / themselves be used with a [SceneBuilder] to build a [Scene]. In
-// / normal usage, however, this is all handled by the framework.
-// /
-// / A canvas has a current transformation matrix which is applied to all
-// / operations. Initially, the transformation matrix is the identity transform.
-// / It can be modified using the [translate], [scale], [rotate], [skew],
-// / and [transform] methods.
-// /
-// / A canvas also has a current clip region which is applied to all operations.
-// / Initially, the clip region is infinite. It can be modified using the
-// / [clipRect], [clipRRect], and [clipPath] methods.
-// /
-// / The current transform and clip can be saved and restored using the stack
-// / managed by the [save], [saveLayer], and [restore] methods.
+/**
+ * An interface for recording graphical operations.
+ *
+ * [Canvas] objects are used in creating [Picture] objects, which can
+ * themselves be used with a [SceneBuilder] to build a [Scene]. In
+ * normal usage, however, this is all handled by the framework.
+ *
+ * A canvas has a current transformation matrix which is applied to all
+ * operations. Initially, the transformation matrix is the identity transform.
+ * It can be modified using the [translate], [scale], [rotate], [skew],
+ * and [transform] methods.
+ *
+ * A canvas also has a current clip region which is applied to all operations.
+ * Initially, the clip region is infinite. It can be modified using the
+ * [clipRect], [clipRRect], and [clipPath] methods.
+ *
+ * The current transform and clip can be saved and restored using the stack
+ * managed by the [save], [saveLayer], and [restore] methods.
+ */
 
-// / Creates a canvas for recording graphical operations into the
-// / given picture recorder.
-// /
-// / Graphical operations that affect pixels entirely outside the given
-// / `cullRect` might be discarded by the implementation. However, the
-// / implementation might draw outside these bounds if, for example, a command
-// / draws partially inside and outside the `cullRect`. To ensure that pixels
-// / outside a given region are discarded, consider using a [clipRect]. The
-// / `cullRect` is optional; by default, all operations are kept.
-// /
-// / To end the recording, call [PictureRecorder.endRecording] on the
-// / given recorder.
+/**
+ * Creates a canvas for recording graphical operations into the
+ * given picture recorder.
+ *
+ * Graphical operations that affect pixels entirely outside the given
+ * `cullRect` might be discarded by the implementation. However, the
+ * implementation might draw outside these bounds if, for example, a command
+ * draws partially inside and outside the `cullRect`. To ensure that pixels
+ * outside a given region are discarded, consider using a [clipRect]. The
+ * `cullRect` is optional; by default, all operations are kept.
+ *
+ * To end the recording, call [PictureRecorder.endRecording] on the
+ * given recorder.
+ */
 class Canvas {
 
     private val internalCanvas: android.graphics.Canvas
@@ -63,127 +67,131 @@ class Canvas {
 
     private val internalRectF = android.graphics.RectF()
 
-    // / Saves a copy of the current transform and clip on the save stack.
-    // /
-    // / Call [restore] to pop the save stack.
-    // /
-    // / See also:
-    // /
-    // /  * [saveLayer], which does the same thing but additionally also groups the
-    // /    commands done until the matching [restore].
+    /**
+     * Saves a copy of the current transform and clip on the save stack.
+     *
+     * Call [restore] to pop the save stack.
+     *
+     * See also:
+     *
+     *  * [saveLayer], which does the same thing but additionally also groups the
+     *    commands done until the matching [restore].
+     */
     fun save() {
         internalCanvas.save()
     }
 
-    // / Saves a copy of the current transform and clip on the save stack, and then
-    // / creates a new group which subsequent calls will become a part of. When the
-    // / save stack is later popped, the group will be flattened into a layer and
-    // / have the given `paint`'s [Paint.colorFilter] and [Paint.blendMode]
-    // / applied.
-    // /
-    // / This lets you create composite effects, for example making a group of
-    // / drawing commands semi-transparent. Without using [saveLayer], each part of
-    // / the group would be painted individually, so where they overlap would be
-    // / darker than where they do not. By using [saveLayer] to group them
-    // / together, they can be drawn with an opaque color at first, and then the
-    // / entire group can be made transparent using the [saveLayer]'s paint.
-    // /
-    // / Call [restore] to pop the save stack and apply the paint to the group.
-    // /
-    // / ## Using saveLayer with clips
-    // /
-    // / When a rectangular clip operation (from [clipRect]) is not axis-aligned
-    // / with the raster buffer, or when the clip operation is not rectalinear (e.g.
-    // / because it is a rounded rectangle clip created by [clipRRect] or an
-    // / arbitrarily complicated path clip created by [clipPath]), the edge of the
-    // / clip needs to be anti-aliased.
-    // /
-    // / If two draw calls overlap at the edge of such a clipped region, without
-    // / using [saveLayer], the first drawing will be anti-aliased with the
-    // / background first, and then the second will be anti-aliased with the result
-    // / of blending the first drawing and the background. On the other hand, if
-    // / [saveLayer] is used immediately after establishing the clip, the second
-    // / drawing will cover the first in the layer, and thus the second alone will
-    // / be anti-aliased with the background when the layer is clipped and
-    // / composited (when [restore] is called).
-    // /
-    // / For example, this [CustomPainter.paint] method paints a clean white
-    // / rounded rectangle:
-    // /
-    // / ```dart
-    // / void paint(Canvas canvas, Size size) {
-    // /   Rect rect = Offset.zero & size;
-    // /   canvas.save();
-    // /   canvas.clipRRect(new RRect.fromRectXY(rect, 100.0, 100.0));
-    // /   canvas.saveLayer(rect, new Paint());
-    // /   canvas.drawPaint(new Paint()..color = Colors.red);
-    // /   canvas.drawPaint(new Paint()..color = Colors.white);
-    // /   canvas.restore();
-    // /   canvas.restore();
-    // / }
-    // / ```
-    // /
-    // / On the other hand, this one renders a red outline, the result of the red
-    // / paint being anti-aliased with the background at the clip edge, then the
-    // / white paint being similarly anti-aliased with the background _including
-    // / the clipped red paint_:
-    // /
-    // / ```dart
-    // / void paint(Canvas canvas, Size size) {
-    // /   // (this example renders poorly, prefer the example above)
-    // /   Rect rect = Offset.zero & size;
-    // /   canvas.save();
-    // /   canvas.clipRRect(new RRect.fromRectXY(rect, 100.0, 100.0));
-    // /   canvas.drawPaint(new Paint()..color = Colors.red);
-    // /   canvas.drawPaint(new Paint()..color = Colors.white);
-    // /   canvas.restore();
-    // / }
-    // / ```
-    // /
-    // / This point is moot if the clip only clips one draw operation. For example,
-    // / the following paint method paints a pair of clean white rounded
-    // / rectangles, even though the clips are not done on a separate layer:
-    // /
-    // / ```dart
-    // / void paint(Canvas canvas, Size size) {
-    // /   canvas.save();
-    // /   canvas.clipRRect(new RRect.fromRectXY(Offset.zero & (size / 2.0), 50.0, 50.0));
-    // /   canvas.drawPaint(new Paint()..color = Colors.white);
-    // /   canvas.restore();
-    // /   canvas.save();
-    // /   canvas.clipRRect(new RRect.fromRectXY(size.center(Offset.zero) & (size / 2.0), 50.0, 50.0));
-    // /   canvas.drawPaint(new Paint()..color = Colors.white);
-    // /   canvas.restore();
-    // / }
-    // / ```
-    // /
-    // / (Incidentally, rather than using [clipRRect] and [drawPaint] to draw
-    // / rounded rectangles like this, prefer the [drawRRect] method. These
-    // / examples are using [drawPaint] as a proxy for "complicated draw operations
-    // / that will get clipped", to illustrate the point.)
-    // /
-    // / ## Performance considerations
-    // /
-    // / Generally speaking, [saveLayer] is relatively expensive.
-    // /
-    // / There are a several different hardware architectures for GPUs (graphics
-    // / processing units, the hardware that handles graphics), but most of them
-    // / involve batching commands and reordering them for performance. When layers
-    // / are used, they cause the rendering pipeline to have to switch render
-    // / target (from one layer to another). Render target switches can flush the
-    // / GPU's command buffer, which typically means that optimizations that one
-    // / could get with larger batching are lost. Render target switches also
-    // / generate a lot of memory churn because the GPU needs to copy out the
-    // / current frame buffer contents from the part of memory that's optimized for
-    // / writing, and then needs to copy it back in once the previous render target
-    // / (layer) is restored.
-    // /
-    // / See also:
-    // /
-    // /  * [save], which saves the current state, but does not create a new layer
-    // /    for subsequent commands.
-    // /  * [BlendMode], which discusses the use of [Paint.blendMode] with
-    // /    [saveLayer].
+    /**
+     * Saves a copy of the current transform and clip on the save stack, and then
+     * creates a new group which subsequent calls will become a part of. When the
+     * save stack is later popped, the group will be flattened into a layer and
+     * have the given `paint`'s [Paint.colorFilter] and [Paint.blendMode]
+     * applied.
+     *
+     * This lets you create composite effects, for example making a group of
+     * drawing commands semi-transparent. Without using [saveLayer], each part of
+     * the group would be painted individually, so where they overlap would be
+     * darker than where they do not. By using [saveLayer] to group them
+     * together, they can be drawn with an opaque color at first, and then the
+     * entire group can be made transparent using the [saveLayer]'s paint.
+     *
+     * Call [restore] to pop the save stack and apply the paint to the group.
+     *
+     * ## Using saveLayer with clips
+     *
+     * When a rectangular clip operation (from [clipRect]) is not axis-aligned
+     * with the raster buffer, or when the clip operation is not rectalinear (e.g.
+     * because it is a rounded rectangle clip created by [clipRRect] or an
+     * arbitrarily complicated path clip created by [clipPath]), the edge of the
+     * clip needs to be anti-aliased.
+     *
+     * If two draw calls overlap at the edge of such a clipped region, without
+     * using [saveLayer], the first drawing will be anti-aliased with the
+     * background first, and then the second will be anti-aliased with the result
+     * of blending the first drawing and the background. On the other hand, if
+     * [saveLayer] is used immediately after establishing the clip, the second
+     * drawing will cover the first in the layer, and thus the second alone will
+     * be anti-aliased with the background when the layer is clipped and
+     * composited (when [restore] is called).
+     *
+     * For example, this [CustomPainter.paint] method paints a clean white
+     * rounded rectangle:
+     *
+     * ```dart
+     * void paint(Canvas canvas, Size size) {
+     *   Rect rect = Offset.zero & size;
+     *   canvas.save();
+     *   canvas.clipRRect(new RRect.fromRectXY(rect, 100.0, 100.0));
+     *   canvas.saveLayer(rect, new Paint());
+     *   canvas.drawPaint(new Paint()..color = Colors.red);
+     *   canvas.drawPaint(new Paint()..color = Colors.white);
+     *   canvas.restore();
+     *   canvas.restore();
+     * }
+     * ```
+     *
+     * On the other hand, this one renders a red outline, the result of the red
+     * paint being anti-aliased with the background at the clip edge, then the
+     * white paint being similarly anti-aliased with the background _including
+     * the clipped red paint_:
+     *
+     * ```dart
+     * void paint(Canvas canvas, Size size) {
+     *   // (this example renders poorly, prefer the example above)
+     *   Rect rect = Offset.zero & size;
+     *   canvas.save();
+     *   canvas.clipRRect(new RRect.fromRectXY(rect, 100.0, 100.0));
+     *   canvas.drawPaint(new Paint()..color = Colors.red);
+     *   canvas.drawPaint(new Paint()..color = Colors.white);
+     *   canvas.restore();
+     * }
+     * ```
+     *
+     * This point is moot if the clip only clips one draw operation. For example,
+     * the following paint method paints a pair of clean white rounded
+     * rectangles, even though the clips are not done on a separate layer:
+     *
+     * ```dart
+     * void paint(Canvas canvas, Size size) {
+     *   canvas.save();
+     *   canvas.clipRRect(new RRect.fromRectXY(Offset.zero & (size / 2.0), 50.0, 50.0));
+     *   canvas.drawPaint(new Paint()..color = Colors.white);
+     *   canvas.restore();
+     *   canvas.save();
+     *   canvas.clipRRect(new RRect.fromRectXY(size.center(Offset.zero) & (size / 2.0), 50.0, 50.0));
+     *   canvas.drawPaint(new Paint()..color = Colors.white);
+     *   canvas.restore();
+     * }
+     * ```
+     *
+     * (Incidentally, rather than using [clipRRect] and [drawPaint] to draw
+     * rounded rectangles like this, prefer the [drawRRect] method. These
+     * examples are using [drawPaint] as a proxy for "complicated draw operations
+     * that will get clipped", to illustrate the point.)
+     *
+     * ## Performance considerations
+     *
+     * Generally speaking, [saveLayer] is relatively expensive.
+     *
+     * There are a several different hardware architectures for GPUs (graphics
+     * processing units, the hardware that handles graphics), but most of them
+     * involve batching commands and reordering them for performance. When layers
+     * are used, they cause the rendering pipeline to have to switch render
+     * target (from one layer to another). Render target switches can flush the
+     * GPU's command buffer, which typically means that optimizations that one
+     * could get with larger batching are lost. Render target switches also
+     * generate a lot of memory churn because the GPU needs to copy out the
+     * current frame buffer contents from the part of memory that's optimized for
+     * writing, and then needs to copy it back in once the previous render target
+     * (layer) is restored.
+     *
+     * See also:
+     *
+     *  * [save], which saves the current state, but does not create a new layer
+     *    for subsequent commands.
+     *  * [BlendMode], which discusses the use of [Paint.blendMode] with
+     *    [saveLayer].
+     */
     @SuppressWarnings("deprecation")
     fun saveLayer(bounds: Rect?, paint: Paint) {
         if (bounds == null) {
@@ -210,56 +218,68 @@ class Canvas {
 //    List<dynamic> paintObjects,
 //    ByteData paintData) native 'Canvas_saveLayer';
 
-    // / Pops the current save stack, if there is anything to pop.
-    // / Otherwise, does nothing.
-    // /
-    // / Use [save] and [saveLayer] to push state onto the stack.
-    // /
-    // / If the state was pushed with with [saveLayer], then this call will also
-    // / cause the new layer to be composited into the previous layer.
+    /**
+     * Pops the current save stack, if there is anything to pop.
+     * Otherwise, does nothing.
+     *
+     * Use [save] and [saveLayer] to push state onto the stack.
+     *
+     * If the state was pushed with with [saveLayer], then this call will also
+     * cause the new layer to be composited into the previous layer.
+     */
     fun restore() {
         internalCanvas.restore()
     }
 
-    // / Returns the number of items on the save stack, including the
-    // / initial state. This means it returns 1 for a clean canvas, and
-    // / that each call to [save] and [saveLayer] increments it, and that
-    // / each matching call to [restore] decrements it.
-    // /
-    // / This number cannot go below 1.
+    /**
+     * Returns the number of items on the save stack, including the
+     * initial state. This means it returns 1 for a clean canvas, and
+     * that each call to [save] and [saveLayer] increments it, and that
+     * each matching call to [restore] decrements it.
+     *
+     * This number cannot go below 1.
+     */
     fun getSaveCount(): Int = internalCanvas.saveCount
 
-    // / Add a translation to the current transform, shifting the coordinate space
-    // / horizontally by the first argument and vertically by the second argument.
+    /**
+     * Add a translation to the current transform, shifting the coordinate space
+     * horizontally by the first argument and vertically by the second argument.
+     */
     fun translate(dx: Double, dy: Double) {
         internalCanvas.translate(dx.toFloat(), dy.toFloat())
     }
 
-    // / Add an axis-aligned scale to the current transform, scaling by the first
-    // / argument in the horizontal direction and the second in the vertical
-    // / direction.
-    // /
-    // / If [sy] is unspecified, [sx] will be used for the scale in both
-    // / directions.
+    /**
+     * Add an axis-aligned scale to the current transform, scaling by the first
+     * argument in the horizontal direction and the second in the vertical
+     * direction.
+     *
+     * If [sy] is unspecified, [sx] will be used for the scale in both
+     * directions.
+     */
     fun scale(sx: Double, sy: Double = sx) {
         internalCanvas.scale(sx.toFloat(), sy.toFloat())
     }
 
-    // / Add a rotation to the current transform. The argument is in radians clockwise.
+    /** Add a rotation to the current transform. The argument is in radians clockwise. */
     fun rotate(radians: Double) {
         internalCanvas.rotate(Math.toDegrees(radians).toFloat())
     }
 
-    // / Add an axis-aligned skew to the current transform, with the first argument
-    // / being the horizontal skew in radians clockwise around the origin, and the
-    // / second argument being the vertical skew in radians clockwise around the
-    // / origin.
+    /**
+     * Add an axis-aligned skew to the current transform, with the first argument
+     * being the horizontal skew in radians clockwise around the origin, and the
+     * second argument being the vertical skew in radians clockwise around the
+     * origin.
+     */
     fun skew(sx: Double, sy: Double) {
         internalCanvas.skew(sx.toFloat(), sy.toFloat())
     }
 
-    // / Multiply the current transform by the specified 4⨉4 transformation matrix
-    // / specified as a list of values in column-major order.
+    /**
+     * Multiply the current transform by the specified 4⨉4 transformation matrix
+     * specified as a list of values in column-major order.
+     */
     // TODO(Migration/njawad framework canvas does not provide transform method given a matrix)
 //    void transform(Float64List matrix4) {
 //        assert(matrix4 != null);
@@ -269,17 +289,19 @@ class Canvas {
 //    }
 //    void _transform(Float64List matrix4) native 'Canvas_transform';
 //
-    // / Reduces the clip region to the intersection of the current clip and the
-    // / given rectangle.
-    // /
-    // / If the clip is not axis-aligned with the display device, and
-    // / [Paint.isAntiAlias] is true, then the clip will be anti-aliased. If
-    // / multiple draw commands intersect with the clip boundary, this can result
-    // / in incorrect blending at the clip boundary. See [saveLayer] for a
-    // / discussion of how to address that.
-    // /
-    // / Use [ClipOp.difference] to subtract the provided rectangle from the
-    // / current clip.
+    /**
+     * Reduces the clip region to the intersection of the current clip and the
+     * given rectangle.
+     *
+     * If the clip is not axis-aligned with the display device, and
+     * [Paint.isAntiAlias] is true, then the clip will be anti-aliased. If
+     * multiple draw commands intersect with the clip boundary, this can result
+     * in incorrect blending at the clip boundary. See [saveLayer] for a
+     * discussion of how to address that.
+     *
+     * Use [ClipOp.difference] to subtract the provided rectangle from the
+     * current clip.
+     */
     @SuppressWarnings("deprecation")
     fun clipRect(rect: Rect, clipOp: ClipOp = ClipOp.intersect) {
         val frameworkRect = rect.toFrameworkRect()
@@ -290,41 +312,49 @@ class Canvas {
         }
     }
 
-    // / Reduces the clip region to the intersection of the current clip and the
-    // / given rounded rectangle.
-    // /
-    // / If [Paint.isAntiAlias] is true, then the clip will be anti-aliased. If
-    // / multiple draw commands intersect with the clip boundary, this can result
-    // / in incorrect blending at the clip boundary. See [saveLayer] for a
-    // / discussion of how to address that and some examples of using [clipRRect].
+    /**
+     * Reduces the clip region to the intersection of the current clip and the
+     * given rounded rectangle.
+     *
+     * If [Paint.isAntiAlias] is true, then the clip will be anti-aliased. If
+     * multiple draw commands intersect with the clip boundary, this can result
+     * in incorrect blending at the clip boundary. See [saveLayer] for a
+     * discussion of how to address that and some examples of using [clipRRect].
+     */
     fun clipRRect(rrect: RRect) {
         internalPath.reset()
         internalPath.addRRect(rrect)
         clipPath(internalPath)
     }
 
-    // / Reduces the clip region to the intersection of the current clip and the
-    // / given [Path].
-    // /
-    // / If [Paint.isAntiAlias] is true, then the clip will be anti-aliased. If
-    // / multiple draw commands intersect with the clip boundary, this can result
-    // / in incorrect blending at the clip boundary. See [saveLayer] for a
-    // / discussion of how to address that.
+    /**
+     * Reduces the clip region to the intersection of the current clip and the
+     * given [Path].
+     *
+     * If [Paint.isAntiAlias] is true, then the clip will be anti-aliased. If
+     * multiple draw commands intersect with the clip boundary, this can result
+     * in incorrect blending at the clip boundary. See [saveLayer] for a
+     * discussion of how to address that.
+     */
     fun clipPath(path: Path) {
         internalCanvas.clipPath(path.toFrameworkPath())
     }
 
-    // / Paints the given [Color] onto the canvas, applying the given
-    // / [BlendMode], with the given color being the source and the background
-    // / being the destination.
+    /**
+     * Paints the given [Color] onto the canvas, applying the given
+     * [BlendMode], with the given color being the source and the background
+     * being the destination.
+     */
     fun drawColor(color: Color, blendMode: BlendMode) {
         internalCanvas.drawColor(color.value, blendMode.toPorterDuffMode())
     }
 
-    // / Draws a line between the given points using the given paint. The line is
-    // / stroked, the value of the [Paint.style] is ignored for this call.
-    // /
-    // / The `p1` and `p2` arguments are interpreted as offsets from the origin.
+    /**
+     * Draws a line between the given points using the given paint. The line is
+     * stroked, the value of the [Paint.style] is ignored for this call.
+     *
+     * The `p1` and `p2` arguments are interpreted as offsets from the origin.
+     */
     fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
         internalCanvas.drawLine(
                 p1.dx.toFloat(),
@@ -335,33 +365,41 @@ class Canvas {
         )
     }
 
-    // / Fills the canvas with the given [Paint].
-    // /
-    // / To fill the canvas with a solid color and blend mode, consider
-    // / [drawColor] instead.
+    /**
+     * Fills the canvas with the given [Paint].
+     *
+     * To fill the canvas with a solid color and blend mode, consider
+     * [drawColor] instead.
+     */
     fun drawPaint(paint: Paint) {
         internalCanvas.drawPaint(paint.toFrameworkPaint())
     }
 
-    // / Draws a rectangle with the given [Paint]. Whether the rectangle is filled
-    // / or stroked (or both) is controlled by [Paint.style].
+    /**
+     * Draws a rectangle with the given [Paint]. Whether the rectangle is filled
+     * or stroked (or both) is controlled by [Paint.style].
+     */
     fun drawRect(rect: Rect, paint: Paint) {
         internalCanvas.drawRect(rect.toFrameworkRect(), paint.toFrameworkPaint())
     }
 
-    // / Draws a rounded rectangle with the given [Paint]. Whether the rectangle is
-    // / filled or stroked (or both) is controlled by [Paint.style].
+    /**
+     * Draws a rounded rectangle with the given [Paint]. Whether the rectangle is
+     * filled or stroked (or both) is controlled by [Paint.style].
+     */
     fun drawRRect(rrect: RRect, paint: Paint) {
         internalPath.reset()
         internalPath.addRRect(rrect)
         internalCanvas.drawPath(internalPath.toFrameworkPath(), paint.toFrameworkPaint())
     }
 
-    // / Draws a shape consisting of the difference between two rounded rectangles
-    // / with the given [Paint]. Whether this shape is filled or stroked (or both)
-    // / is controlled by [Paint.style].
-    // /
-    // / This shape is almost but not quite entirely unlike an annulus.
+    /**
+     * Draws a shape consisting of the difference between two rounded rectangles
+     * with the given [Paint]. Whether this shape is filled or stroked (or both)
+     * is controlled by [Paint.style].
+     *
+     * This shape is almost but not quite entirely unlike an annulus.
+     */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun drawDRRect(outer: RRect, inner: RRect, paint: Paint) {
         // TODO(Migration/njawad find better way to recreate functionality with Framework APIs
@@ -377,19 +415,23 @@ class Canvas {
         internalCanvas.drawPath(internalPath.toFrameworkPath(), paint.toFrameworkPaint())
     }
 
-    // / Draws an axis-aligned oval that fills the given axis-aligned rectangle
-    // / with the given [Paint]. Whether the oval is filled or stroked (or both) is
-    // / controlled by [Paint.style].
+    /**
+     * Draws an axis-aligned oval that fills the given axis-aligned rectangle
+     * with the given [Paint]. Whether the oval is filled or stroked (or both) is
+     * controlled by [Paint.style].
+     */
     fun drawOval(rect: Rect, paint: Paint) {
         internalRectF.set(rect.toFrameworkRect())
         internalCanvas.drawOval(internalRectF,
                 paint.toFrameworkPaint())
     }
 
-    // / Draws a circle centered at the point given by the first argument and
-    // / that has the radius given by the second argument, with the [Paint] given in
-    // / the third argument. Whether the circle is filled or stroked (or both) is
-    // / controlled by [Paint.style].
+    /**
+     * Draws a circle centered at the point given by the first argument and
+     * that has the radius given by the second argument, with the [Paint] given in
+     * the third argument. Whether the circle is filled or stroked (or both) is
+     * controlled by [Paint.style].
+     */
     fun drawCircle(c: Offset, radius: Double, paint: Paint) {
         internalCanvas.drawCircle(
             c.dx.toFloat(),
@@ -399,16 +441,18 @@ class Canvas {
         )
     }
 
-    // / Draw an arc scaled to fit inside the given rectangle. It starts from
-    // / startAngle radians around the oval up to startAngle + sweepAngle
-    // / radians around the oval, with zero radians being the point on
-    // / the right hand side of the oval that crosses the horizontal line
-    // / that intersects the center of the rectangle and with positive
-    // / angles going clockwise around the oval. If useCenter is true, the arc is
-    // / closed back to the center, forming a circle sector. Otherwise, the arc is
-    // / not closed, forming a circle segment.
-    // /
-    // / This method is optimized for drawing arcs and should be faster than [Path.arcTo].
+    /**
+     * Draw an arc scaled to fit inside the given rectangle. It starts from
+     * startAngle radians around the oval up to startAngle + sweepAngle
+     * radians around the oval, with zero radians being the point on
+     * the right hand side of the oval that crosses the horizontal line
+     * that intersects the center of the rectangle and with positive
+     * angles going clockwise around the oval. If useCenter is true, the arc is
+     * closed back to the center, forming a circle sector. Otherwise, the arc is
+     * not closed, forming a circle segment.
+     *
+     * This method is optimized for drawing arcs and should be faster than [Path.arcTo].
+     */
     fun drawArc(
         rect: Rect,
         startAngle: Double,
@@ -426,15 +470,19 @@ class Canvas {
         )
     }
 
-    // / Draws the given [Path] with the given [Paint]. Whether this shape is
-    // / filled or stroked (or both) is controlled by [Paint.style]. If the path is
-    // / filled, then subpaths within it are implicitly closed (see [Path.close]).
+    /**
+     * Draws the given [Path] with the given [Paint]. Whether this shape is
+     * filled or stroked (or both) is controlled by [Paint.style]. If the path is
+     * filled, then subpaths within it are implicitly closed (see [Path.close]).
+     */
     fun drawPath(path: Path, paint: Paint) {
         internalCanvas.drawPath(path.toFrameworkPath(), paint.toFrameworkPaint())
     }
 
-    // / Draws the given [Image] into the canvas with its top-left corner at the
-    // / given [Offset]. The image is composited into the canvas using the given [Paint].
+    /**
+     * Draws the given [Image] into the canvas with its top-left corner at the
+     * given [Offset]. The image is composited into the canvas using the given [Paint].
+     */
     fun drawImage(image: Image, p: Offset, paint: Paint) {
         internalCanvas.drawBitmap(
                 image.bitmap,
@@ -450,15 +498,17 @@ class Canvas {
 //    List<dynamic> paintObjects,
 //    ByteData paintData) native 'Canvas_drawImage';
 //
-    // / Draws the subset of the given image described by the `src` argument into
-    // / the canvas in the axis-aligned rectangle given by the `dst` argument.
-    // /
-    // / This might sample from outside the `src` rect by up to half the width of
-    // / an applied filter.
-    // /
-    // / Multiple calls to this method with different arguments (from the same
-    // / image) can be batched into a single call to [drawAtlas] to improve
-    // / performance.
+    /**
+     * Draws the subset of the given image described by the `src` argument into
+     * the canvas in the axis-aligned rectangle given by the `dst` argument.
+     *
+     * This might sample from outside the `src` rect by up to half the width of
+     * an applied filter.
+     *
+     * Multiple calls to this method with different arguments (from the same
+     * image) can be batched into a single call to [drawAtlas] to improve
+     * performance.
+     */
     fun drawImageRect(image: Image, src: Rect, dst: Rect, paint: Paint) {
         internalCanvas.drawBitmap(
                 image.bitmap,
@@ -511,8 +561,10 @@ class Canvas {
 //    List<dynamic> paintObjects,
 //    ByteData paintData) native 'Canvas_drawImageNine';
 
-    // / Draw the given picture onto the canvas. To create a picture, see
-    // / [PictureRecorder].
+    /**
+     * Draw the given picture onto the canvas. To create a picture, see
+     * [PictureRecorder].
+     */
     fun drawPicture(picture: Picture) {
         assert(picture != null) // picture is checked on the engine side
         _drawPicture(picture.frameworkPicture)
@@ -549,14 +601,16 @@ class Canvas {
 //        paragraph._paint(this, offset.dx, offset.dy);
 //    }
 
-    // / Draws a sequence of points according to the given [PointMode].
-    // /
-    // / The `points` argument is interpreted as offsets from the origin.
-    // /
-    // / See also:
-    // /
-    // /  * [drawRawPoints], which takes `points` as a [Float32List] rather than a
-    // /    [List<Offset>].
+    /**
+     * Draws a sequence of points according to the given [PointMode].
+     *
+     * The `points` argument is interpreted as offsets from the origin.
+     *
+     * See also:
+     *
+     *  * [drawRawPoints], which takes `points` as a [Float32List] rather than a
+     *    [List<Offset>].
+     */
     fun drawPoints(pointMode: PointMode, points: List<Offset>, paint: Paint) {
         when (pointMode) {
             // Draw a line between each pair of points, each point has at most one line
@@ -607,15 +661,17 @@ class Canvas {
         }
     }
 
-    // / Draws a sequence of points according to the given [PointMode].
-    // /
-    // / The `points` argument is interpreted  as a list of pairs of floating point
-    // / numbers, where each pair represents an x and y offset from the origin.
-    // /
-    // / See also:
-    // /
-    // /  * [drawPoints], which takes `points` as a [List<Offset>] rather than a
-    // /    [List<Float32List>].
+    /**
+     * Draws a sequence of points according to the given [PointMode].
+     *
+     * The `points` argument is interpreted  as a list of pairs of floating point
+     * numbers, where each pair represents an x and y offset from the origin.
+     *
+     * See also:
+     *
+     *  * [drawPoints], which takes `points` as a [List<Offset>] rather than a
+     *    [List<Float32List>].
+     */
     fun drawRawPoints(pointMode: PointMode, points: FloatArray, paint: Paint) {
         if (points.size % 2 != 0) {
             throw IllegalArgumentException("points must have an even number of values")

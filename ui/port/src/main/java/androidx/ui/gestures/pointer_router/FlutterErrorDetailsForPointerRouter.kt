@@ -20,24 +20,28 @@ import androidx.ui.foundation.assertions.FlutterErrorDetails
 import androidx.ui.foundation.assertions.InformationCollector
 import androidx.ui.gestures.events.PointerEvent
 
-// / Variant of [FlutterErrorDetails] with extra fields for the gestures
-// / library's pointer router ([PointerRouter]).
-// /
-// / See also [FlutterErrorDetailsForPointerEventDispatcher], which is also used
-// / by the gestures library.
+/**
+ * Variant of [FlutterErrorDetails] with extra fields for the gestures
+ * library's pointer router ([PointerRouter]).
+ *
+ * See also [FlutterErrorDetailsForPointerEventDispatcher], which is also used
+ * by the gestures library.
+ */
 class FlutterErrorDetailsForPointerRouter(
     exception: Exception,
     stack: Array<StackTraceElement>,
     library: String,
     context: String,
-    // / The pointer router that caught the exception.
-    // /
-    // / In a typical application, this is the value of [GestureBinding.pointerRouter] on
-    // / the binding ([GestureBinding.instance]).
+    /**
+     * The pointer router that caught the exception.
+     *
+     * In a typical application, this is the value of [GestureBinding.pointerRouter] on
+     * the binding ([GestureBinding.instance]).
+     */
     val router: PointerRouter,
-    // / The callback that threw the exception.
+    /** The callback that threw the exception. */
     val route: PointerRoute,
-    // / The pointer event that was being routed when the exception was raised.
+    /** The pointer event that was being routed when the exception was raised. */
     val event: PointerEvent,
     informationCollector: InformationCollector,
     silent: Boolean = false

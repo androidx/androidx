@@ -6,20 +6,24 @@ import androidx.ui.runtimeType
 import androidx.ui.widgets.debugProfileBuildsEnabled
 import androidx.ui.widgets.debugWidgetBuilderValue
 
-// / Signature for the callback to [BuildContext.visitChildElements].
-// /
-// / The argument is the child being visited.
-// /
-// / It is safe to call `element.visitChildElements` reentrantly within
-// / this callback.
+/**
+ * Signature for the callback to [BuildContext.visitChildElements].
+ *
+ * The argument is the child being visited.
+ *
+ * It is safe to call `element.visitChildElements` reentrantly within
+ * this callback.
+ */
 typealias ElementVisitor = (Element) -> Unit
 
-// / An [Element] that composes other [Element]s.
-// /
-// / Rather than creating a [RenderObject] directly, a [ComponentElement] creates
-// / [RenderObject]s indirectly by creating other [Element]s.
-// /
-// / Contrast with [RenderObjectElement].
+/**
+ * An [Element] that composes other [Element]s.
+ *
+ * Rather than creating a [RenderObject] directly, a [ComponentElement] creates
+ * [RenderObject]s indirectly by creating other [Element]s.
+ *
+ * Contrast with [RenderObjectElement].
+ */
 abstract class ComponentElement(widget: Widget) : Element(widget) {
 
     var _child: Element? = null
@@ -36,12 +40,14 @@ abstract class ComponentElement(widget: Widget) : Element(widget) {
         rebuild()
     }
 
-    // / Calls the [StatelessWidget.build] method of the [StatelessWidget] object
-    // / (for stateless widgets) or the [State.build] method of the [State] object
-    // / (for stateful widgets) and then updates the widget tree.
-    // /
-    // / Called automatically during [mount] to generate the first build, and by
-    // / [rebuild] when the element needs updating.
+    /**
+     * Calls the [StatelessWidget.build] method of the [StatelessWidget] object
+     * (for stateless widgets) or the [State.build] method of the [State] object
+     * (for stateful widgets) and then updates the widget tree.
+     *
+     * Called automatically during [mount] to generate the first build, and by
+     * [rebuild] when the element needs updating.
+     */
     override fun performRebuild() {
         assert {
             if (debugProfileBuildsEnabled) {
@@ -79,9 +85,11 @@ abstract class ComponentElement(widget: Widget) : Element(widget) {
         }
     }
 
-    // / Subclasses should override this function to actually call the appropriate
-    // / `build` function (e.g., [StatelessWidget.build] or [State.build]) for
-    // / their widget.
+    /**
+     * Subclasses should override this function to actually call the appropriate
+     * `build` function (e.g., [StatelessWidget.build] or [State.build]) for
+     * their widget.
+     */
     protected abstract fun build(): Widget
 
     override fun visitChildren(visitor: ElementVisitor) {

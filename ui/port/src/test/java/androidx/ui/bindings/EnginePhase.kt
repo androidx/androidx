@@ -16,35 +16,45 @@
 
 package androidx.ui.bindings
 
-// / Phases that can be reached by [WidgetTester.pumpWidget] and
-// / [TestWidgetsFlutterBinding.pump].
-// /
-// / See [WidgetsBinding.drawFrame] for a more detailed description of some of
-// / these phases.
+/**
+ * Phases that can be reached by [WidgetTester.pumpWidget] and
+ * [TestWidgetsFlutterBinding.pump].
+ *
+ * See [WidgetsBinding.drawFrame] for a more detailed description of some of
+ * these phases.
+ */
 internal enum class EnginePhase {
-    // / The build phase in the widgets library. See [BuildOwner.buildScope].
+    /** The build phase in the widgets library. See [BuildOwner.buildScope]. */
     build,
 
-    // / The layout phase in the rendering library. See [PipelineOwner.flushLayout].
+    /** The layout phase in the rendering library. See [PipelineOwner.flushLayout]. */
     layout,
 
-    // / The compositing bits update phase in the rendering library. See
-    // / [PipelineOwner.flushCompositingBits].
+    /**
+     * The compositing bits update phase in the rendering library. See
+     * [PipelineOwner.flushCompositingBits].
+     */
     compositingBits,
 
-    // / The paint phase in the rendering library. See [PipelineOwner.flushPaint].
+    /** The paint phase in the rendering library. See [PipelineOwner.flushPaint]. */
     paint,
 
-    // / The compositing phase in the rendering library. See
-    // / [RenderView.compositeFrame]. This is the phase in which data is sent to
-    // / the GPU. If semantics are not enabled, then this is the last phase.
+    /**
+     * The compositing phase in the rendering library. See
+     * [RenderView.compositeFrame]. This is the phase in which data is sent to
+     * the GPU. If semantics are not enabled, then this is the last phase.
+     */
     composite,
 
-    // / The semantics building phase in the rendering library. See
-    // / [PipelineOwner.flushSemantics].
+    /**
+     * The semantics building phase in the rendering library. See
+     * [PipelineOwner.flushSemantics].
+     */
     flushSemantics,
 
-    // / The final phase in the rendering library, wherein semantics information is
-    // / sent to the embedder. See [SemanticsOwner.sendSemanticsUpdate].
+    /**
+     * The final phase in the rendering library, wherein semantics information is
+     * sent to the embedder. See [SemanticsOwner.sendSemanticsUpdate].
+     */
     sendSemanticsUpdate
 }

@@ -2,13 +2,17 @@ package androidx.ui.widgets.framework
 
 import androidx.ui.foundation.Key
 
-// / Abstract const constructor. This constructor enables subclasses to provide
-// / const constructors so that they can be used in const expressions.
+/**
+ * Abstract const constructor. This constructor enables subclasses to provide
+ * const constructors so that they can be used in const expressions.
+ */
 abstract class SingleChildRenderObjectWidget(
     key: Key?,
-        // / The widget below this widget in the tree.
-        // /
-        // / {@macro flutter.widgets.child}
+    /**
+     * The widget below this widget in the tree.
+     *
+     * {@macro flutter.widgets.child}
+     */
     val child: Widget?
 ) : RenderObjectWidget(key) {
 

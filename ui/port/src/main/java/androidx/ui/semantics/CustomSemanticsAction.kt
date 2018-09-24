@@ -1,36 +1,38 @@
 package androidx.ui.semantics
 
-// / An identifier of a custom semantics action.
-// /
-// / Custom semantics actions can be provided to make complex user
-// / interactions more accessible. For instance, if an application has a
-// / drag-and-drop list that requires the user to press and hold an item
-// / to move it, users interacting with the application using a hardware
-// / switch may have difficulty. This can be made accessible by creating custom
-// / actions and pairing them with handlers that move a list item up or down in
-// / the list.
-// /
-// / In Android, these actions are presented in the local context menu. In iOS,
-// / these are presented in the radial context menu.
-// /
-// / Localization and text direction do not automatically apply to the provided
-// / label or hint.
-// /
-// / Instances of this class should either be instantiated with const or
-// / new instances cached in static fields.
-// /
-// / See also:
-// /
-// /   * [SemanticsProperties], where the handler for a custom action is provided.
+/**
+ * An identifier of a custom semantics action.
+ *
+ * Custom semantics actions can be provided to make complex user
+ * interactions more accessible. For instance, if an application has a
+ * drag-and-drop list that requires the user to press and hold an item
+ * to move it, users interacting with the application using a hardware
+ * switch may have difficulty. This can be made accessible by creating custom
+ * actions and pairing them with handlers that move a list item up or down in
+ * the list.
+ *
+ * In Android, these actions are presented in the local context menu. In iOS,
+ * these are presented in the radial context menu.
+ *
+ * Localization and text direction do not automatically apply to the provided
+ * label or hint.
+ *
+ * Instances of this class should either be instantiated with const or
+ * new instances cached in static fields.
+ *
+ * See also:
+ *
+ *   * [SemanticsProperties], where the handler for a custom action is provided.
+ */
 // @immutable
 data class CustomSemanticsAction(
-    // / The user-readable name of this custom semantics action.
+    /** The user-readable name of this custom semantics action. */
     val label: String,
 
-    // / The hint description of this custom semantics action.
+    /** The hint description of this custom semantics action. */
     val hint: String?,
 
-    // / The standard semantics action this action replaces.
+    /** The standard semantics action this action replaces. */
     val action: SemanticsAction?
 ) {
     companion object {
@@ -40,7 +42,7 @@ data class CustomSemanticsAction(
         val _actions: MutableMap<Int, CustomSemanticsAction> = mutableMapOf()
         val _ids: MutableMap<CustomSemanticsAction, Int> = mutableMapOf()
 
-        // / Get the identifier for a given `action`.
+        /** Get the identifier for a given `action`. */
         fun getIdentifier(action: CustomSemanticsAction): Int {
             var result = _ids[action]
             if (result == null) {
@@ -51,7 +53,7 @@ data class CustomSemanticsAction(
             return result
         }
 
-        // / Get the `action` for a given identifier.
+        /** Get the `action` for a given identifier. */
         fun getAction(id: Int): CustomSemanticsAction? {
             return _actions[id]
         }

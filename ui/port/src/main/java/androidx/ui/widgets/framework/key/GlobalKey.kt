@@ -12,41 +12,45 @@ import androidx.ui.widgets.framework.StatefulWidget
 import androidx.ui.widgets.framework.Widget
 import androidx.ui.widgets.framework._ElementLifecycle
 
-// / A key that is unique across the entire app.
-// /
-// / Global keys uniquely identify elements. Global keys provide access to other
-// / objects that are associated with elements, such as the a [BuildContext] and,
-// / for [StatefulWidget]s, a [State].
-// /
-// / Widgets that have global keys reparent their subtrees when they are moved
-// / from one location in the tree to another location in the tree. In order to
-// / reparent its subtree, a widget must arrive at its new location in the tree
-// / in the same animation frame in which it was removed from its old location in
-// / the tree.
-// /
-// / Global keys are relatively expensive. If you don't need any of the features
-// / listed above, consider using a [Key], [ValueKey], [ObjectKey], or
-// / [UniqueKey] instead.
-// /
-// / You cannot simultaneously include two widgets in the tree with the same
-// / global key. Attempting to do so will assert at runtime.
-// /
-// / See also the discussion at [Widget.key].
-// /
-// / Ctor comment:
-// / Creates a global key without a label.
-// /
-// / Used by subclasses because the factory constructor shadows the implicit
-// / constructor.
+/**
+ * A key that is unique across the entire app.
+ *
+ * Global keys uniquely identify elements. Global keys provide access to other
+ * objects that are associated with elements, such as the a [BuildContext] and,
+ * for [StatefulWidget]s, a [State].
+ *
+ * Widgets that have global keys reparent their subtrees when they are moved
+ * from one location in the tree to another location in the tree. In order to
+ * reparent its subtree, a widget must arrive at its new location in the tree
+ * in the same animation frame in which it was removed from its old location in
+ * the tree.
+ *
+ * Global keys are relatively expensive. If you don't need any of the features
+ * listed above, consider using a [Key], [ValueKey], [ObjectKey], or
+ * [UniqueKey] instead.
+ *
+ * You cannot simultaneously include two widgets in the tree with the same
+ * global key. Attempting to do so will assert at runtime.
+ *
+ * See also the discussion at [Widget.key].
+ *
+ * Ctor comment:
+ * Creates a global key without a label.
+ *
+ * Used by subclasses because the factory constructor shadows the implicit
+ * constructor.
+ */
 abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
 
     companion object {
 
-        // / Creates a [LabeledGlobalKey], which is a [GlobalKey] with a label used for
-        // / debugging.
-        // /
-        // / The label is purely for debugging and not used for comparing the identity
-        // / of the key.
+        /**
+         * Creates a [LabeledGlobalKey], which is a [GlobalKey] with a label used for
+         * debugging.
+         *
+         * The label is purely for debugging and not used for comparing the identity
+         * of the key.
+         */
         fun <T : State<StatefulWidget>> withLabel(debugLabel: String): LabeledGlobalKey<T> {
             return LabeledGlobalKey(debugLabel)
         }
@@ -159,23 +163,29 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
 
     val _currentElement get() = _registry[this]
 
-    // / The build context in which the widget with this key builds.
-    // /
-    // / The current context is null if there is no widget in the tree that matches
-    // / this global key.
+    /**
+     * The build context in which the widget with this key builds.
+     *
+     * The current context is null if there is no widget in the tree that matches
+     * this global key.
+     */
     val currentContext: BuildContext get() = _currentElement as BuildContext
 
-    // / The widget in the tree that currently has this global key.
-    // /
-    // / The current widget is null if there is no widget in the tree that matches
-    // / this global key.
+    /**
+     * The widget in the tree that currently has this global key.
+     *
+     * The current widget is null if there is no widget in the tree that matches
+     * this global key.
+     */
     val currentWidget: Widget get() = _currentElement?.widget!!
 
-    // / The [State] for the widget in the tree that currently has this global key.
-    // /
-    // / The current state is null if (1) there is no widget in the tree that
-    // / matches this global key, (2) that widget is not a [StatefulWidget], or the
-    // / associated [State] object is not a subtype of `T`.
+    /**
+     * The [State] for the widget in the tree that currently has this global key.
+     *
+     * The current state is null if (1) there is no widget in the tree that
+     * matches this global key, (2) that widget is not a [StatefulWidget], or the
+     * associated [State] object is not a subtype of `T`.
+     */
     inline fun <reified T> currentState(): T? {
         val element = _currentElement
         if (element is StatefulElement) {

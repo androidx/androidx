@@ -4,25 +4,27 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import java.util.Locale
 
-// / An opaque object that determines the size, position, and rendering of text.
-// /
-// / Creates a new TextStyle object.
-// /
-// / * `color`: The color to use when painting the text. If this is specified, `foreground` must be null.
-// / * `decoration`: The decorations to paint near the text (e.g., an underline).
-// / * `decorationColor`: The color in which to paint the text decorations.
-// / * `decorationStyle`: The style in which to paint the text decorations (e.g., dashed).
-// / * `fontWeight`: The typeface thickness to use when painting the text (e.g., bold).
-// / * `fontStyle`: The typeface variant to use when drawing the letters (e.g., italics).
-// / * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
-// / * `fontSize`: The size of glyphs (in logical pixels) to use when painting the text.
-// / * `letterSpacing`: The amount of space (in logical pixels) to add between each letter.
-// / * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word).
-// / * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
-// / * `height`: The height of this text span, as a multiple of the font size.
-// / * `locale`: The locale used to select region-specific glyphs.
-// / * `background`: The paint drawn as a background for the text.
-// / * `foreground`: The paint used to draw the text. If this is specified, `color` must be null.
+/**
+ * An opaque object that determines the size, position, and rendering of text.
+ *
+ * Creates a new TextStyle object.
+ *
+ * * `color`: The color to use when painting the text. If this is specified, `foreground` must be null.
+ * * `decoration`: The decorations to paint near the text (e.g., an underline).
+ * * `decorationColor`: The color in which to paint the text decorations.
+ * * `decorationStyle`: The style in which to paint the text decorations (e.g., dashed).
+ * * `fontWeight`: The typeface thickness to use when painting the text (e.g., bold).
+ * * `fontStyle`: The typeface variant to use when drawing the letters (e.g., italics).
+ * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
+ * * `fontSize`: The size of glyphs (in logical pixels) to use when painting the text.
+ * * `letterSpacing`: The amount of space (in logical pixels) to add between each letter.
+ * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word).
+ * * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
+ * * `height`: The height of this text span, as a multiple of the font size.
+ * * `locale`: The locale used to select region-specific glyphs.
+ * * `background`: The paint drawn as a background for the text.
+ * * `foreground`: The paint used to draw the text. If this is specified, `color` must be null.
+ */
 data class TextStyle constructor(
     val color: Color? = null,
     val decoration: TextDecoration? = null,

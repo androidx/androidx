@@ -18,17 +18,21 @@ package androidx.ui.gestures.monodrag
 
 import androidx.ui.gestures.drag_details.DragEndDetails
 
-// / Signature for when a pointer that was previously in contact with the screen
-// / and moving is no longer in contact with the screen.
-// /
-// / The velocity at which the pointer was moving when it stopped contacting
-// / the screen is available in the `details`.
-// /
-// / See [DragGestureRecognizer.onEnd].
+/**
+ * Signature for when a pointer that was previously in contact with the screen
+ * and moving is no longer in contact with the screen.
+ *
+ * The velocity at which the pointer was moving when it stopped contacting
+ * the screen is available in the `details`.
+ *
+ * See [DragGestureRecognizer.onEnd].
+ */
 typealias GestureDragEndCallback = (details: DragEndDetails) -> Unit
 
-// / Signature for when the pointer that previously triggered a
-// / [GestureDragDownCallback] did not complete.
-// /
-// / See [DragGestureRecognizer.onCancel].
+/**
+ * Signature for when the pointer that previously triggered a
+ * [GestureDragDownCallback] did not complete.
+ *
+ * See [DragGestureRecognizer.onCancel].
+ */
 typealias GestureDragCancelCallback = () -> Unit

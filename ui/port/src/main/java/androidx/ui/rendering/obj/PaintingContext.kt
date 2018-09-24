@@ -327,16 +327,18 @@ class PaintingContext(
     }
 
     // TODO(Migration/andrey): needs ClipRectLayer and clipRect support on canvas
-    // / Clip further painting using a rectangle.
-    // /
-    // / * `needsCompositing` is whether the child needs compositing. Typically
-    // /   matches the value of [RenderObject.needsCompositing] for the caller.
-    // / * `offset` is the offset from the origin of the canvas' coordinate system
-    // /   to the origin of the caller's coordinate system.
-    // / * `clipRect` is rectangle (in the caller's coordinate system) to use to
-    // /   clip the painting done by [painter].
-    // / * `painter` is a callback that will paint with the [clipRect] applied. This
-    // /   function calls the [painter] synchronously.
+    /**
+     * Clip further painting using a rectangle.
+     *
+     * * `needsCompositing` is whether the child needs compositing. Typically
+     *   matches the value of [RenderObject.needsCompositing] for the caller.
+     * * `offset` is the offset from the origin of the canvas' coordinate system
+     *   to the origin of the caller's coordinate system.
+     * * `clipRect` is rectangle (in the caller's coordinate system) to use to
+     *   clip the painting done by [painter].
+     * * `painter` is a callback that will paint with the [clipRect] applied. This
+     *   function calls the [painter] synchronously.
+     */
     fun pushClipRect(
         needsCompositing: Boolean,
         offset: Offset,

@@ -1,6 +1,6 @@
 package androidx.ui.widgets.framework
 
-// / An [Element] that uses a [ProxyWidget] as its configuration.
+/** An [Element] that uses a [ProxyWidget] as its configuration. */
 abstract class ProxyElement(widget: ProxyWidget) : ComponentElement(widget) {
 
     override fun build(): Widget = (widget as ProxyWidget).child
@@ -16,9 +16,11 @@ abstract class ProxyElement(widget: ProxyWidget) : ComponentElement(widget) {
         rebuild()
     }
 
-    // / Notify other objects that the widget associated with this element has changed.
-    // /
-    // / Called during [update] after changing the widget associated with this
-    // / element but before rebuilding this element.
+    /**
+     * Notify other objects that the widget associated with this element has changed.
+     *
+     * Called during [update] after changing the widget associated with this
+     * element but before rebuilding this element.
+     */
     protected abstract fun notifyClients(oldWidget: Widget)
 }

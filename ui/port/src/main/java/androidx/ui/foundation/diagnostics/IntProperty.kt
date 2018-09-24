@@ -1,13 +1,15 @@
 package androidx.ui.foundation.diagnostics
 
-// / An int valued property with an optional unit the value is measured in.
-// /
-// / Examples of units include 'px' and 'ms'.
-// /
-// / Ctor comment:
-// / Create a diagnostics property for integers.
-// /
-// / The [showName] and [level] arguments must not be null.
+/**
+ * An int valued property with an optional unit the value is measured in.
+ *
+ * Examples of units include 'px' and 'ms'.
+ *
+ * Ctor comment:
+ * Create a diagnostics property for integers.
+ *
+ * The [showName] and [level] arguments must not be null.
+ */
 class IntProperty(
     name: String,
     value: Int?,

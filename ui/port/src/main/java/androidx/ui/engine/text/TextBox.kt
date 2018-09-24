@@ -3,39 +3,49 @@ package androidx.ui.engine.text
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.toStringAsFixed
 
-// / A rectangle enclosing a run of text.
-// /
-// / This is similar to [Rect] but includes an inherent [TextDirection].
+/**
+ * A rectangle enclosing a run of text.
+ *
+ * This is similar to [Rect] but includes an inherent [TextDirection].
+ */
 data class TextBox(
-    // / The left edge of the text box, irrespective of direction.
-    // / To get the leading edge (which may depend on the [direction]), consider [start].
+    /**
+     * The left edge of the text box, irrespective of direction.
+     * To get the leading edge (which may depend on the [direction]), consider [start].
+     */
     val left: Double,
-    // / The top edge of the text box.
+    /** The top edge of the text box. */
     val top: Double,
-    // / The right edge of the text box, irrespective of direction.
-    // / To get the trailing edge (which may depend on the [direction]), consider [end].
+    /**
+     * The right edge of the text box, irrespective of direction.
+     * To get the trailing edge (which may depend on the [direction]), consider [end].
+     */
     val right: Double,
-    // / The bottom edge of the text box.
+    /** The bottom edge of the text box. */
     val bottom: Double,
-    // / The direction in which text inside this box flows.
+    /** The direction in which text inside this box flows. */
     val direction: TextDirection
 ) {
 
-    // / Returns a rect of the same size as this box.
+    /** Returns a rect of the same size as this box. */
     fun toRect(): Rect {
         return Rect.fromLTRB(left, top, right, bottom)
     }
 
-    // / The [left] edge of the box for left-to-right text; the [right] edge of the box for right-to-left text.
-    // / See also:
-    // /  * [direction], which specifies the text direction.
+    /**
+     * The [left] edge of the box for left-to-right text; the [right] edge of the box for right-to-left text.
+     * See also:
+     *  * [direction], which specifies the text direction.
+     */
     fun start(): Double {
         return if ((direction == TextDirection.LTR)) left else right
     }
 
-    // / The [right] edge of the box for left-to-right text; the [left] edge of the box for right-to-left text.
-    // / See also:
-    // /  * [direction], which specifies the text direction.
+    /**
+     * The [right] edge of the box for left-to-right text; the [left] edge of the box for right-to-left text.
+     * See also:
+     *  * [direction], which specifies the text direction.
+     */
     fun end(): Double {
         return if ((direction == TextDirection.LTR)) right else left
     }

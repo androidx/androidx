@@ -18,10 +18,10 @@ package androidx.ui.painting
 
 import androidx.ui.engine.geometry.Size
 
-// / The pair of sizes returned by [applyBoxFit].
+/** The pair of sizes returned by [applyBoxFit]. */
 data class FittedSizes(
-        // / The size of the part of the input to show on the output.
+    /** The size of the part of the input to show on the output. */
     val source: Size,
-        // / The size of the part of the output on which to show the input.
+    /** The size of the part of the output on which to show the input. */
     val destination: Size
 )

@@ -22,13 +22,17 @@ import androidx.ui.gestures.events.PointerUpEvent
 import androidx.ui.gestures.kLongPressTimeout
 import androidx.ui.gestures.recognizer.PrimaryPointerGestureRecognizer
 
-// / Signature for when a pointer has remained in contact with the screen at the
-// / same location for a long period of time.
+/**
+ * Signature for when a pointer has remained in contact with the screen at the
+ * same location for a long period of time.
+ */
 typealias GestureLongPressCallback = () -> Unit
 
-// / Recognizes when the user has pressed down at the same location for a long
-// / period of time.
-// / Consider assigning the [onLongPress] callback after creating this object.
+/**
+ * Recognizes when the user has pressed down at the same location for a long
+ * period of time.
+ * Consider assigning the [onLongPress] callback after creating this object.
+ */
 // TODO(Migration/shepshapard): Needs tests, which rely on some Mixin stuff.
 open class LongPressGestureRecognizer(
     debugOwner: Any?
@@ -36,7 +40,7 @@ open class LongPressGestureRecognizer(
     deadline = kLongPressTimeout, debugOwner = debugOwner
 ) {
 
-    // / Called when a long-press is recognized.
+    /** Called when a long-press is recognized. */
     var onLongPress: GestureLongPressCallback? = null
 
     override fun didExceedDeadline() {

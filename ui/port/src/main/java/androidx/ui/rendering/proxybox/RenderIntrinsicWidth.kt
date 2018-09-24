@@ -21,29 +21,31 @@ import androidx.ui.foundation.diagnostics.DoubleProperty
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 
-// / Sizes its child to the child's intrinsic width.
-// /
-// / Sizes its child's width to the child's maximum intrinsic width. If
-// / [stepWidth] is non-null, the child's width will be snapped to a multiple of
-// / the [stepWidth]. Similarly, if [stepHeight] is non-null, the child's height
-// / will be snapped to a multiple of the [stepHeight].
-// /
-// / This class is useful, for example, when unlimited width is available and
-// / you would like a child that would otherwise attempt to expand infinitely to
-// / instead size itself to a more reasonable width.
-// /
-// / This class is relatively expensive, because it adds a speculative layout
-// / pass before the final layout phase. Avoid using it where possible. In the
-// / worst case, this render object can result in a layout that is O(N²) in the
-// / depth of the tree.
+/**
+ * Sizes its child to the child's intrinsic width.
+ *
+ * Sizes its child's width to the child's maximum intrinsic width. If
+ * [stepWidth] is non-null, the child's width will be snapped to a multiple of
+ * the [stepWidth]. Similarly, if [stepHeight] is non-null, the child's height
+ * will be snapped to a multiple of the [stepHeight].
+ *
+ * This class is useful, for example, when unlimited width is available and
+ * you would like a child that would otherwise attempt to expand infinitely to
+ * instead size itself to a more reasonable width.
+ *
+ * This class is relatively expensive, because it adds a speculative layout
+ * pass before the final layout phase. Avoid using it where possible. In the
+ * worst case, this render object can result in a layout that is O(N²) in the
+ * depth of the tree.
+ */
 class RenderIntrinsicWidth(
     private var _stepWidth: Double? = null,
     private var _stepHeight: Double? = null,
     child: RenderBox? = null
 ) : RenderProxyBox(child) {
-    // / Creates a render object that sizes itself to its child's intrinsic width.
+/** Creates a render object that sizes itself to its child's intrinsic width. */
 
-    // / If non-null, force the child's width to be a multiple of this value.
+    /** If non-null, force the child's width to be a multiple of this value. */
     var stepWidth: Double?
         get() { return _stepWidth }
     set(value) {
@@ -53,7 +55,7 @@ class RenderIntrinsicWidth(
         markNeedsLayout()
     }
 
-    // / If non-null, force the child's height to be a multiple of this value.
+    /** If non-null, force the child's height to be a multiple of this value. */
     var stepHeight: Double?
         get() { return _stepHeight }
         set(value) {

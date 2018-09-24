@@ -21,8 +21,10 @@ import androidx.ui.rendering.box.BoxParentData
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
 
-// / Abstract class for one-child-layout render boxes that provide control over
-// / the child's position.
+/**
+ * Abstract class for one-child-layout render boxes that provide control over
+ * the child's position.
+ */
 abstract class RenderShiftedBox(
     child: RenderBox?
 ) : RenderBox() /*with RenderObjectWithChildMixin<RenderBox>*/ {

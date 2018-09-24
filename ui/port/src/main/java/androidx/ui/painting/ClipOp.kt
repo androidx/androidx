@@ -16,14 +16,16 @@
 
 package androidx.ui.painting
 
-// / Defines how a new clip region should be merged with the existing clip
-// / region.
-// /
-// / Used by [Canvas.clipRect].
+/**
+ * Defines how a new clip region should be merged with the existing clip
+ * region.
+ *
+ * Used by [Canvas.clipRect].
+ */
 enum class ClipOp {
-    // / Subtract the new region from the existing region.
+    /** Subtract the new region from the existing region. */
     difference,
 
-    // / Intersect the new region from the existing region.
+    /** Intersect the new region from the existing region. */
     intersect
 }

@@ -67,18 +67,20 @@ internal val renderer: TestRenderingFlutterBinding get() {
     return _renderer!!
 }
 
-// / Place the box in the render tree, at the given size and with the given
-// / alignment on the screen.
-// /
-// / If you've updated `box` and want to lay it out again, use [pumpFrame].
-// /
-// / Once a particular [RenderBox] has been passed to [layout], it cannot easily
-// / be put in a different place in the tree or passed to [layout] again, because
-// / [layout] places the given object into another [RenderBox] which you would
-// / need to unparent it from (but that box isn't itself made available).
-// /
-// / The EnginePhase must not be [EnginePhase.build], since the rendering layer
-// / has no build phase.
+/**
+ * Place the box in the render tree, at the given size and with the given
+ * alignment on the screen.
+ *
+ * If you've updated `box` and want to lay it out again, use [pumpFrame].
+ *
+ * Once a particular [RenderBox] has been passed to [layout], it cannot easily
+ * be put in a different place in the tree or passed to [layout] again, because
+ * [layout] places the given object into another [RenderBox] which you would
+ * need to unparent it from (but that box isn't itself made available).
+ *
+ * The EnginePhase must not be [EnginePhase.build], since the rendering layer
+ * has no build phase.
+ */
 internal fun layout(
     box: RenderBox,
     constraints: BoxConstraints? = null,
