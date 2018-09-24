@@ -26,6 +26,7 @@ import java.util.ArrayList;
 @SuppressWarnings("BanParcelableUsage")
 final class BackStackState implements Parcelable {
     final int[] mOps;
+    final ArrayList<String> mFragmentWhos;
     final int mTransition;
     final int mTransitionStyle;
     final String mName;
@@ -40,17 +41,18 @@ final class BackStackState implements Parcelable {
 
     public BackStackState(BackStackRecord bse) {
         final int numOps = bse.mOps.size();
-        mOps = new int[numOps * 6];
+        mOps = new int[numOps * 5];
 
         if (!bse.mAddToBackStack) {
             throw new IllegalStateException("Not on back stack");
         }
 
+        mFragmentWhos = new ArrayList<>(numOps);
         int pos = 0;
         for (int opNum = 0; opNum < numOps; opNum++) {
             final BackStackRecord.Op op = bse.mOps.get(opNum);
             mOps[pos++] = op.cmd;
-            mOps[pos++] = op.fragment != null ? op.fragment.mIndex : -1;
+            mFragmentWhos.add(op.fragment.mWho);
             mOps[pos++] = op.enterAnim;
             mOps[pos++] = op.exitAnim;
             mOps[pos++] = op.popEnterAnim;
@@ -71,6 +73,7 @@ final class BackStackState implements Parcelable {
 
     public BackStackState(Parcel in) {
         mOps = in.createIntArray();
+        mFragmentWhos = in.createStringArrayList();
         mTransition = in.readInt();
         mTransitionStyle = in.readInt();
         mName = in.readString();
@@ -93,9 +96,9 @@ final class BackStackState implements Parcelable {
             op.cmd = mOps[pos++];
             if (FragmentManagerImpl.DEBUG) Log.v(FragmentManagerImpl.TAG,
                     "Instantiate " + bse + " op #" + num + " base fragment #" + mOps[pos]);
-            int findex = mOps[pos++];
-            if (findex >= 0) {
-                Fragment f = fm.mActive.get(findex);
+            String fWho = mFragmentWhos.get(num);
+            if (fWho != null) {
+                Fragment f = fm.mActive.get(fWho);
                 op.fragment = f;
             } else {
                 op.fragment = null;
