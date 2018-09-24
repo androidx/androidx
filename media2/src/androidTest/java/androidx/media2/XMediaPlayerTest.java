@@ -22,6 +22,7 @@ import static junit.framework.TestCase.assertFalse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1118,6 +1119,21 @@ public class XMediaPlayerTest {
 
         // Tests whether the notification from the player after the close() doesn't crash.
         Thread.sleep(SLEEP_TIME);
+    }
+
+    @Test
+    @LargeTest
+    public void testReset() throws Exception {
+        assertTrue(loadResource(R.raw.testmp3_2));
+        AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                .build();
+        mPlayer.setAudioAttributes(attributes);
+
+        mPlayer.reset();
+
+        assertNull(mPlayer.getAudioAttributes());
+        assertNull(mPlayer.getCurrentMediaItem());
     }
 
     private boolean loadResource(int resid) throws Exception {

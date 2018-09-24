@@ -3150,4 +3150,20 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         // Tests whether the notification from the player after the close() doesn't crash.
         Thread.sleep(SLEEP_TIME);
     }
+
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void testReset() throws Exception {
+        assertTrue(loadResource(R.raw.testmp3_2));
+        AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                .build();
+        mPlayer.setAudioAttributes(attributes);
+
+        mPlayer.reset();
+
+        assertNull(mPlayer.getAudioAttributes());
+        assertNull(mPlayer.getCurrentMediaItem());
+    }
 }
