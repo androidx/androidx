@@ -173,6 +173,7 @@ limitations under the License.
         <item name="dialogListTheme">@style/Theme.Car.List</item>
         <item name="dialogTitleStyle">@style/Widget.Car.Dialog.Title</item>
         <item name="dialogBodyStyle">@style/Widget.Car.Dialog.Body</item>
+        <item name="android:windowAnimationStyle">@style/Car.Dialog.Animation</item>
     </style>
 
     <!-- Styling for dialogs provided by the car support library that is fixed in a dark-color. -->
@@ -213,6 +214,7 @@ limitations under the License.
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="listDividerAlertDialog">@drawable/car_preference_divider</item>
+        <item name="android:windowAnimationStyle">@style/Car.Dialog.Animation</item>
     </style>
 
     <!-- Style for framework and the Appcompat AlertDialog that is fixed to have a light colored
@@ -231,6 +233,12 @@ limitations under the License.
         <item name="android:listDividerAlertDialog">@drawable/car_list_divider_light</item>
         <item name="android:textColorPrimary">@color/car_body2_light</item>
         <item name="android:windowTitleStyle">@style/Widget.Car.Dialog.Title.Light</item>
+    </style>
+
+    <!-- Style for the Dialog animations -->
+    <style name="Car.Dialog.Animation" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/car_dialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/car_dialog_exit</item>
     </style>
 
     <!-- =========== -->
