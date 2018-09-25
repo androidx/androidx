@@ -168,7 +168,7 @@ public class ActionListItemTest {
     }
 
     @Test
-    public void testSingleActionButtonVisibility_withDividers() {
+    public void testSingleActionButtonVisibility_withDividers_Borderless() {
         ActionListItem item = new ActionListItem(mActivity);
         item.setAction("text", /* showDivider= */ true, v -> { /* Do nothing. */ });
 
@@ -176,12 +176,33 @@ public class ActionListItemTest {
         setupPagedListView(items);
 
         ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getBorderlessPrimaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getBorderedPrimaryAction().getVisibility(), is(equalTo(View.GONE)));
         assertThat(viewHolder.getPrimaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getPrimaryActionDivider().getVisibility(), is(equalTo(View.VISIBLE)));
     }
 
     @Test
-    public void testTwoActionButtonsVisibility_withDividers() {
+    public void testSingleActionButtonVisibility_withDividers() {
+        ActionListItem item = new ActionListItem(mActivity);
+        item.setAction("text", /* showDivider= */ true, v -> { /* Do nothing. */ });
+        item.setActionBorderless(false);
+
+        List<ActionListItem> items = Arrays.asList(item);
+        setupPagedListView(items);
+
+        ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getBorderlessPrimaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
+        assertThat(viewHolder.getBorderedPrimaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getPrimaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getPrimaryActionDivider().getVisibility(), is(equalTo(View.VISIBLE)));
+    }
+
+    @Test
+    public void testTwoActionButtonsVisibility_withDividers_Borderless() {
         ActionListItem item = new ActionListItem(mActivity);
         item.setActions("text", /* showDivider= */ true, v -> { /* Do nothing. */ },
                 "text", /* showDivider= */ true, v -> { /* Do nothing. */ });
@@ -190,15 +211,48 @@ public class ActionListItemTest {
         setupPagedListView(items);
 
         ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getBorderlessPrimaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getBorderedPrimaryAction().getVisibility(), is(equalTo(View.GONE)));
         assertThat(viewHolder.getPrimaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getPrimaryActionDivider().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSecondaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getBorderlessSecondaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getBorderedSecondaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
         assertThat(viewHolder.getSecondaryActionDivider().getVisibility(),
                 is(equalTo(View.VISIBLE)));
     }
 
     @Test
-    public void testSingleActionButtonVisibility_noDividers() {
+    public void testTwoActionButtonsVisibility_withDividers() {
+        ActionListItem item = new ActionListItem(mActivity);
+        item.setActions("text", /* showDivider= */ true, v -> { /* Do nothing. */ },
+                "text", /* showDivider= */ true, v -> { /* Do nothing. */ });
+        item.setActionBorderless(false);
+
+        List<ActionListItem> items = Arrays.asList(item);
+        setupPagedListView(items);
+
+        ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getBorderlessPrimaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
+        assertThat(viewHolder.getBorderedPrimaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getPrimaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getPrimaryActionDivider().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getSecondaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getBorderlessSecondaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
+        assertThat(viewHolder.getBorderedSecondaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getSecondaryActionDivider().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+    }
+
+    @Test
+    public void testSingleActionButtonVisibility_noDividers_Borderless() {
         ActionListItem item = new ActionListItem(mActivity);
         item.setAction("text", /* showDivider= */ false, v -> { /* Do nothing. */ });
 
@@ -206,12 +260,34 @@ public class ActionListItemTest {
         setupPagedListView(items);
 
         ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getBorderlessPrimaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getBorderedPrimaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
         assertThat(viewHolder.getPrimaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getPrimaryActionDivider().getVisibility(), is(equalTo(View.GONE)));
     }
 
     @Test
-    public void testTwoActionButtonsVisibility_noDividers() {
+    public void testSingleActionButtonVisibility_noDividers() {
+        ActionListItem item = new ActionListItem(mActivity);
+        item.setAction("text", /* showDivider= */ false, v -> { /* Do nothing. */ });
+        item.setActionBorderless(false);
+
+        List<ActionListItem> items = Arrays.asList(item);
+        setupPagedListView(items);
+
+        ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getBorderlessPrimaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
+        assertThat(viewHolder.getBorderedPrimaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getPrimaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getPrimaryActionDivider().getVisibility(), is(equalTo(View.GONE)));
+    }
+
+    @Test
+    public void testTwoActionButtonsVisibility_noDividers_Borderless() {
         ActionListItem item = new ActionListItem(mActivity);
         item.setActions("text", /* showDivider= */ false, v -> { /* Do nothing. */ },
                 "text", /* showDivider= */ false, v -> { /* Do nothing. */ });
@@ -220,8 +296,41 @@ public class ActionListItemTest {
         setupPagedListView(items);
 
         ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getBorderlessPrimaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getBorderedPrimaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
         assertThat(viewHolder.getPrimaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getPrimaryActionDivider().getVisibility(), is(equalTo(View.GONE)));
+        assertThat(viewHolder.getBorderlessSecondaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getBorderedSecondaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
+        assertThat(viewHolder.getSecondaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getSecondaryActionDivider().getVisibility(), is(equalTo(View.GONE)));
+    }
+
+    @Test
+    public void testTwoActionButtonsVisibility_noDividers() {
+        ActionListItem item = new ActionListItem(mActivity);
+        item.setActions("text", /* showDivider= */ false, v -> { /* Do nothing. */ },
+                "text", /* showDivider= */ false, v -> { /* Do nothing. */ });
+        item.setActionBorderless(false);
+
+        List<ActionListItem> items = Arrays.asList(item);
+        setupPagedListView(items);
+
+        ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getBorderlessPrimaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
+        assertThat(viewHolder.getBorderedPrimaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getPrimaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getPrimaryActionDivider().getVisibility(), is(equalTo(View.GONE)));
+        assertThat(viewHolder.getBorderlessSecondaryAction().getVisibility(),
+                is(equalTo(View.GONE)));
+        assertThat(viewHolder.getBorderedSecondaryAction().getVisibility(),
+                is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSecondaryAction().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSecondaryActionDivider().getVisibility(), is(equalTo(View.GONE)));
     }
@@ -483,11 +592,27 @@ public class ActionListItemTest {
     }
 
     @Test
+    public void testClickingSupplementalAction_Borderless() {
+        final boolean[] clicked = {false};
+
+        ActionListItem item0 = new ActionListItem(mActivity);
+        item0.setAction("action", /* showDivider= */ true, v -> clicked[0] = true);
+
+        List<ActionListItem> items = Arrays.asList(item0);
+        setupPagedListView(items);
+
+        onView(withId(R.id.recycler_view)).perform(
+                actionOnItemAtPosition(0, clickChildViewWithId(R.id.primary_action_borderless)));
+        assertTrue(clicked[0]);
+    }
+
+    @Test
     public void testClickingSupplementalAction() {
         final boolean[] clicked = {false};
 
         ActionListItem item0 = new ActionListItem(mActivity);
         item0.setAction("action", /* showDivider= */ true, v -> clicked[0] = true);
+        item0.setActionBorderless(false);
 
         List<ActionListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
@@ -498,12 +623,34 @@ public class ActionListItemTest {
     }
 
     @Test
+    public void testClickingBothSupplementalActions_Borderless() {
+        final boolean[] clicked = {false, false};
+
+        ActionListItem item0 = new ActionListItem(mActivity);
+        item0.setActions("action 1", /* showDivider= */ true, v -> clicked[0] = true,
+                "action 2", /* showDivider= */ true, v -> clicked[1] = true);
+
+        List<ActionListItem> items = Arrays.asList(item0);
+        setupPagedListView(items);
+
+        onView(withId(R.id.recycler_view)).perform(
+                actionOnItemAtPosition(0, clickChildViewWithId(R.id.primary_action_borderless)));
+        assertTrue(clicked[0]);
+        assertFalse(clicked[1]);
+
+        onView(withId(R.id.recycler_view)).perform(
+                actionOnItemAtPosition(0, clickChildViewWithId(R.id.secondary_action_borderless)));
+        assertTrue(clicked[1]);
+    }
+
+    @Test
     public void testClickingBothSupplementalActions() {
         final boolean[] clicked = {false, false};
 
         ActionListItem item0 = new ActionListItem(mActivity);
         item0.setActions("action 1", /* showDivider= */ true, v -> clicked[0] = true,
                 "action 2", /* showDivider= */ true, v -> clicked[1] = true);
+        item0.setActionBorderless(false);
 
         List<ActionListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
