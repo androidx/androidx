@@ -83,15 +83,13 @@ class Processor private constructor(
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
             useFallbackIfTypeIsMissing: Boolean = true,
-            versionSetName: String? = null,
             dataBindingVersion: String? = null
         ): Processor {
             var newConfig = config
 
             val versionsMap = DependencyVersions
                 .parseFromVersionSetTypeId(
-                    versionsMap = config.versionsMap,
-                    versionSetType = versionSetName
+                    versionsMap = config.versionsMap
                 )
                 .replaceVersionIfAny(
                     forVariable = DependencyVersions.DATA_BINDING_VAR_NAME,
