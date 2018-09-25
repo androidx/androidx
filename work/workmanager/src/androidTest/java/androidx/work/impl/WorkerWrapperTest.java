@@ -42,6 +42,7 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
@@ -68,6 +69,7 @@ import androidx.work.worker.ExceptionWorker;
 import androidx.work.worker.FailureWorker;
 import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.InterruptionAwareWorker;
+import androidx.work.worker.LatchWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
@@ -104,6 +106,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
+                .setMinimumLoggingLevel(Log.VERBOSE)
                 .build();
         mWorkTaskExecutor = new InstantWorkTaskExecutor();
         mWorkSpecDao = spy(mDatabase.workSpecDao());
@@ -784,6 +787,45 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.interrupt(false);
         Thread.sleep(6000L);
         assertThat(listener.mResult, is(true));
+    }
+
+    @Test
+    @LargeTest
+    public void testPruneWhileRunning_callsSchedulerCancel() throws InterruptedException {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(LatchWorker.class).build();
+        insertWork(work);
+
+        LatchWorker latchWorker = (LatchWorker) mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
+                LatchWorker.class.getName(),
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
+                        work.getTags(),
+                        new WorkerParameters.RuntimeExtras(),
+                        1,
+                        Executors.newSingleThreadExecutor(),
+                        mConfiguration.getWorkerFactory()));
+
+        WorkerWrapper workerWrapper =
+                createBuilder(work.getStringId())
+                        .withSchedulers(Collections.singletonList(mMockScheduler))
+                        .withWorker(latchWorker)
+                        .build();
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        Executors.newSingleThreadExecutor().submit(workerWrapper);
+
+        Thread.sleep(1000L);
+
+        mDatabase.workSpecDao().delete(work.getStringId());
+        assertThat(latchWorker.mLatch.getCount(), is(greaterThan(0L)));
+
+        latchWorker.mLatch.countDown();
+
+        Thread.sleep(1000L);
+
+        assertThat(listener.mResult, is(notNullValue()));
+        verify(mMockScheduler, times(1)).cancel(work.getStringId());
     }
 
     @Test
