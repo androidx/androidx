@@ -65,6 +65,7 @@ public abstract class NonBlockingWorker {
      * @deprecated Use {@link #NonBlockingWorker(Context, WorkerParameters)} instead
      */
     @Deprecated
+    @Keep
     public NonBlockingWorker() {
     }
 
@@ -72,6 +73,7 @@ public abstract class NonBlockingWorker {
      * @param appContext The application {@link Context}
      * @param workerParams Parameters to setup the internal state of this worker
      */
+    @Keep
     public NonBlockingWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
         mAppContext = appContext;
         mWorkerParams = workerParams;

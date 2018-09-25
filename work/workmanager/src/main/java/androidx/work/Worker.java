@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.content.Context;
+import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
@@ -68,10 +69,12 @@ public abstract class Worker extends NonBlockingWorker {
      * @deprecated Use {@link #Worker(Context, WorkerParameters)} instead
      */
     @Deprecated
+    @Keep
     public Worker() {
         super();
     }
 
+    @Keep
     public Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
