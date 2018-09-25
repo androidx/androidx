@@ -32,7 +32,6 @@ import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 import android.support.v4.util.Pair;
 
-import androidx.concurrent.futures.SettableFuture;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
@@ -48,6 +47,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.PackageManagerHelper;
+import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
