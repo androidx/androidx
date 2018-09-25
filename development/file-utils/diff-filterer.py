@@ -20,13 +20,16 @@ import datetime, os, shutil, subprocess, sys
 from collections import OrderedDict
 
 def usage():
-  print("""Usage: diff-filterer.py [--assume-no-side-effects] <passingPath> <failingPath> <shellCommand>
+  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--try-fail] <passingPath> <failingPath> <shellCommand>
 
 diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <failingPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
 
 OPTIONS
   --assume-no-side-effects
     Assume that the given shell command does not make any (relevant) changes to the given directory, and therefore don't wipe and repopulate the directory before each invocation of the command
+  --try-fail
+    Invert the success/fail status of <shellCommand> and swap <passingPath> and <failingPath>
+    That is, instead of trying to transform <passingPath> into <failingPath>, try to transform <failingPath> into <passingPath>
 """)
   sys.exit(1)
 
@@ -253,7 +256,7 @@ def filesStateFromTree(rootPath):
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
 class DiffRunner(object):
-  def __init__(self, failingPath, passingPath, shellCommand, tempPath, assumeNoSideEffects):
+  def __init__(self, failingPath, passingPath, shellCommand, tempPath, assumeNoSideEffects, tryFail):
     # some simple params
     self.tempPath = tempPath
     self.workPath = fileIo.join(tempPath, "work")
@@ -262,6 +265,7 @@ class DiffRunner(object):
     self.originalPassingPath = os.path.abspath(passingPath)
     self.originalFailingPath = os.path.abspath(failingPath)
     self.assumeNoSideEffects = assumeNoSideEffects
+    self.tryFail = tryFail
 
     # lists of all the files under the two dirs
     print("Finding files in " + passingPath)
@@ -282,7 +286,8 @@ class DiffRunner(object):
   def test(self, filesState):
     #print("Applying state: " + str(filesState) + " to " + self.workPath)
     filesState.apply(self.workPath)
-    return (self.shellCommand.process(self.workPath) == 0)
+    commandSucceeded = (self.shellCommand.process(self.workPath) == 0)
+    return (commandSucceeded != self.tryFail)
 
   def run(self):
     print("Testing that given failing state actually fails")
@@ -377,9 +382,18 @@ def main(args):
   if len(args) < 3:
     usage()
   assumeNoSideEffects = False
-  if args[0] == "--assume-no-side-effects":
-    assumeNoSideEffects = True
-    args = args[1:]
+  tryFail = False
+  while True:
+    arg = args[0]
+    if arg == "--assume-no-side-effects":
+      assumeNoSideEffects = True
+      args = args[1:]
+      continue
+    if arg == "--try-fail":
+      tryFail = True
+      args = args[1:]
+      continue
+    break
   if len(args) != 3:
     usage()
   passingPath = args[0]
@@ -387,7 +401,11 @@ def main(args):
   shellCommand = ShellScript(args[2])
   tempPath = "/tmp/diff-filterer"
   startTime = datetime.datetime.now()
-  success = DiffRunner(failingPath, passingPath, shellCommand, tempPath, assumeNoSideEffects).run()
+  if tryFail:
+    temp = passingPath
+    passingPath = failingPath
+    failingPath = temp
+  success = DiffRunner(failingPath, passingPath, shellCommand, tempPath, assumeNoSideEffects, tryFail).run()
   endTime = datetime.datetime.now()
   duration = endTime - startTime
   if success:
