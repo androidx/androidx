@@ -3135,6 +3135,98 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void testCancelPendingCommands() throws Exception {
+        final Monitor readRequested = new Monitor();
+        final Monitor readAllowed = new Monitor();
+        DataSourceCallback2 dataSource = new DataSourceCallback2() {
+            TestDataSourceCallback2 mTestSource = TestDataSourceCallback2.fromAssetFd(
+                    mResources.openRawResourceFd(R.raw.testmp3));
+            @Override
+            public int readAt(long position, byte[] buffer, int offset, int size)
+                    throws IOException {
+                try {
+                    readRequested.signal();
+                    readAllowed.waitForSignal();
+                } catch (InterruptedException e) {
+                    fail();
+                }
+                return mTestSource.readAt(position, buffer, offset, size);
+            }
+
+            @Override
+            public long getSize() throws IOException {
+                return mTestSource.getSize();
+            }
+
+            @Override
+            public void close() throws IOException {
+                mTestSource.close();
+            }
+        };
+        final ArrayList<Integer> commandsCompleted = new ArrayList<>();
+        setOnErrorListener();
+        final Monitor labelReached = new Monitor();
+        MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
+            @Override
+            public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
+                if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
+                    mOnPrepareCalled.signal();
+                }
+            }
+
+            @Override
+            public void onCallCompleted(
+                    MediaPlayer2 mp, MediaItem2 item, int what, int status) {
+                commandsCompleted.add(what);
+            }
+
+            @Override
+            public void onError(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
+                mOnErrorCalled.signal();
+            }
+
+            @Override
+            public void onCommandLabelReached(MediaPlayer2 mp, Object label) {
+                labelReached.signal();
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        mOnPrepareCalled.reset();
+        mOnErrorCalled.reset();
+
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
+
+        // prepare() will be pending until readAllowed is signaled.
+        mPlayer.prepare();
+
+        Object playToken = mPlayer._play();
+        Object seekToken = mPlayer._seekTo(1000);
+        mPlayer.pause();
+
+        readRequested.waitForSignal();
+
+        // Cancel the pending commands while preparation is on hold.
+        mPlayer.cancel(playToken);
+        mPlayer.cancel(seekToken);
+
+        // Make the on-going prepare operation fail and check the results.
+        readAllowed.signal();
+        mPlayer.notifyWhenCommandLabelReached(new Object());
+        labelReached.waitForSignal();
+
+        assertEquals(3, commandsCompleted.size());
+        assertEquals(MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE, (int) commandsCompleted.get(0));
+        assertEquals(MediaPlayer2.CALL_COMPLETED_PREPARE, (int) commandsCompleted.get(1));
+        assertEquals(MediaPlayer2.CALL_COMPLETED_PAUSE, (int) commandsCompleted.get(2));
+        assertEquals(0, mOnErrorCalled.getNumSignal());
+    }
+
+    @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     public void testClose() throws Exception {
