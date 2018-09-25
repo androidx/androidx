@@ -41,6 +41,7 @@ import androidx.core.content.ContextCompat;
 /** A custom view to provide list scroll behaviour -- up/down buttons and scroll indicator. */
 public class PagedScrollBarView extends ViewGroup {
     private static final float BUTTON_DISABLED_ALPHA = 0.2f;
+    private static final int SCROLL_TRANSLATION_ANIM_DURATION_MS = 200;
 
     /** Listener for when the list should paginate. */
     public interface PaginationListener {
@@ -211,7 +212,6 @@ public class PagedScrollBarView extends ViewGroup {
         }
 
         int thumbLength = calculateScrollThumbLength(range, extent);
-        int thumbOffset = calculateScrollThumbOffset(range, offset, thumbLength);
 
         // Sets the size of the thumb and request a redraw if needed.
         ViewGroup.LayoutParams lp = mScrollThumb.getLayoutParams();
@@ -221,7 +221,8 @@ public class PagedScrollBarView extends ViewGroup {
             mScrollThumb.requestLayout();
         }
 
-        moveY(mScrollThumb, thumbOffset, animate);
+        int thumbOffset = calculateScrollThumbOffset(range, offset, thumbLength);
+        moveTranslationY(mScrollThumb, thumbOffset, animate);
     }
 
     /**
@@ -245,7 +246,6 @@ public class PagedScrollBarView extends ViewGroup {
         }
 
         int thumbLength = calculateScrollThumbLength(range, extent);
-        int thumbOffset = calculateScrollThumbOffset(range, offset, thumbLength);
 
         // Sets the size of the thumb and request a redraw if needed.
         ViewGroup.LayoutParams lp = mScrollThumb.getLayoutParams();
@@ -255,7 +255,8 @@ public class PagedScrollBarView extends ViewGroup {
             measureAndLayoutScrollThumb();
         }
 
-        mScrollThumb.setY(thumbOffset);
+        int thumbOffset = calculateScrollThumbOffset(range, offset, thumbLength);
+        moveTranslationY(mScrollThumb, thumbOffset, /* animate= */ false);
     }
 
     /**
@@ -468,23 +469,21 @@ public class PagedScrollBarView extends ViewGroup {
      * @param  offset The amount the scroll bar should be offset, expressed in the same units as
      *                the given range.
      * @param  thumbLength The current length of the thumb in pixels.
-     * @return The amount the thumb should be offset in pixels.
+     * @return The amount the thumb should be offset from its current to position in pixels.
      */
     private int calculateScrollThumbOffset(int range, int offset, int thumbLength) {
         // Ensure that if the user has reached the bottom of the list, then the scroll bar is
         // aligned to the bottom as well. Otherwise, scale the offset appropriately.
-        // This offset will be a value relative to the parent of this scrollbar, so start by where
-        // the top of mScrollThumb is.
-        return mScrollThumb.getTop() + (isDownEnabled()
+        return isDownEnabled()
                 ? Math.round(((float) offset / range) * mScrollThumbTrackHeight)
-                : mScrollThumbTrackHeight - thumbLength);
+                : mScrollThumbTrackHeight - thumbLength;
     }
 
-    /** Moves the given view to the specified 'y' position. */
-    private void moveY(final View view, float newPosition, boolean animate) {
-        final int duration = animate ? 200 : 0;
+    /** Moves the given view's translationY to the specified position. */
+    private void moveTranslationY(View view, float translationY, boolean animate) {
+        int duration = animate ? SCROLL_TRANSLATION_ANIM_DURATION_MS : 0;
         view.animate()
-                .y(newPosition)
+                .translationY(translationY)
                 .setDuration(duration)
                 .setInterpolator(mPaginationInterpolator)
                 .start();
