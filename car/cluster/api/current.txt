@@ -4,7 +4,7 @@ package androidx.car.cluster.navigation {
     method public java.lang.String getAddress();
     method public androidx.car.cluster.navigation.Distance getDistance();
     method public java.time.ZonedDateTime getEta();
-    method public android.location.Location getLocation();
+    method public androidx.car.cluster.navigation.LatLng getLocation();
     method public java.lang.String getTitle();
   }
 
@@ -14,7 +14,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.Destination.Builder setAddress(java.lang.String);
     method public androidx.car.cluster.navigation.Destination.Builder setDistance(androidx.car.cluster.navigation.Distance);
     method public androidx.car.cluster.navigation.Destination.Builder setEta(java.time.ZonedDateTime);
-    method public androidx.car.cluster.navigation.Destination.Builder setLocation(android.location.Location);
+    method public androidx.car.cluster.navigation.Destination.Builder setLocation(androidx.car.cluster.navigation.LatLng);
     method public androidx.car.cluster.navigation.Destination.Builder setTitle(java.lang.String);
   }
 
@@ -71,6 +71,12 @@ package androidx.car.cluster.navigation {
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape UNKNOWN;
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape U_TURN_LEFT;
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape U_TURN_RIGHT;
+  }
+
+  public final class LatLng implements androidx.versionedparcelable.VersionedParcelable {
+    ctor public LatLng(double, double);
+    method public double getLatitude();
+    method public double getLongitude();
   }
 
   public final class Maneuver implements androidx.versionedparcelable.VersionedParcelable {
