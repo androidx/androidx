@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1252,6 +1253,50 @@ public class FragmentLifecycleTest {
         assertFalse(fragment.onCreateCalled);
     }
 
+    /**
+     * A retained instance fragment added via XML should go through onCreate() once, but should get
+     * onInflate calls for each inflation.
+     */
+    @Test
+    @UiThreadTest
+    public void retainInstanceLayoutOnInflate() throws Throwable {
+        FragmentController fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        RetainedInflatedParentFragment parentFragment = new RetainedInflatedParentFragment();
+
+        fm.beginTransaction()
+                .add(android.R.id.content, parentFragment)
+                .commit();
+        fm.executePendingTransactions();
+
+        RetainedInflatedChildFragment childFragment = (RetainedInflatedChildFragment)
+                parentFragment.getChildFragmentManager().findFragmentById(R.id.child_fragment);
+
+        fm.beginTransaction()
+                .remove(parentFragment)
+                .addToBackStack(null)
+                .commit();
+
+        Pair<Parcelable, FragmentManagerNonConfig> savedState =
+                FragmentTestUtil.destroy(mActivityRule, fc);
+
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, savedState);
+        fm = fc.getSupportFragmentManager();
+
+        fm.popBackStackImmediate();
+
+        parentFragment = (RetainedInflatedParentFragment) fm.findFragmentById(android.R.id.content);
+        RetainedInflatedChildFragment childFragment2 = (RetainedInflatedChildFragment)
+                parentFragment.getChildFragmentManager().findFragmentById(R.id.child_fragment);
+
+        assertEquals("Child Fragment should be retained", childFragment, childFragment2);
+        assertEquals("Child Fragment should have onInflate called twice",
+                2, childFragment2.mOnInflateCount);
+    }
+
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
             int popExit) {
         FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
@@ -1610,6 +1655,41 @@ public class FragmentLifecycleTest {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             onCreateCalled = true;
+        }
+    }
+
+    public static class RetainedInflatedParentFragment extends Fragment {
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.nested_retained_inflated_fragment_parent, container,
+                    false);
+        }
+    }
+
+    public static class RetainedInflatedChildFragment extends Fragment {
+
+        int mOnInflateCount = 0;
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setRetainInstance(true);
+        }
+
+        @Override
+        public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs,
+                @Nullable Bundle savedInstanceState) {
+            super.onInflate(context, attrs, savedInstanceState);
+            mOnInflateCount++;
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.nested_inflated_fragment_child, container, false);
         }
     }
 }
