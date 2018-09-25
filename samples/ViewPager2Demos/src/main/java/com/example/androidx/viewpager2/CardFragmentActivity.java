@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.adapter.FragmentProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.androidx.viewpager2.cards.Card;
@@ -44,18 +43,17 @@ public class CardFragmentActivity extends BaseCardActivity {
         super.onCreate(bundle);
 
         mViewPager.setAdapter(
-                new FragmentStateAdapter(getSupportFragmentManager(),
-                        new FragmentProvider() {
-                            @Override
-                            public Fragment getItem(int position) {
-                                return CardFragment.create(sCards.get(position));
-                            }
+                new FragmentStateAdapter(getSupportFragmentManager()) {
+                    @Override
+                    public Fragment getItem(int position) {
+                        return CardFragment.create(sCards.get(position));
+                    }
 
-                            @Override
-                            public int getCount() {
-                                return sCards.size();
-                            }
-                        }));
+                    @Override
+                    public int getItemCount() {
+                        return sCards.size();
+                    }
+                });
     }
 
     /** {@inheritDoc} */

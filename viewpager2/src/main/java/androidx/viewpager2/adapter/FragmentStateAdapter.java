@@ -47,20 +47,22 @@ import java.util.List;
  * {@link Fragment}.
  * </ul>
  */
-public class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
+public abstract class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
     private final List<Fragment> mFragments = new ArrayList<>();
 
     private final List<Fragment.SavedState> mSavedStates = new ArrayList<>();
     // TODO: handle current item's menuVisibility userVisibleHint as FragmentStatePagerAdapter
 
     private final FragmentManager mFragmentManager;
-    private final FragmentProvider mFragmentProvider;
 
-    public FragmentStateAdapter(FragmentManager fragmentManager,
-            FragmentProvider fragmentProvider) {
-        this.mFragmentManager = fragmentManager;
-        this.mFragmentProvider = fragmentProvider;
+    public FragmentStateAdapter(FragmentManager fragmentManager) {
+        mFragmentManager = fragmentManager;
     }
+
+    /**
+     * Return the Fragment associated with a specified position.
+     */
+    public abstract Fragment getItem(int position);
 
     @NonNull
     @Override
@@ -82,7 +84,7 @@ public class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolde
     }
 
     private Fragment getFragment(int position) {
-        Fragment fragment = mFragmentProvider.getItem(position);
+        Fragment fragment = getItem(position);
         if (mSavedStates.size() > position) {
             Fragment.SavedState savedState = mSavedStates.get(position);
             if (savedState != null) {
@@ -103,11 +105,6 @@ public class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolde
         }
         mFragmentManager.beginTransaction().add(holder.getContainer().getId(),
                 holder.mFragment).commitNowAllowingStateLoss();
-    }
-
-    @Override
-    public int getItemCount() {
-        return mFragmentProvider.getCount();
     }
 
     @Override

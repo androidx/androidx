@@ -22,15 +22,11 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.adapter.FragmentProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FragmentAdapterActivity extends BaseActivity {
-    private static final Random RANDOM = new Random();
-
     private AtomicInteger mAttachCount = new AtomicInteger(0);
     private AtomicInteger mDestroyCount = new AtomicInteger(0);
     private PageFragment[] mFragments;
@@ -39,46 +35,34 @@ public class FragmentAdapterActivity extends BaseActivity {
     protected void setAdapter() {
         mFragments = new PageFragment[mTotalPages];
 
-        FragmentProvider fragmentProvider = new FragmentProvider() {
-            final boolean[] mWasEverAttached = new boolean[mTotalPages];
-
-            @Override
-            public Fragment getItem(final int position) {
-                PageFragment fragment = PageFragment.create(valueForPosition(position));
-
-                fragment.mOnAttachListener = new PageFragment.EventListener() {
-                    @Override
-                    public void onEvent(PageFragment fragment) {
-                        mAttachCount.incrementAndGet();
-                        mWasEverAttached[position] = true;
-                    }
-                };
-
-                fragment.mOnDestroyListener = new PageFragment.EventListener() {
-                    @Override
-                    public void onEvent(PageFragment fragment) {
-                        mDestroyCount.incrementAndGet();
-                    }
-                };
-
-                return mFragments[position] = fragment;
-            }
-
-            private int valueForPosition(int position) {
-                // only supply correct value ones; then rely on it being kept by Fragment state
-                return mWasEverAttached[position]
-                        ? RANDOM.nextInt() // junk value to be overridden by state saved value
-                        : position;
-            }
-
-            @Override
-            public int getCount() {
-                return mTotalPages;
-            }
-        };
-
         mViewPager.setAdapter(
-                new FragmentStateAdapter(getSupportFragmentManager(), fragmentProvider));
+                new FragmentStateAdapter(getSupportFragmentManager()) {
+                    @Override
+                    public int getItemCount() {
+                        return mTotalPages;
+                    }
+
+                    @Override
+                    public Fragment getItem(int position) {
+                        PageFragment fragment = PageFragment.create(position);
+
+                        fragment.mOnAttachListener = new PageFragment.EventListener() {
+                            @Override
+                            public void onEvent(PageFragment fragment) {
+                                mAttachCount.incrementAndGet();
+                            }
+                        };
+
+                        fragment.mOnDestroyListener = new PageFragment.EventListener() {
+                            @Override
+                            public void onEvent(PageFragment fragment) {
+                                mDestroyCount.incrementAndGet();
+                            }
+                        };
+
+                        return mFragments[position] = fragment;
+                    }
+                });
     }
 
     @Override
