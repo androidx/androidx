@@ -33,6 +33,12 @@ data class JavaType(val fullName: String) {
     companion object {
         /** Creates the type from notation where packages are separated using '.' */
         fun fromDotVersion(fullName: String): JavaType {
+            if (fullName.contains("/")) {
+                throw IllegalArgumentException(
+                    "Type containing '/' cannot be passed to the factory expecting dot " +
+                    "separators! Received '$fullName'.")
+            }
+
             return JavaType(fullName.replace('.', '/'))
         }
     }
