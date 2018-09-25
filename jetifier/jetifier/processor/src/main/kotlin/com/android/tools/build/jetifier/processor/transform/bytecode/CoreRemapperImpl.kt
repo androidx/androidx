@@ -56,7 +56,20 @@ class CoreRemapperImpl(
     }
 
     override fun rewriteString(value: String): String {
-        val type = JavaType.fromDotVersion(value)
+        val hasDotSeparators = value.contains(".")
+        val hasSlashSeparators = value.contains("/")
+
+        if (hasDotSeparators && hasSlashSeparators) {
+            // We do not support mix of both separators
+            return value
+        }
+
+        val type = if (hasDotSeparators) {
+            JavaType.fromDotVersion(value)
+        } else {
+            JavaType(value)
+        }
+
         if (!context.config.isEligibleForRewrite(type)) {
             return value
         }
@@ -65,7 +78,7 @@ class CoreRemapperImpl(
         if (mappedType != null) {
             changesDone = changesDone || mappedType != type
             Log.i(TAG, "Map string: '%s' -> '%s'", type, mappedType)
-            return mappedType.toDotNotation()
+            return if (hasDotSeparators) mappedType.toDotNotation() else mappedType.fullName
         }
 
         // We might be working with an internal type or field reference, e.g.
@@ -84,7 +97,11 @@ class CoreRemapperImpl(
             val rewrittenType = context.config.rulesMap.rewriteType(type)
             if (rewrittenType != null) {
                 Log.i(TAG, "Map string: '%s' -> '%s' via fallback", value, rewrittenType)
-                return rewrittenType.toDotNotation()
+                return if (hasDotSeparators) {
+                    rewrittenType.toDotNotation()
+                } else {
+                    rewrittenType.fullName
+                }
             }
         }
 

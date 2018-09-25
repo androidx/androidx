@@ -236,8 +236,7 @@ class XmlResourcesTransformerTest {
             prefixes = setOf(
                 "android/support"
             ),
-            typesMap = mapOf(
-            ),
+            typesMap = mapOf(),
             packageMap = PackageMap(listOf(
                 PackageMap.PackageRule(
                     from = "android/support/v7/preference",
@@ -262,8 +261,7 @@ class XmlResourcesTransformerTest {
             prefixes = setOf(
                 "android/something/else"
             ),
-            typesMap = mapOf(
-            ),
+            typesMap = mapOf(),
             packageMap = PackageMap(listOf(
                 PackageMap.PackageRule(
                     from = "android/support/v7/preference",
@@ -376,14 +374,92 @@ class XmlResourcesTransformerTest {
         )
     }
 
+    @Test fun generic_sample_slices() {
+        testRewriteToTheSame(
+            givenAndExpectedXml =
+                "<LinearLayout\n" +
+                "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                "    android:layout_width=\"match_parent\"\n" +
+                "    android:layout_height=\"wrap_content\"\n" +
+                "    android:paddingStart=\"16dp\"\n" +
+                "    android:paddingEnd=\"16dp\"\n" +
+                "    android:orientation=\"vertical\">\n" +
+                "\n" +
+                "    <TextView\n" +
+                "        android:id=\"@+id/text2\"\n" +
+                "        android:layout_width=\"match_parent\"\n" +
+                "        android:layout_height=\"wrap_content\"\n" +
+                "        android:paddingTop=\"8dp\"\n" +
+                "        android:paddingStart=\"8dp\"\n" +
+                "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
+                "        android:text=\"@string/abc_slice_permission_text_1\" />\n" +
+                "\n" +
+                "    <TextView\n" +
+                "        android:id=\"@+id/text1\"\n" +
+                "        android:layout_width=\"match_parent\"\n" +
+                "        android:layout_height=\"wrap_content\"\n" +
+                "        android:paddingStart=\"8dp\"\n" +
+                "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
+                "        android:paddingBottom=\"16dp\"\n" +
+                "        android:text=\"@string/abc_slice_permission_text_2\" />\n" +
+                "\n" +
+                "</LinearLayout>",
+            prefixes = setOf("support/"),
+            map = mapOf()
+        )
+    }
+
+    @Test fun generic_sample_slices_dejetification() {
+        testRewriteToTheSame(
+            givenAndExpectedXml =
+                "<LinearLayout\n" +
+                "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                "    android:layout_width=\"match_parent\"\n" +
+                "    android:layout_height=\"wrap_content\"\n" +
+                "    android:paddingStart=\"16dp\"\n" +
+                "    android:paddingEnd=\"16dp\"\n" +
+                "    android:orientation=\"vertical\">\n" +
+                "\n" +
+                "    <TextView\n" +
+                "        android:id=\"@+id/text2\"\n" +
+                "        android:layout_width=\"match_parent\"\n" +
+                "        android:layout_height=\"wrap_content\"\n" +
+                "        android:paddingTop=\"8dp\"\n" +
+                "        android:paddingStart=\"8dp\"\n" +
+                "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
+                "        android:text=\"@string/abc_slice_permission_text_1\" />\n" +
+                "\n" +
+                "    <TextView\n" +
+                "        android:id=\"@+id/text1\"\n" +
+                "        android:layout_width=\"match_parent\"\n" +
+                "        android:layout_height=\"wrap_content\"\n" +
+                "        android:paddingStart=\"8dp\"\n" +
+                "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
+                "        android:paddingBottom=\"16dp\"\n" +
+                "        android:text=\"@string/abc_slice_permission_text_2\" />\n" +
+                "\n" +
+                "</LinearLayout>",
+            prefixes = setOf("support/"),
+            rewritingSupportLib = true,
+            map = mapOf()
+        )
+    }
+
     private fun testRewriteToTheSame(
         givenAndExpectedXml: String,
         prefixes: Set<String>,
         map: Map<String, String>,
-        errorsExpected: Boolean = false
+        errorsExpected: Boolean = false,
+        rewritingSupportLib: Boolean = false
     ) {
-        testRewrite(givenAndExpectedXml, givenAndExpectedXml, prefixes, map,
-            errorsExpected = errorsExpected)
+        testRewrite(
+            givenXml = givenAndExpectedXml,
+            expectedXml = givenAndExpectedXml,
+            prefixes = prefixes,
+            typesMap = map,
+            errorsExpected = errorsExpected,
+            rewritingSupportLib = rewritingSupportLib
+        )
     }
 
     private fun testRewrite(
@@ -430,4 +506,3 @@ class XmlResourcesTransformerTest {
         }
     }
 }
-

@@ -42,6 +42,11 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         const val TAG = "XmlResourcesTransformer"
 
         const val PATTERN_TYPE_GROUP = 1
+
+        /***
+         * Matches anything that could be java type or package
+         */
+        val JAVA_TOKEN_MATCHER = "^[a-zA-Z0-9.\$_]+$".toRegex()
     }
 
     /**
@@ -124,11 +129,17 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
 
                 val toReplace = matcher.group(PATTERN_TYPE_GROUP)
                 val matched = matcher.group(0)
-                var replacement = if (isPackage(toReplace)) {
-                    rewritePackage(toReplace, filePath)
-                } else {
-                    rewriteType(toReplace)
-                }
+
+                var replacement =
+                    if (toReplace.matches(JAVA_TOKEN_MATCHER)) {
+                        if (isPackage(toReplace)) {
+                            rewritePackage(toReplace, filePath)
+                        } else {
+                            rewriteType(toReplace)
+                        }
+                    } else {
+                        toReplace
+                    }
 
                 // Try if we are rewriting annotations file and replace symbols there
                 if (context.isInReversedMode &&
