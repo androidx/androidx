@@ -30,16 +30,15 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
-import android.support.v4.util.Pair;
 
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
 import androidx.work.Logger;
 import androidx.work.NonBlockingWorker;
+import androidx.work.NonBlockingWorker.Result;
 import androidx.work.State;
 import androidx.work.Worker;
-import androidx.work.Worker.Result;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.model.DependencyDao;
@@ -74,6 +73,9 @@ public class WorkerWrapper implements Runnable {
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
     private WorkSpec mWorkSpec;
     NonBlockingWorker mWorker;
+
+    // Package-private for synthetic accessor.
+    NonBlockingWorker.Payload mPayload;
 
     private Configuration mConfiguration;
     private TaskExecutor mWorkTaskExecutor;
@@ -207,9 +209,10 @@ public class WorkerWrapper implements Runnable {
                 return;
             }
 
-            final SettableFuture<Pair<Result, Data>> future = SettableFuture.create();
+            final SettableFuture<NonBlockingWorker.Payload> future = SettableFuture.create();
             try {
-                final ListenableFuture<Pair<Result, Data>> innerFuture = mWorker.onStartWork();
+                final ListenableFuture<NonBlockingWorker.Payload> innerFuture =
+                        mWorker.onStartWork();
                 future.setFuture(innerFuture);
             } catch (Throwable e) {
                 future.setException(e);
@@ -221,13 +224,15 @@ public class WorkerWrapper implements Runnable {
                 @Override
                 public void run() {
                     try {
-                        onWorkFinished(future.get().first);
+                        mPayload = future.get();
                     } catch (InterruptedException | ExecutionException exception) {
                         Logger.error(TAG,
                                 String.format("%s failed because it threw an exception/error",
                                         workDescription),
                                 exception);
-                        onWorkFinished(Result.FAILURE);
+                        mPayload = new NonBlockingWorker.Payload(Result.FAILURE, Data.EMPTY);
+                    } finally {
+                        onWorkFinished();
                     }
                 }
             }, mWorkTaskExecutor.getBackgroundExecutor());
@@ -237,7 +242,7 @@ public class WorkerWrapper implements Runnable {
     }
 
     // Package-private for synthetic accessor.
-    void onWorkFinished(@NonNull Result result) {
+    void onWorkFinished() {
         assertBackgroundExecutorThread();
         boolean isWorkFinished = false;
         if (!tryCheckForInterruptionAndNotify()) {
@@ -252,7 +257,7 @@ public class WorkerWrapper implements Runnable {
                     notifyListener(false);
                     isWorkFinished = true;
                 } else if (state == RUNNING) {
-                    handleResult(result);
+                    handleResult(mPayload.getResult());
                     // Update state after a call to handleResult()
                     state = mWorkSpecDao.getState(mWorkSpecId);
                     isWorkFinished = state.isFinished();
@@ -343,7 +348,7 @@ public class WorkerWrapper implements Runnable {
         mFuture.set(needsReschedule);
     }
 
-    private void handleResult(Worker.Result result) {
+    private void handleResult(Result result) {
         switch (result) {
             case SUCCESS: {
                 Logger.info(TAG, String.format("Worker result SUCCESS for %s", mWorkDescription));
@@ -395,11 +400,11 @@ public class WorkerWrapper implements Runnable {
         try {
             recursivelyFailWorkAndDependents(mWorkSpecId);
 
-            // Try to set the output for the failed work but check if the worker exists; this could
-            // be a permanent error where we couldn't find or create the worker class.
-            if (mWorker != null) {
+            // Try to set the output for the failed work but check if the Payload exists; this could
+            // happen if we couldn't find or create the worker class.
+            if (mPayload != null) {
                 // Update Data as necessary.
-                Data output = mWorker.getOutputData();
+                Data output = mPayload.getOutputData();
                 mWorkSpecDao.setOutput(mWorkSpecId, output);
             }
 
@@ -476,7 +481,7 @@ public class WorkerWrapper implements Runnable {
             mWorkSpecDao.setState(SUCCEEDED, mWorkSpecId);
 
             // Update Data as necessary.
-            Data output = mWorker.getOutputData();
+            Data output = mPayload.getOutputData();
             mWorkSpecDao.setOutput(mWorkSpecId, output);
 
             // Unblock Dependencies and set Period Start Time
