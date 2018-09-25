@@ -16,6 +16,7 @@
 
 package com.android.tools.build.jetifier.core.config
 
+import com.android.tools.build.jetifier.core.type.PackageName
 import com.google.common.truth.Truth
 import org.junit.Test
 
@@ -36,6 +37,12 @@ class ConfigParserTest {
             "            from: \"android/support/v14/preferences/(.*)\",\n" +
             "            to: \"android/jetpack/prefs/main/{0}\",\n" +
             "            fieldSelectors: [\"dialog_(.*)\"]\n" +
+            "        }\n" +
+            "    ],\n" +
+            "    packageMap: [\n" +
+            "        {\n" +
+            "            \"from\": \"from/package\",\n" +
+            "            \"to\": \"to/package\"\n" +
             "        }\n" +
             "    ],\n" +
             "    pomRules: [\n" +
@@ -68,6 +75,10 @@ class ConfigParserTest {
             .containsExactly("something", "1.0.0")
         Truth.assertThat(config.proGuardMap.toJson().rules.size).isEqualTo(1)
 
+        Truth
+            .assertThat(config.packageMap.getPackageFor(PackageName.fromDotVersion("from.package")))
+            .isEqualTo(PackageName.fromDotVersion("to.package"))
+
         Truth.assertThat(jsonConfig.versions!!.size).isEqualTo(1)
         Truth.assertThat(jsonConfig.versions!!["latestReleased"])
             .containsExactly("something", "1.0.0")
@@ -78,8 +89,8 @@ class ConfigParserTest {
         val confStr =
             "{\n" +
             "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    rules: [\n" +
-            "    ],\n" +
+            "    rules: [],\n" +
+            "    packageMap: [],\n" +
             "    pomRules: [\n" +
             "        {\n" +
             "            from: {artifactId: \"a\", version: \"1.0\"},\n" +
@@ -95,8 +106,8 @@ class ConfigParserTest {
         val confStr =
             "{\n" +
             "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    rules: [\n" +
-            "    ],\n" +
+            "    rules: [],\n" +
+            "    packageMap: [],\n" +
             "    pomRules: [\n" +
             "        {\n" +
             "            from: {groupId: \"g\", version: \"1.0\"},\n" +
@@ -112,8 +123,8 @@ class ConfigParserTest {
         val confStr =
             "{\n" +
             "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    rules: [\n" +
-            "    ],\n" +
+            "    rules: [],\n" +
+            "    packageMap: [],\n" +
             "    pomRules: [\n" +
             "        {\n" +
             "            from: {artifactId: \"a\", groupId: \"g\"},\n" +
@@ -129,8 +140,8 @@ class ConfigParserTest {
         val confStr =
             "{\n" +
             "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    rules: [\n" +
-            "    ],\n" +
+            "    rules: [],\n" +
+            "    packageMap: [],\n" +
             "    pomRules: [\n" +
             "        {\n" +
             "            from: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"},\n" +
