@@ -36,9 +36,10 @@ import androidx.testutils.FragmentActivityUtils
 import androidx.viewpager2.test.R
 import androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ScrollState.IDLE
-import androidx.viewpager2.widget.swipe.BaseActivity
+import androidx.viewpager2.widget.swipe.FragmentAdapter
 import androidx.viewpager2.widget.swipe.PageSwiper
-import androidx.viewpager2.widget.swipe.ViewAdapterActivity
+import androidx.viewpager2.widget.swipe.TestActivity
+import androidx.viewpager2.widget.swipe.ViewAdapter
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
@@ -50,19 +51,13 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 open class BaseTest {
-    fun setUpTest(
-        totalPages: Int,
-        @ViewPager2.Orientation orientation: Int,
-        activityClass: Class<out BaseActivity> = ViewAdapterActivity::class.java
-    ): Context {
-        val activityTestRule = ActivityTestRule(activityClass, true, false)
-        activityTestRule.launchActivity(BaseActivity.createIntent(totalPages))
+    fun setUpTest(@ViewPager2.Orientation orientation: Int): Context {
+        val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+        activityTestRule.launchActivity(null)
 
         val viewPager: ViewPager2 = activityTestRule.activity.findViewById(R.id.view_pager)
         activityTestRule.runOnUiThread { viewPager.orientation = orientation }
         onView(withId(R.id.view_pager)).check(matches(isDisplayed()))
-
-        val mPageSwiper = PageSwiper(totalPages, viewPager.orientation)
 
         // animations getting in the way on API < 16
         if (Build.VERSION.SDK_INT < 16) {
@@ -70,20 +65,17 @@ open class BaseTest {
             recyclerView.overScrollMode = OVER_SCROLL_NEVER
         }
 
-        return Context(activityTestRule, mPageSwiper).apply {
-            assertBasicState(0) // sanity check
-        }
+        return Context(activityTestRule)
     }
 
-    data class Context(
-        val activityTestRule: ActivityTestRule<out BaseActivity>,
-        val swiper: PageSwiper
-    ) {
-        fun recreateActivity() {
+    data class Context(val activityTestRule: ActivityTestRule<TestActivity>) {
+        fun recreateActivity(adapterProvider: AdapterProvider) {
+            TestActivity.adapterProvider = adapterProvider
             activity = FragmentActivityUtils.recreateActivity(activityTestRule, activity)
+            TestActivity.adapterProvider = null
         }
 
-        var activity: BaseActivity = activityTestRule.activity
+        var activity: TestActivity = activityTestRule.activity
             private set(value) {
                 field = value
             }
@@ -91,6 +83,9 @@ open class BaseTest {
         fun runOnUiThread(f: () -> Unit) = activity.runOnUiThread(f)
 
         val viewPager: ViewPager2 get() = activity.findViewById(R.id.view_pager)
+
+        val swiper: PageSwiper
+            get() = PageSwiper(viewPager.adapter.itemCount, viewPager.orientation)
     }
 
     fun peekForward(@ViewPager2.Orientation orientation: Int) {
@@ -152,6 +147,20 @@ open class BaseTest {
         return latch
     }
 
+    fun Context.setAdapterSync(adapterProvider: AdapterProvider) {
+        val waitForRenderLatch = CountDownLatch(1)
+
+        viewPager.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            waitForRenderLatch.countDown()
+        }
+
+        runOnUiThread {
+            viewPager.adapter = adapterProvider(activity)
+        }
+
+        waitForRenderLatch.await(5, TimeUnit.SECONDS)
+    }
+
     val ViewPager2.pageSize: Int
         get() {
             return if (orientation == HORIZONTAL) {
@@ -167,11 +176,16 @@ open class BaseTest {
      * 2. Expected text is displayed
      * 3. Internal activity state is valid (as per activity self-test)
      */
-    fun Context.assertBasicState(pageIx: Int, value: Int = pageIx) {
+    fun Context.assertBasicState(pageIx: Int, value: String) {
         assertThat<Int>(viewPager.currentItem, equalTo(pageIx))
         onView(allOf<View>(withId(R.id.text_view), isDisplayed())).check(
-                matches(withText(value.toString())))
-        activity.validateState()
+                matches(withText(value)))
+
+        // FIXME: too tight coupling
+        if (viewPager.adapter is FragmentAdapter) {
+            val adapter = viewPager.adapter as FragmentAdapter
+            assertThat(adapter.attachCount.get() - adapter.destroyCount.get(), isBetweenInIn(1, 4))
+        }
     }
 
     fun ViewPager2.setCurrentItemSync(
@@ -235,3 +249,20 @@ open class BaseTest {
         return allOf(greaterThanOrEqualTo<T>(minOf(a, b)), lessThanOrEqualTo<T>(maxOf(a, b)))
     }
 }
+
+typealias AdapterProvider = (TestActivity) -> RecyclerView.Adapter<out RecyclerView.ViewHolder>
+
+typealias AdapterProviderForItems = (items: List<String>) -> AdapterProvider
+
+val fragmentAdapterProvider: AdapterProviderForItems = { items ->
+    { activity: TestActivity -> FragmentAdapter(activity.supportFragmentManager, items) }
+}
+
+val viewAdapterProvider: AdapterProviderForItems = { items -> { ViewAdapter(items) } }
+
+fun stringSequence(pageCount: Int) = (1..pageCount).mapIndexed { ix, _ -> ix.toString() }
+
+val AdapterProviderForItems.supportsMutations: Boolean
+    get() {
+        return this == fragmentAdapterProvider
+    }

@@ -113,7 +113,8 @@ class PageTransformerTest : BaseTest() {
         pageList: List<Int>
     ) {
         // given
-        setUpTest(100, orientation).apply {
+        setUpTest(orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(100)))
 
             // when
             pageList.forEach { targetPage ->
@@ -150,7 +151,7 @@ class PageTransformerTest : BaseTest() {
         val latch = viewPager.addWaitForScrolledLatch(targetPage)
         swiper.swipe(currentPage, targetPage)
         latch.await(1, SECONDS)
-        assertBasicState(targetPage)
+        assertBasicState(targetPage, "$targetPage")
     }
 
     @Test
