@@ -56,7 +56,7 @@ data class Config(
     val typesMap: TypesMap,
     val proGuardMap: ProGuardTypesMap,
     val versionsMap: DependencyVersionsMap,
-    val packageMap: PackageMap = PackageMap(PackageMap.DEFAULT_RULES)
+    val packageMap: PackageMap
 ) {
 
     init {
@@ -88,22 +88,22 @@ data class Config(
             reversedRestrictToPackagesPrefixes: Set<String> = emptySet(),
             rulesMap: RewriteRulesMap = RewriteRulesMap.EMPTY,
             slRules: List<RewriteRule> = emptyList(),
+            packageMap: PackageMap = PackageMap.EMPTY,
             pomRewriteRules: Set<PomRewriteRule> = emptySet(),
             typesMap: TypesMap = TypesMap.EMPTY,
             proGuardMap: ProGuardTypesMap = ProGuardTypesMap.EMPTY,
-            versionsMap: DependencyVersionsMap = DependencyVersionsMap.EMPTY,
-            packageMap: PackageMap = PackageMap.EMPTY
+            versionsMap: DependencyVersionsMap = DependencyVersionsMap.EMPTY
         ): Config {
             return Config(
                 restrictToPackagePrefixes = restrictToPackagePrefixes,
                 reversedRestrictToPackagePrefixes = reversedRestrictToPackagesPrefixes,
                 rulesMap = rulesMap,
                 slRules = slRules,
+                packageMap = packageMap,
                 pomRewriteRules = pomRewriteRules,
                 typesMap = typesMap,
                 proGuardMap = proGuardMap,
-                versionsMap = versionsMap,
-                packageMap = packageMap
+                versionsMap = versionsMap
             )
         }
     }
@@ -114,11 +114,11 @@ data class Config(
             reversedRestrictToPackagePrefixes = reversedRestrictToPackagePrefixes,
             rulesMap = rulesMap,
             slRules = slRules,
+            packageMap = packageMap,
             pomRewriteRules = pomRewriteRules,
             typesMap = mappings,
             proGuardMap = proGuardMap,
-            versionsMap = versionsMap,
-            packageMap = packageMap
+            versionsMap = versionsMap
         )
     }
 
@@ -178,6 +178,7 @@ data class Config(
             reversedRestrictToPackagePrefixes.toList(),
             rulesMap.toJson().rules.toList(),
             slRules.map { it.toJson() }.toList(),
+            packageMap.toJson(),
             pomRewriteRules.map { it.toJson() }.toList(),
             versionsMap.data,
             typesMap.toJson(),
@@ -200,6 +201,9 @@ data class Config(
 
         @SerializedName("slRules")
         val slRules: List<RewriteRule.JsonData?>?,
+
+        @SerializedName("packageMap")
+        val packageMap: List<PackageMap.PackageRule.JsonData?>,
 
         @SerializedName("pomRules")
         val pomRules: List<PomRewriteRule.JsonData?>,
@@ -225,6 +229,8 @@ data class Config(
                 slRules = slRules
                     ?.let { it.filterNotNull().map { it.toRule() }.toList() }
                     ?: emptyList(),
+                packageMap = PackageMap(packageMap.filterNotNull().map { it.toMappings() }
+                    .toList()),
                 pomRewriteRules = pomRules.filterNotNull().map { it.toRule() }.toSet(),
                 versionsMap = versions
                     ?.let { DependencyVersionsMap(versions) }

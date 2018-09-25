@@ -31,7 +31,7 @@ data class DependencyVersions(private val currentSet: Map<String, String>) {
 
         fun parseFromVersionSetTypeId(
             versionsMap: DependencyVersionsMap,
-            versionSetType: String?
+            versionSetType: String? = null
         ): DependencyVersions {
             val name = versionSetType ?: DEFAULT_DEPENDENCY_SET
 

@@ -83,15 +83,6 @@ class Main {
             hasArgs = false,
             isRequired = false
         )
-        val OPTION_VERSIONS = createOption(
-            argName = "v",
-            argNameLong = "versions",
-            desc = "Versions of dependencies to be substituted by Jetifier. In most cases you " +
-                "want to leave the default which is 'latestReleased'. Check Jetifier's config " +
-                "file for more types of configurations.",
-            hasArgs = true,
-            isRequired = false
-        )
 
         private fun createOption(
             argName: String,
@@ -145,7 +136,6 @@ class Main {
             return
         }
 
-        val versionSetName = cmd.getOptionValue(OPTION_VERSIONS.opt)
         val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
         val isStrict = cmd.hasOption(OPTION_STRICT.opt)
 
@@ -153,8 +143,7 @@ class Main {
             config = config,
             reversedMode = isReversed,
             rewritingSupportLib = rebuildTopOfTree,
-            useFallbackIfTypeIsMissing = !isStrict,
-            versionSetName = versionSetName)
+            useFallbackIfTypeIsMissing = !isStrict)
         processor.transform(fileMappings)
 
         if (rebuildTopOfTree) {
@@ -174,4 +163,3 @@ class Main {
         return null
     }
 }
-
