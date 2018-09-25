@@ -263,6 +263,16 @@ public abstract class MediaPlayer2 {
     public abstract MediaPlayerConnector getMediaPlayerConnector();
 
     /**
+     * Cancels the asynchronous call previously submitted.
+     *
+     * @param token the token which is returned from the asynchronous call.
+     * @return {@code false} if the task could not be cancelled; {@code true} otherwise.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract boolean cancel(Object token);
+
+    /**
      * Releases the resources held by this {@code MediaPlayer2} object.
      *
      * It is considered good practice to call this method when you're
@@ -294,6 +304,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void play();
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _play();
 
     /**
      * Prepares the player for playback, asynchronously.
@@ -304,18 +320,36 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void prepare();
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _prepare();
 
     /**
      * Pauses playback. Call play() to resume.
      */
     // This is an asynchronous call.
     public abstract void pause();
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _pause();
 
     /**
      * Tries to play next media item if applicable.
      */
     // This is an asynchronous call.
     public abstract void skipToNext();
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _skipToNext();
 
     /**
      * Moves the media to specified time position.
@@ -326,6 +360,14 @@ public abstract class MediaPlayer2 {
     // This is an asynchronous call.
     public void seekTo(long msec) {
         seekTo(msec, SEEK_PREVIOUS_SYNC /* mode */);
+    }
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public Object _seekTo(long msec) {
+        return _seekTo(msec, SEEK_PREVIOUS_SYNC /* mode */);
     }
 
     /**
@@ -370,6 +412,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void setAudioAttributes(@NonNull AudioAttributesCompat attributes);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setAudioAttributes(@NonNull AudioAttributesCompat attributes);
 
     /**
      * Gets the audio attributes for this MediaPlayer2.
@@ -384,6 +432,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void setMediaItem(@NonNull MediaItem2 item);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setMediaItem(@NonNull MediaItem2 item);
 
     /**
      * Sets a single media item as described by a MediaItem2 which will be played
@@ -393,6 +447,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void setNextMediaItem(@NonNull MediaItem2 item);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setNextMediaItem(@NonNull MediaItem2 item);
 
     /**
      * Sets a list of media items to be played sequentially after current media item is done.
@@ -401,6 +461,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void getNextMediaItems(@NonNull List<MediaItem2> items);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setNextMediaItems(@NonNull List<MediaItem2> items);
 
     /**
      * Gets the current media item as described by a MediaItem2.
@@ -415,6 +481,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void loopCurrent(boolean loop);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _loopCurrent(boolean loop);
 
     /**
      * Sets the volume of the audio of the media to play, expressed as a linear multiplier
@@ -427,6 +499,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void setPlayerVolume(float volume);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setPlayerVolume(float volume);
 
     /**
      * Returns the current volume of this player to this player.
@@ -455,6 +533,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public void notifyWhenCommandLabelReached(@NonNull Object label) { }
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _notifyWhenCommandLabelReached(@NonNull Object label);
 
     /**
      * Sets the {@link Surface} to be used as the sink for the video portion of
@@ -477,6 +561,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void setSurface(Surface surface);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setSurface(Surface surface);
 
     /* Do not change these video scaling mode values below without updating
      * their counterparts in system/window.h! Please do not forget to update
@@ -547,6 +637,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void setPlaybackParams(@NonNull PlaybackParams2 params);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setPlaybackParams(@NonNull PlaybackParams2 params);
 
     /**
      * Gets the playback params, containing the current playback rate.
@@ -627,6 +723,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void seekTo(long msec, @SeekMode int mode);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _seekTo(long msec, @SeekMode int mode);
 
     /**
      * Gets current playback position as a {@link MediaTimestamp2}.
@@ -674,6 +776,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void setAudioSessionId(int sessionId);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setAudioSessionId(int sessionId);
 
     /**
      * Returns the audio session ID.
@@ -700,6 +808,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void attachAuxEffect(int effectId);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _attachAuxEffect(int effectId);
 
 
     /**
@@ -716,6 +830,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void setAuxEffectSendLevel(float level);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _setAuxEffectSendLevel(float level);
 
     /**
      * Class for MediaPlayer2 to return each audio/video/subtitle track's metadata.
@@ -814,6 +934,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void selectTrack(int index);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _selectTrack(int index);
 
     /**
      * Deselects a track.
@@ -830,6 +956,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void deselectTrack(int index);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _deselectTrack(int index);
 
     /**
      * Interface definition for callbacks to be invoked when the player has the corresponding
