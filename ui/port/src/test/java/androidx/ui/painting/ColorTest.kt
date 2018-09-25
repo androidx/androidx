@@ -57,6 +57,27 @@ class ColorTest {
         assertEquals("Color(0x00000000)", c.toString())
     }
 
+    @Test
+    fun `blend at 0% returns start color`() {
+        val start = Color(android.graphics.Color.RED)
+        val end = Color(android.graphics.Color.BLUE)
+        assertEquals(start, Color.blend(start, end, 0.0f))
+    }
+
+    @Test
+    fun `blend at 100% returns end color`() {
+        val start = Color(android.graphics.Color.RED)
+        val end = Color(android.graphics.Color.BLUE)
+        assertEquals(end, Color.blend(start, end, 1.0f))
+    }
+
+    @Test
+    fun `blend 50% returns purple`() {
+        val start = Color(android.graphics.Color.RED)
+        val end = Color(android.graphics.Color.BLUE)
+        assertEquals(Color(0xffba00ba.toInt()), Color.blend(start, end, 0.5f))
+    }
+
     // TODO(Migration/Andrey): In Flutter setting a color into Paint will throw an Exception
     // if the color int will not be in the range of Int32. To discuss do we need such behaviour
     // with our Paint object

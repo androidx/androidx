@@ -17,7 +17,6 @@
 package androidx.ui.painting
 
 import androidx.ui.clamp
-import androidx.ui.lerpDouble
 import androidx.ui.toRadixString
 import androidx.ui.truncDiv
 import kotlin.math.roundToInt
@@ -159,12 +158,42 @@ class Color(colorValue: Int) {
                 return _scaleAlpha(b!!, t!!)
             if (b == null)
                 return _scaleAlpha(a, 1.0 - t!!)
-            return Color.fromARGB(
-                    lerpDouble(a.alpha.toDouble(), b.alpha.toDouble(), t!!).toInt().clamp(0, 255),
-                    lerpDouble(a.red.toDouble(), b.red.toDouble(), t).toInt().clamp(0, 255),
-                    lerpDouble(a.green.toDouble(), b.green.toDouble(), t).toInt().clamp(0, 255),
-                    lerpDouble(a.blue.toDouble(), b.blue.toDouble(), t).toInt().clamp(0, 255)
-            )
+            return blend(a, b, t!!.toFloat())
+        }
+
+        fun blend(startColor: Color, endColor: Color, fraction: Float): Color {
+
+            val startA = (startColor.alpha and 0xff) / 255.0f
+            var startR = (startColor.red and 0xff) / 255.0f
+            var startG = (startColor.green and 0xff) / 255.0f
+            var startB = (startColor.blue and 0xff) / 255.0f
+
+            val endA = (endColor.alpha and 0xff) / 255.0f
+            var endR = (endColor.red and 0xff) / 255.0f
+            var endG = (endColor.green and 0xff) / 255.0f
+            var endB = (endColor.blue and 0xff) / 255.0f
+
+            // convert from sRGB to linear
+            startR = Math.pow(startR.toDouble(), 2.2).toFloat()
+            startG = Math.pow(startG.toDouble(), 2.2).toFloat()
+            startB = Math.pow(startB.toDouble(), 2.2).toFloat()
+            endR = Math.pow(endR.toDouble(), 2.2).toFloat()
+            endG = Math.pow(endG.toDouble(), 2.2).toFloat()
+            endB = Math.pow(endB.toDouble(), 2.2).toFloat()
+
+            // compute the interpolated color in linear space
+            var a = startA + fraction * (endA - startA)
+            var r = startR + fraction * (endR - startR)
+            var g = startG + fraction * (endG - startG)
+            var b = startB + fraction * (endB - startB)
+
+            // convert back to sRGB in the [0..255] range
+            a *= 255f
+            r = (Math.pow(r.toDouble(), 1.0 / 2.2) * 255.0f).toFloat()
+            g = (Math.pow(g.toDouble(), 1.0 / 2.2) * 255.0f).toFloat()
+            b = (Math.pow(b.toDouble(), 1.0 / 2.2) * 255.0f).toFloat()
+
+            return Color.fromARGB(Math.round(a), Math.round(r), Math.round(g), Math.round(b))
         }
 
         // / Combine the foreground color as a transparent color over top
