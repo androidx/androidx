@@ -17,6 +17,8 @@
 package com.android.tools.build.jetifier.processor.transform.bytecode
 
 import com.android.tools.build.jetifier.core.config.Config
+import com.android.tools.build.jetifier.core.rule.RewriteRule
+import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
 import com.android.tools.build.jetifier.core.type.JavaType
 import com.android.tools.build.jetifier.core.type.TypesMap
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
@@ -29,6 +31,7 @@ import org.objectweb.asm.util.TraceClassVisitor
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintWriter
+import java.nio.charset.Charset
 import java.nio.file.Paths
 
 /**
@@ -63,6 +66,44 @@ class ClassRewriteTest {
         Truth.assertThat(decompiledResult).contains("Landroidx/fragment/app/Fragment;")
         Truth.assertThat(decompiledResult).doesNotContain("LL")
         Truth.assertThat(decompiledResult).doesNotContain(";;")
+    }
+
+    @Test
+    fun testClassRewrite_replacesAllReferences2() {
+        val config = Config.fromOptional(
+            restrictToPackagePrefixes = setOf("android/support"),
+            reversedRestrictToPackagesPrefixes = setOf("androidx"),
+            typesMap = TypesMap(mapOf(
+                "android/support/design/widget/Snackbar"
+                    to "com/google/android/material/snackbar/Snackbar"
+            ).map { JavaType(it.key) to JavaType(it.value) }.toMap()),
+            rulesMap = RewriteRulesMap(RewriteRule(
+                from = "android/support/annotation/(.*)",
+                to = "androidx/annotation/()"))
+        )
+
+        val inputClassPath = "/classRewriteTest/RxSnackbarKt.class"
+        val inputFile = File(javaClass.getResource(inputClassPath).file)
+        val archiveFile = ArchiveFile(Paths.get("/", "RxSnackbarKt.class"), inputFile.readBytes())
+
+        val context = TransformationContext(config = config)
+        val transformer = ByteCodeTransformer(context)
+
+        transformer.runTransform(archiveFile)
+
+        val decompiledResult = decompileClassFileToString(archiveFile.data)
+
+        Truth.assertThat(decompiledResult).contains("com/google/android/material/snackbar/Snackbar")
+        Truth.assertThat(decompiledResult)
+                .doesNotContain("Lcom.google.android.material.snackbar.Snackbar")
+        Truth.assertThat(decompiledResult).doesNotContain("android/support/design/widget/Snackbar")
+        Truth.assertThat(decompiledResult).doesNotContain("android.support.design.widget.Snackbar")
+
+        val expectedFileContent = File(
+            javaClass.getResource("/classRewriteTest/RxSnackbarKt-expected-decompiled.txt").file)
+                .readBytes()
+                .toString(Charset.defaultCharset())
+        Truth.assertThat(decompiledResult).isEqualTo(expectedFileContent)
     }
 
     private fun decompileClassFileToString(data: ByteArray): String {

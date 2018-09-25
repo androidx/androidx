@@ -1,0 +1,29 @@
+// class version 50.0 (50)
+// access flags 0x31
+public final class com/jakewharton/rxbinding2/support/design/widget/RxSnackbarKt {
+
+  // compiled from: RxSnackbar.kt
+
+  @Lkotlin/Metadata;(mv={1, 1, 9}, bv={1, 0, 2}, k=2, d1={"\u0000\u0010\n\u0000\n\u0002\u0018\u0002\n\u0002\u0010\u0008\n\u0002\u0018\u0002\n\u0000\u001a\u0013\u0010\u0000\u001a\u0008\u0012\u0004\u0012\u00020\u00020\u0001*\u00020\u0003H\u0087\u0008\u00a8\u0006\u0004"}, d2={"dismisses", "Lio/reactivex/Observable;", "", "Lcom/google/android/material/snackbar/Snackbar;", "rxbinding-design-kotlin_release"})
+
+  // access flags 0x19
+  // signature (Lcom/google/android/material/snackbar/Snackbar;)Lio/reactivex/Observable<Ljava/lang/Integer;>;
+  // declaration: io.reactivex.Observable<java.lang.Integer> dismisses(com.google.android.material.snackbar.Snackbar)
+  public final static dismisses(Lcom/google/android/material/snackbar/Snackbar;)Lio/reactivex/Observable;
+  @Landroidx/annotation/();() // invisible
+  @Lorg/jetbrains/annotations/NotNull;() // invisible
+    @Lorg/jetbrains/annotations/NotNull;() // invisible, parameter 0
+   L0
+    LINENUMBER 18 L0
+    ALOAD 0
+    INVOKESTATIC com/jakewharton/rxbinding2/support/design/widget/RxSnackbar.dismisses (Lcom/google/android/material/snackbar/Snackbar;)Lio/reactivex/Observable;
+    DUP
+    LDC "RxSnackbar.dismisses(this)"
+    INVOKESTATIC kotlin/jvm/internal/Intrinsics.checkExpressionValueIsNotNull (Ljava/lang/Object;Ljava/lang/String;)V
+    ARETURN
+   L1
+    LOCALVARIABLE $receiver Lcom/google/android/material/snackbar/Snackbar; L0 L1 0
+    LOCALVARIABLE $i$f$dismisses I L0 L1 1
+    MAXSTACK = 3
+    MAXLOCALS = 2
+}
