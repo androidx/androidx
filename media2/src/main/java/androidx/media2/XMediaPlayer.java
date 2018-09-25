@@ -29,7 +29,6 @@ import android.media.MediaFormat;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -493,8 +492,21 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     /* A list for tracking the commands submitted to MediaPlayer2.*/
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ArrayDeque<Pair<Integer, SettableFuture<CommandResult2>>>
-            mCallTypeAndFutures = new ArrayDeque<>();
+    final ArrayDeque<PendingCommand> mPendingCommands = new ArrayDeque<>();
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final class PendingCommand {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        final @MediaPlayer2.CallCompleted int mCallType;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        final SettableFuture<CommandResult2> mFuture;
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        PendingCommand(int mCallType, SettableFuture<CommandResult2> mFuture) {
+            this.mCallType = mCallType;
+            this.mFuture = mFuture;
+        }
+    }
 
     private final Object mStateLock = new Object();
     @GuardedBy("mStateLock")
@@ -510,12 +522,30 @@ public class XMediaPlayer extends SessionPlayer2 {
         mPlayer.setDrmEventCallback(mExecutor, new Mp2DrmCallback());
     }
 
+    private void addPendingCommandLocked(
+            int callType, final SettableFuture<CommandResult2> future, final Object token) {
+        final PendingCommand pendingCommand = new PendingCommand(callType, future);
+        mPendingCommands.add(pendingCommand);
+        future.addListener(new Runnable() {
+            @Override
+            public void run() {
+                // Propagate the cancellation to the MediaPlayer2 implementation.
+                if (future.isCancelled()) {
+                    synchronized (mPendingCommands) {
+                        if (mPlayer.cancel(token)) {
+                            mPendingCommands.remove(pendingCommand);
+                        }
+                    }
+                }
+            }
+        }, mExecutor);
+    }
     @Override
     public ListenableFuture<CommandResult2> play() {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(new Pair<>(MediaPlayer2.CALL_COMPLETED_PLAY, future));
-            mPlayer.play();
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._play();
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PLAY, future, token);
         }
         return future;
     }
@@ -523,9 +553,9 @@ public class XMediaPlayer extends SessionPlayer2 {
     @Override
     public ListenableFuture<CommandResult2> pause() {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(new Pair<>(MediaPlayer2.CALL_COMPLETED_PAUSE, future));
-            mPlayer.pause();
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._pause();
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PAUSE, future, token);
         }
         return future;
     }
@@ -533,9 +563,9 @@ public class XMediaPlayer extends SessionPlayer2 {
     @Override
     public ListenableFuture<CommandResult2> prepare() {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(new Pair<>(MediaPlayer2.CALL_COMPLETED_PREPARE, future));
-            mPlayer.prepare();
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._prepare();
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PREPARE, future, token);
         }
         // TODO: Changing buffering state is not correct. Think about changing MP2 event APIs for
         // the initial buffering for prepare case.
@@ -546,9 +576,9 @@ public class XMediaPlayer extends SessionPlayer2 {
     @Override
     public ListenableFuture<CommandResult2> seekTo(long position) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(new Pair<>(MediaPlayer2.CALL_COMPLETED_SEEK_TO, future));
-            mPlayer.seekTo(position);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._seekTo(position);
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SEEK_TO, future, token);
         }
         return future;
     }
@@ -556,12 +586,12 @@ public class XMediaPlayer extends SessionPlayer2 {
     @Override
     public ListenableFuture<CommandResult2> setPlaybackSpeed(float playbackSpeed) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(new Pair<>(
-                    MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS, future));
-            mPlayer.setPlaybackParams(new PlaybackParams2.Builder(
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._setPlaybackParams(new PlaybackParams2.Builder(
                     mPlayer.getPlaybackParams().getPlaybackParams())
                     .setSpeed(playbackSpeed).build());
+            addPendingCommandLocked(
+                    MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS, future, token);
         }
         return future;
     }
@@ -569,10 +599,10 @@ public class XMediaPlayer extends SessionPlayer2 {
     @Override
     public ListenableFuture<CommandResult2> setAudioAttributes(AudioAttributesCompat attr) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(new Pair<>(
-                    MediaPlayer2.CALL_COMPLETED_SET_AUDIO_ATTRIBUTES, future));
-            mPlayer.setAudioAttributes(attr);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._setAudioAttributes(attr);
+            addPendingCommandLocked(
+                    MediaPlayer2.CALL_COMPLETED_SET_AUDIO_ATTRIBUTES, future, token);
         }
         return future;
     }
@@ -647,10 +677,9 @@ public class XMediaPlayer extends SessionPlayer2 {
     @Override
     public ListenableFuture<CommandResult2> setMediaItem(MediaItem2 item) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(
-                    new Pair<>(MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE, future));
-            mPlayer.setMediaItem(item);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._setMediaItem(item);
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE, future, token);
         }
         return future;
     }
@@ -738,12 +767,12 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public void reset() {
         mPlayer.reset();
-        synchronized (mCallTypeAndFutures) {
+        synchronized (mPendingCommands) {
             // Cancel the pending futures.
-            for (Pair<Integer, SettableFuture<CommandResult2>> pair : mCallTypeAndFutures) {
-                pair.second.cancel(true);
+            for (PendingCommand c : mPendingCommands) {
+                c.mFuture.cancel(true);
             }
-            mCallTypeAndFutures.clear();
+            mPendingCommands.clear();
         }
         synchronized (mStateLock) {
             mState = PLAYER_STATE_IDLE;
@@ -772,9 +801,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public ListenableFuture<CommandResult2> setSurface(Surface surface) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(new Pair<>(MediaPlayer2.CALL_COMPLETED_SET_SURFACE, future));
-            mPlayer.setSurface(surface);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._setSurface(surface);
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SET_SURFACE, future, token);
         }
         return future;
     }
@@ -793,10 +822,10 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public ListenableFuture<CommandResult2> setPlayerVolume(float volume) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(
-                    new Pair<>(MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME, future));
-            mPlayer.setPlayerVolume(volume);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._setPlayerVolume(volume);
+            addPendingCommandLocked(
+                    MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME, future, token);
         }
         return future;
     }
@@ -863,10 +892,10 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public ListenableFuture<CommandResult2> setPlaybackParams(@NonNull PlaybackParams2 params) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(
-                    new Pair<>(MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS, future));
-            mPlayer.setPlaybackParams(params);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._setPlaybackParams(params);
+            addPendingCommandLocked(
+                    MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS, future, token);
         }
         return future;
     }
@@ -901,9 +930,9 @@ public class XMediaPlayer extends SessionPlayer2 {
     public ListenableFuture<CommandResult2> seekTo(long msec, @SeekMode int mode) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
         int mp2SeekMode = sSeekModeMap.getOrDefault(mode, SEEK_NEXT_SYNC);
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(new Pair<>(MediaPlayer2.CALL_COMPLETED_SEEK_TO, future));
-            mPlayer.seekTo(msec, mp2SeekMode);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._seekTo(msec, mp2SeekMode);
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SEEK_TO, future, token);
         }
         return future;
     }
@@ -950,10 +979,10 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public ListenableFuture<CommandResult2> setAudioSessionId(int sessionId) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(
-                    new Pair<>(MediaPlayer2.CALL_COMPLETED_SET_AUDIO_SESSION_ID, future));
-            mPlayer.setAudioSessionId(sessionId);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._setAudioSessionId(sessionId);
+            addPendingCommandLocked(
+                    MediaPlayer2.CALL_COMPLETED_SET_AUDIO_SESSION_ID, future, token);
         }
         return future;
     }
@@ -986,10 +1015,10 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public ListenableFuture<CommandResult2> attachAuxEffect(int effectId) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(
-                    new Pair<>(MediaPlayer2.CALL_COMPLETED_ATTACH_AUX_EFFECT, future));
-            mPlayer.attachAuxEffect(effectId);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._attachAuxEffect(effectId);
+            addPendingCommandLocked(
+                    MediaPlayer2.CALL_COMPLETED_ATTACH_AUX_EFFECT, future, token);
         }
         return future;
     }
@@ -1011,10 +1040,10 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public ListenableFuture<CommandResult2> setAuxEffectSendLevel(float level) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(
-                    new Pair<>(MediaPlayer2.CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL, future));
-            mPlayer.setAuxEffectSendLevel(level);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._setAuxEffectSendLevel(level);
+            addPendingCommandLocked(
+                    MediaPlayer2.CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL, future, token);
         }
         return future;
     }
@@ -1084,10 +1113,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public ListenableFuture<CommandResult2> selectTrack(int index) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(
-                    new Pair<>(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK, future));
-            mPlayer.selectTrack(index);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._selectTrack(index);
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK, future, token);
         }
         return future;
     }
@@ -1108,10 +1136,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      */
     public ListenableFuture<CommandResult2> deselectTrack(int index) {
         SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mCallTypeAndFutures) {
-            mCallTypeAndFutures.add(
-                    new Pair<>(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK, future));
-            mPlayer.deselectTrack(index);
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._deselectTrack(index);
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK, future, token);
         }
         return future;
     }
@@ -1486,16 +1513,17 @@ public class XMediaPlayer extends SessionPlayer2 {
         @Override
         public void onCallCompleted(
                 MediaPlayer2 mp, MediaItem2 item, int what, int status) {
-            Pair<Integer, SettableFuture<CommandResult2>> pair;
-            synchronized (mCallTypeAndFutures) {
-                pair = mCallTypeAndFutures.pollFirst();
+            PendingCommand expected;
+            synchronized (mPendingCommands) {
+                expected = mPendingCommands.pollFirst();
             }
-            if (pair == null) {
+            if (expected == null) {
                 Log.i(TAG, "No matching call type for " + what + ". Possibly because of reset().");
                 return;
             }
-            if (what != pair.first) {
-                Log.w(TAG, "Call type does not match. expected:" + pair.first + " actual:" + what);
+            if (what != expected.mCallType) {
+                Log.w(TAG, "Call type does not match. expeced:" + expected.mCallType
+                        + " actual:" + what);
                 status = MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN;
             }
             if (status == MediaPlayer2.CALL_STATUS_NO_ERROR) {
@@ -1530,9 +1558,8 @@ public class XMediaPlayer extends SessionPlayer2 {
                         break;
                 }
             }
-            // TODO: more handling on listenable future. e.g. Canceling.
             Integer resultCode = sResultCodeMap.get(status);
-            pair.second.set(new CommandResult2(
+            expected.mFuture.set(new CommandResult2(
                     resultCode == null ? RESULT_CODE_ERROR_UNKNOWN : resultCode, item));
         }
 

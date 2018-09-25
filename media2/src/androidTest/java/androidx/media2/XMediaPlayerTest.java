@@ -1136,6 +1136,70 @@ public class XMediaPlayerTest {
         assertNull(mPlayer.getCurrentMediaItem());
     }
 
+    @Test
+    @LargeTest
+    public void testCancelPendingCommands() throws Exception {
+        final Monitor readRequested = new Monitor();
+        final Monitor readAllowed = new Monitor();
+        DataSourceCallback2 dataSource = new DataSourceCallback2() {
+            TestDataSourceCallback2 mTestSource = TestDataSourceCallback2.fromAssetFd(
+                    mResources.openRawResourceFd(R.raw.testmp3));
+            @Override
+            public int readAt(long position, byte[] buffer, int offset, int size)
+                    throws IOException {
+                try {
+                    readRequested.signal();
+                    readAllowed.waitForSignal();
+                } catch (InterruptedException e) {
+                    fail();
+                }
+                return mTestSource.readAt(position, buffer, offset, size);
+            }
+
+            @Override
+            public long getSize() throws IOException {
+                return mTestSource.getSize();
+            }
+
+            @Override
+            public void close() throws IOException {
+                mTestSource.close();
+            }
+        };
+        XMediaPlayer.PlayerCallback ecb = new XMediaPlayer.PlayerCallback() {
+            @Override
+            public void onError(XMediaPlayer mp, MediaItem2 item, int what, int extra) {
+                mOnErrorCalled.signal();
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, ecb);
+
+        mOnErrorCalled.reset();
+
+        mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
+
+        // prepare() will be pending until readAllowed is signaled.
+        mPlayer.prepare();
+
+        ListenableFuture<CommandResult2> seekFuture = mPlayer.seekTo(1000);
+        ListenableFuture<CommandResult2> volumeFuture = mPlayer.setPlayerVolume(0.7f);
+
+        readRequested.waitForSignal();
+
+        // Cancel the pending commands while preparation is on hold.
+        seekFuture.cancel(false);
+        volumeFuture.cancel(false);
+
+        // Make the on-going prepare operation resumed and check the results.
+        readAllowed.signal();
+        mPlayer.setSurface(null).get();
+
+        assertEquals(0 /* default value */, mPlayer.getCurrentPosition());
+        assertEquals(1.0f /* default value */, mPlayer.getPlayerVolume(), 0.001f);
+
+        assertEquals(0, mOnErrorCalled.getNumSignal());
+    }
+
     private boolean loadResource(int resid) throws Exception {
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         try {
