@@ -51,6 +51,7 @@ import androidx.media2.exoplayer.external.ExoPlayerFactory;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
+import androidx.media2.exoplayer.external.audio.AuxEffectInfo;
 import androidx.media2.exoplayer.external.source.MediaSource;
 import androidx.media2.exoplayer.external.source.TrackGroup;
 import androidx.media2.exoplayer.external.source.TrackGroupArray;
@@ -128,6 +129,12 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mPlayingTimeUs;
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mAuxEffectId;
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    float mAuxEffectSendLevel;
 
     // TODO(b/80232248): Implement command queue and make setters notify their callbacks.
 
@@ -159,6 +166,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         mExecutorByPlayerEventCallback = new ArrayMap<>();
         mLock = new Object();
         mStartPlaybackTimeNs = -1;
+        mAuxEffectId = AuxEffectInfo.NO_AUX_EFFECT_ID;
     }
 
     // Command queue and events implementation.
@@ -465,6 +473,40 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
+    public void attachAuxEffect(final int effectId) {
+        addTask(new Task(CALL_COMPLETED_ATTACH_AUX_EFFECT, false) {
+            @Override
+            void process() {
+                float auxEffectSendLevel;
+                synchronized (mLock) {
+                    mAuxEffectId = effectId;
+                    auxEffectSendLevel = mAuxEffectSendLevel;
+                }
+                synchronized (mPlayerLock) {
+                    mPlayer.setAuxEffectInfo(new AuxEffectInfo(effectId, auxEffectSendLevel));
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setAuxEffectSendLevel(final float auxEffectSendLevel) {
+        addTask(new Task(CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL, false) {
+            @Override
+            void process() {
+                int auxEffectId;
+                synchronized (mLock) {
+                    auxEffectId = mAuxEffectId;
+                    mAuxEffectSendLevel = auxEffectSendLevel;
+                }
+                synchronized (mPlayerLock) {
+                    mPlayer.setAuxEffectInfo(new AuxEffectInfo(auxEffectId, auxEffectSendLevel));
+                }
+            }
+        });
+    }
+
+    @Override
     public int getVideoWidth() {
         synchronized (mLock) {
             return mVideoWidth;
@@ -527,6 +569,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             mVideoHeight = 0;
             mStartPlaybackTimeNs = -1;
             mPlayingTimeUs = 0;
+            mAuxEffectId = AuxEffectInfo.NO_AUX_EFFECT_ID;
+            mAuxEffectSendLevel = 0f;
         }
         // TODO(b/80232248): Make mPlayer non-final and release here to make the call blocking.
         // TODO(b/80232248): ComponentListener callbacks on the task thread can happen at the same
@@ -619,16 +663,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public int getAudioSessionId() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void attachAuxEffect(int effectId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setAuxEffectSendLevel(float level) {
         throw new UnsupportedOperationException();
     }
 
