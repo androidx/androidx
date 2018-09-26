@@ -25,23 +25,46 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
-import android.support.v4.util.Pair;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
- * The basic object that performs work.  Worker classes are instantiated at runtime by
- * {@link WorkManager} and the {@code onStartWork} method is called on the background thread.
- * In case the work is preempted for any reason, the same instance of {@link NonBlockingWorker}
- * is not reused. This means that {@code onStartWork} is called exactly once per
- * {@link NonBlockingWorker} instance. The {@link NonBlockingWorker} signals work completion
- * by using a {@code WorkFinishedCallback}.
+ * The basic object that performs work.  Worker classes are instantiated at runtime by the
+ * {@link WorkerFactory} specified in the {@link Configuration}.  The {@link #onStartWork()} method
+ * is called on the background thread.  In case the work is preempted and later restarted for any
+ * reason, a new instance of {@link NonBlockingWorker} is created. This means that
+ * {@code onStartWork} is called exactly once per {@link NonBlockingWorker} instance.
  */
 public abstract class NonBlockingWorker {
+
+    /**
+     * The result of the Worker's computation.
+     */
+    public enum Result {
+        /**
+         * Used to indicate that the work completed successfully.  Any work that depends on this
+         * can be executed as long as all of its other dependencies and constraints are met.
+         */
+        SUCCESS,
+
+        /**
+         * Used to indicate that the work completed with a permanent failure.  Any work that depends
+         * on this will also be marked as failed and will not be run.
+         */
+        FAILURE,
+
+        /**
+         * Used to indicate that the work encountered a transient failure and should be retried with
+         * backoff specified in
+         * {@link WorkRequest.Builder#setBackoffCriteria(BackoffPolicy, long, TimeUnit)}.
+         */
+        RETRY
+    }
 
     @SuppressWarnings("NullableProblems")   // Set by internalInit
     private @NonNull Context mAppContext;
@@ -51,9 +74,6 @@ public abstract class NonBlockingWorker {
 
     private volatile boolean mStopped;
     private volatile boolean mCancelled;
-
-    private @NonNull volatile Data mOutputData = Data.EMPTY;
-    private @NonNull volatile Worker.Result mResult = Worker.Result.FAILURE;
 
     private boolean mUsed;
 
@@ -160,16 +180,12 @@ public abstract class NonBlockingWorker {
     }
 
     /**
-     * Override this method to do your actual background processing.
-     * Typical flow involves, starting the execution of work on a background thread, and notifying
-     * completion via the completion callback {@code WorkFinishedCallback}.
+     * Override this method to start your actual background processing.
      *
-     * @return A {@link ListenableFuture} with the {@link Worker.Result} and output {@link Data}
-     * @hide
+     * @return A {@link ListenableFuture} with the {@link Payload} of the computation
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
-    public abstract @NonNull ListenableFuture<Pair<Worker.Result, Data>> onStartWork();
+    public abstract @NonNull ListenableFuture<Payload> onStartWork();
 
     /**
      * Returns {@code true} if this Worker has been told to stop.  This could be because of an
@@ -219,62 +235,6 @@ public abstract class NonBlockingWorker {
      */
     public void onStopped(boolean cancelled) {
         // Do nothing by default.
-    }
-
-    /**
-     * Call this method to pass a {@link Data} object as the output of this {@link Worker}.  This
-     * result can be observed and passed to Workers that are dependent on this one.
-     *
-     * In cases like where two or more {@link OneTimeWorkRequest}s share a dependent WorkRequest,
-     * their Data will be merged together using an {@link InputMerger}.  The default InputMerger is
-     * {@link OverwritingInputMerger}, unless otherwise specified using the
-     * {@link OneTimeWorkRequest.Builder#setInputMerger(Class)} method.
-     * <p>
-     * This method is invoked after {@code onStartWork} and returns {@link Worker.Result#SUCCESS}
-     * or a {@link Worker.Result#FAILURE}.
-     * <p>
-     * For example, if you had this structure:
-     * <pre>
-     * {@code WorkManager.getInstance(context)
-     *             .beginWith(workRequestA, workRequestB)
-     *             .then(workRequestC)
-     *             .enqueue()}</pre>
-     *
-     * This method would be called for both {@code workRequestA} and {@code workRequestB} after
-     * their completion, modifying the input Data for {@code workRequestC}.
-     *
-     * @param outputData An {@link Data} object that will be merged into the input Data of any
-     *                   OneTimeWorkRequest that is dependent on this one, or {@link Data#EMPTY} if
-     *                   there is nothing to contribute
-     */
-    public void setOutputData(@NonNull Data outputData) {
-        mOutputData = outputData;
-    }
-
-    /**
-     * @return the output {@link Data} set by the {@link Worker}.
-     */
-    public Data getOutputData() {
-        return mOutputData;
-    }
-
-    /**
-     * @return the {@link Worker.Result} of executing the {@link Worker}.
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Worker.Result getResult() {
-        return mResult;
-    }
-
-    /**
-     * Sets the {@link Worker.Result} of the {@link Worker}s execution.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setResult(@NonNull Worker.Result result) {
-        mResult = result;
     }
 
     /**
@@ -332,5 +292,34 @@ public abstract class NonBlockingWorker {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull WorkerFactory getWorkerFactory() {
         return mWorkerParams.getWorkerFactory();
+    }
+
+    /**
+     * The payload of an {@link #onStartWork()} computation that contains both the result and the
+     * output data.
+     */
+    public static final class Payload {
+
+        @NonNull Result mResult;
+        @NonNull Data mOutput;
+
+        public Payload(@NonNull Result result, @NonNull Data output) {
+            mResult = result;
+            mOutput = output;
+        }
+
+        /**
+         * @return The {@link Result} of this {@link NonBlockingWorker}
+         */
+        public @NonNull Result getResult() {
+            return mResult;
+        }
+
+        /**
+         * @return The output {@link Data} of this {@link NonBlockingWorker}
+         */
+        public @NonNull Data getOutputData() {
+            return mOutput;
+        }
     }
 }
