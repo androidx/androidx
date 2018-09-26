@@ -453,6 +453,87 @@ public class FragmentLifecycleTest {
 
     @Test
     @UiThreadTest
+    public void restoreRetainedInstanceFragmentWithTransparentActivityConfigChange() {
+        // Create a new FragmentManager in isolation, add a retained instance Fragment,
+        // then mimic the following scenario:
+        // 1. Activity A adds retained Fragment F
+        // 2. Activity A starts translucent Activity B
+        // 3. Activity B start opaque Activity C
+        // 4. Rotate phone
+        // 5. Finish Activity C
+        // 6. Finish Activity B
+
+        final FragmentController fc1 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm1 = fc1.getSupportFragmentManager();
+
+        fc1.attachHost(null);
+        fc1.dispatchCreate();
+
+        // Add the retained Fragment
+        final StateSaveFragment retainedFragment = new StateSaveFragment("Retained",
+                "UnsavedRetained");
+        retainedFragment.setRetainInstance(true);
+        fm1.beginTransaction().add(retainedFragment, "tag:retained").commitNow();
+
+        // Move the activity to resumed
+        fc1.dispatchActivityCreated();
+        fc1.noteStateNotSaved();
+        fc1.execPendingActions();
+        fc1.dispatchStart();
+        fc1.dispatchResume();
+        fc1.execPendingActions();
+
+        // Launch the transparent activity on top
+        fc1.dispatchPause();
+
+        // Launch the opaque activity on top
+        final Parcelable savedState = fc1.saveAllState();
+        fc1.dispatchStop();
+
+        // Finish the opaque activity, making our Activity visible i.e., started
+        fc1.noteStateNotSaved();
+        fc1.execPendingActions();
+        fc1.dispatchStart();
+
+        // Finish the transparent activity, causing a config change
+        fc1.dispatchStop();
+        final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
+        fc1.dispatchDestroy();
+
+        // Create the new controller and restore state
+        final FragmentController fc2 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm2 = fc2.getSupportFragmentManager();
+
+        fc2.attachHost(null);
+        fc2.restoreAllState(savedState, nonconf);
+        fc2.dispatchCreate();
+
+        final StateSaveFragment restoredFragment = (StateSaveFragment) fm2
+                .findFragmentByTag("tag:retained");
+        assertNotNull("retained fragment not restored", restoredFragment);
+        assertEquals("The retained Fragment shouldn't be recreated",
+                retainedFragment, restoredFragment);
+
+        fc2.dispatchActivityCreated();
+        fc2.noteStateNotSaved();
+        fc2.execPendingActions();
+        fc2.dispatchStart();
+        fc2.dispatchResume();
+        fc2.execPendingActions();
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.dispatchPause();
+        fc2.saveAllState();
+        fc2.dispatchStop();
+        fc2.dispatchDestroy();
+    }
+
+    @Test
+    @UiThreadTest
     public void saveAnimationState() throws Throwable {
         FragmentController fc = startupFragmentController(null);
         FragmentManager fm = fc.getSupportFragmentManager();

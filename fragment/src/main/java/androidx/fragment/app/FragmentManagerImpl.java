@@ -826,7 +826,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             f.restoreChildFragmentState(f.mSavedFragmentState);
                             f.mState = Fragment.CREATED;
                         }
-                        f.mRetaining = false;
                     }
                     // fall through
                 case Fragment.CREATED:
@@ -992,7 +991,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             newState = Fragment.CREATED;
                         } else {
                             if (DEBUG) Log.v(TAG, "movefrom CREATED: " + f);
-                            if (!f.mRetaining) {
+                            if (mSavedNonConfig == null || !mSavedNonConfig.isRetaining(f)) {
                                 f.performDestroy();
                                 dispatchOnFragmentDestroyed(f, false);
                             } else {
@@ -1002,7 +1001,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             f.performDetach();
                             dispatchOnFragmentDetached(f, false);
                             if (!keepActive) {
-                                if (!f.mRetaining) {
+                                if (mSavedNonConfig == null || !mSavedNonConfig.isRetaining(f)) {
                                     makeInactive(f);
                                 } else {
                                     f.mHost = null;
@@ -2194,35 +2193,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     FragmentManagerNonConfig retainNonConfig() {
-        setRetaining(mSavedNonConfig);
-        return mSavedNonConfig;
-    }
-
-    /**
-     * Recurse the FragmentManagerNonConfig fragments and set the mRetaining to true. This
-     * was previously done while saving the non-config state, but that has been moved to
-     * {@link #saveNonConfig()} called from {@link #saveAllState()}. If mRetaining is set too
-     * early, the fragment won't be destroyed when the FragmentManager is destroyed.
-     */
-    private static void setRetaining(FragmentManagerNonConfig nonConfig) {
-        if (nonConfig == null) {
-            return;
-        }
-        List<Fragment> fragments = nonConfig.getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                fragment.mRetaining = true;
-            }
-        }
-        Map<String, FragmentManagerNonConfig> children = nonConfig.getChildNonConfigs();
-        if (children != null) {
-            for (FragmentManagerNonConfig child : children.values()) {
-                setRetaining(child);
-            }
-        }
-    }
-
-    void saveNonConfig() {
         ArrayList<Fragment> fragments = null;
         HashMap<String, FragmentManagerNonConfig> childFragments = null;
         HashMap<String, ViewModelStore> viewModelStores = null;
@@ -2239,8 +2209,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     }
                     FragmentManagerNonConfig child;
                     if (f.mChildFragmentManager != null) {
-                        f.mChildFragmentManager.saveNonConfig();
-                        child = f.mChildFragmentManager.mSavedNonConfig;
+                        child = f.mChildFragmentManager.retainNonConfig();
                     } else {
                         // f.mChildNonConfig may be not null, when the parent fragment is
                         // in the backstack.
@@ -2269,6 +2238,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             mSavedNonConfig = new FragmentManagerNonConfig(fragments, childFragments,
                     viewModelStores);
         }
+        return mSavedNonConfig;
     }
 
     void saveFragmentViewState(Fragment f) {
@@ -2329,7 +2299,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         execPendingActions();
 
         mStateSaved = true;
-        mSavedNonConfig = null;
 
         if (mActive == null || mActive.size() <= 0) {
             return null;
@@ -2429,7 +2398,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             fms.mPrimaryNavActiveWho = mPrimaryNav.mWho;
         }
         fms.mNextFragmentIndex = mNextFragmentIndex;
-        saveNonConfig();
         return fms;
     }
 

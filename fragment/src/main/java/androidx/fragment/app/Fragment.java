@@ -184,9 +184,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // configuration changes.
     boolean mRetainInstance;
 
-    // If set this fragment is being retained across the current config change.
-    boolean mRetaining;
-
     // If set this fragment has menu items to contribute.
     boolean mHasMenu;
 
@@ -1736,7 +1733,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mTag = null;
         mHidden = false;
         mDetached = false;
-        mRetaining = false;
     }
 
     /**
@@ -2291,7 +2287,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 writer.print(" mMenuVisible="); writer.print(mMenuVisible);
                 writer.print(" mHasMenu="); writer.println(mHasMenu);
         writer.print(prefix); writer.print("mRetainInstance="); writer.print(mRetainInstance);
-                writer.print(" mRetaining="); writer.print(mRetaining);
                 writer.print(" mUserVisibleHint="); writer.println(mUserVisibleHint);
         if (mFragmentManager != null) {
             writer.print(prefix); writer.print("mFragmentManager=");
@@ -2696,7 +2691,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // We won't unless we're retaining our instance and if we do,
         // our child FragmentManager instance state will have already been saved.
         if (mChildFragmentManager != null) {
-            if (!mRetaining) {
+            FragmentManagerNonConfig nonConfig = mFragmentManager.mSavedNonConfig;
+            if (nonConfig == null || !nonConfig.isRetaining(this)) {
                 throw new IllegalStateException("Child FragmentManager of " + this + " was not "
                         + " destroyed and this fragment is not retaining instance");
             }

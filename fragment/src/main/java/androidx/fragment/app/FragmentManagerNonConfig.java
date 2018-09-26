@@ -47,6 +47,14 @@ public class FragmentManagerNonConfig {
         mViewModelStores = viewModelStores;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    boolean isRetaining(Fragment f) {
+        if (mFragments == null) {
+            return false;
+        }
+        return mFragments.contains(f);
+    }
+
     /**
      * @return the retained instance fragments returned by a FragmentManager
      */
