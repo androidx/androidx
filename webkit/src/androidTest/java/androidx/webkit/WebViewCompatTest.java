@@ -41,6 +41,7 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +64,13 @@ public class WebViewCompatTest {
     @Before
     public void setUp() {
         mWebViewOnUiThread = new androidx.webkit.WebViewOnUiThread();
+    }
+
+    @After
+    public void tearDown() {
+        if (mWebViewOnUiThread != null) {
+            mWebViewOnUiThread.cleanUp();
+        }
     }
 
     /**
@@ -290,6 +298,8 @@ public class WebViewCompatTest {
         assertNotSame(client, client2);
         WebViewOnUiThread.setWebViewClient(webView, client2);
         assertSame(client2, WebViewOnUiThread.getWebViewClient(webView));
+
+        WebViewOnUiThread.destroy(webView);
     }
 
     /**
@@ -314,6 +324,8 @@ public class WebViewCompatTest {
         assertNotSame(client, client2);
         WebViewOnUiThread.setWebChromeClient(webView, client2);
         assertSame(client2, WebViewOnUiThread.getWebChromeClient(webView));
+
+        WebViewOnUiThread.destroy(webView);
     }
 
     /**

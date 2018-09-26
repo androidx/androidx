@@ -136,6 +136,15 @@ class WebViewOnUiThread {
         this.notifyAll();
     }
 
+    public static void destroy(final WebView webView) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                webView.destroy();
+            }
+        });
+    }
+
     public void setWebViewClient(final WebViewClient webviewClient) {
         setWebViewClient(mWebView, webviewClient);
     }
