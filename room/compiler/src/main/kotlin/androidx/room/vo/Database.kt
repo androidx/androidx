@@ -28,13 +28,16 @@ import javax.lang.model.type.TypeMirror
 /**
  * Holds information about a class annotated with Database.
  */
-data class Database(val element: TypeElement,
-                    val type: TypeMirror,
-                    val entities: List<Entity>,
-                    val daoMethods: List<DaoMethod>,
-                    val version: Int,
-                    val exportSchema: Boolean,
-                    val enableForeignKeys: Boolean) {
+data class Database(
+    val element: TypeElement,
+    val type: TypeMirror,
+    val entities: List<Entity>,
+    val views: List<DatabaseView>,
+    val daoMethods: List<DaoMethod>,
+    val version: Int,
+    val exportSchema: Boolean,
+    val enableForeignKeys: Boolean
+) {
     val typeName: ClassName by lazy { ClassName.get(element) }
 
     private val implClassName by lazy {
@@ -47,6 +50,7 @@ data class Database(val element: TypeElement,
 
     val bundle by lazy {
         DatabaseBundle(version, identityHash, entities.map(Entity::toBundle),
+                views.map(DatabaseView::toBundle),
                 listOf(RoomMasterTable.CREATE_QUERY,
                         RoomMasterTable.createInsertQuery(identityHash)))
     }
@@ -58,6 +62,7 @@ data class Database(val element: TypeElement,
     val identityHash: String by lazy {
         val idKey = SchemaIdentityKey()
         idKey.appendSorted(entities)
+        idKey.appendSorted(views)
         idKey.hash()
     }
 
@@ -71,7 +76,11 @@ data class Database(val element: TypeElement,
                         index.createQuery(entity.tableName)
                     }
                 }
-        val input = (entityDescriptions + indexDescriptions).joinToString("¯\\_(ツ)_/¯")
+        val viewDescriptions = views
+                .sortedBy { it.viewName }
+                .map { it.viewName + it.query.original }
+        val input = (entityDescriptions + indexDescriptions + viewDescriptions)
+                .joinToString("¯\\_(ツ)_/¯")
         DigestUtils.md5Hex(input)
     }
 

@@ -29,7 +29,7 @@ import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import compileLibrarySource
-import createVerifierFromEntities
+import createVerifierFromEntitiesAndViews
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -310,7 +310,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                                             androidx.room.Dao::class.java)
                                     .first()
                             val dbVerifier = if (enableVerification) {
-                                createVerifierFromEntities(invocation)
+                                createVerifierFromEntitiesAndViews(invocation)
                             } else {
                                 null
                             }

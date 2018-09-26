@@ -71,6 +71,14 @@ public @interface Database {
     Class[] entities();
 
     /**
+     * The list of database views included in the database. Each class turns into a view in the
+     * database.
+     *
+     * @return The list of database views.
+     */
+    Class[] views() default {};
+
+    /**
      * The database version.
      *
      * @return The database version.

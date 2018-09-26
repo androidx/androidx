@@ -19,6 +19,7 @@ package androidx.room.integration.autovaluetestapp.dao;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.integration.autovaluetestapp.vo.DogWithOwner;
 import androidx.room.integration.autovaluetestapp.vo.EmbeddedAutoValue;
 import androidx.room.integration.autovaluetestapp.vo.Pet;
 
@@ -44,4 +45,7 @@ public interface PetDao {
 
     @Query("SELECT petId, kittyName, ownerId, 'food' as mSomething from cat where petId = :catId")
     EmbeddedAutoValue getCatAndSomething(long catId);
+
+    @Query("SELECT * FROM DogWithOwner")
+    List<DogWithOwner> allDogsWithOwners();
 }

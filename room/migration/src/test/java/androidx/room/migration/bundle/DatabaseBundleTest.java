@@ -43,7 +43,7 @@ public class DatabaseBundleTest {
                 Collections.<IndexBundle>emptyList(),
                 Collections.<ForeignKeyBundle>emptyList());
         DatabaseBundle bundle = new DatabaseBundle(1, "hash",
-                asList(entity1, entity2),
+                asList(entity1, entity2), Collections.<DatabaseViewBundle>emptyList(),
                 Collections.<String>emptyList());
 
         assertThat(bundle.buildCreateQueries(), is(asList("sq1", "sq2")));
@@ -68,7 +68,7 @@ public class DatabaseBundleTest {
                 Collections.<IndexBundle>emptyList(),
                 Collections.<ForeignKeyBundle>emptyList());
         DatabaseBundle bundle = new DatabaseBundle(1, "hash",
-                asList(entity1, entity2, entity3),
+                asList(entity1, entity2, entity3), Collections.<DatabaseViewBundle>emptyList(),
                 Collections.<String>emptyList());
 
         assertThat(bundle.buildCreateQueries(), is(asList("sq1", "sq2", "sq3")));
@@ -93,7 +93,7 @@ public class DatabaseBundleTest {
                 Collections.<IndexBundle>emptyList(),
                 Collections.<ForeignKeyBundle>emptyList());
         DatabaseBundle bundle = new DatabaseBundle(1, "hash",
-                asList(entity1, entity2, entity3),
+                asList(entity1, entity2, entity3), Collections.<DatabaseViewBundle>emptyList(),
                 Collections.<String>emptyList());
 
         assertThat(bundle.buildCreateQueries(), is(asList("sq1", "sq3", "sq2", "e2_trig")));

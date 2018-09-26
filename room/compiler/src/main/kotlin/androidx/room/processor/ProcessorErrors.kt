@@ -103,6 +103,20 @@ object ProcessorErrors {
     val ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE =
         "Entity table name cannot start with \"sqlite_\"."
 
+    val VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW = "View class must be annotated with " +
+            "@DatabaseView"
+    val VIEW_NAME_CANNOT_BE_EMPTY = "View name cannot be blank. If you don't want" +
+            " to set it, just remove the viewName property."
+    val VIEW_NAME_CANNOT_START_WITH_SQLITE =
+            "View name cannot start with \"sqlite_\"."
+    val VIEW_QUERY_MUST_BE_SELECT =
+            "Query for @DatabaseView must be a SELECT."
+    val VIEW_QUERY_CANNOT_TAKE_ARGUMENTS =
+            "Query for @DatabaseView cannot take any arguments."
+    fun viewCircularReferenceDetected(views: List<String>): String {
+        return "Circular reference detected among views: ${views.joinToString(", ")}"
+    }
+
     val CANNOT_BIND_QUERY_PARAMETER_INTO_STMT = "Query method parameters should either be a" +
             " type that can be converted into a database column or a List / Array that contains" +
             " such type. You can consider adding a Type Adapter for this."
@@ -192,9 +206,10 @@ object ProcessorErrors {
                 unusedParams.joinToString(","))
     }
 
-    private val DUPLICATE_TABLES = "Table name \"%s\" is used by multiple entities: %s"
+    private val DUPLICATE_TABLES_OR_VIEWS =
+            "The name \"%s\" is used by multiple entities or views: %s"
     fun duplicateTableNames(tableName: String, entityNames: List<String>): String {
-        return DUPLICATE_TABLES.format(tableName, entityNames.joinToString(", "))
+        return DUPLICATE_TABLES_OR_VIEWS.format(tableName, entityNames.joinToString(", "))
     }
 
     val DELETION_METHODS_MUST_RETURN_VOID_OR_INT = "Deletion methods must either return void or" +

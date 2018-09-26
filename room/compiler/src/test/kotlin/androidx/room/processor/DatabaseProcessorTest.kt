@@ -18,11 +18,15 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.RoomProcessor
+import androidx.room.parser.ParsedQuery
+import androidx.room.parser.QueryType
+import androidx.room.parser.Table
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Database
+import androidx.room.vo.DatabaseView
 import androidx.room.vo.Warning
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
@@ -32,6 +36,8 @@ import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
 import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
@@ -40,6 +46,9 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
+import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
 import javax.tools.JavaFileObject
 import javax.tools.StandardLocation
 
@@ -737,6 +746,174 @@ class DatabaseProcessorTest {
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors
                         .daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db2"))
+    }
+
+    @Test
+    fun view_duplicateNames() {
+        val view1 = JavaFileObjects.forSourceString("foo.bar.View1",
+                """
+                package foo.bar;
+                import androidx.room.*;
+                @DatabaseView(value = "SELECT * FROM User", viewName = "SameName")
+                public class View1 {}
+                """)
+        val view2 = JavaFileObjects.forSourceString("foo.bar.View2",
+                """
+                package foo.bar;
+                import androidx.room.*;
+                @DatabaseView(value = "SELECT * FROM User", viewName = "SameName")
+                public class View2 {}
+                """)
+        singleDb("""
+                @Database(entities = {User.class},
+                          views = {View1.class, View2.class},
+                          version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                }
+        """, USER, view1, view2) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.duplicateTableNames("samename",
+                listOf("foo.bar.View1", "foo.bar.View2")))
+    }
+
+    @Test
+    fun view_duplicateNamesWithEntity() {
+        val view1 = JavaFileObjects.forSourceString("foo.bar.View1",
+                """
+                package foo.bar;
+                import androidx.room.*;
+                @DatabaseView(value = "SELECT * FROM User", viewName = "Book")
+                public class View1 {}
+                """)
+        singleDb("""
+                @Database(entities = {User.class, Book.class},
+                          views = {View1.class},
+                          version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                }
+        """, USER, BOOK, view1) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.duplicateTableNames("book",
+                listOf("foo.bar.Book", "foo.bar.View1")))
+    }
+
+    @Test
+    fun view_circularReference() {
+        val view1 = JavaFileObjects.forSourceString("foo.bar.View1",
+                """
+                package foo.bar;
+                import androidx.room.*;
+                @DatabaseView("SELECT * FROM View2")
+                public class View1 {}
+                """)
+        val view2 = JavaFileObjects.forSourceString("foo.bar.View2",
+                """
+                package foo.bar;
+                import androidx.room.*;
+                @DatabaseView("SELECT * FROM View1")
+                public class View2 {}
+                """)
+        singleDb("""
+                @Database(entities = {User.class},
+                          views = {View1.class, View2.class},
+                          version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                }
+        """, USER, view1, view2) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.viewCircularReferenceDetected(listOf("View1", "View2")))
+    }
+
+    @Test
+    fun resolveDatabaseViews_nested() {
+        resolveDatabaseViews(mapOf(
+                "Q" to setOf("B", "P"),
+                "P" to setOf("A"),
+                "S" to setOf("A", "Q"),
+                "R" to setOf("C", "Q")
+        )) { views ->
+            assertThat(views.size, `is`(4))
+            views[0].let {
+                assertThat(it.viewName, `is`(equalTo("P")))
+                assertThat(it.tables.size, `is`(1))
+                assertThat(it.tables, hasItems("A"))
+            }
+            views[1].let {
+                assertThat(it.viewName, `is`(equalTo("Q")))
+                assertThat(it.tables.size, `is`(2))
+                assertThat(it.tables, hasItems("A", "B"))
+            }
+            // The order here is not important.
+            val (viewR, viewS) = if (views[2].viewName == "R") {
+                listOf(views[2], views[3])
+            } else {
+                listOf(views[3], views[2])
+            }
+            viewR.let {
+                assertThat(it.viewName, `is`(equalTo("R")))
+                assertThat(it.tables.size, `is`(3))
+                assertThat(it.tables, hasItems("A", "B", "C"))
+            }
+            viewS.let {
+                assertThat(it.viewName, `is`(equalTo("S")))
+                assertThat(it.tables.size, `is`(2))
+                assertThat(it.tables, hasItems("A", "B"))
+            }
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun resolveDatabaseViews_empty() {
+        resolveDatabaseViews(emptyMap()) { views ->
+            assertThat(views.size, `is`(0))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun resolveDatabaseViews_circular() {
+        resolveDatabaseViews(mapOf(
+                "P" to setOf("Q"),
+                "Q" to setOf("P"),
+                "R" to setOf("A"),
+                "S" to setOf("R", "B")
+        )) { _ ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.viewCircularReferenceDetected(listOf("P", "Q")))
+    }
+
+    private fun resolveDatabaseViews(
+        views: Map<String, Set<String>>,
+        body: (List<DatabaseView>) -> Unit
+    ): CompileTester {
+        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+                .that(listOf(DB3, BOOK))
+                .withClasspathFrom(javaClass.classLoader)
+                .processedWith(TestProcessor.builder()
+                        .forAnnotations(androidx.room.Database::class)
+                        .nextRunHandler { invocation ->
+                            val database = invocation.roundEnv
+                                    .getElementsAnnotatedWith(
+                                            androidx.room.Database::class.java)
+                                    .first()
+                            val processor = DatabaseProcessor(invocation.context,
+                                    MoreElements.asType(database))
+
+                            val list = views.map { (viewName, names) ->
+                                DatabaseView(
+                                        element = mock(TypeElement::class.java),
+                                        viewName = viewName,
+                                        query = ParsedQuery("", QueryType.SELECT, emptyList(),
+                                                names.map { Table(it, it) }.toSet(),
+                                                emptyList(), false),
+                                        type = mock(DeclaredType::class.java),
+                                        fields = emptyList(),
+                                        embeddedFields = emptyList(),
+                                        constructor = null
+                                )
+                            }
+                            val resolvedViews = processor.resolveDatabaseViews(list)
+                            body(resolvedViews)
+                            true
+                        }
+                        .build())
     }
 
     fun assertConstructor(dbs: List<JavaFileObject>, constructor: String): CompileTester {
