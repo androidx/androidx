@@ -22,6 +22,7 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
+import androidx.room.DatabaseView;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
@@ -38,9 +39,10 @@ import java.util.List;
 @SuppressWarnings("WeakerAccess")
 @Database(version = MigrationDb.LATEST_VERSION,
         entities = {MigrationDb.Entity1.class, MigrationDb.Entity2.class,
-                MigrationDb.Entity4.class})
+                MigrationDb.Entity4.class},
+        views = {MigrationDb.View1.class})
 public abstract class MigrationDb extends RoomDatabase {
-    static final int LATEST_VERSION = 7;
+    static final int LATEST_VERSION = 8;
     static final int MAX_VERSION = 1000;
     abstract MigrationDao dao();
     @Entity(indices = {@Index(value = "name", unique = true)})
@@ -82,6 +84,15 @@ public abstract class MigrationDb extends RoomDatabase {
         public int id;
         @ColumnInfo(collate = ColumnInfo.NOCASE)
         public String name;
+    }
+
+    @DatabaseView("SELECT Entity4.id, Entity4.name, Entity1.id AS entity1Id "
+            + "FROM Entity4 INNER JOIN Entity1 ON Entity4.name = Entity1.name")
+    static class View1 {
+        public static final String VIEW_NAME = "View1";
+        public int id;
+        public String name;
+        public int entity1Id;
     }
 
     @Dao

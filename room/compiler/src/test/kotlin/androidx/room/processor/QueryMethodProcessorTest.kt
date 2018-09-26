@@ -52,7 +52,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
-import createVerifierFromEntities
+import createVerifierFromEntitiesAndViews
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItem
@@ -890,7 +890,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                             )
                         }.first { it.second.isNotEmpty() }
                     val verifier = if (enableVerification) {
-                        createVerifierFromEntities(invocation)
+                        createVerifierFromEntitiesAndViews(invocation)
                     } else {
                         null
                     }

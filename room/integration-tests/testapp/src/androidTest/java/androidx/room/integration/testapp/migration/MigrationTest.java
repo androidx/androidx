@@ -18,6 +18,7 @@ package androidx.room.integration.testapp.migration;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -33,6 +34,7 @@ import androidx.room.migration.Migration;
 import androidx.room.migration.bundle.SchemaBundle;
 import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
+import androidx.room.util.ViewInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.InstrumentationRegistry;
@@ -228,6 +230,25 @@ public class MigrationTest {
                 7, false, MIGRATION_6_7);
         final TableInfo info = TableInfo.read(db, MigrationDb.Entity4.TABLE_NAME);
         assertThat(info.foreignKeys.size(), is(1));
+    }
+
+    @Test
+    public void addView() throws IOException {
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 7);
+        assertThat(ViewInfo.read(db, MigrationDb.View1.VIEW_NAME).sql, is(nullValue()));
+        db.close();
+        db = helper.runMigrationsAndValidate(TEST_DB,
+                8, false, MIGRATION_7_8);
+        final ViewInfo info = ViewInfo.read(db, MigrationDb.View1.VIEW_NAME);
+        assertThat(info.name, is(equalTo(MigrationDb.View1.VIEW_NAME)));
+        assertThat(info.sql, is(equalTo("CREATE VIEW `" + MigrationDb.View1.VIEW_NAME + "` AS "
+                + "SELECT Entity4.id, Entity4.name, Entity1.id AS entity1Id "
+                + "FROM Entity4 INNER JOIN Entity1 ON Entity4.name = Entity1.name")));
+    }
+
+    @Test
+    public void addViewFailure() throws IOException {
+        testFailure(7, 8);
     }
 
     @Test
@@ -509,6 +530,15 @@ public class MigrationTest {
         }
     };
 
+    private static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("CREATE VIEW IF NOT EXISTS `" + MigrationDb.View1.VIEW_NAME
+                    + "` AS SELECT Entity4.id, Entity4.name, Entity1.id AS entity1Id"
+                    + " FROM Entity4 INNER JOIN Entity1 ON Entity4.name = Entity1.name");
+        }
+    };
+
     /**
      * Downgrade migration from {@link MigrationDb#MAX_VERSION} to
      * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
@@ -548,7 +578,8 @@ public class MigrationTest {
     };
 
     private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
-            MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7};
+            MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
+            MIGRATION_7_8};
 
     static final class EmptyMigration extends Migration {
         EmptyMigration(int startVersion, int endVersion) {

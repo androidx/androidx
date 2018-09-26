@@ -20,7 +20,7 @@ object ParserErrors {
     val ANONYMOUS_BIND_ARGUMENT = "Room does not support ? as bind parameters. You must use" +
             " named bind arguments (e..g :argName)"
 
-    val NOT_ONE_QUERY = "Must have exactly 1 query in @Query value"
+    val NOT_ONE_QUERY = "Must have exactly 1 query in the value of @Query or @DatabaseView"
 
     fun invalidQueryType(type: QueryType): String {
         return "$type query type is not supported yet. You can use:" +
