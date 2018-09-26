@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.IRemoteMediaController2;
 import android.util.Log;
 
@@ -257,10 +256,10 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void sendCustomCommand(String controllerId, Bundle command, Bundle args,
-                ResultReceiver cb) throws RemoteException {
+        public void sendCustomCommand(String controllerId, Bundle command, Bundle args)
+                throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.sendCustomCommand(SessionCommand2.fromBundle(command), args, cb);
+            controller2.sendCustomCommand(SessionCommand2.fromBundle(command), args);
         }
 
         @Override

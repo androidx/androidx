@@ -435,7 +435,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.sendCustomCommand(testCommand, testArgs, null);
+        mController.sendCustomCommand(testCommand, testArgs);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnCommandCalled);
         assertEquals(command, mSessionCallback.mCommand);

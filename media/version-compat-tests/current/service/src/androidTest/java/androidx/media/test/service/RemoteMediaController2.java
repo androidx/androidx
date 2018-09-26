@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.IRemoteMediaController2;
 import android.util.Log;
 
@@ -246,10 +245,9 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args,
-            @Nullable ResultReceiver cb) {
+    public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
         try {
-            mBinder.sendCustomCommand(mControllerId, command.toBundle(), args, cb);
+            mBinder.sendCustomCommand(mControllerId, command.toBundle(), args);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call sendCustomCommand()");
         }

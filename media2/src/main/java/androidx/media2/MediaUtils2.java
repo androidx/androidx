@@ -50,6 +50,7 @@ import androidx.versionedparcelable.ParcelUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 /**
  * @hide
@@ -62,6 +63,13 @@ public class MediaUtils2 {
     // Stub BrowserRoot for accepting any connection here.
     public static final BrowserRoot sDefaultBrowserRoot =
             new BrowserRoot(MediaLibraryService2.SERVICE_INTERFACE, null);
+
+    public static final Executor DIRECT_EXECUTOR = new Executor() {
+        @Override
+        public void execute(Runnable command) {
+            command.run();
+        }
+    };
 
     private MediaUtils2() {
     }

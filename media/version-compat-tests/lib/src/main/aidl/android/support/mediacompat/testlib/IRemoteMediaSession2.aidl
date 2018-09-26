@@ -33,7 +33,6 @@ interface IRemoteMediaSession2 {
     void sendCustomCommand2(String sessionId, in Bundle controller, in Bundle command,
             in Bundle args, in ResultReceiver receiver);
     void close(String sessionId);
-    void notifyError(String sessionId, int errorCode, in Bundle extras);
     void setAllowedCommands(String sessionId, in Bundle controller, in Bundle commands);
     void notifyRoutesInfoChanged(String sessionId, in Bundle controller, in List<Bundle> routes);
     void setCustomLayout(String sessionId, in Bundle controller, in List<Bundle> layout);

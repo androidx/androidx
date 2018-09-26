@@ -30,46 +30,49 @@ import androidx.versionedparcelable.ParcelImpl;
  * and holds calls from session to make session owner(s) frozen.
  * @hide
  */
- oneway interface IMediaSession2 {
-    void connect(IMediaController2 caller, String callingPackage) = 0;
-    void release(IMediaController2 caller) = 1;
+oneway interface IMediaSession2 {
+    void connect(IMediaController2 caller, int seq, String callingPackage) = 0;
+    void release(IMediaController2 caller, int seq) = 1;
 
-    void setVolumeTo(IMediaController2 caller, int value, int flags) = 2;
-    void adjustVolume(IMediaController2 caller, int direction, int flags) = 3;
+    void setVolumeTo(IMediaController2 caller, int seq, int value, int flags) = 2;
+    void adjustVolume(IMediaController2 caller, int seq, int direction, int flags) = 3;
 
-    void play(IMediaController2 caller) = 4;
-    void pause(IMediaController2 caller) = 5;
-    void prefetch(IMediaController2 caller) = 7;
-    void fastForward(IMediaController2 caller) = 8;
-    void rewind(IMediaController2 caller) = 9;
-    void seekTo(IMediaController2 caller, long pos) = 10;
-    void sendCustomCommand(IMediaController2 caller, in ParcelImpl sessionCommand2,
-            in Bundle args, in ResultReceiver receiver) = 11;
-    void prefetchFromUri(IMediaController2 caller, in Uri uri, in Bundle extras) = 12;
-    void prefetchFromSearch(IMediaController2 caller, String query, in Bundle extras) = 13;
-    void prefetchFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras) = 14;
-    void playFromUri(IMediaController2 caller, in Uri uri, in Bundle extras) = 15;
-    void playFromSearch(IMediaController2 caller, String query, in Bundle extras) = 16;
-    void playFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras) = 17;
-    void setRating(IMediaController2 caller, String mediaId, in ParcelImpl rating2) = 18;
-    void setPlaybackSpeed(IMediaController2 caller, float speed) = 19;
+    void play(IMediaController2 caller, int seq) = 4;
+    void pause(IMediaController2 caller, int seq) = 5;
+    void prefetch(IMediaController2 caller, int seq) = 7;
+    void fastForward(IMediaController2 caller, int seq) = 8;
+    void rewind(IMediaController2 caller, int seq) = 9;
+    void seekTo(IMediaController2 caller, int seq, long pos) = 10;
+    void sendCustomCommand(IMediaController2 caller, int seq, in ParcelImpl sessionCommand2,
+            in Bundle args) = 11;
+    void prefetchFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 12;
+    void prefetchFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 13;
+    void prefetchFromMediaId(IMediaController2 caller, int seq, String mediaId,
+            in Bundle extras) = 14;
+    void playFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 15;
+    void playFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 16;
+    void playFromMediaId(IMediaController2 caller, int seq, String mediaId, in Bundle extras) = 17;
+    void setRating(IMediaController2 caller, int seq, String mediaId, in ParcelImpl rating2) = 18;
+    void setPlaybackSpeed(IMediaController2 caller, int seq, float speed) = 19;
 
-    void setPlaylist(IMediaController2 caller, in List<ParcelImpl> playlist,
+    void setPlaylist(IMediaController2 caller, int seq, in List<ParcelImpl> playlist,
             in Bundle metadata) = 20;
-    void setMediaItem(IMediaController2 caller, in ParcelImpl mediaItem) = 40;
-    void updatePlaylistMetadata(IMediaController2 caller, in Bundle metadata) = 21;
-    void addPlaylistItem(IMediaController2 caller, int index, in ParcelImpl mediaItem) = 22;
-    void removePlaylistItem(IMediaController2 caller, in ParcelImpl mediaItem) = 23;
-    void replacePlaylistItem(IMediaController2 caller, int index, in ParcelImpl mediaItem) = 24;
-    void skipToPlaylistItem(IMediaController2 caller, in ParcelImpl mediaItem) = 25;
-    void skipToPreviousItem(IMediaController2 caller) = 26;
-    void skipToNextItem(IMediaController2 caller) = 27;
-    void setRepeatMode(IMediaController2 caller, int repeatMode) = 28;
-    void setShuffleMode(IMediaController2 caller, int shuffleMode) = 29;
+    void setMediaItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 40;
+    void updatePlaylistMetadata(IMediaController2 caller, int seq, in Bundle metadata) = 21;
+    void addPlaylistItem(IMediaController2 caller, int seq, int index,
+            in ParcelImpl mediaItem) = 22;
+    void removePlaylistItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 23;
+    void replacePlaylistItem(IMediaController2 caller, int seq, int index,
+            in ParcelImpl mediaItem) = 24;
+    void skipToPlaylistItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 25;
+    void skipToPreviousItem(IMediaController2 caller, int seq) = 26;
+    void skipToNextItem(IMediaController2 caller, int seq) = 27;
+    void setRepeatMode(IMediaController2 caller, int seq, int repeatMode) = 28;
+    void setShuffleMode(IMediaController2 caller, int seq, int shuffleMode) = 29;
 
-    void subscribeRoutesInfo(IMediaController2 caller) = 30;
-    void unsubscribeRoutesInfo(IMediaController2 caller) = 31;
-    void selectRoute(IMediaController2 caller, in Bundle route) = 32;
+    void subscribeRoutesInfo(IMediaController2 caller, int seq) = 30;
+    void unsubscribeRoutesInfo(IMediaController2 caller, int seq) = 31;
+    void selectRoute(IMediaController2 caller, int seq, in Bundle route) = 32;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // library service specific

@@ -246,13 +246,6 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void notifyError(String sessionId, int errorCode, Bundle extras)
-                throws RemoteException {
-            MediaSession2 session2 = mSession2Map.get(sessionId);
-            session2.notifyError(errorCode, extras);
-        }
-
-        @Override
         public void setAllowedCommands(String sessionId, Bundle controller, Bundle commands)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);

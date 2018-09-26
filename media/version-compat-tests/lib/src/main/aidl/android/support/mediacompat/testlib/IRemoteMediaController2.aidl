@@ -46,8 +46,7 @@ interface IRemoteMediaController2 {
     void setRepeatMode(String controllerId, int repeatMode);
     void setVolumeTo(String controllerId, int value, int flags);
     void adjustVolume(String controllerId, int direction, int flags);
-    void sendCustomCommand(String controllerId, in Bundle command, in Bundle args,
-            in ResultReceiver cb);
+    void sendCustomCommand(String controllerId, in Bundle command, in Bundle args);
     void fastForward(String controllerId);
     void rewind(String controllerId);
     void playFromMediaId(String controllerId, String mediaId, in Bundle extras);

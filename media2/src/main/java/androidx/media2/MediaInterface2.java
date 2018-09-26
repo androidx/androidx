@@ -16,9 +16,9 @@
 
 package androidx.media2;
 
-import android.os.Bundle;
+import androidx.media2.SessionPlayer2.PlayerResult;
 
-import androidx.annotation.Nullable;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 
@@ -28,12 +28,11 @@ class MediaInterface2 {
 
     // TODO: relocate methods among different interfaces and classes.
     interface SessionPlaybackControl {
-        void prefetch();
-        void play();
-        void pause();
-        void reset();
+        ListenableFuture<PlayerResult> prefetch();
+        ListenableFuture<PlayerResult> play();
+        ListenableFuture<PlayerResult> pause();
 
-        void seekTo(long pos);
+        ListenableFuture<PlayerResult> seekTo(long pos);
 
         int getPlayerState();
         long getCurrentPosition();
@@ -43,36 +42,36 @@ class MediaInterface2 {
         int getBufferingState();
 
         float getPlaybackSpeed();
-        void setPlaybackSpeed(float speed);
+        ListenableFuture<PlayerResult> setPlaybackSpeed(float speed);
     }
 
     interface SessionPlaylistControl {
         List<MediaItem2> getPlaylist();
         MediaMetadata2 getPlaylistMetadata();
-        void setPlaylist(List<MediaItem2> list, MediaMetadata2 metadata);
-        void setMediaItem(MediaItem2 item);
-        void updatePlaylistMetadata(MediaMetadata2 metadata);
+        ListenableFuture<PlayerResult> setPlaylist(List<MediaItem2> list,
+                MediaMetadata2 metadata);
+        ListenableFuture<PlayerResult> setMediaItem(MediaItem2 item);
+        ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata2 metadata);
 
         MediaItem2 getCurrentMediaItem();
-        void skipToPlaylistItem(MediaItem2 item);
-        void skipToPreviousItem();
-        void skipToNextItem();
+        ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem2 item);
+        ListenableFuture<PlayerResult> skipToPreviousItem();
+        ListenableFuture<PlayerResult> skipToNextItem();
 
-        void addPlaylistItem(int index, MediaItem2 item);
-        void removePlaylistItem(MediaItem2 item);
-        void replacePlaylistItem(int index, MediaItem2 item);
+        ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem2 item);
+        ListenableFuture<PlayerResult> removePlaylistItem(MediaItem2 item);
+        ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem2 item);
 
         int getRepeatMode();
-        void setRepeatMode(int repeatMode);
+        ListenableFuture<PlayerResult> setRepeatMode(int repeatMode);
         int getShuffleMode();
-        void setShuffleMode(int shuffleMode);
+        ListenableFuture<PlayerResult> setShuffleMode(int shuffleMode);
     }
 
     // Common interface for session2 and controller2
     // TODO: consider to add fastForward, rewind.
     interface SessionPlayer extends SessionPlaybackControl, SessionPlaylistControl {
-        void skipForward();
-        void skipBackward();
-        void notifyError(@MediaSession2.ErrorCode int errorCode, @Nullable Bundle extras);
+        ListenableFuture<PlayerResult> skipForward();
+        ListenableFuture<PlayerResult> skipBackward();
     }
 }
