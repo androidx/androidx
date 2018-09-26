@@ -5187,10 +5187,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     // If we are done scrolling and the layout's SmoothScroller is not pending,
                     // stop the scroll.
 
-                    final int vel = (int) scroller.getCurrVelocity();
-                    int velX = unconsumedX < 0 ? -vel : unconsumedX > 0 ? vel : 0;
-                    int velY = unconsumedY < 0 ? -vel : unconsumedY > 0 ? vel : 0;
-                    absorbGlows(velX, velY);
+                    if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
+                        final int vel = (int) scroller.getCurrVelocity();
+                        int velX = unconsumedX < 0 ? -vel : unconsumedX > 0 ? vel : 0;
+                        int velY = unconsumedY < 0 ? -vel : unconsumedY > 0 ? vel : 0;
+                        absorbGlows(velX, velY);
+                    }
 
                     // setting state to idle will stop this.
                     setScrollState(SCROLL_STATE_IDLE);
