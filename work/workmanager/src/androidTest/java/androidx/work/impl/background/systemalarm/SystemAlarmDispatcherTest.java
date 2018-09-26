@@ -208,6 +208,29 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
+    public void testDelayMet_noWorkSpec() throws InterruptedException {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .build();
+
+        // Not inserting the workSpec.
+        String workSpecId = work.getStringId();
+        final Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
+        mSpyDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, intent, START_ID));
+        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+        assertThat(mLatch.getCount(), is(0L));
+        List<String> intentActions = mSpyDispatcher.getIntentActions();
+        // Verify order of events
+        assertThat(intentActions,
+                IsIterableContainingInOrder.contains(
+                        CommandHandler.ACTION_DELAY_MET,
+                        CommandHandler.ACTION_STOP_WORK,
+                        CommandHandler.ACTION_EXECUTION_COMPLETED));
+        verify(mSpyProcessor, times(0)).startWork(workSpecId);
+    }
+
+    @Test
     public void testDelayMet_withStop() throws InterruptedException {
         // SleepTestWorker sleeps for 5 seconds
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class)
