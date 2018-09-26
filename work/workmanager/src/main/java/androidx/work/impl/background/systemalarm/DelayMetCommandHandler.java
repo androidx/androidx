@@ -140,6 +140,14 @@ public class DelayMetCommandHandler implements
                 .workSpecDao()
                 .getWorkSpec(mWorkSpecId);
 
+        // This should typically never happen. Cancelling work should remove alarms, but if an
+        // alarm has already fired, then fire a stop work request to remove the pending delay met
+        // command handler.
+        if (workSpec == null) {
+            stopWork();
+            return;
+        }
+
         // Keep track of whether the WorkSpec had constraints. This is useful for updating the
         // state of constraint proxies when onExecuted().
         mHasConstraints = workSpec.hasConstraints();
