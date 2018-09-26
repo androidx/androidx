@@ -33,9 +33,11 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
+import androidx.media2.PlaybackParams2;
 import androidx.media2.UriMediaItem2;
 import androidx.media2.common.TrackInfoImpl;
 import androidx.media2.exoplayer.external.Format;
+import androidx.media2.exoplayer.external.PlaybackParameters;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
 import androidx.media2.exoplayer.external.mediacodec.MediaFormatUtil;
 import androidx.media2.exoplayer.external.source.ExtractorMediaSource;
@@ -94,6 +96,13 @@ import java.util.List;
                 .setFlags(audioAttributes.flags)
                 .setUsage(audioAttributes.usage)
                 .build();
+    }
+
+    /** Returns ExoPlayer playback parameters for the given playback params. */
+    public static PlaybackParameters getPlaybackParameters(PlaybackParams2 playbackParams2) {
+        Float speed = playbackParams2.getSpeed();
+        Float pitch = playbackParams2.getPitch();
+        return new PlaybackParameters(speed != null ? speed : 1f, pitch != null ? pitch : 1f);
     }
 
     /** Returns the track info list corresponding to an ExoPlayer track group array. */
