@@ -31,6 +31,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
@@ -95,7 +96,8 @@ public class SeekbarListItemTest {
     @Test
     public void testPrimaryActionVisible() {
         SeekbarListItem item0 = initSeekbarListItem();
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item0.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon));
 
         SeekbarListItem item1 = initSeekbarListItem();
         item1.setPrimaryActionIcon(new ColorDrawable(Color.BLACK));
@@ -137,7 +139,8 @@ public class SeekbarListItemTest {
     @Test
     public void testSupplementalIconVisible() {
         SeekbarListItem item = initSeekbarListItem();
-        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+        item.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon), false);
 
         setupPagedListView(Arrays.asList(item));
 
@@ -150,7 +153,8 @@ public class SeekbarListItemTest {
     @Test
     public void testSupplementalIconDividerVisible() {
         SeekbarListItem item = initSeekbarListItem();
-        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+        item.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon), true);
 
         setupPagedListView(Arrays.asList(item));
 
@@ -240,8 +244,10 @@ public class SeekbarListItemTest {
     public void testDisabledItemDisablesViewHolder() {
         SeekbarListItem item = new SeekbarListItem(mActivity);
         item.setText("text");
-        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
-        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+        item.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon));
+        item.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon), false);
         item.setEnabled(false);
 
         setupPagedListView(Arrays.asList(item));
@@ -256,7 +262,8 @@ public class SeekbarListItemTest {
     @Test
     public void testPrimaryIconIsNotClickableWithoutListener() {
         SeekbarListItem item0 = initSeekbarListItem();
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item0.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon));
 
         SeekbarListItem item1 = initSeekbarListItem();
         item1.setPrimaryActionIcon(new ColorDrawable(Color.BLACK));
@@ -271,7 +278,8 @@ public class SeekbarListItemTest {
     public void testClickingPrimaryActionIcon() {
         boolean[] clicked = {false};
         SeekbarListItem item = initSeekbarListItem();
-        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon));
         item.setPrimaryActionIconListener(v -> clicked[0] = true);
 
         setupPagedListView(Arrays.asList(item));
@@ -286,7 +294,8 @@ public class SeekbarListItemTest {
     @Test
     public void testSupplementalIconNotClickableWithoutListener() {
         SeekbarListItem item = initSeekbarListItem();
-        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+        item.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon), false);
 
         setupPagedListView(Arrays.asList(item));
 
@@ -297,7 +306,8 @@ public class SeekbarListItemTest {
     public void testClickingSupplementalIcon() {
         boolean[] clicked = {false};
         SeekbarListItem item = initSeekbarListItem();
-        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+        item.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon), false);
         item.setSupplementalIconListener(v -> clicked[0] = true);
 
         setupPagedListView(Arrays.asList(item));
@@ -311,7 +321,8 @@ public class SeekbarListItemTest {
     @Test
     public void testPrimaryActionEmptyIconSpacing() {
         SeekbarListItem item0 = initSeekbarListItem();
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item0.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon));
 
         SeekbarListItem item1 = initSeekbarListItem();
         item1.setPrimaryActionIcon(new ColorDrawable(Color.BLACK));
@@ -332,7 +343,9 @@ public class SeekbarListItemTest {
     public void testSupplementalIconSpacingWithoutDivider() {
         final boolean showDivider = false;
         SeekbarListItem item0 = initSeekbarListItem();
-        item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, showDivider);
+        item0.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
+                showDivider);
 
         SeekbarListItem item1 = initSeekbarListItem();
         item1.setSupplementalEmptyIcon(showDivider);
@@ -350,7 +363,9 @@ public class SeekbarListItemTest {
     public void testSupplementalIconSpacingWithDivider() {
         final boolean showDivider = true;
         SeekbarListItem item0 = initSeekbarListItem();
-        item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, showDivider);
+        item0.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
+                showDivider);
 
         SeekbarListItem item1 = initSeekbarListItem();
         item1.setSupplementalEmptyIcon(showDivider);
