@@ -106,4 +106,19 @@ class ProcessorTest {
         Truth.assertThat(processor.isNewDependencyFile(
             File("test2\\group2\\artifactTest2DoNotMatch\\1.0\\artifactTest2.aar"))).isFalse()
     }
+
+    /**
+     * A subset of the android.jar xml files has a header that causes our encoding detection to
+     * crash. However these files are otherwise valid UTF-8 files and this tests that we do not
+     * crash during the detection anymore.
+     */
+    @Test
+    fun processor_xmlEncodingAutoDetectionFail_shouldRecover() {
+        val processor = Processor.createProcessor(ConfigParser.loadDefaultConfig()!!)
+
+        val fromFile = File(javaClass.getResource("/encodingTest/android.jar").file)
+        val toFile = File.createTempFile("android-result.jar", "test")
+
+        processor.transform(input = setOf(FileMapping(from = fromFile, to = toFile)))
+    }
 }
