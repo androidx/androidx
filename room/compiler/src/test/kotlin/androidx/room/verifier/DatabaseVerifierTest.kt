@@ -18,11 +18,13 @@ package androidx.room.verifier
 
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.parser.SqlParser
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
 import androidx.room.vo.Database
+import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
@@ -31,6 +33,7 @@ import androidx.room.vo.PrimaryKey
 import collect
 import columnNames
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -67,8 +70,9 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     }
 
     private fun createVerifier(invocation: TestInvocation): DatabaseVerifier {
+        val db = userDb(invocation.context)
         return DatabaseVerifier.create(invocation.context, mock(Element::class.java),
-                userDb(invocation.context).entities)!!
+                db.entities, db.views)!!
     }
 
     @Test
@@ -185,6 +189,29 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun testFullViewQuery() {
+        validQueryTest("select * from UserSummary") {
+            assertThat(it, `is`(
+                    QueryResultInfo(listOf(
+                            ColumnInfo("id", SQLTypeAffinity.INTEGER),
+                            ColumnInfo("name", SQLTypeAffinity.TEXT)
+                    ))
+            ))
+        }
+    }
+
+    @Test
+    fun testViewNoSuchColumn() {
+        simpleRun { invocation ->
+            val verifier = createVerifier(invocation)
+            val (_, error) = verifier.analyze(
+                    "SELECT ratio FROM UserSummary")
+            assertThat(error, notNullValue())
+            assertThat(error?.message, containsString("no such column: ratio"))
+        }.compilesWithoutError()
+    }
+
     private fun validQueryTest(sql: String, cb: (QueryResultInfo) -> Unit) {
         simpleRun { invocation ->
             val verifier = createVerifier(invocation)
@@ -194,18 +221,23 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     }
 
     private fun userDb(context: Context): Database {
-        return database(entity("User",
-                field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
-                field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
-                field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
-                field("ratio", primitive(context, TypeKind.FLOAT), SQLTypeAffinity.REAL)))
+        return database(
+                listOf(entity("User",
+                        field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
+                        field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
+                        field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
+                        field("ratio", primitive(context, TypeKind.FLOAT), SQLTypeAffinity.REAL))),
+                listOf(view("UserSummary", "SELECT id, name FROM User",
+                        field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
+                        field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT))))
     }
 
-    private fun database(vararg entities: Entity): Database {
+    private fun database(entities: List<Entity>, views: List<DatabaseView>): Database {
         return Database(
                 element = mock(TypeElement::class.java),
                 type = mock(TypeMirror::class.java),
-                entities = entities.toList(),
+                entities = entities,
+                views = views,
                 daoMethods = emptyList(),
                 version = -1,
                 exportSchema = false,
@@ -224,6 +256,18 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 foreignKeys = emptyList(),
                 constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
                 shadowTableName = null
+        )
+    }
+
+    private fun view(viewName: String, query: String, vararg fields: Field): DatabaseView {
+        return DatabaseView(
+                element = mock(TypeElement::class.java),
+                viewName = viewName,
+                type = mock(DeclaredType::class.java),
+                fields = fields.toList(),
+                embeddedFields = emptyList(),
+                query = SqlParser.parse(query),
+                constructor = Constructor(mock(ExecutableElement::class.java), emptyList())
         )
     }
 

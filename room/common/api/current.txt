@@ -27,6 +27,9 @@ package androidx.room {
   public abstract class Database implements java.lang.annotation.Annotation {
   }
 
+  public abstract class DatabaseView implements java.lang.annotation.Annotation {
+  }
+
   public abstract class Delete implements java.lang.annotation.Annotation {
   }
 

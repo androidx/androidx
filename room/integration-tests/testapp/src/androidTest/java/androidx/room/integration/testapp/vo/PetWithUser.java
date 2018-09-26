@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package foo.bar;
-import androidx.room.*;
-import java.lang.SuppressWarnings;
-import java.util.List;
+package androidx.room.integration.testapp.vo;
 
-@Database(entities = {User.class}, views = {UserSummary.class}, version = 1923)
-abstract class ComplexDatabase extends RoomDatabase {
-    abstract ComplexDao getComplexDao();
+import androidx.room.DatabaseView;
+import androidx.room.Embedded;
+
+@DatabaseView("SELECT Pet.*, User.* "
+        + "FROM Pet INNER JOIN User ON Pet.mUserId = User.mId"
+)
+public class PetWithUser {
+
+    @Embedded
+    public Pet pet;
+
+    @Embedded
+    public User user;
+
 }

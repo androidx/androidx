@@ -25,6 +25,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetWithToyIds;
+import androidx.room.integration.testapp.vo.PetWithUser;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -56,6 +57,9 @@ public interface PetDao {
 
     @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
     LiveData<Pet> petWithIdLiveData(int id);
+
+    @Query("SELECT * FROM PetWithUser WHERE mPetId = :id")
+    LiveData<PetWithUser> petWithUserLiveData(int id);
 
     @Delete
     void delete(Pet pet);

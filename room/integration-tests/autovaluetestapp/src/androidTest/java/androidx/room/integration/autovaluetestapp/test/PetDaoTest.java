@@ -18,15 +18,21 @@ package androidx.room.integration.autovaluetestapp.test;
 
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
+import androidx.room.integration.autovaluetestapp.vo.DogWithOwner;
 import androidx.room.integration.autovaluetestapp.vo.EmbeddedAutoValue;
+import androidx.room.integration.autovaluetestapp.vo.Person;
 import androidx.room.integration.autovaluetestapp.vo.Pet;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -38,5 +44,16 @@ public class PetDaoTest extends TestDatabaseTest {
         mPetDao.insert(catEntity);
         EmbeddedAutoValue loaded = mPetDao.getCatAndSomething(1);
         assertThat(loaded.getCat(), is(catEntity));
+    }
+
+    @Test
+    public void view() {
+        mPersonDao.insert(Person.create(1, "Hidesaburo", "Ueno"));
+        mPetDao.insert(Pet.Dog.create(1, 1, "Hachiko"));
+        List<DogWithOwner> all = mPetDao.allDogsWithOwners();
+        assertThat(all, hasSize(1));
+        DogWithOwner dogWithOwner = all.get(0);
+        assertThat(dogWithOwner.getDog().getName(), is(equalTo("Hachiko")));
+        assertThat(dogWithOwner.getOwner().getLastName(), is(equalTo("Ueno")));
     }
 }

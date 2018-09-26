@@ -32,6 +32,9 @@ import java.lang.annotation.Target;
  * <p>
  * If it is a method in a Dao class, just the method's sql verification will be skipped.
  * <p>
+ * If it is a class annotated with {@link DatabaseView}, the SELECT SQL for creating the view will
+ * not be verified at compile time.
+ * <p>
  * You should use this as the last resort if Room cannot properly understand your query and you are
  * 100% sure it works. Removing validation may limit the functionality of Room since it won't be
  * able to understand the query response.

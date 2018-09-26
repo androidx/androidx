@@ -28,7 +28,9 @@ import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.room.InvalidationTracker;
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
+import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.UserDao;
+import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.User;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
@@ -53,6 +55,7 @@ public class InvalidationTest {
     @Rule
     public CountingTaskExecutorRule executorRule = new CountingTaskExecutorRule();
     private UserDao mUserDao;
+    private PetDao mPetDao;
     private TestDatabase mDb;
 
     @Before
@@ -60,6 +63,7 @@ public class InvalidationTest {
         Context context = InstrumentationRegistry.getTargetContext();
         mDb = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
         mUserDao = mDb.getUserDao();
+        mPetDao = mDb.getPetDao();
         drain();
     }
 
@@ -131,6 +135,24 @@ public class InvalidationTest {
         assertThat(observer.getInvalidatedTables(), hasItem("User"));
     }
 
+    @Test
+    public void testView() throws InterruptedException, TimeoutException {
+        LoggingObserver observer = new LoggingObserver("PetWithUser");
+        mDb.getInvalidationTracker().addObserver(observer);
+        drain();
+        mUserDao.insert(TestUtil.createUser(3));
+        drain();
+        assertThat(observer.getInvalidatedTables(), hasSize(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("User"));
+        observer.reset();
+        Pet pet = TestUtil.createPet(3);
+        pet.setUserId(3);
+        mPetDao.insertOrReplace(pet);
+        drain();
+        assertThat(observer.getInvalidatedTables(), hasSize(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("Pet"));
+    }
+
     private static class LoggingObserver extends InvalidationTracker.Observer {
         private Set<String> mInvalidatedTables;
 
@@ -145,6 +167,10 @@ public class InvalidationTest {
 
         Set<String> getInvalidatedTables() {
             return mInvalidatedTables;
+        }
+
+        void reset() {
+            mInvalidatedTables = null;
         }
     }
 }

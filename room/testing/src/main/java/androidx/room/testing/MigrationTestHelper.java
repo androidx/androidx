@@ -28,6 +28,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.RoomOpenHelper;
 import androidx.room.migration.Migration;
 import androidx.room.migration.bundle.DatabaseBundle;
+import androidx.room.migration.bundle.DatabaseViewBundle;
 import androidx.room.migration.bundle.EntityBundle;
 import androidx.room.migration.bundle.FieldBundle;
 import androidx.room.migration.bundle.ForeignKeyBundle;
@@ -36,6 +37,7 @@ import androidx.room.migration.bundle.IndexBundle;
 import androidx.room.migration.bundle.SchemaBundle;
 import androidx.room.util.FtsTableInfo;
 import androidx.room.util.TableInfo;
+import androidx.room.util.ViewInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
@@ -326,6 +328,11 @@ public class MigrationTestHelper extends TestWatcher {
                 ftsEntityBundle.getCreateSql());
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ViewInfo toViewInfo(DatabaseViewBundle viewBundle) {
+        return new ViewInfo(viewBundle.getViewName(), viewBundle.createView());
+    }
+
     private static Set<TableInfo.Index> toIndices(List<IndexBundle> indices) {
         if (indices == null) {
             return Collections.emptySet();
@@ -418,6 +425,14 @@ public class MigrationTestHelper extends TestWatcher {
                         throw new IllegalStateException(
                                 "Migration failed.\nExpected:" + expected + " \nfound:" + found);
                     }
+                }
+            }
+            for (DatabaseViewBundle view : mDatabaseBundle.getViews()) {
+                final ViewInfo expected = toViewInfo(view);
+                final ViewInfo found = ViewInfo.read(db, view.getViewName());
+                if (!expected.equals(found)) {
+                    throw new IllegalStateException(
+                                "Migration failed.\nExpected:" + expected + " \nfound:" + found);
                 }
             }
             if (mVerifyDroppedTables) {
