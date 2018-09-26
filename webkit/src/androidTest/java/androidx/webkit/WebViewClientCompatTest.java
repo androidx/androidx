@@ -29,6 +29,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -53,6 +54,13 @@ public class WebViewClientCompatTest {
     @Before
     public void setUp() {
         mWebViewOnUiThread = new WebViewOnUiThread();
+    }
+
+    @After
+    public void cleanUp() {
+        if (mWebViewOnUiThread != null) {
+            mWebViewOnUiThread.cleanUp();
+        }
     }
 
     /**

@@ -25,6 +25,7 @@ import android.webkit.WebSettings;
 import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,13 @@ public class WebSettingsCompatTest {
     @Before
     public void setUp() {
         mWebViewOnUiThread = new androidx.webkit.WebViewOnUiThread();
+    }
+
+    @After
+    public void tearDown() {
+        if (mWebViewOnUiThread != null) {
+            mWebViewOnUiThread.cleanUp();
+        }
     }
 
     /**
