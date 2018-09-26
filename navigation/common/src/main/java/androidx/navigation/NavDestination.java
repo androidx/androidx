@@ -17,7 +17,7 @@
 package androidx.navigation;
 
 import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import android.content.Context;
 import android.content.Intent;
@@ -63,7 +63,7 @@ public class NavDestination {
      * {@link #parseClassFromName(Context, String, Class)} when parsing the
      * <code>android:name</code> attribute.
      */
-    @Retention(SOURCE)
+    @Retention(CLASS)
     @Target({TYPE})
     @SuppressWarnings("UnknownNullness") // TODO https://issuetracker.google.com/issues/112185120
     public @interface ClassType {
