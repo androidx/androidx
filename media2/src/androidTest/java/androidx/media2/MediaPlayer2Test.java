@@ -657,7 +657,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlayVideo() throws Exception {
         playVideoTest(R.raw.testvideo, 352, 288);
     }
@@ -729,7 +729,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
      */
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testVideoSurfaceResetting() throws Exception {
         final int tolerance = 150;
         final int audioLatencyTolerance = 1000;  /* covers audio path latency variability */
@@ -1172,7 +1172,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlaybackRate() throws Exception {
         final int toleranceMs = 1000;
         if (!checkLoadResource(
@@ -1249,7 +1249,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSeekModes() throws Exception {
         // This clip has 2 I frames at 66687us and 4299687us.
         if (!checkLoadResource(
@@ -3000,7 +3000,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testDefaultPlaybackParams() throws Exception {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
