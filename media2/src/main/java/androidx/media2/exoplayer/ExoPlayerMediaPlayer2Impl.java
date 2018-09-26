@@ -666,6 +666,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
         runPlayerCallableBlocking(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
+                // TODO(b/80232248): ExoPlayer releases its data sources asynchronously, so we
+                // should also block until any callback data sources are closed here.
                 mPlayer.release();
                 return null;
             }
