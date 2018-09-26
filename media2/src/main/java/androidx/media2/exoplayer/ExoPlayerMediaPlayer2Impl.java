@@ -114,6 +114,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     float mAuxEffectSendLevel;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mPrepared;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mPendingSeek;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Object mLock;
@@ -123,7 +125,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     @GuardedBy("mLock")
     private Pair<Executor, EventCallback> mExecutorAndEventCallback;
     @GuardedBy("mLock")
-    private MediaPlayerConnector mMediaPlayerConnectorImpl;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaPlayerConnector mMediaPlayerConnectorImpl;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @Nullable MediaItem2 mMediaItem;
@@ -366,6 +369,22 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
             @Override
             void process() {
                 mPlayer.setPlayWhenReady(false);
+            }
+        });
+    }
+
+    @Override
+    public void seekTo(long msec, int mode) {
+        _seekTo(msec, mode);
+    }
+
+    @Override
+    public Object _seekTo(final long msec, final int mode) {
+        return addTask(new Task(CALL_COMPLETED_SEEK_TO, true) {
+            @Override
+            void process() {
+                mPlayer.setSeekParameters(ExoPlayerUtils.getSeekParameters(mode));
+                mPlayer.seekTo(msec);
             }
         });
     }
@@ -724,16 +743,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void seekTo(long msec, int mode) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object _seekTo(long msec, int mode) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public MediaTimestamp2 getTimestamp() {
         throw new UnsupportedOperationException();
     }
@@ -935,6 +944,81 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void maybeNotifyReadyEvents() {
+        MediaItem2 mediaItem2;
+        synchronized (mLock) {
+            mediaItem2 = mMediaItem;
+        }
+        boolean prepareComplete = !mPrepared;
+        boolean seekComplete = mPendingSeek;
+        if (prepareComplete) {
+            mPrepared = true;
+            notifyPrepared(mediaItem2);
+        } else if (seekComplete) {
+            mPendingSeek = false;
+            notifySeekComplete();
+        }
+    }
+
+    private void notifyPrepared(final MediaItem2 mediaItem2) {
+        // TODO(b/80232248): Trigger onInfo with MEDIA_INFO_PREPARED for any item in the data
+        // source queue for which the duration is now known, even if this is not the initial
+        // preparation.
+        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+            @Override
+            public void notify(EventCallback callback) {
+                MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
+                callback.onInfo(
+                        mediaPlayer2,
+                        mediaItem2,
+                        MEDIA_INFO_PREPARED,
+                        /* extra= */ 0);
+            }
+        });
+        notifyPlayerEvent(new PlayerEventNotifier() {
+            @Override
+            public void notify(MediaPlayerConnector.PlayerEventCallback cb) {
+                cb.onMediaPrepared(getMediaPlayerConnector(), mediaItem2);
+            }
+        });
+        synchronized (mTaskLock) {
+            if (mCurrentTask != null
+                    && mCurrentTask.mMediaCallType == CALL_COMPLETED_PREPARE
+                    && ObjectsCompat.equals(mCurrentTask.mDSD, mediaItem2)
+                    && mCurrentTask.mNeedToWaitForEventToComplete) {
+                mCurrentTask.sendCompleteNotification(CALL_STATUS_NO_ERROR);
+                mCurrentTask = null;
+                processPendingTask();
+            }
+        }
+    }
+
+    private void notifySeekComplete() {
+        // TODO(b/80232248): Suppress notification if this is an initial seek for a non-zero start
+        // position.
+        synchronized (mTaskLock) {
+            if (mCurrentTask != null
+                    && mCurrentTask.mMediaCallType == CALL_COMPLETED_SEEK_TO
+                    && mCurrentTask.mNeedToWaitForEventToComplete) {
+                mCurrentTask.sendCompleteNotification(CALL_STATUS_NO_ERROR);
+                mCurrentTask = null;
+                processPendingTask();
+            }
+        }
+        final long seekPositionMs = mPlayer.getCurrentPosition();
+        notifyPlayerEvent(new PlayerEventNotifier() {
+            @Override
+            public void notify(MediaPlayerConnector.PlayerEventCallback cb) {
+                final MediaPlayerConnector connector;
+                synchronized (mLock) {
+                    connector = mMediaPlayerConnectorImpl;
+                }
+                cb.onSeekCompleted(connector, seekPositionMs);
+            }
+        });
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     final class ComponentListener extends Player.DefaultEventListener implements
             VideoListener {
 
@@ -988,51 +1072,24 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 maybeUpdateTimerForStopped();
             }
 
-            if (mPrepared || state != Player.STATE_READY) {
+            if (state != Player.STATE_READY) {
                 return;
             }
-            mPrepared = true;
-            final MediaItem2 item;
-            synchronized (mLock) {
-                item = mMediaItem;
-            }
-            // TODO(b/80232248): Trigger onInfo with MEDIA_INFO_PREPARED for any item in the data
-            // source queue for which the duration is now known, even if this is not the initial
-            // preparation.
-            notifyMediaPlayer2Event(new Mp2EventNotifier() {
-                @Override
-                public void notify(EventCallback callback) {
-                    MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
-                    callback.onInfo(
-                            mediaPlayer2,
-                            item,
-                            MEDIA_INFO_PREPARED,
-                            /* extra= */ 0);
-                }
-            });
-            notifyPlayerEvent(new PlayerEventNotifier() {
-                @Override
-                public void notify(MediaPlayerConnector.PlayerEventCallback cb) {
-                    cb.onMediaPrepared(getMediaPlayerConnector(), item);
-                }
-            });
-            synchronized (mTaskLock) {
-                if (mCurrentTask != null
-                        && mCurrentTask.mMediaCallType == CALL_COMPLETED_PREPARE
-                        && ObjectsCompat.equals(mCurrentTask.mDSD, item)
-                        && mCurrentTask.mNeedToWaitForEventToComplete) {
-                    mCurrentTask.sendCompleteNotification(CALL_STATUS_NO_ERROR);
-                    mCurrentTask = null;
-                    processPendingTask();
-                }
-            }
+
+            maybeNotifyReadyEvents();
         }
 
         @Override
         public void onSurfaceSizeChanged(int width, int height) {}
 
         @Override
-        public void onSeekProcessed() {}
+        public void onSeekProcessed() {
+            mPendingSeek = true;
+            if (mPlayer.getPlaybackState() == Player.STATE_READY) {
+                // The player doesn't need to buffer to seek, so handle being ready now.
+                maybeNotifyReadyEvents();
+            }
+        }
 
     }
 
