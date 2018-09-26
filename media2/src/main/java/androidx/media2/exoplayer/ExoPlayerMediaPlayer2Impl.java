@@ -133,6 +133,9 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mVideoHeight;
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    PlaybackParams2 mPlaybackParams2;
 
     // TODO(b/80232248): Implement command queue and make setters notify their callbacks.
 
@@ -544,6 +547,33 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
+    public void setPlaybackParams(PlaybackParams2 params) {
+        _setPlaybackParams(params);
+    }
+
+    @Override
+    public Object _setPlaybackParams(final PlaybackParams2 params) {
+        return addTask(new Task(CALL_COMPLETED_SET_PLAYBACK_PARAMS, false) {
+            @Override
+            void process() {
+                mPlayer.setPlaybackParameters(ExoPlayerUtils.getPlaybackParameters(params));
+                // TODO(b/80232248): Decide how to handle fallback modes, which ExoPlayer doesn't
+                // support.
+                synchronized (mLock) {
+                    mPlaybackParams2 = params;
+                }
+            }
+        });
+    }
+
+    @Override
+    public PlaybackParams2 getPlaybackParams() {
+        synchronized (mLock) {
+            return mPlaybackParams2;
+        }
+    }
+
+    @Override
     public int getVideoWidth() {
         synchronized (mLock) {
             return mVideoWidth;
@@ -690,21 +720,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public Object _setNextMediaItems(List<MediaItem2> items) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setPlaybackParams(PlaybackParams2 params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object _setPlaybackParams(PlaybackParams2 params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public PlaybackParams2 getPlaybackParams() {
         throw new UnsupportedOperationException();
     }
 
@@ -889,6 +904,13 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2 {
                 mStartPlaybackTimeNs = -1;
                 mAuxEffectId = AuxEffectInfo.NO_AUX_EFFECT_ID;
                 mAuxEffectSendLevel = 0f;
+                synchronized (mLock) {
+                    mPlaybackParams2 = new PlaybackParams2.Builder()
+                            .setSpeed(1f)
+                            .setPitch(1f)
+                            .setAudioFallbackMode(PlaybackParams2.AUDIO_FALLBACK_MODE_DEFAULT)
+                            .build();
+                }
                 return null;
             }
         });
