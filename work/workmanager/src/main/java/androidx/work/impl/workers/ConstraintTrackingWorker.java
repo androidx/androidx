@@ -16,17 +16,15 @@
 
 package androidx.work.impl.workers;
 
-import static androidx.work.Worker.Result.FAILURE;
-import static androidx.work.Worker.Result.RETRY;
+import static androidx.work.NonBlockingWorker.Result.FAILURE;
+import static androidx.work.NonBlockingWorker.Result.RETRY;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
-import androidx.work.Data;
 import androidx.work.Logger;
 import androidx.work.NonBlockingWorker;
 import androidx.work.Worker;
@@ -120,14 +118,13 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
             // that should cause a retry.
             try {
-                ListenableFuture<Pair<Worker.Result, Data>> innerFuture = mDelegate.onStartWork();
+                ListenableFuture<Payload> innerFuture = mDelegate.onStartWork();
                 if (mAreConstraintsUnmet) {
                     return RETRY;
                 } else {
-                    Pair<Worker.Result, Data> resultAndData = innerFuture.get();
-                    setResult(resultAndData.first);
-                    setOutputData(resultAndData.second);
-                    return resultAndData.first;
+                    Payload payload = innerFuture.get();
+                    setOutputData(payload.getOutputData());
+                    return payload.getResult();
                 }
             } catch (Throwable exception) {
                 Logger.debug(TAG, String.format(
