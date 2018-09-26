@@ -17,6 +17,7 @@ package androidx.tvprovider.media.tv;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -260,6 +261,8 @@ public class PreviewChannelHelper {
      * must have a logo, a NullPointerException is thrown if the channel being published has no
      * associated logo to publish with it.
      */
+    @WorkerThread
+    @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
     private boolean addChannelLogo(long channelId, @NonNull PreviewChannel channel) {
         boolean result = false;
         if (!channel.isLogoChanged()) {
