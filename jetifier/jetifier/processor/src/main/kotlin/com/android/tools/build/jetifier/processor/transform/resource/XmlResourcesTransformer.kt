@@ -23,11 +23,14 @@ import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.transform.TransformationContext
 import com.android.tools.build.jetifier.processor.transform.Transformer
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.regex.Pattern
 import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLStreamException
 
 /**
  * Transformer for XML resource files.
@@ -74,7 +77,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
             return
         }
 
-        val charset = getCharset(file.data)
+        val charset = getCharset(file)
         val sb = StringBuilder(file.data.toString(charset))
 
         val changesDone = replaceWithPatterns(sb, patterns, file.relativePath)
@@ -90,18 +93,30 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         }
     }
 
-    fun getCharset(data: ByteArray): Charset {
-        data.inputStream().use {
-            val xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(it)
+    fun getCharset(file: ArchiveFile): Charset {
+        try {
+            file.data.inputStream().use {
+                val xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(it)
 
-            xmlReader.encoding ?: return StandardCharsets.UTF_8 // Encoding was not detected
+                xmlReader.encoding ?: return StandardCharsets.UTF_8 // Encoding was not detected
 
-            val result = Charset.forName(xmlReader.encoding)
-            if (result == null) {
-                Log.e(TAG, "Failed to find charset for encoding '%s'", xmlReader.encoding)
-                return StandardCharsets.UTF_8
+                val result = Charset.forName(xmlReader.encoding)
+                if (result == null) {
+                    Log.e(TAG, "Failed to find charset for encoding '%s'", xmlReader.encoding)
+                    return StandardCharsets.UTF_8
+                }
+                return result
             }
-            return result
+        } catch (e: XMLStreamException) {
+            // Workaround for b/111814958. A subset of the android.jar xml files has a header that
+            // causes our encoding detection to crash. However these files are otherwise valid UTF-8
+            // files so we at least try to recover by defaulting to UTF-8.
+            Log.w(TAG, "Received malformed sequence exception when trying to detect the encoding " +
+                "for '%s'. Defaulting to UTF-8.", file.fileName)
+            val tracePrinter = StringWriter()
+            e.printStackTrace(PrintWriter(tracePrinter))
+            Log.w(TAG, tracePrinter.toString())
+            return StandardCharsets.UTF_8
         }
     }
 
