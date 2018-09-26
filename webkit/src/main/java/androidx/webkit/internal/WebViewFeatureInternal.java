@@ -28,6 +28,8 @@ import android.webkit.WebView;
 
 import androidx.webkit.SafeBrowsingResponseCompat;
 import androidx.webkit.ServiceWorkerClientCompat;
+import androidx.webkit.TracingConfig;
+import androidx.webkit.TracingController;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebResourceErrorCompat;
@@ -38,7 +40,9 @@ import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.util.Features;
 
+import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Enum representing a WebView feature, this provides functionality for determining whether a
@@ -265,10 +269,19 @@ public enum WebViewFeatureInternal {
     GET_WEB_CHROME_CLIENT(WebViewFeature.GET_WEB_CHROME_CLIENT, Build.VERSION_CODES.O),
 
     GET_WEB_VIEW_RENDERER(WebViewFeature.GET_WEB_VIEW_RENDERER),
-    WEB_VIEW_RENDERER_TERMINATE(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE);
+    WEB_VIEW_RENDERER_TERMINATE(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE),
+
+    /**
+     * This feature covers
+     * {@link TracingController#getInstance()},
+     * {@link TracingController#isTracing()},
+     * {@link TracingController#start(TracingConfig)},
+     * {@link TracingController#stop(OutputStream, Executor)}.
+     */
+    TRACING_CONTROLLER_BASIC_USAGE(WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE,
+                                   Build.VERSION_CODES.P);
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;
-
     private final String mFeatureValue;
     private final int mOsVersion;
 
