@@ -21,6 +21,8 @@ import static org.junit.Assert.assertEquals;
 import android.content.Context;
 import android.text.Editable;
 import android.text.Layout;
+import android.view.textclassifier.TextClassificationManager;
+import android.view.textclassifier.TextClassifier;
 
 import androidx.appcompat.test.R;
 import androidx.test.annotation.UiThreadTest;
@@ -131,4 +133,31 @@ public class AppCompatEditTextTest {
                 R.id.text_view_hyphen_break_override);
         assertEquals(Layout.BREAK_STRATEGY_BALANCED, editText.getBreakStrategy());
     }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    public void testGetTextClassifier() {
+        final AppCompatEditText editText = new AppCompatEditText(mActivityTestRule.getActivity());
+        editText.getTextClassifier();
+        DummyTextClassifier dummyTextClassifier = new DummyTextClassifier();
+
+        TextClassificationManager textClassificationManager =
+                mActivityTestRule.getActivity().getSystemService(TextClassificationManager.class);
+        textClassificationManager.setTextClassifier(dummyTextClassifier);
+
+        assertEquals(dummyTextClassifier, editText.getTextClassifier());
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    public void testSetTextClassifier() {
+        final AppCompatEditText editText = new AppCompatEditText(mActivityTestRule.getActivity());
+        DummyTextClassifier dummyTextClassifier = new DummyTextClassifier();
+
+        editText.setTextClassifier(dummyTextClassifier);
+
+        assertEquals(dummyTextClassifier, editText.getTextClassifier());
+    }
+
+    private static class DummyTextClassifier implements TextClassifier {}
 }
