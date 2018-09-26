@@ -20,14 +20,16 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.ui.CraneView
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.ui.foundation.Key
 import androidx.ui.painting.Image
 import androidx.ui.painting.alignment.Alignment
@@ -36,7 +38,6 @@ import androidx.ui.widgets.basic.RawImage
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.State
 import androidx.ui.widgets.framework.StatefulWidget
-import androidx.ui.widgets.framework.StatelessWidget
 import androidx.ui.widgets.framework.Widget
 import androidx.ui.widgets.view.createViewWidget
 
@@ -45,26 +46,7 @@ class SimpleFlutterActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(CraneView(this,
-                createTestMirrorImageWidget()))
-    }
-
-    class ViewCompatTestWidget(key: Key) : StatelessWidget(key) {
-
-        override fun build(context: BuildContext): Widget {
-            return Align(
-                    alignment = Alignment.bottomCenter,
-                    key = Key.createKey("align"),
-                    child = createViewWidget(Key.createKey("testViewCompat")) {
-                ctx: Context ->
-                    val imageView = ImageView(ctx)
-                    imageView.setBackgroundColor(Color.DKGRAY)
-                    imageView.setImageResource(R.drawable.test)
-                    imageView.layoutParams = ViewGroup.LayoutParams(250, 250)
-                    imageView
-                }
-            )
-        }
+        setContentView(CraneView(this, createTestMirrorImageWidget()))
     }
 
     private fun createTestMirrorImageWidget(): MirrorImageWidget {
@@ -81,25 +63,55 @@ class SimpleFlutterActivity : Activity() {
         widget: MirrorImageWidget,
         private var bitmap: Bitmap
     ) : State<MirrorImageWidget>(widget) {
+
+        private var showViewWidget = true
+
         init {
             fun mirrorImageDelayed() {
                 Handler(Looper.getMainLooper()).postDelayed({
                     setState {
-                        val prevBitmap = bitmap
-                        bitmap = bitmap.mirror()
-                        prevBitmap.recycle()
+                        showViewWidget = !showViewWidget
                     }
                     mirrorImageDelayed()
                 }, 700 /* 700 milliseconds */)
             }
+
             mirrorImageDelayed()
+
+            val prevBitmap = bitmap
+            bitmap = bitmap.mirror()
+            prevBitmap.recycle()
         }
 
         override fun build(context: BuildContext): Widget {
-            return RawImage(
+            return Align(
+                key = Key.createKey("alignWidget"),
+                alignment = Alignment.center,
+                child = createContentWidget()
+            )
+        }
+
+        private fun createContentWidget(): Widget {
+            return if (showViewWidget) {
+                return createViewWidget(Key.createKey("testViewWidget")) {
+                        ctx: Context ->
+                    val imageView = ImageView(ctx)
+                    imageView.setImageResource(R.drawable.test)
+                    imageView.layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+                    imageView.setOnClickListener(object : View.OnClickListener {
+                        override fun onClick(v: View?) {
+                            Toast.makeText(v!!.context, "Clicked ImageView!",
+                                Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                    imageView
+                }
+            } else {
+                return RawImage(
                     image = Image(bitmap),
                     key = Key.createKey("jetpack image")
-            )
+                )
+            }
         }
 
         private fun Bitmap.mirror(): Bitmap {
