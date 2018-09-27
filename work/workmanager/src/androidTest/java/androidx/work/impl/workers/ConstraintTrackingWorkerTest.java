@@ -37,9 +37,9 @@ import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
 import androidx.work.DefaultWorkerFactory;
+import androidx.work.NonBlockingWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
-import androidx.work.Worker;
 import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.Scheduler;
@@ -253,7 +253,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         insertWork(mWork);
 
         WorkerFactory workerFactory = new DefaultWorkerFactory();
-        Worker worker = workerFactory.createWorker(
+        NonBlockingWorker worker = workerFactory.createWorker(
                 mContext.getApplicationContext(),
                 ConstraintTrackingWorker.class.getName(),
                 new WorkerParameters(
@@ -266,7 +266,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                         workerFactory));
 
         assertThat(worker, is(notNullValue()));
-        assertThat(worker, is(CoreMatchers.<Worker>instanceOf(ConstraintTrackingWorker.class)));
+        assertThat(worker,
+                is(CoreMatchers.<NonBlockingWorker>instanceOf(ConstraintTrackingWorker.class)));
         mWorker = spy((ConstraintTrackingWorker) worker);
         when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
     }

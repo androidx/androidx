@@ -34,22 +34,22 @@ public class DefaultWorkerFactory implements WorkerFactory {
 
     @Nullable
     @Override
-    public Worker createWorker(
+    public NonBlockingWorker createWorker(
             @NonNull Context appContext,
             @NonNull String workerClassName,
             @NonNull WorkerParameters workerParameters) {
-        Class<? extends Worker> clazz;
+        Class<? extends NonBlockingWorker> clazz;
         try {
-            clazz = Class.forName(workerClassName).asSubclass(Worker.class);
+            clazz = Class.forName(workerClassName).asSubclass(NonBlockingWorker.class);
         } catch (ClassNotFoundException e) {
             Logger.error(TAG, "Class not found: " + workerClassName);
             return null;
         }
 
         try {
-            Worker worker;
+            NonBlockingWorker worker;
             try {
-                Constructor<? extends Worker> constructor =
+                Constructor<? extends NonBlockingWorker> constructor =
                         clazz.getDeclaredConstructor(Context.class, WorkerParameters.class);
                 worker = constructor.newInstance(
                         appContext,

@@ -21,7 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- * An interface for a factory object that creates {@link Worker} instances.
+ * An interface for a factory object that creates {@link NonBlockingWorker} instances.
  */
 public interface WorkerFactory {
 
@@ -33,10 +33,10 @@ public interface WorkerFactory {
      * @param appContext The application context
      * @param workerClassName The class name of the worker to create
      * @param workerParameters Parameters for worker initialization
-     * @return A new {@link Worker} instance of type {@code workerClassName}, or {@code null} if the
-     *         worker could not be created
+     * @return A new {@link NonBlockingWorker} instance of type {@code workerClassName}, or
+     *         {@code null} if the worker could not be created
      */
-    @Nullable Worker createWorker(
+    @Nullable NonBlockingWorker createWorker(
             @NonNull Context appContext,
             @NonNull String workerClassName,
             @NonNull WorkerParameters workerParameters);

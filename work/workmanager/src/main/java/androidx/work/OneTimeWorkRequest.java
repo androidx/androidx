@@ -34,29 +34,29 @@ public final class OneTimeWorkRequest extends WorkRequest {
 
     /**
      * Creates an array of {@link OneTimeWorkRequest} with defaults from an array of
-     * {@link Worker} class names.
+     * {@link NonBlockingWorker} class names.
      *
-     * @param workerClasses An array of {@link Worker} class names
+     * @param workerClasses An array of {@link NonBlockingWorker} class names
      * @return A list of {@link OneTimeWorkRequest} constructed by using defaults in the
      * {@link Builder}
      */
     @SafeVarargs public static @NonNull List<OneTimeWorkRequest> from(
-            @NonNull Class<? extends Worker>... workerClasses) {
+            @NonNull Class<? extends NonBlockingWorker>... workerClasses) {
         return from(Arrays.asList(workerClasses));
     }
 
     /**
-     * Creates a list of {@link OneTimeWorkRequest} with defaults from an array of {@link Worker}
-     * class names.
+     * Creates a list of {@link OneTimeWorkRequest} with defaults from an array of
+     * {@link NonBlockingWorker} class names.
      *
-     * @param workerClasses A list of {@link Worker} class names
+     * @param workerClasses A list of {@link NonBlockingWorker} class names
      * @return A list of {@link OneTimeWorkRequest} constructed by using defaults in the {@link
      * Builder}
      */
     public static @NonNull List<OneTimeWorkRequest> from(
-            @NonNull List<Class<? extends Worker>> workerClasses) {
+            @NonNull List<Class<? extends NonBlockingWorker>> workerClasses) {
         List<OneTimeWorkRequest> workList = new ArrayList<>(workerClasses.size());
-        for (Class<? extends Worker> workerClass : workerClasses) {
+        for (Class<? extends NonBlockingWorker> workerClass : workerClasses) {
             workList.add(new OneTimeWorkRequest.Builder(workerClass).build());
         }
         return workList;
@@ -71,7 +71,7 @@ public final class OneTimeWorkRequest extends WorkRequest {
      */
     public static final class Builder extends WorkRequest.Builder<Builder, OneTimeWorkRequest> {
 
-        public Builder(@NonNull Class<? extends Worker> workerClass) {
+        public Builder(@NonNull Class<? extends NonBlockingWorker> workerClass) {
             super(workerClass);
             mWorkSpec.inputMergerClassName = OverwritingInputMerger.class.getName();
         }
@@ -102,9 +102,9 @@ public final class OneTimeWorkRequest extends WorkRequest {
 
         /**
          * Specify the {@link InputMerger} class name for this {@link OneTimeWorkRequest}.  An
-         * InputMerger takes one or more {@link Data} inputs to a {@link Worker} and converts
-         * them to a single merged {@link Data} to be used as its input.
-         * The default InputMerger is {@link OverwritingInputMerger}.
+         * InputMerger takes one or more {@link Data} inputs to a worker and converts them to a
+         * single merged {@link Data} to be used as its input.  The default InputMerger is
+         * {@link OverwritingInputMerger}.
          *
          * @param inputMerger The class name of the {@link InputMerger} for this
          *                    {@link OneTimeWorkRequest}
