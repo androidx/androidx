@@ -16,16 +16,22 @@
 
 package androidx.work.test.workers;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
  * A test {@link Worker} that prints a log and returns a successful result.
  */
 public class TestWorker extends Worker {
     private static final String TAG = "TestWorker";
+
+    public TestWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @Override
     public @NonNull Result doWork() {

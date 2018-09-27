@@ -15,12 +15,19 @@
  */
 package androidx.work.integration.testapp;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 public class InfiniteWorker extends Worker {
+
+    public InfiniteWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
+
     @Override
     public @NonNull Result doWork() {
         while (true) {

@@ -15,14 +15,21 @@
  */
 package androidx.work.integration.testapp;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
  * A Test Worker.
  */
 public class TestWorker extends Worker {
+
+    public TestWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
+
     @Override
     public @NonNull Result doWork() {
         return Result.SUCCESS;

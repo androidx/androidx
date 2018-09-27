@@ -38,15 +38,6 @@ public abstract class Worker extends NonBlockingWorker {
     SettableFuture<Payload> mFuture;
     private @NonNull volatile Data mOutputData = Data.EMPTY;
 
-    /**
-     * @deprecated Use {@link #Worker(Context, WorkerParameters)} instead
-     */
-    @Deprecated
-    @Keep
-    public Worker() {
-        super();
-    }
-
     @Keep
     public Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);

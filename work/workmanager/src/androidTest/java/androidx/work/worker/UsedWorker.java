@@ -27,15 +27,6 @@ import androidx.work.WorkerParameters;
  */
 public class UsedWorker extends Worker {
 
-    /**
-     * @deprecated Use {@link #UsedWorker(Context, WorkerParameters)}
-     */
-    @Deprecated
-    public UsedWorker() {
-        super();
-        setUsed();
-    }
-
     public UsedWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParameters) {
         super(appContext, workerParameters);
         setUsed();

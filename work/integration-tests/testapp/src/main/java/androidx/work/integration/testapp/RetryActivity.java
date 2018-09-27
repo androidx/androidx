@@ -17,6 +17,7 @@
 package androidx.work.integration.testapp;
 
 import android.arch.lifecycle.Observer;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,6 +35,7 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkStatus;
+import androidx.work.WorkerParameters;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -112,6 +114,10 @@ public class RetryActivity extends AppCompatActivity {
         public static final String NAME = "name";
         public static final String TIME_TAKEN = "time_taken";
         public static final String ERROR_RATE = "error_rate";
+
+        public Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+            super(context, workerParams);
+        }
 
         @NonNull
         @Override

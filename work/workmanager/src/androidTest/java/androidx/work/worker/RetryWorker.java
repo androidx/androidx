@@ -16,16 +16,23 @@
 
 package androidx.work.worker;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
- * Worker that fails.
+ * Worker that requests retry continuously.
  */
 
 public class RetryWorker extends Worker {
+
+    public RetryWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
+
     @Override
     public @NonNull Result doWork() {
         Log.d("RetryWorker", "Returning RETRY");

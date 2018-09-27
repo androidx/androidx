@@ -15,6 +15,7 @@
  */
 package androidx.work.integration.testapp;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
  *  A {@link Worker} that shows a given Toast.
@@ -40,6 +42,10 @@ public class ToastWorker extends Worker {
     public static OneTimeWorkRequest.Builder create(String message) {
         Data input = new Data.Builder().putString(ARG_MESSAGE, message).build();
         return new OneTimeWorkRequest.Builder(ToastWorker.class).setInputData(input);
+    }
+
+    public ToastWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
     }
 
     @Override

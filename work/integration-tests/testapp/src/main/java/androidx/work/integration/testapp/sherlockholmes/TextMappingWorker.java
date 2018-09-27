@@ -22,6 +22,7 @@ import android.support.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
@@ -51,6 +52,10 @@ public class TextMappingWorker extends Worker {
                 .putString(INPUT_FILE, inputFile)
                 .build();
         return new OneTimeWorkRequest.Builder(TextMappingWorker.class).setInputData(input);
+    }
+
+    public TextMappingWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
     }
 
     @Override
