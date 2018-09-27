@@ -551,15 +551,14 @@ class Path {
         operation: PathOperation
     ): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val op: android.graphics.Path.Op
-            when (operation) {
-                PathOperation.difference -> op = android.graphics.Path.Op.DIFFERENCE
-                PathOperation.intersect -> op = android.graphics.Path.Op.INTERSECT
-                PathOperation.reverseDifference -> op = android.graphics.Path.Op.REVERSE_DIFFERENCE
-                PathOperation.union -> op = android.graphics.Path.Op.UNION
-                else -> op = android.graphics.Path.Op.XOR
+            val op = when (operation) {
+                PathOperation.difference -> android.graphics.Path.Op.DIFFERENCE
+                PathOperation.intersect -> android.graphics.Path.Op.INTERSECT
+                PathOperation.reverseDifference -> android.graphics.Path.Op.REVERSE_DIFFERENCE
+                PathOperation.union -> android.graphics.Path.Op.UNION
+                else -> android.graphics.Path.Op.XOR
             }
-            return path1.internalPath.op(path1.toFrameworkPath(), path2.toFrameworkPath(), op)
+            return internalPath.op(path1.toFrameworkPath(), path2.toFrameworkPath(), op)
         } else {
             return false
         }
