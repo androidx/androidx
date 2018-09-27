@@ -15,14 +15,17 @@
   ~ limitations under the License.
   -->
 
-<!-- Drawable of dividers used in preferences -->
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="@dimen/car_keyline_1"
-    android:insetRight="@dimen/car_keyline_1" >
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <shape>
-        <size android:height="@dimen/car_list_divider_height"/>
-        <solid android:color="?attr/listItemActionDividerColor"/>
-    </shape>
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/car_single_line_list_item_height"
+        android:layout_marginRight="@dimen/car_margin"
+        android:layout_marginLeft="@dimen/car_margin"
+        android:layout_gravity="center"/>
 
-</inset>
+</FrameLayout>
