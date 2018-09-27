@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
@@ -287,7 +288,7 @@ public class PreferenceManager {
      * hosting {@link Context}.
      */
     public void setStorageDefault() {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.N) {
             mStorage = STORAGE_DEFAULT;
             mSharedPreferences = null;
         }
@@ -312,7 +313,7 @@ public class PreferenceManager {
      * @see Context#createDeviceProtectedStorageContext()
      */
     public void setStorageDeviceProtected() {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.N) {
             mStorage = STORAGE_DEVICE_PROTECTED;
             mSharedPreferences = null;
         }
@@ -326,7 +327,7 @@ public class PreferenceManager {
      * @see #setStorageDeviceProtected()
      */
     public boolean isStorageDefault() {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.N) {
             return mStorage == STORAGE_DEFAULT;
         } else {
             return true;
@@ -341,7 +342,7 @@ public class PreferenceManager {
      * @see #setStorageDeviceProtected()
      */
     public boolean isStorageDeviceProtected() {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.N) {
             return mStorage == STORAGE_DEVICE_PROTECTED;
         } else {
             return false;

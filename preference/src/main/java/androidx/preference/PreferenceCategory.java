@@ -18,8 +18,12 @@ package androidx.preference;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat;
@@ -68,15 +72,39 @@ public class PreferenceCategory extends PreferenceGroup {
     @Override
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
             holder.itemView.setAccessibilityHeading(true);
+        } else if (Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+            // We can't safely look for colorAccent in the category layout XML below Lollipop, as it
+            // only exists within AppCompat, and will crash if using a platform theme. We should
+            // still try and parse the attribute here in case we are running inside
+            // PreferenceFragmentCompat with an AppCompat theme, and to set the category title
+            // accordingly.
+            final TypedValue value = new TypedValue();
+            if (!getContext().getTheme().resolveAttribute(R.attr.colorAccent, value, true)) {
+                // Return if the attribute could not be resolved
+                return;
+            }
+            final TextView titleView = (TextView) holder.findViewById(android.R.id.title);
+            if (titleView == null) {
+                return;
+            }
+            final int fallbackColor = ContextCompat.getColor(getContext(),
+                    R.color.preference_fallback_accent_color);
+            // If the current color is not the fallback color we hardcode in the layout XML,
+            // then this has already been handled by developers and we shouldn't override the
+            // color.
+            if (titleView.getCurrentTextColor() != fallbackColor) {
+                return;
+            }
+            titleView.setTextColor(value.data);
         }
     }
 
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(info);
-        if (Build.VERSION.SDK_INT < 28) {
+        if (Build.VERSION.SDK_INT < VERSION_CODES.P) {
             CollectionItemInfoCompat existingItemInfo = info.getCollectionItemInfo();
             if (existingItemInfo == null) {
                 return;
