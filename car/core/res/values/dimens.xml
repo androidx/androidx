@@ -133,10 +133,10 @@ limitations under the License.
     <dimen name="car_dialog_action_bar_height">@dimen/car_card_action_bar_height</dimen>
     <dimen name="car_dialog_elevation">16dp</dimen>
     <dimen name="car_list_dialog_title_elevation">16dp</dimen>
-    <dimen name="car_dialog_background_dim" format="float">0.8</dimen>
-    <dimen name="car_dialog_anim_enter_scale_small" format="float">0.7</dimen>
-    <dimen name="car_dialog_anim_enter_scale_big" format="float">1.05</dimen>
-    <dimen name="car_dialog_anim_exit_scale_small" format="float">0.95</dimen>
+    <item name="car_dialog_background_dim" format="float" type="dimen">0.8</item>
+    <item name="car_dialog_anim_enter_scale_small" format="float" type="dimen">0.7</item>
+    <item name="car_dialog_anim_enter_scale_big" format="float" type="dimen">1.05</item>
+    <item name="car_dialog_anim_exit_scale_small" format="float" type="dimen">0.95</item>
 
     <!-- Slide Up Menu -->
     <dimen name="car_slide_up_menu_initial_height">76dp</dimen>
