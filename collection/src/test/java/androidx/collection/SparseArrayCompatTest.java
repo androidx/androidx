@@ -18,6 +18,7 @@ package androidx.collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -26,6 +27,33 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class SparseArrayCompatTest {
+    @Test
+    public void getOrDefaultPrefersStoredValue() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, "1");
+        assertEquals("1", map.get(1, "2"));
+    }
+
+    @Test
+    public void getOrDefaultUsesDefaultWhenAbsent() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        assertEquals("1", map.get(1, "1"));
+    }
+
+    @Test
+    public void getOrDefaultReturnsNullWhenNullStored() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, null);
+        assertNull(map.get(1, "1"));
+    }
+
+    @Test
+    public void getOrDefaultDoesNotPersistDefault() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.get(1, "1");
+        assertFalse(map.containsKey(1));
+    }
+
     @Test
     public void isEmpty() throws Exception {
         SparseArrayCompat<String> sparseArrayCompat = new SparseArrayCompat<>();

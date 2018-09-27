@@ -128,6 +128,7 @@ package androidx.collection {
     method public boolean containsValue(java.lang.Object);
     method public void ensureCapacity(int);
     method public V get(java.lang.Object);
+    method public V getOrDefault(java.lang.Object, V);
     method public int indexOfKey(java.lang.Object);
     method public boolean isEmpty();
     method public K keyAt(int);
