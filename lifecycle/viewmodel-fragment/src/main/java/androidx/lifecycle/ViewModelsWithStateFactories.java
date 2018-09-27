@@ -18,6 +18,7 @@ package androidx.lifecycle;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -73,7 +74,12 @@ public class ViewModelsWithStateFactories {
         if (factory == null) {
             factory = new DefaultViewModelWithStateFactory(app);
         }
-        return new FragmentVmFactory(app, SavedStateStores.of(activity), factory);
+        return new FragmentVmFactory(app, SavedStateRegistries.of(activity), factory,
+                activityBundle(activity));
+    }
+
+    private static Bundle activityBundle(FragmentActivity activity) {
+        return activity.getIntent().getExtras();
     }
 
     /**
@@ -106,7 +112,8 @@ public class ViewModelsWithStateFactories {
         if (factory == null) {
             factory = new DefaultViewModelWithStateFactory(app);
         }
-        return new FragmentVmFactory(app, SavedStateStores.of(fragment), factory);
+        return new FragmentVmFactory(app, SavedStateRegistries.of(fragment), factory,
+                fragment.getArguments());
     }
 
     /**
@@ -129,9 +136,9 @@ public class ViewModelsWithStateFactories {
 
 
     static class FragmentVmFactory extends SavedStateVMFactory {
-        FragmentVmFactory(Application app, SavedStateStore savedStateStore,
-                ViewModelWithStateFactory factory) {
-            super(savedStateStore, factory);
+        FragmentVmFactory(Application app, SavedStateRegistry savedStateStore,
+                ViewModelWithStateFactory factory, Bundle initialArgs) {
+            super(savedStateStore, initialArgs, factory);
             VMSavedStateInitializer.initializeIfNeeded(app);
         }
     }

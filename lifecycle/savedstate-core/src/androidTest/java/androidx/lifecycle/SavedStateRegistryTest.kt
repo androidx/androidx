@@ -28,18 +28,14 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class SavedStateStoreTest {
-
-    class TestSavedStateStore : SavedStateStore() {
-        override fun getArguments(): Bundle? = null
-    }
+class SavedStateRegistryTest {
 
     @Test
     fun registerWithSameKey() {
-        val store = TestSavedStateStore()
-        store.registerSavedStateCallback("key") { Bundle.EMPTY }
+        val registry = SavedStateRegistry()
+        registry.registerSaveStateCallback("key") { Bundle.EMPTY }
         try {
-            store.registerSavedStateCallback("key") { Bundle.EMPTY }
+            registry.registerSaveStateCallback("key") { Bundle.EMPTY }
             Assert.fail("can't register with the same key")
         } catch (e: IllegalArgumentException) {
             // fail as expected
@@ -48,14 +44,14 @@ class SavedStateStoreTest {
 
     @Test
     fun saveRestoreFlow() {
-        val store = TestSavedStateStore()
-        store.registerSavedStateCallback("a") { bundleOf("foo", 1) }
-        store.registerSavedStateCallback("b") { bundleOf("foo", 2) }
+        val registry = SavedStateRegistry()
+        registry.registerSaveStateCallback("a") { bundleOf("foo", 1) }
+        registry.registerSaveStateCallback("b") { bundleOf("foo", 2) }
         val state = Bundle()
-        store.performSaveState(state)
+        registry.performSave(state)
 
-        val newStore = TestSavedStateStore()
-        newStore.performRestoreState(state)
+        val newStore = SavedStateRegistry()
+        newStore.performRestore(state)
 
         assertThat(newStore.isRestored, `is`(true))
         val bundleForA = newStore.consumeRestoredStateForKey("a")
@@ -67,13 +63,13 @@ class SavedStateStoreTest {
 
     @Test
     fun consumeSameTwice() {
-        val store = TestSavedStateStore()
-        store.registerSavedStateCallback("a") { bundleOf("foo", 1) }
+        val registry = SavedStateRegistry()
+        registry.registerSaveStateCallback("a") { bundleOf("foo", 1) }
         val state = Bundle()
-        store.performSaveState(state)
+        registry.performSave(state)
 
-        val newStore = TestSavedStateStore()
-        newStore.performRestoreState(state)
+        val newStore = SavedStateRegistry()
+        newStore.performRestore(state)
 
         assertThat(newStore.isRestored, `is`(true))
         val bundleForA = newStore.consumeRestoredStateForKey("a")
@@ -83,47 +79,47 @@ class SavedStateStoreTest {
 
     @Test
     fun unregister() {
-        val store = TestSavedStateStore()
-        store.registerSavedStateCallback("a") { bundleOf("foo", 1) }
-        store.unregisterSaveStateCallback("a")
+        val registry = SavedStateRegistry()
+        registry.registerSaveStateCallback("a") { bundleOf("foo", 1) }
+        registry.unregisterSaveStateCallback("a")
         // this call should succeed
-        store.registerSavedStateCallback("a") { bundleOf("foo", 2) }
-        store.unregisterSaveStateCallback("a")
+        registry.registerSaveStateCallback("a") { bundleOf("foo", 2) }
+        registry.unregisterSaveStateCallback("a")
         val state = Bundle()
-        store.performRestoreState(state)
+        registry.performRestore(state)
         assertThat(state.isEmpty, `is`(true))
     }
 
     @Test
     fun unconsumedSavedState() {
-        val store = TestSavedStateStore()
-        store.registerSavedStateCallback("a") { bundleOf("foo", 1) }
+        val registry = SavedStateRegistry()
+        registry.registerSaveStateCallback("a") { bundleOf("foo", 1) }
         val savedState1 = Bundle()
-        store.performSaveState(savedState1)
-        val intermediateStore = TestSavedStateStore()
-        intermediateStore.performRestoreState(savedState1)
+        registry.performSave(savedState1)
+        val intermediateStore = SavedStateRegistry()
+        intermediateStore.performRestore(savedState1)
         val savedState2 = Bundle()
-        intermediateStore.performSaveState(savedState2)
-        val newStore = TestSavedStateStore()
-        newStore.performRestoreState(savedState2)
-        val bundleForA = newStore.consumeRestoredStateForKey("a")
+        intermediateStore.performSave(savedState2)
+        val newRegistry = SavedStateRegistry()
+        newRegistry.performRestore(savedState2)
+        val bundleForA = newRegistry.consumeRestoredStateForKey("a")
         assertThat(bundleForA.isSame(bundleOf("foo", 1)), `is`(true))
     }
 
     @Test
     fun unconsumedSavedStateClashWithCallback() {
-        val store = TestSavedStateStore()
-        store.registerSavedStateCallback("a") { bundleOf("foo", 1) }
+        val registry = SavedStateRegistry()
+        registry.registerSaveStateCallback("a") { bundleOf("foo", 1) }
         val savedState1 = Bundle()
-        store.performSaveState(savedState1)
-        val intermediateStore = TestSavedStateStore()
+        registry.performSave(savedState1)
+        val intermediateStore = SavedStateRegistry()
         // there is unconsumed value for "a"
-        intermediateStore.performRestoreState(savedState1)
-        intermediateStore.registerSavedStateCallback("a") { bundleOf("foo", 2) }
+        intermediateStore.performRestore(savedState1)
+        intermediateStore.registerSaveStateCallback("a") { bundleOf("foo", 2) }
         val savedState2 = Bundle()
-        intermediateStore.performSaveState(savedState2)
-        val newStore = TestSavedStateStore()
-        newStore.performRestoreState(savedState2)
+        intermediateStore.performSave(savedState2)
+        val newStore = SavedStateRegistry()
+        newStore.performRestore(savedState2)
         val bundleForA = newStore.consumeRestoredStateForKey("a")
         assertThat(bundleForA.isSame(bundleOf("foo", 2)), `is`(true))
     }

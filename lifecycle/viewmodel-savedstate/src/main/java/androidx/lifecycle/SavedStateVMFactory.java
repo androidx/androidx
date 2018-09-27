@@ -22,23 +22,24 @@ import androidx.annotation.NonNull;
 
 abstract class SavedStateVMFactory implements ViewModelProvider.KeyedFactory {
     static final String TAG_SAVED_STATE_HANDLE = "androidx.lifecycle.savedstate.vm.tag";
-    static final String LOG_TAG = "SavedStateVMFactory";
 
     private final ViewModelWithStateFactory mWrappedFactory;
-    private final SavedStateStore mSavedStateStore;
+    private final SavedStateRegistry mSavedStateStore;
+    private final Bundle mInitialArgs;
 
-    SavedStateVMFactory(SavedStateStore savedStateStore, ViewModelWithStateFactory factory) {
+    SavedStateVMFactory(SavedStateRegistry savedStateStore, Bundle initialArgs,
+            ViewModelWithStateFactory factory) {
         mWrappedFactory = factory;
         mSavedStateStore = savedStateStore;
+        mInitialArgs = initialArgs;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
         Bundle savedState = mSavedStateStore.consumeRestoredStateForKey(key);
-        SavedStateHandle handle = new SavedStateHandle(mSavedStateStore.getArguments(),
-                savedState);
-        mSavedStateStore.registerSavedStateCallback(key, handle.savedStateComponent());
+        SavedStateHandle handle = new SavedStateHandle(mInitialArgs, savedState);
+        mSavedStateStore.registerSaveStateCallback(key, handle.savedStateComponent());
         T viewmodel = mWrappedFactory.create(key, modelClass, handle);
         viewmodel.setTag(TAG_SAVED_STATE_HANDLE, handle);
         return viewmodel;

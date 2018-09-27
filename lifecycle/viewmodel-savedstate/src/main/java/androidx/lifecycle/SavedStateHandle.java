@@ -45,13 +45,12 @@ public class SavedStateHandle {
         return mHolder.savedStateAccessor();
     }
 
-    SavedStateStore.SavedStateCallback savedStateComponent() {
+    SavedState.Callback savedStateComponent() {
         return mHolder;
     }
 
     /**
      * Arguments of the owning component.
-     * @see SavedStateStore#getArguments()
      */
     @Nullable
     public Bundle initialArguments() {
