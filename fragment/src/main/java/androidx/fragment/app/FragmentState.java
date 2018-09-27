@@ -25,6 +25,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelStore;
 
+@SuppressWarnings("BanParcelableUsage")
 final class FragmentState implements Parcelable {
     final String mClassName;
     final String mWho;

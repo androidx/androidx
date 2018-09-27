@@ -16,6 +16,9 @@ package com.example.android.leanback;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * PhotoItem.
+ */
 public class PhotoItem implements Parcelable {
     private int mId;
     private String mTitle;
