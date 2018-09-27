@@ -120,7 +120,7 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void runWorker() {
-        if (tryCheckForInterruptionAndNotify()) {
+        if (tryCheckForInterruptionAndResolve()) {
             return;
         }
 
@@ -129,14 +129,14 @@ public class WorkerWrapper implements Runnable {
             mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
             if (mWorkSpec == null) {
                 Logger.error(TAG, String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
-                notifyListener(false);
+                resolve(false);
                 return;
             }
 
             // Do a quick check to make sure we don't need to bail out in case this work is already
             // running, finished, or is blocked.
             if (mWorkSpec.state != ENQUEUED) {
-                notifyIncorrectStatus();
+                resolveIncorrectStatus();
                 mWorkDatabase.setTransactionSuccessful();
                 return;
             }
@@ -158,7 +158,7 @@ public class WorkerWrapper implements Runnable {
             if (inputMerger == null) {
                 Logger.error(TAG, String.format("Could not create Input Merger %s",
                         mWorkSpec.inputMergerClassName));
-                setFailedAndNotify();
+                setFailedAndResolve();
                 return;
             }
             List<Data> inputs = new ArrayList<>();
@@ -188,7 +188,7 @@ public class WorkerWrapper implements Runnable {
         if (mWorker == null) {
             Logger.error(TAG,
                     String.format("Could for create Worker %s", mWorkSpec.workerClassName));
-            setFailedAndNotify();
+            setFailedAndResolve();
             return;
         }
 
@@ -197,7 +197,7 @@ public class WorkerWrapper implements Runnable {
                     String.format("Received an already-used Worker %s; WorkerFactory should return "
                             + "new instances",
                             mWorkSpec.workerClassName));
-            setFailedAndNotify();
+            setFailedAndResolve();
             return;
         }
         mWorker.setUsed();
@@ -205,18 +205,26 @@ public class WorkerWrapper implements Runnable {
         // Try to set the work to the running state.  Note that this may fail because another thread
         // may have modified the DB since we checked last at the top of this function.
         if (trySetRunning()) {
-            if (tryCheckForInterruptionAndNotify()) {
+            if (tryCheckForInterruptionAndResolve()) {
                 return;
             }
 
             final SettableFuture<NonBlockingWorker.Payload> future = SettableFuture.create();
-            try {
-                final ListenableFuture<NonBlockingWorker.Payload> innerFuture =
-                        mWorker.onStartWork();
-                future.setFuture(innerFuture);
-            } catch (Throwable e) {
-                future.setException(e);
-            }
+            // Call mWorker.onStartWork() on the main thread.
+            mWorkTaskExecutor.getMainThreadExecutor()
+                    .execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                final ListenableFuture<NonBlockingWorker.Payload> innerFuture =
+                                        mWorker.onStartWork();
+                                future.setFuture(innerFuture);
+                            } catch (Throwable e) {
+                                future.setException(e);
+                            }
+
+                        }
+                    });
 
             // Avoid synthetic accessors.
             final String workDescription = mWorkDescription;
@@ -237,7 +245,7 @@ public class WorkerWrapper implements Runnable {
                 }
             }, mWorkTaskExecutor.getBackgroundExecutor());
         } else {
-            notifyIncorrectStatus();
+            resolveIncorrectStatus();
         }
     }
 
@@ -245,16 +253,16 @@ public class WorkerWrapper implements Runnable {
     void onWorkFinished() {
         assertBackgroundExecutorThread();
         boolean isWorkFinished = false;
-        if (!tryCheckForInterruptionAndNotify()) {
+        if (!tryCheckForInterruptionAndResolve()) {
             try {
                 mWorkDatabase.beginTransaction();
                 State state = mWorkSpecDao.getState(mWorkSpecId);
                 if (state == null) {
                     // state can be null here with a REPLACE on beginUniqueWork().
-                    // Treat it as a failure, and rescheduleAndNotify() will
+                    // Treat it as a failure, and rescheduleAndResolve() will
                     // turn into a no-op. We still need to notify potential observers
                     // holding on to wake locks on our behalf.
-                    notifyListener(false);
+                    resolve(false);
                     isWorkFinished = true;
                 } else if (state == RUNNING) {
                     handleResult(mPayload.getResult());
@@ -262,7 +270,7 @@ public class WorkerWrapper implements Runnable {
                     state = mWorkSpecDao.getState(mWorkSpecId);
                     isWorkFinished = state.isFinished();
                 } else if (!state.isFinished()) {
-                    rescheduleAndNotify();
+                    rescheduleAndResolve();
                 }
                 mWorkDatabase.setTransactionSuccessful();
             } finally {
@@ -296,36 +304,36 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void notifyIncorrectStatus() {
+    private void resolveIncorrectStatus() {
         State status = mWorkSpecDao.getState(mWorkSpecId);
         if (status == RUNNING) {
             Logger.debug(TAG, String.format("Status for %s is RUNNING;"
                     + "not doing any work and rescheduling for later execution", mWorkSpecId));
-            notifyListener(true);
+            resolve(true);
         } else {
             Logger.debug(TAG,
                     String.format("Status for %s is %s; not doing any work", mWorkSpecId, status));
-            notifyListener(false);
+            resolve(false);
         }
     }
 
-    private boolean tryCheckForInterruptionAndNotify() {
+    private boolean tryCheckForInterruptionAndResolve() {
         if (mInterrupted) {
             Logger.info(TAG, String.format("Work interrupted for %s", mWorkDescription));
             State currentState = mWorkSpecDao.getState(mWorkSpecId);
             if (currentState == null) {
                 // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
                 // listeners so we can clean up any wake locks, etc.
-                notifyListener(false);
+                resolve(false);
             } else {
-                notifyListener(!currentState.isFinished());
+                resolve(!currentState.isFinished());
             }
             return true;
         }
         return false;
     }
 
-    private void notifyListener(final boolean needsReschedule) {
+    private void resolve(final boolean needsReschedule) {
         try {
             // IMPORTANT: We are using a transaction here as to ensure that we have some guarantees
             // about the state of the world before we disable RescheduleReceiver.
@@ -353,16 +361,16 @@ public class WorkerWrapper implements Runnable {
             case SUCCESS: {
                 Logger.info(TAG, String.format("Worker result SUCCESS for %s", mWorkDescription));
                 if (mWorkSpec.isPeriodic()) {
-                    resetPeriodicAndNotify();
+                    resetPeriodicAndResolve();
                 } else {
-                    setSucceededAndNotify();
+                    setSucceededAndResolve();
                 }
                 break;
             }
 
             case RETRY: {
                 Logger.info(TAG, String.format("Worker result RETRY for %s", mWorkDescription));
-                rescheduleAndNotify();
+                rescheduleAndResolve();
                 break;
             }
 
@@ -370,9 +378,9 @@ public class WorkerWrapper implements Runnable {
             default: {
                 Logger.info(TAG, String.format("Worker result FAILURE for %s", mWorkDescription));
                 if (mWorkSpec.isPeriodic()) {
-                    resetPeriodicAndNotify();
+                    resetPeriodicAndResolve();
                 } else {
-                    setFailedAndNotify();
+                    setFailedAndResolve();
                 }
             }
         }
@@ -395,7 +403,7 @@ public class WorkerWrapper implements Runnable {
         return setToRunning;
     }
 
-    private void setFailedAndNotify() {
+    private void setFailedAndResolve() {
         mWorkDatabase.beginTransaction();
         try {
             recursivelyFailWorkAndDependents(mWorkSpecId);
@@ -411,7 +419,7 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
-            notifyListener(false);
+            resolve(false);
         }
     }
 
@@ -427,7 +435,7 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void rescheduleAndNotify() {
+    private void rescheduleAndResolve() {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
@@ -445,11 +453,11 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
-            notifyListener(true);
+            resolve(true);
         }
     }
 
-    private void resetPeriodicAndNotify() {
+    private void resetPeriodicAndResolve() {
         mWorkDatabase.beginTransaction();
         try {
             long currentPeriodStartTime = mWorkSpec.periodStartTime;
@@ -471,11 +479,11 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
-            notifyListener(false);
+            resolve(false);
         }
     }
 
-    private void setSucceededAndNotify() {
+    private void setSucceededAndResolve() {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(SUCCEEDED, mWorkSpecId);
@@ -499,7 +507,7 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
-            notifyListener(false);
+            resolve(false);
         }
     }
 

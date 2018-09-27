@@ -34,8 +34,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 public abstract class Worker extends NonBlockingWorker {
 
-    // TODO(rahulrav@) Move this to a NonBlockingWorker once we are ready to expose it.
-
     // Package-private to avoid synthetic accessor.
     SettableFuture<Payload> mFuture;
     private @NonNull volatile Data mOutputData = Data.EMPTY;
@@ -76,7 +74,6 @@ public abstract class Worker extends NonBlockingWorker {
         });
         return mFuture;
     }
-
 
     /**
      * Call this method to pass a {@link Data} object as the output of this {@link Worker}.  This
