@@ -55,12 +55,12 @@ public final class PeriodicWorkRequest extends WorkRequest {
          * other conditions are satisfied at the time. The run time of the
          * {@link PeriodicWorkRequest} can be restricted to a flex period within an interval.
          *
-         * @param workerClass The {@link Worker} class to run with this job
+         * @param workerClass The {@link NonBlockingWorker} class to run with this job
          * @param repeatInterval The repeat interval in {@code repeatIntervalTimeUnit} units
          * @param repeatIntervalTimeUnit The {@link TimeUnit} for {@code repeatInterval}
          */
         public Builder(
-                @NonNull Class<? extends Worker> workerClass,
+                @NonNull Class<? extends NonBlockingWorker> workerClass,
                 long repeatInterval,
                 @NonNull TimeUnit repeatIntervalTimeUnit) {
             super(workerClass);
@@ -76,12 +76,12 @@ public final class PeriodicWorkRequest extends WorkRequest {
          * other conditions are satisfied at the time. The run time of the
          * {@link PeriodicWorkRequest} can be restricted to a flex period within an interval.
          *
-         * @param workerClass The {@link Worker} class to run with this job
+         * @param workerClass The {@link NonBlockingWorker} class to run with this job
          * @param repeatInterval The repeat interval
          */
         @RequiresApi(26)
         public Builder(
-                @NonNull Class<? extends Worker> workerClass,
+                @NonNull Class<? extends NonBlockingWorker> workerClass,
                 @NonNull Duration repeatInterval) {
             super(workerClass);
             mWorkSpec.setPeriodic(repeatInterval.toMillis());
@@ -102,7 +102,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
          *                interval 1                            interval 2             ...(repeat)
          * </pre></p>
          *
-         * @param workerClass The {@link Worker} class to run with this job
+         * @param workerClass The {@link NonBlockingWorker} class to run with this job
          * @param repeatInterval The repeat interval in {@code repeatIntervalTimeUnit} units
          * @param repeatIntervalTimeUnit The {@link TimeUnit} for {@code repeatInterval}
          * @param flexInterval The duration in {@code flexIntervalTimeUnit} units for which this
@@ -110,7 +110,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
          * @param flexIntervalTimeUnit The {@link TimeUnit} for {@code flexInterval}
          */
         public Builder(
-                @NonNull Class<? extends Worker> workerClass,
+                @NonNull Class<? extends NonBlockingWorker> workerClass,
                 long repeatInterval,
                 @NonNull TimeUnit repeatIntervalTimeUnit,
                 long flexInterval,
@@ -136,14 +136,14 @@ public final class PeriodicWorkRequest extends WorkRequest {
          *                interval 1                            interval 2             ...(repeat)
          * </pre></p>
          *
-         * @param workerClass The {@link Worker} class to run with this job
+         * @param workerClass The {@link NonBlockingWorker} class to run with this job
          * @param repeatInterval The repeat interval
          * @param flexInterval The duration in for which this work repeats from the end of the
          *                     {@code repeatInterval}
          */
         @RequiresApi(26)
         public Builder(
-                @NonNull Class<? extends Worker> workerClass,
+                @NonNull Class<? extends NonBlockingWorker> workerClass,
                 @NonNull Duration repeatInterval,
                 @NonNull Duration flexInterval) {
             super(workerClass);
