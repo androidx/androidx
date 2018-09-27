@@ -50,7 +50,7 @@ import java.lang.reflect.Method;
 @TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY_GROUP)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
-public class FileDescriptorDataSource extends BaseDataSource {
+/* package */ class FileDescriptorDataSource extends BaseDataSource {
 
     // TODO(b/80232248): Move into core ExoPlayer library and delete this class.
 
