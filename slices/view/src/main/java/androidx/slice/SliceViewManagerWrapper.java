@@ -19,6 +19,7 @@ package androidx.slice;
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.widget.SliceLiveData.SUPPORTED_SPECS;
 
+import android.annotation.SuppressLint;
 import android.app.slice.SliceSpec;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -146,6 +147,7 @@ class SliceViewManagerWrapper extends SliceViewManagerBase {
     }
 
     @Override
+    @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
     public Collection<Uri> getSliceDescendants(Uri uri) {
         // TODO: When this is fixed in framework, remove this try / catch (b/80118259)
         try {

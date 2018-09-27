@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 
@@ -66,6 +67,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @NonNull
     @WorkerThread
     @Override
+    @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
     public TextSelection suggestSelection(@NonNull TextSelection.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
@@ -87,6 +89,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @NonNull
     @WorkerThread
     @Override
+    @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
     public TextClassification classifyText(@NonNull TextClassification.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
@@ -109,6 +112,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @NonNull
     @WorkerThread
     @Override
+    @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
     public TextLinks generateLinks(@NonNull TextLinks.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
