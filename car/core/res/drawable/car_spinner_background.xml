@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright 2018 The Android Open Source Project
   ~
@@ -15,14 +16,19 @@
   ~ limitations under the License.
   -->
 
-<!-- Drawable of dividers used in preferences -->
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="@dimen/car_keyline_1"
-    android:insetRight="@dimen/car_keyline_1" >
-
-    <shape>
-        <size android:height="@dimen/car_list_divider_height"/>
-        <solid android:color="?attr/listItemActionDividerColor"/>
-    </shape>
-
-</inset>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:attr/colorControlHighlight">
+    <item>
+        <shape>
+            <solid android:color="?android:attr/colorPrimary"/>
+        </shape>
+    </item>
+    <item
+        android:width="@dimen/car_spinner_dropdown_arrow_size"
+        android:height="@dimen/car_spinner_dropdown_arrow_size"
+        android:drawable="@drawable/ic_arrow_drop_down"
+        android:gravity="center_vertical|end"
+        android:right="@dimen/car_keyline_1"
+        android:left="@dimen/car_keyline_1"
+        android:scaleType="fitXY"/>
+</ripple>
