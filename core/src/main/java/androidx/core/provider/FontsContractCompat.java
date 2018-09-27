@@ -285,16 +285,17 @@ public class FontsContractCompat {
                     };
 
             synchronized (sLock) {
-                if (sPendingReplies.containsKey(id)) {
+                ArrayList<ReplyCallback<TypefaceResult>> pendingReplies = sPendingReplies.get(id);
+                if (pendingReplies != null) {
                     // Already requested. Do not request the same provider again and insert the
                     // reply to the queue instead.
                     if (reply != null) {
-                        sPendingReplies.get(id).add(reply);
+                        pendingReplies.add(reply);
                     }
                     return null;
                 }
                 if (reply != null) {
-                    ArrayList<ReplyCallback<TypefaceResult>> pendingReplies = new ArrayList<>();
+                    pendingReplies = new ArrayList<>();
                     pendingReplies.add(reply);
                     sPendingReplies.put(id, pendingReplies);
                 }
