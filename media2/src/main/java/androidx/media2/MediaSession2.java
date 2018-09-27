@@ -928,7 +928,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * @return {@code true} if you want to accept incoming command. {@code false} otherwise.
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PLAY
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PAUSE
-         * @see SessionCommand2#COMMAND_CODE_PLAYBACK_RESET
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PREPARE

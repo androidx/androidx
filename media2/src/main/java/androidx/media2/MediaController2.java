@@ -276,15 +276,6 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Requests that the player be reset to its uninitialized state.
-     */
-    public void reset() {
-        if (isConnected()) {
-            getImpl().reset();
-        }
-    }
-
-    /**
      * Request that the player prepare its playback. In other words, other sessions can continue
      * to play during the preparation of this session. This method can be used to speed up the
      * start of the playback. Once the preparation is done, the session will change its playback

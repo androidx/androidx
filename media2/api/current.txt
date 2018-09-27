@@ -89,7 +89,6 @@ package androidx.media2 {
     method public void prepareFromUri(android.net.Uri, android.os.Bundle);
     method public void removePlaylistItem(androidx.media2.MediaItem2);
     method public void replacePlaylistItem(int, androidx.media2.MediaItem2);
-    method public void reset();
     method public void rewind();
     method public void seekTo(long);
     method public void sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
@@ -733,7 +732,6 @@ package androidx.media2 {
     field public static final int COMMAND_CODE_PLAYBACK_PAUSE = 10001; // 0x2711
     field public static final int COMMAND_CODE_PLAYBACK_PLAY = 10000; // 0x2710
     field public static final int COMMAND_CODE_PLAYBACK_PREPARE = 10003; // 0x2713
-    field public static final int COMMAND_CODE_PLAYBACK_RESET = 10002; // 0x2712
     field public static final int COMMAND_CODE_PLAYBACK_SEEK_TO = 10004; // 0x2714
     field public static final int COMMAND_CODE_PLAYBACK_SET_SPEED = 10005; // 0x2715
     field public static final int COMMAND_CODE_PLAYLIST_ADD_ITEM = 20008; // 0x4e28
