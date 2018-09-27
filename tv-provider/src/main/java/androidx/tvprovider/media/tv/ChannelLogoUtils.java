@@ -16,6 +16,7 @@
 
 package androidx.tvprovider.media.tv;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
@@ -122,6 +123,8 @@ public class ChannelLogoUtils {
      *
      * @see #loadChannelLogo(Context, long)
      */
+    @WorkerThread
+    @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
     public static boolean storeChannelLogo(@NonNull Context context, long channelId,
             @NonNull Bitmap logo) {
         boolean result = false;
@@ -147,6 +150,8 @@ public class ChannelLogoUtils {
      * @see #storeChannelLogo(Context, long, Uri)
      * @see #storeChannelLogo(Context, long, Bitmap)
      */
+    @WorkerThread
+    @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
     public static Bitmap loadChannelLogo(@NonNull Context context, long channelId) {
         Bitmap channelLogo = null;
         try {
