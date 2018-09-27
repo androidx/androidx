@@ -311,7 +311,6 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
             if (!TextUtils.isEmpty(mText)) {
                 vh.getText().setVisibility(View.VISIBLE);
                 vh.getText().setText(mText);
-                vh.getText().setTextAppearance(getTitleTextAppearance());
 
                 // If there is a title, the ensure the guideline is a fixed
                 vh.getSupplementalGuideline().setGuidelineBegin(

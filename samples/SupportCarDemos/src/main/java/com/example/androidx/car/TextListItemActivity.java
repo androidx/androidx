@@ -371,6 +371,21 @@ public class TextListItemActivity extends Activity {
             });
             mItems.add(item);
 
+            item = new TextListItem(mContext);
+            item.setBody("Body with custom text appearance");
+            item.addViewBinder(
+                    vh -> vh.getBody().setTextAppearance(R.style.TextAppearance_Car_Body1_Light));
+            mItems.add(item);
+
+            actionItem = new ActionListItem(mContext);
+            actionItem.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+            actionItem.setBody("Body with custom text appearance");
+            actionItem.addViewBinder(
+                    vh -> vh.getBody().setTextAppearance(R.style.TextAppearance_Car_Body1_Light));
+            actionItem.setAction("Card Height", true, mGetParentHeight);
+            mItems.add(actionItem);
+
             actionItem = new ActionListItem(mContext);
             actionItem.setOnClickListener(v -> {
                 throw new RuntimeException("This item should not be clickable");
