@@ -118,7 +118,7 @@ public abstract class WorkRequest {
         WorkSpec mWorkSpec;
         Set<String> mTags = new HashSet<>();
 
-        Builder(@NonNull Class<? extends Worker> workerClass) {
+        Builder(@NonNull Class<? extends NonBlockingWorker> workerClass) {
             mId = UUID.randomUUID();
             mWorkSpec = new WorkSpec(mId.toString(), workerClass.getName());
             addTag(workerClass.getName());
@@ -131,8 +131,7 @@ public abstract class WorkRequest {
          * duration is {@value WorkRequest#MAX_BACKOFF_MILLIS}.
          *
          * @param backoffPolicy The {@link BackoffPolicy} to use for work
-         * @param backoffDelay Time to wait before restarting {@link Worker} in {@code timeUnit}
-         *                     units
+         * @param backoffDelay Time to wait before restarting the worker in {@code timeUnit} units
          * @param timeUnit The {@link TimeUnit} for {@code backoffDelay}
          * @return The current {@link Builder}
          */
@@ -160,7 +159,7 @@ public abstract class WorkRequest {
         /**
          * Add input {@link Data} to the work.
          *
-         * @param inputData key/value pairs that will be provided to the {@link Worker} class
+         * @param inputData key/value pairs that will be provided to the worker
          * @return The current {@link Builder}
          */
         public final @NonNull B setInputData(@NonNull Data inputData) {
