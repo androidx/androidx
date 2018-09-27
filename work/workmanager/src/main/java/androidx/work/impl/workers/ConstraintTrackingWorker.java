@@ -19,12 +19,14 @@ package androidx.work.impl.workers;
 import static androidx.work.NonBlockingWorker.Result.FAILURE;
 import static androidx.work.NonBlockingWorker.Result.RETRY;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
+import androidx.work.Data;
 import androidx.work.Logger;
 import androidx.work.NonBlockingWorker;
 import androidx.work.Worker;
@@ -34,7 +36,7 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.SynchronousExecutor;
+import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -48,7 +50,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ConstraintTrackingWorker extends Worker implements WorkConstraintsCallback {
+public class ConstraintTrackingWorker extends NonBlockingWorker implements WorkConstraintsCallback {
 
     private static final String TAG = "ConstraintTrkngWrkr";
 
@@ -58,44 +60,55 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
     public static final String ARGUMENT_CLASS_NAME =
             "androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME";
 
-    @Nullable
-    private NonBlockingWorker mDelegate;
+    private WorkerParameters mWorkerParameters;
 
-    private final Object mLock;
+    // These are package-private to avoid synthetic accessor.
+    final Object mLock;
     // Marking this volatile as the delegated workers could switch threads.
-    private volatile boolean mAreConstraintsUnmet;
+    volatile boolean mAreConstraintsUnmet;
+    SettableFuture<Payload> mFuture;
 
-    public ConstraintTrackingWorker() {
+    @Nullable private NonBlockingWorker mDelegate;
+
+    public ConstraintTrackingWorker(@NonNull Context appContext,
+            @NonNull WorkerParameters workerParams) {
+        super(appContext, workerParams);
+        mWorkerParameters = workerParams;
         mLock = new Object();
         mAreConstraintsUnmet = false;
+        mFuture = SettableFuture.create();
     }
 
     @NonNull
     @Override
-    public Result doWork() {
+    public ListenableFuture<Payload> onStartWork() {
+        getBackgroundExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                setupAndRunConstraintTrackingWork();
+            }
+        });
+        return mFuture;
+    }
+
+    // Package-private to avoid synthetic accessor.
+    void setupAndRunConstraintTrackingWork() {
         String className = getInputData().getString(ARGUMENT_CLASS_NAME);
         if (TextUtils.isEmpty(className)) {
             Logger.error(TAG, "No worker to delegate to.");
-            return FAILURE;
+            setFutureFailed();
+            return;
         }
-
-        WorkerParameters paramsToPass = new WorkerParameters(
-                getId(),
-                getInputData(),
-                getTags(),
-                getRuntimeExtras(),
-                getRunAttemptCount(),
-                new SynchronousExecutor(),
-                getWorkerFactory());
 
         mDelegate = getWorkerFactory().createWorker(
                 getApplicationContext(),
                 className,
-                paramsToPass);
+                mWorkerParameters);
 
         if (mDelegate == null) {
             Logger.debug(TAG, "No worker to delegate to.");
-            return FAILURE;
+            setFutureFailed();
+            return;
         }
 
         WorkDatabase workDatabase = getWorkDatabase();
@@ -103,7 +116,8 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
         // We need to know what the real constraints are for the delegate.
         WorkSpec workSpec = workDatabase.workSpecDao().getWorkSpec(getId().toString());
         if (workSpec == null) {
-            return FAILURE;
+            setFutureFailed();
+            return;
         }
         WorkConstraintsTracker workConstraintsTracker =
                 new WorkConstraintsTracker(getApplicationContext(), this);
@@ -118,31 +132,48 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
             // that should cause a retry.
             try {
-                ListenableFuture<Payload> innerFuture = mDelegate.onStartWork();
-                if (mAreConstraintsUnmet) {
-                    return RETRY;
-                } else {
-                    Payload payload = innerFuture.get();
-                    setOutputData(payload.getOutputData());
-                    return payload.getResult();
-                }
+                final ListenableFuture<Payload> innerFuture = mDelegate.onStartWork();
+                innerFuture.addListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (mLock) {
+                            if (mAreConstraintsUnmet) {
+                                setFutureRetry();
+                            } else {
+                                mFuture.setFuture(innerFuture);
+                            }
+                        }
+                    }
+                }, getBackgroundExecutor());
             } catch (Throwable exception) {
                 Logger.debug(TAG, String.format(
-                        "Delegated worker %s threw a runtime exception.", className), exception);
+                        "Delegated worker %s threw exception in onStartWork.", className),
+                        exception);
                 synchronized (mLock) {
                     if (mAreConstraintsUnmet) {
                         Logger.debug(TAG, "Constraints were unmet, Retrying.");
-                        return RETRY;
+                        setFutureRetry();
                     } else {
-                        return FAILURE;
+                        setFutureFailed();
                     }
                 }
             }
         } else {
             Logger.debug(TAG, String.format(
                     "Constraints not met for delegate %s. Requesting retry.", className));
-            return RETRY;
+            setFutureRetry();
         }
+
+    }
+
+    // Package-private to avoid synthetic accessor.
+    void setFutureFailed() {
+        mFuture.set(new Payload(FAILURE, Data.EMPTY));
+    }
+
+    // Package-private to avoid synthetic accessor.
+    void setFutureRetry() {
+        mFuture.set(new Payload(RETRY, Data.EMPTY));
     }
 
     @Override

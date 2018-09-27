@@ -88,6 +88,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+
+        findViewById(R.id.enqueue_battery_not_low).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        WorkManager.getInstance().enqueue(
+                                new OneTimeWorkRequest.Builder(TestWorker.class)
+                                        .setConstraints(new Constraints.Builder()
+                                                .setRequiresBatteryNotLow(true)
+                                                .build())
+                                        .build());
+                    }
+                });
+
         findViewById(R.id.sherlock_holmes).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
