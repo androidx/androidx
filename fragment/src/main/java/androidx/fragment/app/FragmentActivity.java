@@ -16,6 +16,8 @@
 
 package androidx.fragment.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -37,6 +39,7 @@ import androidx.activity.ComponentActivity;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
@@ -509,11 +512,21 @@ public class FragmentActivity extends ComponentActivity implements
     @Override
     public boolean onPreparePanel(int featureId, @Nullable View view, @NonNull Menu menu) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            boolean goforit = super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);
+            boolean goforit = onPrepareOptionsPanel(view, menu);
             goforit |= mFragments.dispatchPrepareOptionsMenu(menu);
             return goforit;
         }
         return super.onPreparePanel(featureId, view, menu);
+    }
+
+    /**
+     * @hide
+     * @deprecated Override {@link #onPreparePanel(int, View, Menu)}.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Deprecated
+    protected boolean onPrepareOptionsPanel(@Nullable View view, @NonNull Menu menu) {
+        return super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);
     }
 
     /**
