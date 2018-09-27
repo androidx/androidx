@@ -107,8 +107,13 @@ public class FileDescriptorDataSource extends BaseDataSource {
         transferInitializing(dataSpec);
         seekFileDescriptor(mFileDescriptor, mOffset + dataSpec.position);
         mInputStream = new FileInputStream(mFileDescriptor);
-        mBytesRemaining =
-                dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : (mLength - dataSpec.position);
+        if (dataSpec.length != C.LENGTH_UNSET) {
+            mBytesRemaining = dataSpec.length;
+        } else if (mLength != C.LENGTH_UNSET) {
+            mBytesRemaining = mLength - dataSpec.position;
+        } else {
+            mBytesRemaining = C.LENGTH_UNSET;
+        }
         mOpened = true;
         transferStarted(dataSpec);
         return mBytesRemaining;
@@ -126,9 +131,14 @@ public class FileDescriptorDataSource extends BaseDataSource {
                 ? readLength : (int) Math.min(mBytesRemaining, readLength);
         int bytesRead = Preconditions.checkNotNull(mInputStream).read(buffer, offset, bytesToRead);
         if (bytesRead == -1) {
-            throw new EOFException();
+            if (mBytesRemaining != C.LENGTH_UNSET) {
+                throw new EOFException();
+            }
+            return C.RESULT_END_OF_INPUT;
         }
-        mBytesRemaining -= bytesRead;
+        if (mBytesRemaining != C.LENGTH_UNSET) {
+            mBytesRemaining -= bytesRead;
+        }
         bytesTransferred(bytesRead);
         return bytesRead;
     }

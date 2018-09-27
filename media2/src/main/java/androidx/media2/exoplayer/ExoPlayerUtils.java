@@ -30,6 +30,7 @@ import android.os.Build;
 
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.CallbackMediaItem2;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
@@ -71,10 +72,16 @@ import java.util.List;
             return new ExtractorMediaSource.Factory(dataSourceFactory)
                     .setTag(mediaItem2).createMediaSource(uri);
         } else if (mediaItem2 instanceof FileMediaItem2) {
-            FileDescriptor fileDescriptor = ((FileMediaItem2) mediaItem2).getFileDescriptor();
-            long offset = ((FileMediaItem2) mediaItem2).getFileDescriptorOffset();
-            long length = ((FileMediaItem2) mediaItem2).getFileDescriptorLength();
+            FileMediaItem2 fileMediaItem2 = (FileMediaItem2) mediaItem2;
+            FileDescriptor fileDescriptor = fileMediaItem2.getFileDescriptor();
+            long offset = fileMediaItem2.getFileDescriptorOffset();
+            long length = fileMediaItem2.getFileDescriptorLength();
             dataSourceFactory = FileDescriptorDataSource.getFactory(fileDescriptor, offset, length);
+            return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.EMPTY);
+        } else if (mediaItem2 instanceof CallbackMediaItem2) {
+            CallbackMediaItem2 callbackMediaItem2 = (CallbackMediaItem2) mediaItem2;
+            dataSourceFactory = DataSourceCallback2DataSource.getFactory(
+                    callbackMediaItem2.getDataSourceCallback2());
             return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.EMPTY);
         } else {
             throw new UnsupportedOperationException();
