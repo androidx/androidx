@@ -53,7 +53,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(DefaultConstructorWorker.class).build();
         insertWork(work);
 
-        Worker worker = mDefaultWorkerFactory.createWorker(
+        NonBlockingWorker worker = mDefaultWorkerFactory.createWorker(
                 mContext.getApplicationContext(),
                 DefaultConstructorWorker.class.getName(),
                 new WorkerParameters(
@@ -65,7 +65,8 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         new SynchronousExecutor(),
                         mDefaultWorkerFactory));
         assertThat(worker, is(notNullValue()));
-        assertThat(worker, is(CoreMatchers.<Worker>instanceOf(DefaultConstructorWorker.class)));
+        assertThat(worker,
+                is(CoreMatchers.<NonBlockingWorker>instanceOf(DefaultConstructorWorker.class)));
         assertThat(worker.getId(), is(work.getId()));
     }
 
@@ -76,7 +77,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(NewConstructorWorker.class).build();
         insertWork(work);
 
-        Worker worker = mDefaultWorkerFactory.createWorker(
+        NonBlockingWorker worker = mDefaultWorkerFactory.createWorker(
                 mContext.getApplicationContext(),
                 NewConstructorWorker.class.getName(),
                 new WorkerParameters(
@@ -88,7 +89,8 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         new SynchronousExecutor(),
                         mDefaultWorkerFactory));
         assertThat(worker, is(notNullValue()));
-        assertThat(worker, is(CoreMatchers.<Worker>instanceOf(NewConstructorWorker.class)));
+        assertThat(worker,
+                is(CoreMatchers.<NonBlockingWorker>instanceOf(NewConstructorWorker.class)));
         assertThat(worker.getId(), is(work.getId()));
     }
 }

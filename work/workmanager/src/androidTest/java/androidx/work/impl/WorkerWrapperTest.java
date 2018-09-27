@@ -52,9 +52,9 @@ import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.NonBlockingWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
@@ -622,7 +622,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testFromWorkSpec_hasAppContext() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+        NonBlockingWorker worker = mConfiguration.getWorkerFactory().createWorker(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -647,7 +647,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(TestWorker.class).setInputData(input).build();
-        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+        NonBlockingWorker worker = mConfiguration.getWorkerFactory().createWorker(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -688,7 +688,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .addTag("two")
                         .addTag("three")
                         .build();
-        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+        NonBlockingWorker worker = mConfiguration.getWorkerFactory().createWorker(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -713,7 +713,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         runtimeExtras.triggeredContentAuthorities = new String[]{"tca1", "tca2", "tca3"};
         runtimeExtras.triggeredContentUris = new Uri[]{Uri.parse("tcu1"), Uri.parse("tcu2")};
 
-        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+        NonBlockingWorker worker = mConfiguration.getWorkerFactory().createWorker(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -835,7 +835,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
 
-        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+        NonBlockingWorker worker = mConfiguration.getWorkerFactory().createWorker(
                 mContext.getApplicationContext(),
                 InterruptionAwareWorker.class.getName(),
                 new WorkerParameters(
@@ -867,7 +867,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
 
-        Worker worker = mConfiguration.getWorkerFactory().createWorker(
+        NonBlockingWorker worker = mConfiguration.getWorkerFactory().createWorker(
                 mContext.getApplicationContext(),
                 InterruptionAwareWorker.class.getName(),
                 new WorkerParameters(
