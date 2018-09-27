@@ -27,7 +27,7 @@ data class DependencyVersions(private val currentSet: Map<String, String>) {
 
         const val DATA_BINDING_VAR_NAME = "newDataBindingVersion"
 
-        private const val DEFAULT_DEPENDENCY_SET = "latestReleased"
+        const val DEFAULT_DEPENDENCY_SET = "latestReleased"
 
         fun parseFromVersionSetTypeId(
             versionsMap: DependencyVersionsMap,
