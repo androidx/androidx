@@ -165,8 +165,8 @@ public class InvalidationTracker {
             final String tableName = tableNames[id].toLowerCase(Locale.US);
             mTableIdLookup.put(tableName, id);
             mTableNames[id] = tableName;
-            if (shadowTablesMap.containsKey(tableNames[id])) {
-                final String shadowTableName = shadowTablesMap.get(tableNames[id]);
+            String shadowTableName = shadowTablesMap.get(tableNames[id]);
+            if (shadowTableName != null) {
                 mShadowTableLookup.append(id, shadowTableName.toLowerCase(Locale.US));
             }
         }
