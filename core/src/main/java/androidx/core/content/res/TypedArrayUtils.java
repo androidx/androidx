@@ -171,6 +171,10 @@ public class TypedArrayUtils {
             if (value.type == TypedValue.TYPE_ATTRIBUTE) {
                 throw new UnsupportedOperationException(
                         "Failed to resolve attribute at index " + resId + ": " + value);
+            } else if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                    && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                // Handle inline color definitions.
+                return getNamedColorStateListFromInt(value);
             }
             return ColorStateListInflaterCompat.inflate(a.getResources(),
                     a.getResourceId(resId, 0), theme);
@@ -178,6 +182,13 @@ public class TypedArrayUtils {
         return null;
     }
 
+    @NonNull
+    private static ColorStateList getNamedColorStateListFromInt(@NonNull TypedValue value) {
+        // This is copied from ResourcesImpl#getNamedColorStateListFromInt in the platform, but the
+        // ComplexColor caching mechanism has been removed. The practical implication of this is
+        // minimal, since platform caching is only used by Zygote-preloaded resources.
+        return ColorStateList.valueOf(value.data);
+    }
 
     /**
      * Retrieves a resource ID attribute value. In addition to the styleable resource ID, we also
