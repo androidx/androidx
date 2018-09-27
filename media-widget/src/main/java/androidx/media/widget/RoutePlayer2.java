@@ -22,16 +22,22 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.collection.ArrayMap;
+import androidx.concurrent.futures.SettableFuture;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.CommandResult2;
 import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayerConnector;
+import androidx.media2.RemoteSessionPlayer2;
+import androidx.media2.SessionPlayer2;
 import androidx.media2.UriMediaItem2;
 import androidx.mediarouter.media.MediaItemStatus;
+import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaSessionStatus;
 import androidx.mediarouter.media.RemotePlaybackClient;
@@ -39,15 +45,20 @@ import androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback;
 import androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback;
 import androidx.mediarouter.media.RemotePlaybackClient.StatusCallback;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 /**
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class RoutePlayer2 extends MediaPlayerConnector {
+public class RoutePlayer2 extends RemoteSessionPlayer2 {
     private static final String TAG = "RoutePlayer2";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
@@ -57,10 +68,42 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     long mLastStatusChangedTime;
     long mPosition;
     boolean mCanResume;
-    ArrayMap<PlayerEventCallback, Executor> mPlayerEventCallbackMap =
-            new ArrayMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaRouter.RouteInfo mSelectedRoute;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final List<SettableFuture<CommandResult2>> mPendingVolumeResult = new ArrayList<>();
+
+    private MediaItem2 mItem;
+    private MediaRouter mMediaRouter;
     private RemotePlaybackClient mClient;
-    private MediaItem2 mDsd;
+
+    private MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
+        @Override
+        public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
+            if (TextUtils.equals(route.getId(), mSelectedRoute.getId())) {
+                final int volume = route.getVolume();
+                for (int i = 0; i < mPendingVolumeResult.size(); i++) {
+                    mPendingVolumeResult.get(i).set(new CommandResult2(
+                            RESULT_CODE_NO_ERROR, getCurrentMediaItem()));
+                }
+                mPendingVolumeResult.clear();
+                Map<PlayerCallback, Executor> callbacks = getCallbacks();
+                for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
+                    final SessionPlayer2.PlayerCallback callback = entry.getKey();
+                    if (callback instanceof RemoteSessionPlayer2.Callback) {
+                        final Executor executor = entry.getValue();
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                ((RemoteSessionPlayer2.Callback) callback)
+                                        .onVolumeChanged(RoutePlayer2.this, volume);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    };
 
     private StatusCallback mStatusCallback = new StatusCallback() {
         @Override
@@ -73,15 +116,27 @@ public class RoutePlayer2 extends MediaPlayerConnector {
             mLastStatusChangedTime = SystemClock.elapsedRealtime();
             mPosition = itemStatus.getContentPosition();
             mCurrentPlayerState = convertPlaybackStateToPlayerState(itemStatus.getPlaybackState());
-            if (mPlayerEventCallbackMap.size() > 0) {
-                for (PlayerEventCallback callback : mPlayerEventCallbackMap.keySet()) {
-                    callback.onPlayerStateChanged(RoutePlayer2.this, mCurrentPlayerState);
-                }
+
+            Map<PlayerCallback, Executor> callbacks = getCallbacks();
+            for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
+                final PlayerCallback callback = entry.getKey();
+                final Executor executor = entry.getValue();
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onPlayerStateChanged(RoutePlayer2.this, mCurrentPlayerState);
+                    }
+                });
             }
         }
     };
 
-    public RoutePlayer2(Context context, MediaRouter.RouteInfo route) {
+    public RoutePlayer2(Context context, MediaRouteSelector selector,
+            MediaRouter.RouteInfo route) {
+        mMediaRouter = MediaRouter.getInstance(context);
+        mMediaRouter.addCallback(selector, mRouterCallback);
+        mSelectedRoute = route;
+
         mClient = new RemotePlaybackClient(context, route);
         mClient.setStatusCallback(mStatusCallback);
         if (mClient.isSessionManagementSupported()) {
@@ -99,18 +154,18 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     }
 
     @Override
-    public void play() {
-        if (mDsd == null) {
-            return;
+    public ListenableFuture<CommandResult2> play() {
+        if (mItem == null) {
+            return createResult(RESULT_CODE_BAD_VALUE);
         }
 
         // RemotePlaybackClient cannot call resume(..) without calling pause(..) first.
         if (!mCanResume) {
-            playInternal();
-            return;
+            return playInternal();
         }
 
         if (mClient.isSessionManagementSupported()) {
+            final SettableFuture<CommandResult2> result = SettableFuture.create();
             mClient.resume(null, new SessionActionCallback() {
                 @Override
                 public void onResult(Bundle data,
@@ -121,19 +176,22 @@ public class RoutePlayer2 extends MediaPlayerConnector {
                     // Do nothing since this returns the buffering state--
                     // StatusCallback#onItemStatusChanged is called when the session reaches the
                     // play state.
+                    result.set(new CommandResult2(RESULT_CODE_NO_ERROR, getCurrentMediaItem()));
                 }
             });
         }
+        return createResult(RESULT_CODE_INVALID_OPERATION);
     }
 
     @Override
-    public void prepare() {
-        // Do nothing
+    public ListenableFuture<CommandResult2> prepare() {
+        return createResult();
     }
 
     @Override
-    public void pause() {
+    public ListenableFuture<CommandResult2> pause() {
         if (mClient.isSessionManagementSupported()) {
+            final SettableFuture<CommandResult2> result = SettableFuture.create();
             mClient.pause(null, new SessionActionCallback() {
                 @Override
                 public void onResult(Bundle data,
@@ -145,53 +203,46 @@ public class RoutePlayer2 extends MediaPlayerConnector {
                     // Do not update playback state here since this returns the buffering state--
                     // StatusCallback#onItemStatusChanged is called when the session reaches the
                     // pause state.
+                    result.set(new CommandResult2(RESULT_CODE_NO_ERROR, getCurrentMediaItem()));
                 }
             });
         }
+        return createResult(RESULT_CODE_INVALID_OPERATION);
     }
 
     @Override
-    public void reset() {
+    public ListenableFuture<CommandResult2> seekTo(long pos) {
         if (mClient.isSessionManagementSupported()) {
-            mClient.stop(null, new SessionActionCallback() {
-                @Override
-                public void onResult(Bundle data,
-                        String sessionId, MediaSessionStatus sessionStatus) {
-                    if (DEBUG && !isSessionActive(sessionStatus)) {
-                        Log.v(TAG, "reset() is called, but session is not active.");
-                    }
-                }
-            });
-        }
-    }
-
-    @Override
-    public void skipToNext() {
-        // TODO: implement
-    }
-
-    @Override
-    public void seekTo(long pos) {
-        if (mClient.isSessionManagementSupported()) {
+            final SettableFuture<CommandResult2> result = SettableFuture.create();
             mClient.seek(mItemId, pos, null, new ItemActionCallback() {
                 @Override
                 public void onResult(Bundle data,
                         String sessionId, MediaSessionStatus sessionStatus,
-                        String itemId, MediaItemStatus itemStatus) {
+                        String itemId, final MediaItemStatus itemStatus) {
                     if (DEBUG && !isSessionActive(sessionStatus)) {
                         Log.v(TAG, "seekTo(long) is called, but session is not active.");
                     }
                     if (itemStatus != null) {
-                        if (mPlayerEventCallbackMap.size() > 0) {
-                            for (PlayerEventCallback callback : mPlayerEventCallbackMap.keySet()) {
-                                callback.onSeekCompleted(RoutePlayer2.this,
-                                        itemStatus.getContentPosition());
-                            }
+                        Map<PlayerCallback, Executor> callbacks = getCallbacks();
+                        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
+                            final PlayerCallback callback = entry.getKey();
+                            final Executor executor = entry.getValue();
+                            executor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onSeekCompleted(RoutePlayer2.this,
+                                            itemStatus.getContentPosition());
+                                }
+                            });
                         }
+                    } else {
+                        result.set(new CommandResult2(RESULT_CODE_ERROR_UNKNOWN,
+                                getCurrentMediaItem()));
                     }
                 }
             });
         }
+        return createResult(RESULT_CODE_INVALID_OPERATION);
     }
 
     @Override
@@ -224,8 +275,9 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     }
 
     @Override
-    public void setAudioAttributes(AudioAttributesCompat attributes) {
+    public ListenableFuture<CommandResult2> setAudioAttributes(AudioAttributesCompat attributes) {
         // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
     }
 
     @Override
@@ -234,33 +286,20 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     }
 
     @Override
-    public void setMediaItem(MediaItem2 dsd) {
-        mDsd = dsd;
-    }
-
-    @Override
-    public void setNextMediaItem(MediaItem2 dsd) {
-        // TODO: implement
-    }
-
-    @Override
-    public void setNextMediaItems(List<MediaItem2> dsds) {
-        // TODO: implement
+    public ListenableFuture<CommandResult2> setMediaItem(MediaItem2 item) {
+        mItem = item;
+        return createResult();
     }
 
     @Override
     public MediaItem2 getCurrentMediaItem() {
-        return mDsd;
+        return mItem;
     }
 
     @Override
-    public void loopCurrent(boolean loop) {
-        // TODO: implement
-    }
-
-    @Override
-    public void setPlaybackSpeed(float speed) {
+    public ListenableFuture<CommandResult2> setPlaybackSpeed(float speed) {
         // Do nothing
+        return createResult(RESULT_CODE_INVALID_OPERATION);
     }
 
     @Override
@@ -269,24 +308,119 @@ public class RoutePlayer2 extends MediaPlayerConnector {
     }
 
     @Override
-    public void setPlayerVolume(float volume) {
+    public int getVolume() {
+        return mSelectedRoute.getVolume();
+    }
+
+    @Override
+    public Future<CommandResult2> adjustVolume(int direction) {
+        mSelectedRoute.requestUpdateVolume(direction);
+
+        SettableFuture<CommandResult2> result = SettableFuture.create();
+        mPendingVolumeResult.add(result);
+        return result;
+    }
+
+    @Override
+    public Future<CommandResult2> setVolume(int volume) {
+        mSelectedRoute.requestSetVolume(volume);
+
+        SettableFuture<CommandResult2> result = SettableFuture.create();
+        mPendingVolumeResult.add(result);
+        return result;
+    }
+
+    @Override
+    public int getMaxVolume() {
+        return mSelectedRoute.getVolumeMax();
+    }
+
+    @Override
+    public int getVolumeControlType() {
+        return mSelectedRoute.getVolumeHandling();
+    }
+
+    @Override
+    public ListenableFuture<CommandResult2> setPlaylist(List<MediaItem2> list,
+            MediaMetadata2 metadata) {
         // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
     }
 
     @Override
-    public float getPlayerVolume() {
-        return 0;
+    public ListenableFuture<CommandResult2> addPlaylistItem(int index, MediaItem2 item) {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
     }
 
     @Override
-    public void registerPlayerEventCallback(
-            Executor e, MediaPlayerConnector.PlayerEventCallback cb) {
-        mPlayerEventCallbackMap.put(cb, e);
+    public ListenableFuture<CommandResult2> removePlaylistItem(MediaItem2 item) {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
     }
 
     @Override
-    public void unregisterPlayerEventCallback(MediaPlayerConnector.PlayerEventCallback cb) {
-        mPlayerEventCallbackMap.remove(cb);
+    public ListenableFuture<CommandResult2> replacePlaylistItem(int index, MediaItem2 item) {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
+    }
+
+    @Override
+    public ListenableFuture<CommandResult2> skipToPreviousItem() {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
+    }
+
+    @Override
+    public ListenableFuture<CommandResult2> skipToNextItem() {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
+    }
+
+    @Override
+    public ListenableFuture<CommandResult2> skipToPlaylistItem(MediaItem2 item) {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
+    }
+
+    @Override
+    public ListenableFuture<CommandResult2> updatePlaylistMetadata(MediaMetadata2 metadata) {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
+    }
+
+    @Override
+    public ListenableFuture<CommandResult2> setRepeatMode(int repeatMode) {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
+    }
+
+    @Override
+    public ListenableFuture<CommandResult2> setShuffleMode(int shuffleMode) {
+        // TODO: implement
+        return createResult(RESULT_CODE_INVALID_OPERATION);
+    }
+
+    @Override
+    public List<MediaItem2> getPlaylist() {
+        List<MediaItem2> list = new ArrayList<>();
+        list.add(mItem);
+        return list;
+    }
+
+    @Override
+    public MediaMetadata2 getPlaylistMetadata() {
+        return null;
+    }
+
+    @Override
+    public int getRepeatMode() {
+        return SessionPlayer2.REPEAT_MODE_NONE;
+    }
+
+    @Override
+    public int getShuffleMode() {
+        return SessionPlayer2.SHUFFLE_MODE_NONE;
     }
 
     @Override
@@ -299,7 +433,7 @@ public class RoutePlayer2 extends MediaPlayerConnector {
             }
             mClient = null;
         }
-        mPlayerEventCallbackMap.clear();
+        mMediaRouter.removeCallback(mRouterCallback);
     }
 
     void setCurrentPosition(long position) {
@@ -337,12 +471,13 @@ public class RoutePlayer2 extends MediaPlayerConnector {
         return playerState;
     }
 
-    private void playInternal() {
-        if (!(mDsd instanceof UriMediaItem2)) {
-            Log.w(TAG, "Data source type is not Uri." + mDsd);
-            return;
+    private ListenableFuture<CommandResult2> playInternal() {
+        if (!(mItem instanceof UriMediaItem2)) {
+            Log.w(TAG, "Data source type is not Uri." + mItem);
+            return createResult(RESULT_CODE_BAD_VALUE);
         }
-        mClient.play(((UriMediaItem2) mDsd).getUri(), "video/mp4", null, mPosition, null,
+        final SettableFuture<CommandResult2> result = SettableFuture.create();
+        mClient.play(((UriMediaItem2) mItem).getUri(), "video/mp4", null, mPosition, null,
                 new ItemActionCallback() {
                     @Override
                     public void onResult(Bundle data, String sessionId,
@@ -358,7 +493,19 @@ public class RoutePlayer2 extends MediaPlayerConnector {
                         // Do not update playback state here since this returns the buffering state.
                         // StatusCallback#onItemStatusChanged is called when the session reaches the
                         // play state.
+                        result.set(new CommandResult2(RESULT_CODE_NO_ERROR, getCurrentMediaItem()));
                     }
                 });
+        return result;
+    }
+
+    private ListenableFuture<CommandResult2> createResult() {
+        return createResult(RESULT_CODE_NO_ERROR);
+    }
+
+    private ListenableFuture<CommandResult2> createResult(int code) {
+        SettableFuture<CommandResult2> result = SettableFuture.create();
+        result.set(new CommandResult2(code, getCurrentMediaItem()));
+        return result;
     }
 }

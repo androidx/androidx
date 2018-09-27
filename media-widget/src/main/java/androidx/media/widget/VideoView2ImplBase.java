@@ -46,14 +46,15 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.BaseRemoteMediaPlayerConnector;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaSession2;
+import androidx.media2.RemoteSessionPlayer2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionPlayer2;
 import androidx.media2.SessionToken2;
 import androidx.media2.SubtitleData2;
 import androidx.media2.UriMediaItem2;
@@ -145,9 +146,13 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     VideoView2 mInstance;
 
     private MediaRouter mMediaRouter;
-    private MediaRouteSelector mRouteSelector;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaRouteSelector mRouteSelector;
     MediaRouter.RouteInfo mRoute;
     RoutePlayer2 mRoutePlayer;
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SessionPlayerCallback mSessionPlayerCallback = new SessionPlayerCallback();
 
     private final MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
         @Override
@@ -161,21 +166,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 // Update player
                 resetPlayer();
                 mRoute = route;
-                mRoutePlayer = new RoutePlayer2(mInstance.getContext(), route);
+                mRoutePlayer = new RoutePlayer2(mInstance.getContext(), mRouteSelector, route);
                 // TODO: Replace with MediaSession2#setPlaylist once b/110811730 is fixed.
                 mRoutePlayer.setMediaItem(mMediaItem);
                 mRoutePlayer.setCurrentPosition(localPlaybackPosition);
-                if (mMediaSession != null) {
-                    mMediaSession.updatePlayerConnector(
-                            mRoutePlayer, mMediaSession.getPlaylistAgent());
-                } else {
-                    final Context context = mInstance.getContext();
-                    mMediaSession = new MediaSession2.Builder(context)
-                            .setPlayer(mRoutePlayer)
-                            .setId("VideoView2_" + mInstance.toString())
-                            .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
-                            .build();
-                }
+                ensureSessionWithPlayer(mRoutePlayer);
                 if (localPlaybackState == STATE_PLAYING) {
                     mMediaSession.play();
                 }
@@ -491,14 +486,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             }
         }
 
-        if (mMediaSession == null) {
-            final Context context = mInstance.getContext();
-            mMediaSession = new MediaSession2.Builder(context)
-                    .setPlayer(mMediaPlayer)
-                    .setId("VideoView2_" + mInstance.toString())
-                    .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
-                    .build();
-        }
+        ensureSessionWithPlayer(mMediaPlayer);
 
         attachMediaControlView();
         mMediaRouter = MediaRouter.getInstance(mInstance.getContext());
@@ -640,6 +628,25 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mInstance.addView(mMediaControlView, params);
     }
 
+    void ensureSessionWithPlayer(SessionPlayer2 player) {
+        if (mMediaSession != null) {
+            SessionPlayer2 oldPlayer = mMediaSession.getPlayer();
+            if (oldPlayer == player) {
+                return;
+            }
+            oldPlayer.unregisterPlayerCallback(mSessionPlayerCallback);
+            mMediaSession.updatePlayer(player);
+        } else {
+            final Context context = mInstance.getContext();
+            mMediaSession = new MediaSession2.Builder(context)
+                    .setPlayer(player)
+                    .setId("VideoView2_" + mInstance.toString())
+                    .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
+                    .build();
+        }
+        player.registerPlayerCallback(mCallbackExecutor, mSessionPlayerCallback);
+    }
+
     private boolean isMediaPrepared() {
         return mMediaSession != null
                 && mMediaSession.getPlayerState() != MediaPlayerConnector.PLAYER_STATE_ERROR
@@ -679,16 +686,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mMediaPlayer.registerPlayerCallback(mCallbackExecutor, mMediaPlayerCallback);
             mMediaPlayer.setAudioAttributes(mAudioAttributes);
 
-            if (mMediaSession == null) {
-                final Context context = mInstance.getContext();
-                mMediaSession = new MediaSession2.Builder(context)
-                        .setPlayer(mMediaPlayer)
-                        .setId("VideoView2_" + mInstance.toString())
-                        .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
-                        .build();
-            } else {
-                mMediaSession.updatePlayer(mMediaPlayer);
-            }
+            ensureSessionWithPlayer(mMediaPlayer);
             mMediaPlayer.setMediaItem(mMediaItem);
 
             final Context context = mInstance.getContext();
@@ -729,7 +727,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     boolean isRemotePlayback() {
         return mRoutePlayer != null
                 && mMediaSession != null
-                && (mMediaSession.getPlayerConnector() instanceof BaseRemoteMediaPlayerConnector);
+                && (mMediaSession.getPlayer() instanceof RemoteSessionPlayer2);
     }
 
     void selectSubtitleTrack(int trackIndex) {
@@ -1196,41 +1194,26 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             }
             return true;
         }
+    }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    class SessionPlayerCallback extends SessionPlayer2.PlayerCallback {
         @Override
-        public void onPlayerStateChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerConnector player, @MediaPlayerConnector.PlayerState int state) {
-            if (session != mMediaSession) {
-                if (DEBUG) {
-                    Log.w(TAG, "onPlayerStateChanged() is ignored. session is already gone.");
-                }
-            }
-            switch(state) {
-                case MediaPlayerConnector.PLAYER_STATE_IDLE:
+        public void onPlayerStateChanged(@NonNull SessionPlayer2 player,
+                @SessionPlayer2.PlayerState int state) {
+            switch (state) {
+                case SessionPlayer2.PLAYER_STATE_IDLE:
                     mCurrentState = STATE_IDLE;
                     break;
-                case MediaPlayerConnector.PLAYER_STATE_PLAYING:
+                case SessionPlayer2.PLAYER_STATE_PLAYING:
                     mCurrentState = STATE_PLAYING;
                     break;
-                case MediaPlayerConnector.PLAYER_STATE_PAUSED:
+                case SessionPlayer2.PLAYER_STATE_PAUSED:
                     mCurrentState = STATE_PAUSED;
                     break;
-                case MediaPlayerConnector.PLAYER_STATE_ERROR:
+                case SessionPlayer2.PLAYER_STATE_ERROR:
                     mCurrentState = STATE_ERROR;
                     break;
-            }
-        }
-
-        @Override
-        public void onMediaPrepared(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerConnector player, @NonNull MediaItem2 item) {
-            if (session != mMediaSession) {
-                if (DEBUG) {
-                    Log.w(TAG, "onMediaPrepared() is ignored. session is already gone.");
-                }
-            }
-            if (DEBUG) {
-                Log.d(TAG, "onMediaPrepared() is called.");
             }
         }
     }
