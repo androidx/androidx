@@ -78,10 +78,10 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
             SliceListenerImpl listener) {
         Pair<Uri, SliceCallback> key = new Pair<>(uri, callback);
         synchronized (mListenerLookup) {
-            if (mListenerLookup.containsKey(key)) {
-                mListenerLookup.get(key).stopListening();
+            SliceListenerImpl oldImpl = mListenerLookup.put(key, listener);
+            if (oldImpl != null) {
+                oldImpl.stopListening();
             }
-            mListenerLookup.put(key, listener);
         }
         return listener;
     }
