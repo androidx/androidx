@@ -2511,7 +2511,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     // Smoke test playback from a DataSourceCallback2.
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlaybackFromAMedia2DataSource() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final int duration = 10000;
@@ -3136,7 +3136,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testCancelPendingCommands() throws Exception {
         final Monitor readRequested = new Monitor();
         final Monitor readAllowed = new Monitor();
