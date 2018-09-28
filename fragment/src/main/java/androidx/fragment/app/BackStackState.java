@@ -52,7 +52,7 @@ final class BackStackState implements Parcelable {
         for (int opNum = 0; opNum < numOps; opNum++) {
             final BackStackRecord.Op op = bse.mOps.get(opNum);
             mOps[pos++] = op.cmd;
-            mFragmentWhos.add(op.fragment.mWho);
+            mFragmentWhos.add(op.fragment != null ? op.fragment.mWho : null);
             mOps[pos++] = op.enterAnim;
             mOps[pos++] = op.exitAnim;
             mOps[pos++] = op.popEnterAnim;
