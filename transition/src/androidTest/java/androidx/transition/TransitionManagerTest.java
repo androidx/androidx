@@ -139,6 +139,37 @@ public class TransitionManagerTest extends BaseTest {
     }
 
     @Test
+    @UiThreadTest
+    public void testGo_nullParameter_enterAction() {
+        CheckCalledRunnable runnable = new CheckCalledRunnable();
+        mScenes[0].setEnterAction(runnable);
+        assertThat(runnable.wasCalled(), is(false));
+        TransitionManager.go(mScenes[0], null);
+        assertThat(runnable.wasCalled(), is(true));
+    }
+
+    @Test
+    public void testGo_nullParameter_exitAction() throws Throwable {
+        final CheckCalledRunnable exit = new CheckCalledRunnable();
+        mScenes[0].setExitAction(exit);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.go(mScenes[0], null);
+                assertThat(exit.wasCalled(), is(false));
+            }
+        });
+        // Let the main thread catch up with the scene change
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.go(mScenes[1], null);
+                assertThat(exit.wasCalled(), is(true));
+            }
+        });
+    }
+
+    @Test
     public void testEndTransitions() throws Throwable {
         final ViewGroup root = rule.getActivity().getRoot();
         final Transition transition = new AutoTransition();
