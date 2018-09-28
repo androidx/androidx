@@ -257,14 +257,6 @@ public abstract class ListenableWorker {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull WorkerParameters.RuntimeExtras getRuntimeExtras() {
-        return mWorkerParams.getRuntimeExtras();
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
         return mWorkerParams.getBackgroundExecutor();
     }
