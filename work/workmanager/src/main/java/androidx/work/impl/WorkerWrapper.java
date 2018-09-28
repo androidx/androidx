@@ -284,12 +284,14 @@ public class WorkerWrapper implements Runnable {
         // Cancel this work in other schedulers.  For example, if this work was
         // completed by GreedyScheduler, we should make sure JobScheduler is informed
         // that it should remove this job and AlarmManager should remove all related alarms.
-        if (isWorkFinished) {
-            for (Scheduler scheduler : mSchedulers) {
-                scheduler.cancel(mWorkSpecId);
+        if (mSchedulers != null) {
+            if (isWorkFinished) {
+                for (Scheduler scheduler : mSchedulers) {
+                    scheduler.cancel(mWorkSpecId);
+                }
             }
+            Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
         }
-        Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
     }
 
     /**
