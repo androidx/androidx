@@ -71,9 +71,9 @@ class WorkTimer {
 
     void stopTimer(@NonNull final String workSpecId) {
         synchronized (mLock) {
-            if (mTimerMap.containsKey(workSpecId)) {
+            WorkTimerRunnable removed = mTimerMap.remove(workSpecId);
+            if (removed != null) {
                 Logger.debug(TAG, String.format("Stopping timer for %s", workSpecId));
-                mTimerMap.remove(workSpecId);
                 mListeners.remove(workSpecId);
             }
         }
@@ -106,8 +106,8 @@ class WorkTimer {
         @Override
         public void run() {
             synchronized (mWorkTimer.mLock) {
-                if (mWorkTimer.mTimerMap.containsKey(mWorkSpecId)) {
-                    mWorkTimer.mTimerMap.remove(mWorkSpecId);
+                WorkTimerRunnable removed = mWorkTimer.mTimerMap.remove(mWorkSpecId);
+                if (removed != null) {
                     // notify time limit exceeded.
                     TimeLimitExceededListener listener = mWorkTimer.mListeners.remove(mWorkSpecId);
                     if (listener != null) {
