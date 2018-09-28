@@ -25,15 +25,15 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.Bundle;
 
-
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
-import androidx.lifecycle.SavedStateStore;
-import androidx.lifecycle.SavedStateStores;
+import androidx.lifecycle.SavedState;
+import androidx.lifecycle.SavedStateRegistries;
+import androidx.lifecycle.SavedStateRegistry;
 import androidx.lifecycle.savedstate.activity.SavedStateActivity;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
@@ -50,7 +50,7 @@ import java.util.Collection;
 
 @MediumTest
 @RunWith(Parameterized.class)
-public class SavedStateStoresTest {
+public class SavedStateRegistriesTest {
     private static final String KEY = "key";
     private static final String VALUE = "value";
     private static final String FRAGMENT_MODE = "fragment";
@@ -62,11 +62,11 @@ public class SavedStateStoresTest {
         return Arrays.asList(FRAGMENT_MODE, ACTIVITY_MODE);
     }
 
-    private SavedStateStore testedSavedStore(SavedStateActivity currentActivity) {
+    private SavedStateRegistry testedSavedStateRegistry(SavedStateActivity currentActivity) {
         if (FRAGMENT_MODE.equals(mode)) {
-            return SavedStateStores.of(currentActivity.getFragment());
+            return SavedStateRegistries.of(currentActivity.getFragment());
         } else {
-            return SavedStateStores.of(currentActivity);
+            return SavedStateRegistries.of(currentActivity);
         }
     }
 
@@ -99,10 +99,10 @@ public class SavedStateStoresTest {
                 Lifecycle.State currentState = testedLifecycleOwner(activity)
                         .getLifecycle().getCurrentState();
                 assertThat(currentState.isAtLeast(Lifecycle.State.CREATED), is(true));
-                SavedStateStore store = testedSavedStore(activity);
+                SavedStateRegistry store = testedSavedStateRegistry(activity);
                 assertThat(store.consumeRestoredStateForKey(CALLBACK_KEY), nullValue());
-                testedSavedStore(activity)
-                        .registerSavedStateCallback(CALLBACK_KEY, new DefaultSavedStateCallback());
+                testedSavedStateRegistry(activity)
+                        .registerSaveStateCallback(CALLBACK_KEY, new DefaultSavedStateCallback());
             }
         });
         return activity;
@@ -118,7 +118,7 @@ public class SavedStateStoresTest {
                 Lifecycle.State currentState = testedLifecycleOwner(recreated)
                         .getLifecycle().getCurrentState();
                 assertThat(currentState.isAtLeast(Lifecycle.State.CREATED), is(true));
-                checkDefaultSavedState(testedSavedStore(recreated));
+                checkDefaultSavedState(testedSavedStateRegistry(recreated));
             }
         });
     }
@@ -133,7 +133,7 @@ public class SavedStateStoresTest {
                 recreated.getLifecycle().addObserver(new LifecycleObserver() {
                     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
                     void onResume() {
-                        checkDefaultSavedState(testedSavedStore(recreated));
+                        checkDefaultSavedState(testedSavedStateRegistry(recreated));
                     }
                 });
             }
@@ -145,9 +145,9 @@ public class SavedStateStoresTest {
         SavedStateActivity activity = initializeSavedState();
 
         SavedStateActivity.duringOnCreate(FRAGMENT_MODE.equals(mode),
-                new Function<SavedStateStore, Void>() {
+                new Function<SavedStateRegistry, Void>() {
                     @Override
-                    public Void apply(SavedStateStore store) {
+                    public Void apply(SavedStateRegistry store) {
                         checkDefaultSavedState(store);
                         return null;
                     }
@@ -155,17 +155,17 @@ public class SavedStateStoresTest {
         recreateActivity(activity, mActivityRule);
     }
 
-    private static class DefaultSavedStateCallback implements SavedStateStore.SavedStateCallback {
+    private static class DefaultSavedStateCallback implements SavedState.Callback {
         @NonNull
         @Override
-        public Bundle getSavedState() {
+        public Bundle saveState() {
             Bundle foo = new Bundle();
             foo.putString(KEY, VALUE);
             return foo;
         }
     }
 
-    private static void checkDefaultSavedState(SavedStateStore store) {
+    private static void checkDefaultSavedState(SavedStateRegistry store) {
         Bundle savedState = store.consumeRestoredStateForKey(CALLBACK_KEY);
         assertThat(savedState, notNullValue());
         //noinspection ConstantConditions

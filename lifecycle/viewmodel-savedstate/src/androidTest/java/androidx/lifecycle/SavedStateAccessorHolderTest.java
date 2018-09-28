@@ -43,7 +43,7 @@ public class SavedStateAccessorHolderTest {
         accessor.<String>getLiveData("livedata").setValue("para");
         accessor.set("notlive", 261);
         accessor.set("array", new int[]{2, 3, 9});
-        Bundle savedState = h.getSavedState();
+        Bundle savedState = h.saveState();
         Parcel parcel = Parcel.obtain();
         savedState.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
