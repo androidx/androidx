@@ -16,10 +16,12 @@
 
 package androidx.work.worker;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import java.util.Random;
 
@@ -28,6 +30,10 @@ import java.util.Random;
  */
 public class RandomSleepTestWorker extends Worker {
     public static final int MAX_SLEEP_DURATION_MS = 500;
+
+    public RandomSleepTestWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @NonNull
     @Override

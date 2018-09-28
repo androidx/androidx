@@ -16,15 +16,21 @@
 
 package androidx.work.worker;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import java.util.concurrent.CountDownLatch;
 
 public class LatchWorker extends Worker {
 
     public CountDownLatch mLatch = new CountDownLatch(1);
+
+    public LatchWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @NonNull
     @Override

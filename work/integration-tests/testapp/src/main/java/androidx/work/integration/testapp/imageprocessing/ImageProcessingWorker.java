@@ -16,6 +16,7 @@
 
 package androidx.work.integration.testapp.imageprocessing;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import android.util.Log;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 import androidx.work.integration.testapp.db.Image;
 import androidx.work.integration.testapp.db.TestDatabase;
 
@@ -42,6 +44,10 @@ import java.io.InputStream;
 public class ImageProcessingWorker extends Worker {
     private static final String URI_KEY = "uri";
     private static final String TAG = "ImageProcessingWorker";
+
+    public ImageProcessingWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @Override
     public @NonNull Result doWork() {

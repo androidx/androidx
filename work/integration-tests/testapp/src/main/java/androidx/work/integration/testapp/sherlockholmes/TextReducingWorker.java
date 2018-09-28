@@ -15,10 +15,12 @@
  */
 package androidx.work.integration.testapp.sherlockholmes;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import androidx.work.Data;
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 import androidx.work.integration.testapp.db.TestDatabase;
 import androidx.work.integration.testapp.db.WordCount;
 
@@ -39,6 +41,11 @@ public class TextReducingWorker extends Worker {
     private static final String INPUT_FILE = "input_file";
 
     private Map<String, Integer> mWordCount = new HashMap<>();
+
+    public TextReducingWorker(@NonNull Context context,
+            @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @Override
     public @NonNull Result doWork() {
