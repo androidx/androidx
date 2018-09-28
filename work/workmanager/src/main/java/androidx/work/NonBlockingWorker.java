@@ -80,6 +80,15 @@ public abstract class NonBlockingWorker {
      */
     @Keep
     public NonBlockingWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
+        // Actually make sure we don't get nulls.
+        if (appContext == null) {
+            throw new NullPointerException("Application Context is null");
+        }
+
+        if (workerParams == null) {
+            throw new NullPointerException("WorkerParameters is null");
+        }
+
         mAppContext = appContext;
         mWorkerParams = workerParams;
     }
@@ -268,6 +277,8 @@ public abstract class NonBlockingWorker {
         return mWorkerParams.getWorkerFactory();
     }
 
+
+
     /**
      * The payload of an {@link #onStartWork()} computation that contains both the result and the
      * output data.
@@ -277,6 +288,22 @@ public abstract class NonBlockingWorker {
         @NonNull Result mResult;
         @NonNull Data mOutput;
 
+        /**
+         * Constructs a Payload with the given {@link Result} and an empty output.
+         *
+         * @param result The result of the {@link #onStartWork()} computation
+         */
+        public Payload(@NonNull Result result) {
+            mResult = result;
+            mOutput = Data.EMPTY;
+        }
+
+        /**
+         * Constructs a Payload with the given {@link Result} and output.
+         *
+         * @param result The result of the {@link #onStartWork()} computation
+         * @param output The output {@link Data} of the {@link #onStartWork()} computation
+         */
         public Payload(@NonNull Result result, @NonNull Data output) {
             mResult = result;
             mOutput = output;
