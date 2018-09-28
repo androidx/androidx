@@ -191,6 +191,13 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
         }
     }
 
+    @Override
+    public void clearEventCallback() {
+        synchronized (mLock) {
+            mExecutorAndEventCallback = null;
+        }
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifyMediaPlayer2Event(final Mp2EventNotifier notifier) {
         final Pair<Executor, EventCallback> executorAndEventCallback;
@@ -248,6 +255,21 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             }
             return mMediaPlayerConnectorImpl;
         }
+    }
+
+    @Override
+    public void setAudioSessionId(int sessionId) {
+        _setAudioSessionId(sessionId);
+    }
+
+    @Override
+    public Object _setAudioSessionId(final int sessionId) {
+        return addTask(new Task(CALL_COMPLETED_SET_AUDIO_SESSION_ID, false) {
+            @Override
+            void process() {
+                mPlayer.setAudioSessionId(sessionId);
+            }
+        });
     }
 
     @Override
@@ -416,6 +438,16 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    public int getAudioSessionId() {
+        return runPlayerCallableBlocking(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return mPlayer.getAudioSessionId();
+            }
+        });
+    }
+
+    @Override
     public void attachAuxEffect(int effectId) {
         _attachAuxEffect(effectId);
     }
@@ -570,7 +602,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     public void close() {
         synchronized (mLock) {
             mExecutorByPlayerEventCallback.clear();
-            mExecutorAndEventCallback = null;
+            clearEventCallback();
             runPlayerCallableBlocking(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -617,21 +649,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    public void setAudioSessionId(int sessionId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object _setAudioSessionId(final int sessionId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public int getSelectedTrack(int trackType) {
         throw new UnsupportedOperationException();
     }
@@ -653,11 +670,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
 
     @Override
     public Object _deselectTrack(int index) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void clearEventCallback() {
         throw new UnsupportedOperationException();
     }
 
