@@ -42,8 +42,9 @@ class ClassesInfoCache {
     private final Map<Class, Boolean> mHasLifecycleMethods = new HashMap<>();
 
     boolean hasLifecycleMethods(Class klass) {
-        if (mHasLifecycleMethods.containsKey(klass)) {
-            return mHasLifecycleMethods.get(klass);
+        Boolean hasLifecycleMethods = mHasLifecycleMethods.get(klass);
+        if (hasLifecycleMethods != null) {
+            return hasLifecycleMethods;
         }
 
         Method[] methods = getDeclaredMethods(klass);

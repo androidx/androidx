@@ -113,8 +113,9 @@ public class Lifecycling {
     }
 
     private static int getObserverConstructorType(Class<?> klass) {
-        if (sCallbackCache.containsKey(klass)) {
-            return sCallbackCache.get(klass);
+        Integer callbackCache = sCallbackCache.get(klass);
+        if (callbackCache != null) {
+            return callbackCache;
         }
         int type = resolveObserverCallbackType(klass);
         sCallbackCache.put(klass, type);
