@@ -60,9 +60,10 @@ public final class ArrayCreatingInputMerger extends InputMerger {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 Class valueClass = value.getClass();
-                Object mergedValue = null;
+                Object mergedValue;
 
-                if (!mergedValues.containsKey(key)) {
+                Object existingValue = mergedValues.get(key);
+                if (existingValue == null) {
                     // First time encountering this key.
                     if (valueClass.isArray()) {
                         // Arrays carry over as-is.
@@ -73,7 +74,6 @@ public final class ArrayCreatingInputMerger extends InputMerger {
                     }
                 } else {
                     // We've encountered this key before.
-                    Object existingValue = mergedValues.get(key);
                     Class existingValueClass = existingValue.getClass();
 
                     if (existingValueClass.equals(valueClass)) {

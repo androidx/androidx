@@ -319,7 +319,7 @@ public class CommandHandler implements ExecutionListener {
             return false;
         } else {
             for (String key : keys) {
-                if (!bundle.containsKey(key) || bundle.get(key) == null) {
+                if (bundle.get(key) == null) {
                     return false;
                 }
             }
