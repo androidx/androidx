@@ -17,15 +17,21 @@
 package androidx.appcompat.app;
 
 import static androidx.appcompat.app.NightModeActivity.TOP_ACTIVITY;
+import static androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals;
+import static androidx.appcompat.testutils.NightModeUtils.setLocalNightModeAndWait;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isBackground;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
+import android.content.res.Configuration;
+import android.webkit.WebView;
 
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
@@ -175,6 +181,62 @@ public class NightModeTestCase {
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
     }
 
+    @Test
+    public void testOnConfigurationChangedNotCalled() throws Throwable {
+        final NightModeActivity activity = mActivityTestRule.getActivity();
+
+        // Assert that the Activity does not have a config currently
+        assertNull(activity.lastChangeConfiguration);
+
+        // Set local night mode to YES
+        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_YES);
+
+        // Assert that the Activity still does not have a config currently
+        assertNull(activity.lastChangeConfiguration);
+
+        // Set local night mode back to NO
+        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_NO);
+
+        // Assert that the Activity still does not have a config currently
+        assertNull(activity.lastChangeConfiguration);
+    }
+
+    @Test
+    public void testWebViewMaintainsConfiguration() throws Throwable {
+        // Set night mode and wait for the new Activity
+        final NightModeActivity activity = setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
+
+        // Assert that the themed context has the correct config
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES,
+                activity.getThemedContext().getResources().getConfiguration());
+
+        // Now load a WebView into the Activity
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final WebView webView = new WebView(activity);
+            }
+        });
+
+        // Now assert that the themed context has the correct config
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES,
+                activity.getThemedContext().getResources().getConfiguration());
+    }
+
+    @Test
+    public void testXmlOnClickWithNightMode() throws Throwable {
+        // Set night mode and wait for the new Activity
+        setLocalNightModeAndWaitForRecreate(mActivityTestRule.getActivity(),
+                AppCompatDelegate.MODE_NIGHT_YES);
+
+        // Click the button and assert that the text changes. The text change logic is in
+        // an method in the Activity referenced from the XML layout
+        onView(withId(R.id.button))
+                .perform(click())
+                .check(matches(withText(R.string.clicked)));
+    }
+
     private static class FakeTwilightManager extends TwilightManager {
         private boolean mIsNight;
 
@@ -194,7 +256,8 @@ public class NightModeTestCase {
 
     private NightModeActivity setLocalNightModeAndWaitForRecreate(
             final NightModeActivity activity,
-            @AppCompatDelegate.NightMode final int nightMode) throws Throwable {
+            @AppCompatDelegate.NightMode final int nightMode
+    ) throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override

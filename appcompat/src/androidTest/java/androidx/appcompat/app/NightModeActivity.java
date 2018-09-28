@@ -16,6 +16,10 @@
 
 package androidx.appcompat.app;
 
+import android.content.res.Configuration;
+import android.view.View;
+import android.widget.Button;
+
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 
@@ -28,6 +32,14 @@ public class NightModeActivity extends BaseTestActivity {
      * updating it in onResume and onPause. I said it was gross.
      */
     static NightModeActivity TOP_ACTIVITY = null;
+
+    Configuration lastChangeConfiguration = null;
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        lastChangeConfiguration = newConfig;
+    }
 
     @Override
     protected int getContentViewLayoutResId() {
@@ -46,5 +58,12 @@ public class NightModeActivity extends BaseTestActivity {
         if (TOP_ACTIVITY == this) {
             TOP_ACTIVITY = null;
         }
+    }
+
+    /**
+     * This is referenced from an android:onClick in the layout
+     */
+    public void onButtonClicked(View view) {
+        ((Button) view).setText(R.string.clicked);
     }
 }
