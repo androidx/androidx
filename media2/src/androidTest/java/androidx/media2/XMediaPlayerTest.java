@@ -1454,6 +1454,45 @@ public class XMediaPlayerTest {
         assertEquals(playlist.get(1), mPlayer.getCurrentMediaItem());
     }
 
+    @Test
+    @SmallTest
+    public void testCurrentMediaItemChangedCalledAfterSetMediaItem() throws Exception {
+        MediaItem2 item = createMediaItem(100);
+
+        final TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
+        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+            @Override
+            public void onCurrentMediaItemChanged(SessionPlayer2 player, MediaItem2 item) {
+                onCurrentMediaItemChangedMonitor.signal();
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        CommandResult2 result = mPlayer.setMediaItem(item).get();
+        assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, result.getResultCode());
+        assertTrue(onCurrentMediaItemChangedMonitor.waitForSignal(WAIT_TIME_MS));
+    }
+
+    @Test
+    @SmallTest
+    public void testCurrentMediaItemChangedCalledAfterSetPlayList() throws Exception {
+        int listSize = 2;
+        List<MediaItem2> playlist = createPlaylist(listSize);
+
+        final TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
+        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+            @Override
+            public void onCurrentMediaItemChanged(SessionPlayer2 player, MediaItem2 item) {
+                onCurrentMediaItemChangedMonitor.signal();
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        CommandResult2 result = mPlayer.setPlaylist(playlist, null).get();
+        assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, result.getResultCode());
+        assertTrue(onCurrentMediaItemChangedMonitor.waitForSignal(WAIT_TIME_MS));
+    }
+
     private boolean loadResource(int resid) throws Exception {
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         try {

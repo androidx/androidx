@@ -424,7 +424,6 @@ public class XMediaPlayer extends SessionPlayer2 {
     private static final int END_OF_PLAYLIST = -1;
     private static final int NO_MEDIA_ITEM = -2;
 
-
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sResultCodeMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1929,7 +1928,7 @@ public class XMediaPlayer extends SessionPlayer2 {
 
         @Override
         public void onCallCompleted(
-                MediaPlayer2 mp, MediaItem2 item, int what, int status) {
+                MediaPlayer2 mp, final MediaItem2 item, int what, int status) {
             PendingCommand expected;
             synchronized (mPendingCommands) {
                 expected = mPendingCommands.pollFirst();
@@ -1960,6 +1959,15 @@ public class XMediaPlayer extends SessionPlayer2 {
                             public void callCallback(
                                     SessionPlayer2.PlayerCallback callback) {
                                 callback.onSeekCompleted(XMediaPlayer.this, pos);
+                            }
+                        });
+                        break;
+                    case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
+                        notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                            @Override
+                            public void callCallback(
+                                    SessionPlayer2.PlayerCallback callback) {
+                                callback.onCurrentMediaItemChanged(XMediaPlayer.this, item);
                             }
                         });
                         break;
@@ -2384,7 +2392,6 @@ public class XMediaPlayer extends SessionPlayer2 {
         private CombindedCommandResultFuture(Executor executor,
                 ListenableFuture<CommandResult2>[] futures) {
             mFutures = futures;
-
             for (int i = 0; i < mFutures.length; ++i) {
                 final int cur = i;
                 mFutures[i].addListener(new Runnable() {
