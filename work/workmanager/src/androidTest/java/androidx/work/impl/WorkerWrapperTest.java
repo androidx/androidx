@@ -182,8 +182,22 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testUsedWorker_failsExecution() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
+
+        UsedWorker usedWorker = (UsedWorker) mConfiguration.getWorkerFactory().createWorker(
+                mContext.getApplicationContext(),
+                UsedWorker.class.getName(),
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
+                        work.getTags(),
+                        new WorkerParameters.RuntimeExtras(),
+                        1,
+                        mSynchronousExecutor,
+                        mConfiguration.getWorkerFactory()));
+
+
         WorkerWrapper workerWrapper = createBuilder(work.getStringId())
-                .withWorker(new UsedWorker())
+                .withWorker(usedWorker)
                 .build();
         workerWrapper.run();
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));

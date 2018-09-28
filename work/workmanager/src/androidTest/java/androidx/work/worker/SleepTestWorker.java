@@ -16,10 +16,12 @@
 
 package androidx.work.worker;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
  * Worker that sleeps for 5 seconds before returning.
@@ -27,6 +29,10 @@ import androidx.work.Worker;
 
 public class SleepTestWorker extends Worker {
     public static final long SLEEP_DURATION = 5000;
+
+    public SleepTestWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @Override
     public @NonNull Result doWork() {

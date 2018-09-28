@@ -16,15 +16,21 @@
 
 package androidx.work.worker;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
  * Test Worker that loops until Thread is interrupted.
  */
 
 public class InfiniteTestWorker extends Worker {
+
+    public InfiniteTestWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @Override
     public @NonNull Result doWork() {

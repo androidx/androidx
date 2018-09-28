@@ -16,15 +16,22 @@
 
 package androidx.work.worker;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
  * A Worker that loops until it has been stopped.
  */
 @SuppressWarnings("unused")
 public class StopAwareWorker extends Worker {
+
+    public StopAwareWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
+
     @Override
     public @NonNull Result doWork() {
         // Workaround repo hook for an empty while loop.

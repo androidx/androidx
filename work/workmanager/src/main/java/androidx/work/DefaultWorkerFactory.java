@@ -21,7 +21,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 /**
  * The default {@link WorkerFactory} for WorkManager.  To specify your own WorkerFactory, initialize
@@ -48,24 +47,11 @@ public class DefaultWorkerFactory implements WorkerFactory {
 
         try {
             NonBlockingWorker worker;
-            try {
-                Constructor<? extends NonBlockingWorker> constructor =
-                        clazz.getDeclaredConstructor(Context.class, WorkerParameters.class);
-                worker = constructor.newInstance(
-                        appContext,
-                        workerParameters);
-            } catch (NoSuchMethodException e) {
-                worker = clazz.getDeclaredConstructor().newInstance();
-                Method internalInitMethod = NonBlockingWorker.class.getDeclaredMethod(
-                        "internalInit",
-                        Context.class,
-                        WorkerParameters.class);
-                internalInitMethod.setAccessible(true);
-                internalInitMethod.invoke(
-                        worker,
-                        appContext,
-                        workerParameters);
-            }
+            Constructor<? extends NonBlockingWorker> constructor =
+                    clazz.getDeclaredConstructor(Context.class, WorkerParameters.class);
+            worker = constructor.newInstance(
+                    appContext,
+                    workerParameters);
             return worker;
         } catch (Exception e) {
             Logger.error(TAG, "Could not instantiate " + workerClassName, e);
