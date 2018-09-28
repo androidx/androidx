@@ -22,6 +22,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -141,6 +142,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     // Saved FragmentManagerNonConfig during saveAllState() and cleared in noteStateNotSaved()
     FragmentManagerNonConfig mSavedNonConfig;
+    final HashMap<String, ViewModelStore> mViewModelStores = new HashMap<>();
 
     Runnable mExecCommit = new Runnable() {
         @Override
@@ -365,6 +367,16 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         synchronized (mAdded) {
             return (List<Fragment>) mAdded.clone();
         }
+    }
+
+    @NonNull
+    ViewModelStore getViewModelStore(@NonNull Fragment f) {
+        ViewModelStore viewModelStore = mViewModelStores.get(f.mWho);
+        if (viewModelStore == null) {
+            viewModelStore = new ViewModelStore();
+            mViewModelStores.put(f.mWho, viewModelStore);
+        }
+        return viewModelStore;
     }
 
     /**
@@ -993,6 +1005,21 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             if (DEBUG) Log.v(TAG, "movefrom CREATED: " + f);
                             if (mSavedNonConfig == null || !mSavedNonConfig.isRetaining(f)) {
                                 f.performDestroy();
+                                ViewModelStore viewModelStore = mViewModelStores.get(f.mWho);
+                                if (viewModelStore != null) {
+                                    Activity activity;
+                                    if (mHost.getContext() instanceof Activity) {
+                                        activity = (Activity) mHost.getContext();
+                                    } else {
+                                        activity = null;
+                                    }
+                                    boolean isChangingConfigurations = activity != null
+                                            && activity.isChangingConfigurations();
+                                    if (!isChangingConfigurations) {
+                                        viewModelStore.clear();
+                                        mViewModelStores.remove(f.mWho);
+                                    }
+                                }
                                 dispatchOnFragmentDestroyed(f, false);
                             } else {
                                 f.mState = Fragment.INITIALIZING;
@@ -2195,7 +2222,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     FragmentManagerNonConfig retainNonConfig() {
         ArrayList<Fragment> fragments = null;
         HashMap<String, FragmentManagerNonConfig> childFragments = null;
-        HashMap<String, ViewModelStore> viewModelStores = null;
         if (mActive != null) {
             for (Fragment f : mActive.values()) {
                 if (f != null) {
@@ -2222,21 +2248,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         }
                         childFragments.put(f.mWho, child);
                     }
-
-                    if (f.mViewModelStore != null) {
-                        if (viewModelStores == null) {
-                            viewModelStores = new HashMap<>();
-                        }
-                        viewModelStores.put(f.mWho, f.mViewModelStore);
-                    }
                 }
             }
         }
-        if (fragments == null && childFragments == null && viewModelStores == null) {
+        if (fragments == null && childFragments == null && mViewModelStores.isEmpty()) {
             mSavedNonConfig = null;
         } else {
             mSavedNonConfig = new FragmentManagerNonConfig(fragments, childFragments,
-                    viewModelStores);
+                    mViewModelStores);
         }
         return mSavedNonConfig;
     }
@@ -2409,14 +2428,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (fms.mActive == null) return;
 
         Map<String, FragmentManagerNonConfig> childNonConfigs = null;
-        Map<String, ViewModelStore> viewModelStores = null;
 
         // First re-attach any non-config instances we are retaining back
         // to their saved state, so we don't try to instantiate them again.
         if (nonConfig != null) {
             List<Fragment> nonConfigFragments = nonConfig.getFragments();
             childNonConfigs = nonConfig.getChildNonConfigs();
-            viewModelStores = nonConfig.getViewModelStores();
+            mViewModelStores.clear();
+            mViewModelStores.putAll(nonConfig.getViewModelStores());
             final int count = nonConfigFragments != null ? nonConfigFragments.size() : 0;
             for (int i = 0; i < count; i++) {
                 Fragment f = nonConfigFragments.get(i);
@@ -2456,12 +2475,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (childNonConfigs != null) {
                     childNonConfig = childNonConfigs.get(fs.mWho);
                 }
-                ViewModelStore viewModelStore = null;
-                if (viewModelStores != null) {
-                    viewModelStore = viewModelStores.get(fs.mWho);
-                }
-                Fragment f = fs.instantiate(mHost, getFragmentFactory(), mParent, childNonConfig,
-                        viewModelStore);
+                Fragment f = fs.instantiate(mHost, getFragmentFactory(), childNonConfig);
                 if (DEBUG) Log.v(TAG, "restoreAllState: active (" + f.mWho + "): " + f);
                 mActive.put(f.mWho, f);
                 // Now that the fragment is instantiated (or came from being

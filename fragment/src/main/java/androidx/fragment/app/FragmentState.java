@@ -23,7 +23,6 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelStore;
 
 final class FragmentState implements Parcelable {
     final String mClassName;
@@ -69,8 +68,7 @@ final class FragmentState implements Parcelable {
     }
 
     public Fragment instantiate(FragmentHostCallback host, @NonNull FragmentFactory factory,
-            Fragment parent, FragmentManagerNonConfig childNonConfig,
-            ViewModelStore viewModelStore) {
+            FragmentManagerNonConfig childNonConfig) {
         if (mInstance == null) {
             final Context context = host.getContext();
             final ClassLoader classLoader = context.getClassLoader();
@@ -101,7 +99,6 @@ final class FragmentState implements Parcelable {
             }
         }
         mInstance.mChildNonConfig = childNonConfig;
-        mInstance.mViewModelStore = viewModelStore;
         return mInstance;
     }
 

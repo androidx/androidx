@@ -154,9 +154,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // This state is set by FragmentState.instantiate and cleared in onCreate.
     FragmentManagerNonConfig mChildNonConfig;
 
-    // ViewModelStore for storing ViewModels associated with this Fragment
-    ViewModelStore mViewModelStore;
-
     // If this Fragment is contained in another Fragment, this is that container.
     Fragment mParentFragment;
 
@@ -317,13 +314,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @NonNull
     @Override
     public ViewModelStore getViewModelStore() {
-        if (getContext() == null) {
+        if (mFragmentManager == null) {
             throw new IllegalStateException("Can't access ViewModels from detached fragment");
         }
-        if (mViewModelStore == null) {
-            mViewModelStore = new ViewModelStore();
-        }
-        return mViewModelStore;
+        return mFragmentManager.getViewModelStore(this);
     }
 
     /**
@@ -1704,11 +1698,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onDestroy() {
         mCalled = true;
-        FragmentActivity activity = getActivity();
-        boolean isChangingConfigurations = activity != null && activity.isChangingConfigurations();
-        if (mViewModelStore != null && !isChangingConfigurations) {
-            mViewModelStore.clear();
-        }
     }
 
     /**
