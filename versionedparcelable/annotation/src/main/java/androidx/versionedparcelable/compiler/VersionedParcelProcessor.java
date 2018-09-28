@@ -124,7 +124,6 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         TypeElement nonField = findAnnotation(set, NON_PARCEL_FIELD);
         List<Element> versionedParcelables = new ArrayList<>();
         Map<String, Set<Element>> fields = new HashMap<>();
-        Set<Element> nonFields = new HashSet<>();
 
         if (cls == null) {
             error("Can't find class annotation");
@@ -163,8 +162,6 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 Element clsElement = findClass(element);
                 if (!versionedParcelables.contains(clsElement)) {
                     error(cls + " must be added to classes containing " + nonField);
-                } else {
-                    nonFields.add(element);
                 }
             }
         }
