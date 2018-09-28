@@ -16,12 +16,15 @@
 
 package androidx.arch.core.executor;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -61,7 +64,7 @@ public class DefaultTaskExecutor extends TaskExecutor {
         if (mMainHandler == null) {
             synchronized (mLock) {
                 if (mMainHandler == null) {
-                    mMainHandler = new Handler(Looper.getMainLooper());
+                    mMainHandler = createAsync(Looper.getMainLooper());
                 }
             }
         }
@@ -72,5 +75,24 @@ public class DefaultTaskExecutor extends TaskExecutor {
     @Override
     public boolean isMainThread() {
         return Looper.getMainLooper().getThread() == Thread.currentThread();
+    }
+
+    private static Handler createAsync(@NonNull Looper looper) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            return Handler.createAsync(looper);
+        }
+        if (Build.VERSION.SDK_INT >= 16) {
+            try {
+                return Handler.class.getDeclaredConstructor(Looper.class, Handler.Callback.class,
+                        boolean.class)
+                        .newInstance(looper, null, true);
+            } catch (IllegalAccessException ignored) {
+            } catch (InstantiationException ignored) {
+            } catch (NoSuchMethodException ignored) {
+            } catch (InvocationTargetException e) {
+                return new Handler(looper);
+            }
+        }
+        return new Handler(looper);
     }
 }
