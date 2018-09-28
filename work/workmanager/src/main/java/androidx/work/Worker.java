@@ -19,7 +19,6 @@ package androidx.work;
 import android.content.Context;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.impl.utils.futures.SettableFuture;
@@ -58,10 +57,6 @@ public abstract class Worker extends NonBlockingWorker {
     @WorkerThread
     public abstract @NonNull Result doWork();
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public final @NonNull ListenableFuture<Payload> onStartWork() {
         mFuture = SettableFuture.create();
