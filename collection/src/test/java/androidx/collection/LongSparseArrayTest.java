@@ -55,6 +55,34 @@ public class LongSparseArrayTest {
     }
 
     @Test
+    public void putIfAbsentDoesNotOverwriteStoredValue() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        map.putIfAbsent(1L, "2");
+        assertEquals("1", map.get(1L));
+    }
+
+    @Test
+    public void putIfAbsentReturnsStoredValue() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        assertEquals("1", map.putIfAbsent(1L, "2"));
+    }
+
+    @Test
+    public void putIfAbsentStoresValueWhenAbsent() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.putIfAbsent(1L, "2");
+        assertEquals("2", map.get(1L));
+    }
+
+    @Test
+    public void putIfAbsentReturnsNullWhenAbsent() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        assertNull(map.putIfAbsent(1L, "2"));
+    }
+
+    @Test
     public void isEmpty() {
         LongSparseArray<String> LongSparseArray = new LongSparseArray<>();
         assertTrue(LongSparseArray.isEmpty()); // Newly created LongSparseArray should be empty

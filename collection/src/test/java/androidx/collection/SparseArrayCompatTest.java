@@ -55,6 +55,34 @@ public class SparseArrayCompatTest {
     }
 
     @Test
+    public void putIfAbsentDoesNotOverwriteStoredValue() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, "1");
+        map.putIfAbsent(1, "2");
+        assertEquals("1", map.get(1));
+    }
+
+    @Test
+    public void putIfAbsentReturnsStoredValue() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, "1");
+        assertEquals("1", map.putIfAbsent(1, "2"));
+    }
+
+    @Test
+    public void putIfAbsentStoresValueWhenAbsent() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.putIfAbsent(1, "2");
+        assertEquals("2", map.get(1));
+    }
+
+    @Test
+    public void putIfAbsentReturnsNullWhenAbsent() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        assertNull(map.putIfAbsent(1, "2"));
+    }
+
+    @Test
     public void isEmpty() throws Exception {
         SparseArrayCompat<String> sparseArrayCompat = new SparseArrayCompat<>();
         assertTrue(sparseArrayCompat.isEmpty()); // Newly created SparseArrayCompat should be empty

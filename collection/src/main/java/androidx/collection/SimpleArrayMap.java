@@ -511,6 +511,23 @@ public class SimpleArrayMap<K, V> {
     }
 
     /**
+     * Add a new value to the array map only if the key does not already have a value or it is
+     * mapped to {@code null}.
+     * @param key The key under which to store the value.
+     * @param value The value to store for the given key.
+     * @return Returns the value that was stored for the given key, or null if there
+     * was no such key.
+     */
+    @Nullable
+    public V putIfAbsent(K key, V value) {
+        V mapValue = get(key);
+        if (mapValue == null) {
+            mapValue = put(key, value);
+        }
+        return mapValue;
+    }
+
+    /**
      * Remove an existing key from the array map.
      * @param key The key of the mapping to remove.
      * @return Returns the value that was stored under the key, or null if there

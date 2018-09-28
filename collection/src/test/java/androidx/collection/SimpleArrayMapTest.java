@@ -58,6 +58,34 @@ public class SimpleArrayMapTest {
         assertFalse(map.containsKey("one"));
     }
 
+    @Test
+    public void putIfAbsentDoesNotOverwriteStoredValue() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        map.putIfAbsent("one", "2");
+        assertEquals("1", map.get("one"));
+    }
+
+    @Test
+    public void putIfAbsentReturnsStoredValue() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertEquals("1", map.putIfAbsent("one", "2"));
+    }
+
+    @Test
+    public void putIfAbsentStoresValueWhenAbsent() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.putIfAbsent("one", "2");
+        assertEquals("2", map.get("one"));
+    }
+
+    @Test
+    public void putIfAbsentReturnsNullWhenAbsent() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        assertNull(map.putIfAbsent("one", "2"));
+    }
+
     /**
      * Attempt to generate a ConcurrentModificationException in ArrayMap.
      */
