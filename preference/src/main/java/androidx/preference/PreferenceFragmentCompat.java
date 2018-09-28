@@ -469,29 +469,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                     .onPreferenceStartScreen(this, preferenceScreen);
         }
         if (!handled && getActivity() instanceof OnPreferenceStartScreenCallback) {
-            handled = ((OnPreferenceStartScreenCallback) getActivity())
+            ((OnPreferenceStartScreenCallback) getActivity())
                     .onPreferenceStartScreen(this, preferenceScreen);
-        }
-        if (!handled) {
-            Log.w(TAG,
-                    "onPreferenceStartScreen is not implemented in the parent activity - "
-                            + "attempting to use a fallback implementation. You should implement "
-                            + "this method so that you can configure the new fragment that will "
-                            + "display the nested hierarchy, and set a transition between the "
-                            + "fragments.");
-            // Try and use a new instance of this fragment to display the nested hierarchy
-            final FragmentManager fragmentManager = requireActivity()
-                    .getSupportFragmentManager();
-            final Bundle args = new Bundle(1);
-            args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.getKey());
-            final Fragment fragment = fragmentManager.getFragmentFactory().instantiate(
-                    requireActivity().getClassLoader(), getClass().getName(), args);
-            fragment.setArguments(args);
-            fragmentManager.beginTransaction()
-                    // Attempt to replace this fragment's root view with the new fragment
-                    .replace((((View) getView().getParent()).getId()), fragment)
-                    .addToBackStack(null)
-                    .commit();
         }
     }
 
