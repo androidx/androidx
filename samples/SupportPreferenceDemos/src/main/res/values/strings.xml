@@ -69,24 +69,14 @@
     <string name="summary_multi_list_preference">Shows a dialog with multiple choice options</string>
     <string name="dialog_title_multi_list_preference">Choose some options!</string>
 
-    <!--This section is for preferences that have a specific action when clicked -->
-    <string name="launchable">Launchable</string>
-
-    <string name="title_screen_preference">Screen preference</string>
-    <string name="summary_screen_preference">Shows a nested screen of preferences</string>
-
-    <!--This preference shows up in the screen preference above-->
-    <string name="title_nested_preference">Nested preference</string>
-    <string name="summary_nested_preference">This preference is only shown on this screen but is part of the same hierarchy as the other preferences (defined in the same XML)</string>
-
-    <string name="title_intent_preference">Intent preference</string>
-    <string name="summary_intent_preference">Launches an intent when pressed</string>
-
     <!--This section is for advanced attributes-->
     <string name="advanced_attributes">Advanced attributes</string>
 
     <string name="title_expandable_preference">Expandable preference group</string>
     <string name="summary_expandable_preference">This group shows one item and collapses the rest into the advanced button below</string>
+
+    <string name="title_intent_preference">Intent preference</string>
+    <string name="summary_intent_preference">Launches an intent when pressed</string>
 
     <string name="title_parent_preference">Parent preference</string>
     <string name="summary_parent_preference">Toggling this preference will change the enabled state of the preference below</string>
