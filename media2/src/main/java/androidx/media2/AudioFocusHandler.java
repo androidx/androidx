@@ -17,10 +17,10 @@
 package androidx.media2;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_ERROR;
-import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_IDLE;
-import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_PAUSED;
-import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_PLAYING;
+import static androidx.media2.SessionPlayer2.PLAYER_STATE_ERROR;
+import static androidx.media2.SessionPlayer2.PLAYER_STATE_IDLE;
+import static androidx.media2.SessionPlayer2.PLAYER_STATE_PAUSED;
+import static androidx.media2.SessionPlayer2.PLAYER_STATE_PLAYING;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,6 +34,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 
@@ -52,20 +53,19 @@ import androidx.media.AudioAttributesCompat;
 @RestrictTo(Scope.LIBRARY)
 public class AudioFocusHandler {
     private static final String TAG = "AudioFocusHandler";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     interface AudioFocusHandlerImpl {
         boolean onPlayRequested();
         void onPauseRequested();
-        void onPlayerStateChanged(int playerState);
         void close();
         void sendIntent(Intent intent);
     }
 
     private final AudioFocusHandlerImpl mImpl;
 
-    AudioFocusHandler(Context context, MediaSession2 session) {
-        mImpl = new AudioFocusHandlerImplBase(context, session);
+    AudioFocusHandler(Context context, XMediaPlayer player) {
+        mImpl = new AudioFocusHandlerImplBase(context, player);
     }
 
     /**
@@ -91,15 +91,6 @@ public class AudioFocusHandler {
     }
 
     /**
-     * Should be called when the player state is changed.
-     * <p>
-     * This is to implement the guideline for media session callback.
-     */
-    public void onPlayerStateChanged(int playerState) {
-        mImpl.onPlayerStateChanged(playerState);
-    }
-
-    /**
      * Closes this resource, relinquishing any underlying resources.
      */
     public void close() {
@@ -115,7 +106,8 @@ public class AudioFocusHandler {
         mImpl.sendIntent(intent);
     }
 
-    private static class AudioFocusHandlerImplBase implements AudioFocusHandlerImpl {
+    private static class AudioFocusHandlerImplBase extends SessionPlayer2.PlayerCallback
+            implements AudioFocusHandlerImpl {
         // Value is from the {@link AudioFocusRequest} as follows
         // 'A typical attenuation by the “ducked” application is a factor of 0.2f (or -14dB), that
         // can for instance be applied with MediaPlayer.setVolume(0.2f) when using this class for
@@ -127,7 +119,7 @@ public class AudioFocusHandler {
         private final OnAudioFocusChangeListener mAudioFocusListener = new AudioFocusListener();
         final Object mLock = new Object();
         private final Context mContext;
-        final MediaSession2 mSession;
+        final XMediaPlayer mPlayer;
         private final AudioManager mAudioManager;
 
         @GuardedBy("mLock")
@@ -139,24 +131,19 @@ public class AudioFocusHandler {
         @GuardedBy("mLock")
         boolean mHasRegisteredReceiver;
 
-        AudioFocusHandlerImplBase(Context context, MediaSession2 session) {
+        AudioFocusHandlerImplBase(Context context, XMediaPlayer player) {
             mContext = context;
-            mSession = session;
+            mPlayer = player;
+            mPlayer.registerPlayerCallback(ContextCompat.getMainExecutor(context), this);
 
             // Cannot use session.getContext() because session's impl isn't initialized at this
             // moment.
             mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         }
 
-        private AudioAttributesCompat getAudioAttributesNotLocked() {
-            MediaPlayerConnector player = mSession.getPlayerConnector();
-            return (player == null || player instanceof BaseRemoteMediaPlayerConnector)
-                    ? null : player.getAudioAttributes();
-        }
-
         @Override
         public boolean onPlayRequested() {
-            final AudioAttributesCompat attrs = getAudioAttributesNotLocked();
+            final AudioAttributesCompat attrs = mPlayer.getAudioAttributes();
             boolean result = true;
             synchronized (mLock) {
                 if (attrs == null) {
@@ -171,10 +158,7 @@ public class AudioFocusHandler {
                 }
             }
             if (attrs == null) {
-                final MediaPlayerConnector player = mSession.getPlayerConnector();
-                if (player != null) {
-                    player.setPlayerVolume(0);
-                }
+                mPlayer.setPlayerVolume(0);
             }
             return result;
         }
@@ -197,7 +181,7 @@ public class AudioFocusHandler {
          * If there's no huge issue, then register noisy intent receiver here.
          */
         private void onPlayingNotLocked() {
-            final AudioAttributesCompat attrs = getAudioAttributesNotLocked();
+            final AudioAttributesCompat attrs = mPlayer.getAudioAttributes();
             final int expectedFocusGain;
             boolean pauseNeeded = false;
             synchronized (mLock) {
@@ -236,18 +220,15 @@ public class AudioFocusHandler {
             }
             if (attrs == null) {
                 // If attributes becomes null (i.e. no sound)
-                final MediaPlayerConnector player = mSession.getPlayerConnector();
-                if (player != null) {
-                    player.setPlayerVolume(0);
-                }
+                mPlayer.setPlayerVolume(0);
             }
             if (pauseNeeded) {
-                mSession.pause();
+                mPlayer.pause();
             }
         }
 
         @Override
-        public void onPlayerStateChanged(int playerState) {
+        public void onPlayerStateChanged(SessionPlayer2 player, int playerState) {
             switch (playerState) {
                 case PLAYER_STATE_IDLE: {
                     synchronized (mLock) {
@@ -274,6 +255,7 @@ public class AudioFocusHandler {
 
         @Override
         public void close() {
+            mPlayer.unregisterPlayerCallback(this);
             synchronized (mLock) {
                 unregisterReceiverLocked();
                 abandonAudioFocusLocked();
@@ -461,16 +443,12 @@ public class AudioFocusHandler {
                         case AudioAttributesCompat.USAGE_MEDIA:
                             // Noisy intent guide says 'In the case of music players, users
                             // typically expect the playback to be paused.'
-                            mSession.pause();
+                            mPlayer.pause();
                             break;
                         case AudioAttributesCompat.USAGE_GAME:
                             // Noisy intent guide says 'For gaming apps, you may choose to
                             // significantly lower the volume instead'.
-                            MediaPlayerConnector player = mSession.getPlayerConnector();
-                            if (player != null) {
-                                player.setPlayerVolume(player.getPlayerVolume()
-                                        * VOLUME_DUCK_FACTOR);
-                            }
+                            mPlayer.setPlayerVolume(mPlayer.getPlayerVolume() * VOLUME_DUCK_FACTOR);
                             break;
                         default:
                             // Noisy intent guide didn't say anything more for this. No-op for now.
@@ -494,35 +472,32 @@ public class AudioFocusHandler {
                 switch (focusGain) {
                     case AudioManager.AUDIOFOCUS_GAIN:
                         // Regains focus after the LOSS_TRANSIENT or LOSS_TRANSIENT_CAN_DUCK.
-                        if (mSession.getPlayerState() == PLAYER_STATE_PAUSED) {
+                        if (mPlayer.getPlayerState() == PLAYER_STATE_PAUSED) {
                             // Note: onPlayRequested() will be called again with this.
                             synchronized (mLock) {
                                 if (!mResumeWhenAudioFocusGain) {
                                     break;
                                 }
                             }
-                            mSession.play();
+                            mPlayer.play();
                         } else {
-                            MediaPlayerConnector player = mSession.getPlayerConnector();
-                            if (player != null) {
-                                // Resets the volume if the user didn't change it.
-                                final float currentVolume = player.getPlayerVolume();
-                                final float volumeBeforeDucking;
-                                synchronized (mLock) {
-                                    if (currentVolume != mPlayerDuckingVolume) {
-                                        // User manually changed the volume meanwhile. Don't reset.
-                                        break;
-                                    }
-                                    volumeBeforeDucking = mPlayerVolumeBeforeDucking;
+                            // Resets the volume if the user didn't change it.
+                            final float currentVolume = mPlayer.getPlayerVolume();
+                            final float volumeBeforeDucking;
+                            synchronized (mLock) {
+                                if (currentVolume != mPlayerDuckingVolume) {
+                                    // User manually changed the volume meanwhile. Don't reset.
+                                    break;
                                 }
-                                player.setPlayerVolume(volumeBeforeDucking);
+                                volumeBeforeDucking = mPlayerVolumeBeforeDucking;
                             }
+                            mPlayer.setPlayerVolume(volumeBeforeDucking);
                         }
                         break;
                     case AudioManager.AUDIOFOCUS_LOSS:
                         // Audio-focus developer guide says 'Your app should pause playback
                         // immediately, as it won't ever receive an AUDIOFOCUS_GAIN callback'.
-                        mSession.pause();
+                        mPlayer.pause();
                         // Don't resume even after you regain the audio focus.
                         synchronized (mLock) {
                             mResumeWhenAudioFocusGain = false;
@@ -539,23 +514,20 @@ public class AudioFocusHandler {
                                     == AudioAttributesCompat.CONTENT_TYPE_SPEECH);
                         }
                         if (pause) {
-                            mSession.pause();
+                            mPlayer.pause();
                         } else {
-                            MediaPlayerConnector player = mSession.getPlayerConnector();
-                            if (player != null) {
-                                // Lower the volume by the factor
-                                final float currentVolume = player.getPlayerVolume();
-                                final float duckingVolume = currentVolume * VOLUME_DUCK_FACTOR;
-                                synchronized (mLock) {
-                                    mPlayerVolumeBeforeDucking = currentVolume;
-                                    mPlayerDuckingVolume = duckingVolume;
-                                }
-                                player.setPlayerVolume(duckingVolume);
+                            // Lower the volume by the factor
+                            final float currentVolume = mPlayer.getPlayerVolume();
+                            final float duckingVolume = currentVolume * VOLUME_DUCK_FACTOR;
+                            synchronized (mLock) {
+                                mPlayerVolumeBeforeDucking = currentVolume;
+                                mPlayerDuckingVolume = duckingVolume;
                             }
+                            mPlayer.setPlayerVolume(duckingVolume);
                         }
                         break;
                     case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                        mSession.pause();
+                        mPlayer.pause();
                         // Resume after regaining the audio focus.
                         synchronized (mLock) {
                             mResumeWhenAudioFocusGain = true;

@@ -87,8 +87,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     private final SessionToken2 mSessionToken;
     private final AudioManager mAudioManager;
     private final SessionPlayer2.PlayerCallback mPlayerCallback;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final AudioFocusHandler mAudioFocusHandler;
     private final MediaSession2 mInstance;
     private final PendingIntent mSessionActivity;
 
@@ -121,7 +119,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         mPlayerCallback = new SessionPlayerCallback(this);
-        mAudioFocusHandler = new AudioFocusHandler(context, instance);
 
         synchronized (MediaSession2ImplBase.class) {
             if (SESSION_ID_LIST.contains(id)) {
@@ -284,7 +281,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             synchronized (MediaSession2ImplBase.class) {
                 SESSION_ID_LIST.remove(mSessionId);
             }
-            mAudioFocusHandler.close();
             mPlayer.unregisterPlayerCallback(mPlayerCallback);
             mPlayer = null;
             mSessionCompat.release();
@@ -433,17 +429,10 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             player = mPlayer;
         }
         if (player != null) {
-            if (mAudioFocusHandler.onPlayRequested()) {
-                if (player.getPlayerState() == PLAYER_STATE_IDLE) {
-                    // Note: Ideally audio focus should be requested only when play() is called,
-                    // but it would be fine calling prepare() after the audio focus here because
-                    // play() will be triggered immediately after.
-                    player.prepare();
-                }
-                player.play();
-            } else {
-                Log.w(TAG, "play() wouldn't be called because of the failure in audio focus");
+            if (player.getPlayerState() == PLAYER_STATE_IDLE) {
+                player.prepare();
             }
+            player.play();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
@@ -456,7 +445,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             player = mPlayer;
         }
         if (player != null) {
-            mAudioFocusHandler.onPauseRequested();
             player.pause();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
@@ -888,11 +876,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     @Override
     public MediaSessionCompat getSessionCompat() {
         return mSessionCompat;
-    }
-
-    @Override
-    public AudioFocusHandler getAudioFocusHandler() {
-        return mAudioFocusHandler;
     }
 
     @Override
