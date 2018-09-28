@@ -16,8 +16,6 @@
 
 package androidx.media2;
 
-import static android.content.Context.KEYGUARD_SERVICE;
-
 import static junit.framework.TestCase.assertFalse;
 
 import static org.junit.Assert.assertEquals;
@@ -26,33 +24,24 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import android.app.Instrumentation;
-import android.app.KeyguardManager;
-import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.PersistableBundle;
-import android.view.WindowManager;
 
-import androidx.annotation.CallSuper;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.test.R;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,15 +51,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-public class XMediaPlayerTest {
+public class XMediaPlayerTest extends XMediaPlayerTestBase {
     private static final String LOG_TAG = "XMediaPlayerTest";
 
     private static final int SLEEP_TIME = 1000;
@@ -79,21 +66,9 @@ public class XMediaPlayerTest {
     private static final int INVALID_SHUFFLE_MODE = -1000;
     private static final int INVALID_REPEAT_MODE = -1000;
 
-    private Context mContext;
-    private Resources mResources;
-    private ExecutorService mExecutor;
-    protected XMediaPlayer mPlayer;
-
     private Object mPlayerCbArg1;
     private Object mPlayerCbArg2;
 
-    private MediaStubActivity mActivity;
-    private Instrumentation mInstrumentation;
-    @Rule
-    public ActivityTestRule<MediaStubActivity> mActivityRule =
-            new ActivityTestRule<>(MediaStubActivity.class);
-    private KeyguardManager mKeyguardManager;
-    private List<AssetFileDescriptor> mFdsToClose = new ArrayList<>();
     private final Vector<Integer> mSubtitleTrackIndex = new Vector<>();
     private int mSelectedSubtitleIndex;
     private final Monitor mOnSubtitleDataCalled = new Monitor();
@@ -102,50 +77,38 @@ public class XMediaPlayerTest {
     private final Monitor mOnErrorCalled = new Monitor();
 
     @Before
-    @CallSuper
+    @Override
     public void setUp() throws Throwable {
-        mInstrumentation = InstrumentationRegistry.getInstrumentation();
-        mKeyguardManager = (KeyguardManager)
-                mInstrumentation.getTargetContext().getSystemService(KEYGUARD_SERVICE);
-        mActivity = mActivityRule.getActivity();
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Keep screen on while testing.
-                mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                mActivity.setTurnScreenOn(true);
-                mActivity.setShowWhenLocked(true);
-                mKeyguardManager.requestDismissKeyguard(mActivity, null);
-            }
-        });
-        mInstrumentation.waitForIdleSync();
-
-        try {
-            mActivityRule.runOnUiThread(new Runnable() {
-                public void run() {
-                    mPlayer = new XMediaPlayer(mActivity);
-                }
-            });
-        } catch (Throwable e) {
-            fail();
-        }
-        mContext = mActivityRule.getActivity();
-        mResources = mContext.getResources();
-        mExecutor = Executors.newFixedThreadPool(1);
+        super.setUp();
     }
 
     @After
-    @CallSuper
+    @Override
     public void tearDown() throws Exception {
-        if (mPlayer != null) {
-            mPlayer.close();
-            mPlayer = null;
-        }
-        mExecutor.shutdown();
-        mActivity = null;
-        for (AssetFileDescriptor afd :  mFdsToClose) {
-            afd.close();
-        }
+        super.tearDown();
+    }
+
+    @Test
+    @MediumTest
+    public void testPlayAudioOnce() throws Exception {
+        assertTrue(loadResource(R.raw.testmp3_2));
+        AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                .build();
+        mPlayer.setAudioAttributes(attributes);
+
+        final TestUtils.Monitor playing = new TestUtils.Monitor();
+        mPlayer.registerPlayerCallback(mExecutor, new SessionPlayer2.PlayerCallback() {
+            @Override
+            public void onPlayerStateChanged(SessionPlayer2 player, int playerState) {
+                playing.signal();
+            }
+        });
+
+        mPlayer.prepare();
+        mPlayer.play();
+
+        assertTrue(playing.waitForSignal(SLEEP_TIME));
     }
 
     @Test
@@ -1491,18 +1454,6 @@ public class XMediaPlayerTest {
         CommandResult2 result = mPlayer.setPlaylist(playlist, null).get();
         assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, result.getResultCode());
         assertTrue(onCurrentMediaItemChangedMonitor.waitForSignal(WAIT_TIME_MS));
-    }
-
-    private boolean loadResource(int resid) throws Exception {
-        AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
-        try {
-            mPlayer.setMediaItem(new FileMediaItem2.Builder(
-                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
-        } finally {
-            // Close descriptor later when test finishes since setMediaItem is async operation.
-            mFdsToClose.add(afd);
-        }
-        return true;
     }
 
     private MediaItem2 createMediaItem(int key) throws Exception {

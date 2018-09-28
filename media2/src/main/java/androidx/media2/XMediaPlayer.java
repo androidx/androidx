@@ -36,6 +36,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.concurrent.futures.AbstractFuture;
 import androidx.concurrent.futures.SettableFuture;
@@ -60,6 +61,63 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Topic covered here:
+ * <ol>
+ * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
+ * </ol>
+ * <a name="AudioFocusAndNoisyIntent"></a>
+ * <h3>Audio focus and noisy intent</h3>
+ * <p>
+ * By default, {@link XMediaPlayer} handles audio focus and noisy intent with
+ * {@link AudioAttributesCompat} set to this player. You need to call
+ * {@link #setAudioAttributes(AudioAttributesCompat)} set the audio attribute while in the
+ * {@link #PLAYER_STATE_IDLE}.
+ * <p>
+ * Here's the table of automatic audio focus behavior with audio attributes.
+ * <table>
+ * <tr><th>Audio Attributes</th><th>Audio Focus Gain Type</th><th>Misc</th></tr>
+ * <tr><td>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION_SIGNALLING}</td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_NONE}</td>
+ *     <td /></tr>
+ * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_GAME}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_MEDIA}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_UNKNOWN}</li></ul></td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN}</td>
+ *     <td>Developers should specific a proper usage instead of
+ *         {@link AudioAttributesCompat#USAGE_UNKNOWN}</td></tr>
+ * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ALARM}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION}</li></ul></td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT}</td>
+ *     <td /></tr>
+ * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_ASSISTANCE_SONIFICATION}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_COMMUNICATION_DELAYED}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_COMMUNICATION_INSTANT}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_COMMUNICATION_REQUEST}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_EVENT}</li>
+ *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_RINGTONE}</li></ul></td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}</td>
+ *     <td /></tr>
+ * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ASSISTANT}</li></ul></td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}</td>
+ *     <td /></tr>
+ * <tr><td>{@link AudioAttributesCompat#USAGE_ASSISTANCE_ACCESSIBILITY}</td>
+ *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT} if
+ *         {@link AudioAttributesCompat#CONTENT_TYPE_SPEECH},
+ *         {@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} otherwise</td>
+ *     <td /></tr>
+ * <tr><td>{@code null}</td>
+ *     <td>No audio focus handling, and sets the player volume to {@code 0}</td>
+ *     <td>Only valid if your media contents don't have audio</td></tr>
+ * <tr><td>Any other AudioAttributes</td>
+ *     <td>No audio focus handling, and sets the player volume to {@code 0}</td>
+ *     <td>This is to handle error</td></tr>
+ * </table>
+ * <p>
+ * For more information about the audio focus, take a look at
+ * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
+ * <p>
  * @hide
  */
 @TargetApi(Build.VERSION_CODES.P)
@@ -522,6 +580,8 @@ public class XMediaPlayer extends SessionPlayer2 {
     private @PlayerState int mState;
     @GuardedBy("mStateLock")
     private Map<MediaItem2, Integer> mMediaItemToBuffState = new HashMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final AudioFocusHandler mAudioFocusHandler;
 
     private final Object mPlaylistLock = new Object();
     @GuardedBy("mPlaylistLock")
@@ -550,6 +610,7 @@ public class XMediaPlayer extends SessionPlayer2 {
         mPlayer.setEventCallback(mExecutor, new Mp2Callback());
         mPlayer.setDrmEventCallback(mExecutor, new Mp2DrmCallback());
         mCurrentShuffleIdx = NO_MEDIA_ITEM;
+        mAudioFocusHandler = new AudioFocusHandler(context, this);
     }
 
     private void addPendingCommandLocked(
@@ -570,19 +631,27 @@ public class XMediaPlayer extends SessionPlayer2 {
             }
         }, mExecutor);
     }
+
     @Override
     public ListenableFuture<CommandResult2> play() {
-        SettableFuture<CommandResult2> future = SettableFuture.create();
-        synchronized (mPendingCommands) {
-            Object token = mPlayer._play();
-            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PLAY, future, token);
+        // TODO: Make commands be executed sequentially
+        if (mAudioFocusHandler.onPlayRequested()) {
+            final SettableFuture<CommandResult2> future = SettableFuture.create();
+            synchronized (mPendingCommands) {
+                Object token = mPlayer._play();
+                addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PLAY, future, token);
+            }
+            return future;
+        } else {
+            return createFutureForResultCodeInternal(RESULT_CODE_ERROR_UNKNOWN);
         }
-        return future;
     }
 
     @Override
     public ListenableFuture<CommandResult2> pause() {
         SettableFuture<CommandResult2> future = SettableFuture.create();
+        // TODO: Make commands be executed sequentially
+        mAudioFocusHandler.onPauseRequested();
         synchronized (mPendingCommands) {
             Object token = mPlayer._pause();
             addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PAUSE, future, token);
@@ -1044,8 +1113,18 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     @Override
     public void close() throws Exception {
+        mAudioFocusHandler.close();
         mPlayer.close();
         mExecutor.shutdown();
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public AudioFocusHandler getAudioFocusHandler() {
+        return mAudioFocusHandler;
     }
 
     /**
