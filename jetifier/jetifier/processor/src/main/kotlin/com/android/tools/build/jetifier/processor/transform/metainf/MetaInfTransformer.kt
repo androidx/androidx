@@ -16,10 +16,11 @@
 
 package com.android.tools.build.jetifier.processor.transform.metainf
 
+import com.android.tools.build.jetifier.core.pom.PomDependency
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.transform.TransformationContext
 import com.android.tools.build.jetifier.processor.transform.Transformer
-import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 
 /**
  * Transformer for META-INF/(.*).version files.
@@ -32,35 +33,49 @@ class MetaInfTransformer internal constructor(
 ) : Transformer {
 
     companion object {
-        const val FROM_VERSION = "28.0.0-SNAPSHOT"
-
-        const val TO_VERSION = "1.0.0-SNAPSHOT"
-
         const val META_INF_DIR = "meta-inf"
 
         const val VERSION_FILE_SUFFIX = ".version"
+
+        val FILES_TO_IGNORE = setOf(
+            "androidx.car_car-cluster.version",
+            "androidx.car_car-moderator.version"
+        )
     }
 
     override fun canTransform(file: ArchiveFile): Boolean {
-        return context.rewritingSupportLib
-            && file.relativePath.toString().contains(META_INF_DIR, ignoreCase = true)
-            && file.fileName.endsWith(VERSION_FILE_SUFFIX, ignoreCase = true)
+        return context.rewritingSupportLib &&
+            file.relativePath.toString().contains(META_INF_DIR, ignoreCase = true) &&
+            file.fileName.endsWith(VERSION_FILE_SUFFIX, ignoreCase = true)
     }
 
     override fun runTransform(file: ArchiveFile) {
-        val sb = StringBuilder(file.data.toString(StandardCharsets.UTF_8))
-
-        var from = FROM_VERSION
-        var to = TO_VERSION
-        if (context.isInReversedMode) {
-            from = TO_VERSION
-            to = FROM_VERSION
-        }
-
-        if (sb.toString() != from) {
+        if (FILES_TO_IGNORE.contains(file.fileName)) {
             return
         }
 
-        file.setNewData(to.toByteArray())
+        val tokens = file.fileName.removeSuffix(VERSION_FILE_SUFFIX).split("_")
+        if (tokens.size != 2 || tokens.any { it.isNullOrEmpty() }) {
+            return
+        }
+
+        val dependency = PomDependency(groupId = tokens[0], artifactId = tokens[1])
+        val rule = context.config.pomRewriteRules.firstOrNull { it.matches(dependency) }
+        if (rule == null) {
+            // This class runs only during de-jetification so we can be strict here
+            throw IllegalArgumentException("Unsupported version file '${file.relativePath}'")
+        }
+
+        // Replace with new dependencies
+        val result = rule.to.rewrite(dependency, context.versions)
+
+        // Update the file content
+        file.setNewData(result.version!!.toByteArray())
+
+        // Update the file path
+        val dirPath = file.relativePath.toString().removeSuffix(file.fileName)
+        val newFileName = result.groupId + "_" + result.artifactId + VERSION_FILE_SUFFIX
+        val newPath = Paths.get(dirPath, newFileName)
+        file.updateRelativePath(newPath)
     }
 }
