@@ -23,33 +23,33 @@ import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.SavedStateStore;
-import androidx.lifecycle.SavedStateStores;
+import androidx.lifecycle.SavedStateRegistries;
+import androidx.lifecycle.SavedStateRegistry;
 
 public class SavedStateActivity extends FragmentActivity {
     private static final String TAG = "fragment";
 
-    private static Function<SavedStateStore, Void> sOnCreateRunnable;
+    private static Function<SavedStateRegistry, Void> sOnCreateRunnable;
     private static boolean sInFragment;
 
     public static void duringOnCreate(boolean inFragment,
-            Function<SavedStateStore, Void> f) {
+            Function<SavedStateRegistry, Void> f) {
         sInFragment = inFragment;
         sOnCreateRunnable = f;
     }
 
-    private static void shotOnCreateRunnable(SavedStateStore store) {
+    private static void shotOnCreateRunnable(SavedStateRegistry store) {
         if (sOnCreateRunnable != null) {
             sOnCreateRunnable.apply(store);
             sOnCreateRunnable = null;
         }
     }
 
-    private SavedStateStore mSavedStateStore;
+    private SavedStateRegistry mSavedStateStore;
 
     public SavedStateActivity() {
         if (!sInFragment && sOnCreateRunnable != null) {
-            mSavedStateStore = SavedStateStores.of(this);
+            mSavedStateStore = SavedStateRegistries.of(this);
         }
     }
 
@@ -70,11 +70,11 @@ public class SavedStateActivity extends FragmentActivity {
     }
 
     public static class FragmentWithRunnable extends Fragment {
-        private SavedStateStore mSavedStateStore;
+        private SavedStateRegistry mSavedStateStore;
         @SuppressWarnings("WeakerAccess")
         public FragmentWithRunnable() {
             if (sInFragment && sOnCreateRunnable != null) {
-                mSavedStateStore = SavedStateStores.of(this);
+                mSavedStateStore = SavedStateRegistries.of(this);
             }
         }
 

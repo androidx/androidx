@@ -42,7 +42,7 @@ public class SavedStateHolderFragmentController {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class SavedStateHolderFragment extends Fragment {
 
-        private SavedStateStoreImpl mStoreImpl;
+        private SavedStateRegistry mRegistry;
 
         @SuppressWarnings({"WeakerAccess", "unused"})
         public SavedStateHolderFragment() {
@@ -50,43 +50,37 @@ public class SavedStateHolderFragmentController {
 
         @SuppressLint("ValidFragment")
         @SuppressWarnings("WeakerAccess")
-        SavedStateHolderFragment(SavedStateStoreImpl store) {
-            mStoreImpl = store;
+        SavedStateHolderFragment(SavedStateRegistry registry) {
+            mRegistry = registry;
         }
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            if (mStoreImpl == null) {
-                mStoreImpl = sHolderFragmentManager.mNotCommittedStores.remove(
+            if (mRegistry == null) {
+                mRegistry = sHolderFragmentManager.mNotCommittedStores.remove(
                         getParentFragment() != null ? getParentFragment() : getActivity());
             }
-            if (mStoreImpl == null) {
-                mStoreImpl = new SavedStateStoreImpl();
+            if (mRegistry == null) {
+                mRegistry = new SavedStateRegistry();
             }
-            if (!mStoreImpl.isRestored()) {
-                Bundle args;
-                if (getParentFragment() == null) {
-                    args = requireActivity().getIntent().getExtras();
-                } else {
-                    args = getParentFragment().getArguments();
-                }
-                mStoreImpl.performRestoreState(args, savedInstanceState);
+            if (!mRegistry.isRestored()) {
+                mRegistry.performRestore(savedInstanceState);
             }
         }
 
-        SavedStateStore getSavedStateStore() {
-            return mStoreImpl;
+        SavedStateRegistry getSavedStateStore() {
+            return mRegistry;
         }
 
         @Override
         public void onSaveInstanceState(@NonNull Bundle outState) {
             super.onSaveInstanceState(outState);
-            mStoreImpl.performSaveState(outState);
+            mRegistry.performSave(outState);
         }
     }
 
-    private static final String LOG_TAG = "SavedStores";
+    private static final String LOG_TAG = "SavedStateRegistrys";
 
     /**
      * @hide
@@ -96,7 +90,7 @@ public class SavedStateHolderFragmentController {
     static final String HOLDER_TAG = "androidx.lifecycle.SavedStateHolderFragment";
 
     @SuppressWarnings("WeakerAccess")
-    Map<LifecycleOwner, SavedStateStoreImpl> mNotCommittedStores = new HashMap<>();
+    Map<LifecycleOwner, SavedStateRegistry> mNotCommittedStores = new HashMap<>();
 
     @SuppressWarnings("WeakerAccess")
     static SavedStateHolderFragment findHolderFragment(FragmentManager manager) {
@@ -112,16 +106,16 @@ public class SavedStateHolderFragmentController {
         return (SavedStateHolderFragment) fragmentByTag;
     }
 
-    private SavedStateStore createHolderFragment(final FragmentManagerCall fragmentManager,
-            LifecycleOwner owner, Bundle args) {
+    private SavedStateRegistry createHolderFragment(final FragmentManagerCall fragmentManager,
+            LifecycleOwner owner) {
 
-        final SavedStateStoreImpl store = new SavedStateStoreImpl();
+        final SavedStateRegistry registry = new SavedStateRegistry();
 
         if (fragmentManager.call() != null) {
-            store.performRestoreState(args, null);
+            registry.performRestore(null);
         }
 
-        mNotCommittedStores.put(owner, store);
+        mNotCommittedStores.put(owner, registry);
 
         owner.getLifecycle().addObserver(new GenericLifecycleObserver() {
             @Override
@@ -134,7 +128,7 @@ public class SavedStateHolderFragmentController {
                         return;
                     }
 
-                    SavedStateHolderFragment fragment = new SavedStateHolderFragment(store);
+                    SavedStateHolderFragment fragment = new SavedStateHolderFragment(registry);
                     fm.beginTransaction().add(fragment, HOLDER_TAG).runOnCommit(new Runnable() {
                         @Override
                         public void run() {
@@ -144,18 +138,18 @@ public class SavedStateHolderFragmentController {
                 }
                 if (event == Lifecycle.Event.ON_DESTROY) {
                     source.getLifecycle().removeObserver(this);
-                    SavedStateStore notCommitted = mNotCommittedStores.remove(source);
+                    SavedStateRegistry notCommitted = mNotCommittedStores.remove(source);
                     if (notCommitted != null) {
                         Log.e(LOG_TAG, "Failed to save a SavedStateComponents for " + source);
                     }
                 }
             }
         });
-        return store;
+        return registry;
     }
 
-    private SavedStateStore savedStore(FragmentManagerCall fragmentManager,
-            LifecycleOwner owner, Bundle args) {
+    private SavedStateRegistry savedStateRegistry(FragmentManagerCall fragmentManager,
+            LifecycleOwner owner) {
         FragmentManager fm = fragmentManager.call();
         if (fm != null) {
             SavedStateHolderFragment holder = findHolderFragment(fragmentManager.call());
@@ -163,22 +157,21 @@ public class SavedStateHolderFragmentController {
                 return holder.getSavedStateStore();
             }
         }
-        SavedStateStore store = mNotCommittedStores.get(owner);
+        SavedStateRegistry store = mNotCommittedStores.get(owner);
         if (store != null) {
             return store;
         }
 
-        return createHolderFragment(fragmentManager, owner, args);
+        return createHolderFragment(fragmentManager, owner);
     }
 
-    static SavedStateStore savedStore(FragmentActivity activity) {
-        Bundle args = activity.getIntent() != null ? activity.getIntent().getExtras() : null;
-        return sHolderFragmentManager.savedStore(fragmentManager(activity), activity, args);
+    static SavedStateRegistry savedStateRegistry(FragmentActivity activity) {
+        return sHolderFragmentManager.savedStateRegistry(fragmentManager(activity), activity);
     }
 
-    static SavedStateStore savedStore(Fragment parentFragment) {
-        return sHolderFragmentManager.savedStore(fragmentManager(parentFragment), parentFragment,
-                parentFragment.getArguments());
+    static SavedStateRegistry savedStateRegistry(Fragment parentFragment) {
+        return sHolderFragmentManager.savedStateRegistry(fragmentManager(parentFragment),
+                parentFragment);
     }
 
     static final SavedStateHolderFragmentController sHolderFragmentManager =

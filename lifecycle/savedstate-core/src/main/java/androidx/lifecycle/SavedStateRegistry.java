@@ -17,7 +17,6 @@
 package androidx.lifecycle;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.MainThread;
@@ -32,48 +31,16 @@ import java.util.Map;
  * A class for managing saved state.
  */
 @SuppressLint("RestrictedApi")
-public abstract class SavedStateStore {
+public class SavedStateRegistry implements SavedState {
     private static final String SAVED_COMPONENTS_KEY =
             "androidx.lifecycle.SavedStateStoreImpl.key";
-    private SafeIterableMap<String, SavedStateCallback> mComponents = new SafeIterableMap<>();
+    private SafeIterableMap<String, Callback> mComponents = new SafeIterableMap<>();
     private Bundle mSavedState;
     private boolean mRestored;
 
-    /**
-     * Arguments of the owning component.
-     * <p>
-     * Currently it doesn't track updates of underlying arguments,
-     * but it will fixed before beta stage.
-     * <p>
-     * For a Fragment, it is arguments that were set once this fragment was created. It doesn't
-     * track later changes done with {@code setArguments}.
-     *
-     * For an Activity, it is extras of intent that started that Activity
-     * ({@link Activity#getIntent()})
-     *
-     * @return the arguments supplied when the owning was instantiated,
-     * if any.
-     */
-    @Nullable
-    @MainThread
-    public abstract Bundle getArguments();
-
-    /**
-     * Consumes saved state previously supplied by {@link SavedStateCallback} registered via
-     * {@link #registerSavedStateCallback(String, SavedStateCallback)} with the given {@code key}.
-     * This call clears an internal reference to returned saved state, so if you call it second time
-     * in the row it will return null.
-     * <p>
-     * All unconsumed values will be saved during {#code onSaveInstanceState(Bundle savedState)}
-     * <p>
-     * This method can be called after {@code super.onCreate(savedStateBundle)} of the corresponding
-     * component.
-     *
-     * @param key a key with which {@link SavedStateCallback} was previously registered.
-     * @return {@code Bundle} with the previously saved state or {@code null}
-     */
     @MainThread
     @Nullable
+    @Override
     public Bundle consumeRestoredStateForKey(@NonNull String key) {
         if (!mRestored) {
             throw new IllegalStateException("You can consumeRestoredStateForKey "
@@ -90,37 +57,10 @@ public abstract class SavedStateStore {
         return state;
     }
 
-    /**
-     * This interface marks a component that contributes to saved state.
-     */
-    public interface SavedStateCallback {
-        /**
-         * Called to retrieve a state from a component before being killed
-         * so later the state can be received from {@link #consumeRestoredStateForKey(String)}
-         *
-         * @return Bundle with your saved state.
-         */
-        @NonNull
-        Bundle getSavedState();
-    }
-
-    /**
-     * Registers a {@link SavedStateCallback} by the given {@code key}. This callback will be called
-     * during state saving phase, returned bundle will be associated with the given {@code key}
-     * and can be used after the restoration via {@link #consumeRestoredStateForKey(String)}.
-     *
-     * <p>
-     * If there is unconsumed value with the same {@code key},
-     * the value supplied by {@code callback} will be override and will be written to resulting
-     * saved state bundle.
-     *
-     * @param key a key with which returned saved state will be associated
-     * @param callback callback to get saved state.
-     */
     @MainThread
-    public void registerSavedStateCallback(@NonNull String key,
-            @NonNull SavedStateCallback callback) {
-        SavedStateCallback previousCallback = mComponents.putIfAbsent(key, callback);
+    @Override
+    public void registerSaveStateCallback(@NonNull String key, @NonNull Callback callback) {
+        Callback previousCallback = mComponents.putIfAbsent(key, callback);
         if (previousCallback != null) {
             throw new IllegalArgumentException("Callback with the given key is already registered");
         }
@@ -132,6 +72,7 @@ public abstract class SavedStateStore {
      * @param key a key with which a component was previously registered.
      */
     @MainThread
+    @Override
     public void unregisterSaveStateCallback(@NonNull String key) {
         mComponents.remove(key);
     }
@@ -142,6 +83,7 @@ public abstract class SavedStateStore {
      * @return true if state was restored.
      */
     @MainThread
+    @Override
     public boolean isRestored() {
         return mRestored;
     }
@@ -152,7 +94,7 @@ public abstract class SavedStateStore {
      */
     @SuppressWarnings("WeakerAccess")
     @MainThread
-    protected void performRestoreState(@Nullable Bundle savedState) {
+    public void performRestore(@Nullable Bundle savedState) {
         mSavedState = savedState != null ? savedState.getBundle(SAVED_COMPONENTS_KEY) : null;
         mRestored = true;
     }
@@ -164,12 +106,12 @@ public abstract class SavedStateStore {
      * @param outBundle Bundle in which to place a saved state
      */
     @MainThread
-    protected void performSaveState(@NonNull Bundle outBundle) {
+    public void performSave(@NonNull Bundle outBundle) {
         Bundle res = mSavedState == null ? new Bundle() : new Bundle(mSavedState);
-        for (Iterator<Map.Entry<String, SavedStateCallback>> it =
+        for (Iterator<Map.Entry<String, Callback>> it =
                 mComponents.iteratorWithAdditions(); it.hasNext(); ) {
-            Map.Entry<String, SavedStateCallback> entry = it.next();
-            res.putBundle(entry.getKey(), entry.getValue().getSavedState());
+            Map.Entry<String, Callback> entry = it.next();
+            res.putBundle(entry.getKey(), entry.getValue().saveState());
         }
         outBundle.putBundle(SAVED_COMPONENTS_KEY, res);
     }

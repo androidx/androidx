@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class SavedStateAccessorHolder implements SavedStateStore.SavedStateCallback {
+class SavedStateAccessorHolder implements SavedState.Callback {
     private static final String VALUES = "values";
     private static final String KEYS = "keys";
 
@@ -62,7 +62,7 @@ class SavedStateAccessorHolder implements SavedStateStore.SavedStateCallback {
     @SuppressWarnings("unchecked")
     @NonNull
     @Override
-    public Bundle getSavedState() {
+    public Bundle saveState() {
         Set<String> keySet = mAccessor.keys();
         ArrayList keys = new ArrayList(keySet.size());
         ArrayList value = new ArrayList(keys.size());
