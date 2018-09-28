@@ -21,28 +21,28 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 /**
- * Provides simple accessor for {@link SavedStateStore} of Activity and Fragments
+ * Provides simple accessor for {@link SavedStateRegistry} of Activity and Fragments
  */
-public class SavedStateStores {
+public class SavedStateRegistries {
 
-    private SavedStateStores() {
+    private SavedStateRegistries() {
     }
 
     /**
-     * Returns {@link SavedStateStore} for the given fragment.
-     * @param fragment a fragment whose {@link SavedStateStore} is requested
+     * Returns {@link SavedStateRegistry} for the given fragment.
+     * @param fragment a fragment whose {@link SavedStateRegistry} is requested
      * @return a {@code SavedStateStore}
      */
-    public static SavedStateStore of(Fragment fragment) {
-        return SavedStateHolderFragmentController.savedStore(fragment);
+    public static SavedStateRegistry of(Fragment fragment) {
+        return SavedStateHolderFragmentController.savedStateRegistry(fragment);
     }
 
     /**
-     * Returns {@link SavedStateStore} for the given activity.
-     * @param activity a activity whose {@link SavedStateStore} is requested
+     * Returns {@link SavedStateRegistry} for the given activity.
+     * @param activity a activity whose {@link SavedStateRegistry} is requested
      * @return a {@code SavedStateStore}
      */
-    public static SavedStateStore of(FragmentActivity activity) {
-        return SavedStateHolderFragmentController.savedStore(activity);
+    public static SavedStateRegistry of(FragmentActivity activity) {
+        return SavedStateHolderFragmentController.savedStateRegistry(activity);
     }
 }

@@ -16,19 +16,18 @@
 
 package androidx.lifecycle;
 
-import android.os.Bundle;
 
-class SavedStateStoreImpl extends SavedStateStore  {
+import androidx.annotation.NonNull;
 
-    private Bundle mArgs;
-
-    @Override
-    public Bundle getArguments() {
-        return mArgs;
-    }
-
-    void performRestoreState(Bundle initialArgs, Bundle savedState) {
-        super.performRestoreState(savedState);
-        mArgs = initialArgs;
-    }
+/**
+ * A scope that owns {@link SavedState}
+ */
+public interface SavedStateOwner {
+    /**
+     * Returns owned {@link SavedState}
+     *
+     * @return a {@link SavedState}
+     */
+    @NonNull
+    SavedState getSavedState();
 }
