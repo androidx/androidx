@@ -36,6 +36,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.StyleRes;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
@@ -485,6 +486,18 @@ public abstract class AppCompatDelegate {
     public static int getDefaultNightMode() {
         return sDefaultNightMode;
     }
+
+    /**
+     * Returns the context which should be used to inflate any view hierarchies.
+     */
+    @NonNull
+    public abstract Context getThemedContext();
+
+    /**
+     * This should be called from {@link Activity#setTheme(int)} to notify AppCompat of what
+     * the current theme resource id is.
+     */
+    public abstract void onSetTheme(@StyleRes int themeResId);
 
     /**
      * Sets whether vector drawables on older platforms (< API 21) can be used within
