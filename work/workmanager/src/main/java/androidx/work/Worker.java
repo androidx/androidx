@@ -31,7 +31,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * the work is preempted for any reason, the same instance of Worker is not reused.  This means
  * that {@link #doWork()} is called exactly once per Worker instance.
  */
-public abstract class Worker extends NonBlockingWorker {
+public abstract class Worker extends ListenableWorker {
 
     // Package-private to avoid synthetic accessor.
     SettableFuture<Payload> mFuture;
@@ -71,8 +71,8 @@ public abstract class Worker extends NonBlockingWorker {
      * {@link OneTimeWorkRequest.Builder#setInputMerger(Class)} method.
      * <p>
      * This method is invoked after {@code onStartWork} and returns
-     * {@link androidx.work.NonBlockingWorker.Result#SUCCESS} or a
-     * {@link androidx.work.NonBlockingWorker.Result#FAILURE}.
+     * {@link ListenableWorker.Result#SUCCESS} or a
+     * {@link ListenableWorker.Result#FAILURE}.
      * <p>
      * For example, if you had this structure:
      * <pre>

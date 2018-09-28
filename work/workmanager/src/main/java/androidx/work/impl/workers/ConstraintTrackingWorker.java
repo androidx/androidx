@@ -16,8 +16,8 @@
 
 package androidx.work.impl.workers;
 
-import static androidx.work.NonBlockingWorker.Result.FAILURE;
-import static androidx.work.NonBlockingWorker.Result.RETRY;
+import static androidx.work.ListenableWorker.Result.FAILURE;
+import static androidx.work.ListenableWorker.Result.RETRY;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -27,8 +27,8 @@ import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import androidx.work.Data;
+import androidx.work.ListenableWorker;
 import androidx.work.Logger;
-import androidx.work.NonBlockingWorker;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.WorkDatabase;
@@ -50,7 +50,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ConstraintTrackingWorker extends NonBlockingWorker implements WorkConstraintsCallback {
+public class ConstraintTrackingWorker extends ListenableWorker implements WorkConstraintsCallback {
 
     private static final String TAG = "ConstraintTrkngWrkr";
 
@@ -68,7 +68,7 @@ public class ConstraintTrackingWorker extends NonBlockingWorker implements WorkC
     volatile boolean mAreConstraintsUnmet;
     SettableFuture<Payload> mFuture;
 
-    @Nullable private NonBlockingWorker mDelegate;
+    @Nullable private ListenableWorker mDelegate;
 
     public ConstraintTrackingWorker(@NonNull Context appContext,
             @NonNull WorkerParameters workerParams) {
@@ -201,7 +201,7 @@ public class ConstraintTrackingWorker extends NonBlockingWorker implements WorkC
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
-    public NonBlockingWorker getDelegate() {
+    public ListenableWorker getDelegate() {
         return mDelegate;
     }
 

@@ -51,7 +51,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
 
-        NonBlockingWorker worker = mDefaultWorkerFactory.createWorker(
+        ListenableWorker worker = mDefaultWorkerFactory.createWorker(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -64,7 +64,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         mDefaultWorkerFactory));
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
-                is(CoreMatchers.<NonBlockingWorker>instanceOf(TestWorker.class)));
+                is(CoreMatchers.<ListenableWorker>instanceOf(TestWorker.class)));
         assertThat(worker.getId(), is(work.getId()));
     }
 }

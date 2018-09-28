@@ -34,9 +34,9 @@ import android.support.annotation.WorkerThread;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
+import androidx.work.ListenableWorker;
+import androidx.work.ListenableWorker.Result;
 import androidx.work.Logger;
-import androidx.work.NonBlockingWorker;
-import androidx.work.NonBlockingWorker.Result;
 import androidx.work.State;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -72,10 +72,10 @@ public class WorkerWrapper implements Runnable {
     private List<Scheduler> mSchedulers;
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
     private WorkSpec mWorkSpec;
-    NonBlockingWorker mWorker;
+    ListenableWorker mWorker;
 
     // Package-private for synthetic accessor.
-    NonBlockingWorker.Payload mPayload;
+    ListenableWorker.Payload mPayload;
 
     private Configuration mConfiguration;
     private TaskExecutor mWorkTaskExecutor;
@@ -209,14 +209,14 @@ public class WorkerWrapper implements Runnable {
                 return;
             }
 
-            final SettableFuture<NonBlockingWorker.Payload> future = SettableFuture.create();
+            final SettableFuture<ListenableWorker.Payload> future = SettableFuture.create();
             // Call mWorker.onStartWork() on the main thread.
             mWorkTaskExecutor.getMainThreadExecutor()
                     .execute(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                final ListenableFuture<NonBlockingWorker.Payload> innerFuture =
+                                final ListenableFuture<ListenableWorker.Payload> innerFuture =
                                         mWorker.onStartWork();
                                 future.setFuture(innerFuture);
                             } catch (Throwable e) {
@@ -238,7 +238,7 @@ public class WorkerWrapper implements Runnable {
                                 String.format("%s failed because it threw an exception/error",
                                         workDescription),
                                 exception);
-                        mPayload = new NonBlockingWorker.Payload(Result.FAILURE, Data.EMPTY);
+                        mPayload = new ListenableWorker.Payload(Result.FAILURE, Data.EMPTY);
                     } finally {
                         onWorkFinished();
                     }
@@ -547,7 +547,8 @@ public class WorkerWrapper implements Runnable {
     public static class Builder {
 
         @NonNull Context mAppContext;
-        @Nullable NonBlockingWorker mWorker;
+        @Nullable
+        ListenableWorker mWorker;
         @NonNull TaskExecutor mWorkTaskExecutor;
         @NonNull Configuration mConfiguration;
         @NonNull WorkDatabase mWorkDatabase;
@@ -591,12 +592,12 @@ public class WorkerWrapper implements Runnable {
         }
 
         /**
-         * @param worker The instance of {@link NonBlockingWorker} to be executed by
+         * @param worker The instance of {@link ListenableWorker} to be executed by
          * {@link WorkerWrapper}. Useful in the context of testing.
          * @return The instance of {@link Builder} for chaining.
          */
         @VisibleForTesting
-        public Builder withWorker(NonBlockingWorker worker) {
+        public Builder withWorker(ListenableWorker worker) {
             mWorker = worker;
             return this;
         }

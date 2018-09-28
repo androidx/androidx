@@ -37,10 +37,10 @@ import java.util.concurrent.TimeUnit;
  * The basic object that performs work.  Worker classes are instantiated at runtime by the
  * {@link WorkerFactory} specified in the {@link Configuration}.  The {@link #onStartWork()} method
  * is called on the background thread.  In case the work is preempted and later restarted for any
- * reason, a new instance of {@link NonBlockingWorker} is created. This means that
- * {@code onStartWork} is called exactly once per {@link NonBlockingWorker} instance.
+ * reason, a new instance of {@link ListenableWorker} is created. This means that
+ * {@code onStartWork} is called exactly once per {@link ListenableWorker} instance.
  */
-public abstract class NonBlockingWorker {
+public abstract class ListenableWorker {
 
     /**
      * The result of the Worker's computation.
@@ -79,7 +79,7 @@ public abstract class NonBlockingWorker {
      * @param workerParams Parameters to setup the internal state of this worker
      */
     @Keep
-    public NonBlockingWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
+    public ListenableWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
         // Actually make sure we don't get nulls.
         if (appContext == null) {
             throw new NullPointerException("Application Context is null");
@@ -310,14 +310,14 @@ public abstract class NonBlockingWorker {
         }
 
         /**
-         * @return The {@link Result} of this {@link NonBlockingWorker}
+         * @return The {@link Result} of this {@link ListenableWorker}
          */
         public @NonNull Result getResult() {
             return mResult;
         }
 
         /**
-         * @return The output {@link Data} of this {@link NonBlockingWorker}
+         * @return The output {@link Data} of this {@link ListenableWorker}
          */
         public @NonNull Data getOutputData() {
             return mOutput;
