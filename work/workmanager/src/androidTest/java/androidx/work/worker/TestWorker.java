@@ -29,8 +29,7 @@ import androidx.work.WorkerParameters;
 
 public class TestWorker extends Worker {
 
-    public TestWorker(@NonNull Context context,
-            @NonNull WorkerParameters workerParams) {
+    public TestWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 

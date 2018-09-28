@@ -16,11 +16,13 @@
 
 package androidx.work.integration.testapp.imageprocessing;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 import androidx.work.integration.testapp.db.Image;
 import androidx.work.integration.testapp.db.TestDatabase;
 
@@ -32,6 +34,10 @@ import java.util.List;
  */
 public class ImageCleanupWorker extends Worker {
     private static final String TAG = "ImageProcessingWorker";
+
+    public ImageCleanupWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @Override
     public @NonNull Result doWork() {

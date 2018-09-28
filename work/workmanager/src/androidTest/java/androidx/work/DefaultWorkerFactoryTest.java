@@ -26,8 +26,7 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.utils.SynchronousExecutor;
-import androidx.work.worker.DefaultConstructorWorker;
-import androidx.work.worker.NewConstructorWorker;
+import androidx.work.worker.TestWorker;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -48,14 +47,13 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testCreateWorker_isCreated_withOnlyDefaultConstructor() {
-        OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(DefaultConstructorWorker.class).build();
+    public void testCreateWorker_isCreatedSuccessfully() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
 
         NonBlockingWorker worker = mDefaultWorkerFactory.createWorker(
                 mContext.getApplicationContext(),
-                DefaultConstructorWorker.class.getName(),
+                TestWorker.class.getName(),
                 new WorkerParameters(
                         work.getId(),
                         Data.EMPTY,
@@ -66,31 +64,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         mDefaultWorkerFactory));
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
-                is(CoreMatchers.<NonBlockingWorker>instanceOf(DefaultConstructorWorker.class)));
-        assertThat(worker.getId(), is(work.getId()));
-    }
-
-    @Test
-    @SmallTest
-    public void testCreateWorker_isCreated_withNewConstructor() {
-        OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(NewConstructorWorker.class).build();
-        insertWork(work);
-
-        NonBlockingWorker worker = mDefaultWorkerFactory.createWorker(
-                mContext.getApplicationContext(),
-                NewConstructorWorker.class.getName(),
-                new WorkerParameters(
-                        work.getId(),
-                        Data.EMPTY,
-                        work.getTags(),
-                        new WorkerParameters.RuntimeExtras(),
-                        1,
-                        new SynchronousExecutor(),
-                        mDefaultWorkerFactory));
-        assertThat(worker, is(notNullValue()));
-        assertThat(worker,
-                is(CoreMatchers.<NonBlockingWorker>instanceOf(NewConstructorWorker.class)));
+                is(CoreMatchers.<NonBlockingWorker>instanceOf(TestWorker.class)));
         assertThat(worker.getId(), is(work.getId()));
     }
 }

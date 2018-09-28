@@ -47,6 +47,7 @@ import androidx.work.State;
 import androidx.work.WorkManagerTest;
 import androidx.work.WorkRequest;
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
@@ -271,6 +272,11 @@ public class SystemJobServiceTest extends WorkManagerTest {
         static String[] sTriggeredContentAuthorities;
         static Uri[] sTriggeredContentUris;
 
+        public ContentUriTriggerLoggingWorker(@NonNull Context context,
+                @NonNull WorkerParameters workerParams) {
+            super(context, workerParams);
+        }
+
         @Override
         public @NonNull Result doWork() {
             synchronized (ContentUriTriggerLoggingWorker.class) {
@@ -286,6 +292,11 @@ public class SystemJobServiceTest extends WorkManagerTest {
 
         static int sTimesUpdated = 0;
         static Network sNetwork;
+
+        public NetworkLoggingWorker(@NonNull Context context,
+                @NonNull WorkerParameters workerParams) {
+            super(context, workerParams);
+        }
 
         @Override
         public @NonNull Result doWork() {

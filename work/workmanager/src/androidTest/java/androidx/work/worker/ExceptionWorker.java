@@ -16,11 +16,17 @@
 
 package androidx.work.worker;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 public class ExceptionWorker extends Worker {
+
+    public ExceptionWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @Override
     public @NonNull Result doWork() {

@@ -66,28 +66,13 @@ public abstract class NonBlockingWorker {
         RETRY
     }
 
-    @SuppressWarnings("NullableProblems")   // Set by internalInit
     private @NonNull Context mAppContext;
-
-    @SuppressWarnings("NullableProblems")   // Set by internalInit
     private @NonNull WorkerParameters mWorkerParams;
 
     private volatile boolean mStopped;
     private volatile boolean mCancelled;
 
     private boolean mUsed;
-
-    /**
-     * The default constructor.  This constructor is deprecated and only exists temporarily for
-     * backwards-compatibility.  It will be removed soon, so you should switch all your workers to
-     * use {@link #NonBlockingWorker(Context, WorkerParameters)}.
-     *
-     * @deprecated Use {@link #NonBlockingWorker(Context, WorkerParameters)} instead
-     */
-    @Deprecated
-    @Keep
-    public NonBlockingWorker() {
-    }
 
     /**
      * @param appContext The application {@link Context}
@@ -236,18 +221,6 @@ public abstract class NonBlockingWorker {
      */
     public void onStopped(boolean cancelled) {
         // Do nothing by default.
-    }
-
-    /**
-     * @deprecated To be removed; internal usage only.
-     */
-    @Deprecated
-    @Keep
-    @SuppressWarnings("unused")
-    protected void internalInit(@NonNull Context context,
-            @NonNull WorkerParameters workParameters) {
-        mAppContext = context;
-        mWorkerParams = workParameters;
     }
 
     /**

@@ -16,10 +16,12 @@
 
 package androidx.work.impl.workers;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
  * A {@link Worker} that helps combine work continuations.
@@ -28,6 +30,12 @@ import androidx.work.Worker;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CombineContinuationsWorker extends Worker {
+
+    public CombineContinuationsWorker(@NonNull Context context,
+            @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
+
     @Override
     public @NonNull Result doWork() {
         setOutputData(getInputData());
