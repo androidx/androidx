@@ -102,22 +102,14 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-            android:title="@string/launchable">
+            android:key="advanced"
+            android:title="@string/advanced_attributes"
+            app:initialExpandedChildrenCount="1">
 
-        <!-- This PreferenceScreen tag indicates a nested screen of preferences. As with other
-             preferences the key is needed to save and restore instance state. -->
-        <PreferenceScreen
-                android:key="screen"
-                android:title="@string/title_screen_preference"
-                android:summary="@string/summary_screen_preference">
-
-            <!--Preferences placed within here will only be displayed on the nested screen-->
-            <Preference
-                    android:key="nested"
-                    android:title="@string/title_nested_preference"
-                    android:summary="@string/summary_nested_preference"/>
-
-        </PreferenceScreen>
+        <Preference
+                android:key="expandable"
+                android:title="@string/title_expandable_preference"
+                android:summary="@string/summary_expandable_preference"/>
 
         <Preference
                 android:title="@string/title_intent_preference"
@@ -127,17 +119,6 @@
                     android:data="http://www.android.com"/>
 
         </Preference>
-    </PreferenceCategory>
-
-    <PreferenceCategory
-            android:key="advanced"
-            android:title="@string/advanced_attributes"
-            app:initialExpandedChildrenCount="1">
-
-        <Preference
-                android:key="expandable"
-                android:title="@string/title_expandable_preference"
-                android:summary="@string/summary_expandable_preference"/>
 
         <SwitchPreferenceCompat
                 android:key="parent"
