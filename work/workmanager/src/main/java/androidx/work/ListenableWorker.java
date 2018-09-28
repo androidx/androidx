@@ -82,11 +82,11 @@ public abstract class ListenableWorker {
     public ListenableWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
         // Actually make sure we don't get nulls.
         if (appContext == null) {
-            throw new NullPointerException("Application Context is null");
+            throw new IllegalArgumentException("Application Context is null");
         }
 
         if (workerParams == null) {
-            throw new NullPointerException("WorkerParameters is null");
+            throw new IllegalArgumentException("WorkerParameters is null");
         }
 
         mAppContext = appContext;
@@ -294,8 +294,7 @@ public abstract class ListenableWorker {
          * @param result The result of the {@link #onStartWork()} computation
          */
         public Payload(@NonNull Result result) {
-            mResult = result;
-            mOutput = Data.EMPTY;
+            this(result, Data.EMPTY);
         }
 
         /**
