@@ -1228,6 +1228,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         @RestrictTo(LIBRARY_GROUP)
         public void onSelectRoute(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull Bundle route) { }
+
         /**
          * Called when the player's current playing item is changed
          * <p>

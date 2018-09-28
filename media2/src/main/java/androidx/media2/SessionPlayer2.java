@@ -279,8 +279,27 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     public abstract float getPlaybackSpeed();
 
     // APIs from the MediaPlaylistAgent
+    /**
+     * Sets a list of {@link MediaItem2}. Ensure uniqueness of each {@link MediaItem2} in the
+     * playlist so the session can uniquely identity individual items.
+     * <p>
+     * This may be an asynchronous call, and the implementation may keep the copy of the list.
+     * Wait for {@link PlayerCallback#onPlaylistChanged} to know the operation finishes.
+     * <p>
+     * It's recommended to fill {@link MediaMetadata2} in each {@link MediaItem2} especially for the
+     * duration information with the key {@link MediaMetadata2#METADATA_KEY_DURATION}. Without the
+     * duration information in the metadata, session will do extra work to get the duration and send
+     * it to the controller.
+     *
+     * @param list A list of {@link MediaItem2} objects to set as a play list.
+     * @throws IllegalArgumentException if the given list is {@code null} or empty, or has
+     *         duplicated media items.
+     * @return a {@link ListenableFuture} which represents the pending completion of the command.
+     * @see MediaPlaylistAgent#setPlaylist
+     * @see PlayerCallback#onPlaylistChanged
+     */
     public abstract @NonNull ListenableFuture<CommandResult2> setPlaylist(
-            List<MediaItem2> list, MediaMetadata2 metadata);
+            @NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata);
 
     /**
      * Gets the {@link AudioAttributesCompat} that media player has.
@@ -288,14 +307,14 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     public abstract @Nullable AudioAttributesCompat getAudioAttributes();
 
     /**
-     * Sets a {@link MediaItem2} for playback. This is helper method for
-     * {@link #setPlaylist(List, MediaMetadata2)} to set playlist without creating a {@link List}
-     * and doesn't specify playlist metadata.
+     * Sets a {@link MediaItem2} for playback.
      *
-     * @param item
-     * @return
+     * @param item the descriptor of media item you want to play
+     * @return a {@link ListenableFuture} which represents the pending completion of the command.
+     * @throws IllegalArgumentException if the given item is {@code null}.
      */
-    public abstract @NonNull ListenableFuture<CommandResult2> setMediaItem(MediaItem2 item);
+    public abstract @NonNull ListenableFuture<CommandResult2> setMediaItem(
+            @NonNull MediaItem2 item);
 
     public abstract @NonNull ListenableFuture<CommandResult2> addPlaylistItem(int index,
             @NonNull MediaItem2 item);
@@ -303,6 +322,7 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     public abstract @NonNull ListenableFuture<CommandResult2> removePlaylistItem(
             @NonNull MediaItem2 item);
 
+    // TODO: Consider changing to replacePlaylistItem(MI2, MI2)
     public abstract @NonNull ListenableFuture<CommandResult2> replacePlaylistItem(int index,
             @NonNull MediaItem2 item);
 
