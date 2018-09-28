@@ -37,14 +37,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.concurrent.Executor;
-
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
 public class TransformationsTest {
 
     private LifecycleOwner mOwner;
-    private Executor mSynchronousExecutor;
 
     @Before
     public void swapExecutorDelegate() {
@@ -58,12 +55,6 @@ public class TransformationsTest {
         when(mOwner.getLifecycle()).thenReturn(registry);
         registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         registry.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        mSynchronousExecutor = new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        };
     }
 
     @Test
