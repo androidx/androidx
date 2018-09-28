@@ -52,6 +52,7 @@ package androidx.textclassifier {
   }
 
   public final class TextClassificationManager {
+    method public androidx.textclassifier.TextClassifier getDefaultTextClassifier();
     method public androidx.textclassifier.TextClassifier getTextClassifier();
     method public static androidx.textclassifier.TextClassificationManager of(android.content.Context);
     method public void setTextClassifier(androidx.textclassifier.TextClassifier);
