@@ -328,12 +328,13 @@ public class TransitionTest extends BaseTest {
 
     @Test
     public void testIsTransitionRequired() throws Throwable {
+        View fakeView = rule.getActivity().findViewById(R.id.view0);
         final EmptyTransition transition = new EmptyTransition();
         assertThat(transition.isTransitionRequired(null, null), is(false));
-        final TransitionValues start = new TransitionValues();
+        final TransitionValues start = new TransitionValues(fakeView);
         final String propname = "android:transition:dummy";
         start.values.put(propname, 1);
-        final TransitionValues end = new TransitionValues();
+        final TransitionValues end = new TransitionValues(fakeView);
         end.values.put(propname, 1);
         assertThat(transition.isTransitionRequired(start, end), is(false));
         end.values.put(propname, 2);

@@ -544,7 +544,7 @@ public abstract class Transition implements Cloneable {
             View view = unmatchedStart.keyAt(i);
             if (view != null && isValidTarget(view)) {
                 TransitionValues end = unmatchedEnd.remove(view);
-                if (end != null && end.view != null && isValidTarget(end.view)) {
+                if (end != null && isValidTarget(end.view)) {
                     TransitionValues start = unmatchedStart.removeAt(i);
                     mStartValuesList.add(start);
                     mEndValuesList.add(end);
@@ -749,9 +749,8 @@ public abstract class Transition implements Cloneable {
                     if (end != null) {
                         view = end.view;
                         String[] properties = getTransitionProperties();
-                        if (view != null && properties != null && properties.length > 0) {
-                            infoValues = new TransitionValues();
-                            infoValues.view = view;
+                        if (properties != null && properties.length > 0) {
+                            infoValues = new TransitionValues(view);
                             TransitionValues newValues = endValues.mViewValues.get(view);
                             if (newValues != null) {
                                 for (int j = 0; j < properties.length; ++j) {
@@ -1473,8 +1472,7 @@ public abstract class Transition implements Cloneable {
                 int id = mTargetIds.get(i);
                 View view = sceneRoot.findViewById(id);
                 if (view != null) {
-                    TransitionValues values = new TransitionValues();
-                    values.view = view;
+                    TransitionValues values = new TransitionValues(view);
                     if (start) {
                         captureStartValues(values);
                     } else {
@@ -1491,8 +1489,7 @@ public abstract class Transition implements Cloneable {
             }
             for (int i = 0; i < mTargets.size(); ++i) {
                 View view = mTargets.get(i);
-                TransitionValues values = new TransitionValues();
-                values.view = view;
+                TransitionValues values = new TransitionValues(view);
                 if (start) {
                     captureStartValues(values);
                 } else {
@@ -1614,8 +1611,7 @@ public abstract class Transition implements Cloneable {
             }
         }
         if (view.getParent() instanceof ViewGroup) {
-            TransitionValues values = new TransitionValues();
-            values.view = view;
+            TransitionValues values = new TransitionValues(view);
             if (start) {
                 captureStartValues(values);
             } else {

@@ -25,4 +25,5 @@
     <item name="save_scale_type" type="id"/>
     <item name="save_image_matrix" type="id"/>
     <item name="save_non_transition_alpha" type="id"/>
+    <item name="save_overlay_view" type="id"/>
 </resources>
