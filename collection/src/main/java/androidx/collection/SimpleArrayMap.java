@@ -359,9 +359,26 @@ public class SimpleArrayMap<K, V> {
      * or null if there is no such key.
      */
     @Nullable
+    @SuppressWarnings("NullAway") // See inline comment.
     public V get(Object key) {
+        // We pass null as the default to a function which isn't explicitly annotated as nullable.
+        // Not marking the function as nullable should allow us to eventually propagate the generic
+        // parameter's nullability to the caller. If we were to mark it as nullable now, we would
+        // also be forced to mark the return type of that method as nullable which harms the case
+        // where you are passing in a non-null default value.
+        return getOrDefault(key, null);
+    }
+
+    /**
+     * Retrieve a value from the array, or {@code defaultValue} if there is no mapping for the key.
+     * @param key The key of the value to retrieve.
+     * @param defaultValue The default mapping of the key
+     * @return Returns the value associated with the given key,
+     * or {@code defaultValue} if there is no mapping for the key.
+     */
+    public V getOrDefault(Object key, V defaultValue) {
         final int index = indexOfKey(key);
-        return index >= 0 ? (V)mArray[(index<<1)+1] : null;
+        return index >= 0 ? (V) mArray[(index << 1) + 1] : defaultValue;
     }
 
     /**
@@ -491,6 +508,23 @@ public class SimpleArrayMap<K, V> {
                 put(array.keyAt(i), array.valueAt(i));
             }
         }
+    }
+
+    /**
+     * Add a new value to the array map only if the key does not already have a value or it is
+     * mapped to {@code null}.
+     * @param key The key under which to store the value.
+     * @param value The value to store for the given key.
+     * @return Returns the value that was stored for the given key, or null if there
+     * was no such key.
+     */
+    @Nullable
+    public V putIfAbsent(K key, V value) {
+        V mapValue = get(key);
+        if (mapValue == null) {
+            mapValue = put(key, value);
+        }
+        return mapValue;
     }
 
     /**

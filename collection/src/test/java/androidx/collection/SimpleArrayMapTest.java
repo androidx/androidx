@@ -16,6 +16,9 @@
 
 package androidx.collection;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -24,25 +27,80 @@ import org.junit.runners.JUnit4;
 
 import java.util.ConcurrentModificationException;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(JUnit4.class)
 public class SimpleArrayMapTest {
-    SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-    private boolean mDone;
+    @Test
+    public void getOrDefaultPrefersStoredValue() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertEquals("1", map.getOrDefault("one", "2"));
+    }
+
+    @Test
+    public void getOrDefaultUsesDefaultWhenAbsent() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        assertEquals("1", map.getOrDefault("one", "1"));
+    }
+
+    @Test
+    public void getOrDefaultReturnsNullWhenNullStored() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", null);
+        assertNull(map.getOrDefault("one", "1"));
+    }
+
+    @Test
+    public void getOrDefaultDoesNotPersistDefault() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.getOrDefault("one", "1");
+        assertFalse(map.containsKey("one"));
+    }
+
+    @Test
+    public void putIfAbsentDoesNotOverwriteStoredValue() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        map.putIfAbsent("one", "2");
+        assertEquals("1", map.get("one"));
+    }
+
+    @Test
+    public void putIfAbsentReturnsStoredValue() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertEquals("1", map.putIfAbsent("one", "2"));
+    }
+
+    @Test
+    public void putIfAbsentStoresValueWhenAbsent() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.putIfAbsent("one", "2");
+        assertEquals("2", map.get("one"));
+    }
+
+    @Test
+    public void putIfAbsentReturnsNullWhenAbsent() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        assertNull(map.putIfAbsent("one", "2"));
+    }
 
     /**
      * Attempt to generate a ConcurrentModificationException in ArrayMap.
      */
     @Test
-    public void testConcurrentModificationException() throws Exception {
+    public void testConcurrentModificationException() {
+        final SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        final AtomicBoolean done = new AtomicBoolean();
+
         final int TEST_LEN_MS = 5000;
         System.out.println("Starting SimpleArrayMap concurrency test");
-        mDone = false;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 int i = 0;
-                while (!mDone) {
+                while (!done.get()) {
                     try {
                         map.put(String.format(Locale.US, "key %d", i++), "B_DONT_DO_THAT");
                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -74,14 +132,16 @@ public class SimpleArrayMapTest {
             } catch (ConcurrentModificationException e) {
             }
         }
-        mDone = true;
+        done.set(true);
     }
 
     /**
      * Check to make sure the same operations behave as expected in a single thread.
      */
     @Test
-    public void testNonConcurrentAccesses() throws Exception {
+    public void testNonConcurrentAccesses() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+
         for (int i = 0; i < 100000; i++) {
             try {
                 map.put(String.format(Locale.US, "key %d", i++), "B_DONT_DO_THAT");
