@@ -544,6 +544,24 @@ public class SimpleArrayMap<K, V> {
     }
 
     /**
+     * Remove an existing key from the array map only if it is currently mapped to {@code value}.
+     * @param key The key of the mapping to remove.
+     * @param value The value expected to be mapped to the key.
+     * @return Returns true if the mapping was removed.
+     */
+    public boolean remove(Object key, Object value) {
+        int index = indexOfKey(key);
+        if (index >= 0) {
+            V mapValue = valueAt(index);
+            if (value == mapValue || (value != null && value.equals(mapValue))) {
+                removeAt(index);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Remove the key/value mapping at the given index.
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value that was stored at this index.

@@ -153,6 +153,52 @@ public class LongSparseArrayTest {
     }
 
     @Test
+    public void removeValueKeyAbsent() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        assertFalse(map.remove(1L, "1"));
+    }
+
+    @Test
+    public void removeValueMismatchDoesNotRemove() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        assertFalse(map.remove(1L, "2"));
+        assertTrue(map.containsKey(1L));
+    }
+
+    @Test
+    public void removeValueMismatchNullDoesNotRemove() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        assertFalse(map.remove(1L, null));
+        assertTrue(map.containsKey(1L));
+    }
+
+    @Test
+    public void removeValueMatchRemoves() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        assertTrue(map.remove(1L, "1"));
+        assertFalse(map.containsKey(1L));
+    }
+
+    @Test
+    public void removeNullValueMismatchDoesNotRemove() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, null);
+        assertFalse(map.remove(1L, "2"));
+        assertTrue(map.containsKey(1L));
+    }
+
+    @Test
+    public void removeNullValueMatchRemoves() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, null);
+        assertTrue(map.remove(1L, null));
+        assertFalse(map.containsKey(1L));
+    }
+
+    @Test
     public void isEmpty() {
         LongSparseArray<String> LongSparseArray = new LongSparseArray<>();
         assertTrue(LongSparseArray.isEmpty()); // Newly created LongSparseArray should be empty

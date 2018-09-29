@@ -153,6 +153,52 @@ public class SparseArrayCompatTest {
     }
 
     @Test
+    public void removeValueKeyAbsent() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        assertFalse(map.remove(1, "1"));
+    }
+
+    @Test
+    public void removeValueMismatchDoesNotRemove() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, "1");
+        assertFalse(map.remove(1, "2"));
+        assertTrue(map.containsKey(1));
+    }
+
+    @Test
+    public void removeValueMismatchNullDoesNotRemove() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, "1");
+        assertFalse(map.remove(1, null));
+        assertTrue(map.containsKey(1));
+    }
+
+    @Test
+    public void removeValueMatchRemoves() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, "1");
+        assertTrue(map.remove(1, "1"));
+        assertFalse(map.containsKey(1));
+    }
+
+    @Test
+    public void removeNullValueMismatchDoesNotRemove() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, null);
+        assertFalse(map.remove(1, "2"));
+        assertTrue(map.containsKey(1));
+    }
+
+    @Test
+    public void removeNullValueMatchRemoves() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, null);
+        assertTrue(map.remove(1, null));
+        assertFalse(map.containsKey(1));
+    }
+
+    @Test
     public void isEmpty() throws Exception {
         SparseArrayCompat<String> sparseArrayCompat = new SparseArrayCompat<>();
         assertTrue(sparseArrayCompat.isEmpty()); // Newly created SparseArrayCompat should be empty

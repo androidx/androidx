@@ -147,6 +147,24 @@ public class SparseArrayCompat<E> implements Cloneable {
     }
 
     /**
+     * Remove an existing key from the array map only if it is currently mapped to {@code value}.
+     * @param key The key of the mapping to remove.
+     * @param value The value expected to be mapped to the key.
+     * @return Returns true if the mapping was removed.
+     */
+    public boolean remove(int key, Object value) {
+        int index = indexOfKey(key);
+        if (index >= 0) {
+            E mapValue = valueAt(index);
+            if (value == mapValue || (value != null && value.equals(mapValue))) {
+                removeAt(index);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Removes the mapping at the specified index.
      */
     public void removeAt(int index) {
