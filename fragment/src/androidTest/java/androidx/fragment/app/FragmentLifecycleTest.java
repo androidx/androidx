@@ -974,6 +974,7 @@ public class FragmentLifecycleTest {
         Fragment fragment1 = new StrictFragment();
         fm.beginTransaction()
                 .add(fragment1, "1")
+                .setPrimaryNavigationFragment(fragment1)
                 .addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
