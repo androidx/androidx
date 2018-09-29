@@ -83,6 +83,29 @@ public class LongSparseArrayTest {
     }
 
     @Test
+    public void replaceWhenAbsentDoesNotStore() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        assertNull(map.replace(1L, "1"));
+        assertFalse(map.containsKey(1L));
+    }
+
+    @Test
+    public void replaceStoresAndReturnsOldValue() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        assertEquals("1", map.replace(1L, "2"));
+        assertEquals("2", map.get(1L));
+    }
+
+    @Test
+    public void replaceStoresAndReturnsNullWhenMappedToNull() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, null);
+        assertNull(map.replace(1L, "1"));
+        assertEquals("1", map.get(1L));
+    }
+
+    @Test
     public void isEmpty() {
         LongSparseArray<String> LongSparseArray = new LongSparseArray<>();
         assertTrue(LongSparseArray.isEmpty()); // Newly created LongSparseArray should be empty

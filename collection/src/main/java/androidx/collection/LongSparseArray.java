@@ -152,6 +152,23 @@ public class LongSparseArray<E> implements Cloneable {
         }
     }
 
+    /**
+     * Replace the mapping for {@code key} only if it is already mapped to a value.
+     * @param key The key of the mapping to replace.
+     * @param value The value to store for the given key.
+     * @return Returns the previous mapped value or null.
+     */
+    @Nullable
+    public E replace(long key, E value) {
+        int index = indexOfKey(key);
+        if (index >= 0) {
+            E oldValue = (E) mValues[index];
+            mValues[index] = value;
+            return oldValue;
+        }
+        return null;
+    }
+
     private void gc() {
         // Log.e("SparseArray", "gc start with " + mSize);
 

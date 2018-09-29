@@ -83,6 +83,29 @@ public class SparseArrayCompatTest {
     }
 
     @Test
+    public void replaceWhenAbsentDoesNotStore() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        assertNull(map.replace(1, "1"));
+        assertFalse(map.containsKey(1));
+    }
+
+    @Test
+    public void replaceStoresAndReturnsOldValue() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, "1");
+        assertEquals("1", map.replace(1, "2"));
+        assertEquals("2", map.get(1));
+    }
+
+    @Test
+    public void replaceStoresAndReturnsNullWhenMappedToNull() {
+        SparseArrayCompat<String> map = new SparseArrayCompat<>();
+        map.put(1, null);
+        assertNull(map.replace(1, "1"));
+        assertEquals("1", map.get(1));
+    }
+
+    @Test
     public void isEmpty() throws Exception {
         SparseArrayCompat<String> sparseArrayCompat = new SparseArrayCompat<>();
         assertTrue(sparseArrayCompat.isEmpty()); // Newly created SparseArrayCompat should be empty

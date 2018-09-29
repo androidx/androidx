@@ -609,6 +609,21 @@ public class SimpleArrayMap<K, V> {
     }
 
     /**
+     * Replace the mapping for {@code key} only if it is already mapped to a value.
+     * @param key The key of the mapping to replace.
+     * @param value The value to store for the given key.
+     * @return Returns the previous mapped value or null.
+     */
+    @Nullable
+    public V replace(K key, V value) {
+        int index = indexOfKey(key);
+        if (index >= 0) {
+            return setValueAt(index, value);
+        }
+        return null;
+    }
+
+    /**
      * Return the number of items in this array map.
      */
     public int size() {

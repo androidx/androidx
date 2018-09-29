@@ -93,6 +93,7 @@ package androidx.collection {
     method public E putIfAbsent(long, E);
     method public void remove(long);
     method public void removeAt(int);
+    method public E replace(long, E);
     method public void setValueAt(int, E);
     method public int size();
     method public E valueAt(int);
@@ -138,6 +139,7 @@ package androidx.collection {
     method public V putIfAbsent(K, V);
     method public V remove(java.lang.Object);
     method public V removeAt(int);
+    method public V replace(K, V);
     method public V setValueAt(int, V);
     method public int size();
     method public V valueAt(int);
@@ -164,6 +166,7 @@ package androidx.collection {
     method public void remove(int);
     method public void removeAt(int);
     method public void removeAtRange(int, int);
+    method public E replace(int, E);
     method public void setValueAt(int, E);
     method public int size();
     method public E valueAt(int);
