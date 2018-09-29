@@ -138,14 +138,6 @@ public final class WorkerParameters {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull RuntimeExtras getRuntimeExtras() {
-        return mRuntimeExtras;
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
         return mBackgroundExecutor;
     }
