@@ -33,7 +33,7 @@ dependencies {
 supportLibrary {
     name = "Collections Kotlin Extensions"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.COLLECTION
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Kotlin extensions for 'collection' artifact"
