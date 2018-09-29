@@ -31,7 +31,7 @@ dependencies {
 supportLibrary {
     name = "Android Support Library collections"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.COLLECTION
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."

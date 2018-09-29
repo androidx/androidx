@@ -18,6 +18,7 @@ package androidx.collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -26,6 +27,61 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class LongSparseArrayTest {
+    @Test
+    public void getOrDefaultPrefersStoredValue() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        assertEquals("1", map.get(1L, "2"));
+    }
+
+    @Test
+    public void getOrDefaultUsesDefaultWhenAbsent() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        assertEquals("1", map.get(1L, "1"));
+    }
+
+    @Test
+    public void getOrDefaultReturnsNullWhenNullStored() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, null);
+        assertNull(map.get(1L, "1"));
+    }
+
+    @Test
+    public void getOrDefaultDoesNotPersistDefault() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.get(1L, "1");
+        assertFalse(map.containsKey(1L));
+    }
+
+    @Test
+    public void putIfAbsentDoesNotOverwriteStoredValue() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        map.putIfAbsent(1L, "2");
+        assertEquals("1", map.get(1L));
+    }
+
+    @Test
+    public void putIfAbsentReturnsStoredValue() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.put(1L, "1");
+        assertEquals("1", map.putIfAbsent(1L, "2"));
+    }
+
+    @Test
+    public void putIfAbsentStoresValueWhenAbsent() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        map.putIfAbsent(1L, "2");
+        assertEquals("2", map.get(1L));
+    }
+
+    @Test
+    public void putIfAbsentReturnsNullWhenAbsent() {
+        LongSparseArray<String> map = new LongSparseArray<>();
+        assertNull(map.putIfAbsent(1L, "2"));
+    }
+
     @Test
     public void isEmpty() {
         LongSparseArray<String> LongSparseArray = new LongSparseArray<>();

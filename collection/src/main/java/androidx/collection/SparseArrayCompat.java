@@ -261,6 +261,23 @@ public class SparseArrayCompat<E> implements Cloneable {
     }
 
     /**
+     * Add a new value to the array map only if the key does not already have a value or it is
+     * mapped to {@code null}.
+     * @param key The key under which to store the value.
+     * @param value The value to store for the given key.
+     * @return Returns the value that was stored for the given key, or null if there
+     * was no such key.
+     */
+    @Nullable
+    public E putIfAbsent(int key, E value) {
+        E mapValue = get(key);
+        if (mapValue == null) {
+            put(key, value);
+        }
+        return mapValue;
+    }
+
+    /**
      * Returns the number of key-value mappings that this SparseArray
      * currently stores.
      */
