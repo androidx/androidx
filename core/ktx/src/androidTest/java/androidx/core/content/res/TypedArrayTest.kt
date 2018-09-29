@@ -205,6 +205,7 @@ class TypedArrayTest {
         }.hasMessageThat().isEqualTo("Attribute not defined in set.")
     }
 
+    @SdkSuppress(minSdkVersion = 21) // No easy way to verify pre-21.
     @Test fun useRecyclesArray() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
