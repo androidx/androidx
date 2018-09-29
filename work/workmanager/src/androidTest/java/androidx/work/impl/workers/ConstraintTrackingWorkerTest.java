@@ -37,7 +37,7 @@ import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
 import androidx.work.DefaultWorkerFactory;
-import androidx.work.NonBlockingWorker;
+import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
 import androidx.work.WorkerFactory;
@@ -253,7 +253,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         insertWork(mWork);
 
         WorkerFactory workerFactory = new DefaultWorkerFactory();
-        NonBlockingWorker worker = workerFactory.createWorker(
+        ListenableWorker worker = workerFactory.createWorker(
                 mContext.getApplicationContext(),
                 ConstraintTrackingWorker.class.getName(),
                 new WorkerParameters(
@@ -267,7 +267,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
-                is(CoreMatchers.<NonBlockingWorker>instanceOf(ConstraintTrackingWorker.class)));
+                is(CoreMatchers.<ListenableWorker>instanceOf(ConstraintTrackingWorker.class)));
         mWorker = spy((ConstraintTrackingWorker) worker);
         when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
     }
