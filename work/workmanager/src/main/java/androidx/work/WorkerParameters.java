@@ -23,6 +23,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +42,7 @@ public final class WorkerParameters {
     private @NonNull RuntimeExtras mRuntimeExtras;
     private int mRunAttemptCount;
     private @NonNull Executor mBackgroundExecutor;
+    private @NonNull TaskExecutor mWorkTaskExecutor;
     private @NonNull WorkerFactory mWorkerFactory;
 
     /**
@@ -53,6 +56,7 @@ public final class WorkerParameters {
             @NonNull RuntimeExtras runtimeExtras,
             int runAttemptCount,
             @NonNull Executor backgroundExecutor,
+            @NonNull TaskExecutor workTaskExecutor,
             @NonNull WorkerFactory workerFactory) {
         mId = id;
         mInputData = inputData;
@@ -60,6 +64,7 @@ public final class WorkerParameters {
         mRuntimeExtras = runtimeExtras;
         mRunAttemptCount = runAttemptCount;
         mBackgroundExecutor = backgroundExecutor;
+        mWorkTaskExecutor = workTaskExecutor;
         mWorkerFactory = workerFactory;
     }
 
@@ -140,6 +145,14 @@ public final class WorkerParameters {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
         return mBackgroundExecutor;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull TaskExecutor getTaskExecutor() {
+        return mWorkTaskExecutor;
     }
 
     /**
