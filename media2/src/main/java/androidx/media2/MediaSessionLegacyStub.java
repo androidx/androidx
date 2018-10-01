@@ -111,7 +111,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSessionImpl.getInstance().prepare();
+                mSessionImpl.prepare();
             }
         });
     }
@@ -166,7 +166,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSessionImpl.getInstance().play();
+                mSessionImpl.play();
             }
         });
     }
@@ -221,7 +221,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSessionImpl.getInstance().pause();
+                mSessionImpl.pause();
             }
         });
     }
@@ -238,8 +238,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO, new SessionRunnable() {
                             @Override
                             public void run(ControllerInfo controller) throws RemoteException {
-                                mSessionImpl.getInstance().pause();
-                                mSessionImpl.getInstance().seekTo(0);
+                                mSessionImpl.pause();
+                                mSessionImpl.seekTo(0);
                             }
                         });
             }
@@ -251,7 +251,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSessionImpl.getInstance().seekTo(pos);
+                mSessionImpl.seekTo(pos);
             }
         });
     }
@@ -262,7 +262,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().skipToNextItem();
+                        mSessionImpl.skipToNextItem();
                     }
                 });
     }
@@ -273,7 +273,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().skipToPreviousItem();
+                        mSessionImpl.skipToPreviousItem();
                     }
                 });
     }
@@ -291,7 +291,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         for (int i = 0; i < playlist.size(); i++) {
                             MediaItem2 item = playlist.get(i);
                             if (item != null && item.getUuid().getMostSignificantBits() == id) {
-                                mSessionImpl.getInstance().skipToPlaylistItem(item);
+                                mSessionImpl.skipToPlaylistItem(item);
                                 break;
                             }
                         }
@@ -364,7 +364,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().setRepeatMode(repeatMode);
+                        mSessionImpl.setRepeatMode(repeatMode);
                     }
                 });
     }
@@ -375,7 +375,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().setShuffleMode(shuffleMode);
+                        mSessionImpl.setShuffleMode(shuffleMode);
                     }
                 });
     }
@@ -390,7 +390,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         // Add the item at the end of the playlist.
-                        mSessionImpl.getInstance().addPlaylistItem(Integer.MAX_VALUE,
+                        mSessionImpl.addPlaylistItem(Integer.MAX_VALUE,
                                 MediaUtils2.convertToMediaItem2(description));
                     }
                 });
@@ -405,7 +405,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getInstance().addPlaylistItem(index,
+                        mSessionImpl.addPlaylistItem(index,
                                 MediaUtils2.convertToMediaItem2(description));
                     }
                 });
@@ -423,11 +423,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         // Note: Here we cannot simply call
                         // removePlaylistItem(MediaUtils2.convertToMediaItem2(description)),
                         // because the result of the method will have different UUID.
-                        List<MediaItem2> playlist = mSessionImpl.getInstance().getPlaylist();
+                        List<MediaItem2> playlist = mSessionImpl.getPlaylist();
                         for (int i = 0; i < playlist.size(); i++) {
                             MediaItem2 item = playlist.get(i);
                             if (TextUtils.equals(item.getMediaId(), description.getMediaId())) {
-                                mSessionImpl.getInstance().removePlaylistItem(item);
+                                mSessionImpl.removePlaylistItem(item);
                                 return;
                             }
                         }
