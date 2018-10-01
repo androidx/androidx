@@ -53,6 +53,7 @@ import androidx.media2.exoplayer.external.audio.MediaCodecAudioRenderer;
 import androidx.media2.exoplayer.external.drm.DrmSessionManager;
 import androidx.media2.exoplayer.external.drm.FrameworkMediaCrypto;
 import androidx.media2.exoplayer.external.mediacodec.MediaCodecSelector;
+import androidx.media2.exoplayer.external.source.ConcatenatingMediaSource;
 import androidx.media2.exoplayer.external.source.MediaSource;
 import androidx.media2.exoplayer.external.source.TrackGroup;
 import androidx.media2.exoplayer.external.source.TrackGroupArray;
@@ -64,6 +65,7 @@ import androidx.media2.exoplayer.external.util.Util;
 import androidx.media2.exoplayer.external.video.VideoListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -93,29 +95,36 @@ import java.util.List;
         /** Called when the video size of the specified media item has changed. */
         void onVideoSizeChanged(MediaItem2 mediaItem2, int width, int height);
 
+        /** Called when playback transitions to the next media item. */
+        void onMediaItem2StartedAsNext(MediaItem2 mediaItem2);
+
+        /** Called when playback of a media item ends. */
+        void onMediaItem2Ended(MediaItem2 mediaItem2);
+
+        /** Called when playback of the specified item loops back to its start. */
+        void onLoop(MediaItem2 mediaItem2);
+
+        /** Called when playback of the item list has ended. */
+        void onPlaybackEnded(MediaItem2 mediaItem2);
+
     }
 
     private static final String USER_AGENT_NAME = "MediaPlayer2";
 
     private final Context mContext;
     private final Looper mLooper;
-    private final DataSource.Factory mDataSourceFactory;
     private final Listener mListener;
 
     private HandlerThread mHandlerThread;
     private SimpleExoPlayer mPlayer;
     private DefaultAudioSink mAudioSink;
-
-    // TODO(b/80232248): Store with the media item it relates to.
-    private long mStartPlaybackTimeNs;
-    private long mPlayingTimeUs;
+    private MediaItemQueue mMediaItemQueue;
 
     private int mAudioSessionId;
     private int mAuxEffectId;
     private float mAuxEffectSendLevel;
     private boolean mPrepared;
     private boolean mPendingSeek;
-    private MediaItem2 mMediaItem;
     private int mVideoWidth;
     private int mVideoHeight;
     private PlaybackParams2 mPlaybackParams2;
@@ -132,8 +141,6 @@ import java.util.List;
         mHandlerThread = new HandlerThread("ExoMediaPlayer2Thread");
         mHandlerThread.start();
         mLooper = mHandlerThread.getLooper();
-        String userAgent = Util.getUserAgent(context, USER_AGENT_NAME);
-        mDataSourceFactory = new DefaultDataSourceFactory(mContext, userAgent);
     }
 
     public Looper getLooper() {
@@ -141,17 +148,15 @@ import java.util.List;
     }
 
     public void setMediaItem(MediaItem2 mediaItem2) {
-        // TODO(b/80232248): Update the data source queue when it's implemented.
-        mMediaItem = Preconditions.checkNotNull(mediaItem2);
+        mMediaItemQueue.setMediaItem2(Preconditions.checkNotNull(mediaItem2));
     }
 
     public MediaItem2 getCurrentMediaItem() {
-        return mMediaItem;
+        return mMediaItemQueue.getCurrentMediaItem();
     }
 
     public void prepare() {
-        MediaSource mediaSource = ExoPlayerUtils.createMediaSource(mDataSourceFactory, mMediaItem);
-        mPlayer.prepare(mediaSource);
+        mMediaItemQueue.preparePlayer();
     }
 
     public void play() {
@@ -201,6 +206,18 @@ import java.util.List;
 
     public void loopCurrent(boolean loop) {
         mPlayer.setRepeatMode(loop ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
+    }
+
+    public void skipToNext() {
+        mMediaItemQueue.skipToNext();
+    }
+
+    public void setNextMediaItem(MediaItem2 mediaItem2) {
+        mMediaItemQueue.setNextMediaItem2s(Collections.singletonList(mediaItem2));
+    }
+
+    public void setNextMediaItems(List<MediaItem2> mediaItem2s) {
+        mMediaItemQueue.setNextMediaItem2s(Preconditions.checkNotNull(mediaItem2s));
     }
 
     public void setAudioAttributes(AudioAttributesCompat audioAttributes) {
@@ -275,7 +292,7 @@ import java.util.List;
     public PersistableBundle getMetricsV21() {
         TrackGroupArray trackGroupArray = mPlayer.getCurrentTrackGroups();
         long durationMs = mPlayer.getDuration();
-        long playingTimeMs = C.usToMs(mPlayingTimeUs);
+        long playingTimeMs = mMediaItemQueue.getCurrentItemPlayingTimeMs();
         @Nullable String primaryAudioMimeType = null;
         @Nullable String primaryVideoMimeType = null;
         for (int i = 0; i < trackGroupArray.length; i++) {
@@ -313,15 +330,13 @@ import java.util.List;
                 new DefaultLoadControl(),
                     /* drmSessionManager= */ null,
                 mLooper);
+        mMediaItemQueue = new MediaItemQueue(mContext, mPlayer, mListener);
         ComponentListener listener = new ComponentListener();
         mPlayer.addListener(listener);
         mPlayer.addVideoListener(listener);
-        mMediaItem = null;
         mVideoWidth = 0;
         mVideoHeight = 0;
         mPrepared = false;
-        mPlayingTimeUs = 0;
-        mStartPlaybackTimeNs = -1;
         mAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
         mAuxEffectId = AuxEffectInfo.NO_AUX_EFFECT_ID;
         mAuxEffectSendLevel = 0f;
@@ -347,16 +362,14 @@ import java.util.List;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleVideoSizeChanged(int width, int height) {
-        // TODO(b/80232248): Get the active media item from the media item queue.
         mVideoWidth = width;
         mVideoHeight = height;
-        mListener.onVideoSizeChanged(mMediaItem, width, height);
+        mListener.onVideoSizeChanged(mMediaItemQueue.getCurrentMediaItem(), width, height);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleRenderedFirstFrame() {
-        // TODO(b/80232248): Get the active media item from the media item queue.
-        mListener.onVideoRenderingStart(mMediaItem);
+        mListener.onVideoRenderingStart(mMediaItemQueue.getCurrentMediaItem());
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -367,11 +380,11 @@ import java.util.List;
             maybeUpdateTimerForStopped();
         }
 
-        if (state != Player.STATE_READY) {
-            return;
+        if (state == Player.STATE_ENDED) {
+            mMediaItemQueue.onPlayerEnded();
+        } else if (state == Player.STATE_READY) {
+            maybeNotifyReadyEvents();
         }
-
-        maybeNotifyReadyEvents();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -384,32 +397,31 @@ import java.util.List;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handlePositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+        mMediaItemQueue.onPositionDiscontinuity(
+                reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleAudioSessionId(int audioSessionId) {
         mAudioSessionId = audioSessionId;
     }
 
     private void maybeUpdateTimerForPlaying() {
-        if (mStartPlaybackTimeNs != -1) {
-            return;
-        }
-        mStartPlaybackTimeNs = System.nanoTime();
+        mMediaItemQueue.onPlaying();
     }
 
     private void maybeUpdateTimerForStopped() {
-        if (mStartPlaybackTimeNs == -1) {
-            return;
-        }
-        long nowNs = System.nanoTime();
-        mPlayingTimeUs += (nowNs - mStartPlaybackTimeNs + 500) / 1000;
-        mStartPlaybackTimeNs = -1;
+        mMediaItemQueue.onStopped();
     }
 
     private void maybeNotifyReadyEvents() {
-        MediaItem2 mediaItem2 = mMediaItem;
+        MediaItem2 mediaItem2 = mMediaItemQueue.getCurrentMediaItem();
         boolean prepareComplete = !mPrepared;
         boolean seekComplete = mPendingSeek;
         if (prepareComplete) {
             mPrepared = true;
+            mMediaItemQueue.onPositionDiscontinuity(/* isPeriodTransition= */ false);
             // TODO(b/80232248): Trigger onInfo with MEDIA_INFO_PREPARED for any item in the data
             // source queue for which the duration is now known, even if this is not the initial
             // preparation.
@@ -426,6 +438,23 @@ import java.util.List;
     final class ComponentListener extends Player.DefaultEventListener
             implements VideoListener, AudioListener {
 
+        // DefaultEventListener implementation.
+
+        @Override
+        public void onPlayerStateChanged(boolean playWhenReady, int state) {
+            handlePlayerStateChanged(playWhenReady, state);
+        }
+
+        @Override
+        public void onSeekProcessed() {
+            handleSeekProcessed();
+        }
+
+        @Override
+        public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+            handlePositionDiscontinuity(reason);
+        }
+
         // VideoListener implementation.
 
         @Override
@@ -440,16 +469,6 @@ import java.util.List;
         @Override
         public void onRenderedFirstFrame() {
             handleRenderedFirstFrame();
-        }
-
-        @Override
-        public void onPlayerStateChanged(boolean playWhenReady, int state) {
-            handlePlayerStateChanged(playWhenReady, state);
-        }
-
-        @Override
-        public void onSeekProcessed() {
-            handleSeekProcessed();
         }
 
         @Override
@@ -494,6 +513,109 @@ import java.util.List;
                     eventHandler,
                     eventListener,
                     mAudioSink));
+        }
+
+    }
+
+    private static final class MediaItemQueue {
+
+        private final Listener mListener;
+        private final SimpleExoPlayer mPlayer;
+        private final DataSource.Factory mDataSourceFactory;
+        private final ConcatenatingMediaSource mConcatenatingMediaSource;
+
+        @Nullable
+        private MediaItem2 mCurrentMediaItem;
+        private long mStartPlayingTimeNs;
+        private long mCurrentItemPlayingTimeUs;
+
+        MediaItemQueue(Context context, SimpleExoPlayer player, Listener listener) {
+            mPlayer = player;
+            mListener = listener;
+            String userAgent = Util.getUserAgent(context, USER_AGENT_NAME);
+            mDataSourceFactory = new DefaultDataSourceFactory(context, userAgent);
+            mConcatenatingMediaSource = new ConcatenatingMediaSource();
+            mStartPlayingTimeNs = -1;
+        }
+
+        public void setMediaItem2(MediaItem2 mediaItem2) {
+            mCurrentMediaItem = mediaItem2;
+            mConcatenatingMediaSource.clear();
+            setNextMediaItem2s(Collections.singletonList(mediaItem2));
+        }
+
+        public void setNextMediaItem2s(List<MediaItem2> mediaItem2s) {
+            List<MediaSource> mediaSources = new ArrayList<>(mediaItem2s.size());
+            for (MediaItem2 mediaItem2 : mediaItem2s) {
+                mediaSources.add(ExoPlayerUtils.createMediaSource(mDataSourceFactory, mediaItem2));
+            }
+            int size = mConcatenatingMediaSource.getSize();
+            if (size > 1) {
+                mConcatenatingMediaSource.removeMediaSourceRange(
+                        /* fromIndex= */ 1, /* toIndex= */ size);
+            }
+            mConcatenatingMediaSource.addMediaSources(mediaSources);
+        }
+
+        public void preparePlayer() {
+            mPlayer.prepare(mConcatenatingMediaSource);
+        }
+
+        public MediaItem2 getCurrentMediaItem() {
+            return mCurrentMediaItem;
+        }
+
+        public long getCurrentItemPlayingTimeMs() {
+            return C.usToMs(mCurrentItemPlayingTimeUs);
+        }
+
+        public void skipToNext() {
+            // TODO(b/68398926): Use the start position of the next media item.
+            mConcatenatingMediaSource.removeMediaSource(0);
+        }
+
+        public void onPlaying() {
+            if (mStartPlayingTimeNs != -1) {
+                return;
+            }
+            mStartPlayingTimeNs = System.nanoTime();
+        }
+
+        public void onStopped() {
+            if (mStartPlayingTimeNs == -1) {
+                return;
+            }
+            long nowNs = System.nanoTime();
+            mCurrentItemPlayingTimeUs += (nowNs - mStartPlayingTimeNs + 500) / 1000;
+            mStartPlayingTimeNs = -1;
+        }
+
+        public void onPlayerEnded() {
+            mListener.onMediaItem2Ended(mCurrentMediaItem);
+            mListener.onPlaybackEnded(mCurrentMediaItem);
+        }
+
+        public void onPositionDiscontinuity(boolean isPeriodTransition) {
+            if (isPeriodTransition && mPlayer.getRepeatMode() != Player.REPEAT_MODE_OFF) {
+                mListener.onLoop(mCurrentMediaItem);
+            }
+            int windowIndex = mPlayer.getCurrentWindowIndex();
+            if (windowIndex > 0) {
+                // We're no longer playing the first item in the queue.
+                if (isPeriodTransition) {
+                    mListener.onMediaItem2Ended(mCurrentMediaItem);
+                }
+                mCurrentMediaItem = (MediaItem2) mPlayer.getCurrentTag();
+                if (isPeriodTransition) {
+                    mListener.onMediaItem2StartedAsNext(mCurrentMediaItem);
+                }
+                mConcatenatingMediaSource.removeMediaSourceRange(0, windowIndex);
+                mCurrentItemPlayingTimeUs = 0;
+                mStartPlayingTimeNs = -1;
+                if (mPlayer.getPlaybackState() == Player.STATE_READY) {
+                    onPlaying();
+                }
+            }
         }
 
     }
