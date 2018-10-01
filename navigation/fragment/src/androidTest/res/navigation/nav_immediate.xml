@@ -24,7 +24,7 @@
 
     <fragment
             android:id="@+id/immediate_test"
-            android:name="androidx.navigation.fragment.test.ImmediateNavigationActivity$NavigateOnResumeFragment"/>
+            android:name="androidx.navigation.fragment.NavigateOnResumeFragment"/>
 
     <fragment
             android:id="@+id/deep_link_test"

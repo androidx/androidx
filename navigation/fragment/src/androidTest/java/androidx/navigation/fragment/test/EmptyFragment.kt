@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.navigation.fragment;
+package androidx.navigation.fragment.test
 
-import androidx.navigation.fragment.test.DynamicNavigationActivity;
-import androidx.test.filters.SmallTest;
+import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 
-@SmallTest
-public class DynamicNavControllerTest extends BaseNavControllerTest<DynamicNavigationActivity> {
-    @Override
-    protected Class<DynamicNavigationActivity> getActivityClass() {
-        return DynamicNavigationActivity.class;
+class EmptyFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return FrameLayout(requireContext())
     }
 }
