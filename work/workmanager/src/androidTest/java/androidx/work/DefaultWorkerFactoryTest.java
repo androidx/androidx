@@ -26,6 +26,7 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.utils.SynchronousExecutor;
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import androidx.work.worker.TestWorker;
 
 import org.hamcrest.CoreMatchers;
@@ -61,6 +62,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         new WorkerParameters.RuntimeExtras(),
                         1,
                         new SynchronousExecutor(),
+                        new WorkManagerTaskExecutor(),
                         mDefaultWorkerFactory));
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
