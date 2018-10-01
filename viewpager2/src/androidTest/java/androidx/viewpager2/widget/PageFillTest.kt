@@ -65,9 +65,9 @@ class PageFillTest : BaseTest() {
             override fun onBindViewHolder(holder: ViewHolder, position: Int) {}
         }
 
-        setUpTest(1, HORIZONTAL).apply {
+        setUpTest(HORIZONTAL).apply {
             runOnUiThread {
-                viewPager.setAdapter(fixedViewSizeAdapter)
+                viewPager.adapter = fixedViewSizeAdapter
                 try {
                     viewPager.measure(0, 0)
                     fail("Expected exception was not thrown")
