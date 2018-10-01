@@ -190,6 +190,4 @@ public class Transformations {
         });
         return outputLiveData;
     }
-
-
 }
