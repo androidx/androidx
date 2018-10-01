@@ -50,7 +50,10 @@ import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
+import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,24 +70,37 @@ public class EnqueueRunnable implements Runnable {
     private static final String TAG = "EnqueueRunnable";
 
     private final WorkContinuationImpl mWorkContinuation;
+    private final SettableFuture<Void> mFuture;
 
     public EnqueueRunnable(@NonNull WorkContinuationImpl workContinuation) {
         mWorkContinuation = workContinuation;
+        mFuture = SettableFuture.create();
     }
 
     @Override
     public void run() {
-        if (mWorkContinuation.hasCycles()) {
-            throw new IllegalStateException(
-                    String.format("WorkContinuation has cycles (%s)", mWorkContinuation));
+        try {
+            if (mWorkContinuation.hasCycles()) {
+                throw new IllegalStateException(
+                        String.format("WorkContinuation has cycles (%s)", mWorkContinuation));
+            }
+            boolean needsScheduling = addToDatabase();
+            if (needsScheduling) {
+                // Enable RescheduleReceiver, only when there are Worker's that need scheduling.
+                final Context context =
+                        mWorkContinuation.getWorkManagerImpl().getApplicationContext();
+                PackageManagerHelper.setComponentEnabled(context, RescheduleReceiver.class, true);
+                scheduleWorkInBackground();
+            }
+        } catch (Throwable exception) {
+            mFuture.setException(exception);
+        } finally {
+            mFuture.set(null);
         }
-        boolean needsScheduling = addToDatabase();
-        if (needsScheduling) {
-            // Enable RescheduleReceiver, only when there are Worker's that need scheduling.
-            final Context context = mWorkContinuation.getWorkManagerImpl().getApplicationContext();
-            PackageManagerHelper.setComponentEnabled(context, RescheduleReceiver.class, true);
-            scheduleWorkInBackground();
-        }
+    }
+
+    public ListenableFuture<Void> getFuture() {
+        return mFuture;
     }
 
     /**
@@ -235,7 +251,7 @@ public class EnqueueRunnable implements Runnable {
 
                     // Cancel all of these workers.
                     // Don't allow rescheduling in CancelWorkRunnable because it will happen inside
-                    // the current transasction.  We want it to happen separately to avoid race
+                    // the current transaction.  We want it to happen separately to avoid race
                     // conditions (see ag/4502245, which tries to avoid work trying to run before
                     // it's actually been committed to the database).
                     CancelWorkRunnable.forName(name, workManagerImpl, false).run();

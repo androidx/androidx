@@ -26,16 +26,7 @@ import java.util.List;
  * called from a background thread.
  */
 public interface SynchronousWorkContinuation {
-
-    /**
-     * Enqueues the instance of {@link WorkContinuation} in a synchronous fashion.  This method is
-     * expected to be called from a background thread and, upon successful execution, you can rely
-     * on that the work has been enqueued.
-     */
-    @WorkerThread
-    void enqueueSync();
-
-    /**
+   /**
      * Returns a {@link List} of {@link WorkStatus} that provides information about work,
      * their progress, and any resulting output in the {@link WorkContinuation}.
      *
