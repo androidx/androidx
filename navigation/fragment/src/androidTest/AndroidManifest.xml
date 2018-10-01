@@ -19,10 +19,10 @@
           package="androidx.navigation.fragment.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <application>
-        <activity android:name="androidx.navigation.fragment.test.XmlNavigationActivity" />
-        <activity android:name="androidx.navigation.fragment.test.DynamicNavigationActivity" />
-        <activity android:name="androidx.navigation.fragment.test.EmbeddedXmlActivity" />
-        <activity android:name="androidx.navigation.fragment.test.ImmediateNavigationActivity" />
-        <activity android:name="androidx.navigation.fragment.test.EmptyActivity" />
+        <activity android:name="androidx.navigation.fragment.XmlNavigationActivity" />
+        <activity android:name="androidx.navigation.fragment.DynamicNavigationActivity" />
+        <activity android:name="androidx.navigation.fragment.EmbeddedXmlActivity" />
+        <activity android:name="androidx.navigation.fragment.ImmediateNavigationActivity" />
+        <activity android:name="androidx.navigation.fragment.EmptyActivity" />
     </application>
 </manifest>
