@@ -19,16 +19,24 @@ package androidx.work;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
+
+import java.lang.reflect.Constructor;
 
 /**
- * An interface for a factory object that creates {@link ListenableWorker} instances.
+ * A factory object that creates {@link ListenableWorker} instances.
  */
-public interface WorkerFactory {
+public abstract class WorkerFactory {
+
+    private static final String TAG = "WorkerFactory";
 
     /**
-     * Returns a new instance of the specified {@code workerClassName} given the arguments.  It
-     * should be noted that the returned worker should be a newly-created instance and must not have
-     * been previously returned or used by WorkManager.
+     * Override this method to implement your custom worker-creation logic.  Use
+     * {@link Configuration.Builder#setWorkerFactory(WorkerFactory)} to use your custom class.
+     * <p></p>
+     * Returns a new instance of the specified {@code workerClassName} given the arguments.  The
+     * returned worker should be a newly-created instance and must not have been previously returned
+     * or used by WorkManager.
      *
      * @param appContext The application context
      * @param workerClassName The class name of the worker to create
@@ -36,9 +44,70 @@ public interface WorkerFactory {
      * @return A new {@link ListenableWorker} instance of type {@code workerClassName}, or
      *         {@code null} if the worker could not be created
      */
-    @Nullable
-    ListenableWorker createWorker(
+    public abstract @Nullable ListenableWorker createWorker(
             @NonNull Context appContext,
             @NonNull String workerClassName,
             @NonNull WorkerParameters workerParameters);
+
+    /**
+     * Returns a new instance of the specified {@code workerClassName} given the arguments.  If no
+     * worker is found, default reflection-based code will be used to instantiate the worker with
+     * the current ClassLoader.  The returned worker should be a newly-created instance and must not
+     * have been previously returned or used by WorkManager.
+     *
+     * @param appContext The application context
+     * @param workerClassName The class name of the worker to create
+     * @param workerParameters Parameters for worker initialization
+     * @return A new {@link ListenableWorker} instance of type {@code workerClassName}, or
+     *         {@code null} if the worker could not be created
+     */
+    public final @Nullable ListenableWorker createWorkerWithDefaultFallback(
+            @NonNull Context appContext,
+            @NonNull String workerClassName,
+            @NonNull WorkerParameters workerParameters) {
+
+        ListenableWorker worker;
+        worker = createWorker(appContext, workerClassName, workerParameters);
+        if (worker != null) {
+            return worker;
+        }
+
+        Class<? extends ListenableWorker> clazz;
+        try {
+            clazz = Class.forName(workerClassName).asSubclass(ListenableWorker.class);
+        } catch (ClassNotFoundException e) {
+            Logger.error(TAG, "Class not found: " + workerClassName);
+            return null;
+        }
+
+        try {
+            Constructor<? extends ListenableWorker> constructor =
+                    clazz.getDeclaredConstructor(Context.class, WorkerParameters.class);
+            worker = constructor.newInstance(
+                    appContext,
+                    workerParameters);
+            return worker;
+        } catch (Exception e) {
+            Logger.error(TAG, "Could not instantiate " + workerClassName, e);
+        }
+        return null;
+    }
+
+    /**
+     * @return A default {@link WorkerFactory} with no custom behavior
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static WorkerFactory getDefaultWorkerFactory() {
+        return new WorkerFactory() {
+
+            @Override
+            public @Nullable ListenableWorker createWorker(
+                    @NonNull Context appContext,
+                    @NonNull String workerClassName,
+                    @NonNull WorkerParameters workerParameters) {
+                return null;
+            }
+        };
+    }
 }

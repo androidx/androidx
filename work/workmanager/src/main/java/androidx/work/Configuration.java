@@ -54,7 +54,7 @@ public final class Configuration {
         }
 
         if (builder.mWorkerFactory == null) {
-            mWorkerFactory = new DefaultWorkerFactory();
+            mWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
         } else {
             mWorkerFactory = builder.mWorkerFactory;
         }

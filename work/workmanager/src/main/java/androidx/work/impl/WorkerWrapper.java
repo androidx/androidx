@@ -179,7 +179,7 @@ public class WorkerWrapper implements Runnable {
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
         if (mWorker == null) {
-            mWorker = mConfiguration.getWorkerFactory().createWorker(
+            mWorker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                     mAppContext,
                     mWorkSpec.workerClassName,
                     params);
@@ -187,7 +187,7 @@ public class WorkerWrapper implements Runnable {
 
         if (mWorker == null) {
             Logger.error(TAG,
-                    String.format("Could for create Worker %s", mWorkSpec.workerClassName));
+                    String.format("Could not create Worker %s", mWorkSpec.workerClassName));
             setFailedAndResolve();
             return;
         }
