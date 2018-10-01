@@ -36,7 +36,6 @@ import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
-import androidx.work.DefaultWorkerFactory;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
@@ -252,8 +251,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         insertWork(mWork);
 
-        WorkerFactory workerFactory = new DefaultWorkerFactory();
-        ListenableWorker worker = workerFactory.createWorker(
+        WorkerFactory workerFactory = WorkerFactory.getDefaultWorkerFactory();
+        ListenableWorker worker = workerFactory.createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 ConstraintTrackingWorker.class.getName(),
                 new WorkerParameters(
