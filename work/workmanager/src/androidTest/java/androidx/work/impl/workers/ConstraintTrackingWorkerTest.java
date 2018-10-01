@@ -262,6 +262,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                         new WorkerParameters.RuntimeExtras(),
                         1,
                         executor,
+                        mWorkTaskExecutor,
                         workerFactory));
 
         assertThat(worker, is(notNullValue()));
