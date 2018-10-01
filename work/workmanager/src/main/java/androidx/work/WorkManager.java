@@ -166,10 +166,9 @@ public abstract class WorkManager {
      * Enqueues one or more items for background processing.
      *
      * @param workRequests One or more {@link WorkRequest} to enqueue
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed.
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
-    @NonNull
-    public final ListenableFuture<Void> enqueue(@NonNull WorkRequest... workRequests) {
+    public final @NonNull ListenableFuture<Void> enqueue(@NonNull WorkRequest... workRequests) {
         return enqueue(Arrays.asList(workRequests));
     }
 
@@ -177,10 +176,10 @@ public abstract class WorkManager {
      * Enqueues one or more items for background processing.
      *
      * @param requests One or more {@link WorkRequest} to enqueue
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed.
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
-    @NonNull
-    public abstract ListenableFuture<Void> enqueue(@NonNull List<? extends WorkRequest> requests);
+    public abstract @NonNull
+            ListenableFuture<Void> enqueue(@NonNull List<? extends WorkRequest> requests);
 
     /**
      * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
@@ -277,10 +276,9 @@ public abstract class WorkManager {
      *                     cancelled and the new work will run. {@code KEEP} will run the new
      *                     PeriodicWorkRequest only if there is no pending work labelled with
      *                     {@code uniqueWorkName}.
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed.
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
-    @NonNull
-    public abstract ListenableFuture<Void> enqueueUniquePeriodicWork(
+    public abstract @NonNull ListenableFuture<Void> enqueueUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork);
@@ -290,31 +288,41 @@ public abstract class WorkManager {
      * policy and work that is already executing may continue to run.
      *
      * @param id The id of the work
+     * @return A {@link ListenableFuture} that completes when the cancelWorkById operation is
+     * completed
      */
-    public abstract void cancelWorkById(@NonNull UUID id);
+    public abstract @NonNull ListenableFuture<Void> cancelWorkById(@NonNull UUID id);
 
     /**
      * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
      * policy and work that is already executing may continue to run.
      *
      * @param tag The tag used to identify the work
+     * @return A {@link ListenableFuture} that completes when the cancelAllWorkByTag operation is
+     * completed
      */
-    public abstract void cancelAllWorkByTag(@NonNull String tag);
+    public abstract @NonNull ListenableFuture<Void> cancelAllWorkByTag(@NonNull String tag);
 
     /**
      * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
      * a best-effort policy and work that is already executing may continue to run.
      *
      * @param uniqueWorkName The unique name used to identify the chain of work
+     * @return A {@link ListenableFuture} that completes when the cancelUniqueWork operation is
+     * completed
      */
-    public abstract void cancelUniqueWork(@NonNull String uniqueWorkName);
+    public abstract @NonNull
+            ListenableFuture<Void> cancelUniqueWork(@NonNull String uniqueWorkName);
 
     /**
      * Cancels all unfinished work.  <b>Use this method with extreme caution!</b>  By invoking it,
      * you will potentially affect other modules or libraries in your codebase.  It is strongly
      * recommended that you use one of the other cancellation methods at your disposal.
+     *
+     * @return A {@link ListenableFuture} that completes when the cancelAllWork operation is
+     * completed
      */
-    public abstract void cancelAllWork();
+    public abstract @NonNull ListenableFuture<Void> cancelAllWork();
 
     /**
      * Prunes all eligible finished work from the internal database.  Eligible work must be finished
@@ -337,7 +345,18 @@ public abstract class WorkManager {
      * @return A {@link LiveData} of the timestamp in milliseconds when method that cancelled all
      *         work was last invoked; this timestamp may be {@code 0L} if this never occurred.
      */
-    public abstract @NonNull LiveData<Long> getLastCancelAllTimeMillis();
+    public abstract @NonNull LiveData<Long> getLastCancelAllTimeMillisLiveData();
+
+    /**
+     * Gets a {@link ListenableFuture} of the last time all work was cancelled.  This method is
+     * intended for use by library and module developers who have dependent data in their own
+     * repository that must be updated or deleted in case someone cancels their work without
+     * their prior knowledge.
+     *
+     * @return A {@link ListenableFuture} of the timestamp in milliseconds when method that
+     * cancelled all work was last invoked; this timestamp may be {@code 0L} if this never occurred
+     */
+    public abstract @NonNull ListenableFuture<Long> getLastCancelAllTimeMillis();
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for a given work id.

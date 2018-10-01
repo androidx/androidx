@@ -49,6 +49,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
@@ -131,14 +132,16 @@ public class FirebaseJobServiceTest {
 
     @Test
     @LargeTest
-    public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
+    public void testOnStopJob_DoesNotRescheduleWhenCancelled()
+            throws ExecutionException, InterruptedException {
+
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mFirebaseJobService.onStartJob(mockParams), is(true));
-        WorkManagerImpl.getInstance().cancelWorkByIdSync(work.getId());
+        WorkManagerImpl.getInstance().cancelWorkById(work.getId()).get();
         assertThat(mFirebaseJobService.onStopJob(mockParams), is(false));
     }
 

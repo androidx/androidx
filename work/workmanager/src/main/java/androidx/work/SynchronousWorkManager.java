@@ -29,62 +29,6 @@ import java.util.concurrent.TimeUnit;
  * from a background thread.
  */
 public interface SynchronousWorkManager {
-    /**
-     * Cancels work with the given id in a synchronous fashion if it isn't finished.  Note that
-     * cancellation is dependent on timing (for example, the work could have completed in a
-     * different thread just as you issue this call).  Use {@link #getStatusByIdSync(UUID)} to
-     * find out the actual state of the work after this call.  This method is expected to be called
-     * from a background thread.
-     *
-     * @param id The id of the work
-     */
-    @WorkerThread
-    void cancelWorkByIdSync(@NonNull UUID id);
-
-    /**
-     * Cancels all unfinished work with the given tag in a synchronous fashion.  Note that
-     * cancellation is dependent on timing (for example, the work could have completed in a
-     * different thread just as you issue this call).  Use {@link #getStatusByIdSync(UUID)} to
-     * find out the actual state of the work after this call.  This method is expected to be called
-     * from a background thread.
-     *
-     * @param tag The tag used to identify the work
-     */
-    @WorkerThread
-    void cancelAllWorkByTagSync(@NonNull String tag);
-
-    /**
-     * Cancels all unfinished work in the work chain with the given name in a synchronous fashion.
-     * Note that cancellation is dependent on timing (for example, the work could have completed in
-     * a different thread just as you issue this call).  Use {@link #getStatusByIdSync(UUID)} to
-     * find out the actual state of the work after this call.  This method is expected to be called
-     * from a background thread.
-     *
-     * @param uniqueWorkName The unique name used to identify the chain of work
-     */
-    @WorkerThread
-    void cancelUniqueWorkSync(@NonNull String uniqueWorkName);
-
-    /**
-     * Cancels all unfinished work in a synchronous fashion.  <b>Use this method with extreme
-     * caution!</b>  By invoking it, you will potentially affect other modules or libraries in your
-     * codebase.  It is strongly recommended that you use one of the other cancellation methods at
-     * your disposal.
-     */
-    @WorkerThread
-    void cancelAllWorkSync();
-
-    /**
-     * Gets the timestamp of the last time all work was cancelled in a synchronous fashion.  This
-     * method is intended for use by library and module developers who have dependent data in their
-     * own repository that must be updated or deleted in case someone cancels their work without
-     * their prior knowledge.
-     *
-     * @return The timestamp in milliseconds when a method that cancelled all work was last invoked;
-     *         this timestamp may be {@code 0L} if this never occurred.
-     */
-    @WorkerThread
-    long getLastCancelAllTimeMillisSync();
 
     /**
      * Prunes all eligible finished work from the internal database in a synchronous fashion.
