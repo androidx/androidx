@@ -37,12 +37,12 @@ import org.junit.runner.RunWith;
 public class DefaultWorkerFactoryTest extends DatabaseTest {
 
     private Context mContext;
-    private DefaultWorkerFactory mDefaultWorkerFactory;
+    private WorkerFactory mDefaultWorkerFactory;
 
     @Before
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
-        mDefaultWorkerFactory = new DefaultWorkerFactory();
+        mDefaultWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
     }
 
     @Test
@@ -51,7 +51,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
 
-        ListenableWorker worker = mDefaultWorkerFactory.createWorker(
+        ListenableWorker worker = mDefaultWorkerFactory.createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
