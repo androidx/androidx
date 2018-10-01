@@ -183,17 +183,18 @@ public class WorkerWrapperTest extends DatabaseTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
 
-        UsedWorker usedWorker = (UsedWorker) mConfiguration.getWorkerFactory().createWorker(
-                mContext.getApplicationContext(),
-                UsedWorker.class.getName(),
-                new WorkerParameters(
-                        work.getId(),
-                        Data.EMPTY,
-                        work.getTags(),
-                        new WorkerParameters.RuntimeExtras(),
-                        1,
-                        mSynchronousExecutor,
-                        mConfiguration.getWorkerFactory()));
+        UsedWorker usedWorker = (UsedWorker) mConfiguration.getWorkerFactory()
+                .createWorkerWithDefaultFallback(
+                        mContext.getApplicationContext(),
+                        UsedWorker.class.getName(),
+                        new WorkerParameters(
+                                work.getId(),
+                                Data.EMPTY,
+                                work.getTags(),
+                                new WorkerParameters.RuntimeExtras(),
+                                1,
+                                mSynchronousExecutor,
+                                mConfiguration.getWorkerFactory()));
 
 
         WorkerWrapper workerWrapper = createBuilder(work.getStringId())
@@ -636,7 +637,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testFromWorkSpec_hasAppContext() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorker(
+        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -661,7 +662,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(TestWorker.class).setInputData(input).build();
-        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorker(
+        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -677,7 +678,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(worker.getInputData().getString(key), is(expectedValue));
 
         work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        worker = mConfiguration.getWorkerFactory().createWorker(
+        worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -702,7 +703,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .addTag("two")
                         .addTag("three")
                         .build();
-        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorker(
+        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -727,7 +728,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         runtimeExtras.triggeredContentAuthorities = new String[]{"tca1", "tca2", "tca3"};
         runtimeExtras.triggeredContentUris = new Uri[]{Uri.parse("tcu1"), Uri.parse("tcu2")};
 
-        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorker(
+        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
                 new WorkerParameters(
@@ -809,17 +810,18 @@ public class WorkerWrapperTest extends DatabaseTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(LatchWorker.class).build();
         insertWork(work);
 
-        LatchWorker latchWorker = (LatchWorker) mConfiguration.getWorkerFactory().createWorker(
-                mContext.getApplicationContext(),
-                LatchWorker.class.getName(),
-                new WorkerParameters(
-                        work.getId(),
-                        Data.EMPTY,
-                        work.getTags(),
-                        new WorkerParameters.RuntimeExtras(),
-                        1,
-                        Executors.newSingleThreadExecutor(),
-                        mConfiguration.getWorkerFactory()));
+        LatchWorker latchWorker =
+                (LatchWorker) mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
+                        mContext.getApplicationContext(),
+                        LatchWorker.class.getName(),
+                        new WorkerParameters(
+                                work.getId(),
+                                Data.EMPTY,
+                                work.getTags(),
+                                new WorkerParameters.RuntimeExtras(),
+                                1,
+                                Executors.newSingleThreadExecutor(),
+                                mConfiguration.getWorkerFactory()));
 
         WorkerWrapper workerWrapper =
                 createBuilder(work.getStringId())
@@ -849,7 +851,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
 
-        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorker(
+        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 InterruptionAwareWorker.class.getName(),
                 new WorkerParameters(
@@ -881,7 +883,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
 
-        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorker(
+        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 InterruptionAwareWorker.class.getName(),
                 new WorkerParameters(

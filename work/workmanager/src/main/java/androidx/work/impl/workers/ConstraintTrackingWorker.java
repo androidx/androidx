@@ -100,7 +100,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
             return;
         }
 
-        mDelegate = getWorkerFactory().createWorker(
+        mDelegate = getWorkerFactory().createWorkerWithDefaultFallback(
                 getApplicationContext(),
                 className,
                 mWorkerParameters);
