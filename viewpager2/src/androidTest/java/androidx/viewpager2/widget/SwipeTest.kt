@@ -17,12 +17,11 @@
 package androidx.viewpager2.widget
 
 import androidx.test.filters.LargeTest
+import androidx.viewpager2.widget.SwipeTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.Orientation
 import androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.Orientation.VERTICAL
-import androidx.viewpager2.widget.swipe.BaseActivity
-import androidx.viewpager2.widget.swipe.FragmentAdapterActivity
-import androidx.viewpager2.widget.swipe.ViewAdapterActivity
+import androidx.viewpager2.widget.swipe.PageView
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -31,32 +30,37 @@ import java.util.concurrent.TimeUnit
 
 // region test
 
-private const val randomTesting = false // change to true to enable random tests
-private const val randomTestsPerConfig = 1 // increase to have more random tests generated
+private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests generated
 
 @RunWith(Parameterized::class)
 @LargeTest
 class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
+
     @Test
     fun test() {
         testConfig.apply {
-            setUpTest(totalPages, orientation, activityClass).apply {
-                val expectedValues = IntArray(totalPages) { it }
-                assertBasicState(0)
+            setUpTest(orientation).apply {
+                val expectedValues = stringSequence(totalPages).toMutableList()
+                val adapter = adapterProvider(expectedValues.toList()) // immutable defensive copy
+                setAdapterSync(adapter)
+                assertBasicState(0, "0")
 
                 pageSequence.forEachIndexed { currentStep, targetPage ->
                     val currentPage = viewPager.currentItem
 
                     // value change
-                    val modifiedPageValue = stepToNewValue[currentStep]
+                    val modifiedPageValue: String? = stepToNewValue[currentStep]
                     if (modifiedPageValue != null) {
                         expectedValues[currentPage] = modifiedPageValue
-                        runOnUiThread { activity.updatePageContent(currentPage, modifiedPageValue) }
+                        runOnUiThread {
+                            PageView.setPageText(PageView.findPageInActivity(activity),
+                                    modifiedPageValue)
+                        }
                     }
 
                     // config change
                     if (configChangeSteps.contains(currentStep)) {
-                        recreateActivity()
+                        recreateActivity(adapter)
                         assertBasicState(currentPage, expectedValues[currentPage])
                     }
 
@@ -75,57 +79,60 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
         @Parameterized.Parameters(name = "{0}")
         fun spec(): List<TestConfig> = createTestSet()
     }
+
+    data class TestConfig(
+        val title: String,
+        val adapterProvider: AdapterProviderForItems,
+        @Orientation val orientation: Int,
+        val totalPages: Int,
+        val pageSequence: List<Int>,
+        val configChangeSteps: Set<Int> = emptySet(),
+        val stepToNewValue: Map<Int, String> = emptyMap()
+    )
 }
 
 // endregion
 
 // region test definitions
 
-data class TestConfig(
-    val title: String,
-    val activityClass: Class<out BaseActivity>,
-    @Orientation val orientation: Int,
-    val totalPages: Int,
-    val pageSequence: List<Int>,
-    val configChangeSteps: Set<Int> = emptySet(),
-    val stepToNewValue: Map<Int, Int> = emptyMap()
-)
-
 private fun createTestSet(): List<TestConfig> {
     return listOf(
-            FragmentAdapterActivity::class.java to HORIZONTAL,
-            FragmentAdapterActivity::class.java to VERTICAL,
-            ViewAdapterActivity::class.java to HORIZONTAL,
-            ViewAdapterActivity::class.java to VERTICAL)
+            fragmentAdapterProvider to HORIZONTAL,
+            fragmentAdapterProvider to VERTICAL,
+            viewAdapterProvider to HORIZONTAL,
+            viewAdapterProvider to VERTICAL)
             .flatMap { (activity, orientation) -> createTestSet(activity, orientation) }
 }
 
-private fun createTestSet(activity: Class<out BaseActivity>, orientation: Int): List<TestConfig> {
+private fun createTestSet(
+    adapterProvider: AdapterProviderForItems,
+    orientation: Int
+): List<TestConfig> {
     return listOf(
             TestConfig(
                     title = "basic pass",
-                    activityClass = activity,
+                    adapterProvider = adapterProvider,
                     orientation = orientation,
                     totalPages = 4,
                     pageSequence = listOf(0, 1, 2, 3, 3, 2, 1, 0, 0)
             ),
             TestConfig(
                     title = "full pass",
-                    activityClass = activity,
+                    adapterProvider = adapterProvider,
                     orientation = orientation,
                     totalPages = 8,
                     pageSequence = listOf(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0)
             ),
             TestConfig(
                     title = "swipe beyond edge pages",
-                    activityClass = activity,
+                    adapterProvider = adapterProvider,
                     orientation = orientation,
                     totalPages = 4,
                     pageSequence = listOf(0, 0, 1, 2, 3, 3, 3, 2, 1, 0, 0, 0)
             ),
             TestConfig(
                     title = "config change",
-                    activityClass = activity,
+                    adapterProvider = adapterProvider,
                     orientation = orientation,
                     totalPages = 7,
                     pageSequence = listOf(1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0),
@@ -133,28 +140,28 @@ private fun createTestSet(activity: Class<out BaseActivity>, orientation: Int): 
             ),
             TestConfig(
                     title = "regression1",
-                    activityClass = activity,
+                    adapterProvider = adapterProvider,
                     orientation = orientation,
                     totalPages = 10,
                     pageSequence = listOf(1, 2, 3, 2, 1, 2, 3, 4)
             ),
             TestConfig(
                     title = "regression2",
-                    activityClass = activity,
+                    adapterProvider = adapterProvider,
                     orientation = orientation,
                     totalPages = 10,
                     pageSequence = listOf(1, 2, 3, 4, 3, 2, 1, 2, 3, 4, 5)
             ),
             TestConfig(
                     title = "regression3",
-                    activityClass = activity,
+                    adapterProvider = adapterProvider,
                     orientation = orientation,
                     totalPages = 10,
                     pageSequence = listOf(1, 2, 3, 2, 1, 2, 3, 2, 1, 0)
             ))
-            .plus(if (activity.supportsMutations) createMutationTests(activity,
+            .plus(if (adapterProvider.supportsMutations) createMutationTests(adapterProvider,
                     orientation) else emptyList())
-            .plus(if (randomTesting) createRandomTests(activity, orientation) else emptyList())
+            .plus(createRandomTests(adapterProvider, orientation))
 }
 
 // region mutation testing
@@ -162,25 +169,19 @@ private fun createTestSet(activity: Class<out BaseActivity>, orientation: Int): 
 // Mutation testing verifies that once a view is modified (e.g. text written in an EditBox), the
 // values are persisted during page swipes or screen rotations.
 
-val Class<out BaseActivity>.supportsMutations: Boolean
-    get() {
-        // Mutation testing only applies to Fragment-based adapters
-        return this == FragmentAdapterActivity::class.java
-    }
-
 private fun createMutationTests(
-    activity: Class<out BaseActivity>,
+    adapterProvider: AdapterProviderForItems,
     @Orientation orientation: Int
 ): List<TestConfig> {
     return listOf(
             TestConfig(
                     title = "mutations",
-                    activityClass = activity,
+                    adapterProvider = adapterProvider,
                     orientation = orientation,
                     totalPages = 7,
                     pageSequence = listOf(1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0),
                     configChangeSteps = setOf(8),
-                    stepToNewValue = mapOf(0 to 999, 1 to 100, 3 to 300, 5 to 500)
+                    stepToNewValue = mapOf(0 to "999", 1 to "100", 3 to "300", 5 to "500")
             ))
 }
 
@@ -189,10 +190,10 @@ private fun createMutationTests(
 // region random testing
 
 private fun createRandomTests(
-    activity: Class<out BaseActivity>,
+    adapterProvider: AdapterProviderForItems,
     @Orientation orientation: Int
 ): List<TestConfig> {
-    return (1..randomTestsPerConfig).flatMap {
+    return (1..RANDOM_TESTS_PER_CONFIG).flatMap {
         listOf(
                 createRandomTest(
                         totalPages = 8,
@@ -200,7 +201,7 @@ private fun createRandomTests(
                         configChangeProbability = 0.0,
                         mutationProbability = 0.0,
                         advanceProbability = 0.875,
-                        activityClass = activity,
+                        adapterProvider = adapterProvider,
                         orientation = orientation
                 ),
                 createRandomTest(
@@ -209,29 +210,29 @@ private fun createRandomTests(
                         configChangeProbability = 0.5,
                         mutationProbability = 0.0,
                         advanceProbability = 0.875,
-                        activityClass = activity,
+                        adapterProvider = adapterProvider,
                         orientation = orientation
                 ))
-            .plus(if (!activity.supportsMutations) emptyList() else listOf(
-                createRandomTest(
-                        totalPages = 8,
-                        sequenceLength = 50,
-                        configChangeProbability = 0.0,
-                        mutationProbability = 0.125,
-                        advanceProbability = 0.875,
-                        activityClass = activity,
-                        orientation = orientation
-                ),
-                createRandomTest(
-                        totalPages = 8,
-                        sequenceLength = 10,
-                        configChangeProbability = 0.5,
-                        mutationProbability = 0.125,
-                        advanceProbability = 0.875,
-                        activityClass = activity,
-                        orientation = orientation
-                )
-        ))
+                .plus(if (!adapterProvider.supportsMutations) emptyList() else listOf(
+                        createRandomTest(
+                                totalPages = 8,
+                                sequenceLength = 50,
+                                configChangeProbability = 0.0,
+                                mutationProbability = 0.125,
+                                advanceProbability = 0.875,
+                                adapterProvider = adapterProvider,
+                                orientation = orientation
+                        ),
+                        createRandomTest(
+                                totalPages = 8,
+                                sequenceLength = 10,
+                                configChangeProbability = 0.5,
+                                mutationProbability = 0.125,
+                                advanceProbability = 0.875,
+                                adapterProvider = adapterProvider,
+                                orientation = orientation
+                        )
+                ))
     }
 }
 
@@ -241,7 +242,7 @@ private fun createRandomTest(
     configChangeProbability: Double,
     mutationProbability: Double,
     advanceProbability: Double,
-    activityClass: Class<out BaseActivity>,
+    adapterProvider: AdapterProviderForItems,
     @Orientation orientation: Int
 ): TestConfig {
     val random = Random()
@@ -280,13 +281,13 @@ private fun createRandomTest(
     }
 
     return TestConfig(
-            "random_$seed",
-            activityClass,
-            orientation,
-            totalPages,
-            pageSequence,
-            configChanges,
-            stepToNewValue
+            title = "random_$seed",
+            adapterProvider = adapterProvider,
+            orientation = orientation,
+            totalPages = totalPages,
+            pageSequence = pageSequence,
+            configChangeSteps = configChanges,
+            stepToNewValue = stepToNewValue.mapValues { it.toString() }
     )
 }
 

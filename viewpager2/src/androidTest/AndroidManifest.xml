@@ -19,7 +19,6 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="androidx.viewpager2.widget.swipe.ViewAdapterActivity"/>
-        <activity android:name="androidx.viewpager2.widget.swipe.FragmentAdapterActivity"/>
+        <activity android:name="androidx.viewpager2.widget.swipe.TestActivity"/>
     </application>
 </manifest>

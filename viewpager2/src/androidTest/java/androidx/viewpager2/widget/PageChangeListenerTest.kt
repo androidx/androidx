@@ -81,7 +81,8 @@ class PageChangeListenerTest : BaseTest() {
     onPageScrollStateChanged,0
      */
     private fun test_swipeBetweenPages(@Orientation orientation: Int) {
-        setUpTest(4, orientation).apply {
+        setUpTest(orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(4)))
             listOf(1, 2, 3, 2, 1, 0).forEach { targetPage ->
                 // given
                 val initialPage = viewPager.currentItem
@@ -96,7 +97,7 @@ class PageChangeListenerTest : BaseTest() {
                 latch.await(1, SECONDS)
 
                 // then
-                assertBasicState(targetPage)
+                assertBasicState(targetPage, "$targetPage")
 
                 listener.apply {
                     // verify all events
@@ -150,8 +151,9 @@ class PageChangeListenerTest : BaseTest() {
         val totalPages = 3
         val edgePages = setOf(0, totalPages - 1)
 
-        setUpTest(totalPages, orientation).apply {
+        setUpTest(orientation).apply {
 
+            setAdapterSync(viewAdapterProvider(stringSequence(totalPages)))
             listOf(0, 0, 1, 2, 2, 2, 1, 2, 2, 2, 1, 0, 0, 0).forEach { targetPage ->
                 // given
                 val initialPage = viewPager.currentItem
@@ -164,7 +166,7 @@ class PageChangeListenerTest : BaseTest() {
                 latch.await(1, SECONDS)
 
                 // then
-                assertBasicState(targetPage)
+                assertBasicState(targetPage, "$targetPage")
 
                 if (targetPage == initialPage && edgePages.contains(targetPage)) {
                     listener.apply {
@@ -214,7 +216,8 @@ class PageChangeListenerTest : BaseTest() {
      */
     private fun test_peekOnAdjacentPage_next(@Orientation orientation: Int) {
         // given
-        setUpTest(3, orientation).apply {
+        setUpTest(orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(3)))
             val listener = viewPager.addNewRecordingListener()
             val latch = viewPager.addWaitForScrolledLatch(0)
 
@@ -268,7 +271,9 @@ class PageChangeListenerTest : BaseTest() {
      */
     private fun test_peekOnAdjacentPage_previous(@Orientation orientation: Int) {
         // given
-        setUpTest(3, orientation).apply {
+        setUpTest(orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(3)))
+
             viewPager.setCurrentItemSync(2, false, 200, MILLISECONDS)
 
             // set up test listeners
@@ -340,7 +345,8 @@ class PageChangeListenerTest : BaseTest() {
      */
     private fun test_selectItemProgrammatically_smoothScroll(@Orientation orientation: Int) {
         // given
-        setUpTest(1000, orientation).apply {
+        setUpTest(orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(1000)))
 
             // when
             listOf(6, 5, 6, 4, 7, 3, 8, 2, 9, 1, 10, 0, 0, 999, 999, 0).forEach { targetPage ->
@@ -389,7 +395,8 @@ class PageChangeListenerTest : BaseTest() {
 
     private fun test_multiplePageChanges(@Orientation orientation: Int) {
         // given
-        setUpTest(10, orientation).apply {
+        setUpTest(orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(10)))
             val targetPages = listOf(4, 9)
             val listener = viewPager.addNewRecordingListener()
             val latch = viewPager.addWaitForScrolledLatch(targetPages.last(), false)
@@ -426,14 +433,16 @@ class PageChangeListenerTest : BaseTest() {
 
     private fun test_configChangeDuringFarSmoothScroll(@Orientation orientation: Int) {
         // given
-        setUpTest(5, orientation).apply {
+        setUpTest(orientation).apply {
+            val adapterProvider = viewAdapterProvider(stringSequence(5))
+            setAdapterSync(adapterProvider)
             val targetPage = 4
             val dummyPage = 9999
             val listener = viewPager.addNewRecordingListener()
 
             // when
             runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
-            recreateActivity()
+            recreateActivity(adapterProvider)
             // mark the config change in the listener
             listener.onPageSelected(dummyPage)
             // viewPager is recreated, so need to reattach listener
@@ -477,7 +486,8 @@ class PageChangeListenerTest : BaseTest() {
      */
     private fun test_selectItemProgrammatically_noSmoothScroll(@Orientation orientation: Int) {
         // given
-        setUpTest(3, orientation).apply {
+        setUpTest(orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(3)))
 
             // when
             listOf(2, 2, 0, 0, 1, 2, 1, 0).forEach { targetPage ->
@@ -523,7 +533,8 @@ class PageChangeListenerTest : BaseTest() {
         smoothScroll: Boolean
     ) {
         // given
-        setUpTest(3, orientation).apply {
+        setUpTest(orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(3)))
 
             // when
             listOf(2, 2, 0, 0, 1, 2, 1, 0).forEach { targetPage ->
