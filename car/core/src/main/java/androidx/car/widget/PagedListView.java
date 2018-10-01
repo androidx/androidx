@@ -1157,7 +1157,16 @@ public class PagedListView extends FrameLayout {
             addView(mAlphaJumpView);
         }
 
-        mAlphaJumpView.setVisibility(View.VISIBLE);
+        mAlphaJumpView.show();
+    }
+
+    /**
+     * Hide the Alpha Jump Overview by toggling its visibility
+     */
+    public void hideAlphaJump() {
+        if (mAlphaJumpView != null) {
+            mAlphaJumpView.hide();
+        }
     }
 
     private final RecyclerView.OnScrollListener mRecyclerViewOnScrollListener =

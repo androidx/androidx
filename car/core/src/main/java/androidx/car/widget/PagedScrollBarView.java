@@ -318,7 +318,6 @@ public class PagedScrollBarView extends ViewGroup {
     public void setButtonRippleBackground(@DrawableRes int backgroundResId) {
         mUpButton.setBackgroundResource(backgroundResId);
         mDownButton.setBackgroundResource(backgroundResId);
-        mAlphaJumpButton.setBackgroundResource(backgroundResId);
     }
 
     @Override
