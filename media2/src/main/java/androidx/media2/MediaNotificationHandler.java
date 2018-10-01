@@ -125,7 +125,7 @@ public class MediaNotificationHandler extends
     private void stopForegroundServiceIfNeeded() {
         List<MediaSession2> sessions = mServiceInstance.getSessions();
         for (int i = 0; i < sessions.size(); i++) {
-            if (!isPlaybackStopped(sessions.get(i).getPlayerState())) {
+            if (!isPlaybackStopped(sessions.get(i).getPlayer().getPlayerState())) {
                 return;
             }
         }
@@ -147,7 +147,7 @@ public class MediaNotificationHandler extends
 
         // TODO: Filter actions when SessionPlayer#getSupportedActions() is introduced.
         builder.addAction(mSkipToPrevAction);
-        if (session.getPlayerState() == MediaPlayerConnector.PLAYER_STATE_PLAYING) {
+        if (session.getPlayer().getPlayerState() == SessionPlayer2.PLAYER_STATE_PLAYING) {
             builder.addAction(mPauseAction);
         } else {
             builder.addAction(mPlayAction);
@@ -155,8 +155,8 @@ public class MediaNotificationHandler extends
         builder.addAction(mSkipToNextAction);
 
         // Set metadata info in the notification.
-        if (session.getCurrentMediaItem() != null) {
-            MediaMetadata2 metadata = session.getCurrentMediaItem().getMetadata();
+        if (session.getPlayer().getCurrentMediaItem() != null) {
+            MediaMetadata2 metadata = session.getPlayer().getCurrentMediaItem().getMetadata();
             if (metadata != null) {
                 CharSequence title = metadata.getText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE);
                 if (title == null) {

@@ -42,9 +42,6 @@ import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaPlayerConnector.BuffState;
 import androidx.media2.MediaPlayerConnector.PlayerState;
-import androidx.media2.MediaPlaylistAgent.PlaylistEventCallback;
-import androidx.media2.MediaPlaylistAgent.RepeatMode;
-import androidx.media2.MediaPlaylistAgent.ShuffleMode;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -102,16 +99,16 @@ import java.util.concurrent.Executor;
  * <table>
  * <tr><th>Key code</th><th>{@link MediaSession2} API</th></tr>
  * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_PLAY}</td>
- *     <td>{@link MediaSession2#play()}</td></tr>
+ *     <td>{link SessionPlayer2#play()}</td></tr>
  * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_PAUSE}</td>
- *     <td>{@link MediaSession2#pause()}</td></tr>
+ *     <td>{link SessionPlayer2#pause()}</td></tr>
  * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_NEXT}</td>
- *     <td>{@link MediaSession2#skipToNextItem()}</td></tr>
+ *     <td>{link SessionPlayer2#skipToNextItem()}</td></tr>
  * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_PREVIOUS}</td>
- *     <td>{@link MediaSession2#skipToPreviousItem()}</td></tr>
+ *     <td>{link SessionPlayer2#skipToPreviousItem()}</td></tr>
  * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_STOP}</td>
- *     <td>{@link MediaSession2#pause()} and then
- *         {@link MediaSession2#seekTo(long)} with 0</td></tr>
+ *     <td>{link SessionPlayer2#pause()} and then
+ *         {link SessionPlayer2#seekTo(long)} with 0</td></tr>
  * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_FAST_FORWARD}</td>
  *     <td>{@link SessionCallback#onFastForward}</td></tr>
  * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_REWIND}</td>
@@ -119,16 +116,17 @@ import java.util.concurrent.Executor;
  * <tr><td><ul><li>{@link KeyEvent#KEYCODE_MEDIA_PLAY_PAUSE}</li>
  *             <li>{@link KeyEvent#KEYCODE_HEADSETHOOK}</li></ul></td>
  *     <td><ul><li>For a single tap
- *             <ul><li>{@link MediaSession2#pause()} if
+ *             <ul><li>{link SessionPlayer2#pause()} if
  *             {@link MediaPlayerConnector#PLAYER_STATE_PLAYING}</li>
- *             <li>{@link MediaSession2#play()} otherwise</li></ul>
- *             <li>For a double tap, {@link MediaSession2#skipToNextItem()}</li></ul></td>
+ *             <li>{link SessionPlayer2#play()} otherwise</li></ul>
+ *             <li>For a double tap, {link SessionPlayer2#skipToNextItem()}</li></ul></td>
  *     </td>
  * </table>
  * @see MediaSessionService2
  */
+// TODO(jaewan): Change {link SessionPlayer2} to {@link SessionPlayer2} when it's unhidden.
 @TargetApi(Build.VERSION_CODES.P)
-public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseable {
+public class MediaSession2 implements AutoCloseable {
     /**
      * @hide
      */
@@ -391,66 +389,9 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     }
 
     /**
-     * Play playback.
-     * <p>
-     * This calls {@link MediaPlayerConnector#play()}.
-     */
-    @Override
-    public void play() {
-        mImpl.play();
-    }
-
-    /**
-     * Pause playback.
-     * <p>
-     * This calls {@link MediaPlayerConnector#pause()}.
-     */
-    @Override
-    public void pause() {
-        mImpl.pause();
-    }
-
-    /**
-     * Resets the player connector to the idle state.
-     * <p>
-     * This calls {@link MediaPlayerConnector#reset()} which resets the player connector to the
-     * idle state, and detailed behaviors may differ depending on the player implementation. Use
-     * this with caution.
-     */
-    @Override
-    public void reset() {
-        mImpl.reset();
-    }
-
-    /**
-     * Request that the player prepare its playback. In other words, other sessions can continue
-     * to play during the preparation of this session. This method can be used to speed up the
-     * start of the playback. Once the preparation is done, the session will change its playback
-     * state to {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be
-     * called to start playback.
-     * <p>
-     * This calls {@link MediaPlayerConnector#reset()}.
-     */
-    @Override
-    public void prepare() {
-        mImpl.prepare();
-    }
-
-    /**
-     * Move to a new location in the media stream.
-     *
-     * @param pos Position to move to, in milliseconds.
-     */
-    @Override
-    public void seekTo(long pos) {
-        mImpl.seekTo(pos);
-    }
-
-    /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @Override
     public void skipForward() {
         mImpl.skipForward();
     }
@@ -459,7 +400,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @Override
     public void skipBackward() {
         mImpl.skipBackward();
     }
@@ -470,7 +410,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      * @param errorCode error code
      * @param extras extras
      */
-    @Override
     public void notifyError(@ErrorCode int errorCode, @Nullable Bundle extras) {
         mImpl.notifyError(errorCode, extras);
     }
@@ -491,91 +430,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     }
 
     /**
-     * Gets the current player state.
-     *
-     * @return the current player state
-     */
-    @Override
-    public @PlayerState int getPlayerState() {
-        return mImpl.getPlayerState();
-    }
-
-    /**
-     * Gets the current position.
-     *
-     * @return the current playback position in ms, or {@link MediaPlayerConnector#UNKNOWN_TIME} if
-     *         unknown.
-     */
-    @Override
-    public long getCurrentPosition() {
-        return mImpl.getCurrentPosition();
-    }
-
-    /**
-     * Gets the duration of the currently playing media item.
-     *
-     * @return the duration of the current item from {@link MediaPlayerConnector#getDuration()}.
-     */
-    @Override
-    public long getDuration() {
-        return mImpl.getDuration();
-    }
-
-    /**
-     * Gets the buffered position, or {@link MediaPlayerConnector#UNKNOWN_TIME} if unknown.
-     *
-     * @return the buffered position in ms, or {@link MediaPlayerConnector#UNKNOWN_TIME}.
-     */
-    @Override
-    public long getBufferedPosition() {
-        return mImpl.getBufferedPosition();
-    }
-
-    /**
-     * Gets the current buffering state of the player.
-     * During buffering, see {@link #getBufferedPosition()} for the quantifying the amount already
-     * buffered.
-     *
-     * @return the buffering state.
-     */
-    @Override
-    public @BuffState int getBufferingState() {
-        return mImpl.getBufferingState();
-    }
-
-    /**
-     * Get the playback speed.
-     *
-     * @return speed
-     */
-    @Override
-    public float getPlaybackSpeed() {
-        return mImpl.getPlaybackSpeed();
-    }
-
-    /**
-     * Set the playback speed.
-     */
-    @Override
-    public void setPlaybackSpeed(float speed) {
-        mImpl.setPlaybackSpeed(speed);
-    }
-
-    /**
      * Sets the media item missing helper. Helper will be used to provide default implementation of
      * {@link MediaPlaylistAgent} when it isn't set by developer.
-     * <p>
-     * Default implementation of the {@link MediaPlaylistAgent} will call helper when a
-     * {@link MediaItem2} in the playlist doesn't have a {@link MediaItem2}. This may happen
-     * when
-     * <ul>
-     *      <li>{@link MediaItem2} specified by {@link #setPlaylist(List, MediaMetadata2)} doesn't
-     *          have {@link MediaItem2}</li>
-     *      <li>{@link MediaController2#addPlaylistItem(int, MediaItem2)} is called and accepted
-     *          by {@link SessionCallback#onCommandRequest(
-     *          MediaSession2, ControllerInfo, SessionCommand2)}.
-     *          In that case, an item would be added automatically without the media item.</li>
-     * </ul>
      * <p>
      * If it's not set, playback wouldn't happen for the item without media item descriptor.
      * <p>
@@ -584,12 +440,10 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      *
      * @param helper a media item missing helper.
      * @throws IllegalStateException when the helper is set when the playlist agent is set
-     * @see #setPlaylist(List, MediaMetadata2)
      * @see SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)
      * @see SessionCommand2#COMMAND_CODE_PLAYLIST_ADD_ITEM
      * @see SessionCommand2#COMMAND_CODE_PLAYLIST_REPLACE_ITEM
      */
-    @Override
     public void setOnDataSourceMissingHelper(@NonNull OnDataSourceMissingHelper helper) {
         mImpl.setOnDataSourceMissingHelper(helper);
     }
@@ -599,228 +453,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      *
      * @see #setOnDataSourceMissingHelper(OnDataSourceMissingHelper)
      */
-    @Override
     public void clearOnDataSourceMissingHelper() {
         mImpl.clearOnDataSourceMissingHelper();
-    }
-
-    /**
-     * Returns the playlist from the {@link MediaPlaylistAgent}.
-     * <p>
-     * This list may differ with the list that was specified with
-     * {@link #setPlaylist(List, MediaMetadata2)} depending on the {@link MediaPlaylistAgent}
-     * implementation. Use media items returned here for other playlist agent APIs such as
-     * {@link MediaPlaylistAgent#skipToPlaylistItem(MediaItem2)}.
-     *
-     * @return playlist
-     * @see MediaPlaylistAgent#getPlaylist()
-     * @see SessionCallback#onPlaylistChanged(
-     *          MediaSession2, MediaPlaylistAgent, List, MediaMetadata2)
-     */
-    @Override
-    public List<MediaItem2> getPlaylist() {
-        return mImpl.getPlaylist();
-    }
-
-    /**
-     * Sets a list of {@link MediaItem2} to the {@link MediaPlaylistAgent}. Ensure uniqueness of
-     * each {@link MediaItem2} in the playlist so the session can uniquely identity individual
-     * items.
-     * <p>
-     * This may be an asynchronous call, and {@link MediaPlaylistAgent} may keep the copy of the
-     * list. Wait for {@link SessionCallback#onPlaylistChanged(MediaSession2, MediaPlaylistAgent,
-     * List, MediaMetadata2)} to know the operation finishes.
-     * <p>
-     * You may specify a {@link MediaItem2} without {@link MediaItem2}. In that case,
-     * {@link MediaPlaylistAgent} has responsibility to dynamically query {link MediaItem2}
-     * when such media item is ready for preparation or play. Default implementation needs
-     * {@link OnDataSourceMissingHelper} for such case.
-     * <p>
-     * It's recommended to fill {@link MediaMetadata2} in each {@link MediaItem2} especially for the
-     * duration information with the key {@link MediaMetadata2#METADATA_KEY_DURATION}. Without the
-     * duration information in the metadata, session will do extra work to get the duration and send
-     * it to the controller.
-     *
-     * @param list A list of {@link MediaItem2} objects to set as a play list.
-     * @throws IllegalArgumentException if given list is {@code null}, or has duplicated media
-     * items.
-     * @see MediaPlaylistAgent#setPlaylist(List, MediaMetadata2)
-     * @see SessionCallback#onPlaylistChanged(
-     *          MediaSession2, MediaPlaylistAgent, List, MediaMetadata2)
-     * @see #setOnDataSourceMissingHelper
-     */
-    @Override
-    public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        mImpl.setPlaylist(list, metadata);
-    }
-
-    /**
-     * Skips to the item in the playlist.
-     * <p>
-     * This calls {@link MediaPlaylistAgent#skipToPlaylistItem(MediaItem2)} and the behavior depends
-     * on the playlist agent implementation, especially with the shuffle/repeat mode.
-     *
-     * @param item The item in the playlist you want to play
-     * @see #getShuffleMode()
-     * @see #getRepeatMode()
-     */
-    @Override
-    public void skipToPlaylistItem(@NonNull MediaItem2 item) {
-        mImpl.skipToPlaylistItem(item);
-    }
-
-    /**
-     * Skips to the previous item.
-     * <p>
-     * This calls {@link MediaPlaylistAgent#skipToPreviousItem()} and the behavior depends on the
-     * playlist agent implementation, especially with the shuffle/repeat mode.
-     *
-     * @see #getShuffleMode()
-     * @see #getRepeatMode()
-     **/
-    @Override
-    public void skipToPreviousItem() {
-        mImpl.skipToPreviousItem();
-    }
-
-    /**
-     * Skips to the next item.
-     * <p>
-     * This calls {@link MediaPlaylistAgent#skipToNextItem()} and the behavior depends on the
-     * playlist agent implementation, especially with the shuffle/repeat mode.
-     *
-     * @see #getShuffleMode()
-     * @see #getRepeatMode()
-     */
-    @Override
-    public void skipToNextItem() {
-        mImpl.skipToNextItem();
-    }
-
-    /**
-     * Gets the playlist metadata from the {@link MediaPlaylistAgent}.
-     *
-     * @return the playlist metadata
-     */
-    @Override
-    public MediaMetadata2 getPlaylistMetadata() {
-        return mImpl.getPlaylistMetadata();
-    }
-
-    /**
-     * Adds the media item to the playlist at position index. Index equals or greater than
-     * the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end of
-     * the playlist.
-     * <p>
-     * This will not change the currently playing media item.
-     * If index is less than or equal to the current index of the play list,
-     * the current index of the play list will be incremented correspondingly.
-     *
-     * @param index the index you want to add
-     * @param item the media item you want to add
-     */
-    @Override
-    public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
-        mImpl.addPlaylistItem(index, item);
-    }
-
-    /**
-     * Removes the media item in the playlist.
-     * <p>
-     * If the item is the currently playing item of the playlist, current playback
-     * will be stopped and playback moves to next source in the list.
-     *
-     * @param item the media item you want to add
-     */
-    @Override
-    public void removePlaylistItem(@NonNull MediaItem2 item) {
-        mImpl.removePlaylistItem(item);
-    }
-
-    /**
-     * Replaces the media item at index in the playlist. This can be also used to update metadata of
-     * an item.
-     *
-     * @param index the index of the item to replace
-     * @param item the new item
-     */
-    @Override
-    public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
-        mImpl.replacePlaylistItem(index, item);
-    }
-
-    /**
-     * Return currently playing media item.
-     *
-     * @return currently playing media item
-     */
-    @Override
-    public MediaItem2 getCurrentMediaItem() {
-        return mImpl.getCurrentMediaItem();
-    }
-
-    /**
-     * Updates the playlist metadata to the {@link MediaPlaylistAgent}.
-     *
-     * @param metadata metadata of the playlist
-     */
-    @Override
-    public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        mImpl.updatePlaylistMetadata(metadata);
-    }
-
-    /**
-     * Gets the repeat mode from the {@link MediaPlaylistAgent}.
-     *
-     * @return repeat mode
-     * @see MediaPlaylistAgent#REPEAT_MODE_NONE
-     * @see MediaPlaylistAgent#REPEAT_MODE_ONE
-     * @see MediaPlaylistAgent#REPEAT_MODE_ALL
-     * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
-     */
-    @Override
-    public @RepeatMode int getRepeatMode() {
-        return mImpl.getRepeatMode();
-    }
-
-    /**
-     * Sets the repeat mode to the {@link MediaPlaylistAgent}.
-     *
-     * @param repeatMode repeat mode
-     * @see MediaPlaylistAgent#REPEAT_MODE_NONE
-     * @see MediaPlaylistAgent#REPEAT_MODE_ONE
-     * @see MediaPlaylistAgent#REPEAT_MODE_ALL
-     * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
-     */
-    @Override
-    public void setRepeatMode(@RepeatMode int repeatMode) {
-        mImpl.setRepeatMode(repeatMode);
-    }
-
-    /**
-     * Gets the shuffle mode from the {@link MediaPlaylistAgent}.
-     *
-     * @return The shuffle mode
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
-     */
-    @Override
-    public @ShuffleMode int getShuffleMode() {
-        return mImpl.getShuffleMode();
-    }
-
-    /**
-     * Sets the shuffle mode to the {@link MediaPlaylistAgent}.
-     *
-     * @param shuffleMode The shuffle mode
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
-     */
-    @Override
-    public void setShuffleMode(@ShuffleMode int shuffleMode) {
-        mImpl.setShuffleMode(shuffleMode);
     }
 
     /**
@@ -928,7 +562,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * @return {@code true} if you want to accept incoming command. {@code false} otherwise.
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PLAY
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PAUSE
-         * @see SessionCommand2#COMMAND_CODE_PLAYBACK_RESET
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PREPARE
@@ -1043,7 +676,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * {@link MediaPlayerConnector#PLAYER_STATE_PAUSED} after the preparation is done.
          * <p>
          * The playback of the prepared content should start in the later calls of
-         * {@link MediaSession2#play()}.
+         * {link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromMediaId} to handle requests for starting
          * playback without preparation.
@@ -1068,7 +701,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * The state of playback should be updated to
          * {@link MediaPlayerConnector#PLAYER_STATE_PAUSED} after the preparation is done.
          * The playback of the prepared content should start in the
-         * later calls of {@link MediaSession2#play()}.
+         * later calls of {link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromSearch} to handle requests for starting playback without
          * preparation.
@@ -1092,7 +725,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
          * {@link MediaPlayerConnector#PLAYER_STATE_PAUSED} after the preparation is done.
          * <p>
          * The playback of the prepared content should start in the later calls of
-         * {@link MediaSession2#play()}.
+         * {link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromUri} to handle requests for starting playback without
          * preparation.
@@ -1165,126 +798,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         @RestrictTo(LIBRARY_GROUP)
         public void onSelectRoute(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull Bundle route) { }
-
-        /**
-         * Called when the player's current playing item is changed
-         * <p>
-         * When it's called, you should invalidate previous playback information and wait for later
-         * callbacks.
-         *
-         * @param session the controller for this event
-         * @param player the player for this event
-         * @param item new item
-         */
-        public void onCurrentMediaItemChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerConnector player, @Nullable MediaItem2 item) { }
-
-        /**
-         * Called when the player is <i>prepared</i>, i.e. it is ready to play the content
-         * referenced by the given media item.
-         * @param session the session for this event
-         * @param player the player for this event
-         * @param item the media item for which buffering is happening
-         */
-        public void onMediaPrepared(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerConnector player, @NonNull MediaItem2 item) { }
-
-        /**
-         * Called to indicate that the state of the player has changed.
-         * See {@link MediaPlayerConnector#getPlayerState()} for polling the player state.
-         * @param session the session for this event
-         * @param player the player for this event
-         * @param state the new state of the player.
-         */
-        public void onPlayerStateChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerConnector player, @PlayerState int state) { }
-
-        /**
-         * Called to report buffering events for a media item.
-         *
-         * @param session the session for this event
-         * @param player the player for this event
-         * @param item the media item for which buffering is happening.
-         * @param state the new buffering state.
-         */
-        public void onBufferingStateChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerConnector player, @NonNull MediaItem2 item,
-                @BuffState int state) { }
-
-        /**
-         * Called to indicate that the playback speed has changed.
-         * @param session the session for this event
-         * @param player the player for this event
-         * @param speed the new playback speed.
-         */
-        public void onPlaybackSpeedChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerConnector player, float speed) { }
-
-        /**
-         * Called to indicate that {@link #seekTo(long)} is completed.
-         *
-         * @param session the session for this event.
-         * @param player the player that has completed seeking.
-         * @param position the previous seeking request.
-         * @see #seekTo(long)
-         */
-        public void onSeekCompleted(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerConnector player, long position) { }
-
-        /**
-         * Called when a playlist is changed from the {@link MediaPlaylistAgent}.
-         * <p>
-         * This is called when the underlying agent has called
-         * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent,
-         * List, MediaMetadata2)}.
-         *
-         * @param session the session for this event
-         * @param playlistAgent playlist agent for this event
-         * @param list new playlist
-         * @param metadata new metadata
-         */
-        public void onPlaylistChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlaylistAgent playlistAgent, @NonNull List<MediaItem2> list,
-                @Nullable MediaMetadata2 metadata) { }
-
-        /**
-         * Called when a playlist metadata is changed.
-         *
-         * @param session the session for this event
-         * @param playlistAgent playlist agent for this event
-         * @param metadata new metadata
-         */
-        public void onPlaylistMetadataChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlaylistAgent playlistAgent, @Nullable MediaMetadata2 metadata) { }
-
-        /**
-         * Called when the shuffle mode is changed.
-         *
-         * @param session the session for this event
-         * @param playlistAgent playlist agent for this event
-         * @param shuffleMode repeat mode
-         * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
-         * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
-         * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
-         */
-        public void onShuffleModeChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlaylistAgent playlistAgent,
-                @MediaPlaylistAgent.ShuffleMode int shuffleMode) { }
-
-        /**
-         * Called when the repeat mode is changed.
-         *
-         * @param session the session for this event
-         * @param playlistAgent playlist agent for this event
-         * @param repeatMode repeat mode
-         * @see MediaPlaylistAgent#REPEAT_MODE_NONE
-         * @see MediaPlaylistAgent#REPEAT_MODE_ONE
-         * @see MediaPlaylistAgent#REPEAT_MODE_ALL
-         * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
-         */
-        public void onRepeatModeChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlaylistAgent playlistAgent,
-                @MediaPlaylistAgent.RepeatMode int repeatMode) { }
 
         /**
          * Called when the player state is changed. Used internally for setting the
