@@ -65,6 +65,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -152,37 +153,39 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     }
 
     @Test
-    public void testContinuation_enqueue() {
+    public void testContinuation_enqueue() throws ExecutionException, InterruptedException {
         WorkContinuationImpl continuation = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
         assertThat(continuation.isEnqueued(), is(false));
-        continuation.enqueueSync();
+        continuation.enqueue().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
     }
 
     @Test
-    public void testContinuation_chainEnqueue() {
+    public void testContinuation_chainEnqueue() throws ExecutionException, InterruptedException {
         WorkContinuationImpl continuation =
                 new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
         WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
-        chain.enqueueSync();
+        chain.enqueue().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
     }
 
     @Test
-    public void testContinuation_chainEnqueueNoOpOnRetry() {
+    public void testContinuation_chainEnqueueNoOpOnRetry()
+            throws ExecutionException, InterruptedException {
+
         WorkContinuationImpl continuation =
                 new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
         WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
-        chain.enqueueSync();
+        chain.enqueue().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
         WorkContinuationImpl spy = spy(chain);
-        spy.enqueueSync();
+        spy.enqueue().get();
         // Verify no more calls to markEnqueued().
         verify(spy, times(0)).markEnqueued();
     }
@@ -217,7 +220,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     }
 
     @Test
-    public void testContinuation_joinAndEnqueue() {
+    public void testContinuation_joinAndEnqueue() throws ExecutionException, InterruptedException {
         WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
@@ -234,13 +237,15 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 third, fourth);
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(
                 firstDependent, secondDependent);
-        dependent.enqueueSync();
+        dependent.enqueue().get();
         verifyEnqueued(dependent);
         verifyScheduled(mScheduler, dependent);
     }
 
     @Test
-    public void testContinuation_joinAndEnqueueWithOverlaps() {
+    public void testContinuation_joinAndEnqueueWithOverlaps()
+            throws ExecutionException, InterruptedException {
+
         WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
@@ -253,7 +258,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 first, third);
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(
                 firstDependent, secondDependent);
-        dependent.enqueueSync();
+        dependent.enqueue().get();
         verifyEnqueued(dependent);
         verifyScheduled(mScheduler, dependent);
     }
@@ -261,7 +266,9 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     @Test
     @LargeTest
     @SuppressWarnings("unchecked")
-    public void testContinuation_joinPassesAllOutput() throws InterruptedException {
+    public void testContinuation_joinPassesAllOutput()
+            throws ExecutionException, InterruptedException {
+
         final String intTag = "myint";
         final String stringTag = "mystring";
 
@@ -290,7 +297,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl dependentContinuation =
                 (WorkContinuationImpl) WorkContinuation.combine(
                         firstContinuation, secondContinuation);
-        dependentContinuation.enqueueSync();
+        dependentContinuation.enqueue().get();
 
         String joinId = null;
         for (String id : dependentContinuation.getAllIds()) {
@@ -486,7 +493,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testGetStatusesSync() {
+    public void testGetStatusesSync() throws ExecutionException, InterruptedException {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         OneTimeWorkRequest bWork = createTestWorker(); // B
         OneTimeWorkRequest cWork = createTestWorker(); // C
@@ -496,7 +503,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuation secondChain = mWorkManagerImpl.beginWith(cWork);
         WorkContinuation combined = WorkContinuation.combine(dWork, firstChain, secondChain);
 
-        combined.synchronous().enqueueSync();
+        combined.enqueue().get();
         List<WorkStatus> statuses = combined.synchronous().getStatusesSync();
         assertThat(statuses, is(notNullValue()));
         List<UUID> ids = new ArrayList<>(statuses.size());

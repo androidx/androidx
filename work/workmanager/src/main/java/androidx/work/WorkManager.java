@@ -23,6 +23,8 @@ import android.support.annotation.RestrictTo;
 
 import androidx.work.impl.WorkManagerImpl;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -164,17 +166,21 @@ public abstract class WorkManager {
      * Enqueues one or more items for background processing.
      *
      * @param workRequests One or more {@link WorkRequest} to enqueue
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed.
      */
-    public final void enqueue(@NonNull WorkRequest... workRequests) {
-        enqueue(Arrays.asList(workRequests));
+    @NonNull
+    public final ListenableFuture<Void> enqueue(@NonNull WorkRequest... workRequests) {
+        return enqueue(Arrays.asList(workRequests));
     }
 
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param workRequests One or more {@link WorkRequest} to enqueue
+     * @param requests One or more {@link WorkRequest} to enqueue
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed.
      */
-    public abstract void enqueue(@NonNull List<? extends WorkRequest> workRequests);
+    @NonNull
+    public abstract ListenableFuture<Void> enqueue(@NonNull List<? extends WorkRequest> requests);
 
     /**
      * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
@@ -271,8 +277,10 @@ public abstract class WorkManager {
      *                     cancelled and the new work will run. {@code KEEP} will run the new
      *                     PeriodicWorkRequest only if there is no pending work labelled with
      *                     {@code uniqueWorkName}.
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed.
      */
-    public abstract void enqueueUniquePeriodicWork(
+    @NonNull
+    public abstract ListenableFuture<Void> enqueueUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork);
