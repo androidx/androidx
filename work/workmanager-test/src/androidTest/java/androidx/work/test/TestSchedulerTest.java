@@ -39,6 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -56,22 +57,26 @@ public class TestSchedulerTest {
     }
 
     @Test
-    public void testWorker_shouldSucceedSynchronously() {
+    public void testWorker_shouldSucceedSynchronously()
+            throws InterruptedException, ExecutionException {
+
         WorkRequest request = createWorkRequest();
         WorkManager workManager = WorkManager.getInstance();
-        workManager.synchronous().enqueueSync(request);
+        workManager.enqueue(request).get();
         WorkStatus status = workManager.synchronous().getStatusByIdSync(request.getId());
         assertThat(status.getState().isFinished(), is(true));
     }
 
     @Test
-    public void testWorker_withDependentWork_shouldSucceedSynchronously() {
+    public void testWorker_withDependentWork_shouldSucceedSynchronously()
+            throws InterruptedException, ExecutionException {
+
         OneTimeWorkRequest request = createWorkRequest();
         OneTimeWorkRequest dependentRequest = createWorkRequest();
         WorkManager workManager = WorkManager.getInstance();
         WorkContinuation continuation = workManager.beginWith(request)
                 .then(dependentRequest);
-        continuation.synchronous().enqueueSync();
+        continuation.enqueue().get();
         WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
         WorkStatus dependentStatus = workManager
                 .synchronous()

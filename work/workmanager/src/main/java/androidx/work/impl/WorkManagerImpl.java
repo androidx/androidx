@@ -55,6 +55,8 @@ import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -268,27 +270,14 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public void enqueue(@NonNull List<? extends WorkRequest> workRequests) {
+    public ListenableFuture<Void> enqueue(@NonNull List<? extends WorkRequest> workRequests) {
+        // This error is not being propagated as part of the ListenableFuture, as we want the
+        // app to crash during development. Having no workRequests is always a developer error.
         if (workRequests.isEmpty()) {
             throw new IllegalArgumentException(
                     "enqueue needs at least one WorkRequest.");
         }
-        new WorkContinuationImpl(this, workRequests).enqueue();
-    }
-
-    @Override
-    public void enqueueSync(@NonNull WorkRequest... workRequests) {
-        enqueueSync(Arrays.asList(workRequests));
-    }
-
-    @Override
-    public void enqueueSync(@NonNull List<? extends WorkRequest> workRequests) {
-        assertBackgroundThread("Cannot enqueueSync on main thread!");
-        if (workRequests.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "enqueue needs at least one WorkRequest.");
-        }
-        new WorkContinuationImpl(this, workRequests).enqueueSync();
+        return new WorkContinuationImpl(this, workRequests).enqueue();
     }
 
     @Override
@@ -313,28 +302,16 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public void enqueueUniquePeriodicWork(
+    public ListenableFuture<Void> enqueueUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {
-        createWorkContinuationForUniquePeriodicWork(
+
+        return createWorkContinuationForUniquePeriodicWork(
                 uniqueWorkName,
                 existingPeriodicWorkPolicy,
                 periodicWork)
                 .enqueue();
-    }
-
-    @Override
-    public void enqueueUniquePeriodicWorkSync(
-            @NonNull String uniqueWorkName,
-            @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
-            @NonNull PeriodicWorkRequest periodicWork) {
-        assertBackgroundThread("Cannot enqueueUniquePeriodicWorkSync on main thread!");
-        createWorkContinuationForUniquePeriodicWork(
-                uniqueWorkName,
-                existingPeriodicWorkPolicy,
-                periodicWork)
-                .enqueueSync();
     }
 
     private WorkContinuationImpl createWorkContinuationForUniquePeriodicWork(

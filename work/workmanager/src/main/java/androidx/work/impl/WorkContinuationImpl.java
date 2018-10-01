@@ -21,7 +21,6 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import androidx.work.ArrayCreatingInputMerger;
@@ -34,6 +33,8 @@ import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.utils.EnqueueRunnable;
 import androidx.work.impl.workers.CombineContinuationsWorker;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +60,9 @@ public class WorkContinuationImpl extends WorkContinuation
     private final List<String> mIds;
     private final List<String> mAllIds;
     private final List<WorkContinuationImpl> mParents;
+
     private boolean mEnqueued;
+    private ListenableFuture<Void> mFuture;
 
     @NonNull
     public WorkManagerImpl getWorkManagerImpl() {
@@ -172,34 +175,19 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    public void enqueue() {
+    public ListenableFuture<Void> enqueue() {
         // Only enqueue if not already enqueued.
         if (!mEnqueued) {
             // The runnable walks the hierarchy of the continuations
             // and marks them enqueued using the markEnqueued() method, parent first.
-            mWorkManagerImpl.getWorkTaskExecutor()
-                    .executeOnBackgroundThread(new EnqueueRunnable(this));
+            EnqueueRunnable runnable = new EnqueueRunnable(this);
+            mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(runnable);
+            mFuture = runnable.getFuture();
         } else {
             Logger.warning(TAG,
                     String.format("Already enqueued work ids (%s)", TextUtils.join(", ", mIds)));
         }
-    }
-
-    @Override
-    @WorkerThread
-    public void enqueueSync() {
-        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            throw new IllegalStateException("Cannot enqueueSync on main thread!");
-        }
-
-        if (!mEnqueued) {
-            // The runnable walks the hierarchy of the continuations
-            // and marks them enqueued using the markEnqueued() method, parent first.
-            new EnqueueRunnable(this).run();
-        } else {
-            Logger.warning(TAG,
-                    String.format("Already enqueued work ids (%s)", TextUtils.join(", ", mIds)));
-        }
+        return mFuture;
     }
 
     @Override
