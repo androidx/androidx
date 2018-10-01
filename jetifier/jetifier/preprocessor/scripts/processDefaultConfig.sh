@@ -88,9 +88,6 @@ function getPreRenamedSupportLib() {
 
 	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/support-lib.zip" -d "$SUPPORT_LIBS_UNPACKED"
 	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/arch.zip" -d "$SUPPORT_LIBS_UNPACKED"
-	#find "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/" -type f -name "*design-*28.0.0*.aar" -exec cp '{}' -t "$SUPPORT_LIBS_UNPACKED" \;
-	cp "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/multidex/1.0.3/multidex-1.0.3.aar" "$SUPPORT_LIBS_UNPACKED/multidex.aar"
-	cp "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/multidex-instrumentation/1.0.3/multidex-instrumentation-1.0.3.aar" "$SUPPORT_LIBS_UNPACKED/multidex-instrumentation.aar"
 	find "$SUPPORT_LIBS_UNPACKED" -type f -name "jetifier*" -exec rm -f {} \;
 }
 
@@ -143,6 +140,8 @@ pullEspressoIdling "idling-concurrent"
 pullEspressoIdling "idling-net"
 curl "https://dl.google.com/dl/android/maven2/com/android/support/test/janktesthelper/janktesthelper-v23/1.0.1/janktesthelper-v23-1.0.1.aar" -o "$SUPPORT_LIBS_UNPACKED/janktesthelper-v23.aar"
 curl "https://dl.google.com/dl/android/maven2/com/android/support/test/uiautomator/uiautomator-v18/2.1.3/uiautomator-v18-2.1.3.aar" -o "$SUPPORT_LIBS_UNPACKED/uiautomator-v18.aar"
+curl "https://dl.google.com/dl/android/maven2/com/android/support/multidex/1.0.3/multidex-1.0.3.aar" -o "$SUPPORT_LIBS_UNPACKED/multidex-1.0.3.aar"
+curl "https://dl.google.com/dl/android/maven2/com/android/support/multidex-instrumentation/1.0.3/multidex-instrumentation-1.0.3.aar" -o "$SUPPORT_LIBS_UNPACKED/multidex-instrumentation-1.0.3.aar"
 # FYI: We skip test-services since it is apk
 
 # exposed-instrumentation-api-publish skipped as it is deprecated
