@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 WorkManager workManager = WorkManager.getInstance();
-                workManager.getStatusesForUniqueWork(REPLACE_COMPLETED_WORK)
+                workManager.getStatusesForUniqueWorkLiveData(REPLACE_COMPLETED_WORK)
                         .observe(MainActivity.this, new Observer<List<WorkStatus>>() {
                             private int mCount;
 

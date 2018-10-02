@@ -17,7 +17,6 @@
 package androidx.work.impl;
 
 import android.arch.lifecycle.LiveData;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -27,11 +26,11 @@ import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.SynchronousWorkContinuation;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.utils.EnqueueRunnable;
+import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.workers.CombineContinuationsWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -48,8 +47,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkContinuationImpl extends WorkContinuation
-        implements SynchronousWorkContinuation {
+public class WorkContinuationImpl extends WorkContinuation {
 
     private static final String TAG = "WorkContinuationImpl";
 
@@ -162,16 +160,18 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    public @NonNull LiveData<List<WorkStatus>> getStatuses() {
+    public @NonNull LiveData<List<WorkStatus>> getStatusesLiveData() {
         return mWorkManagerImpl.getStatusesById(mAllIds);
     }
 
+    @NonNull
     @Override
-    public @NonNull List<WorkStatus> getStatusesSync() {
-        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            throw new IllegalStateException("Cannot getStatusesSync on main thread!");
-        }
-        return mWorkManagerImpl.getStatusesByIdSync(mAllIds);
+    public ListenableFuture<List<WorkStatus>> getStatuses() {
+        StatusRunnable<List<WorkStatus>> runnable =
+                StatusRunnable.forStringIds(mWorkManagerImpl, mAllIds);
+
+        mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(runnable);
+        return runnable.getFuture();
     }
 
     @Override
@@ -188,11 +188,6 @@ public class WorkContinuationImpl extends WorkContinuation
                     String.format("Already enqueued work ids (%s)", TextUtils.join(", ", mIds)));
         }
         return mFuture;
-    }
-
-    @Override
-    public @NonNull SynchronousWorkContinuation synchronous() {
-        return this;
     }
 
     @Override

@@ -59,7 +59,16 @@ public abstract class WorkContinuation {
      *
      * @return A {@link LiveData} containing a list of {@link WorkStatus}es
      */
-    public abstract @NonNull LiveData<List<WorkStatus>> getStatuses();
+    public abstract @NonNull LiveData<List<WorkStatus>> getStatusesLiveData();
+
+    /**
+     * Returns a {@link ListenableFuture} of a {@link List} of {@link WorkStatus} that provides
+     * information about work, their progress, and any resulting output in the
+     * {@link WorkContinuation}.
+     *
+     * @return A {@link  ListenableFuture} of a {@link List} of {@link WorkStatus}es
+     */
+    public abstract @NonNull ListenableFuture<List<WorkStatus>> getStatuses();
 
     /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
@@ -67,14 +76,6 @@ public abstract class WorkContinuation {
      * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
     public abstract @NonNull ListenableFuture<Void> enqueue();
-
-    /**
-     * Gets an object that gives access to synchronous methods.
-     *
-     * @return A {@link SynchronousWorkContinuation} object, which gives access to synchronous
-     *         methods
-     */
-    public abstract @NonNull SynchronousWorkContinuation synchronous();
 
     /**
      * Combines multiple {@link WorkContinuation}s to allow for complex chaining.
