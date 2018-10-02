@@ -65,7 +65,7 @@ public class RetryActivity extends AppCompatActivity {
             }
         });
 
-        WorkManager.getInstance().getStatusesByTag("test")
+        WorkManager.getInstance().getStatusesByTagLiveData("test")
                 .observe(this, new Observer<List<WorkStatus>>() {
                     @Override
                     public void onChanged(@Nullable List<WorkStatus> workStatuses) {

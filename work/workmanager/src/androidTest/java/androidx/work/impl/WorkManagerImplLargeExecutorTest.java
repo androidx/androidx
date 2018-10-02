@@ -150,7 +150,7 @@ public class WorkManagerImplLargeExecutorTest {
         final CountDownLatch latch = new CountDownLatch(NUM_WORKERS);
         WorkContinuation continuation = mWorkManagerImplSpy.beginWith(workRequests);
 
-        continuation.getStatuses()
+        continuation.getStatusesLiveData()
                 .observe(mLifecycleOwner, new Observer<List<WorkStatus>>() {
                     @Override
                     public void onChanged(@Nullable List<WorkStatus> workStatuses) {
