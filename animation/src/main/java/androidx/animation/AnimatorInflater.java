@@ -379,8 +379,16 @@ public class AnimatorInflater {
     private static void setupObjectAnimator(ValueAnimator anim, TypedArray arrayObjectAnimator,
             int valueType, float pixelSize) {
         ObjectAnimator oa = (ObjectAnimator) anim;
-        String pathData = arrayObjectAnimator.getString(
-                AndroidResources.STYLEABLE_PROPERTY_ANIMATOR_PATH_DATA);
+        String pathData = null;
+
+        // This works around an issue in API 19 where TypedArray.getString(int) returns a reference
+        // wrapped in a string when the attribute at given index isn't defined.
+        TypedValue typedValue = new TypedValue();
+        arrayObjectAnimator.getValue(
+                AndroidResources.STYLEABLE_PROPERTY_ANIMATOR_PATH_DATA, typedValue);
+        if (typedValue.type == TypedValue.TYPE_STRING) {
+            pathData = typedValue.string.toString();
+        }
 
         // Path can be involved in an ObjectAnimator in the following 3 ways:
         // 1) Path morphing: the property to be animated is pathData, and valueFrom and valueTo
