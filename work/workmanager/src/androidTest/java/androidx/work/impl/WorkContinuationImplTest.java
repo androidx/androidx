@@ -113,10 +113,10 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
         List<String> ids = mDatabase.workSpecDao().getAllWorkSpecIds();
         for (String id : ids) {
-            mWorkManagerImpl.cancelWorkByIdSync(UUID.fromString(id));
+            mWorkManagerImpl.cancelWorkById(UUID.fromString(id)).get();
         }
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
