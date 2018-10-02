@@ -23,6 +23,7 @@
         <activity android:name="androidx.navigation.fragment.DynamicNavigationActivity" />
         <activity android:name="androidx.navigation.fragment.EmbeddedXmlActivity" />
         <activity android:name="androidx.navigation.fragment.ImmediateNavigationActivity" />
+        <activity android:name="androidx.navigation.fragment.StartDestinationArgsActivity" />
         <activity android:name="androidx.navigation.fragment.EmptyActivity" />
     </application>
 </manifest>
