@@ -113,10 +113,6 @@ import java.util.concurrent.TimeUnit;
  * (see {@link WorkRequest.Builder#addTag(String)}), and chains of work can be given a
  * uniquely-identifiable name (see
  * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest...)}).
- *
- * <p>By default, WorkManager runs its operations on a background thread.  If you are already
- * running on a background thread and have need for synchronous (blocking) calls to WorkManager, use
- * {@link #synchronous()} to access such methods.
  */
 public abstract class WorkManager {
 
@@ -334,8 +330,11 @@ public abstract class WorkManager {
      * You do not normally need to call this method - WorkManager takes care to auto-prune its work
      * after a sane period of time.  This method also ignores the
      * {@link OneTimeWorkRequest.Builder#keepResultsForAtLeast(long, TimeUnit)} policy.
+     *
+     * @return A {@link ListenableFuture} that completes when the pruneWork operation is
+     * completed
      */
-    public abstract void pruneWork();
+    public abstract ListenableFuture<Void> pruneWork();
 
     /**
      * Gets a {@link LiveData} of the last time all work was cancelled.  This method is intended for
@@ -418,13 +417,6 @@ public abstract class WorkManager {
      */
     public abstract @NonNull ListenableFuture<List<WorkStatus>> getStatusesForUniqueWork(
             @NonNull String uniqueWorkName);
-
-    /**
-     * Gets an object that gives access to synchronous methods.
-     *
-     * @return A {@link SynchronousWorkManager} object, which gives access to synchronous methods
-     */
-    public abstract @NonNull SynchronousWorkManager synchronous();
 
     /**
      * @hide

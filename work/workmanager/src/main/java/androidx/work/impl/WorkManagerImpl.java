@@ -26,7 +26,6 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
 
 import androidx.work.Configuration;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -35,7 +34,6 @@ import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.R;
-import androidx.work.SynchronousWorkManager;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
@@ -70,7 +68,7 @@ import java.util.UUID;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkManagerImpl extends WorkManager implements SynchronousWorkManager {
+public class WorkManagerImpl extends WorkManager {
 
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
@@ -386,15 +384,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public void pruneWork() {
-        mWorkTaskExecutor.executeOnBackgroundThread(new PruneWorkRunnable(this));
-    }
-
-    @Override
-    @WorkerThread
-    public void pruneWorkSync() {
-        assertBackgroundThread("Cannot pruneWork on main thread!");
-        new PruneWorkRunnable(this).run();
+    public ListenableFuture<Void> pruneWork() {
+        PruneWorkRunnable runnable = new PruneWorkRunnable(this);
+        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        return runnable.getFuture();
     }
 
     @Override
@@ -460,11 +453,6 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
                 StatusRunnable.forUniqueWork(this, name);
         mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
         return runnable.getFuture();
-    }
-
-    @Override
-    public @NonNull SynchronousWorkManager synchronous() {
-        return this;
     }
 
     LiveData<List<WorkStatus>> getStatusesById(@NonNull List<String> workSpecIds) {
