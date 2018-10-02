@@ -1350,7 +1350,7 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void pruneFinishedWork() {
+    public void pruneFinishedWork() throws InterruptedException, ExecutionException {
         OneTimeWorkRequest enqueuedWork = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest finishedWork =
                 new OneTimeWorkRequest.Builder(TestWorker.class).setInitialState(SUCCEEDED).build();
@@ -1369,7 +1369,7 @@ public class WorkManagerImplTest {
 
         insertDependency(enqueuedWork, finishedWorkWithUnfinishedDependent);
 
-        mWorkManagerImpl.synchronous().pruneWorkSync();
+        mWorkManagerImpl.pruneWork().get();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(enqueuedWork.getStringId()), is(notNullValue()));
