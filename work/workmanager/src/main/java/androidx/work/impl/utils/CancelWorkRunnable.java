@@ -60,10 +60,9 @@ public abstract class CancelWorkRunnable implements Runnable {
     public void run() {
         try {
             runInternal();
+            mFuture.set(null);
         } catch (Throwable throwable) {
             mFuture.setException(throwable);
-        } finally {
-            mFuture.set(null);
         }
     }
 

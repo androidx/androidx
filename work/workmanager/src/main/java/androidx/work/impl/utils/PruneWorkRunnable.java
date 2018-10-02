@@ -21,6 +21,9 @@ import android.support.annotation.RestrictTo;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.futures.SettableFuture;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * A Runnable that prunes work in the background.  Pruned work meets the following criteria:
@@ -32,16 +35,27 @@ import androidx.work.impl.model.WorkSpecDao;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PruneWorkRunnable implements Runnable {
 
-    private WorkManagerImpl mWorkManagerImpl;
+    private final WorkManagerImpl mWorkManagerImpl;
+    private final SettableFuture<Void> mFuture;
 
     public PruneWorkRunnable(WorkManagerImpl workManagerImpl) {
         mWorkManagerImpl = workManagerImpl;
+        mFuture = SettableFuture.create();
+    }
+
+    public ListenableFuture<Void> getFuture() {
+        return mFuture;
     }
 
     @Override
     public void run() {
-        WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
-        WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-        workSpecDao.pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast();
+        try {
+            WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
+            WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+            workSpecDao.pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast();
+            mFuture.set(null);
+        } catch (Throwable exception) {
+            mFuture.setException(exception);
+        }
     }
 }
