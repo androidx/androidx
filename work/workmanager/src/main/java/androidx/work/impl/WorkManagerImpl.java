@@ -51,6 +51,7 @@ import androidx.work.impl.utils.LiveDataUtils;
 import androidx.work.impl.utils.Preferences;
 import androidx.work.impl.utils.PruneWorkRunnable;
 import androidx.work.impl.utils.StartWorkRunnable;
+import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -397,7 +398,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public @NonNull LiveData<WorkStatus> getStatusById(@NonNull UUID id) {
+    public @NonNull LiveData<WorkStatus> getStatusByIdLiveData(@NonNull UUID id) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id.toString()));
@@ -416,20 +417,14 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    @WorkerThread
-    public @Nullable WorkStatus getStatusByIdSync(@NonNull UUID id) {
-        assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
-        WorkSpec.WorkStatusPojo workStatusPojo =
-                mWorkDatabase.workSpecDao().getWorkStatusPojoForId(id.toString());
-        if (workStatusPojo != null) {
-            return workStatusPojo.toWorkStatus();
-        } else {
-            return null;
-        }
+    public @NonNull ListenableFuture<WorkStatus> getStatusById(@NonNull UUID id) {
+        StatusRunnable<WorkStatus> runnable = StatusRunnable.forUUID(this, id);
+        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        return runnable.getFuture();
     }
 
     @Override
-    public @NonNull LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag) {
+    public @NonNull LiveData<List<WorkStatus>> getStatusesByTagLiveData(@NonNull String tag) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForTag(tag);
@@ -440,19 +435,18 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public @NonNull List<WorkStatus> getStatusesByTagSync(@NonNull String tag) {
-        assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
-        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForTag(tag);
-        return WorkSpec.WORK_STATUS_MAPPER.apply(input);
+    public @NonNull ListenableFuture<List<WorkStatus>> getStatusesByTag(@NonNull String tag) {
+        StatusRunnable<List<WorkStatus>> runnable = StatusRunnable.forTag(this, tag);
+        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        return runnable.getFuture();
     }
 
     @Override
-    public @NonNull LiveData<List<WorkStatus>> getStatusesForUniqueWork(
-            @NonNull String uniqueWorkName) {
+    @NonNull
+    public LiveData<List<WorkStatus>> getStatusesForUniqueWorkLiveData(@NonNull String name) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
-                workSpecDao.getWorkStatusPojoLiveDataForName(uniqueWorkName);
+                workSpecDao.getWorkStatusPojoLiveDataForName(name);
         return LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
                 WorkSpec.WORK_STATUS_MAPPER,
@@ -460,11 +454,12 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public @NonNull List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName) {
-        assertBackgroundThread("Cannot call getStatusesByNameBlocking on main thread!");
-        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForName(uniqueWorkName);
-        return WorkSpec.WORK_STATUS_MAPPER.apply(input);
+    @NonNull
+    public ListenableFuture<List<WorkStatus>> getStatusesForUniqueWork(@NonNull String name) {
+        StatusRunnable<List<WorkStatus>> runnable =
+                StatusRunnable.forUniqueWork(this, name);
+        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        return runnable.getFuture();
     }
 
     @Override
@@ -480,13 +475,6 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
                 inputLiveData,
                 WorkSpec.WORK_STATUS_MAPPER,
                 mWorkTaskExecutor);
-    }
-
-    List<WorkStatus> getStatusesByIdSync(@NonNull List<String> workSpecIds) {
-        List<WorkSpec.WorkStatusPojo> workStatusPojos = mWorkDatabase.workSpecDao()
-                .getWorkStatusPojoForIds(workSpecIds);
-
-        return WorkSpec.WORK_STATUS_MAPPER.apply(workStatusPojos);
     }
 
     /**
