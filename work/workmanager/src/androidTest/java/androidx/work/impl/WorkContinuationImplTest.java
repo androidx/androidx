@@ -504,7 +504,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuation combined = WorkContinuation.combine(dWork, firstChain, secondChain);
 
         combined.enqueue().get();
-        List<WorkStatus> statuses = combined.synchronous().getStatusesSync();
+        List<WorkStatus> statuses = combined.getStatuses().get();
         assertThat(statuses, is(notNullValue()));
         List<UUID> ids = new ArrayList<>(statuses.size());
         for (WorkStatus status : statuses) {

@@ -16,12 +16,8 @@
 
 package androidx.work;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
-import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,35 +39,4 @@ public interface SynchronousWorkManager {
      */
     @WorkerThread
     void pruneWorkSync();
-
-    /**
-     * Gets the {@link WorkStatus} of a given work id in a synchronous fashion.  This method is
-     * expected to be called from a background thread.
-     *
-     * @param id The id of the work
-     * @return A {@link WorkStatus} associated with {@code id}, or {@code null} if {@code id} is not
-     *         known to WorkManager
-     */
-    @WorkerThread
-    @Nullable WorkStatus getStatusByIdSync(@NonNull UUID id);
-
-    /**
-     * Gets the {@link WorkStatus} for all work with a given tag in a synchronous fashion.  This
-     * method is expected to be called from a background thread.
-     *
-     * @param tag The tag of the work
-     * @return A list of {@link WorkStatus} for work tagged with {@code tag}
-     */
-    @WorkerThread
-    @NonNull List<WorkStatus> getStatusesByTagSync(@NonNull String tag);
-
-    /**
-     * Gets the {@link WorkStatus} for all work for the chain of work with a given unique name in a
-     * synchronous fashion.  This method is expected to be called from a background thread.
-     *
-     * @param uniqueWorkName The unique name used to identify the chain of work
-     * @return A list of {@link WorkStatus} for work in the chain named {@code uniqueWorkName}
-     */
-    @WorkerThread
-    @NonNull List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName);
 }

@@ -63,7 +63,7 @@ public class TestSchedulerTest {
         WorkRequest request = createWorkRequest();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request).get();
-        WorkStatus status = workManager.synchronous().getStatusByIdSync(request.getId());
+        WorkStatus status = workManager.getStatusById(request.getId()).get();
         assertThat(status.getState().isFinished(), is(true));
     }
 
@@ -77,52 +77,59 @@ public class TestSchedulerTest {
         WorkContinuation continuation = workManager.beginWith(request)
                 .then(dependentRequest);
         continuation.enqueue().get();
-        WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
         WorkStatus dependentStatus = workManager
-                .synchronous()
-                .getStatusByIdSync(dependentRequest.getId());
+                .getStatusById(dependentRequest.getId()).get();
 
         assertThat(requestStatus.getState().isFinished(), is(true));
         assertThat(dependentStatus.getState().isFinished(), is(true));
     }
 
     @Test
-    public void testWorker_withConstraints_shouldNoOp() {
+    public void testWorker_withConstraints_shouldNoOp()
+            throws InterruptedException, ExecutionException {
+
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
-        WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
     }
 
     @Test
-    public void testWorker_withConstraints_shouldSucceedAfterSetConstraints() {
+    public void testWorker_withConstraints_shouldSucceedAfterSetConstraints()
+            throws InterruptedException, ExecutionException {
+
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
-        WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
         mTestDriver.setAllConstraintsMet(request.getId());
-        requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+        requestStatus = workManager.getStatusById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(true));
     }
 
     @Test
-    public void testWorker_withInitialDelay_shouldNoOp() {
+    public void testWorker_withInitialDelay_shouldNoOp()
+            throws InterruptedException, ExecutionException {
+
         OneTimeWorkRequest request = createWorkRequestWithInitialDelay();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
-        WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
     }
 
     @Test
-    public void testWorker_withInitialDelay_shouldSucceedAfterSetInitialDelay() {
+    public void testWorker_withInitialDelay_shouldSucceedAfterSetInitialDelay()
+            throws InterruptedException, ExecutionException {
+
         OneTimeWorkRequest request = createWorkRequestWithInitialDelay();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
         mTestDriver.setInitialDelayMet(request.getId());
-        WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(true));
     }
 
@@ -135,7 +142,9 @@ public class TestSchedulerTest {
     }
 
     @Test
-    public void testWorker_withPeriodDelay_shouldRunAfterEachSetPeriodDelay() {
+    public void testWorker_withPeriodDelay_shouldRunAfterEachSetPeriodDelay()
+            throws InterruptedException, ExecutionException {
+
         PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
@@ -143,7 +152,7 @@ public class TestSchedulerTest {
         for (int i = 0; i < 5; ++i) {
             mTestDriver.setPeriodDelayMet(request.getId());
             assertThat(CountingTestWorker.COUNT.get(), is(i + 2));
-            WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
+            WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
             assertThat(requestStatus.getState().isFinished(), is(false));
         }
     }

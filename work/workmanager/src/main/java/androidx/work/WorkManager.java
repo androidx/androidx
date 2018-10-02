@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit;
  * {@code
  * WorkRequest request = new OneTimeWorkRequest.Builder(FooWorker.class).build();
  * workManager.enqueue(request);
- * LiveData<WorkStatus> status = workManager.getStatusById(request.getId());
+ * LiveData<WorkStatus> status = workManager.getStatusByIdLiveData(request.getId());
  * status.observe(...);}</pre>
  *
  * You can also use the id for cancellation:
@@ -366,7 +366,17 @@ public abstract class WorkManager {
      *         this {@link WorkStatus} may be {@code null} if {@code id} is not known to
      *         WorkManager.
      */
-    public abstract @NonNull LiveData<WorkStatus> getStatusById(@NonNull UUID id);
+    public abstract @NonNull LiveData<WorkStatus> getStatusByIdLiveData(@NonNull UUID id);
+
+    /**
+     * Gets a {@link ListenableFuture} of the {@link WorkStatus} for a given work id.
+     *
+     * @param id The id of the work
+     * @return A {@link ListenableFuture} of the {@link WorkStatus} associated with {@code id};
+     * note that this {@link WorkStatus} may be {@code null} if {@code id} is not known to
+     * WorkManager
+     */
+    public abstract @NonNull ListenableFuture<WorkStatus> getStatusById(@NonNull UUID id);
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for all work for a given tag.
@@ -374,7 +384,18 @@ public abstract class WorkManager {
      * @param tag The tag of the work
      * @return A {@link LiveData} list of {@link WorkStatus} for work tagged with {@code tag}
      */
-    public abstract @NonNull LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag);
+    public abstract @NonNull LiveData<List<WorkStatus>> getStatusesByTagLiveData(
+            @NonNull String tag);
+
+    /**
+     * Gets a {@link ListenableFuture} of the {@link WorkStatus} for all work for a given tag.
+     *
+     * @param tag The tag of the work
+     * @return A {@link ListenableFuture} list of {@link WorkStatus} for work tagged with
+     * {@code tag}
+     */
+    public abstract @NonNull ListenableFuture<List<WorkStatus>> getStatusesByTag(
+            @NonNull String tag);
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for all work in a work chain with a given
@@ -384,7 +405,18 @@ public abstract class WorkManager {
      * @return A {@link LiveData} of the {@link WorkStatus} for work in the chain named
      *         {@code uniqueWorkName}
      */
-    public abstract @NonNull LiveData<List<WorkStatus>> getStatusesForUniqueWork(
+    public abstract @NonNull LiveData<List<WorkStatus>> getStatusesForUniqueWorkLiveData(
+            @NonNull String uniqueWorkName);
+
+    /**
+     * Gets a {@link ListenableFuture} of the {@link WorkStatus} for all work in a work chain
+     * with a given unique name.
+     *
+     * @param uniqueWorkName The unique name used to identify the chain of work
+     * @return A {@link ListenableFuture} of the {@link WorkStatus} for work in the chain named
+     *         {@code uniqueWorkName}
+     */
+    public abstract @NonNull ListenableFuture<List<WorkStatus>> getStatusesForUniqueWork(
             @NonNull String uniqueWorkName);
 
     /**
