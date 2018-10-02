@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.DimenRes;
+import androidx.annotation.Dimension;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -39,6 +40,7 @@ import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
 import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Guideline;
 
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
@@ -119,6 +121,9 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
 
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_ONE_ACTION;
 
+    @Dimension
+    private final int mSupplementalGuidelineBegin;
+
     private boolean mIsActionBorderless = true;
     private String mPrimaryActionText;
     private View.OnClickListener mPrimaryActionOnClickListener;
@@ -139,6 +144,8 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
 
     public ActionListItem(@NonNull Context context) {
         mContext = context;
+        mSupplementalGuidelineBegin = mContext.getResources().getDimensionPixelSize(
+                R.dimen.car_list_item_supplemental_guideline_top);
         markDirty();
     }
 
@@ -315,20 +322,39 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
     }
 
     private void setTextContent() {
-        if (!TextUtils.isEmpty(mTitle)) {
-            mBinders.add(vh -> {
-                vh.getTitle().setTextAppearance(getTitleTextAppearance());
+        boolean hasTitle = !TextUtils.isEmpty(mTitle);
+        boolean hasBody = !TextUtils.isEmpty(mBody);
+
+        if (!hasTitle && !hasBody) {
+            return;
+        }
+
+        mBinders.add(vh -> {
+            if (hasTitle) {
                 vh.getTitle().setVisibility(View.VISIBLE);
                 vh.getTitle().setText(mTitle);
-            });
-        }
-        if (!TextUtils.isEmpty(mBody)) {
-            mBinders.add(vh -> {
-                vh.getBody().setTextAppearance(getBodyTextAppearance());
+                vh.getTitle().setTextAppearance(getTitleTextAppearance());
+            }
+
+            if (hasBody) {
                 vh.getBody().setVisibility(View.VISIBLE);
                 vh.getBody().setText(mBody);
-            });
-        }
+                vh.getBody().setTextAppearance(getBodyTextAppearance());
+            }
+
+            if (hasTitle && !hasBody) {
+                // If only title, then center the supplemental actions.
+                vh.getSupplementalGuideline().setGuidelineBegin(
+                        ConstraintLayout.LayoutParams.UNSET);
+                vh.getSupplementalGuideline().setGuidelinePercent(0.5f);
+            } else {
+                // Otherwise, position it a fixed distance from the top.
+                vh.getSupplementalGuideline().setGuidelinePercent(
+                        ConstraintLayout.LayoutParams.UNSET);
+                vh.getSupplementalGuideline().setGuidelineBegin(
+                        mSupplementalGuidelineBegin);
+            }
+        });
     }
 
     /**
@@ -630,6 +656,8 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
 
         private boolean mIsActionBorderless = true;
 
+        private Guideline mSupplementalGuideline;
+
         private Button mPrimaryActionBorderless;
         private Button mPrimaryAction;
         private View mPrimaryActionDivider;
@@ -647,6 +675,8 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
 
             mTitle = itemView.findViewById(R.id.title);
             mBody = itemView.findViewById(R.id.body);
+
+            mSupplementalGuideline = itemView.findViewById(R.id.actions_guideline);
 
             mPrimaryAction = itemView.findViewById(R.id.primary_action);
             mPrimaryActionBorderless = itemView.findViewById(R.id.primary_action_borderless);
@@ -752,6 +782,12 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
         @NonNull
         View[] getWidgetViews() {
             return mWidgetViews;
+        }
+
+        /** Returns the Guideline that the actions should be centered upon. */
+        @NonNull
+        Guideline getSupplementalGuideline() {
+            return mSupplementalGuideline;
         }
 
         /**
