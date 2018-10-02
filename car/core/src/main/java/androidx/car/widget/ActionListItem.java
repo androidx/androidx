@@ -34,7 +34,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StyleRes;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
@@ -173,20 +172,6 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
         }
         // ActionListItem supports clicking on the item so we also update the entire itemView.
         viewHolder.itemView.setEnabled(mIsEnabled);
-    }
-
-    /** Sets the title text appearance from the specified style resource. */
-    @Override
-    void setTitleTextAppearance(@StyleRes int titleTextAppearance) {
-        super.setTitleTextAppearance(titleTextAppearance);
-        setTextContent();
-    }
-
-    /** Sets the body text appearance from the specified style resource. */
-    @Override
-    void setBodyTextAppearance(@StyleRes int bodyTextAppearance) {
-        super.setBodyTextAppearance(bodyTextAppearance);
-        setTextContent();
     }
 
     @Override
@@ -333,13 +318,11 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
             if (hasTitle) {
                 vh.getTitle().setVisibility(View.VISIBLE);
                 vh.getTitle().setText(mTitle);
-                vh.getTitle().setTextAppearance(getTitleTextAppearance());
             }
 
             if (hasBody) {
                 vh.getBody().setVisibility(View.VISIBLE);
                 vh.getBody().setText(mBody);
-                vh.getBody().setTextAppearance(getBodyTextAppearance());
             }
 
             if (hasTitle && !hasBody) {
