@@ -83,6 +83,14 @@
         app:layout_constraintStart_toStartOf="@+id/barrier"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Guideline that the supplemental actions are centered upon. -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/actions_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
     <!-- Up to 2 action buttons with dividers. -->
     <View
         android:id="@+id/secondary_action_divider"
@@ -110,8 +118,8 @@
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
         style="?android:attr/borderlessButtonStyle"/>
     <Button
@@ -122,8 +130,8 @@
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
         style="?android:attr/buttonStyle"/>
 
@@ -131,8 +139,8 @@
         android:id="@+id/primary_action_divider"
         android:background="?attr/listItemActionDividerColor"
         android:layout_marginEnd="@dimen/car_padding_1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
         style="@style/CarListVerticalDivider"/>
 
@@ -153,8 +161,8 @@
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toEndOf="parent"
         style="?android:attr/borderlessButtonStyle"/>
     <Button
@@ -165,8 +173,8 @@
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toEndOf="parent"
         style="?android:attr/buttonStyle"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

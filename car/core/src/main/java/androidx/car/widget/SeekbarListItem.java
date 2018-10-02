@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.Dimension;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -37,6 +38,7 @@ import androidx.car.util.CarUxRestrictionsUtils;
 import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.car.uxrestrictions.OnUxRestrictionsChangedListener;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Guideline;
 
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
@@ -110,6 +112,9 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     private int mSecondaryProgress;
     private SeekBar.OnSeekBarChangeListener mOnSeekBarChangeListener;
 
+    @Dimension
+    private final int mSupplementalGuidelineBegin;
+
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
     private Drawable mSupplementalIconDrawable;
     private View.OnClickListener mSupplementalIconOnClickListener;
@@ -124,6 +129,8 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
 
     public SeekbarListItem(@NonNull Context context) {
         mContext = context;
+        mSupplementalGuidelineBegin = mContext.getResources().getDimensionPixelSize(
+                R.dimen.car_list_item_supplemental_guideline_top);
         markDirty();
     }
 
@@ -305,6 +312,17 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
                 vh.getText().setVisibility(View.VISIBLE);
                 vh.getText().setText(mText);
                 vh.getText().setTextAppearance(getTitleTextAppearance());
+
+                // If there is a title, the ensure the guideline is a fixed
+                vh.getSupplementalGuideline().setGuidelineBegin(
+                        mSupplementalGuidelineBegin);
+                vh.getSupplementalGuideline().setGuidelinePercent(
+                        ConstraintLayout.LayoutParams.UNSET);
+            } else {
+                // Otherwise, the guideline should center the supplemental icon.
+                vh.getSupplementalGuideline().setGuidelineBegin(
+                        ConstraintLayout.LayoutParams.UNSET);
+                vh.getSupplementalGuideline().setGuidelinePercent(0.5f);
             }
         });
     }
@@ -520,6 +538,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         private TextView mText;
         private SeekBar mSeekBar;
 
+        private Guideline mSupplementalGuideline;
         private View mSupplementalIconDivider;
         private ImageView mSupplementalIcon;
 
@@ -533,6 +552,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
             mText = itemView.findViewById(R.id.seek_bar_text);
             mSeekBar = itemView.findViewById(R.id.seek_bar);
 
+            mSupplementalGuideline = itemView.findViewById(R.id.supplemental_icon_guideline);
             mSupplementalIcon = itemView.findViewById(R.id.supplemental_icon);
             mSupplementalIconDivider = itemView.findViewById(R.id.supplemental_icon_divider);
 
@@ -590,6 +610,12 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         @NonNull
         public View getSupplementalIconDivider() {
             return mSupplementalIconDivider;
+        }
+
+        /** Returns the guideline that the supplemental icon is centered upon. */
+        @NonNull
+        Guideline getSupplementalGuideline() {
+            return mSupplementalGuideline;
         }
 
         @NonNull

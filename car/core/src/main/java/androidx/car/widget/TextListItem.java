@@ -31,6 +31,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.DimenRes;
+import androidx.annotation.Dimension;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -40,6 +41,7 @@ import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
 import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Guideline;
 
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
@@ -133,6 +135,9 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private CharSequence mTitle;
     private CharSequence mBody;
 
+    @Dimension
+    private final int mSupplementalGuidelineBegin;
+
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
     private Drawable mSupplementalIconDrawable;
     private View.OnClickListener mSupplementalIconOnClickListener;
@@ -156,6 +161,8 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
     public TextListItem(@NonNull Context context) {
         mContext = context;
+        mSupplementalGuidelineBegin = mContext.getResources().getDimensionPixelSize(
+                R.dimen.car_list_item_supplemental_guideline_top);
         markDirty();
     }
 
@@ -338,20 +345,39 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     private void setTextContent() {
-        if (!TextUtils.isEmpty(mTitle)) {
-            mBinders.add(vh -> {
+        boolean hasTitle = !TextUtils.isEmpty(mTitle);
+        boolean hasBody = !TextUtils.isEmpty(mBody);
+
+        if (!hasTitle && !hasBody) {
+            return;
+        }
+
+        mBinders.add(vh -> {
+            if (hasTitle) {
                 vh.getTitle().setVisibility(View.VISIBLE);
                 vh.getTitle().setText(mTitle);
                 vh.getTitle().setTextAppearance(getTitleTextAppearance());
-            });
-        }
-        if (!TextUtils.isEmpty(mBody)) {
-            mBinders.add(vh -> {
+            }
+
+            if (hasBody) {
                 vh.getBody().setVisibility(View.VISIBLE);
                 vh.getBody().setText(mBody);
                 vh.getBody().setTextAppearance(getBodyTextAppearance());
-            });
-        }
+            }
+
+            if (hasTitle && !hasBody) {
+                // If only title, then center the supplemental actions.
+                vh.getSupplementalGuideline().setGuidelineBegin(
+                        ConstraintLayout.LayoutParams.UNSET);
+                vh.getSupplementalGuideline().setGuidelinePercent(0.5f);
+            } else {
+                // Otherwise, position it a fixed distance from the top.
+                vh.getSupplementalGuideline().setGuidelinePercent(
+                        ConstraintLayout.LayoutParams.UNSET);
+                vh.getSupplementalGuideline().setGuidelineBegin(
+                        mSupplementalGuidelineBegin);
+            }
+        });
     }
 
     /**
@@ -694,6 +720,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         private TextView mTitle;
         private TextView mBody;
 
+        private Guideline mSupplementalGuideline;
         private View mSupplementalIconDivider;
         private ImageView mSupplementalIcon;
 
@@ -711,6 +738,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             mTitle = itemView.findViewById(R.id.title);
             mBody = itemView.findViewById(R.id.body);
 
+            mSupplementalGuideline = itemView.findViewById(R.id.supplemental_actions_guideline);
             mSupplementalIcon = itemView.findViewById(R.id.supplemental_icon);
             mSupplementalIconDivider = itemView.findViewById(R.id.supplemental_icon_divider);
 
@@ -790,6 +818,11 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         @NonNull
         public Switch getSwitch() {
             return mSwitch;
+        }
+
+        @NonNull
+        Guideline getSupplementalGuideline() {
+            return mSupplementalGuideline;
         }
 
         @NonNull
