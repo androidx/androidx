@@ -75,6 +75,8 @@ import androidx.navigation.Navigator;
  */
 public class NavHostFragment extends Fragment implements NavHost {
     private static final String KEY_GRAPH_ID = "android-support-nav:fragment:graphId";
+    private static final String KEY_START_DESTINATION_ARGS =
+            "android-support-nav:fragment:startDestinationArgs";
     private static final String KEY_NAV_CONTROLLER_STATE =
             "android-support-nav:fragment:navControllerState";
     private static final String KEY_DEFAULT_NAV_HOST = "android-support-nav:fragment:defaultHost";
@@ -130,10 +132,29 @@ public class NavHostFragment extends Fragment implements NavHost {
      */
     @NonNull
     public static NavHostFragment create(@NavigationRes int graphResId) {
+        return create(graphResId, null);
+    }
+
+    /**
+     * Create a new NavHostFragment instance with an inflated {@link NavGraph} resource.
+     *
+     * @param graphResId resource id of the navigation graph to inflate
+     * @param startDestinationArgs arguments to send to the start destination of the graph
+     * @return a new NavHostFragment instance
+     */
+    @NonNull
+    public static NavHostFragment create(@NavigationRes int graphResId,
+            @Nullable Bundle startDestinationArgs) {
         Bundle b = null;
         if (graphResId != 0) {
             b = new Bundle();
             b.putInt(KEY_GRAPH_ID, graphResId);
+        }
+        if (startDestinationArgs != null) {
+            if (b == null) {
+                b = new Bundle();
+            }
+            b.putBundle(KEY_START_DESTINATION_ARGS, startDestinationArgs);
         }
 
         final NavHostFragment result = new NavHostFragment();
@@ -217,8 +238,11 @@ public class NavHostFragment extends Fragment implements NavHost {
         } else {
             final Bundle args = getArguments();
             final int graphId = args != null ? args.getInt(KEY_GRAPH_ID) : 0;
+            final Bundle startDestinationArgs = args != null
+                    ? args.getBundle(KEY_START_DESTINATION_ARGS)
+                    : null;
             if (graphId != 0) {
-                mNavController.setGraph(graphId);
+                mNavController.setGraph(graphId, startDestinationArgs);
             } else {
                 mNavController.setMetadataGraph();
             }

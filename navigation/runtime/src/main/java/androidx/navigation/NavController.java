@@ -416,9 +416,26 @@ public class NavController {
      * @see #getGraph
      */
     public void setGraph(@NavigationRes int graphResId) {
+        setGraph(graphResId, null);
+    }
+
+    /**
+     * Sets the {@link NavGraph navigation graph} to the specified resource.
+     * Any current navigation graph data will be replaced.
+     *
+     * <p>The inflated graph can be retrieved via {@link #getGraph()}.</p>
+     *
+     * @param graphResId resource id of the navigation graph to inflate
+     * @param startDestinationArgs arguments to send to the start destination of the graph
+     *
+     * @see #getNavInflater()
+     * @see #setGraph(NavGraph, Bundle)
+     * @see #getGraph
+     */
+    public void setGraph(@NavigationRes int graphResId, @Nullable Bundle startDestinationArgs) {
         mGraph = getNavInflater().inflate(graphResId);
         mGraphId = graphResId;
-        onGraphCreated();
+        onGraphCreated(startDestinationArgs);
     }
 
     /**
@@ -432,12 +449,26 @@ public class NavController {
      * @see #getGraph
      */
     public void setGraph(@NonNull NavGraph graph) {
-        mGraph = graph;
-        mGraphId = 0;
-        onGraphCreated();
+        setGraph(graph, null);
     }
 
-    private void onGraphCreated() {
+    /**
+     * Sets the {@link NavGraph navigation graph} to the specified graph.
+     * Any current navigation graph data will be replaced.
+     *
+     * <p>The graph can be retrieved later via {@link #getGraph()}.</p>
+     *
+     * @param graph graph to set
+     * @see #setGraph(int, Bundle)
+     * @see #getGraph
+     */
+    public void setGraph(@NonNull NavGraph graph, @Nullable Bundle startDestinationArgs) {
+        mGraph = graph;
+        mGraphId = 0;
+        onGraphCreated(startDestinationArgs);
+    }
+
+    private void onGraphCreated(@Nullable Bundle startDestinationArgs) {
         if (mNavigatorStateToRestore != null) {
             ArrayList<String> navigatorNames = mNavigatorStateToRestore.getStringArrayList(
                     KEY_NAVIGATOR_STATE_NAMES);
@@ -467,7 +498,7 @@ public class NavController {
             if (!deepLinked) {
                 // Navigate to the first destination in the graph
                 // if we haven't deep linked to a destination
-                mGraph.navigate(null, null, null);
+                mGraph.navigate(startDestinationArgs, null, null);
             }
         }
     }

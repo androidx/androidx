@@ -23,6 +23,7 @@ import android.os.Parcel
 
 import androidx.navigation.test.R
 import androidx.navigation.testing.TestNavigator
+import androidx.navigation.testing.test
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
@@ -51,6 +52,42 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_start_destination)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
+    }
+
+    @Test
+    fun testStartDestinationWithArgs() {
+        val navController = createNavController()
+        val args = Bundle().apply {
+            putString(TEST_ARG, TEST_ARG_VALUE)
+        }
+        navController.setGraph(R.navigation.nav_start_destination, args)
+        val navigator = navController.navigatorProvider[TestNavigator::class]
+        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
+        assertEquals(1, navigator.mBackStack.size)
+        val foundArgs = navigator.mBackStack.first.second
+        assertNotNull(foundArgs)
+        assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
+    }
+
+    @Test
+    fun testStartDestinationWithArgsProgrammatic() {
+        val navController = createNavController()
+        val args = Bundle().apply {
+            putString(TEST_ARG, TEST_ARG_VALUE)
+        }
+
+        val navGraph = navController.navigatorProvider.navigation(
+                startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, args)
+        val navigator = navController.navigatorProvider[TestNavigator::class]
+        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
+        assertEquals(1, navigator.mBackStack.size)
+        val foundArgs = navigator.mBackStack.first.second
+        assertNotNull(foundArgs)
+        assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
     }
 
     @Test(expected = IllegalStateException::class)
