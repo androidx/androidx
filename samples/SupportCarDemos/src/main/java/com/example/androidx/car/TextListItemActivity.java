@@ -134,21 +134,37 @@ public class TextListItemActivity extends Activity {
             actionItem.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                     ActionListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             actionItem.setTitle("single line with large icon and one action");
-            actionItem.setAction("Card Height", true, mGetParentHeight);
+            actionItem.setPrimaryAction("Card Height", false, mGetParentHeight);
             mItems.add(actionItem);
-            actionItem = new ActionListItem(mContext);
 
+            actionItem = new ActionListItem(mContext);
+            actionItem.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    ActionListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+            actionItem.setTitle("single line with large icon and one secondary action");
+            actionItem.setSecondaryAction("Card Height", true, mGetParentHeight);
+            mItems.add(actionItem);
+
+            actionItem = new ActionListItem(mContext);
             actionItem.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                     ActionListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             actionItem.setTitle("single line with large icon and one raised action");
-            actionItem.setAction("Card Height", false, mGetParentHeight);
+            actionItem.setPrimaryAction("Card Height", false, mGetParentHeight);
             actionItem.setActionBorderless(false);
             mItems.add(actionItem);
 
+            actionItem = new ActionListItem(mContext);
             actionItem.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                     ActionListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
-            actionItem.setTitle("single line with large icon and one raised action with divider");
-            actionItem.setAction("Card Height", true, mGetParentHeight);
+            actionItem.setTitle("single line with large icon, divider, one raised action");
+            actionItem.setPrimaryAction("Card Height", true, mGetParentHeight);
+            actionItem.setActionBorderless(false);
+            mItems.add(actionItem);
+
+            actionItem = new ActionListItem(mContext);
+            actionItem.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    ActionListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+            actionItem.setTitle("single line with large icon, and one raised secondary action");
+            actionItem.setSecondaryAction("Card Height", false, mGetParentHeight);
             actionItem.setActionBorderless(false);
             mItems.add(actionItem);
 
@@ -190,7 +206,7 @@ public class TextListItemActivity extends Activity {
 
             item = new TextListItem(mContext);
             item.setTitle("title is single line and ellipsizes. "
-                            + mContext.getString(R.string.long_text));
+                    + mContext.getString(R.string.long_text));
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
             mItems.add(item);
 
@@ -204,46 +220,38 @@ public class TextListItemActivity extends Activity {
             actionItem = new ActionListItem(mContext);
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with two actions and no divider");
-            actionItem.setActions("Action 1", false,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
-                    "Action 2", false,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
+            actionItem.setPrimaryAction("Action 1", false,
+                    v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
+            actionItem.setSecondaryAction("Action 2", false,
+                    v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             mItems.add(actionItem);
 
             actionItem = new ActionListItem(mContext);
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with two raised actions and no divider");
-            actionItem.setActions("Action 1", false,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
-                    "Action 2", false,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
+            actionItem.setPrimaryAction("Action 1", false,
+                    v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
+            actionItem.setSecondaryAction("Action 2", false,
+                    v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             actionItem.setActionBorderless(false);
             mItems.add(actionItem);
 
             actionItem = new ActionListItem(mContext);
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with two actions and Action 2 divider");
-            actionItem.setActions("Action 1", false,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
-                    "Action 2", true,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
+            actionItem.setPrimaryAction("Action 1", false,
+                    v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
+            actionItem.setSecondaryAction("Action 2", true,
+                    v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             mItems.add(actionItem);
 
             actionItem = new ActionListItem(mContext);
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with two raised actions and Action 2 divider");
-            actionItem.setActions("Action 1", false,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
-                    "Action 2", true,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
+            actionItem.setPrimaryAction("Action 1", false,
+                    v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
+            actionItem.setSecondaryAction("Action 2", true,
+                    v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             actionItem.setActionBorderless(false);
             mItems.add(actionItem);
 
@@ -251,24 +259,20 @@ public class TextListItemActivity extends Activity {
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with divider between actions. "
                     + mContext.getString(R.string.long_text));
-            actionItem.setActions("Action 1", true,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
-                    "Action 2", false,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
+            actionItem.setPrimaryAction("Action 1", true,
+                    v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
+            actionItem.setSecondaryAction("Action 2", false,
+                    v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             mItems.add(actionItem);
 
             actionItem = new ActionListItem(mContext);
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with divider between raised actions. "
                     + mContext.getString(R.string.long_text));
-            actionItem.setActions("Action 1", true,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
-                    "Action 2", false,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
+            actionItem.setPrimaryAction("Action 1", true,
+                    v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
+            actionItem.setSecondaryAction("Action 2", false,
+                    v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             actionItem.setActionBorderless(false);
             mItems.add(actionItem);
 
@@ -276,24 +280,20 @@ public class TextListItemActivity extends Activity {
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with both dividers for actions. "
                     + mContext.getString(R.string.long_text));
-            actionItem.setActions("Action 1", true,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
-                    "Action 2", true,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
+            actionItem.setPrimaryAction("Action 1", true,
+                    v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
+            actionItem.setSecondaryAction("Action 2", true,
+                    v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             mItems.add(actionItem);
 
             actionItem = new ActionListItem(mContext);
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with both dividers for raised actions. "
                     + mContext.getString(R.string.long_text));
-            actionItem.setActions("Action 1", true,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 1", Toast.LENGTH_SHORT).show(),
-                    "Action 2", true,
-                    v -> Toast.makeText(
-                            v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
+            actionItem.setPrimaryAction("Action 1", true,
+                    v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
+            actionItem.setSecondaryAction("Action 2", true,
+                    v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             actionItem.setActionBorderless(false);
             mItems.add(actionItem);
 
@@ -315,7 +315,7 @@ public class TextListItemActivity extends Activity {
                     TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             actionItem.setTitle("double line with small icon and one action");
             actionItem.setBody(mContext.getString(R.string.long_text));
-            actionItem.setAction("Card Height", true, mGetParentHeight);
+            actionItem.setPrimaryAction("Card Height", true, mGetParentHeight);
             mItems.add(actionItem);
 
             String tenChars = "Ten Chars.";
@@ -331,7 +331,7 @@ public class TextListItemActivity extends Activity {
             actionItem.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                     ActionListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             actionItem.setBody("Only body - no title is set");
-            actionItem.setAction("Card Height", true, mGetParentHeight);
+            actionItem.setPrimaryAction("Card Height", true, mGetParentHeight);
             mItems.add(actionItem);
 
             item = new TextListItem(mContext);
@@ -344,10 +344,8 @@ public class TextListItemActivity extends Activity {
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                     TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             item.setTitle("Switch - initially unchecked");
-            item.setSwitch(false, true, (button, isChecked) -> {
-                Toast.makeText(mContext,
-                        isChecked ? "checked" : "unchecked", Toast.LENGTH_SHORT).show();
-            });
+            item.setSwitch(false, true, (button, isChecked) -> Toast.makeText(mContext,
+                    isChecked ? "checked" : "unchecked", Toast.LENGTH_SHORT).show());
             mItems.add(item);
 
             item = new TextListItem(mContext);
@@ -391,7 +389,7 @@ public class TextListItemActivity extends Activity {
                 throw new RuntimeException("This item should not be clickable");
             });
             actionItem.setTitle("Disabled item");
-            actionItem.setAction("action", false, v -> {
+            actionItem.setPrimaryAction("action", false, v -> {
                 throw new RuntimeException("This button should not be clickable");
             });
             actionItem.setEnabled(false);
