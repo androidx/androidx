@@ -52,6 +52,7 @@ import androidx.work.impl.utils.Preferences;
 import androidx.work.impl.utils.PruneWorkRunnable;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
+import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
@@ -332,63 +333,55 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public void cancelWorkById(@NonNull UUID id) {
-        mWorkTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forId(id, this));
+    public ListenableFuture<Void> cancelWorkById(@NonNull UUID id) {
+        CancelWorkRunnable runnable = CancelWorkRunnable.forId(id, this);
+        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        return runnable.getFuture();
     }
 
     @Override
-    @WorkerThread
-    public void cancelWorkByIdSync(@NonNull UUID id) {
-        assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
-        CancelWorkRunnable.forId(id, this).run();
+    public ListenableFuture<Void> cancelAllWorkByTag(@NonNull final String tag) {
+        CancelWorkRunnable runnable = CancelWorkRunnable.forTag(tag, this);
+        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        return runnable.getFuture();
     }
 
     @Override
-    public void cancelAllWorkByTag(@NonNull final String tag) {
-        mWorkTaskExecutor.executeOnBackgroundThread(
-                CancelWorkRunnable.forTag(tag, this));
+    public ListenableFuture<Void> cancelUniqueWork(@NonNull String uniqueWorkName) {
+        CancelWorkRunnable runnable = CancelWorkRunnable.forName(uniqueWorkName, this, true);
+        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        return runnable.getFuture();
     }
 
     @Override
-    @WorkerThread
-    public void cancelAllWorkByTagSync(@NonNull String tag) {
-        assertBackgroundThread("Cannot cancelAllWorkByTagSync on main thread!");
-        CancelWorkRunnable.forTag(tag, this).run();
+    public ListenableFuture<Void> cancelAllWork() {
+        CancelWorkRunnable runnable = CancelWorkRunnable.forAll(this);
+        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        return runnable.getFuture();
     }
 
     @Override
-    public void cancelUniqueWork(@NonNull String uniqueWorkName) {
-        mWorkTaskExecutor.executeOnBackgroundThread(
-                CancelWorkRunnable.forName(uniqueWorkName, this, true));
-    }
-
-    @Override
-    @WorkerThread
-    public void cancelUniqueWorkSync(@NonNull String uniqueWorkName) {
-        assertBackgroundThread("Cannot cancelAllWorkByNameBlocking on main thread!");
-        CancelWorkRunnable.forName(uniqueWorkName, this, true).run();
-    }
-
-    @Override
-    public void cancelAllWork() {
-        mWorkTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forAll(this));
-    }
-
-    @Override
-    @WorkerThread
-    public void cancelAllWorkSync() {
-        assertBackgroundThread("Cannot cancelAllWorkSync on main thread!");
-        CancelWorkRunnable.forAll(this).run();
-    }
-
-    @Override
-    public @NonNull LiveData<Long> getLastCancelAllTimeMillis() {
+    public @NonNull LiveData<Long> getLastCancelAllTimeMillisLiveData() {
         return mPreferences.getLastCancelAllTimeMillisLiveData();
     }
 
+    @NonNull
     @Override
-    public long getLastCancelAllTimeMillisSync() {
-        return mPreferences.getLastCancelAllTimeMillis();
+    public ListenableFuture<Long> getLastCancelAllTimeMillis() {
+        final SettableFuture<Long> future = SettableFuture.create();
+        // Avoiding synthetic accessors.
+        final Preferences preferences = mPreferences;
+        mWorkTaskExecutor.executeOnBackgroundThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    future.set(preferences.getLastCancelAllTimeMillis());
+                } catch (Throwable throwable) {
+                    future.setException(throwable);
+                }
+            }
+        });
+        return future;
     }
 
     @Override

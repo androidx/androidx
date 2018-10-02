@@ -64,10 +64,9 @@ public abstract class WorkContinuation {
     /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
      *
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed.
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
-    @NonNull
-    public abstract ListenableFuture<Void> enqueue();
+    public abstract @NonNull ListenableFuture<Void> enqueue();
 
     /**
      * Gets an object that gives access to synchronous methods.

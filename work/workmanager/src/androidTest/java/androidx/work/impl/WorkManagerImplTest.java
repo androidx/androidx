@@ -1106,7 +1106,7 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testCancelWorkById() {
+    public void testCancelWorkById() throws ExecutionException, InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -1114,14 +1114,16 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
 
-        mWorkManagerImpl.synchronous().cancelWorkByIdSync(work0.getId());
+        mWorkManagerImpl.cancelWorkById(work0.getId()).get();
         assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getStringId()), is(not(CANCELLED)));
     }
 
     @Test
     @SmallTest
-    public void testCancelWorkById_cancelsDependentWork() {
+    public void testCancelWorkById_cancelsDependentWork()
+            throws ExecutionException, InterruptedException {
+
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -1132,7 +1134,7 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work1);
         insertDependency(work1, work0);
 
-        mWorkManagerImpl.synchronous().cancelWorkByIdSync(work0.getId());
+        mWorkManagerImpl.cancelWorkById(work0.getId()).get();
 
         assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
@@ -1140,7 +1142,9 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testCancelWorkById_cancelsUnfinishedWorkOnly() {
+    public void testCancelWorkById_cancelsUnfinishedWorkOnly()
+            throws ExecutionException, InterruptedException {
+
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
@@ -1153,7 +1157,7 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work1);
         insertDependency(work1, work0);
 
-        mWorkManagerImpl.synchronous().cancelWorkByIdSync(work0.getId());
+        mWorkManagerImpl.cancelWorkById(work0.getId()).get();
 
         assertThat(workSpecDao.getState(work0.getStringId()), is(SUCCEEDED));
         assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
@@ -1161,7 +1165,7 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testCancelAllWorkByTag() {
+    public void testCancelAllWorkByTag() throws ExecutionException, InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         final String tagToClear = "tag_to_clear";
@@ -1184,7 +1188,7 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work2);
         insertWorkSpecAndTags(work3);
 
-        mWorkManagerImpl.synchronous().cancelAllWorkByTagSync(tagToClear);
+        mWorkManagerImpl.cancelAllWorkByTag(tagToClear).get();
 
         assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
@@ -1194,7 +1198,9 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testCancelAllWorkByTag_cancelsDependentWork() {
+    public void testCancelAllWorkByTag_cancelsDependentWork()
+            throws ExecutionException, InterruptedException {
+
         String tag = "tag";
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
@@ -1227,7 +1233,7 @@ public class WorkManagerImplTest {
         insertDependency(work1, work0);
         insertDependency(work4, work0);
 
-        mWorkManagerImpl.synchronous().cancelAllWorkByTagSync(tag);
+        mWorkManagerImpl.cancelAllWorkByTag(tag).get();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
@@ -1239,14 +1245,14 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testCancelWorkByName() {
+    public void testCancelWorkByName() throws ExecutionException, InterruptedException {
         final String uniqueName = "myname";
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(uniqueName, work0, work1);
 
-        mWorkManagerImpl.synchronous().cancelUniqueWorkSync(uniqueName);
+        mWorkManagerImpl.cancelUniqueWork(uniqueName).get();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
@@ -1255,7 +1261,9 @@ public class WorkManagerImplTest {
 
     @Test
     @LargeTest
-    public void testCancelWorkByName_ignoresFinishedWork() {
+    public void testCancelWorkByName_ignoresFinishedWork()
+            throws ExecutionException, InterruptedException {
+
         final String uniqueName = "myname";
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
@@ -1264,7 +1272,7 @@ public class WorkManagerImplTest {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(uniqueName, work0, work1);
 
-        mWorkManagerImpl.synchronous().cancelUniqueWorkSync(uniqueName);
+        mWorkManagerImpl.cancelUniqueWork(uniqueName).get();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getStringId()), is(SUCCEEDED));
@@ -1273,7 +1281,7 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testCancelAllWork() {
+    public void testCancelAllWork() throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
@@ -1288,7 +1296,7 @@ public class WorkManagerImplTest {
         assertThat(workSpecDao.getState(work1.getStringId()), is(ENQUEUED));
         assertThat(workSpecDao.getState(work2.getStringId()), is(SUCCEEDED));
 
-        mWorkManagerImpl.synchronous().cancelAllWorkSync();
+        mWorkManagerImpl.cancelAllWork().get();
         assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work2.getStringId()), is(SUCCEEDED));
@@ -1304,7 +1312,6 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work);
 
         CancelWorkRunnable.forAll(mWorkManagerImpl).run();
-
         assertThat(preferences.getLastCancelAllTimeMillis(), is(greaterThan(0L)));
     }
 
@@ -1316,7 +1323,8 @@ public class WorkManagerImplTest {
         preferences.setLastCancelAllTimeMillis(0L);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
-        LiveData<Long> cancelAllTimeLiveData = mWorkManagerImpl.getLastCancelAllTimeMillis();
+        LiveData<Long> cancelAllTimeLiveData =
+                mWorkManagerImpl.getLastCancelAllTimeMillisLiveData();
         Observer<Long> mockObserver = mock(Observer.class);
         cancelAllTimeLiveData.observe(testLifecycleOwner, mockObserver);
 
@@ -1371,14 +1379,16 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testSynchronousCancelAndGetStatus() {
+    public void testSynchronousCancelAndGetStatus()
+            throws ExecutionException, InterruptedException {
+
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work.getStringId()), is(ENQUEUED));
 
-        mWorkManagerImpl.synchronous().cancelWorkByIdSync(work.getId());
+        mWorkManagerImpl.cancelWorkById(work.getId()).get();
         assertThat(mWorkManagerImpl.getStatusByIdSync(work.getId()).getState(), is(CANCELLED));
     }
 
@@ -1497,7 +1507,7 @@ public class WorkManagerImplTest {
                         eq(PackageManager.DONT_KILL_APP));
 
         reset(packageManager);
-        mWorkManagerImpl.cancelWorkByIdSync(stopAwareWorkRequest.getId());
+        mWorkManagerImpl.cancelWorkById(stopAwareWorkRequest.getId()).get();
         // Sleeping for a little bit, to give the listeners a chance to catch up.
         Thread.sleep(SLEEP_DURATION_SMALL_MILLIS);
         // There is a small chance that we will call this method twice. Once when the Worker was
