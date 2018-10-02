@@ -44,6 +44,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/car_padding_1"
+        android:textAppearance="?attr/listItemTitleTextAppearance"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/seek_bar"
         app:layout_constraintStart_toStartOf="parent"
