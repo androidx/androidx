@@ -37,4 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"Nav atlasīts multivides saturs"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"Nav informācijas"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"Notiek ekrāna apraide"</string>
+    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"Pievienot ierīci"</string>
+    <string name="mr_dialog_transferable_header" msgid="8242946697267839296">"Atskaņošana grupā"</string>
+    <string name="mr_cast_dialog_title_view_placeholder" msgid="6167045754274068030">"Nav informācijas"</string>
 </resources>
