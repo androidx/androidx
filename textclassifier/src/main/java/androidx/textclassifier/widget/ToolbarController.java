@@ -28,8 +28,10 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.text.Layout;
 import android.text.Spannable;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.CharacterStyle;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -524,9 +526,21 @@ public final class ToolbarController {
      * showing toolbar.
      */
     @VisibleForTesting
-    public static final class BackgroundSpan extends BackgroundColorSpan {
+    static final class BackgroundSpan extends BackgroundColorSpan {
+
+        private static final CharacterStyle NON_PARCELABLE_UNDERLYING = new CharacterStyle() {
+            @Override
+            public void updateDrawState(TextPaint textPaint) {}
+        };
+
         BackgroundSpan(int color) {
             super(color);
+        }
+
+        @Override
+        public CharacterStyle getUnderlying() {
+            // Prevent this span from being parceled.
+            return NON_PARCELABLE_UNDERLYING;
         }
     }
 }
