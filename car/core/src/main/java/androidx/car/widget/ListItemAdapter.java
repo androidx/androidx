@@ -31,7 +31,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.LayoutRes;
-import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsHelper;
 import androidx.car.util.ListItemBackgroundResolver;
@@ -109,8 +108,6 @@ public class ListItemAdapter extends
     @ListBackgroundStyle private int mBackgroundStyle;
 
     @ColorInt private int mListItemBackgroundColor;
-    @StyleRes private int mListItemTitleTextAppearance;
-    @StyleRes private int mListItemBodyTextAppearance;
 
     private final CarUxRestrictionsHelper mUxRestrictionsHelper;
     private CarUxRestrictions mCurrentUxRestrictions;
@@ -230,15 +227,8 @@ public class ListItemAdapter extends
         mContext = recyclerView.getContext();
 
         TypedArray a = mContext.getTheme().obtainStyledAttributes(R.styleable.ListItem);
-
         mListItemBackgroundColor = a.getColor(R.styleable.ListItem_listItemBackgroundColor,
                 mContext.getColor(R.color.car_card));
-        mListItemTitleTextAppearance = a.getResourceId(
-                R.styleable.ListItem_listItemTitleTextAppearance,
-                R.style.TextAppearance_Car_Body1);
-        mListItemBodyTextAppearance = a.getResourceId(
-                R.styleable.ListItem_listItemBodyTextAppearance,
-                R.style.TextAppearance_Car_Body2);
         a.recycle();
     }
 
@@ -304,11 +294,7 @@ public class ListItemAdapter extends
             holder.onUxRestrictionsChanged(mCurrentUxRestrictions);
         }
 
-        ListItem item = mItemProvider.get(position);
-        item.setTitleTextAppearance(mListItemTitleTextAppearance);
-        item.setBodyTextAppearance(mListItemBodyTextAppearance);
-
-        item.bind(holder);
+        mItemProvider.get(position).bind(holder);
     }
 
     @Override

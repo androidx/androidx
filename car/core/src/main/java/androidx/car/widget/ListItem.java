@@ -18,10 +18,7 @@ package androidx.car.widget;
 
 import android.view.View;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
-import androidx.annotation.StyleRes;
-import androidx.car.R;
 import androidx.car.uxrestrictions.OnUxRestrictionsChangedListener;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,9 +44,6 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
     // Stores ViewBinders to revert customization. Does not guarantee to 1:1 match ViewBinders
     // in mCustomerBinders.
     private final List<ViewBinder<VH>> mCustomBinderCleanUps = new ArrayList<>();
-
-    @StyleRes private int mTitleTextAppearance = R.style.TextAppearance_Car_Body1;
-    @StyleRes private int mBodyTextAppearance = R.style.TextAppearance_Car_Body2;
 
     /**
      * Classes that extends {@code ListItem} should register its view type in
@@ -80,30 +74,6 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
         for (ViewBinder<VH> binder: mCustomBinders) {
             binder.bind(viewHolder);
         }
-    }
-
-    /** Sets the title text appearance from the specified style resource. */
-    @CallSuper
-    void setTitleTextAppearance(@StyleRes int titleTextAppearance) {
-        mTitleTextAppearance = titleTextAppearance;
-    }
-
-    /** Sets the body text appearance from the specified style resource. */
-    @CallSuper
-    void setBodyTextAppearance(@StyleRes int bodyTextAppearance) {
-        mBodyTextAppearance = bodyTextAppearance;
-    }
-
-    /** Returns the text appearance that should be used for title text. */
-    @StyleRes
-    final int getTitleTextAppearance() {
-        return mTitleTextAppearance;
-    }
-
-    /** Returns the text appearance that should be used for body text. */
-    @StyleRes
-    final int getBodyTextAppearance() {
-        return mBodyTextAppearance;
     }
 
     /**
