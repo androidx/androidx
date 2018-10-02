@@ -80,15 +80,22 @@
         app:layout_constraintStart_toStartOf="@+id/barrier"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Guideline that the supplemental icons/switch is centered upon. -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/supplemental_actions_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
     <!-- Supplemental action(s) - only one of the following groups should be visible. -->
     <!-- End icon with divider. -->
     <View
         android:id="@+id/supplemental_icon_divider"
         android:background="?attr/listItemActionDividerColor"
-        android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/car_padding_4"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/supplemental_icon"
         style="@style/CarListVerticalDivider"/>
 
@@ -100,18 +107,17 @@
         android:layout_marginEnd="@dimen/car_keyline_1"
         android:tint="?attr/listItemSupplementalIconTint"
         android:scaleType="fitCenter"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Switch with divider. -->
     <View
         android:id="@+id/switch_divider"
         android:background="?attr/listItemActionDividerColor"
-        android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/car_padding_4"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/switch_widget"
         style="@style/CarListVerticalDivider"/>
 
@@ -121,7 +127,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/car_keyline_1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
         app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -314,7 +314,7 @@ public class TextListItemActivity extends Activity {
             actionItem.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                     TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             actionItem.setTitle("double line with small icon and one action");
-            actionItem.setBody("one line text");
+            actionItem.setBody(mContext.getString(R.string.long_text));
             actionItem.setAction("Card Height", true, mGetParentHeight);
             mItems.add(actionItem);
 
@@ -341,7 +341,30 @@ public class TextListItemActivity extends Activity {
             mItems.add(item);
 
             item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             item.setTitle("Switch - initially unchecked");
+            item.setSwitch(false, true, (button, isChecked) -> {
+                Toast.makeText(mContext,
+                        isChecked ? "checked" : "unchecked", Toast.LENGTH_SHORT).show();
+            });
+            mItems.add(item);
+
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+            item.setTitle("Switch");
+            item.setBody("with body " + mContext.getString(R.string.long_text));
+            item.setSwitch(false, true, (button, isChecked) -> {
+                Toast.makeText(mContext,
+                        isChecked ? "checked" : "unchecked", Toast.LENGTH_SHORT).show();
+            });
+            mItems.add(item);
+
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+            item.setBody("with only body " + mContext.getString(R.string.long_text));
             item.setSwitch(false, true, (button, isChecked) -> {
                 Toast.makeText(mContext,
                         isChecked ? "checked" : "unchecked", Toast.LENGTH_SHORT).show();
