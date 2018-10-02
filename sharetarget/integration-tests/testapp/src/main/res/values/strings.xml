@@ -1,0 +1,36 @@
+<!--
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Direct Share Sample App</string>
+    <string name="main_description">
+        A description of what this app does goes here!
+        A description of what this app does goes here!
+        A description of what this app does goes here!
+        A description of what this app does goes here!</string>
+    <string name="push_targets">Push Direct Share Targets</string>
+    <string name="remove_targets">Remove All Direct Share Targets</string>
+
+    <string name="title_text">Someone shared the following text with me:</string>
+
+
+    <string name="dummy_shortcut_short_label">dummy</string>
+    <string name="dummy_shortcut_long_label">this is a dummy shortcut</string>
+    <string name="dummy_shortcut_disabled_message">disabled message</string>
+    <string name="dummy_shortcut_short_label2">dummy2</string>
+    <string name="dummy_shortcut_long_label2">this is a dummy shortcut2</string>
+    <string name="dummy_shortcut_disabled_message2">disabled message2</string>
+</resources>
