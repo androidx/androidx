@@ -37,4 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"કોઈ મીડિયા પસંદ કરેલ નથી"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"કોઈ માહિતી ઉપલબ્ધ નથી"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"સ્ક્રીનને કાસ્ટ કરી રહ્યાં છીએ"</string>
+    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"ડિવાઇસ ઉમેરો"</string>
+    <string name="mr_dialog_transferable_header" msgid="8242946697267839296">"જૂથમાં રમો"</string>
+    <string name="mr_cast_dialog_title_view_placeholder" msgid="6167045754274068030">"કોઈ માહિતી ઉપલબ્ધ નથી"</string>
 </resources>
