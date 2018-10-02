@@ -29,6 +29,7 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory
+import createInterpreterFromEntitiesAndViews
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -299,12 +300,16 @@ class QueryWriterTest {
                                                         }
                                         )
                                     }.first { it.second.isNotEmpty() }
+                            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
                             val parser = QueryMethodProcessor(
                                     baseContext = invocation.context,
                                     containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()))
-                            val parsedQuery = parser.process()
-                            handler(QueryWriter(parsedQuery))
+                                    executableElement = MoreElements.asExecutable(methods.first()),
+                                    queryInterpreter = queryInterpreter)
+                            val method = parser.process()
+                            method.query.interpreted =
+                                queryInterpreter.interpret(method.query, null)
+                            handler(QueryWriter(method))
                             true
                         }
                         .build())

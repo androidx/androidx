@@ -25,6 +25,7 @@ import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import createInterpreterFromEntitiesAndViews
 import createVerifierFromEntitiesAndViews
 import loadJavaCode
 import org.junit.Test
@@ -91,15 +92,26 @@ class DaoWriterTest {
                                     .firstOrNull()
                                     ?: invocation.context.processingEnv.elementUtils
                                         .getTypeElement(RoomTypeNames.ROOM_DB.toString())
-                            val dbType = MoreTypes.asDeclared(db.asType())
+                            val dbType = if (db != null) {
+                                db.asType()
+                            } else {
+                                invocation.context.processingEnv.elementUtils
+                                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType()
+                            }.let { MoreTypes.asDeclared(it) }
+                            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
                             val parser = DaoProcessor(
                                     baseContext = invocation.context,
                                     element = MoreElements.asType(dao),
                                     dbType = dbType,
+                                    queryInterpreter = queryInterpreter,
                                     dbVerifier = createVerifierFromEntitiesAndViews(invocation))
                             val parsedDao = parser.process()
+                            parsedDao.queryMethods.forEach { method ->
+                                method.query.interpreted =
+                                    queryInterpreter.interpret(method.query, null)
+                            }
                             DaoWriter(parsedDao, db, invocation.processingEnv)
-                                    .write(invocation.processingEnv)
+                                .write(invocation.processingEnv)
                             true
                         }
                         .build())

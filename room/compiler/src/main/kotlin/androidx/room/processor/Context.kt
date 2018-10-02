@@ -56,6 +56,10 @@ class Context private constructor(
         }
     }
 
+    val expandProjection by lazy {
+        BooleanProcessorOptions.EXPAND_PROJECTION.getValue(processingEnv)
+    }
+
     constructor(processingEnv: ProcessingEnvironment) : this(
             processingEnv = processingEnv,
             logger = RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null),
@@ -124,7 +128,8 @@ class Context private constructor(
     }
 
     enum class BooleanProcessorOptions(val argName: String, private val defaultValue: Boolean) {
-        INCREMENTAL("room.incremental", false);
+        INCREMENTAL("room.incremental", false),
+        EXPAND_PROJECTION("room.expandProjection", false);
 
         /**
          * Returns the value of this option passed through the [ProcessingEnvironment]. If the value
