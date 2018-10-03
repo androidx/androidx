@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="3321397713117065638">"ಸಿಸ್ಟಂ"</string>
+    <string name="mr_user_route_category_name" msgid="1627840233801992496">"ಸಾಧನಗಳು"</string>
+    <string name="mr_button_content_description" msgid="2563900737284462162">"ಬಿತ್ತರಿಸು ಬಟನ್‌"</string>
+    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"ಬಿತ್ತರಿಸು ಬಟನ್‌. ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸಲಾಗಿದೆ"</string>
+    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"ಬಿತ್ತರಿಸು ಬಟನ್‌. ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ"</string>
+    <string name="mr_cast_button_connected" msgid="938609484693891555">"ಬಿತ್ತರಿಸು ಬಟನ್‌. ಸಂಪರ್ಕಿಸಲಾಗಿದೆ"</string>
+    <string name="mr_chooser_title" msgid="8588921739112945317">"ಇದಕ್ಕೆ ಬಿತ್ತರಿಸಿ"</string>
+    <string name="mr_chooser_searching" msgid="3620017600129578274">"ಸಾಧನಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸಿ"</string>
+    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"ಬಿತ್ತರಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿ"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"ಮುಚ್ಚಿ"</string>
+    <string name="mr_controller_play" msgid="4438243775726932620">"ಪ್ಲೇ"</string>
+    <string name="mr_controller_pause" msgid="2836364020975903659">"ವಿರಾಮಗೊಳಿಸಿ"</string>
+    <string name="mr_controller_stop" msgid="2946921829587351729">"ನಿಲ್ಲಿಸಿ"</string>
+    <string name="mr_controller_expand_group" msgid="6419866561073332299">"ಹಿಗ್ಗಿಸಿ"</string>
+    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"ಕುಗ್ಗಿಸಿ"</string>
+    <string name="mr_controller_album_art" msgid="3247329727731601009">"ಆಲ್ಬಮ್ ಕಲೆ"</string>
+    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"ವಾಲ್ಯೂಮ್ ಸ್ಲೈಡರ್"</string>
+    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"ಯಾವುದೇ ಮಾಧ್ಯಮ ಆಯ್ಕೆ ಮಾಡಿಲ್ಲ"</string>
+    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"ಯಾವುದೇ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ"</string>
+    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"ಪರದೆಯನ್ನು ಬಿತ್ತರಿಸಲಾಗುತ್ತಿದೆ"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"ನೀವು <xliff:g id="WAIT_TIME">%1$d</xliff:g> ನಲ್ಲಿ ಜಾಹೀರಾತನ್ನು ಸ್ಕಿಪ್ ಮಾಡಬಹುದು"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"ಜಾಹೀರಾತು · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ಸಮಯ ಬಾಕಿ ಉಳಿದಿದೆ"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ಜಾಹೀರಾತುದಾರರನ್ನು ಭೇಟಿ ಮಾಡಿ"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"ಮುಚ್ಚಿದ ಶೀರ್ಷಿಕೆ"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"ಆಫ್"</string>
+    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ಆಡಿಯೋ ಟ್ರ್ಯಾಕ್"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"ಯಾವುದೂ ಬೇಡ"</string>
+    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"ವೀಡಿಯೊ ಗುಣಮಟ್ಟ"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"ಸ್ವಯಂಚಾಲಿತ"</string>
+    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"ಸಹಾಯ ಮತ್ತು ಪ್ರತಿಕ್ರಿಯೆ"</string>
+    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"ಪ್ಲೇಬ್ಯಾಕ್ ವೇಗ"</string>
+    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"ಸಾಮಾನ್ಯ"</string>
+    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"ಟ್ರ್ಯಾಕ್ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"ಟ್ರ್ಯಾಕ್ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"ಟ್ರ್ಯಾಕ್ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"ಹಾಡಿನ ಶೀರ್ಷಿಕೆ ತಿಳಿದಿಲ್ಲ"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"ಕಲಾವಿದ ತಿಳಿದಿಲ್ಲ"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"ನೀವು ವಿನಂತಿಸಿದ ಐಟಂ ಅನ್ನು ಪ್ಲೇ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"</string>
+    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"ಸರಿ"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"ಹಿಂದೆ"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"ಹಿಂದಿನ ಬಟನ್ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"ಇನ್ನಷ್ಟು ಬಟನ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ"</string>
+    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"ಪ್ಲೇಬ್ಯಾಕ್ ಪ್ರಗತಿಯಲ್ಲಿದೆ"</string>
+    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"ವೀಡಿಯೊ ಗುಣಮಟ್ಟದ ಆಯ್ಕೆ"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"ಉಪಶೀರ್ಷಿಕೆ ಆನ್ ಆಗಿದೆ. ಅದನ್ನು ಮರೆಮಾಡಲು ಕ್ಲಿಕ್ ಮಾಡಿ."</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"ಉಪಶೀರ್ಷಿಕೆ ಆಫ್ ಆಗಿದೆ. ಅದನ್ನು ತೋರಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ."</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"ಮರುಪ್ಲೇ"</string>
+    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"ಪ್ಲೇ"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"ವಿರಾಮಗೊಳಿಸಿ"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"ಹಿಂದಿನ ಮಾಧ್ಯಮ"</string>
+    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"ಮುಂದಿನ ಮಾಧ್ಯಮ"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 ಸೆಕೆಂಡುಗಳು ಹಿಂದಕ್ಕೆ ಹೋಗಿ"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 ಸೆಕೆಂಡುಗಳ ಮುಂದಕ್ಕೆ ಹೋಗಿ"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"ಲಿಂಕ್‌ ಅನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"ಮ್ಯೂಟ್ ಮಾಡಲಾಗಿದೆ. ಅನ್‌ಮ್ಯೂಟ್‌ ಮಾಡಲು ಕ್ಲಿಕ್ ಮಾಡಿ"</string>
+    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"ಮ್ಯೂಟ್ ಮಾಡಲು ಕ್ಲಿಕ್ ಮಾಡಿ"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"ಪೂರ್ಣ ಪರದೆ"</string>
+</resources>
