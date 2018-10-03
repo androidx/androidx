@@ -77,12 +77,10 @@ public class FadeTest extends BaseTest {
     @UiThreadTest
     public void testDisappear() {
         final Fade fade = new Fade();
-        final TransitionValues startValues = new TransitionValues();
-        startValues.view = mView;
+        final TransitionValues startValues = new TransitionValues(mView);
         fade.captureStartValues(startValues);
         mView.setVisibility(View.INVISIBLE);
-        final TransitionValues endValues = new TransitionValues();
-        endValues.view = mView;
+        final TransitionValues endValues = new TransitionValues(mView);
         fade.captureEndValues(endValues);
         Animator animator = fade.createAnimator(mRoot, startValues, endValues);
         assertThat(animator, is(notNullValue()));
@@ -93,12 +91,10 @@ public class FadeTest extends BaseTest {
     public void testAppear() {
         mView.setVisibility(View.INVISIBLE);
         final Fade fade = new Fade();
-        final TransitionValues startValues = new TransitionValues();
-        startValues.view = mView;
+        final TransitionValues startValues = new TransitionValues(mView);
         fade.captureStartValues(startValues);
         mView.setVisibility(View.VISIBLE);
-        final TransitionValues endValues = new TransitionValues();
-        endValues.view = mView;
+        final TransitionValues endValues = new TransitionValues(mView);
         fade.captureEndValues(endValues);
         Animator animator = fade.createAnimator(mRoot, startValues, endValues);
         assertThat(animator, is(notNullValue()));
@@ -108,11 +104,9 @@ public class FadeTest extends BaseTest {
     @UiThreadTest
     public void testNoChange() {
         final Fade fade = new Fade();
-        final TransitionValues startValues = new TransitionValues();
-        startValues.view = mView;
+        final TransitionValues startValues = new TransitionValues(mView);
         fade.captureStartValues(startValues);
-        final TransitionValues endValues = new TransitionValues();
-        endValues.view = mView;
+        final TransitionValues endValues = new TransitionValues(mView);
         fade.captureEndValues(endValues);
         Animator animator = fade.createAnimator(mRoot, startValues, endValues);
         // No visibility change; no animation should happen
