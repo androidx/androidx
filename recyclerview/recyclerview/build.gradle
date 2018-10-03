@@ -10,7 +10,7 @@ plugins {
 dependencies {
     api(project(":annotation"))
     api(project(":core"))
-    api(project(":legacy-support-core-ui"))
+    api(project(":customview"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
