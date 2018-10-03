@@ -413,6 +413,51 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    public void skipToNext() {
+        _skipToNext();
+    }
+
+    @Override
+    public Object _skipToNext() {
+        return addTask(new Task(CALL_COMPLETED_SKIP_TO_NEXT, false) {
+            @Override
+            void process() {
+                mPlayer.skipToNext();
+            }
+        });
+    }
+
+    @Override
+    public void setNextMediaItem(MediaItem2 item) {
+        _setNextMediaItem(item);
+    }
+
+    @Override
+    public Object _setNextMediaItem(final MediaItem2 item) {
+        return addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCE, false) {
+            @Override
+            void process() {
+                mPlayer.setNextMediaItem(item);
+            }
+        });
+    }
+
+    @Override
+    public void getNextMediaItems(List<MediaItem2> items) {
+        _setNextMediaItems(items);
+    }
+
+    @Override
+    public Object _setNextMediaItems(final List<MediaItem2> items) {
+        return addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCES, false) {
+            @Override
+            void process() {
+                mPlayer.setNextMediaItems(items);
+            }
+        });
+    }
+
+    @Override
     public void setAudioAttributes(final AudioAttributesCompat attributes) {
         _setAudioAttributes(attributes);
     }
@@ -614,36 +659,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    public void skipToNext() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object _skipToNext() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setNextMediaItem(MediaItem2 item) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object _setNextMediaItem(MediaItem2 item) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void getNextMediaItems(List<MediaItem2> items) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object _setNextMediaItems(List<MediaItem2> items) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public MediaTimestamp2 getTimestamp() {
         throw new UnsupportedOperationException();
     }
@@ -808,7 +823,63 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             @Override
             public void notify(MediaPlayer2.EventCallback callback) {
                 callback.onVideoSizeChanged(
-                        ExoPlayerMediaPlayer2Impl.this, mediaItem2, width, height);
+                        ExoPlayerMediaPlayer2Impl.this,
+                        mediaItem2,
+                        width,
+                        height);
+            }
+        });
+    }
+
+    @Override
+    public void onMediaItem2StartedAsNext(final MediaItem2 mediaItem2) {
+        notifyMediaPlayer2Event(new ExoPlayerMediaPlayer2Impl.Mp2EventNotifier() {
+            @Override
+            public void notify(MediaPlayer2.EventCallback callback) {
+                callback.onInfo(
+                        ExoPlayerMediaPlayer2Impl.this,
+                        mediaItem2,
+                        MEDIA_INFO_DATA_SOURCE_START,
+                        0);
+            }
+        });
+    }
+
+    @Override
+    public void onMediaItem2Ended(final MediaItem2 mediaItem2) {
+        notifyMediaPlayer2Event(new ExoPlayerMediaPlayer2Impl.Mp2EventNotifier() {
+            @Override
+            public void notify(MediaPlayer2.EventCallback callback) {
+                callback.onInfo(
+                        ExoPlayerMediaPlayer2Impl.this,
+                        mediaItem2,
+                        MEDIA_INFO_DATA_SOURCE_END,
+                        0);
+            }
+        });
+    }
+
+    @Override
+    public void onLoop(final MediaItem2 mediaItem2) {
+        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+            @Override
+            public void notify(EventCallback cb) {
+                cb.onInfo(
+                        ExoPlayerMediaPlayer2Impl.this,
+                        mediaItem2,
+                        MEDIA_INFO_DATA_SOURCE_REPEAT,
+                        0);
+            }
+        });
+    }
+
+    @Override
+    public void onPlaybackEnded(final MediaItem2 mediaItem2) {
+        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+            @Override
+            public void notify(EventCallback callback) {
+                callback.onInfo(ExoPlayerMediaPlayer2Impl.this, mediaItem2,
+                        MEDIA_INFO_DATA_SOURCE_LIST_END, 0);
             }
         });
     }
