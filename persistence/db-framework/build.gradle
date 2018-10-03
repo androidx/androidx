@@ -31,7 +31,7 @@ dependencies {
 supportLibrary {
     name = "Android Support SQLite - Framework Implementation"
     publish = true
-    mavenVersion = LibraryVersions.ROOM
+    mavenVersion = LibraryVersions.PERSISTENCE
     mavenGroup = LibraryGroups.PERSISTENCE
     inceptionYear = "2017"
     description = "The implementation of Support SQLite library using the framework code."
