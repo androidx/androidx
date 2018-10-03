@@ -17,8 +17,12 @@
 package androidx.car.widget;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,53 +39,85 @@ public class AlphaJumpOverlayView extends GridLayout {
     private AlphaJumpAdapter mAdapter;
     private PagedListView mPagedListView;
     private List<AlphaJumpBucket> mBuckets;
+    private LayoutInflater mInflater;
+    private Animation mOpenAnimation;
+    private Animation mCloseAnimation;
 
     public AlphaJumpOverlayView(@NonNull Context context) {
         super(context);
-        setBackgroundResource(R.color.car_card);
-        setColumnCount(context.getResources().getInteger(R.integer.alpha_jump_button_columns));
-        setUseDefaultMargins(false);
+        Resources res = context.getResources();
+
+        setOrientation(HORIZONTAL);
+
+        // Get the background color from the theme and set it.
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.alphaJumpPickerBackground, typedValue, true);
+        setBackgroundColor(typedValue.data);
+
+        setColumnCount(res.getInteger(R.integer.car_alpha_jump_button_columns));
+
+        //Subtract the buttons' margin from the side margin.
+        int carMargin = res.getDimensionPixelSize(R.dimen.car_margin);
+        int buttonMargin = res.getDimensionPixelSize(R.dimen.car_padding_0);
+        int padding = carMargin - buttonMargin;
+        setPadding(padding, 0, padding, 0);
     }
 
     void init(PagedListView plv, AlphaJumpAdapter adapter) {
+        Context context = getContext();
+        mInflater = LayoutInflater.from(context);
         mPagedListView = plv;
         mAdapter = adapter;
         mBuckets = adapter.getAlphaJumpBuckets();
 
+        mOpenAnimation = AnimationUtils
+                .loadAnimation(context, R.anim.car_alpha_picker_enter);
+        mCloseAnimation = AnimationUtils
+                .loadAnimation(context, R.anim.car_alpha_picker_exit);
         createButtons();
     }
 
-    @Override
-    protected void onVisibilityChanged(View changedView, int visibility) {
-        // TODO: change the hamburger button into a back button...
-        if (visibility == VISIBLE && changedView == this) {
-            mAdapter.onAlphaJumpEnter();
-        }
-    }
-
     private void createButtons() {
-        LayoutInflater inflater = LayoutInflater.from(getContext());
         removeAllViews();
         for (AlphaJumpBucket bucket : mBuckets) {
-            View container = inflater.inflate(R.layout.car_alpha_jump_button, this, false);
+            View container = mInflater
+                    .inflate(R.layout.car_alpha_jump_picker_button, this, false);
             TextView btn = container.findViewById(R.id.button);
             btn.setText(bucket.getLabel());
             btn.setOnClickListener(this::onButtonClick);
             btn.setTag(bucket);
             if (bucket.isEmpty()) {
                 btn.setEnabled(false);
+                btn.setBackgroundResource(R.color.alpha_picker_unavailable_bg);
             }
             addView(container);
         }
     }
 
     private void onButtonClick(View v) {
-        setVisibility(View.GONE);
+        hide();
         AlphaJumpBucket bucket = (AlphaJumpBucket) v.getTag();
         if (bucket != null) {
             mAdapter.onAlphaJumpLeave(bucket);
 
             mPagedListView.snapToPosition(bucket.getIndex());
         }
+    }
+
+    /**
+     * Show the Alpha Jump Overview by toggling its visibility
+     */
+    public void show() {
+        mAdapter.onAlphaJumpEnter();
+        setVisibility(View.VISIBLE);
+        startAnimation(mOpenAnimation);
+    }
+
+    /**
+     * Hide the Alpha Jump Overview by toggling its visibility
+     */
+    public void hide() {
+        startAnimation(mCloseAnimation);
+        setVisibility(View.GONE);
     }
 }
