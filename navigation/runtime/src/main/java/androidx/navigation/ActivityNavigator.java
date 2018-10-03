@@ -141,6 +141,12 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         final int destId = destination.getId();
         intent.putExtra(EXTRA_NAV_CURRENT, destId);
         NavOptions.addPopAnimationsToIntent(intent, navOptions);
+        if (navigatorExtras instanceof Extras) {
+            Extras extras = (Extras) navigatorExtras;
+            ActivityCompat.startActivity(mContext, intent, extras.getActivityOptions().toBundle());
+        } else {
+            mContext.startActivity(intent);
+        }
         if (navOptions != null && mHostActivity != null) {
             int enterAnim = navOptions.getEnterAnim();
             int exitAnim = navOptions.getExitAnim();
@@ -149,12 +155,6 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
                 exitAnim = exitAnim != -1 ? exitAnim : 0;
                 mHostActivity.overridePendingTransition(enterAnim, exitAnim);
             }
-        }
-        if (navigatorExtras instanceof Extras) {
-            Extras extras = (Extras) navigatorExtras;
-            ActivityCompat.startActivity(mContext, intent, extras.getActivityOptions().toBundle());
-        } else {
-            mContext.startActivity(intent);
         }
 
         // You can't pop the back stack from the caller of a new Activity,
