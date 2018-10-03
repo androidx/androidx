@@ -25,3 +25,6 @@ jacoco.exec
 
 # When Gradle configuration fails with the --profile option enabled it creates this folder.
 /reports
+
+# Mac Desktop Services Store files.
+.DS_Store
