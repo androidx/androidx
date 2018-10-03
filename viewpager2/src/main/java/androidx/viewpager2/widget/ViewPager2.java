@@ -112,9 +112,26 @@ public class ViewPager2 extends ViewGroup {
         CompositeOnPageChangeListener dispatcher = new CompositeOnPageChangeListener(3);
         mScrollEventAdapter.setOnPageChangeListener(dispatcher);
 
-        // Add mOnPageChangeListener before mExternalPageChangeListeners, because we need to update
+        // Listener that updates mCurrentItem after swipes. Also triggered in other cases, but in
+        // all those cases mCurrentItem will only be overwritten with the same value.
+        final OnPageChangeListener currentItemUpdater = new OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPx) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mCurrentItem = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        };
+
+        // Add currentItemUpdater before mExternalPageChangeListeners, because we need to update
         // internal state first
-        dispatcher.addOnPageChangeListener(mOnPageChangeListener);
+        dispatcher.addOnPageChangeListener(currentItemUpdater);
         dispatcher.addOnPageChangeListener(mExternalPageChangeListeners);
 
         // Add mPageTransformerAdapter after mExternalPageChangeListeners, because page transform
@@ -445,25 +462,6 @@ public class ViewPager2 extends ViewGroup {
         // TODO: add support for pageLayerType: b/112893074
         mPageTransformerAdapter.setPageTransformer(transformer);
     }
-
-    /**
-     * Listener that updates mCurrentItem after swipes. Will of course also update it in all other
-     * cases, but we already know about those updates (as we triggered those ourselves).
-     */
-    private final OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        }
-
-        @Override
-        public void onPageSelected(int position) {
-            mCurrentItem = position;
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-        }
-    };
 
     private class SmoothScrollToPosition implements Runnable {
         private final int mPosition;

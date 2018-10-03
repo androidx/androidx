@@ -431,6 +431,18 @@ class PageChangeListenerTest : BaseTest() {
         test_multiplePageChanges(VERTICAL)
     }
 
+    /**
+     * Tests a very specific case that can theoretically happen when a config change happens right
+     * after an invocation to setCurrentItem. Due to a workaround for b/114019007, a smooth scroll
+     * to a 'far away' page is split over two frames: first an instant scroll is done to a page
+     * 'close by' and in the next frame a smooth scroll is started to the actual page.
+     *
+     * Now, if the config change occurs between these two frames, the second part is never executed,
+     * and ViewPager2 will correct this after the config change. This test makes sure that this
+     * correction has no side effects.
+     *
+     * Note that this test can be removed if we remove our workaround.
+     */
     private fun test_configChangeDuringFarSmoothScroll(@Orientation orientation: Int) {
         // given
         setUpTest(orientation).apply {
@@ -453,6 +465,7 @@ class PageChangeListenerTest : BaseTest() {
                 assertThat(viewPager.currentItem, equalTo(targetPage))
                 assertThat(viewPager.currentCompletelyVisibleItem, equalTo(targetPage))
                 assertThat(settlingIx, equalTo(0))
+                assertThat(selectEvents.count(), equalTo(2))
                 assertThat(pageSelectedIx(targetPage), equalTo(1))
                 assertThat(pageSelectedIx(dummyPage), equalTo(lastIx))
             }
