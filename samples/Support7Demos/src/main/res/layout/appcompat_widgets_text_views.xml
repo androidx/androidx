@@ -54,6 +54,14 @@
                 android:text="@string/text_compound_compat"
                 app:drawableStartCompat="@drawable/ic_search" />
 
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/text_compound_compat"
+                android:clickable="true"
+                app:drawableStartCompat="@drawable/ic_search"
+                app:drawableTint="@color/drawable_tint" />
+
     </LinearLayout>
 
 </ScrollView>
