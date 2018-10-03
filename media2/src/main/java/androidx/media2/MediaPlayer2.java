@@ -1692,7 +1692,7 @@ public abstract class MediaPlayer2 {
      * <p>
      *
      * @param uuid The UUID of the crypto scheme. If not known beforehand, it can be retrieved
-     * from the source through {#link getDrmInfo} or registering
+     * from the source through {@link #getDrmInfo} or registering
      * {@link DrmEventCallback#onDrmInfo}.
      */
     // This is an asynchronous call.
