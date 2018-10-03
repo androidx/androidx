@@ -18,6 +18,7 @@ package androidx.ui.widgets.binding
 
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
+import androidx.ui.scheduler.binding.SchedulerBinding
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.BuildOwner
 import androidx.ui.widgets.framework.RenderObjectWidget
@@ -68,6 +69,8 @@ class RenderObjectToWidgetAdapter<T : RenderObject>(
     // / Used by [runApp] to bootstrap applications.
     fun attachToRenderTree(
         owner: BuildOwner,
+        // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets
+        schedulerBinding: SchedulerBinding,
         element: RenderObjectToWidgetElement<T>?
     ): RenderObjectToWidgetElement<T> {
         var elem = element
@@ -77,6 +80,8 @@ class RenderObjectToWidgetAdapter<T : RenderObject>(
                 elem = createElement()
                 assert(elem != null)
                 elem!!.assignOwner(owner)
+                // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets
+                elem!!.assignSchedulerBinding(schedulerBinding)
             }
             owner.buildScope(elem!!, {
                 elem!!.mount(null, null)

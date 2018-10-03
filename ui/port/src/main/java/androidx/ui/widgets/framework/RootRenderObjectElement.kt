@@ -1,5 +1,7 @@
 package androidx.ui.widgets.framework
 
+import androidx.ui.scheduler.binding.SchedulerBinding
+
 // / The element at the root of the tree.
 // /
 // / Only root elements may have their owner set explicitly. All other
@@ -18,6 +20,11 @@ abstract class RootRenderObjectElement(widget: RenderObjectWidget) : RenderObjec
     // / [WidgetsBinding.drawFrame].
     fun assignOwner(owner: BuildOwner) {
         this.owner = owner
+    }
+
+    // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets
+    fun assignSchedulerBinding(schedulerBinding: SchedulerBinding) {
+        this.schedulerBinding = schedulerBinding
     }
 
     override fun mount(parent: Element?, newSlot: Any?) {

@@ -41,7 +41,7 @@ interface Listenable {
 interface ValueListenable<T> : Listenable {
     // / The current value of the object. When the value changes, the callbacks
     // / registered with [addListener] will be invoked.
-    abstract var value: T
+    val value: T
 }
 
 // / A class that can be extended or mixed in that provides a change notification

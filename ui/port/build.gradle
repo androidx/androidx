@@ -11,7 +11,7 @@ dependencies {
     api(project(":annotation"))
     api(project(":activity"))
     api(KOTLIN_STDLIB)
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.20"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.20"
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)

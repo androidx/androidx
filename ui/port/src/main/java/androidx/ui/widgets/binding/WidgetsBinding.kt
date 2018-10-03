@@ -486,6 +486,8 @@ class WidgetsBindingImpl(
                 child = rootWidget
                 // TODO(Migration/Filip): I'm forced to cast it here
         ).attachToRenderTree(buildOwner,
+                // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets
+                this,
                 renderViewElement as RenderObjectToWidgetElement<RenderBox>?)
     }
 
