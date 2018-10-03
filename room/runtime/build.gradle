@@ -34,7 +34,7 @@ dependencies {
     api(project(":sqlite:sqlite-framework"))
     api(project(":sqlite:sqlite"))
     api(project(":arch:core-runtime"))
-    compileOnly project(":paging:paging-common")
+    compileOnly(ROOM_PAGING_COMMON)
     compileOnly project(":lifecycle:lifecycle-runtime")
     compileOnly project(":lifecycle:lifecycle-extensions")
     api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
