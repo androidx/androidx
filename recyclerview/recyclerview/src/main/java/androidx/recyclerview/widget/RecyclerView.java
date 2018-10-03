@@ -80,7 +80,6 @@ import androidx.core.widget.EdgeEffectCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.recyclerview.R;
 import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
-import androidx.viewpager.widget.ViewPager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1484,7 +1483,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * Recycled view pools allow multiple RecyclerViews to share a common pool of scrap views.
      * This can be useful if you have multiple RecyclerViews with adapters that use the same
      * view types, for example if you have several data sets with the same kinds of item views
-     * displayed by a {@link ViewPager ViewPager}.
+     * displayed by a {@link androidx.viewpager.widget.ViewPager}.
      *
      * @param pool Pool to set. If this parameter is null a new pool will be created and used.
      */
