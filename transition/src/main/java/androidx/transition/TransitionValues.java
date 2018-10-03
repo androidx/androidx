@@ -18,6 +18,8 @@ package androidx.transition;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +44,15 @@ import java.util.Map;
  */
 public class TransitionValues {
 
+    /** @deprecated Use {@link #TransitionValues(View)} instead */
+    @Deprecated
+    public TransitionValues() {
+    }
+
+    public TransitionValues(@NonNull View view) {
+        this.view = view;
+    }
+
     /**
      * The set of values tracked by transitions for this scene
      */
@@ -50,6 +61,8 @@ public class TransitionValues {
     /**
      * The View with these values
      */
+    @SuppressWarnings("NullableProblems") // Can't make it final because of deprecated constructor.
+    @NonNull
     public View view;
 
     /**

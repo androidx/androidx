@@ -339,15 +339,49 @@ public abstract class Visibility extends Transition {
             return null;
         }
 
-        View startView = (startValues != null) ? startValues.view : null;
-        View endView = (endValues != null) ? endValues.view : null;
+        if (startValues == null) {
+            // startValues(and startView) will never be null for disappear transition.
+            return null;
+        }
+
+        final View startView = startValues.view;
+        final View endView = (endValues != null) ? endValues.view : null;
         View overlayView = null;
         View viewToKeep = null;
-        if (endView == null || endView.getParent() == null) {
-            if (endView != null) {
-                // endView was removed from its parent - add it to the overlay
-                overlayView = endView;
-            } else if (startView != null) {
+        boolean reusingOverlayView = false;
+
+        View savedOverlayView = (View) startView.getTag(R.id.save_overlay_view);
+        if (savedOverlayView != null) {
+            // we've already created overlay for the start view.
+            // it means that we are applying two visibility
+            // transitions for the same view
+            overlayView = savedOverlayView;
+            reusingOverlayView = true;
+        } else {
+            boolean needOverlayForStartView = false;
+
+            if (endView == null || endView.getParent() == null) {
+                if (endView != null) {
+                    // endView was removed from its parent - add it to the overlay
+                    overlayView = endView;
+                } else {
+                    needOverlayForStartView = true;
+                }
+            } else {
+                // visibility change
+                if (endVisibility == View.INVISIBLE) {
+                    viewToKeep = endView;
+                } else {
+                    // Becoming GONE
+                    if (startView == endView) {
+                        viewToKeep = endView;
+                    } else {
+                        needOverlayForStartView = true;
+                    }
+                }
+            }
+
+            if (needOverlayForStartView) {
                 // endView does not exist. Use startView only under certain
                 // conditions, because placing a view in an overlay necessitates
                 // it being removed from its current parent
@@ -364,58 +398,54 @@ public abstract class Visibility extends Transition {
                     if (!parentVisibilityInfo.mVisibilityChange) {
                         overlayView = TransitionUtils.copyViewImage(sceneRoot, startView,
                                 startParent);
-                    } else if (startParent.getParent() == null) {
+                    } else {
                         int id = startParent.getId();
-                        if (id != View.NO_ID && sceneRoot.findViewById(id) != null
-                                && mCanRemoveViews) {
+                        if (startParent.getParent() == null && id != View.NO_ID
+                                && sceneRoot.findViewById(id) != null && mCanRemoveViews) {
                             // no parent, but its parent is unparented  but the parent
                             // hierarchy has been replaced by a new hierarchy with the same id
                             // and it is safe to un-parent startView
                             overlayView = startView;
+                        } else {
+                            // TODO: Handle this case as well
                         }
                     }
                 }
             }
-        } else {
-            // visibility change
-            if (endVisibility == View.INVISIBLE) {
-                viewToKeep = endView;
-            } else {
-                // Becoming GONE
-                if (startView == endView) {
-                    viewToKeep = endView;
-                } else if (mCanRemoveViews) {
-                    overlayView = startView;
-                } else {
-                    overlayView = TransitionUtils.copyViewImage(sceneRoot, startView,
-                            (View) startView.getParent());
-                }
-            }
         }
-        final int finalVisibility = endVisibility;
 
-        if (overlayView != null && startValues != null) {
+        if (overlayView != null) {
             // TODO: Need to do this for general case of adding to overlay
-            int[] screenLoc = (int[]) startValues.values.get(PROPNAME_SCREEN_LOCATION);
-            int screenX = screenLoc[0];
-            int screenY = screenLoc[1];
-            int[] loc = new int[2];
-            sceneRoot.getLocationOnScreen(loc);
-            overlayView.offsetLeftAndRight((screenX - loc[0]) - overlayView.getLeft());
-            overlayView.offsetTopAndBottom((screenY - loc[1]) - overlayView.getTop());
-            final ViewGroupOverlayImpl overlay = ViewGroupUtils.getOverlay(sceneRoot);
-            overlay.add(overlayView);
-            Animator animator = onDisappear(sceneRoot, overlayView, startValues, endValues);
-            if (animator == null) {
-                overlay.remove(overlayView);
+            final ViewGroupOverlayImpl overlay;
+            if (!reusingOverlayView) {
+                overlay = ViewGroupUtils.getOverlay(sceneRoot);
+                int[] screenLoc = (int[]) startValues.values.get(PROPNAME_SCREEN_LOCATION);
+                int screenX = screenLoc[0];
+                int screenY = screenLoc[1];
+                int[] loc = new int[2];
+                sceneRoot.getLocationOnScreen(loc);
+                overlayView.offsetLeftAndRight((screenX - loc[0]) - overlayView.getLeft());
+                overlayView.offsetTopAndBottom((screenY - loc[1]) - overlayView.getTop());
+                overlay.add(overlayView);
             } else {
-                final View finalOverlayView = overlayView;
-                animator.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        overlay.remove(finalOverlayView);
-                    }
-                });
+                overlay = null;
+            }
+            Animator animator = onDisappear(sceneRoot, overlayView, startValues, endValues);
+            if (!reusingOverlayView) {
+                if (animator == null) {
+                    overlay.remove(overlayView);
+                } else {
+                    startView.setTag(R.id.save_overlay_view, overlayView);
+                    final View finalOverlayView = overlayView;
+                    animator.addListener(new AnimatorListenerAdapter() {
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            startView.setTag(R.id.save_overlay_view, null);
+                            overlay.remove(finalOverlayView);
+                        }
+                    });
+                }
             }
             return animator;
         }
@@ -426,7 +456,7 @@ public abstract class Visibility extends Transition {
             Animator animator = onDisappear(sceneRoot, viewToKeep, startValues, endValues);
             if (animator != null) {
                 DisappearListener disappearListener = new DisappearListener(viewToKeep,
-                        finalVisibility, true);
+                        endVisibility, true);
                 animator.addListener(disappearListener);
                 AnimatorUtils.addPauseListener(animator, disappearListener);
                 addListener(disappearListener);
