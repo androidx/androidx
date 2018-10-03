@@ -22,7 +22,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.viewpager.widget.ViewPager;
 
 /**
  * Implementation of the {@link SnapHelper} supporting pager style snapping in either vertical or
@@ -30,8 +29,8 @@ import androidx.viewpager.widget.ViewPager;
  *
  * <p>
  *
- * PagerSnapHelper can help achieve a similar behavior to {@link ViewPager}.
- * Set both {@link RecyclerView} and the items of the
+ * PagerSnapHelper can help achieve a similar behavior to
+ * {@link androidx.viewpager.widget.ViewPager}. Set both {@link RecyclerView} and the items of the
  * {@link RecyclerView.Adapter} to have
  * {@link android.view.ViewGroup.LayoutParams#MATCH_PARENT} height and width and then attach
  * PagerSnapHelper to the {@link RecyclerView} using {@link #attachToRecyclerView(RecyclerView)}.
