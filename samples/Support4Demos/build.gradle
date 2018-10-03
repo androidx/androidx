@@ -4,5 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":legacy-support-v4"))
+    implementation(project(":core"))
+    implementation(project(":fragment"))
+    implementation(project(":media"))
 }
