@@ -47,7 +47,6 @@ import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
 import androidx.gridlayout.R;
-import androidx.legacy.widget.Space;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -643,8 +642,7 @@ public class GridLayout extends ViewGroup {
 
     /** @noinspection UnusedParameters*/
     private int getDefaultMargin(View c, boolean horizontal, boolean leading) {
-        if (c.getClass() == Space.class
-                || c.getClass() == android.widget.Space.class) {
+        if (c.getClass() == android.widget.Space.class) {
             return 0;
         }
         return mDefaultGap / 2;
