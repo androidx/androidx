@@ -10,7 +10,6 @@ dependencies {
     api(project(":appcompat"))
     api(project(":cardview"))
     api(project(":annotation"))
-    api(project(":legacy-support-v4"))
     api(project(":recyclerview"))
     api(project(":gridlayout"))
     api(project(":preference"))
