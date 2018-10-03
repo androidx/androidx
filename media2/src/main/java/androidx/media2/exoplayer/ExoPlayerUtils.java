@@ -63,26 +63,34 @@ import java.util.List;
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class ExoPlayerUtils {
 
-    /** Returns an ExoPlayer media source for the given media item. */
+    /**
+     * Returns an ExoPlayer media source for the given media item. The given {@link MediaItem2} is
+     * set as the tag of the source.
+     */
     public static MediaSource createMediaSource(
             DataSource.Factory dataSourceFactory, MediaItem2 mediaItem2) {
         // TODO(b/111150876): Add support for HLS streams.
         if (mediaItem2 instanceof UriMediaItem2) {
             Uri uri = ((UriMediaItem2) mediaItem2).getUri();
             return new ExtractorMediaSource.Factory(dataSourceFactory)
-                    .setTag(mediaItem2).createMediaSource(uri);
+                    .setTag(mediaItem2)
+                    .createMediaSource(uri);
         } else if (mediaItem2 instanceof FileMediaItem2) {
             FileMediaItem2 fileMediaItem2 = (FileMediaItem2) mediaItem2;
             FileDescriptor fileDescriptor = fileMediaItem2.getFileDescriptor();
             long offset = fileMediaItem2.getFileDescriptorOffset();
             long length = fileMediaItem2.getFileDescriptorLength();
             dataSourceFactory = FileDescriptorDataSource.getFactory(fileDescriptor, offset, length);
-            return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.EMPTY);
+            return new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .setTag(mediaItem2)
+                    .createMediaSource(Uri.EMPTY);
         } else if (mediaItem2 instanceof CallbackMediaItem2) {
             CallbackMediaItem2 callbackMediaItem2 = (CallbackMediaItem2) mediaItem2;
             dataSourceFactory = DataSourceCallback2DataSource.getFactory(
                     callbackMediaItem2.getDataSourceCallback2());
-            return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.EMPTY);
+            return new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .setTag(mediaItem2)
+                    .createMediaSource(Uri.EMPTY);
         } else {
             throw new UnsupportedOperationException();
         }
