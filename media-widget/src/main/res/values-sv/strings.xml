@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="3321397713117065638">"System"</string>
+    <string name="mr_user_route_category_name" msgid="1627840233801992496">"Enheter"</string>
+    <string name="mr_button_content_description" msgid="2563900737284462162">"Cast-knappen"</string>
+    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"Cast-knappen. Frånkopplad"</string>
+    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"Cast-knappen. Ansluter"</string>
+    <string name="mr_cast_button_connected" msgid="938609484693891555">"Cast-knappen. Ansluten"</string>
+    <string name="mr_chooser_title" msgid="8588921739112945317">"Casta till"</string>
+    <string name="mr_chooser_searching" msgid="3620017600129578274">"Letar efter enheter"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"Frånkoppla"</string>
+    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Sluta casta"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"Stäng"</string>
+    <string name="mr_controller_play" msgid="4438243775726932620">"Spela upp"</string>
+    <string name="mr_controller_pause" msgid="2836364020975903659">"Pausa"</string>
+    <string name="mr_controller_stop" msgid="2946921829587351729">"Sluta"</string>
+    <string name="mr_controller_expand_group" msgid="6419866561073332299">"Utöka"</string>
+    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"Komprimera"</string>
+    <string name="mr_controller_album_art" msgid="3247329727731601009">"Skivomslag"</string>
+    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"Volymreglage"</string>
+    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"Ingen media har valts"</string>
+    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"Det finns ingen information"</string>
+    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Skärmen castas"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Du kan hoppa över annonsen om <xliff:g id="WAIT_TIME">%1$d</xliff:g> s"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Annons · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> återstår"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Besök annonsör"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Textning"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Av"</string>
+    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Ljudspår"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Inga"</string>
+    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"Videokvalitet"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Automatiskt"</string>
+    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"Hjälp och feedback"</string>
+    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Uppspelningshastighet"</string>
+    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Normal"</string>
+    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"Spår <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Spår <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Spår <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Okänd låttitel"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Okänd artist"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Det gick inte att spela upp det valda objektet"</string>
+    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"OK"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Tillbaka"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Tillbaka till föregående knapplista"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Visa fler knappar"</string>
+    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Uppspelningsförlopp"</string>
+    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Inställningar"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"Val av videokvalitet"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"Undertexter har aktiverats. Klicka för att dölja dem."</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"Undertexter har inaktiverats. Klicka för att visa dem."</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"Spela upp igen"</string>
+    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"Spela upp"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Pausa"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Föregående media"</string>
+    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"Nästa media"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Spola bakåt tio sekunder"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Hoppa 30 sekunder framåt."</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Startlänk"</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Ljud av. Klicka för att slå på ljudet."</string>
+    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Klicka för att stänga av ljudet"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Helskärm"</string>
+</resources>

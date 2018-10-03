@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="3321397713117065638">"Sistema"</string>
+    <string name="mr_user_route_category_name" msgid="1627840233801992496">"Dispositivos"</string>
+    <string name="mr_button_content_description" msgid="2563900737284462162">"Botón de enviar"</string>
+    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"Botón de enviar. Desconectado"</string>
+    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"Botón de enviar. Conectando"</string>
+    <string name="mr_cast_button_connected" msgid="938609484693891555">"Botón de enviar. Conectado"</string>
+    <string name="mr_chooser_title" msgid="8588921739112945317">"Enviar a"</string>
+    <string name="mr_chooser_searching" msgid="3620017600129578274">"Buscando dispositivos"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"Desconectar"</string>
+    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Detener envío"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"Cerrar"</string>
+    <string name="mr_controller_play" msgid="4438243775726932620">"Reproducir"</string>
+    <string name="mr_controller_pause" msgid="2836364020975903659">"Pausar"</string>
+    <string name="mr_controller_stop" msgid="2946921829587351729">"Detener"</string>
+    <string name="mr_controller_expand_group" msgid="6419866561073332299">"Mostrar"</string>
+    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"Ocultar"</string>
+    <string name="mr_controller_album_art" msgid="3247329727731601009">"Carátula del álbum"</string>
+    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"Control deslizante de volumen"</string>
+    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"No se ha seleccionado contenido multimedia"</string>
+    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"No hay información disponible"</string>
+    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Enviando pantalla"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Podrás saltar el anuncio en <xliff:g id="WAIT_TIME">%1$d</xliff:g> s"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Anuncio · Tiempo restante: <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Ir al sitio web del anunciante"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Subtítulos"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"No"</string>
+    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Pista de audio"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Nada"</string>
+    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"Calidad del vídeo"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Auto"</string>
+    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"Ayuda y sugerencias"</string>
+    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Velocidad de reproducción"</string>
+    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Normal"</string>
+    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"Pista <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Pista <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> (<xliff:g id="LANG">%2$s</xliff:g>)"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Pista <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Título de canción desconocido"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Artista desconocido"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"No se ha podido reproducir el elemento que has solicitado"</string>
+    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"Aceptar"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Atrás"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Volver a la lista anterior de botones"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Ver más botones"</string>
+    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Progreso de reproducción"</string>
+    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Ajustes"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"Selección de calidad del vídeo"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"Los subtítulos están activados. Haz clic para ocultarlos."</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"Los subtítulos están desactivados. Haz clic para que se muestren."</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"Volver a reproducir"</string>
+    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"Reproducir"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Pausar"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Anterior archivo multimedia"</string>
+    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"Siguiente archivo multimedia"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Rebobinar 10 segundos"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Avanzar 30 segundos"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Enlace de inicio"</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Se ha silenciado. Haz clic para activar el sonido"</string>
+    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Haz clic para silenciar"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Pantalla completa"</string>
+</resources>
