@@ -43,7 +43,7 @@ dependencies {
 supportLibrary {
     name = "Fragment Kotlin Extensions"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.FRAGMENT
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2018"
     description = "Kotlin extensions for 'fragment' artifact"
