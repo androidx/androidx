@@ -356,8 +356,10 @@ public class AccessibilityNodeInfoCompat {
          * @see View#requestRectangleOnScreen(Rect)
          */
         public static final AccessibilityActionCompat ACTION_SHOW_ON_SCREEN =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN : null);
+                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionShowOnScreen, null);
 
         /**
          * Action that scrolls the node to make the specified collection
@@ -372,44 +374,55 @@ public class AccessibilityNodeInfoCompat {
          * @see AccessibilityNodeInfoCompat#getCollectionInfo()
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_TO_POSITION =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION
-                        : null);
+                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionScrollToPosition, null);
 
         /**
          * Action to scroll the node content up.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_UP =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP : null);
+                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionScrollUp, null);
 
         /**
          * Action to scroll the node content left.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_LEFT =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT : null);
+                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionScrollLeft, null);
 
         /**
          * Action to scroll the node content down.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_DOWN =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN : null);
+                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionScrollDown, null);
 
         /**
          * Action to scroll the node content right.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_RIGHT =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT : null);
+                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionScrollRight, null);
 
         /**
          * Action that context clicks the node.
          */
         public static final AccessibilityActionCompat ACTION_CONTEXT_CLICK =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK : null);
+                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionContextClick, null);
 
         /**
          * Action that sets progress between {@link  RangeInfoCompat#getMin() RangeInfo.getMin()} and
@@ -422,8 +435,10 @@ public class AccessibilityNodeInfoCompat {
          * @see RangeInfoCompat
          */
         public static final AccessibilityActionCompat ACTION_SET_PROGRESS =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 24
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS : null);
+                Build.VERSION.SDK_INT >= 24 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionSetProgress, null);
 
         /**
          * Action to move a window to a new location.
@@ -433,23 +448,29 @@ public class AccessibilityNodeInfoCompat {
          * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVE_WINDOW_Y}
          */
         public static final AccessibilityActionCompat ACTION_MOVE_WINDOW =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 26
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_MOVE_WINDOW : null);
+                Build.VERSION.SDK_INT >= 26 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_MOVE_WINDOW)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionMoveWindow, null);
 
         /**
          * Action to show a tooltip.
          */
         public static final AccessibilityActionCompat ACTION_SHOW_TOOLTIP =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TOOLTIP : null);
+                Build.VERSION.SDK_INT >= 28 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TOOLTIP)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionShowTooltip, null);
 
         /**
          * Action to hide a tooltip. A node should expose this action only for views that are
          * currently showing a tooltip.
          */
         public static final AccessibilityActionCompat ACTION_HIDE_TOOLTIP =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP : null);
+                Build.VERSION.SDK_INT >= 28 ? new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP)
+                        : new AccessibilityActionCompat(
+                                android.R.id.accessibilityActionHideTooltip, null);
 
         final Object mAction;
 
