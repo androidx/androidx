@@ -18,18 +18,18 @@
 <!-- This is sized in code, so we'll set it to 0dp for now. -->
 <androidx.cardview.widget.CardView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:grid="http://schemas.android.com/apk/res-auto"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        grid:layout_gravity="fill"
-        grid:layout_columnWeight="1"
-        grid:layout_rowWeight="1"
-        android:layout_margin="@dimen/car_padding_2">
-    <TextView
-        android:textAppearance="@style/TextAppearance.Car.Body1"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        android:layout_margin="@dimen/car_padding_0"
+        app:cardCornerRadius="@dimen/car_radius_1">
+    <Button
+        style="@style/TextAppearance.Car.Body1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/car_card_ripple_background"
+        android:background="@drawable/car_alpha_picker_button_background"
         android:id="@+id/button"
         android:gravity="center"/>
 </androidx.cardview.widget.CardView>

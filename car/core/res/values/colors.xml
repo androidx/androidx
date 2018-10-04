@@ -150,5 +150,14 @@
 
     <!-- Speed Bump -->
     <!-- The color of the scrim that is behind the speed bump lock-out message. -->
-    <color name="speed_bump_background">#FFD0D0D0</color>
+    <color name="speed_bump_background">#ffd0d0d0</color>
+
+    <!-- Alpha Jump -->
+    <color name="alpha_picker_bg_light">#ffeceff1</color>
+    <color name="alpha_picker_bg_dark">#ff1e282e</color>
+    <color name="alpha_picker_unavailable_bg_light">#fff7f8f8</color>
+    <color name="alpha_picker_unavailable_bg_dark">#ff1a2329</color>
+
+    <color name="alpha_picker_bg">@color/alpha_picker_bg_light</color>
+    <color name="alpha_picker_unavailable_bg">@color/alpha_picker_unavailable_bg_light</color>
 </resources>

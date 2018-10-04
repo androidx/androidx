@@ -92,6 +92,8 @@ limitations under the License.
         <!-- Vertically center the list contents when the number of items in the list does not take
              up the full height of the PagedListView. This value is "false" by default. -->
         <attr name="verticallyCenterListContent" format="boolean" />
+        <!-- Alpha Jump Picker background color -->
+        <attr name="alphaJumpPickerBackground" format="color"/>
     </declare-styleable>
 
     <declare-styleable name="PagedScrollBarView">

@@ -57,4 +57,8 @@
     <color name="car_switch_compat_track_off">@color/car_grey_700</color>
 
     <color name="speed_bump_background">#FF4C4C4C</color>
+
+    <!-- Alpha Jump Picker colors-->
+    <color name="alpha_picker_bg">@color/alpha_picker_bg_dark</color>
+    <color name="alpha_picker_unavailable_bg">@color/alpha_picker_unavailable_bg_dark</color>
 </resources>

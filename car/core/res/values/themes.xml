@@ -49,6 +49,7 @@ limitations under the License.
         <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/colorButtonNormal</item>
         <item name="alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
+        <item name="alphaJumpPickerBackground">@color/car_card_dark</item>
         <item name="carDialogTheme">@style/Theme.Car.Dark.Dialog</item>
         <item name="carToolbarStyle">@style/Widget.Car.CarToolbar</item>
         <item name="colorAccent">?attr/android:colorAccent</item>
@@ -102,6 +103,7 @@ limitations under the License.
         <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/colorButtonNormal</item>
         <item name="alertDialogTheme">@style/Theme.Car.Dialog.Alert</item>
+        <item name="alphaJumpPickerBackground">@color/car_card</item>
         <item name="carDialogTheme">@style/Theme.Car.Dialog</item>
         <item name="colorAccent">?attr/android:colorAccent</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background</item>
