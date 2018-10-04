@@ -37,6 +37,7 @@ import androidx.media2.MediaPlayer2;
 import androidx.media2.PlaybackParams2;
 import androidx.media2.UriMediaItem2;
 import androidx.media2.common.TrackInfoImpl;
+import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.Format;
 import androidx.media2.exoplayer.external.PlaybackParameters;
 import androidx.media2.exoplayer.external.SeekParameters;
@@ -46,8 +47,10 @@ import androidx.media2.exoplayer.external.source.ExtractorMediaSource;
 import androidx.media2.exoplayer.external.source.MediaSource;
 import androidx.media2.exoplayer.external.source.TrackGroup;
 import androidx.media2.exoplayer.external.source.TrackGroupArray;
+import androidx.media2.exoplayer.external.source.hls.HlsMediaSource;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.util.MimeTypes;
+import androidx.media2.exoplayer.external.util.Util;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -69,12 +72,17 @@ import java.util.List;
      */
     public static MediaSource createMediaSource(
             DataSource.Factory dataSourceFactory, MediaItem2 mediaItem2) {
-        // TODO(b/111150876): Add support for HLS streams.
         if (mediaItem2 instanceof UriMediaItem2) {
             Uri uri = ((UriMediaItem2) mediaItem2).getUri();
-            return new ExtractorMediaSource.Factory(dataSourceFactory)
-                    .setTag(mediaItem2)
-                    .createMediaSource(uri);
+            if (Util.inferContentType(uri) == C.TYPE_HLS) {
+                return new HlsMediaSource.Factory(dataSourceFactory)
+                        .setTag(mediaItem2)
+                        .createMediaSource(uri);
+            } else {
+                return new ExtractorMediaSource.Factory(dataSourceFactory)
+                        .setTag(mediaItem2)
+                        .createMediaSource(uri);
+            }
         } else if (mediaItem2 instanceof FileMediaItem2) {
             FileMediaItem2 fileMediaItem2 = (FileMediaItem2) mediaItem2;
             FileDescriptor fileDescriptor = fileMediaItem2.getFileDescriptor();
