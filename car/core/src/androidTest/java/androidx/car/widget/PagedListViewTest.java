@@ -349,6 +349,21 @@ public final class PagedListViewTest {
     }
 
     @Test
+    public void testScrollBarThumbShowByDefault() {
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+        onView(withId(R.id.scrollbar_thumb)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testScrollBarThumbIsHidden() {
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+        mPagedListView.setShowScrollBarThumb(false);
+        onView(withId(R.id.scrollbar_thumb)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
     public void testSetGutterNone() {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);

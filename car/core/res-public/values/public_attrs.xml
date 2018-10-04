@@ -44,6 +44,7 @@
     <public type="attr" name="downButtonIcon" />
     <public type="attr" name="buttonTintColor" />
     <public type="attr" name="buttonRippleBackground" />
+    <public type="attr" name="showScrollBarThumb"/>
 
     <!-- ListItem -->
     <public type="attr" name="listItemBackgroundColor" />
