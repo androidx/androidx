@@ -133,13 +133,32 @@ public class NavigationStateTest {
         NavigationState state = createSampleState();
 
         // Setting a list item to null (even though this is not allowed by the API)
-        state.mDestinations.set(0, null);
+        state.mDestinations = new ArrayList<>();
+        state.mDestinations.add(0, null);
 
         // Ignoring the serialization step as Parcelable doesn't allow lists with null items. This
         // test is just to make sure that even if the serialization protocol is changed, the API
         // contract is still honored.
 
         assertEquals(new ArrayList(), state.getDestinations());
+    }
+
+    /**
+     * Tests that {@link NavigationState#mDestinations} is immutable.
+     */
+    @Test(expected = UnsupportedOperationException.class)
+    public void immutableDestionationsLists() {
+        NavigationState state = createEmptyState();
+        state.getDestinations().add(new Destination.Builder().build());
+    }
+
+    /**
+     * Tests that {@link NavigationState#mSteps} is immutable.
+     */
+    @Test(expected = UnsupportedOperationException.class)
+    public void immutableStepsLists() {
+        NavigationState state = createEmptyState();
+        state.getSteps().add(new Step.Builder().build());
     }
 
     private NavigationState createEmptyState() {
