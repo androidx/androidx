@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="7548226170787476564">"ဤစက်သို့ ကာစ်လုပ်ရန်"</string>
     <string name="mr_chooser_searching" msgid="5504553798429329689">"စက်များကို ရှာနေသည်"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"ချိတ်ဆက်မှု ဖြုတ်ရန်"</string>
-    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"ကာစ်လုပ်ခြင်းကို ရပ်ရန်"</string>
+    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"ကာစ် ရပ်ရန်"</string>
     <string name="mr_controller_close_description" msgid="5468775621814500662">"ပိတ်ရန်"</string>
     <string name="mr_controller_play" msgid="4443315438268112801">"ကစားရန်"</string>
     <string name="mr_controller_pause" msgid="4701315813294065305">"ခဏရပ်ရန်"</string>
@@ -37,4 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"မီဒီယာ ရွေးမထားပါ"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"အချက်အလက် မရရှိနိုင်ပါ"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"ကာစ်တ်လုပ်သည့် မျက်နှာပြင်"</string>
+    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"စက်ပစ္စည်း ထည့်ခြင်း"</string>
+    <string name="mr_dialog_transferable_header" msgid="8242946697267839296">"အုပ်စုလိုက် ဖွင့်ခြင်း"</string>
+    <string name="mr_cast_dialog_title_view_placeholder" msgid="6167045754274068030">"အချက်အလက် မရရှိနိုင်ပါ"</string>
 </resources>

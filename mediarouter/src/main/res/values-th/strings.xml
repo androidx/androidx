@@ -37,4 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"ไม่ได้เลือกสื่อไว้"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"ไม่มีข้อมูล"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"กำลังแคสต์หน้าจอ"</string>
+    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"เพิ่มอุปกรณ์"</string>
+    <string name="mr_dialog_transferable_header" msgid="8242946697267839296">"เล่นในกลุ่ม"</string>
+    <string name="mr_cast_dialog_title_view_placeholder" msgid="6167045754274068030">"ไม่มีข้อมูล"</string>
 </resources>
