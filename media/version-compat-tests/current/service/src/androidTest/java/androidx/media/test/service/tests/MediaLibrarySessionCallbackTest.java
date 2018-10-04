@@ -90,8 +90,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
         service.attachBaseContext(mContext);
 
         try (MediaLibrarySession session = new MediaLibrarySession.Builder(
-                service, sHandlerExecutor, sessionCallback)
-                .setPlayer(mPlayer)
+                service, mPlayer, sHandlerExecutor, sessionCallback)
                 .setId("testOnSubscribe")
                 .build()) {
             mBrowser2 = createRemoteBrowser2(session.getToken());
@@ -120,8 +119,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
         service.attachBaseContext(mContext);
 
         try (MediaLibrarySession session = new MediaLibrarySession.Builder(
-                service, sHandlerExecutor, sessionCallback)
-                .setPlayer(mPlayer)
+                service, mPlayer, sHandlerExecutor, sessionCallback)
                 .setId("testOnUnsubscribe")
                 .build()) {
             mBrowser2 = createRemoteBrowser2(session.getToken());

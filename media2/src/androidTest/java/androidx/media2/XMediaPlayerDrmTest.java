@@ -43,6 +43,7 @@ import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
+import androidx.media2.SessionPlayer2.PlayerResult;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.XMediaPlayer.DrmInfo;
 import androidx.test.InstrumentationRegistry;
@@ -398,9 +399,9 @@ public class XMediaPlayerDrmTest {
 
         mPlayer.registerPlayerCallback(mExecutor, mECb);
         Log.v(TAG, "playLoadedVideo: setMediaItem()");
-        ListenableFuture<CommandResult2> future =
+        ListenableFuture<PlayerResult> future =
                 mPlayer.setMediaItem(new UriMediaItem2.Builder(mContext, file).build());
-        assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, future.get().getResultCode());
+        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         SurfaceHolder surfaceHolder = mActivity.getSurfaceHolder();
         surfaceHolder.setKeepScreenOn(true);
@@ -457,8 +458,8 @@ public class XMediaPlayerDrmTest {
 
     private void preparePlayerAndDrm_V0_syncDrmSetup() throws Exception {
         Log.v(TAG, "preparePlayerAndDrm_V0: calling prepare()");
-        ListenableFuture<CommandResult2> future = mPlayer.prepare();
-        assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, future.get().getResultCode());
+        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         DrmInfo drmInfo = mPlayer.getDrmInfo();
         if (drmInfo != null) {
@@ -492,8 +493,8 @@ public class XMediaPlayerDrmTest {
         });
 
         Log.v(TAG, "preparePlayerAndDrm_V1: calling prepare()");
-        ListenableFuture<CommandResult2> future = mPlayer.prepare();
-        assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, future.get().getResultCode());
+        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         mOnDrmInfoCalled.waitForSignal();
 
@@ -527,8 +528,8 @@ public class XMediaPlayerDrmTest {
         });
 
         Log.v(TAG, "preparePlayerAndDrm_V2: calling prepare()");
-        ListenableFuture<CommandResult2> future = mPlayer.prepare();
-        assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, future.get().getResultCode());
+        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         DrmInfo drmInfo = mPlayer.getDrmInfo();
         if (drmInfo != null) {
@@ -605,8 +606,8 @@ public class XMediaPlayerDrmTest {
         });
 
         Log.v(TAG, "preparePlayerAndDrm_V3: calling prepare()");
-        ListenableFuture<CommandResult2> future = mPlayer.prepare();
-        assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, future.get().getResultCode());
+        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         // Unlike v3, onDrmPrepared is not synced to onPrepared b/c of its own thread handler
         mOnDrmPreparedCalled.waitForSignal();
@@ -643,8 +644,8 @@ public class XMediaPlayerDrmTest {
                         new UriMediaItem2.Builder(mContext, file).build());
 
                 Log.v(TAG, "playLoadedVideo: prepare()");
-                ListenableFuture<CommandResult2> future = mPlayer.prepare();
-                assertEquals(XMediaPlayer.RESULT_CODE_NO_ERROR, future.get().getResultCode());
+                ListenableFuture<PlayerResult> future = mPlayer.prepare();
+                assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
                 // but preparing the DRM every time with proper key request type
                 drmInfo = mPlayer.getDrmInfo();

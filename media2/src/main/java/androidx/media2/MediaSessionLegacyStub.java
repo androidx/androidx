@@ -60,8 +60,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     static {
         SessionCommandGroup2 group = new SessionCommandGroup2.Builder()
-                .addAllPlaybackCommands(COMMAND_VERSION_CURRENT)
-                .addAllPlaylistCommands(COMMAND_VERSION_CURRENT)
+                .addAllPlayerCommands(COMMAND_VERSION_CURRENT)
                 .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand2> commands = group.getCommands();
@@ -108,7 +107,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepare() {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE, new SessionRunnable() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_PREPARE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.prepare();
@@ -163,7 +162,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPlay() {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY, new SessionRunnable() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_PLAY, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.play();
@@ -218,7 +217,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPause() {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE, new SessionRunnable() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.pause();
@@ -228,14 +227,14 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onStop() {
-        // Here, we don't call MediaPlayerConnector#reset() since it may result removing
+        // Here, we don't call SessionPlayer2#reset() since it may result removing
         // all callbacks from the player. Instead, we pause and seek to zero.
         // Here, we check both permissions: Pause / SeekTo.
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE, new SessionRunnable() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 handleCommandOnExecutor(controller, null,
-                        SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO, new SessionRunnable() {
+                        SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO, new SessionRunnable() {
                             @Override
                             public void run(ControllerInfo controller) throws RemoteException {
                                 mSessionImpl.pause();
@@ -248,7 +247,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onSeekTo(final long pos) {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO, new SessionRunnable() {
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO, new SessionRunnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.seekTo(pos);
@@ -258,7 +257,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onSkipToNext() {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM,
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -269,7 +268,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onSkipToPrevious() {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM,
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -280,7 +279,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onSkipToQueueItem(final long id) {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM,
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -360,7 +359,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onSetRepeatMode(final int repeatMode) {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE,
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -371,7 +370,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onSetShuffleMode(final int shuffleMode) {
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE,
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -385,7 +384,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         if (description == null) {
             return;
         }
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM,
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -401,7 +400,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         if (description == null) {
             return;
         }
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM,
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -416,7 +415,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         if (description == null) {
             return;
         }
-        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM,
+        onSessionCommand(SessionCommand2.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -631,6 +630,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
+        void onPlaybackCompleted() throws RemoteException {
+            throw new AssertionError("This shouldn't be called.");
+        }
+
+        @Override
         void onRoutesInfoChanged(List<Bundle> routes) throws RemoteException {
             // no-op
         }
@@ -786,6 +790,18 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onRepeatModeChanged(int repeatMode) throws RemoteException {
             mSessionImpl.getSessionCompat().setRepeatMode(repeatMode);
+        }
+
+        @Override
+        void onPlaybackCompleted() throws RemoteException {
+            PlaybackStateCompat state = mSessionImpl.createPlaybackStateCompat();
+            if (state.getState() != PlaybackStateCompat.STATE_PAUSED) {
+                state = new PlaybackStateCompat.Builder(state)
+                        .setState(PlaybackStateCompat.STATE_PAUSED, state.getPosition(),
+                                state.getPlaybackSpeed())
+                        .build();
+            }
+            mSessionImpl.getSessionCompat().setPlaybackState(state);
         }
 
         @Override

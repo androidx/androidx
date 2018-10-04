@@ -56,6 +56,7 @@ import androidx.versionedparcelable.ParcelImpl;
 
     void setPlaylist(IMediaController2 caller, in List<ParcelImpl> playlist,
             in Bundle metadata) = 20;
+    void setMediaItem(IMediaController2 caller, in ParcelImpl mediaItem) = 40;
     void updatePlaylistMetadata(IMediaController2 caller, in Bundle metadata) = 21;
     void addPlaylistItem(IMediaController2 caller, int index, in ParcelImpl mediaItem) = 22;
     void removePlaylistItem(IMediaController2 caller, in ParcelImpl mediaItem) = 23;
@@ -82,5 +83,5 @@ import androidx.versionedparcelable.ParcelImpl;
             in Bundle extras) = 37;
     void subscribe(IMediaController2 caller, String parentId, in Bundle extras) = 38;
     void unsubscribe(IMediaController2 caller, String parentId) = 39;
-    // Next Id : 40
+    // Next Id : 41
 }

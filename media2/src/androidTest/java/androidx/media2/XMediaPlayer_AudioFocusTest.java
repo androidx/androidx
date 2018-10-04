@@ -168,7 +168,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
     private void initPlayer(AudioAttributesCompat attr) throws Exception {
         loadResource(R.raw.loudsoftogg);
         mPlayer.setAudioAttributes(attr);
-        assertEquals(SessionPlayer2.RESULT_CODE_NO_ERROR,
+        assertEquals(SessionPlayer2.PlayerResult.RESULT_CODE_SUCCESS,
                 mPlayer.prepare().get(WAIT_TIME_MS, TimeUnit.MILLISECONDS).getResultCode());
     }
 
@@ -217,7 +217,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
                 public void run() {
                     mPlayer = new XMediaPlayer(mActivity) {
                         @Override
-                        public ListenableFuture<CommandResult2> setPlayerVolume(float volume) {
+                        public ListenableFuture<PlayerResult> setPlayerVolume(float volume) {
                             if (volume < getMaxPlayerVolume()) {
                                 latchForDucked.countDown();
                             }

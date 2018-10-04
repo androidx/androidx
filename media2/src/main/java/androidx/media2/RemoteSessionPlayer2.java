@@ -76,7 +76,7 @@ public abstract class RemoteSessionPlayer2 extends SessionPlayer2 {
      * @param direction direction of the volume changes. Positive value for volume up, negative for
      *                  volume down.
      */
-    public abstract Future<CommandResult2> adjustVolume(int direction);
+    public abstract Future<PlayerResult> adjustVolume(int direction);
 
     /**
      * Sets the volume of the audio of the media to play, expressed as a linear multiplier
@@ -90,7 +90,7 @@ public abstract class RemoteSessionPlayer2 extends SessionPlayer2 {
      *
      * @param volume a value between 0.0f and {@link #getMaxVolume()}.
      */
-    public abstract Future<CommandResult2> setVolume(int volume);
+    public abstract Future<PlayerResult> setVolume(int volume);
 
     /**
      * Gets the current volume of this player to this player.

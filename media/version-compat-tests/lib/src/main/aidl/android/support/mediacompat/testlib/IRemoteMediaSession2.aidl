@@ -38,7 +38,7 @@ interface IRemoteMediaSession2 {
     void notifyRoutesInfoChanged(String sessionId, in Bundle controller, in List<Bundle> routes);
     void setCustomLayout(String sessionId, in Bundle controller, in List<Bundle> layout);
 
-    // MockPlayer Methods
+    // SessionPlayer2 Methods
     void setPlayerState(String sessionId, int state);
     void setCurrentPosition(String sessionId, long pos);
     void setBufferedPosition(String sessionId, long pos);
@@ -50,7 +50,6 @@ interface IRemoteMediaSession2 {
     void notifyPlaybackSpeedChanged(String sessionId, float speed);
     void notifyCurrentMediaItemChanged(String sessionId, int index);
 
-    // MockPlaylistAgent Methods
     void setPlaylist(String sessionId, in List<Bundle> playlist);
     void setPlaylistWithDummyItem(String sessionId, in List<Bundle> playlist);
     void setPlaylistMetadata(String sessionId, in Bundle metadata);
@@ -61,4 +60,5 @@ interface IRemoteMediaSession2 {
     void notifyPlaylistMetadataChanged(String sessionId);
     void notifyShuffleModeChanged(String sessionId);
     void notifyRepeatModeChanged(String sessionId);
+    void notifyPlaybackCompleted(String sessionId);
 }

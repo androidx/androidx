@@ -17,6 +17,10 @@
 package androidx.media.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media2.SessionPlayer2.PlayerResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.SessionPlayer2.PlayerResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.SessionPlayer2.PlayerResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionPlayer2.PlayerResult.RESULT_CODE_UNKNOWN_ERROR;
 
 import android.content.Context;
 import android.os.Build;
@@ -29,10 +33,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.SettableFuture;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.CommandResult2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
-import androidx.media2.MediaPlayerConnector;
 import androidx.media2.RemoteSessionPlayer2;
 import androidx.media2.SessionPlayer2;
 import androidx.media2.UriMediaItem2;
@@ -71,7 +73,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaRouter.RouteInfo mSelectedRoute;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final List<SettableFuture<CommandResult2>> mPendingVolumeResult = new ArrayList<>();
+    final List<SettableFuture<PlayerResult>> mPendingVolumeResult = new ArrayList<>();
 
     private MediaItem2 mItem;
     private MediaRouter mMediaRouter;
@@ -83,8 +85,8 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
             if (TextUtils.equals(route.getId(), mSelectedRoute.getId())) {
                 final int volume = route.getVolume();
                 for (int i = 0; i < mPendingVolumeResult.size(); i++) {
-                    mPendingVolumeResult.get(i).set(new CommandResult2(
-                            RESULT_CODE_NO_ERROR, getCurrentMediaItem()));
+                    mPendingVolumeResult.get(i).set(new PlayerResult(
+                            RESULT_CODE_SUCCESS, getCurrentMediaItem()));
                 }
                 mPendingVolumeResult.clear();
                 Map<PlayerCallback, Executor> callbacks = getCallbacks();
@@ -154,7 +156,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<CommandResult2> play() {
+    public ListenableFuture<PlayerResult> play() {
         if (mItem == null) {
             return createResult(RESULT_CODE_BAD_VALUE);
         }
@@ -165,7 +167,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
         }
 
         if (mClient.isSessionManagementSupported()) {
-            final SettableFuture<CommandResult2> result = SettableFuture.create();
+            final SettableFuture<PlayerResult> result = SettableFuture.create();
             mClient.resume(null, new SessionActionCallback() {
                 @Override
                 public void onResult(Bundle data,
@@ -176,22 +178,22 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
                     // Do nothing since this returns the buffering state--
                     // StatusCallback#onItemStatusChanged is called when the session reaches the
                     // play state.
-                    result.set(new CommandResult2(RESULT_CODE_NO_ERROR, getCurrentMediaItem()));
+                    result.set(new PlayerResult(RESULT_CODE_SUCCESS, getCurrentMediaItem()));
                 }
             });
         }
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> prepare() {
+    public ListenableFuture<PlayerResult> prepare() {
         return createResult();
     }
 
     @Override
-    public ListenableFuture<CommandResult2> pause() {
+    public ListenableFuture<PlayerResult> pause() {
         if (mClient.isSessionManagementSupported()) {
-            final SettableFuture<CommandResult2> result = SettableFuture.create();
+            final SettableFuture<PlayerResult> result = SettableFuture.create();
             mClient.pause(null, new SessionActionCallback() {
                 @Override
                 public void onResult(Bundle data,
@@ -203,17 +205,17 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
                     // Do not update playback state here since this returns the buffering state--
                     // StatusCallback#onItemStatusChanged is called when the session reaches the
                     // pause state.
-                    result.set(new CommandResult2(RESULT_CODE_NO_ERROR, getCurrentMediaItem()));
+                    result.set(new PlayerResult(RESULT_CODE_SUCCESS, getCurrentMediaItem()));
                 }
             });
         }
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> seekTo(long pos) {
+    public ListenableFuture<PlayerResult> seekTo(long pos) {
         if (mClient.isSessionManagementSupported()) {
-            final SettableFuture<CommandResult2> result = SettableFuture.create();
+            final SettableFuture<PlayerResult> result = SettableFuture.create();
             mClient.seek(mItemId, pos, null, new ItemActionCallback() {
                 @Override
                 public void onResult(Bundle data,
@@ -236,13 +238,13 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
                             });
                         }
                     } else {
-                        result.set(new CommandResult2(RESULT_CODE_ERROR_UNKNOWN,
+                        result.set(new PlayerResult(RESULT_CODE_UNKNOWN_ERROR,
                                 getCurrentMediaItem()));
                     }
                 }
             });
         }
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
@@ -271,13 +273,13 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
 
     @Override
     public int getBufferingState() {
-        return MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
+        return SessionPlayer2.BUFFERING_STATE_UNKNOWN;
     }
 
     @Override
-    public ListenableFuture<CommandResult2> setAudioAttributes(AudioAttributesCompat attributes) {
+    public ListenableFuture<PlayerResult> setAudioAttributes(AudioAttributesCompat attributes) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
@@ -286,7 +288,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<CommandResult2> setMediaItem(MediaItem2 item) {
+    public ListenableFuture<PlayerResult> setMediaItem(MediaItem2 item) {
         mItem = item;
         return createResult();
     }
@@ -297,9 +299,9 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<CommandResult2> setPlaybackSpeed(float speed) {
+    public ListenableFuture<PlayerResult> setPlaybackSpeed(float speed) {
         // Do nothing
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
@@ -313,19 +315,19 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     }
 
     @Override
-    public Future<CommandResult2> adjustVolume(int direction) {
+    public Future<PlayerResult> adjustVolume(int direction) {
         mSelectedRoute.requestUpdateVolume(direction);
 
-        SettableFuture<CommandResult2> result = SettableFuture.create();
+        SettableFuture<PlayerResult> result = SettableFuture.create();
         mPendingVolumeResult.add(result);
         return result;
     }
 
     @Override
-    public Future<CommandResult2> setVolume(int volume) {
+    public Future<PlayerResult> setVolume(int volume) {
         mSelectedRoute.requestSetVolume(volume);
 
-        SettableFuture<CommandResult2> result = SettableFuture.create();
+        SettableFuture<PlayerResult> result = SettableFuture.create();
         mPendingVolumeResult.add(result);
         return result;
     }
@@ -341,64 +343,64 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<CommandResult2> setPlaylist(List<MediaItem2> list,
+    public ListenableFuture<PlayerResult> setPlaylist(List<MediaItem2> list,
             MediaMetadata2 metadata) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> addPlaylistItem(int index, MediaItem2 item) {
+    public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem2 item) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> removePlaylistItem(MediaItem2 item) {
+    public ListenableFuture<PlayerResult> removePlaylistItem(MediaItem2 item) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> replacePlaylistItem(int index, MediaItem2 item) {
+    public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem2 item) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> skipToPreviousItem() {
+    public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> skipToNextItem() {
+    public ListenableFuture<PlayerResult> skipToNextPlaylistItem() {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> skipToPlaylistItem(MediaItem2 item) {
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem2 item) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> updatePlaylistMetadata(MediaMetadata2 metadata) {
+    public ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata2 metadata) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> setRepeatMode(int repeatMode) {
+    public ListenableFuture<PlayerResult> setRepeatMode(int repeatMode) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
-    public ListenableFuture<CommandResult2> setShuffleMode(int shuffleMode) {
+    public ListenableFuture<PlayerResult> setShuffleMode(int shuffleMode) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_OPERATION);
+        return createResult(RESULT_CODE_INVALID_STATE);
     }
 
     @Override
@@ -471,12 +473,12 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
         return playerState;
     }
 
-    private ListenableFuture<CommandResult2> playInternal() {
+    private ListenableFuture<PlayerResult> playInternal() {
         if (!(mItem instanceof UriMediaItem2)) {
             Log.w(TAG, "Data source type is not Uri." + mItem);
             return createResult(RESULT_CODE_BAD_VALUE);
         }
-        final SettableFuture<CommandResult2> result = SettableFuture.create();
+        final SettableFuture<PlayerResult> result = SettableFuture.create();
         mClient.play(((UriMediaItem2) mItem).getUri(), "video/mp4", null, mPosition, null,
                 new ItemActionCallback() {
                     @Override
@@ -493,19 +495,19 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
                         // Do not update playback state here since this returns the buffering state.
                         // StatusCallback#onItemStatusChanged is called when the session reaches the
                         // play state.
-                        result.set(new CommandResult2(RESULT_CODE_NO_ERROR, getCurrentMediaItem()));
+                        result.set(new PlayerResult(RESULT_CODE_SUCCESS, getCurrentMediaItem()));
                     }
                 });
         return result;
     }
 
-    private ListenableFuture<CommandResult2> createResult() {
-        return createResult(RESULT_CODE_NO_ERROR);
+    private ListenableFuture<PlayerResult> createResult() {
+        return createResult(RESULT_CODE_SUCCESS);
     }
 
-    private ListenableFuture<CommandResult2> createResult(int code) {
-        SettableFuture<CommandResult2> result = SettableFuture.create();
-        result.set(new CommandResult2(code, getCurrentMediaItem()));
+    private ListenableFuture<PlayerResult> createResult(int code) {
+        SettableFuture<PlayerResult> result = SettableFuture.create();
+        result.set(new PlayerResult(code, getCurrentMediaItem()));
         return result;
     }
 }
