@@ -1,6 +1,6 @@
 package androidx.ui.semantics
 
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 
 // import 'package:flutter/painting.dart';
 

@@ -21,7 +21,7 @@ import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.runtimeType
-import androidx.ui.text.TextBaseline
+import androidx.ui.engine.text.TextBaseline
 import androidx.ui.vectormath64.Matrix4
 
 /**

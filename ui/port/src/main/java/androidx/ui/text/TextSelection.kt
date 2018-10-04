@@ -1,5 +1,7 @@
 package androidx.ui.text
 
+import androidx.ui.engine.text.TextAffinity
+
 // import 'dart:ui' show hashValues, TextAffinity, TextPosition;
 //
 // import 'package:flutter/foundation.dart';

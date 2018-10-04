@@ -17,7 +17,7 @@
 package androidx.ui.painting.alignment
 
 import androidx.ui.lerpDouble
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.toStringAsFixed
 import androidx.ui.truncDiv
 

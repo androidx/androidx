@@ -23,7 +23,7 @@ import androidx.ui.painting.alignment.Alignment
 import androidx.ui.painting.alignment.AlignmentGeometry
 import androidx.ui.rendering.box.BoxParentData
 import androidx.ui.rendering.box.RenderBox
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 
 // / Abstract class for one-child-layout render boxes that use a
 // / [AlignmentGeometry] to align their children.

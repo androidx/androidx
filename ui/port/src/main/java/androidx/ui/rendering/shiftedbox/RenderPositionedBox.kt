@@ -30,7 +30,7 @@ import androidx.ui.painting.alignment.AlignmentGeometry
 import androidx.ui.rendering.box.BoxParentData
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 
 // / Positions its child using a [AlignmentGeometry].
 // /

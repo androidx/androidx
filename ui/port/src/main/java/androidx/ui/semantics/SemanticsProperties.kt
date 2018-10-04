@@ -2,7 +2,7 @@ package androidx.ui.semantics
 
 import androidx.ui.VoidCallback
 import androidx.ui.foundation.diagnostics.DiagnosticableTree
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 
 // / Contains properties used by assistive technologies to make the application
 // / more accessible.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text
+package androidx.ui.engine.text
 
 // / Whether a [TextPosition] is visually upstream or downstream of its offset.
 // /

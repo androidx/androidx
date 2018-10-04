@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text
+package androidx.ui.engine.text
 
 // / A horizontal line used for aligning text.
 enum class TextBaseline {
