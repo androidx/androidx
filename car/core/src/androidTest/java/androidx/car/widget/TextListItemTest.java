@@ -23,6 +23,7 @@ import static androidx.test.espresso.contrib.RecyclerViewActions.scrollToPositio
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThan;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.verify;
 
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
@@ -500,17 +502,33 @@ public class TextListItemTest {
     }
 
     @Test
+    public void testSetPrimaryActionIcon() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
+                TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+
+        List<TextListItem> items = Arrays.asList(item);
+        setupPagedListView(items);
+
+        assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getDrawable(), is(notNullValue()));
+    }
+
+    @Test
     public void testPrimaryIconSizesInIncreasingOrder() {
         TextListItem small = new TextListItem(mActivity);
-        small.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        small.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
 
         TextListItem medium = new TextListItem(mActivity);
-        medium.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        medium.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
 
         TextListItem large = new TextListItem(mActivity);
-        large.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        large.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
         List<TextListItem> items = Arrays.asList(small, medium, large);
@@ -529,7 +547,8 @@ public class TextListItemTest {
     @Test
     public void testLargePrimaryIconHasNoStartMargin() {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        item0.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
         List<TextListItem> items = Arrays.asList(item0);
@@ -543,11 +562,13 @@ public class TextListItemTest {
     @Test
     public void testSmallAndMediumPrimaryIconStartMargin() {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        item0.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
 
         TextListItem item1 = new TextListItem(mActivity);
-        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        item1.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
 
         List<TextListItem> items = Arrays.asList(item0, item1);
@@ -572,33 +593,38 @@ public class TextListItemTest {
 
         // Single line item.
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        item0.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item0.setTitle("one line text");
 
         // Double line item with one line text.
         TextListItem item1 = new TextListItem(mActivity);
-        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        item1.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item1.setTitle("one line text");
         item1.setBody("one line text");
 
         // Double line item with long text.
         TextListItem item2 = new TextListItem(mActivity);
-        item2.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        item2.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item2.setTitle("one line text");
         item2.setBody(longText);
 
         // Body text only - long text.
         TextListItem item3 = new TextListItem(mActivity);
-        item3.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        item3.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item3.setBody(longText);
 
         // Body text only - one line text.
         TextListItem item4 = new TextListItem(mActivity);
-        item4.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
+        item4.setPrimaryActionIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
                 TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item4.setBody("one line text");
 
@@ -631,8 +657,9 @@ public class TextListItemTest {
 
         TextListItem item0 = new TextListItem(mActivity);
         item0.setOnClickListener(v -> clicked[0] = true);
-        item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
-                v -> clicked[1] = true);
+        item0.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon), true);
+        item0.setSupplementalIconOnClickListener(v -> clicked[1] = true);
 
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
@@ -651,8 +678,9 @@ public class TextListItemTest {
         final boolean[] clicked = {false};
 
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
-                v -> clicked[0] = true);
+        item0.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon), true);
+        item0.setSupplementalIconOnClickListener(v -> clicked[0] = true);
 
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
@@ -665,7 +693,8 @@ public class TextListItemTest {
     @Test
     public void testSupplementalIconWithoutClickListenerIsNotClickable() {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+        item0.setSupplementalIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon), true);
 
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
