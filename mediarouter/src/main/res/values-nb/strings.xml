@@ -37,4 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"Ingen medier er valgt"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"Ingen informasjon er tilgjengelig"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"Caster skjermen"</string>
+    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"Legg til en enhet"</string>
+    <string name="mr_dialog_transferable_header" msgid="8242946697267839296">"Spill i en gruppe"</string>
+    <string name="mr_cast_dialog_title_view_placeholder" msgid="6167045754274068030">"Ingen informasjon er tilgjengelig"</string>
 </resources>
