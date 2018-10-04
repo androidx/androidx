@@ -36,6 +36,7 @@ import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -45,7 +46,6 @@ import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -54,6 +54,7 @@ import androidx.core.content.ContextCompat;
 import androidx.media.widget.test.R;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaController2;
+import androidx.media2.MediaController2.ControllerResult;
 import androidx.media2.MediaItem2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
@@ -118,6 +119,11 @@ public class VideoView2Test {
         checkAttachedToWindow();
 
         mControllerCallback = mock(MediaController2.ControllerCallback.class);
+        when(mControllerCallback.onCustomCommand(
+                nullable(MediaController2.class),
+                nullable(SessionCommand2.class),
+                nullable(Bundle.class))).thenReturn(
+                        new ControllerResult(ControllerResult.RESULT_CODE_SUCCESS, null));
         mController = new MediaController2(mVideoView.getContext(),
                 mVideoView.getMediaSessionToken2(), mMainHandlerExecutor, mControllerCallback);
     }
@@ -268,8 +274,7 @@ public class VideoView2Test {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
                 any(MediaController2.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_TRACK_STATUS)),
-                argThat(new CommandArgumentMatcher(KEY_SUBTITLE_TRACK_COUNT, 2)),
-                nullable(ResultReceiver.class));
+                argThat(new CommandArgumentMatcher(KEY_SUBTITLE_TRACK_COUNT, 2)));
 
         // Select the first subtitle track
         Bundle extra = new Bundle();
@@ -279,8 +284,7 @@ public class VideoView2Test {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
                 any(MediaController2.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
-                argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 0)),
-                nullable(ResultReceiver.class));
+                argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 0)));
 
         // Select the second subtitle track
         extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 1);
@@ -289,8 +293,7 @@ public class VideoView2Test {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
                 any(MediaController2.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
-                argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 1)),
-                nullable(ResultReceiver.class));
+                argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 1)));
 
         // Deselect subtitle track
         mController.sendCustomCommand(
@@ -298,8 +301,7 @@ public class VideoView2Test {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
                 any(MediaController2.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_DESELECTED)),
-                nullable(Bundle.class),
-                nullable(ResultReceiver.class));
+                nullable(Bundle.class));
     }
 
     class CommandMatcher implements ArgumentMatcher<SessionCommand2> {

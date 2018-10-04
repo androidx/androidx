@@ -36,7 +36,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
-import android.os.ResultReceiver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -510,8 +509,8 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
             final ControllerCallback callback = new ControllerCallback() {
                 @Override
-                public void onCustomLayoutChanged(MediaController2 controller2,
-                        List<CommandButton> layout) {
+                public int onSetCustomLayout(
+                        MediaController2 controller2, List<CommandButton> layout) {
                     assertEquals(customLayout.size(), layout.size());
                     for (int i = 0; i < layout.size(); i++) {
                         assertEquals(customLayout.get(i).getCommand(), layout.get(i).getCommand());
@@ -519,6 +518,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                                 layout.get(i).getDisplayName());
                     }
                     latch.countDown();
+                    return RESULT_CODE_SUCCESS;
                 }
             };
             MediaController2 controller = createController(session.getToken(), true, callback);
@@ -572,23 +572,23 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(2);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onCustomCommand(MediaController2 controller, SessionCommand2 command,
-                    Bundle args, ResultReceiver receiver) {
+            public MediaController2.ControllerResult onCustomCommand(MediaController2 controller,
+                    SessionCommand2 command, Bundle args) {
                 assertEquals(testCommand, command);
                 assertTrue(TestUtils.equals(testArgs, args));
-                assertNull(receiver);
                 latch.countDown();
+                return new MediaController2.ControllerResult(RESULT_CODE_SUCCESS);
             }
         };
         final MediaController2 controller =
                 createController(mSession.getToken(), true, callback);
         // TODO(jaewan): Test with multiple controllers
-        mSession.sendCustomCommand(testCommand, testArgs);
+        mSession.broadcastCustomCommand(testCommand, testArgs);
 
         ControllerInfo controllerInfo = getTestControllerInfo();
         assertNotNull(controllerInfo);
         // TODO(jaewan): Test receivers as well.
-        mSession.sendCustomCommand(controllerInfo, testCommand, testArgs, null);
+        mSession.sendCustomCommand(controllerInfo, testCommand, testArgs);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 

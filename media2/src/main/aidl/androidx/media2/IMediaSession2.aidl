@@ -17,7 +17,6 @@
 package androidx.media2;
 
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.net.Uri;
 
 import androidx.media2.IMediaController2;
@@ -75,6 +74,9 @@ oneway interface IMediaSession2 {
     void unsubscribeRoutesInfo(IMediaController2 caller, int seq) = 31;
     void selectRoute(IMediaController2 caller, int seq, in Bundle route) = 32;
 
+    void onControllerResult(IMediaController2 caller, int seq,
+            in ParcelImpl controllerResult) = 41;
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // library service specific
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,5 +89,5 @@ oneway interface IMediaSession2 {
             in Bundle extras) = 37;
     void subscribe(IMediaController2 caller, String parentId, in Bundle extras) = 38;
     void unsubscribe(IMediaController2 caller, String parentId) = 39;
-    // Next Id : 41
+    // Next Id : 42
 }

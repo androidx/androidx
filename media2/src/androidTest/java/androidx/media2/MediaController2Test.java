@@ -36,7 +36,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import android.os.ResultReceiver;
 
 import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
@@ -1331,11 +1330,12 @@ public class MediaController2Test extends MediaSession2TestBase {
         mController = createController(TestUtils.getServiceToken(mContext, id), true,
                 new ControllerCallback() {
                     @Override
-                    public void onCustomCommand(MediaController2 controller,
-                            SessionCommand2 command, Bundle args, ResultReceiver receiver) {
+                    public MediaController2.ControllerResult onCustomCommand(
+                            MediaController2 controller, SessionCommand2 command, Bundle args) {
                         if (testCommand.equals(command)) {
                             controllerLatch.countDown();
                         }
+                        return new MediaController2.ControllerResult(RESULT_CODE_SUCCESS);
                     }
                 }
         );
@@ -1347,7 +1347,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mPlayer.mPlayCalled);
 
         // Test command from session service to controller.
-        mSession.sendCustomCommand(testCommand, null);
+        mSession.broadcastCustomCommand(testCommand, null);
         assertTrue(controllerLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -1553,7 +1553,7 @@ public class MediaController2Test extends MediaSession2TestBase {
             }
         });
         SessionCommand2 customCommand = new SessionCommand2("testNoInteraction", null);
-        mSession.sendCustomCommand(customCommand, null);
+        mSession.broadcastCustomCommand(customCommand, null);
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         setRunnableForOnCustomCommand(mController, null);
     }

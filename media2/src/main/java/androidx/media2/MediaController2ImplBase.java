@@ -19,6 +19,7 @@ package androidx.media2;
 import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_DISCONNECTED;
 import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_PERMISSION_DENIED;
 import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_SKIPPED;
+import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_UNKNOWN_ERROR;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DURATION;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM;
@@ -64,7 +65,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
 import android.util.Log;
@@ -72,7 +72,6 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.MediaController2.ControllerResult;
 import androidx.media2.MediaController2.MediaController2Impl;
@@ -92,6 +91,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 class MediaController2ImplBase implements MediaController2Impl {
+    private static final boolean THROW_EXCEPTION_FOR_NULL_RESULT = true;
+
     static final String TAG = "MC2ImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
@@ -275,9 +276,7 @@ class MediaController2ImplBase implements MediaController2Impl {
             // Don't create Future with SequencedFutureManager.
             // Otherwise session would receive discontinued sequence number, and it would make
             // future work item 'keeping call sequence when session execute commands' impossible.
-            final ResolvableFuture<ControllerResult> result = ResolvableFuture.create();
-            result.set(new ControllerResult(RESULT_CODE_PERMISSION_DENIED));
-            return result;
+            return ControllerResult.createFutureWithResult(RESULT_CODE_PERMISSION_DENIED);
         }
     }
 
@@ -1104,15 +1103,40 @@ class MediaController2ImplBase implements MediaController2Impl {
         }
     }
 
-    void onCustomCommand(final SessionCommand2 command, final Bundle args,
-            final ResultReceiver receiver) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void sendControllerResult(int seq, @NonNull ControllerResult result) {
+        final IMediaSession2 iSession2;
+        synchronized (mLock) {
+            iSession2 = mISession2;
+        }
+        if (iSession2 == null) {
+            return;
+        }
+        try {
+            iSession2.onControllerResult(mControllerStub, seq,
+                    (ParcelImpl) ParcelUtils.toParcelable(result));
+        } catch (RemoteException e) {
+            Log.w(TAG, "Error in sending");
+        }
+    }
+
+    void onCustomCommand(final int seq, final SessionCommand2 command, final Bundle args) {
         if (DEBUG) {
-            Log.d(TAG, "onCustomCommand cmd=" + command);
+            Log.d(TAG, "onCustomCommand cmd=" + command.getCustomCommand());
         }
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mCallback.onCustomCommand(mInstance, command, args, receiver);
+                ControllerResult result = mCallback.onCustomCommand(mInstance, command, args);
+                if (result == null) {
+                    if (THROW_EXCEPTION_FOR_NULL_RESULT) {
+                        throw new RuntimeException("ControllerCallback#onCustomCommand() has"
+                                + " returned null, command=" + command.getCustomCommand());
+                    } else {
+                        result = new ControllerResult(RESULT_CODE_UNKNOWN_ERROR);
+                    }
+                }
+                sendControllerResult(seq, result);
             }
         });
     }
@@ -1126,11 +1150,13 @@ class MediaController2ImplBase implements MediaController2Impl {
         });
     }
 
-    void onCustomLayoutChanged(final List<MediaSession2.CommandButton> layout) {
+    void onSetCustomLayout(final int seq, final List<MediaSession2.CommandButton> layout) {
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mCallback.onCustomLayoutChanged(mInstance, layout);
+                int resultCode = mCallback.onSetCustomLayout(mInstance, layout);
+                ControllerResult result = new ControllerResult(resultCode);
+                sendControllerResult(seq, result);
             }
         });
     }

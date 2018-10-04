@@ -18,7 +18,6 @@ package androidx.media2;
 
 import android.app.PendingIntent;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 
 import androidx.media2.IMediaSession2;
 import androidx.versionedparcelable.ParcelImpl;
@@ -31,8 +30,6 @@ import androidx.versionedparcelable.ParcelImpl;
  * @hide
  */
 oneway interface IMediaController2 {
-    void onSessionResult(int seq, in ParcelImpl sessionResult) = 24;
-
     void onCurrentMediaItemChanged(in ParcelImpl item) = 0;
     void onPlayerStateChanged(long eventTimeMs, long positionMs, int state) = 1;
     void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed) = 2;
@@ -52,10 +49,12 @@ oneway interface IMediaController2 {
         in List<ParcelImpl> playlist, in PendingIntent sessionActivity) = 12;
     void onDisconnected() = 13;
 
-    void onCustomLayoutChanged(in List<ParcelImpl> commandButtonlist) = 14;
+    void onSetCustomLayout(int seq, in List<ParcelImpl> commandButtonlist) = 14;
     void onAllowedCommandsChanged(in ParcelImpl commandGroup) = 15;
 
-    void onCustomCommand(in ParcelImpl command, in Bundle args, in ResultReceiver receiver) = 16;
+    void onCustomCommand(int seq, in ParcelImpl command, in Bundle args) = 16;
+
+    void onSessionResult(int seq, in ParcelImpl sessionResult) = 24;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Browser sepcific

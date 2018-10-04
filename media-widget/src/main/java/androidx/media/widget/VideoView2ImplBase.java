@@ -739,7 +739,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             Bundle data = new Bundle();
             data.putInt(MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
                     mSubtitleTracks.indexOfKey(trackIndex));
-            mMediaSession.sendCustomCommand(
+            mMediaSession.broadcastCustomCommand(
                     new SessionCommand2(MediaControlView2.EVENT_UPDATE_SUBTITLE_SELECTED, null),
                     data);
         }
@@ -753,7 +753,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
         mSubtitleAnchorView.setVisibility(View.GONE);
 
-        mMediaSession.sendCustomCommand(
+        mMediaSession.broadcastCustomCommand(
                 new SessionCommand2(MediaControlView2.EVENT_UPDATE_SUBTITLE_DESELECTED, null),
                 null);
     }
@@ -996,7 +996,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
                         Bundle data = extractTrackInfoData();
                         if (data != null) {
-                            mMediaSession.sendCustomCommand(
+                            mMediaSession.broadcastCustomCommand(
                                     new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS,
                                             null), data);
                         }
@@ -1081,7 +1081,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     if (mMediaSession != null) {
                         Bundle data = extractTrackInfoData();
                         if (data != null) {
-                            mMediaSession.sendCustomCommand(
+                            mMediaSession.broadcastCustomCommand(
                                     new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS,
                                             null), data);
                         }
