@@ -48,6 +48,7 @@
     <public type="style" name="TextAppearance.Car.HintActionBar.Menu" />
     <public type="style" name="TextAppearance.Car.Hint" />
     <public type="style" name="TextAppearance.Car.Hint.Light" />
+    <public type="style" name="TextAppearance.Car.Error" />
 
     <!-- Widgets -->
     <public type="style" name="Widget.Car.Toolbar" />

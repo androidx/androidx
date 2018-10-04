@@ -180,6 +180,11 @@ limitations under the License.
     <!-- A style for TextInputLayout hints that is fixed to a light color. -->
     <style name="TextAppearance.Car.Hint.Light" parent="TextAppearance.Car.Body2.Light" />
 
+    <!-- Styles for an error message for TextInputLayouts. -->
+    <style name="TextAppearance.Car.Error" parent="TextAppearance.Car.Body2">
+        <item name="android:textColor">@color/car_red_400</item>
+    </style>
+
     <!-- Style for the Alpha Jump button in the Scrollbar View -->
     <style name="TextAppearance.Car.AlphaJumpButton">
         <item name="android:textStyle">bold</item>
