@@ -17,12 +17,10 @@ package androidx.fragment.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
 import android.os.Bundle;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FragmentTest {
     @Rule
     public ActivityTestRule<FragmentTestActivity> mActivityRule =
-            new ActivityTestRule<>(FragmentTestActivity.class);
+            new ActivityTestRule<FragmentTestActivity>(FragmentTestActivity.class);
 
     private FragmentTestActivity mActivity;
     private Instrumentation mInstrumentation;
@@ -183,40 +181,6 @@ public class FragmentTest {
         assertNotNull(content.getChildAt(0).findViewById(R.id.textA));
         assertNotNull(content.getChildAt(1).findViewById(R.id.textB));
         assertNotNull(content.getChildAt(2).findViewById(R.id.textC));
-    }
-
-    @SmallTest
-    @UiThreadTest
-    @Test
-    public void testInflatedViewContext() {
-        final FragmentA fragment = new FragmentA();
-
-        mActivity.getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.content, fragment)
-                .commitNow();
-
-        // Assert that the view has the Activity's context
-        assertSame(mActivity, fragment.getView().getContext());
-    }
-
-    @SmallTest
-    @UiThreadTest
-    @Test
-    public void testInflatedViewContext_withThemedContext() {
-        // Set the FragmentActivity to use a 'themed context'
-        ContextThemeWrapper themedContext = new ContextThemeWrapper(mActivity,
-                android.R.style.Theme_Black);
-        mActivity.setTestThemedContext(themedContext);
-
-        final FragmentA fragment = new FragmentA();
-        mActivity.getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content, fragment)
-                .commitNow();
-
-        // Assert that the view uses the themed context
-        assertSame(themedContext, fragment.getView().getContext());
     }
 
     @SmallTest
