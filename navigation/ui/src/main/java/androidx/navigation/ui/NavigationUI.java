@@ -126,11 +126,12 @@ public class NavigationUI {
      * @param activity The activity hosting the action bar that should be kept in sync with changes
      *                 to the NavController.
      * @param navController The NavController that supplies the secondary menu. Navigation actions
- *                      on this NavController will be reflected in the title of the action bar.
+     *                      on this NavController will be reflected in the title of the action bar.
      */
     public static void setupActionBarWithNavController(@NonNull AppCompatActivity activity,
             @NonNull NavController navController) {
-        setupActionBarWithNavController(activity, navController, null);
+        setupActionBarWithNavController(activity, navController,
+                new AppBarConfiguration.Builder().build());
     }
 
     /**
@@ -153,7 +154,30 @@ public class NavigationUI {
             @NonNull NavController navController,
             @Nullable DrawerLayout drawerLayout) {
         navController.addOnNavigatedListener(
-                new ActionBarOnNavigatedListener(activity, drawerLayout));
+                new ActionBarOnNavigatedListener(activity,
+                        new AppBarConfiguration.Builder().setDrawerLayout(drawerLayout).build()));
+    }
+
+    /**
+     * Sets up the ActionBar returned by {@link AppCompatActivity#getSupportActionBar()} for use
+     * with a {@link NavController}.
+     *
+     * <p>By calling this method, the title in the action bar will automatically be updated when
+     * the destination changes (assuming there is a valid {@link NavDestination#getLabel label}).
+     *
+     * <p>The {@link AppBarConfiguration} you provide controls how the Up button is displayed.
+     *  @param activity The activity hosting the action bar that should be kept in sync with changes
+     *                 to the NavController.
+     * @param navController The NavController whose navigation actions will be reflected
+     *                      in the title of the action bar.
+     * @param configuration Additional configuration options for customizing the behavior of the
+     *                      ActionBar
+     */
+    public static void setupActionBarWithNavController(@NonNull AppCompatActivity activity,
+            @NonNull NavController navController,
+            @NonNull AppBarConfiguration configuration) {
+        navController.addOnNavigatedListener(
+                new ActionBarOnNavigatedListener(activity, configuration));
     }
 
     /**
@@ -172,7 +196,7 @@ public class NavigationUI {
      */
     public static void setupWithNavController(@NonNull Toolbar toolbar,
             @NonNull NavController navController) {
-        setupWithNavController(toolbar, navController, null);
+        setupWithNavController(toolbar, navController, new AppBarConfiguration.Builder().build());
     }
 
     /**
@@ -194,12 +218,34 @@ public class NavigationUI {
     public static void setupWithNavController(@NonNull Toolbar toolbar,
             @NonNull final NavController navController,
             @Nullable final DrawerLayout drawerLayout) {
+        setupWithNavController(toolbar, navController,
+                new AppBarConfiguration.Builder().setDrawerLayout(drawerLayout).build());
+    }
+
+    /**
+     * Sets up a {@link Toolbar} for use with a {@link NavController}.
+     *
+     * <p>By calling this method, the title in the Toolbar will automatically be updated when
+     * the destination changes (assuming there is a valid {@link NavDestination#getLabel label}).
+     *
+     * <p>The {@link AppBarConfiguration} you provide controls how the Up button is displayed and
+     * what action is triggered when the Up button is tapped.
+     *
+     * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
+     * @param navController The NavController whose navigation actions will be reflected
+     *                      in the title of the Toolbar.
+     * @param configuration Additional configuration options for customizing the behavior of the
+     *                      Toolbar
+     */
+    public static void setupWithNavController(@NonNull Toolbar toolbar,
+            @NonNull final NavController navController,
+            @NonNull final AppBarConfiguration configuration) {
         navController.addOnNavigatedListener(
-                new ToolbarOnNavigatedListener(toolbar, drawerLayout));
+                new ToolbarOnNavigatedListener(toolbar, configuration));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigateUp(drawerLayout, navController);
+                navigateUp(configuration.getDrawerLayout(), navController);
             }
         });
     }
@@ -226,7 +272,8 @@ public class NavigationUI {
             @NonNull CollapsingToolbarLayout collapsingToolbarLayout,
             @NonNull Toolbar toolbar,
             @NonNull NavController navController) {
-        setupWithNavController(collapsingToolbarLayout, toolbar, navController, null);
+        setupWithNavController(collapsingToolbarLayout, toolbar, navController,
+                new AppBarConfiguration.Builder().build());
     }
 
     /**
@@ -254,12 +301,40 @@ public class NavigationUI {
             @NonNull Toolbar toolbar,
             @NonNull final NavController navController,
             @Nullable final DrawerLayout drawerLayout) {
+        setupWithNavController(collapsingToolbarLayout, toolbar, navController,
+                new AppBarConfiguration.Builder().setDrawerLayout(drawerLayout).build());
+    }
+
+    /**
+     * Sets up a {@link CollapsingToolbarLayout} and {@link Toolbar} for use with a
+     * {@link NavController}.
+     *
+     * <p>By calling this method, the title in the CollapsingToolbarLayout will automatically be
+     * updated when the destination changes (assuming there is a valid
+     * {@link NavDestination#getLabel label}).
+     *
+     * <p>The {@link AppBarConfiguration} you provide controls how the Up button is displayed and
+     * what action is triggered when the Up button is tapped.
+     *
+     * @param collapsingToolbarLayout The CollapsingToolbarLayout that should be kept in sync with
+     *                                changes to the NavController.
+     * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
+     * @param navController The NavController whose navigation actions will be reflected
+     *                      in the title of the Toolbar.
+     * @param configuration Additional configuration options for customizing the behavior of the
+     *                      Toolbar
+     */
+    public static void setupWithNavController(
+            @NonNull CollapsingToolbarLayout collapsingToolbarLayout,
+            @NonNull Toolbar toolbar,
+            @NonNull final NavController navController,
+            @NonNull final AppBarConfiguration configuration) {
         navController.addOnNavigatedListener(new CollapsingToolbarOnNavigatedListener(
-                collapsingToolbarLayout, toolbar, drawerLayout));
+                collapsingToolbarLayout, toolbar, configuration));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigateUp(drawerLayout, navController);
+                navigateUp(configuration.getDrawerLayout(), navController);
             }
         });
     }

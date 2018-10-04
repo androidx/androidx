@@ -37,8 +37,9 @@ import androidx.navigation.NavController
  * @param drawerLayout The DrawerLayout that should be toggled from the home button
  */
 fun AppCompatActivity.setupActionBarWithNavController(
-        navController: NavController,
-        drawerLayout: DrawerLayout? = null
+    navController: NavController,
+    drawerLayout: DrawerLayout? = null
 ) {
-    NavigationUI.setupActionBarWithNavController(this, navController, drawerLayout)
+    NavigationUI.setupActionBarWithNavController(this, navController,
+            AppBarConfiguration.Builder().setDrawerLayout(drawerLayout).build())
 }

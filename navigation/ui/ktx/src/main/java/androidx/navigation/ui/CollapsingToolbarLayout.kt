@@ -43,5 +43,6 @@ fun CollapsingToolbarLayout.setupWithNavController(
     navController: NavController,
     drawerLayout: DrawerLayout? = null
 ) {
-    NavigationUI.setupWithNavController(this, toolbar, navController, drawerLayout)
+    NavigationUI.setupWithNavController(this, toolbar, navController,
+            AppBarConfiguration.Builder().setDrawerLayout(drawerLayout).build())
 }
