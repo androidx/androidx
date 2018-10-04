@@ -41,7 +41,7 @@ import androidx.core.content.ContextCompat;
 import androidx.media.widget.test.R;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
-import androidx.media2.MediaPlayerConnector;
+import androidx.media2.SessionPlayer2;
 import androidx.media2.UriMediaItem2;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
@@ -149,10 +149,10 @@ public class MediaControlView2Test {
                             int state) {
                         switch ((int) latch.getCount()) {
                             case 2:
-                                assertEquals(state, MediaPlayerConnector.PLAYER_STATE_PAUSED);
+                                assertEquals(state, SessionPlayer2.PLAYER_STATE_PAUSED);
                                 break;
                             case 1:
-                                assertEquals(state, MediaPlayerConnector.PLAYER_STATE_PLAYING);
+                                assertEquals(state, SessionPlayer2.PLAYER_STATE_PLAYING);
                         }
                         latch.countDown();
                     }
@@ -212,7 +212,7 @@ public class MediaControlView2Test {
                     @Override
                     public void onPlayerStateChanged(@NonNull MediaController2 controller,
                             int state) {
-                        if (state == MediaPlayerConnector.PLAYER_STATE_PAUSED) {
+                        if (state == SessionPlayer2.PLAYER_STATE_PAUSED) {
                             controller.seekTo(FFWD_MS);
                             latch.countDown();
                         }
@@ -260,10 +260,10 @@ public class MediaControlView2Test {
                             int state) {
                         switch ((int) latch.getCount()) {
                             case 2:
-                                assertEquals(state, MediaPlayerConnector.PLAYER_STATE_PAUSED);
+                                assertEquals(state, SessionPlayer2.PLAYER_STATE_PAUSED);
                                 break;
                             case 1:
-                                assertEquals(state, MediaPlayerConnector.PLAYER_STATE_PLAYING);
+                                assertEquals(state, SessionPlayer2.PLAYER_STATE_PLAYING);
                         }
                         latch.countDown();
                     }

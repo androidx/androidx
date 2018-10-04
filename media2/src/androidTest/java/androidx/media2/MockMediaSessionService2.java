@@ -62,8 +62,7 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
             // Ensures non-null
             sessionCallback = new SessionCallback() {};
         }
-        mSession = new MediaSession2.Builder(this)
-                .setPlayer(player)
+        mSession = new MediaSession2.Builder(this, player)
                 .setSessionCallback(executor, sessionCallback)
                 .setId(ID)
                 .build();

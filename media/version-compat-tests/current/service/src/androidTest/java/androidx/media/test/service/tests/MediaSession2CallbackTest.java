@@ -82,8 +82,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         mPlayer = new MockPlayer(1);
 
         final MockOnCommandCallback callback = new MockOnCommandCallback();
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCommandRequest")
                 .build()) {
@@ -93,7 +92,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
             assertFalse(mPlayer.mPauseCalled);
             assertEquals(1, callback.commands.size());
-            assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE,
+            assertEquals(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE,
                     (long) callback.commands.get(0).getCommandCode());
 
             mController2.play();
@@ -101,7 +100,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             assertTrue(mPlayer.mPlayCalled);
             assertFalse(mPlayer.mPauseCalled);
             assertEquals(2, callback.commands.size());
-            assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY,
+            assertEquals(SessionCommand2.COMMAND_CODE_PLAYER_PLAY,
                     (long) callback.commands.get(1).getCommandCode());
         }
     }
@@ -138,8 +137,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCustomCommand")
                 .build()) {
@@ -160,8 +158,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnFastForward").build()) {
             mController2 = createRemoteController2(session.getToken());
@@ -181,8 +178,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnRewind").build()) {
             mController2 = createRemoteController2(session.getToken());
@@ -207,8 +203,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromSearch").build()) {
             mController2 = createRemoteController2(session.getToken());
@@ -234,8 +229,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromUri")
                 .build()) {
@@ -262,8 +256,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromMediaId").build()) {
             mController2 = createRemoteController2(session.getToken());
@@ -289,8 +282,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromSearch").build()) {
             mController2 = createRemoteController2(session.getToken());
@@ -316,8 +308,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromUri").build()) {
             mController2 = createRemoteController2(session.getToken());
@@ -343,8 +334,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromMediaId").build()) {
             mController2 = createRemoteController2(session.getToken());
@@ -373,8 +363,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSetRating").build()) {
             mController2 = createRemoteController2(session.getToken());
@@ -395,8 +384,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 mLatch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSubscribeRoutesInfo")
                 .build()) {
@@ -419,8 +407,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 mLatch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnUnsubscribeRoutesInfo")
                 .build()) {
@@ -445,8 +432,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 mLatch.countDown();
             }
         };
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSelectRoute")
                 .build()) {
@@ -462,8 +448,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     public void testOnConnect() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setId("testOnConnect")
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                     @Override
@@ -487,8 +472,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     public void testOnDisconnected() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setId("testOnDisconnected")
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                     @Override
@@ -526,7 +510,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             assertEquals(CLIENT_PACKAGE_NAME, controllerInfo.getPackageName());
             assertFalse(controllerInfo.isTrusted());
             commands.add(command);
-            if (command.getCommandCode() == SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE) {
+            if (command.getCommandCode() == SessionCommand2.COMMAND_CODE_PLAYER_PAUSE) {
                 return false;
             }
             return true;

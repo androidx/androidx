@@ -625,6 +625,11 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         }
 
         @Override
+        public void onPlaybackCompleted(MediaController2 controller) {
+            mCallbackProxy.onPlaybackCompleted(controller);
+        }
+
+        @Override
         public void onRoutesInfoChanged(MediaController2 controller, List<Bundle> routes) {
             mCallbackProxy.onRoutesInfoChanged(controller, routes);
         }

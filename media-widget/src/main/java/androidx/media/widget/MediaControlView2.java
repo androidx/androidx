@@ -66,10 +66,10 @@ import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayer2;
-import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaSession2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionPlayer2;
 import androidx.media2.SessionToken2;
 import androidx.media2.UriMediaItem2;
 import androidx.mediarouter.app.MediaRouteButton;
@@ -1801,7 +1801,7 @@ public class MediaControlView2 extends BaseLayout {
         }
         mController.setAllowedCommands(commands);
 
-        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE)) {
+        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE)) {
             mPlayPauseButton.setVisibility(View.VISIBLE);
             mPlayPauseButton.setEnabled(true);
         } else {
@@ -1829,7 +1829,7 @@ public class MediaControlView2 extends BaseLayout {
                 mFfwdButton.setVisibility(View.GONE);
             }
         }
-        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO)) {
+        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO)) {
             mSeekAvailable = true;
             mProgress.setEnabled(true);
         }
@@ -1854,8 +1854,8 @@ public class MediaControlView2 extends BaseLayout {
     boolean shouldNotHideBars() {
         return (mMediaType == MEDIA_TYPE_MUSIC && mSizeType == SIZE_TYPE_FULL)
                 || mAccessibilityManager.isTouchExplorationEnabled()
-                || mController.getPlaybackState() == MediaPlayerConnector.PLAYER_STATE_ERROR
-                || mController.getPlaybackState() == MediaPlayerConnector.PLAYER_STATE_IDLE;
+                || mController.getPlaybackState() == SessionPlayer2.PLAYER_STATE_ERROR
+                || mController.getPlaybackState() == SessionPlayer2.PLAYER_STATE_IDLE;
     }
 
     void seekTo(long newPosition, boolean shouldSeekNow) {
@@ -2099,8 +2099,8 @@ public class MediaControlView2 extends BaseLayout {
 
     class Controller2 {
         private MediaController2 mController2;
-        int mPlaybackState = MediaPlayerConnector.PLAYER_STATE_IDLE;
-        int mPrevState = MediaPlayerConnector.PLAYER_STATE_IDLE;
+        int mPlaybackState = SessionPlayer2.PLAYER_STATE_IDLE;
+        int mPrevState = SessionPlayer2.PLAYER_STATE_IDLE;
         MediaMetadata2 mMediaMetadata2;
         private Executor mCallbackExecutor;
         SessionCommandGroup2 mAllowedCommands;
@@ -2123,7 +2123,7 @@ public class MediaControlView2 extends BaseLayout {
             return mMediaMetadata2 != null;
         }
         boolean isPlaying() {
-            return mPlaybackState == MediaPlayerConnector.PLAYER_STATE_PLAYING;
+            return mPlaybackState == SessionPlayer2.PLAYER_STATE_PLAYING;
         }
         long getCurrentPosition() {
             if (mController2 != null) {
@@ -2143,11 +2143,11 @@ public class MediaControlView2 extends BaseLayout {
             if (mController2 != null) {
                 return mController2.getPlayerState();
             }
-            return MediaPlayerConnector.PLAYER_STATE_IDLE;
+            return SessionPlayer2.PLAYER_STATE_IDLE;
         }
         boolean canPause() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                    SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
+                    SessionCommand2.COMMAND_CODE_PLAYER_PAUSE);
         }
         boolean canSeekBackward() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
@@ -2174,12 +2174,12 @@ public class MediaControlView2 extends BaseLayout {
         }
         void skipToNextItem() {
             if (mController2 != null) {
-                mController2.skipToNextItem();
+                mController2.skipToNextPlaylistItem();
             }
         }
         void skipToPreviousItem() {
             if (mController2 != null) {
-                mController2.skipToPreviousItem();
+                mController2.skipToPreviousPlaylistItem();
             }
         }
         void setSpeed(float speed) {
@@ -2254,7 +2254,7 @@ public class MediaControlView2 extends BaseLayout {
         class MediaControllerCallback extends MediaController2.ControllerCallback {
             @Override
             public void onPlayerStateChanged(@NonNull MediaController2 controller,
-                    @MediaPlayerConnector.PlayerState int state) {
+                    @SessionPlayer2.PlayerState int state) {
                 if (DEBUG) {
                     Log.d(TAG, "onPlayerStateChanged(state: " + state + ")");
                 }
@@ -2266,20 +2266,20 @@ public class MediaControlView2 extends BaseLayout {
                 //   2) Need to handle case where the media file reaches end of duration.
                 if (mPlaybackState != mPrevState) {
                     switch (mPlaybackState) {
-                        case MediaPlayerConnector.PLAYER_STATE_PLAYING:
+                        case SessionPlayer2.PLAYER_STATE_PLAYING:
                             removeCallbacks(mUpdateProgress);
                             post(mUpdateProgress);
                             resetHideCallbacks();
                             updateForStoppedState(false);
                             break;
-                        case MediaPlayerConnector.PLAYER_STATE_PAUSED:
+                        case SessionPlayer2.PLAYER_STATE_PAUSED:
                             mPlayPauseButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
                             mPlayPauseButton.setContentDescription(
                                     mResources.getString(R.string.mcv2_play_button_desc));
                             removeCallbacks(mUpdateProgress);
                             break;
-                        case MediaPlayerConnector.PLAYER_STATE_ERROR:
+                        case SessionPlayer2.PLAYER_STATE_ERROR:
                             MediaControlView2.this.setEnabled(false);
                             mPlayPauseButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));

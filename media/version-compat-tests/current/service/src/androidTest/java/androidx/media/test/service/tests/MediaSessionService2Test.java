@@ -73,8 +73,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
                     @Override
                     public MediaSession2 onGetSession() {
                         MockPlayer player = new MockPlayer(1);
-                        MediaSession2 session = new MediaSession2.Builder(mContext)
-                                .setPlayer(player)
+                        MediaSession2 session = new MediaSession2.Builder(mContext, player)
                                 .setSessionCallback(sHandlerExecutor,
                                         new MediaSession2.SessionCallback() {})
                                 .setId("testOnGetSession" + System.currentTimeMillis()).build();
@@ -125,8 +124,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
                     @Override
                     public MediaSession2 onGetSession() {
                         MockPlayer player = new MockPlayer(1);
-                        MediaSession2 session = new MediaSession2.Builder(mContext)
-                                .setPlayer(player)
+                        MediaSession2 session = new MediaSession2.Builder(mContext, player)
                                 .setSessionCallback(sHandlerExecutor,
                                         new MediaSession2.SessionCallback() {})
                                 .setId("testAllControllersDisconnected"
@@ -161,9 +159,8 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
         prepareLooper();
         RemoteMediaController2 controller = new RemoteMediaController2(mContext, mToken, true);
         MediaSessionService2 service = TestServiceRegistry.getInstance().getServiceInstance();
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, new MockPlayer(0))
                 .setId("testGetSessions")
-                .setPlayer(new MockPlayer(0))
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() { })
                 .build()) {
             service.addSession(session);
@@ -182,9 +179,8 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
         prepareLooper();
         RemoteMediaController2 controller = new RemoteMediaController2(mContext, mToken, true);
         MediaSessionService2 service = TestServiceRegistry.getInstance().getServiceInstance();
-        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, new MockPlayer(0))
                 .setId("testAddSessions_removedWhenClose")
-                .setPlayer(new MockPlayer(0))
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() { })
                 .build()) {
             service.addSession(session);

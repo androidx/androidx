@@ -71,8 +71,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     static {
         SessionCommandGroup2 group = new SessionCommandGroup2.Builder()
-                .addAllPlaybackCommands(COMMAND_VERSION_CURRENT)
-                .addAllPlaylistCommands(COMMAND_VERSION_CURRENT)
+                .addAllPlayerCommands(COMMAND_VERSION_CURRENT)
                 .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand2> commands = group.getCommands();
@@ -241,7 +240,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     final PendingIntent sessionActivity = mSessionImpl.getSessionActivity();
                     final List<MediaItem2> playlist =
                             allowedCommands.hasCommand(
-                                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
+                                    SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)
                                     ? mSessionImpl.getPlaylist() : null;
                     final List<ParcelImpl> playlistParcel =
                             MediaUtils2.convertMediaItem2ListToParcelImplList(playlist);
@@ -325,7 +324,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void play(IMediaController2 caller) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_PLAY,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -336,7 +335,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void pause(IMediaController2 caller) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_PAUSE,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -347,7 +346,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void prepare(IMediaController2 caller) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_PREPARE,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -381,7 +380,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void seekTo(IMediaController2 caller, final long pos) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -533,7 +532,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void setPlaybackSpeed(IMediaController2 caller, final float speed) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_SPEED,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -545,7 +544,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void setPlaylist(final IMediaController2 caller, final List<ParcelImpl> playlist,
             final Bundle metadata) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_PLAYLIST,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -561,8 +560,24 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
+    public void setMediaItem(final IMediaController2 caller, final ParcelImpl mediaItem) {
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (mediaItem == null) {
+                            Log.w(TAG, "setMediaItem(): Ignoring null item from " + controller);
+                            return;
+                        }
+                        mSessionImpl.setMediaItem(
+                                (MediaItem2) ParcelUtils.fromParcelable(mediaItem));
+                    }
+                });
+    }
+
+    @Override
     public void updatePlaylistMetadata(final IMediaController2 caller, final Bundle metadata) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_UPDATE_LIST_METADATA,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -575,7 +590,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void addPlaylistItem(IMediaController2 caller, final int index,
             final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -590,7 +605,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void removePlaylistItem(IMediaController2 caller, final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -604,7 +619,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void replacePlaylistItem(IMediaController2 caller, final int index,
             final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -619,7 +634,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void skipToPlaylistItem(IMediaController2 caller, final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -636,7 +651,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void skipToPreviousItem(IMediaController2 caller) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -647,7 +662,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void skipToNextItem(IMediaController2 caller) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -658,7 +673,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void setRepeatMode(IMediaController2 caller, final int repeatMode) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -669,7 +684,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void setShuffleMode(IMediaController2 caller, final int shuffleMode) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE,
+        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -940,12 +955,12 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             ControllerInfo controller = mConnectedControllersManager.getController(
                     getCallbackBinder());
             if (mConnectedControllersManager.isAllowedCommand(controller,
-                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)) {
+                    SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
                 mIControllerCallback.onPlaylistChanged(
                         MediaUtils2.convertMediaItem2ListToParcelImplList(playlist),
                         metadata == null ? null : metadata.toBundle());
             } else if (mConnectedControllersManager.isAllowedCommand(controller,
-                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA)) {
+                    SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
                 mIControllerCallback.onPlaylistMetadataChanged(metadata.toBundle());
             }
         }
@@ -955,7 +970,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             ControllerInfo controller = mConnectedControllersManager.getController(
                     getCallbackBinder());
             if (mConnectedControllersManager.isAllowedCommand(controller,
-                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA)) {
+                    SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
                 mIControllerCallback.onPlaylistMetadataChanged(metadata.toBundle());
             }
         }
@@ -968,6 +983,11 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onRepeatModeChanged(int repeatMode) throws RemoteException {
             mIControllerCallback.onRepeatModeChanged(repeatMode);
+        }
+
+        @Override
+        void onPlaybackCompleted() throws RemoteException {
+            mIControllerCallback.onPlaybackCompleted();
         }
 
         @Override

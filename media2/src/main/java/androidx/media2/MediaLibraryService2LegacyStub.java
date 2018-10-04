@@ -413,6 +413,11 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
         }
 
         @Override
+        final void onPlaybackCompleted() throws RemoteException {
+            // No-op. BrowserCompat doesn't understand Controller features.
+        }
+
+        @Override
         final void onRoutesInfoChanged(List<Bundle> routes) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }

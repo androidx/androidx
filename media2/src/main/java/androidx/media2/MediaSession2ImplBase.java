@@ -16,13 +16,13 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
-import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_IDLE;
-import static androidx.media2.MediaPlayerConnector.UNKNOWN_TIME;
 import static androidx.media2.MediaSession2.ControllerCb;
 import static androidx.media2.MediaSession2.ControllerInfo;
 import static androidx.media2.MediaSession2.OnDataSourceMissingHelper;
 import static androidx.media2.MediaSession2.SessionCallback;
+import static androidx.media2.SessionPlayer2.BUFFERING_STATE_UNKNOWN;
+import static androidx.media2.SessionPlayer2.PLAYER_STATE_IDLE;
+import static androidx.media2.SessionPlayer2.UNKNOWN_TIME;
 import static androidx.media2.SessionToken2.TYPE_SESSION;
 
 import android.annotation.SuppressLint;
@@ -149,8 +149,8 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public void updatePlayer(@NonNull MediaPlayerConnector player,
-            @Nullable MediaPlaylistAgent playlistAgent) {
+    public void updatePlayer(@NonNull SessionPlayer2 player,
+            @Nullable SessionPlayer2 playlistAgent) {
         // No-op
     }
 
@@ -275,14 +275,13 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     @Override
     public void close() {
         synchronized (mLock) {
-            if (mPlayer == null) {
+            if (isClosed()) {
                 return;
             }
             synchronized (MediaSession2ImplBase.class) {
                 SESSION_ID_LIST.remove(mSessionId);
             }
             mPlayer.unregisterPlayerCallback(mPlayerCallback);
-            mPlayer = null;
             mSessionCompat.release();
             mCallback.onSessionClosed(mInstance);
             notifyToAllControllers(new NotifyRunnable() {
@@ -300,16 +299,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                 }
             }
         }
-    }
-
-    @Override
-    public @Nullable MediaPlayerConnector getPlayerConnector() {
-        return null;
-    }
-
-    @Override
-    public @NonNull MediaPlaylistAgent getPlaylistAgent() {
-        return null;
     }
 
     @Override
@@ -660,6 +649,22 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
+    public void setMediaItem(@NonNull MediaItem2 item) {
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
+        SessionPlayer2 player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            player.setMediaItem(item);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
+    }
+
+    @Override
     public void skipToPlaylistItem(@NonNull MediaItem2 item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
@@ -682,7 +687,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             player = mPlayer;
         }
         if (player != null) {
-            player.skipToPreviousItem();
+            player.skipToPreviousPlaylistItem();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
@@ -695,7 +700,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             player = mPlayer;
         }
         if (player != null) {
-            player.skipToNextItem();
+            player.skipToNextPlaylistItem();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
@@ -1258,6 +1263,16 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
                     callback.onShuffleModeChanged(shuffleMode);
+                }
+            });
+        }
+
+        @Override
+        public void onPlaybackCompleted(SessionPlayer2 player) {
+            notifyToAllControllers(player, new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onPlaybackCompleted();
                 }
             });
         }

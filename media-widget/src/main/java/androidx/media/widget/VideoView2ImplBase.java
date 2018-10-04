@@ -49,7 +49,6 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayer2;
-import androidx.media2.MediaPlayerConnector;
 import androidx.media2.MediaSession2;
 import androidx.media2.RemoteSessionPlayer2;
 import androidx.media2.SessionCommand2;
@@ -193,7 +192,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
                 openVideo();
                 mMediaSession.getPlayer().seekTo(currentPosition);
-                if (currentState == MediaPlayerConnector.PLAYER_STATE_PLAYING) {
+                if (currentState == SessionPlayer2.PLAYER_STATE_PLAYING) {
                     mMediaSession.getPlayer().play();
                 }
             }
@@ -638,8 +637,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mMediaSession.updatePlayer(player);
         } else {
             final Context context = mInstance.getContext();
-            mMediaSession = new MediaSession2.Builder(context)
-                    .setPlayer(player)
+            mMediaSession = new MediaSession2.Builder(context, player)
                     .setId("VideoView2_" + mInstance.toString())
                     .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                     .build();
@@ -911,7 +909,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         builder.putString(
                 MediaMetadata2.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
         mMediaItem.setMetadata(builder.build());
-        mMediaSession.getPlaylistAgent().replacePlaylistItem(0, mMediaItem);
+        mMediaSession.getPlayer().replacePlaylistItem(0, mMediaItem);
     }
 
     private int retrieveOrientation() {
@@ -1101,20 +1099,20 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 }
             }
             SessionCommandGroup2.Builder commandsBuilder = new SessionCommandGroup2.Builder()
-                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE)
-                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY)
-                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE)
-                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_PLAY)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_PREPARE)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_SET_SPEED)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND)
-                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO)
                     .addCommand(SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME)
                     .addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE)
-                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
-                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)
                     .addCommand(new SessionCommand2(
                             MediaControlView2.COMMAND_SELECT_AUDIO_TRACK, null))
                     .addCommand(new SessionCommand2(
@@ -1178,17 +1176,17 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 }
             }
             switch (command.getCommandCode()) {
-                case SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY:
+                case SessionCommand2.COMMAND_CODE_PLAYER_PLAY:
                     mTargetState = STATE_PLAYING;
                     if (!mCurrentView.hasAvailableSurface() && !mIsMusicMediaType) {
                         Log.d(TAG, "surface is not available");
                         return false;
                     }
                     break;
-                case SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE:
+                case SessionCommand2.COMMAND_CODE_PLAYER_PAUSE:
                     mTargetState = STATE_PAUSED;
                     break;
-                case SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO:
+                case SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO:
                     mSeekWhenPrepared = 0;
                     break;
             }

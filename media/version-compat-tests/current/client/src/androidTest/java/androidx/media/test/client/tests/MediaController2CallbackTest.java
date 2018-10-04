@@ -46,7 +46,6 @@ import androidx.media2.MediaController2;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
-import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.SessionCommand2;
@@ -397,8 +396,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
      * Test whether {@link MediaSession2#setPlaylist(List, MediaMetadata2)} is notified
      * through the {@link MediaController2.ControllerCallback#onPlaylistMetadataChanged(
      * MediaController2, MediaMetadata2)}
-     * if the controller doesn't have {@link SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST} but
-     * {@link SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST_METADATA}.
+     * if the controller doesn't have {@link SessionCommand2#COMMAND_CODE_PLAYER_GET_PLAYLIST} but
+     * {@link SessionCommand2#COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA}.
      */
     @Ignore
     @Test
@@ -413,7 +412,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnShuffleModeChanged() throws InterruptedException {
         prepareLooper();
-        final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
+        final int testShuffleMode = SessionPlayer2.SHUFFLE_MODE_GROUP;
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController2.ControllerCallback callback =
                 new MediaController2.ControllerCallback() {
@@ -438,7 +437,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnRepeatModeChanged() throws InterruptedException {
         prepareLooper();
-        final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
+        final int testRepeatMode = SessionPlayer2.REPEAT_MODE_GROUP;
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController2.ControllerCallback callback =
                 new MediaController2.ControllerCallback() {
@@ -456,6 +455,25 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         player.notifyRepeatModeChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(testRepeatMode, controller.getRepeatMode());
+    }
+
+    @Test
+    public void testOnPlaybackCompleted() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+                    @Override
+                    public void onPlaybackCompleted(MediaController2 controller) {
+                        latch.countDown();
+                    }
+                };
+
+        RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
+
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        player.notifyPlaybackCompleted();
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -570,8 +588,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     public void testOnAllowedCommandsChanged() throws InterruptedException {
         prepareLooper();
         final SessionCommandGroup2 commands = new SessionCommandGroup2();
-        commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY);
-        commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
+        commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYER_PLAY);
+        commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE);
 
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController2.ControllerCallback callback =
@@ -601,7 +619,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     public void testOnCustomCommand() throws InterruptedException {
         prepareLooper();
         final SessionCommand2 testCommand = new SessionCommand2(
-                SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
+                SessionCommand2.COMMAND_CODE_PLAYER_PREPARE);
         final Bundle testArgs = TestUtils.createTestBundle();
 
         final CountDownLatch latch = new CountDownLatch(2);
@@ -632,7 +650,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         final List<MediaSession2.CommandButton> buttons = new ArrayList<>();
 
         MediaSession2.CommandButton button = new MediaSession2.CommandButton.Builder()
-                .setCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY))
+                .setCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYER_PLAY))
                 .setDisplayName("button")
                 .build();
         buttons.add(button);

@@ -32,7 +32,6 @@ import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
-import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
@@ -66,8 +65,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     public void setUp() throws Exception {
         super.setUp();
         mPlayer = new MockPlayer(1);
-        mSession = new MediaSession2.Builder(mContext)
-                .setPlayer(mPlayer)
+        mSession = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                     @Override
                     public SessionCommandGroup2 onConnect(MediaSession2 session,
@@ -305,7 +303,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     @Test
     public void testSkipToPreviousItemBySession() {
         prepareLooper();
-        mSession.getPlayer().skipToPreviousItem();
+        mSession.getPlayer().skipToPreviousPlaylistItem();
         assertTrue(mPlayer.mSkipToPreviousItemCalled);
     }
 
@@ -319,7 +317,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     @Test
     public void testSkipToNextItemBySession() throws Exception {
         prepareLooper();
-        mSession.getPlayer().skipToNextItem();
+        mSession.getPlayer().skipToNextPlaylistItem();
         assertTrue(mPlayer.mSkipToNextItemCalled);
     }
 
@@ -352,7 +350,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     @Test
     public void testSetShuffleModeBySession() {
         prepareLooper();
-        final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
+        final int testShuffleMode = SessionPlayer2.SHUFFLE_MODE_GROUP;
         mSession.getPlayer().setShuffleMode(testShuffleMode);
         assertTrue(mPlayer.mSetShuffleModeCalled);
         assertEquals(testShuffleMode, mPlayer.mShuffleMode);
@@ -360,7 +358,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
 
     @Test
     public void testSetShuffleModeByController() throws InterruptedException {
-        final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
+        final int testShuffleMode = SessionPlayer2.SHUFFLE_MODE_GROUP;
         mController2.setShuffleMode(testShuffleMode);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
@@ -371,7 +369,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     @Test
     public void testSetRepeatModeBySession() {
         prepareLooper();
-        final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
+        final int testRepeatMode = SessionPlayer2.REPEAT_MODE_GROUP;
         mSession.getPlayer().setRepeatMode(testRepeatMode);
         assertTrue(mPlayer.mSetRepeatModeCalled);
         assertEquals(testRepeatMode, mPlayer.mRepeatMode);
@@ -379,7 +377,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
 
     @Test
     public void testSetRepeatModeByController() throws InterruptedException {
-        final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
+        final int testRepeatMode = SessionPlayer2.REPEAT_MODE_GROUP;
         mController2.setRepeatMode(testRepeatMode);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 

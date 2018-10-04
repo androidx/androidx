@@ -478,22 +478,22 @@ public class MediaUtils2 {
     }
 
     /**
-     * Convert a {@link MediaPlayerConnector.PlayerState} and
-     * {@link MediaPlayerConnector.BuffState} into {@link PlaybackStateCompat.State}.
+     * Convert a {@link SessionPlayer2.PlayerState} and
+     * {@link SessionPlayer2.BuffState} into {@link PlaybackStateCompat.State}.
      */
     public static int convertToPlaybackStateCompatState(int playerState, int bufferingState) {
         switch (playerState) {
-            case MediaPlayerConnector.PLAYER_STATE_PLAYING:
+            case SessionPlayer2.PLAYER_STATE_PLAYING:
                 switch (bufferingState) {
-                    case MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_STARVED:
+                    case SessionPlayer2.BUFFERING_STATE_BUFFERING_AND_STARVED:
                         return PlaybackStateCompat.STATE_BUFFERING;
                 }
                 return PlaybackStateCompat.STATE_PLAYING;
-            case MediaPlayerConnector.PLAYER_STATE_PAUSED:
+            case SessionPlayer2.PLAYER_STATE_PAUSED:
                 return PlaybackStateCompat.STATE_PAUSED;
-            case MediaPlayerConnector.PLAYER_STATE_IDLE:
+            case SessionPlayer2.PLAYER_STATE_IDLE:
                 return PlaybackStateCompat.STATE_NONE;
-            case MediaPlayerConnector.PLAYER_STATE_ERROR:
+            case SessionPlayer2.PLAYER_STATE_ERROR:
                 return PlaybackStateCompat.STATE_ERROR;
         }
         // For unknown value
@@ -501,18 +501,18 @@ public class MediaUtils2 {
     }
 
     /**
-     * Convert a {@link PlaybackStateCompat.State} into {@link MediaPlayerConnector.PlayerState}.
+     * Convert a {@link PlaybackStateCompat.State} into {@link SessionPlayer2.PlayerState}.
      */
     public static int convertToPlayerState(int playbackStateCompatState) {
         switch (playbackStateCompatState) {
             case PlaybackStateCompat.STATE_ERROR:
-                return MediaPlayerConnector.PLAYER_STATE_ERROR;
+                return SessionPlayer2.PLAYER_STATE_ERROR;
             case PlaybackStateCompat.STATE_NONE:
-                return MediaPlayerConnector.PLAYER_STATE_IDLE;
+                return SessionPlayer2.PLAYER_STATE_IDLE;
             case PlaybackStateCompat.STATE_PAUSED:
             case PlaybackStateCompat.STATE_STOPPED:
             case PlaybackStateCompat.STATE_BUFFERING: // means paused for buffering.
-                return MediaPlayerConnector.PLAYER_STATE_PAUSED;
+                return SessionPlayer2.PLAYER_STATE_PAUSED;
             case PlaybackStateCompat.STATE_FAST_FORWARDING:
             case PlaybackStateCompat.STATE_PLAYING:
             case PlaybackStateCompat.STATE_REWINDING:
@@ -520,23 +520,23 @@ public class MediaUtils2 {
             case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
             case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
             case PlaybackStateCompat.STATE_CONNECTING: // Note: there's no perfect match for this.
-                return MediaPlayerConnector.PLAYER_STATE_PLAYING;
+                return SessionPlayer2.PLAYER_STATE_PLAYING;
         }
-        return MediaPlayerConnector.PLAYER_STATE_ERROR;
+        return SessionPlayer2.PLAYER_STATE_ERROR;
     }
 
     /**
-     * Convert a {@link PlaybackStateCompat.State} into {@link MediaPlayerConnector.BuffState}.
+     * Convert a {@link PlaybackStateCompat.State} into {@link SessionPlayer2.BuffState}.
      */
     // Note: there's no perfect match for this.
     public static int toBufferingState(int playbackStateCompatState) {
         switch (playbackStateCompatState) {
             case PlaybackStateCompat.STATE_BUFFERING:
-                return MediaPlayerConnector.BUFFERING_STATE_BUFFERING_AND_STARVED;
+                return SessionPlayer2.BUFFERING_STATE_BUFFERING_AND_STARVED;
             case PlaybackStateCompat.STATE_PLAYING:
-                return MediaPlayerConnector.BUFFERING_STATE_BUFFERING_COMPLETE;
+                return SessionPlayer2.BUFFERING_STATE_BUFFERING_COMPLETE;
             default:
-                return MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
+                return SessionPlayer2.BUFFERING_STATE_UNKNOWN;
         }
     }
 
