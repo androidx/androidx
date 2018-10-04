@@ -27,6 +27,7 @@
     <string name="reparentImage">Reparent Image</string>
     <string name="fragmentTransition">Fragment Transition</string>
     <string name="side_propagation">Side Propagation</string>
+    <string name="recycler_view">Work with RecyclerView</string>
     <string name="toggle">Toggle</string>
     <string name="begin">Begin</string>
     <string name="hello_world">Hello, world!</string>
@@ -38,4 +39,6 @@
     <string name="fit_start">FIT_START</string>
     <string name="fit_end">FIT_END</string>
     <string name="matrix">MATRIX</string>
+    <string name="title">Title</string>
+    <string name="description">Some long description</string>
 </resources>
