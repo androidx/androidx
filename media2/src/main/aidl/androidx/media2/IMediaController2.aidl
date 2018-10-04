@@ -40,6 +40,7 @@ oneway interface IMediaController2 {
     void onPlaybackInfoChanged(in ParcelImpl playbackInfo) = 6;
     void onRepeatModeChanged(int repeatMode) = 7;
     void onShuffleModeChanged(int shuffleMode) = 8;
+    void onPlaybackCompleted() = 23;
     void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs) = 9;
     void onError(int errorCode, in Bundle extras) = 10;
     void onRoutesInfoChanged(in List<Bundle> routes) = 11;
@@ -66,5 +67,5 @@ oneway interface IMediaController2 {
     void onSearchResultChanged(String query, int itemCount, in Bundle extras) = 21;
     void onGetSearchResultDone(String query, int page, int pageSize, in List<ParcelImpl> itemList,
         in Bundle extras) = 22;
-    // Next Id : 23
+    // Next Id : 24
 }

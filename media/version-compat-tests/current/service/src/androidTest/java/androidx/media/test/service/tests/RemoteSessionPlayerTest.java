@@ -27,8 +27,8 @@ import android.os.Build;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockRemotePlayer;
 import androidx.media.test.service.RemoteMediaController2;
-import androidx.media2.BaseRemoteMediaPlayerConnector;
 import androidx.media2.MediaSession2;
+import androidx.media2.RemoteSessionPlayer2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -58,8 +58,7 @@ public class RemoteSessionPlayerTest extends MediaSession2TestBase {
     public void setUp() throws Exception {
         super.setUp();
         // Create this test specific MediaSession2 to use our own Handler.
-        mSession = new MediaSession2.Builder(mContext)
-                .setPlayer(new MockPlayer(1))
+        mSession = new MediaSession2.Builder(mContext, new MockPlayer(1))
                 .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
                     @Override
                     public SessionCommandGroup2 onConnect(MediaSession2 session,
@@ -88,7 +87,7 @@ public class RemoteSessionPlayerTest extends MediaSession2TestBase {
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
-        final int volumeControlType = BaseRemoteMediaPlayerConnector.VOLUME_CONTROL_ABSOLUTE;
+        final int volumeControlType = RemoteSessionPlayer2.VOLUME_CONTROL_ABSOLUTE;
         MockRemotePlayer remotePlayer = new MockRemotePlayer(
                 volumeControlType, maxVolume, currentVolume);
 
@@ -107,7 +106,7 @@ public class RemoteSessionPlayerTest extends MediaSession2TestBase {
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
-        final int volumeControlType = BaseRemoteMediaPlayerConnector.VOLUME_CONTROL_ABSOLUTE;
+        final int volumeControlType = RemoteSessionPlayer2.VOLUME_CONTROL_ABSOLUTE;
 
         MockRemotePlayer remotePlayer = new MockRemotePlayer(
                 volumeControlType, maxVolume, currentVolume);

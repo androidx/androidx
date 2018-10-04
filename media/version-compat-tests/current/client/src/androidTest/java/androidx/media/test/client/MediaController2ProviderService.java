@@ -181,6 +181,12 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
+        public void setMediaItem(String controllerId, Bundle item) throws RemoteException {
+            MediaController2 controller2 = mMediaController2Map.get(controllerId);
+            controller2.setMediaItem(MediaItem2.fromBundle(item));
+        }
+
+        @Override
         public void updatePlaylistMetadata(String controllerId, Bundle metadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
@@ -210,13 +216,13 @@ public class MediaController2ProviderService extends Service {
         @Override
         public void skipToPreviousItem(String controllerId) throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.skipToPreviousItem();
+            controller2.skipToPreviousPlaylistItem();
         }
 
         @Override
         public void skipToNextItem(String controllerId) throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.skipToNextItem();
+            controller2.skipToNextPlaylistItem();
         }
 
         @Override

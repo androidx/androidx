@@ -17,11 +17,11 @@
 package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.MediaPlayerConnector.BUFFERING_STATE_UNKNOWN;
-import static androidx.media2.MediaPlayerConnector.PLAYER_STATE_IDLE;
-import static androidx.media2.MediaPlayerConnector.UNKNOWN_TIME;
-import static androidx.media2.MediaPlaylistAgent.REPEAT_MODE_NONE;
-import static androidx.media2.MediaPlaylistAgent.SHUFFLE_MODE_NONE;
+import static androidx.media2.SessionPlayer2.BUFFERING_STATE_UNKNOWN;
+import static androidx.media2.SessionPlayer2.PLAYER_STATE_IDLE;
+import static androidx.media2.SessionPlayer2.REPEAT_MODE_NONE;
+import static androidx.media2.SessionPlayer2.SHUFFLE_MODE_NONE;
+import static androidx.media2.SessionPlayer2.UNKNOWN_TIME;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -42,11 +42,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
-import androidx.media2.MediaPlaylistAgent.RepeatMode;
-import androidx.media2.MediaPlaylistAgent.ShuffleMode;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.ErrorCode;
+import androidx.media2.SessionPlayer2.RepeatMode;
+import androidx.media2.SessionPlayer2.ShuffleMode;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -279,7 +279,7 @@ public class MediaController2 implements AutoCloseable {
      * Request that the player prepare its playback. In other words, other sessions can continue
      * to play during the preparation of this session. This method can be used to speed up the
      * start of the playback. Once the preparation is done, the session will change its playback
-     * state to {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be
+     * state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be
      * called to start playback.
      */
     public void prepare() {
@@ -392,7 +392,7 @@ public class MediaController2 implements AutoCloseable {
      * Request that the player prepare playback for a specific media id. In other words, other
      * sessions can continue to play during the preparation of this session. This method can be
      * used to speed up the start of the playback. Once the preparation is done, the session
-     * will change its playback state to {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}.
+     * will change its playback state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}.
      * Afterwards, {@link #play} can be called to start playback. If the preparation is not needed,
      * {@link #playFromMediaId} can be directly called without this method.
      *
@@ -414,7 +414,7 @@ public class MediaController2 implements AutoCloseable {
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
      * Once the preparation is done, the session will change its playback state to
-     * {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}. Afterwards,
+     * {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards,
      * {@link #play} can be called to start playback. If the preparation is not needed,
      * {@link #playFromSearch} can be directly called without this method.
      *
@@ -434,7 +434,7 @@ public class MediaController2 implements AutoCloseable {
      * Request that the player prepare playback for a specific {@link Uri}. In other words,
      * other sessions can continue to play during the preparation of this session. This method
      * can be used to speed up the start of the playback. Once the preparation is done, the
-     * session will change its playback state to {@link MediaPlayerConnector#PLAYER_STATE_PAUSED}.
+     * session will change its playback state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}.
      * Afterwards, {@link #play} can be called to start playback. If the preparation is not needed,
      * {@link #playFromUri} can be directly called without this method.
      *
@@ -511,7 +511,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Get the lastly cached player state from
      * {@link ControllerCallback#onPlayerStateChanged(MediaController2, int)}.
-     * If it is not connected yet, it returns {@link MediaPlayerConnector#PLAYER_STATE_IDLE}.
+     * If it is not connected yet, it returns {@link SessionPlayer2#PLAYER_STATE_IDLE}.
      *
      * @return player state
      */
@@ -520,10 +520,10 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Gets the duration of the current media item, or {@link MediaPlayerConnector#UNKNOWN_TIME} if
+     * Gets the duration of the current media item, or {@link SessionPlayer2#UNKNOWN_TIME} if
      * unknown or not connected.
      *
-     * @return the duration in ms, or {@link MediaPlayerConnector#UNKNOWN_TIME}
+     * @return the duration in ms, or {@link SessionPlayer2#UNKNOWN_TIME}
      */
     public long getDuration() {
         return isConnected() ? getImpl().getDuration() : UNKNOWN_TIME;
@@ -535,7 +535,7 @@ public class MediaController2 implements AutoCloseable {
      * This returns the calculated value of the position, based on the difference between the
      * update time and current time.
      *
-     * @return the current playback position in ms, or {@link MediaPlayerConnector#UNKNOWN_TIME}
+     * @return the current playback position in ms, or {@link SessionPlayer2#UNKNOWN_TIME}
      *         if unknown or not connected
      */
     public long getCurrentPosition() {
@@ -566,10 +566,10 @@ public class MediaController2 implements AutoCloseable {
      * During buffering, see {@link #getBufferedPosition()} for the quantifying the amount already
      * buffered.
      *
-     * @return the buffering state, or {@link MediaPlayerConnector#BUFFERING_STATE_UNKNOWN}
+     * @return the buffering state, or {@link SessionPlayer2#BUFFERING_STATE_UNKNOWN}
      *         if unknown or not connected
      */
-    public @MediaPlayerConnector.BuffState int getBufferingState() {
+    public @SessionPlayer2.BuffState int getBufferingState() {
         return isConnected() ? getImpl().getBufferingState() : BUFFERING_STATE_UNKNOWN;
     }
 
@@ -578,7 +578,7 @@ public class MediaController2 implements AutoCloseable {
      * {@link ControllerCallback#onBufferingStateChanged(MediaController2, MediaItem2, int)} is
      * called.
      *
-     * @return buffering position in millis, or {@link MediaPlayerConnector#UNKNOWN_TIME} if
+     * @return buffering position in millis, or {@link SessionPlayer2#UNKNOWN_TIME} if
      *         unknown or not connected
      */
     public long getBufferedPosition() {
@@ -643,13 +643,13 @@ public class MediaController2 implements AutoCloseable {
      * Returns the cached playlist from {@link ControllerCallback#onPlaylistChanged}.
      * <p>
      * This list may differ with the list that was specified with
-     * {@link #setPlaylist(List, MediaMetadata2)} depending on the {@link MediaPlaylistAgent}
+     * {@link #setPlaylist(List, MediaMetadata2)} depending on the {@link SessionPlayer2}
      * implementation. Use media items returned here for other playlist agent APIs such as
-     * {@link MediaPlaylistAgent#skipToPlaylistItem(MediaItem2)}.
+     * {@link SessionPlayer2#skipToPlaylistItem(MediaItem2)}.
      *
      * @return playlist, or {@code null} if the playlist hasn't set, controller isn't connected,
      *         or it doesn't have enough permission
-     * @see SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST
+     * @see SessionCommand2#COMMAND_CODE_PLAYER_GET_PLAYLIST
      */
     public @Nullable List<MediaItem2> getPlaylist() {
         return isConnected() ? getImpl().getPlaylist() : null;
@@ -673,6 +673,20 @@ public class MediaController2 implements AutoCloseable {
         }
         if (isConnected()) {
             getImpl().setPlaylist(list, metadata);
+        }
+    }
+
+    /**
+     * Sets a {@link MediaItem2} for playback.
+     *
+     * @param item the descriptor of media item you want to play
+     */
+    public void setMediaItem(@NonNull MediaItem2 item) {
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
+        if (isConnected()) {
+            getImpl().setMediaItem(item);
         }
     }
 
@@ -772,9 +786,9 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Skips to the previous item in the playlist.
      * <p>
-     * This calls {@link MediaPlaylistAgent#skipToPreviousItem()}.
+     * This calls {@link SessionPlayer2#skipToPreviousPlaylistItem()}.
      */
-    public void skipToPreviousItem() {
+    public void skipToPreviousPlaylistItem() {
         if (isConnected()) {
             getImpl().skipToPreviousItem();
         }
@@ -783,9 +797,9 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Skips to the next item in the playlist.
      * <p>
-     * This calls {@link MediaPlaylistAgent#skipToNextItem()}.
+     * This calls {@link SessionPlayer2#skipToNextPlaylistItem()}.
      */
-    public void skipToNextItem() {
+    public void skipToNextPlaylistItem() {
         if (isConnected()) {
             getImpl().skipToNextItem();
         }
@@ -794,7 +808,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Skips to the item in the playlist.
      * <p>
-     * This calls {@link MediaPlaylistAgent#skipToPlaylistItem(MediaItem2)}.
+     * This calls {@link SessionPlayer2#skipToPlaylistItem(MediaItem2)}.
      *
      * @param item The item in the playlist you want to play
      */
@@ -809,13 +823,13 @@ public class MediaController2 implements AutoCloseable {
 
     /**
      * Gets the cached repeat mode from the {@link ControllerCallback#onRepeatModeChanged}.
-     * If it is not connected yet, it returns {@link MediaPlaylistAgent#REPEAT_MODE_NONE}.
+     * If it is not connected yet, it returns {@link SessionPlayer2#REPEAT_MODE_NONE}.
      *
      * @return repeat mode
-     * @see MediaPlaylistAgent#REPEAT_MODE_NONE
-     * @see MediaPlaylistAgent#REPEAT_MODE_ONE
-     * @see MediaPlaylistAgent#REPEAT_MODE_ALL
-     * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
+     * @see SessionPlayer2#REPEAT_MODE_NONE
+     * @see SessionPlayer2#REPEAT_MODE_ONE
+     * @see SessionPlayer2#REPEAT_MODE_ALL
+     * @see SessionPlayer2#REPEAT_MODE_GROUP
      */
     public @RepeatMode int getRepeatMode() {
         return isConnected() ? getImpl().getRepeatMode() : REPEAT_MODE_NONE;
@@ -825,10 +839,10 @@ public class MediaController2 implements AutoCloseable {
      * Sets the repeat mode.
      *
      * @param repeatMode repeat mode
-     * @see MediaPlaylistAgent#REPEAT_MODE_NONE
-     * @see MediaPlaylistAgent#REPEAT_MODE_ONE
-     * @see MediaPlaylistAgent#REPEAT_MODE_ALL
-     * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
+     * @see SessionPlayer2#REPEAT_MODE_NONE
+     * @see SessionPlayer2#REPEAT_MODE_ONE
+     * @see SessionPlayer2#REPEAT_MODE_ALL
+     * @see SessionPlayer2#REPEAT_MODE_GROUP
      */
     public void setRepeatMode(@RepeatMode int repeatMode) {
         if (isConnected()) {
@@ -838,12 +852,12 @@ public class MediaController2 implements AutoCloseable {
 
     /**
      * Gets the cached shuffle mode from the {@link ControllerCallback#onShuffleModeChanged}.
-     * If it is not connected yet, it returns {@link MediaPlaylistAgent#SHUFFLE_MODE_NONE}.
+     * If it is not connected yet, it returns {@link SessionPlayer2#SHUFFLE_MODE_NONE}.
      *
      * @return The shuffle mode
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
+     * @see SessionPlayer2#SHUFFLE_MODE_NONE
+     * @see SessionPlayer2#SHUFFLE_MODE_ALL
+     * @see SessionPlayer2#SHUFFLE_MODE_GROUP
      */
     public @ShuffleMode int getShuffleMode() {
         return isConnected() ? getImpl().getShuffleMode() : SHUFFLE_MODE_NONE;
@@ -853,9 +867,9 @@ public class MediaController2 implements AutoCloseable {
      * Sets the shuffle mode.
      *
      * @param shuffleMode The shuffle mode
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
-     * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
+     * @see SessionPlayer2#SHUFFLE_MODE_NONE
+     * @see SessionPlayer2#SHUFFLE_MODE_ALL
+     * @see SessionPlayer2#SHUFFLE_MODE_GROUP
      */
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
         if (isConnected()) {
@@ -950,7 +964,7 @@ public class MediaController2 implements AutoCloseable {
         long getCurrentPosition();
         float getPlaybackSpeed();
         void setPlaybackSpeed(float speed);
-        @MediaPlayerConnector.BuffState int getBufferingState();
+        @SessionPlayer2.BuffState int getBufferingState();
         long getBufferedPosition();
         @Nullable PlaybackInfo getPlaybackInfo();
         void setRating(@NonNull String mediaId, @NonNull Rating2 rating);
@@ -958,6 +972,7 @@ public class MediaController2 implements AutoCloseable {
                 @Nullable ResultReceiver cb);
         @Nullable List<MediaItem2> getPlaylist();
         void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata);
+        void setMediaItem(@NonNull MediaItem2 item);
         void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata);
         @Nullable MediaMetadata2 getPlaylistMetadata();
         void addPlaylistItem(int index, @NonNull MediaItem2 item);
@@ -1074,7 +1089,7 @@ public class MediaController2 implements AutoCloseable {
          * @param state the new player state
          */
         public void onPlayerStateChanged(@NonNull MediaController2 controller,
-                @MediaPlayerConnector.PlayerState int state) { }
+                @SessionPlayer2.PlayerState int state) { }
 
         /**
          * Called when playback speed is changed.
@@ -1095,7 +1110,7 @@ public class MediaController2 implements AutoCloseable {
          * @param state the new buffering state.
          */
         public void onBufferingStateChanged(@NonNull MediaController2 controller,
-                @NonNull MediaItem2 item, @MediaPlayerConnector.BuffState int state) { }
+                @NonNull MediaItem2 item, @SessionPlayer2.BuffState int state) { }
 
         /**
          * Called to indicate that seeking is completed.
@@ -1152,25 +1167,32 @@ public class MediaController2 implements AutoCloseable {
          *
          * @param controller the controller for this event
          * @param shuffleMode repeat mode
-         * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
-         * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
-         * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
+         * @see SessionPlayer2#SHUFFLE_MODE_NONE
+         * @see SessionPlayer2#SHUFFLE_MODE_ALL
+         * @see SessionPlayer2#SHUFFLE_MODE_GROUP
          */
         public void onShuffleModeChanged(@NonNull MediaController2 controller,
-                @MediaPlaylistAgent.ShuffleMode int shuffleMode) { }
+                @SessionPlayer2.ShuffleMode int shuffleMode) { }
 
         /**
          * Called when the repeat mode is changed.
          *
          * @param controller the controller for this event
          * @param repeatMode repeat mode
-         * @see MediaPlaylistAgent#REPEAT_MODE_NONE
-         * @see MediaPlaylistAgent#REPEAT_MODE_ONE
-         * @see MediaPlaylistAgent#REPEAT_MODE_ALL
-         * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
+         * @see SessionPlayer2#REPEAT_MODE_NONE
+         * @see SessionPlayer2#REPEAT_MODE_ONE
+         * @see SessionPlayer2#REPEAT_MODE_ALL
+         * @see SessionPlayer2#REPEAT_MODE_GROUP
          */
         public void onRepeatModeChanged(@NonNull MediaController2 controller,
-                @MediaPlaylistAgent.RepeatMode int repeatMode) { }
+                @SessionPlayer2.RepeatMode int repeatMode) { }
+
+        /**
+         * Called when the playback is completed.
+         *
+         * @param controller the controller for this event
+         */
+        public void onPlaybackCompleted(@NonNull MediaController2 controller) { }
 
         /**
          * Called when a property of the indicated media route has changed.

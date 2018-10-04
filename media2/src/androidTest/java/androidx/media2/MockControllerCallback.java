@@ -172,6 +172,11 @@ public class MockControllerCallback extends MediaController2.ControllerCallback
     }
 
     @Override
+    public void onPlaybackCompleted(MediaController2 controller) {
+        mCallbackProxy.onPlaybackCompleted(controller);
+    }
+
+    @Override
     public void setRunnableForOnCustomCommand(Runnable runnable) {
         synchronized (this) {
             mOnCustomCommandRunnable = runnable;

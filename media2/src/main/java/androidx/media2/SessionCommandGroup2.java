@@ -241,8 +241,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
             if (version != COMMAND_VERSION_1) {
                 throw new IllegalArgumentException("Unknown command version " + version);
             }
-            addAllPlaybackCommands(version);
-            addAllPlaylistCommands(version);
+            addAllPlayerCommands(version);
             addAllVolumeCommands(version);
             addAllSessionCommands(version);
             addAllLibraryCommands(version);
@@ -276,13 +275,24 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
             return this;
         }
 
-        @NonNull Builder addAllPlaybackCommands(int version) {
-            addCommands(version, SessionCommand2.VERSION_PLAYBACK_COMMANDS_MAP);
+        @NonNull Builder addAllPlayerCommands(int version) {
+            addCommands(version, SessionCommand2.VERSION_PLAYER_COMMANDS_MAP);
             return this;
         }
 
-        @NonNull Builder addAllPlaylistCommands(int version) {
-            addCommands(version, SessionCommand2.VERSION_PLAYLIST_COMMANDS_MAP);
+        @NonNull Builder addAllPlayerCommands(int version, boolean includePlaylistCommands) {
+            if (includePlaylistCommands) {
+                return addAllPlayerCommands(version);
+            }
+            for (int i = COMMAND_VERSION_1; i <= version; i++) {
+                Range include = SessionCommand2.VERSION_PLAYER_COMMANDS_MAP.get(i);
+                Range exclude = SessionCommand2.VERSION_PLAYER_PLAYLIST_COMMANDS_MAP.get(i);
+                for (int code = include.lower; code <= include.upper; code++) {
+                    if (code < exclude.lower && code > exclude.upper) {
+                        addCommand(code);
+                    }
+                }
+            }
             return this;
         }
 

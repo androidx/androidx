@@ -52,8 +52,7 @@ public class SessionCommand2Test {
 
     private static final List<String> PREFIX_COMMAND_CODES = new ArrayList<>();
     static {
-        PREFIX_COMMAND_CODES.add("COMMAND_CODE_PLAYBACK_");
-        PREFIX_COMMAND_CODES.add("COMMAND_CODE_PLAYLIST_");
+        PREFIX_COMMAND_CODES.add("COMMAND_CODE_PLAYER_");
         PREFIX_COMMAND_CODES.add("COMMAND_CODE_VOLUME_");
         PREFIX_COMMAND_CODES.add("COMMAND_CODE_SESSION_");
         PREFIX_COMMAND_CODES.add("COMMAND_CODE_LIBRARY_");
@@ -102,7 +101,6 @@ public class SessionCommand2Test {
      */
     @Test
     @Ignore
-    // TODO(jaewan): Re-enable in next CL
     public void testCodes_valueContinuous() throws IllegalAccessException {
         for (int i = 0; i < PREFIX_COMMAND_CODES.size(); i++) {
             List<Field> fields = getSessionCommandsFields(PREFIX_COMMAND_CODES.get(i));

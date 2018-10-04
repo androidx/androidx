@@ -18,7 +18,6 @@ package androidx.media.widget;
 
 import android.content.Context;
 
-import androidx.media2.CommandResult2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.XMediaPlayer;
@@ -36,7 +35,7 @@ class VideoView2Player extends XMediaPlayer {
     private MediaItem2 mMediaItem;
 
     @Override
-    public ListenableFuture<CommandResult2> seekTo(long position) {
+    public ListenableFuture<PlayerResult> seekTo(long position) {
         return super.seekTo(position, SEEK_CLOSEST);
     }
 
@@ -83,7 +82,7 @@ class VideoView2Player extends XMediaPlayer {
     }
 
     @Override
-    public ListenableFuture<CommandResult2> setMediaItem(MediaItem2 item) {
+    public ListenableFuture<PlayerResult> setMediaItem(MediaItem2 item) {
         mMediaItem = item;
         return super.setMediaItem(item);
     }

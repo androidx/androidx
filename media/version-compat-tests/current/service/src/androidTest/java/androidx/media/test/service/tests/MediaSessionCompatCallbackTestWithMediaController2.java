@@ -45,10 +45,10 @@ import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
-import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaUtils2;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
+import androidx.media2.SessionPlayer2;
 import androidx.media2.SessionToken2;
 import androidx.media2.StarRating2;
 import androidx.test.filters.SdkSuppress;
@@ -290,7 +290,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testSetShuffleMode() throws Exception {
         prepareLooper();
-        final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
+        final int testShuffleMode = SessionPlayer2.SHUFFLE_MODE_GROUP;
 
         mSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE);
         createControllerAndWaitConnection();
@@ -305,7 +305,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testSetRepeatMode() throws Exception {
         prepareLooper();
-        final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_ALL;
+        final int testRepeatMode = SessionPlayer2.REPEAT_MODE_ALL;
 
         mSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE);
         createControllerAndWaitConnection();

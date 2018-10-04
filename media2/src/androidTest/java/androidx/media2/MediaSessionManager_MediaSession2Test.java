@@ -52,8 +52,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
         // Specify TAG here so {@link MediaSession2.getInstance()} doesn't complaint about
         // per test thread differs across the {@link MediaSession2} with the same TAG.
         final MockPlayer player = new MockPlayer(1);
-        mSession = new MediaSession2.Builder(mContext)
-                .setPlayer(player)
+        mSession = new MediaSession2.Builder(mContext, player)
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() { })
                 .setId(TAG)
                 .build();
@@ -73,7 +72,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
     public void testGetMediaSession2Tokens_hasMediaController() throws InterruptedException {
         prepareLooper();
         final MockPlayer player = (MockPlayer) mSession.getPlayer();
-        player.notifyPlayerStateChanged(MediaPlayerConnector.PLAYER_STATE_IDLE);
+        player.notifyPlayerStateChanged(SessionPlayer2.PLAYER_STATE_IDLE);
 
         MediaController2 controller = null;
 //        List<SessionToken2> tokens = mManager.getActiveSessionTokens();
@@ -89,7 +88,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 //        assertNotNull(controller);
 //
 //        // Test if the found controller is correct one.
-//        assertEquals(MediaPlayerConnector.PLAYER_STATE_IDLE, controller.getPlayerState());
+//        assertEquals(SessionPlayer2.PLAYER_STATE_IDLE, controller.getPlayerState());
 //        controller.play();
 //
 //        assertTrue(player.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -105,7 +104,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
     public void testGetSessionTokens_sessionRejected() throws InterruptedException {
         prepareLooper();
         mSession.close();
-        mSession = new MediaSession2.Builder(mContext).setPlayer(new MockPlayer(0))
+        mSession = new MediaSession2.Builder(mContext, new MockPlayer(0))
                 .setId(TAG).setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
                     public SessionCommandGroup2 onConnect(
