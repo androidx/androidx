@@ -46,7 +46,7 @@ supportLibrary {
     name = "Android Lifecycles Compiler"
     toolingProject = true
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_EXT
+    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycles annotation processor"
