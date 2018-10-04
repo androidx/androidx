@@ -30,18 +30,17 @@
         android:src="@drawable/ic_up"
         android:scaleType="centerInside" />
 
-    <!-- TODO(deanh): Replace this with a proper asset when we have done. -->
-    <TextView
-        android:textAppearance="@style/TextAppearance.Car.Body1"
+    <Button
+        style="@style/TextAppearance.Car.AlphaJumpButton"
         android:id="@+id/alpha_jump"
-        android:layout_width="@dimen/car_scroll_bar_button_size"
-        android:layout_height="@dimen/car_scroll_bar_button_size"
-        android:background="@drawable/car_card_ripple_background"
+        android:layout_width="@dimen/car_alpha_jump_button_size"
+        android:layout_height="@dimen/car_alpha_jump_button_size"
+        android:background="@drawable/car_alpha_jump_button_background"
         android:focusable="false"
         android:hapticFeedbackEnabled="false"
         android:gravity="center"
         android:text="@string/alpha_jump_placeholder_text"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
     <View
         android:id="@+id/scrollbar_thumb"

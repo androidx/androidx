@@ -236,6 +236,8 @@ package androidx.car.widget {
 
   public class AlphaJumpOverlayView extends androidx.gridlayout.widget.GridLayout {
     ctor public AlphaJumpOverlayView(android.content.Context);
+    method public void hide();
+    method public void show();
   }
 
   public class CarToolbar extends android.view.ViewGroup {
@@ -332,6 +334,7 @@ package androidx.car.widget {
     method public int getPage(int);
     method public androidx.recyclerview.widget.RecyclerView getRecyclerView();
     method public int getRowsPerPage();
+    method public void hideAlphaJump();
     method public boolean isAtEnd();
     method public boolean isAtStart();
     method public void onLayout(boolean, int, int, int, int);
