@@ -109,6 +109,9 @@
     <!-- Strings for CarToolbarActivity Demo. -->
     <string name="car_toolbar_title">CarToolbar demo title</string>
 
+    <!-- Strings for AlphaJumpActivity Demo-->
+    <string name="car_alpha_jump_toolbar_title">Alphabetical List View</string>
+
     <!-- Spinner sample entries -->
     <string-array name="spinner_entries">
         <item>Planets</item>
