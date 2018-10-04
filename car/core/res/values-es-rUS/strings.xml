@@ -16,6 +16,8 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="speed_bump_lockout_message" msgid="5405697774899378511">"Concéntrate en el camino"</string>
-    <string name="action_bar_expand_collapse_button" msgid="196909968432559564">"Botón Expandir/contraer"</string>
+    <string name="speed_bump_lockout_message" msgid="444412252084688703">"Concéntrate en el camino"</string>
+    <string name="action_bar_expand_collapse_button" msgid="1874508980662961036">"Botón para expandir/contraer"</string>
+    <string name="scroll_bar_page_up_button" msgid="465102831431294180">"Despl. hacia arriba"</string>
+    <string name="scroll_bar_page_down_button" msgid="635940284003824276">"Desplaz. hacia abajo"</string>
 </resources>
