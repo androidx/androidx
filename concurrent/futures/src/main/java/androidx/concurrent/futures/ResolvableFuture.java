@@ -18,30 +18,28 @@ package androidx.concurrent.futures;
 
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
+ * An AndroidX version of Guava's {@code SettableFuture}.
+ * <p>
  * A {@link ListenableFuture} whose result can be set by a {@link #set(Object)}, {@link
  * #setException(Throwable)} or {@link #setFuture(ListenableFuture)} call. It can also, like any
  * other {@code Future}, be {@linkplain #cancel cancelled}.
- *
- * If your needs are more complex than {@code SettableFuture} supports, use {@link
- * AbstractFuture}, which offers an extensible version of the API.
+ * <p>
+ * If your needs are more complex than {@code ResolvableFuture} supports, use {@link
+ * AbstractResolvableFuture}, which offers an extensible version of the API.
  *
  * @author Sven Mawson
- * @since 9.0 (in 1.0 as {@code ValueFuture})
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class SettableFuture<V> extends AbstractFuture<V> {
+public final class ResolvableFuture<V> extends AbstractResolvableFuture<V> {
     /**
-     * Creates a new {@code SettableFuture} that can be completed or cancelled by a later method
+     * Creates a new {@code ResolvableFuture} that can be completed or cancelled by a later method
      * call.
      */
-    public static <V> SettableFuture<V> create() {
-        return new SettableFuture<V>();
+    public static <V> ResolvableFuture<V> create() {
+        return new ResolvableFuture<>();
     }
 
     @Override
@@ -59,7 +57,7 @@ public final class SettableFuture<V> extends AbstractFuture<V> {
         return super.setFuture(future);
     }
 
-    private SettableFuture() {
+    private ResolvableFuture() {
     }
 }
 

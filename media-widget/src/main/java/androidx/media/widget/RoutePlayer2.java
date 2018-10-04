@@ -31,7 +31,7 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.concurrent.futures.SettableFuture;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
@@ -73,7 +73,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaRouter.RouteInfo mSelectedRoute;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final List<SettableFuture<PlayerResult>> mPendingVolumeResult = new ArrayList<>();
+    final List<ResolvableFuture<PlayerResult>> mPendingVolumeResult = new ArrayList<>();
 
     private MediaItem2 mItem;
     private MediaRouter mMediaRouter;
@@ -167,7 +167,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
         }
 
         if (mClient.isSessionManagementSupported()) {
-            final SettableFuture<PlayerResult> result = SettableFuture.create();
+            final ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
             mClient.resume(null, new SessionActionCallback() {
                 @Override
                 public void onResult(Bundle data,
@@ -193,7 +193,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     @Override
     public ListenableFuture<PlayerResult> pause() {
         if (mClient.isSessionManagementSupported()) {
-            final SettableFuture<PlayerResult> result = SettableFuture.create();
+            final ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
             mClient.pause(null, new SessionActionCallback() {
                 @Override
                 public void onResult(Bundle data,
@@ -215,7 +215,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     @Override
     public ListenableFuture<PlayerResult> seekTo(long pos) {
         if (mClient.isSessionManagementSupported()) {
-            final SettableFuture<PlayerResult> result = SettableFuture.create();
+            final ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
             mClient.seek(mItemId, pos, null, new ItemActionCallback() {
                 @Override
                 public void onResult(Bundle data,
@@ -318,7 +318,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     public Future<PlayerResult> adjustVolume(int direction) {
         mSelectedRoute.requestUpdateVolume(direction);
 
-        SettableFuture<PlayerResult> result = SettableFuture.create();
+        ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
         mPendingVolumeResult.add(result);
         return result;
     }
@@ -327,7 +327,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     public Future<PlayerResult> setVolume(int volume) {
         mSelectedRoute.requestSetVolume(volume);
 
-        SettableFuture<PlayerResult> result = SettableFuture.create();
+        ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
         mPendingVolumeResult.add(result);
         return result;
     }
@@ -478,7 +478,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
             Log.w(TAG, "Data source type is not Uri." + mItem);
             return createResult(RESULT_CODE_BAD_VALUE);
         }
-        final SettableFuture<PlayerResult> result = SettableFuture.create();
+        final ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
         mClient.play(((UriMediaItem2) mItem).getUri(), "video/mp4", null, mPosition, null,
                 new ItemActionCallback() {
                     @Override
@@ -506,7 +506,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     }
 
     private ListenableFuture<PlayerResult> createResult(int code) {
-        SettableFuture<PlayerResult> result = SettableFuture.create();
+        ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
         result.set(new PlayerResult(code, getCurrentMediaItem()));
         return result;
     }

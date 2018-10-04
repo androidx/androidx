@@ -33,7 +33,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.concurrent.futures.SettableFuture;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
@@ -843,7 +843,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
      * player methods will not block the caller thread for a substantial amount of time.
      */
     private <T> T runPlayerCallableBlocking(final Callable<T> callable) {
-        final SettableFuture<T> future = SettableFuture.create();
+        final ResolvableFuture<T> future = ResolvableFuture.create();
         mTaskHandler.post(new Runnable() {
             @Override
             public void run() {
