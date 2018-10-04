@@ -18,5 +18,7 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <application>
         <activity android:name="androidx.fragment.app.TestActivity"/>
+        <activity android:name="androidx.fragment.app.ActivityViewModelLazyTest$TestActivity"/>
+        <activity android:name="androidx.fragment.app.FragmentViewModelLazyTest$TestActivity"/>
     </application>
 </manifest>
