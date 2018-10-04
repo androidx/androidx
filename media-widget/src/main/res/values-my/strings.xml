@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="3321397713117065638">"စနစ်"</string>
+    <string name="mr_user_route_category_name" msgid="1627840233801992496">"စက်များ"</string>
+    <string name="mr_button_content_description" msgid="2563900737284462162">"ကာစ်ခလုတ်"</string>
+    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"ကာစ်ခလုတ်။ ချိတ်ဆက်မထားပါ"</string>
+    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"ကာစ်ခလုတ်။ ချိတ်ဆက်နေသည်"</string>
+    <string name="mr_cast_button_connected" msgid="938609484693891555">"ကာစ်ခလုတ်။ ချိတ်ဆက်ထားသည်"</string>
+    <string name="mr_chooser_title" msgid="8588921739112945317">"ဤစက်သို့ ကာစ်လုပ်ရန်"</string>
+    <string name="mr_chooser_searching" msgid="3620017600129578274">"စက်များ ရှာနေသည်"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"ချိတ်ဆက်မှု ဖြုတ်ရန်"</string>
+    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"ကာစ်လုပ်ခြင်းကို ရပ်ရန်"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"ပိတ်ရန်"</string>
+    <string name="mr_controller_play" msgid="4438243775726932620">"ဖွင့်ရန်"</string>
+    <string name="mr_controller_pause" msgid="2836364020975903659">"ခေတ္တရပ်ရန်"</string>
+    <string name="mr_controller_stop" msgid="2946921829587351729">"ရပ်ရန်"</string>
+    <string name="mr_controller_expand_group" msgid="6419866561073332299">"ချဲ့ရန်"</string>
+    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"လျှော့ပြရန်"</string>
+    <string name="mr_controller_album_art" msgid="3247329727731601009">"အယ်လ်ဘမ်ပုံ"</string>
+    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"အသံအတိုးအကျယ်ချိန်သည့် ရွှေ့တုံး"</string>
+    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"မီဒီယာ ရွေးမထားပါ"</string>
+    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"အချက်အလက် မရရှိနိုင်ပါ"</string>
+    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"ကာစ်တ်လုပ်သည့် မျက်နှာပြင်"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"<xliff:g id="WAIT_TIME">%1$d</xliff:g> စက္ကန့်တွင် \'ကြော်ငြာ\' ကို ကျော်နိုင်ပါမည်"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"ကြော်ငြာ · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ကျန်သည်"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ကြော်ငြာရှင်၏ စာမျက်နှာသို့ ဝင်ကြည့်ရန်"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"စာတမ်းထိုးများ"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"ပိတ်ပါ"</string>
+    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"သီချင်း"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"မရှိ"</string>
+    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"ဗီဒီယို အရည်အသွေး"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"အလိုအလျောက်"</string>
+    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"အကူအညီနှင့် အကြံပြုချက်"</string>
+    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"ဖွင့်ရန် အမြန်နှုန်း"</string>
+    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"ပုံမှန်"</string>
+    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"၀၀:၀၀:၀၀"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"အပုဒ်ရေ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"အပုဒ်ရေ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"အပုဒ်ရေ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"အမည်မသိ သီချင်းခေါင်းစဉ်"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"အမည်မသိ အနုပညာရှင်"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"သင်တောင်းဆိုထားသည့်အရာကို ဖွင့်၍မရပါ"</string>
+    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"OK"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"နောက်သို့"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"ယခင်ခလုတ်စာရင်းသို့ ပြန်သွားရန်"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"နောက်ထပ်ခလုတ်များကို ကြည့်ရန်"</string>
+    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"သီချင်းဖွင့်မှု အနေအထား"</string>
+    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"ဆက်တင်များ"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"ဗီဒီယိုအရည်အသွေး ရွေးချယ်မှု"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"စာတန်းထိုးကို ဖွင့်ထားသည်။ ၎င်းကိုဝှက်ရန် နှိပ်ပါ။"</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"စာတန်းထိုးကို ပိတ်ထားသည်။ ၎င်းကိုကြည့်ရန် နှိပ်ပါ။"</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"ပြန်ဖွင့်ရန်"</string>
+    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"ဖွင့်ရန်"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"ခေတ္တရပ်ရန်"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"ပြီးခဲ့သည့်တစ်ခု"</string>
+    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"နောက်တစ်ခု"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"၁၀ စက္ကန့် နောက်သို့ပြန်ရစ်ရန်"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"အရှေ့သို့ စက္ကန့် ၃၀ ရစ်ရန်"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"လင့်ခ်ကို ဖွင့်ရန်"</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"အသံတိတ်ထားသည်။ ပြန်ဖွင့်ရန် နှိပ်ပါ"</string>
+    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"အသံတိတ်ရန်အတွက် နှိပ်ရန်"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"မျက်နှာပြင်အပြည့်"</string>
+</resources>
