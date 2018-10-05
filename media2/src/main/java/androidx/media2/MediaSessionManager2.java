@@ -34,6 +34,7 @@ import androidx.media.MediaBrowserServiceCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides support for interacting with media sessions that applications have published
@@ -80,12 +81,12 @@ public final class MediaSessionManager2 {
     }
 
     /**
-     * Gets {@link List} of {@link SessionToken2} for {@link MediaSessionService2} regardless of
+     * Gets {@link Set} of {@link SessionToken2} for {@link MediaSessionService2} regardless of
      * their activeness. This list represents media apps that support background playback.
      *
-     * @return list of tokens
+     * @return set of tokens
      */
-    public @NonNull List<SessionToken2> getSessionServiceTokens() {
+    public @NonNull Set<SessionToken2> getSessionServiceTokens() {
         ArraySet<SessionToken2> sessionServiceTokens = new ArraySet<>();
         PackageManager pm = mContext.getPackageManager();
         List<ResolveInfo> services = new ArrayList<>();
@@ -122,6 +123,6 @@ public final class MediaSessionManager2 {
                 Log.d(TAG, "   " + token);
             }
         }
-        return new ArrayList<>(sessionServiceTokens);
+        return sessionServiceTokens;
     }
 }
