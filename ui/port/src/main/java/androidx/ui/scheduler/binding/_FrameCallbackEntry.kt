@@ -62,7 +62,7 @@ class _FrameCallbackEntry(
                 debugStack = debugCurrentCallbackStack!!
             } else {
                 // TODO(ianh): trim the frames from this library, so that the call to scheduleFrameCallback is the top one
-                TODO("Migration/Andrey: Needs StackTrace")
+                // TODO("Migration/Andrey: Needs StackTrace")
 //                debugStack = StackTrace.current;
             }
             true

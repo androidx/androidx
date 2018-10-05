@@ -27,7 +27,7 @@ package androidx.ui.scheduler.binding
  *
  * See also the discussion at [WidgetsBinding.drawFrame].
  */
-internal enum class SchedulerPhase {
+enum class SchedulerPhase {
     /**
      * No frame is being processed. Tasks (scheduled by
      * [WidgetsBinding.scheduleTask]), microtasks (scheduled by

@@ -102,6 +102,29 @@ data class Duration(private val microseconds: Long) : Comparable<Duration> {
                     microseconds
             )
         }
+
+        const val microsecondsPerMillisecond = 1000
+        const val millisecondsPerSecond = 1000
+        const val secondsPerMinute = 60
+        const val minutesPerHour = 60
+        const val hoursPerDay = 24
+
+        const val microsecondsPerSecond =
+        microsecondsPerMillisecond * millisecondsPerSecond
+        const val microsecondsPerMinute =
+        microsecondsPerSecond * secondsPerMinute
+        const val microsecondsPerHour = microsecondsPerMinute * minutesPerHour.toLong()
+        const val microsecondsPerDay = microsecondsPerHour * hoursPerDay
+
+        const val millisecondsPerMinute =
+        millisecondsPerSecond * secondsPerMinute
+        const val millisecondsPerHour = millisecondsPerMinute * minutesPerHour
+        const val millisecondsPerDay = millisecondsPerHour * hoursPerDay
+
+        const val secondsPerHour = secondsPerMinute * minutesPerHour
+        const val secondsPerDay = secondsPerHour * hoursPerDay
+
+        const val minutesPerDay = minutesPerHour * hoursPerDay
     }
 
     /**

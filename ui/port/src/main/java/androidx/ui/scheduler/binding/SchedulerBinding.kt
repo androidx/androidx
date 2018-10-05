@@ -27,9 +27,14 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToLong
 
 interface SchedulerBinding : ServicesBinding {
+    val schedulerPhase: SchedulerPhase
+    val framesEnabled: Boolean
+    val currentFrameTimeStamp: Duration
     fun ensureVisualUpdate()
     fun scheduleForcedFrame()
     fun scheduleWarmUpFrame()
+    fun scheduleFrameCallback(callback: FrameCallback, rescheduling: Boolean = false): Int
+    fun cancelFrameCallbackWithId(id: Int)
     fun addPersistentFrameCallback(callback: FrameCallback)
     fun endOfFrame(): Deferred<Unit>
 }
@@ -67,7 +72,7 @@ class SchedulerBindingImpl(
 
     init { // was initInstances()
         launch(Unconfined) {
-            window.onBeginFrame.consumeEach { _handleBeginFrame() }
+            window.onBeginFrame.consumeEach { _handleBeginFrame(it) }
         }
         launch(Unconfined) {
             window.onDrawFrame.consumeEach { _handleDrawFrame() }
@@ -289,7 +294,7 @@ class SchedulerBindingImpl(
      * Callbacks registered with this method can be canceled using
      * [cancelFrameCallbackWithId].
      */
-    fun scheduleFrameCallback(callback: FrameCallback, rescheduling: Boolean = false): Int {
+    override fun scheduleFrameCallback(callback: FrameCallback, rescheduling: Boolean): Int {
         scheduleFrame()
         _nextFrameCallbackId += 1
         _transientCallbacks[_nextFrameCallbackId] =
@@ -306,7 +311,7 @@ class SchedulerBindingImpl(
      * Transient frame callbacks are those registered using
      * [scheduleFrameCallback].
      */
-    fun cancelFrameCallbackWithId(id: Int) {
+    override fun cancelFrameCallbackWithId(id: Int) {
         assert(id > 0)
         _transientCallbacks.remove(id)
         _removedIds.add(id)
@@ -492,7 +497,7 @@ class SchedulerBindingImpl(
     /**
      * The phase that the scheduler is currently operating under.
      */
-    internal var schedulerPhase: SchedulerPhase = SchedulerPhase.idle
+    override var schedulerPhase: SchedulerPhase = SchedulerPhase.idle
     private set
 
     /**
@@ -500,7 +505,7 @@ class SchedulerBindingImpl(
      *
      * This value depends on the value of the [lifecycleState].
      */
-    internal var framesEnabled: Boolean = true
+    override var framesEnabled: Boolean = true
         private set
 
     private fun setFramesEnabledState(enabled: Boolean) {
@@ -731,7 +736,7 @@ class SchedulerBindingImpl(
      */
     var _currentFrameTimeStamp: Duration? = null
 
-    val currentFrameTimeStamp: Duration get() {
+    override val currentFrameTimeStamp: Duration get() {
         assert(_currentFrameTimeStamp != null)
         return _currentFrameTimeStamp!!
     }

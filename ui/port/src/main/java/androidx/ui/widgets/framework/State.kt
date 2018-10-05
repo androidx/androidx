@@ -8,6 +8,7 @@ import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.ObjectFlagProperty
+import androidx.ui.scheduler.binding.SchedulerBinding
 
 // / The logic and internal state for a [StatefulWidget].
 // /
@@ -133,7 +134,7 @@ abstract class State<T : StatefulWidget>(
     // /
     // / After calling [dispose], the framework severs the [State] object's
     // / connection with the [BuildContext].
-    fun getContext(): BuildContext? = _element as BuildContext
+    val context: BuildContext? get() = _element
     internal var _element: StatefulElement? = null
 
     // / Whether this [State] object is currently in a tree.
@@ -171,7 +172,7 @@ abstract class State<T : StatefulWidget>(
     // / If you override this, make sure your method starts with a call to
     // / super.initState().
     @CallSuper
-    internal fun initState() {
+    open fun initState() {
         assert(_debugLifecycleState == _StateLifecycle.created)
     }
 
@@ -200,7 +201,7 @@ abstract class State<T : StatefulWidget>(
     // / super.didUpdateWidget(oldWidget).
     // TODO(Migration/Filip): Dropped covariant keyword
     @CallSuper
-    internal fun didUpdateWidget(oldWidget: T) { }
+    open fun didUpdateWidget(oldWidget: T) { }
 
     // / Called whenever the application is reassembled during debugging, for
     // / example during hot reload.
@@ -222,7 +223,7 @@ abstract class State<T : StatefulWidget>(
     // / * [BindingBase.reassembleApplication].
     // / * [Image], which uses this to reload images.
     @CallSuper
-    internal fun reassemble() { }
+    open fun reassemble() { }
 
     // / Notify the framework that the internal state of this object has changed.
     // /
@@ -341,7 +342,7 @@ abstract class State<T : StatefulWidget>(
     // / See also [dispose], which is called after [deactivate] if the widget is
     // / removed from the tree permanently.
     @CallSuper
-    internal fun deactivate() { }
+    open fun deactivate() { }
 
     // / Called when this object is removed from the tree permanently.
     // /
@@ -366,7 +367,7 @@ abstract class State<T : StatefulWidget>(
     // /
     // / See also [deactivate], which is called prior to [dispose].
     @CallSuper
-    internal fun dispose() {
+    open fun dispose() {
         assert(_debugLifecycleState == _StateLifecycle.ready)
         // TODO(Migration/Filip): This used to be in assert block
         _debugLifecycleState = _StateLifecycle.defunct
@@ -488,7 +489,7 @@ abstract class State<T : StatefulWidget>(
     // / fetches) when their dependencies change, and that work would be too
     // / expensive to do for every build.
     @CallSuper
-    internal fun didChangeDependencies() { }
+    open fun didChangeDependencies() { }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
@@ -510,4 +511,9 @@ abstract class State<T : StatefulWidget>(
     }
 
     override fun toString() = toStringDiagnostic()
+
+    // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets
+    internal val schedulerBinding: SchedulerBinding
+        get() = _element?.schedulerBinding
+            ?: throw IllegalStateException("Widget not yet attached!")
 }

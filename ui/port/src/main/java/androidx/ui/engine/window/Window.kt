@@ -2,6 +2,7 @@ package androidx.ui.engine.window
 
 import androidx.ui.async.Timer
 import androidx.ui.compositing.Scene
+import androidx.ui.core.Duration
 import androidx.ui.engine.geometry.Size
 import androidx.ui.semantics.SemanticsUpdate
 import androidx.ui.ui.pointer.PointerDataPacket
@@ -217,7 +218,7 @@ class Window {
      *  * [RendererBinding], the Flutter framework class which manages layout and
      *    painting.
      */
-    val onBeginFrame: BroadcastChannel<Unit> = BroadcastChannel(1)
+    val onBeginFrame: BroadcastChannel<Duration?> = BroadcastChannel(1)
 
     /**
      * A channel that produces events for each frame after [onBeginFrame] has
@@ -299,7 +300,7 @@ class Window {
     val scheduleFrame get() = {
         // TODO(Migration/Andrey): Temp logic added. Originally just execute some native code.
         Timer.run {
-            onBeginFrame.offer(Unit)
+            onBeginFrame.offer(Duration.create(milliseconds = System.currentTimeMillis()))
             onDrawFrame.offer(Unit)
         }
         // native 'Window_scheduleFrame';

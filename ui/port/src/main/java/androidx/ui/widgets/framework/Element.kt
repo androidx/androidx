@@ -17,6 +17,7 @@ import androidx.ui.foundation.diagnostics.ObjectFlagProperty
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.runtimeType
+import androidx.ui.scheduler.binding.SchedulerBinding
 import androidx.ui.widgets.debugPrintGlobalKeyedWidgetLifecycle
 import androidx.ui.widgets.debugPrintRebuildDirtyWidgets
 import androidx.ui.widgets.framework.key.GlobalKey
@@ -135,6 +136,9 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
 
     // / The object that manages the lifecycle of this element.
     override var owner: BuildOwner? = null
+
+    // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets
+    var schedulerBinding: SchedulerBinding? = null
 
     var _active: Boolean = false
 
@@ -322,8 +326,11 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         slot = newSlot
         depth = if (_parent != null) (_parent!!.depth + 1) else 1
         _active = true
-        if (parent != null) // Only assign ownership if the parent is non-null
+        if (parent != null) { // Only assign ownership if the parent is non-null
             owner = parent.owner
+            // TODO(Migration/Andrey): Crane tmp solution for providing bindings inside widgets
+            schedulerBinding = parent.schedulerBinding
+        }
         if (widget.key is GlobalKey<*>) {
             val key = widget.key as GlobalKey<*>
             key._register(this)
