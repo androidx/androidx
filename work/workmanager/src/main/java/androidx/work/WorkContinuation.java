@@ -91,16 +91,11 @@ public abstract class WorkContinuation {
     /**
      * Combines multiple {@link WorkContinuation}s to allow for complex chaining.
      *
-     * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
+     * @param continuations One or more {@link WorkContinuation}s that are prerequisites for the
      *                      return value
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public static @NonNull WorkContinuation combine(@NonNull List<WorkContinuation> continuations) {
-        if (continuations.size() < 2) {
-            throw new IllegalArgumentException(
-                    "WorkContinuation.combine() needs at least 2 continuations.");
-        }
-
         return continuations.get(0).combineInternal(null, continuations);
     }
 
