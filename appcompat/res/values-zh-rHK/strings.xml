@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_action_mode_done" msgid="2571498368472823490">"完成"</string>
-    <string name="abc_action_bar_home_description" msgid="7903180715631665059">"瀏覽首頁"</string>
+    <string name="abc_action_bar_home_description" msgid="7903180715631665059">"瀏覽主頁"</string>
     <string name="abc_action_bar_up_description" msgid="6794660482873516081">"向上瀏覽"</string>
     <string name="abc_action_menu_overflow_description" msgid="1155814932213556626">"更多選項"</string>
     <string name="abc_toolbar_collapse_description" msgid="6389460216547290468">"收合"</string>
@@ -29,7 +29,7 @@
     <string name="abc_searchview_description_voice" msgid="3478748990613108725">"語音搜尋"</string>
     <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"選擇應用程式"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="3732416590524162402">"查看全部"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"與「<xliff:g id="APPLICATION_NAME">%s</xliff:g>」分享"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"使用「<xliff:g id="APPLICATION_NAME">%s</xliff:g>」分享"</string>
     <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"分享對象"</string>
     <string name="abc_capital_on" msgid="7831734969929204599">"開啟"</string>
     <string name="abc_capital_off" msgid="3403923230105792483">"關閉"</string>
@@ -41,7 +41,7 @@
     <string name="abc_menu_shift_shortcut_label" msgid="3271697756921353410">"Shift +"</string>
     <string name="abc_menu_sym_shortcut_label" msgid="8327365089695024394">"Sym +"</string>
     <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"Fn +"</string>
-    <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"空格鍵"</string>
+    <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"空白鍵"</string>
     <string name="abc_menu_enter_shortcut_label" msgid="6840127756824236027">"Enter 鍵"</string>
-    <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"Delete 鍵"</string>
+    <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"刪除"</string>
 </resources>

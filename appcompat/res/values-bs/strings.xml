@@ -21,7 +21,7 @@
     <string name="abc_action_bar_up_description" msgid="6794660482873516081">"Idi gore"</string>
     <string name="abc_action_menu_overflow_description" msgid="1155814932213556626">"Više opcija"</string>
     <string name="abc_toolbar_collapse_description" msgid="6389460216547290468">"Suzi"</string>
-    <string name="abc_searchview_description_search" msgid="5466662225065974044">"Traži"</string>
+    <string name="abc_searchview_description_search" msgid="5466662225065974044">"Pretraži"</string>
     <string name="abc_search_hint" msgid="940844115270746197">"Pretražite..."</string>
     <string name="abc_searchview_description_query" msgid="908784302972860853">"Pretraži upit"</string>
     <string name="abc_searchview_description_clear" msgid="1769270744562318534">"Obriši upit"</string>
@@ -29,7 +29,7 @@
     <string name="abc_searchview_description_voice" msgid="3478748990613108725">"Glasovno pretraživanje"</string>
     <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"Odaberite aplikaciju"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="3732416590524162402">"Prikaži sve"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"Dijeli preko aplikacije <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"Dijeli putem aplikacije <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
     <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"Dijeli sa"</string>
     <string name="abc_capital_on" msgid="7831734969929204599">"UKLJUČENO"</string>
     <string name="abc_capital_off" msgid="3403923230105792483">"ISKLJUČENO"</string>
@@ -43,5 +43,5 @@
     <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"Function+"</string>
     <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"razmak"</string>
     <string name="abc_menu_enter_shortcut_label" msgid="6840127756824236027">"enter"</string>
-    <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"izbriši"</string>
+    <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"delete"</string>
 </resources>
