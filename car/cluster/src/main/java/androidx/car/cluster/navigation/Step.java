@@ -27,6 +27,7 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,7 +61,7 @@ public final class Step implements VersionedParcelable {
     Step(@Nullable Distance distance, @Nullable Maneuver maneuver, @NonNull List<Lane> lanes) {
         mDistance = distance;
         mManeuver = maneuver;
-        mLanes = new ArrayList<>(lanes);
+        mLanes = Collections.unmodifiableList(new ArrayList<>(lanes));
     }
 
     /**
@@ -134,8 +135,8 @@ public final class Step implements VersionedParcelable {
     }
 
     /**
-     * Returns the configuration of all road lanes at the point where the driver should execute this
-     * step. Lane configurations are listed from left to right.
+     * Returns an unmodifiable list containing the configuration of road lanes at the point where
+     * the driver should execute this step. Lane configurations are listed from left to right.
      */
     @NonNull
     public List<Lane> getLanes() {
