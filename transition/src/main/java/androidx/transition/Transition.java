@@ -789,7 +789,7 @@ public abstract class Transition implements Cloneable {
                 }
             }
         }
-        if (minStartDelay != 0) {
+        if (startDelays.size() != 0) {
             for (int i = 0; i < startDelays.size(); i++) {
                 int index = startDelays.keyAt(i);
                 Animator animator = mAnimators.get(index);
