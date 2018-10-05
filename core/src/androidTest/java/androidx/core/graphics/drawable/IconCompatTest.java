@@ -314,6 +314,28 @@ public class IconCompatTest {
         assertEquals(R.drawable.bmp_test, icon.getResId());
     }
 
+    @Test
+    public void testAdaptiveBitmapIconCompat_getType() {
+        IconCompat icon = IconCompat.createWithAdaptiveBitmap(Bitmap.createBitmap(16, 16,
+                Bitmap.Config.ARGB_8888));
+        assertEquals(Icon.TYPE_ADAPTIVE_BITMAP, icon.getType());
+    }
+
+    @Test
+    public void testBitmapIconCompat_getBitmap() {
+        Bitmap bitmap = Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888);
+        IconCompat icon = IconCompat.createWithBitmap(bitmap);
+        assertEquals(bitmap, icon.getBitmap());
+    }
+
+    @Test
+    public void testAdaptiveBitmapIconCompat_getBitmap() {
+        Bitmap source = Bitmap.createBitmap(200, 150, Bitmap.Config.ARGB_8888);
+        source.eraseColor(Color.RED);
+        Bitmap result = IconCompat.createWithAdaptiveBitmap(source).getBitmap();
+        verifyClippedCircle(result, Color.RED, 100);
+    }
+
     private void writeSampleImage(File imagefile) throws IOException {
         try (InputStream source = mContext.getResources().openRawResource(R.drawable.testimage);
              OutputStream target = new FileOutputStream(imagefile)) {

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.filters.SdkSuppress;
@@ -70,6 +71,45 @@ public class PersonTest {
 
         Bundle personBundle = person.toBundle();
         Person result = Person.fromBundle(personBundle);
+
+        assertNull(result.getIcon());
+        assertNull(result.getKey());
+        assertNull(result.getName());
+        assertNull(result.getUri());
+        assertFalse(result.isImportant());
+        assertFalse(result.isBot());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void persistableBundle() {
+        Person person = new Person.Builder()
+                .setImportant(TEST_IS_IMPORTANT)
+                .setBot(TEST_IS_BOT)
+                .setKey(TEST_KEY)
+                .setUri(TEST_URI)
+                .setIcon(TEST_ICON)
+                .setName(TEST_NAME)
+                .build();
+
+        PersistableBundle personBundle = person.toPersistableBundle();
+        Person result = Person.fromPersistableBundle(personBundle);
+
+        assertEquals(TEST_NAME, result.getName());
+        assertEquals(TEST_URI, result.getUri());
+        assertEquals(TEST_KEY, result.getKey());
+        assertEquals(TEST_IS_BOT, result.isBot());
+        assertEquals(TEST_IS_IMPORTANT, result.isImportant());
+        assertNull(result.getIcon());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void persistableBundle_defaultValues() {
+        Person person = new Person.Builder().build();
+
+        PersistableBundle personBundle = person.toPersistableBundle();
+        Person result = Person.fromPersistableBundle(personBundle);
 
         assertNull(result.getIcon());
         assertNull(result.getKey());
