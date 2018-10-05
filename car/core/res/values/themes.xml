@@ -34,6 +34,8 @@ limitations under the License.
         <item name="android:colorPrimary">@color/car_card_dark</item>
         <item name="android:editTextColor">@color/car_body1_light</item>
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
+        <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
         <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
         <item name="android:progressBackgroundTint">@color/car_seekbar_track_background_dark</item>
         <item name="android:progressTint">?attr/android:colorControlActivated</item>
@@ -85,6 +87,8 @@ limitations under the License.
         <item name="android:colorPrimary">@color/car_card</item>
         <item name="android:buttonStyle">@style/Widget.Car.Button</item>
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
+        <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
         <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
         <item name="android:progressBackgroundTint">@color/car_seekbar_track_background</item>
         <item name="android:progressTint">?attr/android:colorControlActivated</item>
