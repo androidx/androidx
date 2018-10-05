@@ -25,7 +25,6 @@ limitations under the License.
 
     <!-- Placeholder text that appears within the button that activates AlphaJump. -->
     <string name="alpha_jump_placeholder_text" translatable="false">A</string>
-    <string name="alpha_jump_overlay_title" translatable="false">Alphabetical List View</string>
 
     <!-- Speed Bump -->
     <!-- The message that is displayed to the user to inform them that they should focus on the
