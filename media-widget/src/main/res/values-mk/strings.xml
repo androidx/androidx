@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="3321397713117065638">"Систем"</string>
+    <string name="mr_user_route_category_name" msgid="1627840233801992496">"Уреди"</string>
+    <string name="mr_button_content_description" msgid="2563900737284462162">"Копче за Cast"</string>
+    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"Копче за Cast. Исклучено"</string>
+    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"Копче за Cast. Се поврзува"</string>
+    <string name="mr_cast_button_connected" msgid="938609484693891555">"Копче за Cast. Поврзано"</string>
+    <string name="mr_chooser_title" msgid="8588921739112945317">"Емитување на"</string>
+    <string name="mr_chooser_searching" msgid="3620017600129578274">"Се бараат уреди"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"Исклучи"</string>
+    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Сопри со емитување"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"Затвори"</string>
+    <string name="mr_controller_play" msgid="4438243775726932620">"Пушти"</string>
+    <string name="mr_controller_pause" msgid="2836364020975903659">"Паузирај"</string>
+    <string name="mr_controller_stop" msgid="2946921829587351729">"Сопри"</string>
+    <string name="mr_controller_expand_group" msgid="6419866561073332299">"Прошири"</string>
+    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"Собери"</string>
+    <string name="mr_controller_album_art" msgid="3247329727731601009">"Омот на албум"</string>
+    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"Лизгач за јачина на звук"</string>
+    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"Нема избрани аудиовизуелни содржини"</string>
+    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"Нема достапни информации"</string>
+    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Се емитува екран"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Може да ја прескокнете рекламата за <xliff:g id="WAIT_TIME">%1$d</xliff:g> сек."</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Реклама · уште <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Посети го огласувачот"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Затворен титл"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Исклучено"</string>
+    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Звучен запис"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Нема"</string>
+    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"Квалитет на видео"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Автоматски"</string>
+    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"Помош и повратни информации"</string>
+    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Брзина на репродукцијата"</string>
+    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Нормално"</string>
+    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"Песна <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Песна <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Песна <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Непознат наслов на песна"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Непознат изведувач"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Не можеше да се пушти ставката што ја побаравте"</string>
+    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"Во ред"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Назад"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Назад кон списокот со претходното копче"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Прикажи повеќе копчиња"</string>
+    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Напредок на репродукцијата"</string>
+    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Поставки"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"Избор на квалитет на видео"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"Титлот е вклучен. Кликнете за да го скриете."</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"Титлот е исклучен. Кликнете за да го прикажете."</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"Пушти повторно"</string>
+    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"Пушти"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Паузирај"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Претходни содржини"</string>
+    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"Следна содржина"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Премотајте 10 секунди наназад"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Премотајте 30 секунди нанапред"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Стартувај го линкот"</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Исклучен звук. Кликнете за да го вклучите"</string>
+    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Кликнете за да се исклучи звукот"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Цел екран"</string>
+</resources>
