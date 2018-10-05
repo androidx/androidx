@@ -4,7 +4,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.lerpDouble
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.toStringAsFixed
 import androidx.ui.truncDiv
 

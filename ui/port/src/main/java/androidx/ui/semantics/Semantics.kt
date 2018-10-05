@@ -1,6 +1,6 @@
 package androidx.ui.semantics
 
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.text.TextSelection
 
 // / Signature for a function that is called for each [SemanticsNode].

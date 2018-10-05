@@ -28,7 +28,7 @@ import androidx.ui.painting.matrixutils.getAsTranslation
 import androidx.ui.painting.matrixutils.isIdentity
 import androidx.ui.painting.matrixutils.matrixEquals
 import androidx.ui.runtimeType
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.text.TextSelection
 import androidx.ui.toStringAsFixed
 import androidx.ui.vectormath64.Matrix4

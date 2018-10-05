@@ -36,7 +36,7 @@ import androidx.ui.painting.paintImage
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 
 // / An image in the render tree.
 // /

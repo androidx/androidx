@@ -38,7 +38,7 @@ import androidx.ui.matchers.MoreOrLessEquals
 import androidx.ui.painting.alignment.Alignment
 import androidx.ui.painting.alignment.AlignmentDirectional
 import androidx.ui.painting.alignment.AlignmentGeometry
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull

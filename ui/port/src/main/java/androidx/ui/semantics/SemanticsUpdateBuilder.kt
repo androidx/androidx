@@ -19,7 +19,7 @@ package androidx.ui.semantics
 import androidx.ui.Float64List
 import androidx.ui.Int32List
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 
 // / An object that creates [SemanticsUpdate] objects.
 // /

@@ -19,7 +19,7 @@ package androidx.ui.widgets.basic
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.EnumProperty
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.InheritedWidget
 import androidx.ui.widgets.framework.Widget

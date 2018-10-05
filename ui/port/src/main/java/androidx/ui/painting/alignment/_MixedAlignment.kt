@@ -16,7 +16,7 @@
 
 package androidx.ui.painting.alignment
 
-import androidx.ui.text.TextDirection
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.truncDiv
 
 class _MixedAlignment(x: Double, start: Double, y: Double) : AlignmentGeometry() {
