@@ -349,7 +349,7 @@ class PageChangeListenerTest : BaseTest() {
             setAdapterSync(viewAdapterProvider(stringSequence(1000)))
 
             // when
-            listOf(6, 5, 6, 4, 7, 3, 8, 2, 9, 1, 10, 0, 0, 999, 999, 0).forEach { targetPage ->
+            listOf(6, 5, 6, 3, 10, 0, 0, 999, 999, 0).forEach { targetPage ->
                 val currentPage = viewPager.currentItem
                 viewPager.clearOnPageChangeListeners()
                 val listener = viewPager.addNewRecordingListener()
