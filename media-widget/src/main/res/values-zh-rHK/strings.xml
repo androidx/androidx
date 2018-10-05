@@ -20,61 +20,61 @@
     <string name="mr_system_route_name" msgid="3321397713117065638">"系統"</string>
     <string name="mr_user_route_category_name" msgid="1627840233801992496">"裝置"</string>
     <string name="mr_button_content_description" msgid="2563900737284462162">"投放按鈕"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"投放按鈕；已中斷連線"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"投放按鈕；連線中"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"投放按鈕；已連線"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"投放到"</string>
+    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"投放按鈕。解除咗連線"</string>
+    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"投放按鈕。連緊線"</string>
+    <string name="mr_cast_button_connected" msgid="938609484693891555">"投放按鈕。連咗線"</string>
+    <string name="mr_chooser_title" msgid="8588921739112945317">"投放至"</string>
     <string name="mr_chooser_searching" msgid="3620017600129578274">"正在尋找裝置"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"中斷連線"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"解除連接"</string>
     <string name="mr_controller_stop_casting" msgid="3150290496374335427">"停止投放"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"關閉"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"閂"</string>
     <string name="mr_controller_play" msgid="4438243775726932620">"播放"</string>
     <string name="mr_controller_pause" msgid="2836364020975903659">"暫停"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"停止"</string>
+    <string name="mr_controller_stop" msgid="2946921829587351729">"停"</string>
     <string name="mr_controller_expand_group" msgid="6419866561073332299">"展開"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"收合"</string>
+    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"收埋"</string>
     <string name="mr_controller_album_art" msgid="3247329727731601009">"專輯封面"</string>
     <string name="mr_controller_volume_slider" msgid="3744355133696779358">"音量滑桿"</string>
     <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"未選取任何媒體"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"沒有可用的資訊"</string>
+    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"沒有資料可以提供"</string>
     <string name="mr_controller_casting_screen" msgid="4277060472882643702">"正在投放畫面"</string>
-    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"您可以在 <xliff:g id="WAIT_TIME">%1$d</xliff:g> 秒後略過廣告"</string>
-    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"廣告將在 <xliff:g id="REMAINING_TIME">%1$s</xliff:g> 後結束"</string>
-    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"瀏覽廣告商網站"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"隱藏式輔助字幕"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"您可在 <xliff:g id="WAIT_TIME">%1$d</xliff:g> 秒後略過廣告"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"廣告剩餘時間：<xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"瀏覽廣告客戶網站"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"隱藏式字幕"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"關閉"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"音軌"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"無"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"影片畫質"</string>
+    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"影片品質"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"自動"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"說明與意見回饋"</string>
+    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"說明與意見反映"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"播放速度"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"正常"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
     <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"曲目 <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
     <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"曲目 <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
     <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"曲目 <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
-    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"未知的曲名"</string>
-    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"未知的演出者"</string>
-    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"無法播放你要求的項目"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"歌名不明"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"歌手不明"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"無法播放您要求的影片"</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"確定"</string>
-    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"倒轉"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"返回前一個按鈕清單"</string>
-    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"顯示更多按鈕"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"返回"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"返回上一個按鈕清單"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"查看更多按鈕"</string>
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"播放進度"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"設定"</string>
-    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"影片畫質選項"</string>
-    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"字幕已開啟。按一下即可隱藏。"</string>
-    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"字幕已關閉。按一下即可顯示。"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"影片品質選擇"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"字幕已開啟，按一下即可隱藏。"</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"字幕已關閉，按一下即可顯示。"</string>
     <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"重播"</string>
     <string name="mcv2_play_button_desc" msgid="2034430009829871366">"播放"</string>
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"暫停"</string>
     <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"上一個媒體"</string>
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"下一個媒體"</string>
-    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"倒轉 10 秒"</string>
-    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"快轉 30 秒"</string>
-    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"啟動連結"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"已設為靜音。按一下即可取消靜音"</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"按一下即可設為靜音"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"倒帶 10 秒"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"前轉 30 秒"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"開啟連結"</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"已靜音，按一下即可取消靜音"</string>
+    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"按一下即可靜音"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"全螢幕"</string>
 </resources>
