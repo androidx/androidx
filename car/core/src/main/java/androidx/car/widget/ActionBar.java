@@ -18,19 +18,11 @@ package androidx.car.widget;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import android.transition.ChangeBounds;
-import android.transition.Fade;
-import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -42,10 +34,15 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Space;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.car.R;
+
 import java.lang.annotation.Retention;
 import java.util.Locale;
-
-import androidx.car.R;
 
 /**
  * An actions panel with three distinctive zones:
@@ -166,6 +163,41 @@ public class ActionBar extends RelativeLayout {
         mDefaultExpandCollapseView.setContentDescription(context.getString(
                 R.string.action_bar_expand_collapse_button));
         mDefaultExpandCollapseView.setOnClickListener(v -> onExpandCollapse());
+
+        // Update LayoutTransitions from the timings defined in the resources.
+        configureLayoutTransitions();
+    }
+
+    private void configureLayoutTransitions() {
+        Resources res = getContext().getResources();
+
+        // Load layout transition timings for both expand and collapse transitions
+        int expandScaleDuration = res.getInteger(R.integer.car_action_bar_expand_scale_duration_ms);
+        int expandOpacityDelay = res.getInteger(R.integer.car_action_bar_expand_opacity_delay_ms);
+        int expandOpacityDuration = res
+                .getInteger(R.integer.car_action_bar_expand_opacity_duration_ms);
+
+        int collapseScaleDuration = res
+                .getInteger(R.integer.car_action_bar_collapse_scale_duration_ms);
+        int collapseOpacityDelay = res
+                .getInteger(R.integer.car_action_bar_collapse_opacity_delay_ms);
+        int collapseOpacityDuration = res
+                .getInteger(R.integer.car_action_bar_collapse_opacity_duration_ms);
+
+        // Get the default LayoutTransition set by animateLayoutChanges="true"
+        LayoutTransition transition = mRowsContainer.getLayoutTransition();
+
+        // Replace the durations and delays
+        transition.setStartDelay(LayoutTransition.APPEARING, expandOpacityDelay);
+        transition.setDuration(LayoutTransition.APPEARING, expandOpacityDuration);
+        transition.setDuration(LayoutTransition.CHANGE_APPEARING, expandScaleDuration);
+
+        transition.setStartDelay(LayoutTransition.DISAPPEARING, collapseOpacityDelay);
+        transition.setDuration(LayoutTransition.DISAPPEARING, collapseOpacityDuration);
+        transition.setDuration(LayoutTransition.CHANGE_DISAPPEARING, collapseScaleDuration);
+
+        //  Set the new LayoutTransition
+        mRowsContainer.setLayoutTransition(transition);
     }
 
     /**
@@ -295,15 +327,6 @@ public class ActionBar extends RelativeLayout {
         mIsExpanded = !mIsExpanded;
         mSlots[getSlotIndex(SLOT_EXPAND_COLLAPSE)].setActivated(mIsExpanded);
 
-        int animationDuration = getContext().getResources().getInteger(mIsExpanded
-                ? R.integer.car_action_bar_expand_anim_duration
-                : R.integer.car_action_bar_collapse_anim_duration);
-        TransitionSet set = new TransitionSet()
-                .addTransition(new ChangeBounds())
-                .addTransition(new Fade())
-                .setDuration(animationDuration)
-                .setInterpolator(new FastOutSlowInInterpolator());
-        TransitionManager.beginDelayedTransition(mActionBarWrapper, set);
         for (int i = 0; i < mNumExtraRowsInUse; i++) {
             mRowsContainer.getChildAt(i).setVisibility(mIsExpanded ? View.VISIBLE : View.GONE);
         }
