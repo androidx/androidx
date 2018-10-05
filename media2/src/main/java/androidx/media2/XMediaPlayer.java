@@ -35,6 +35,7 @@ import android.media.MediaDrmException;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.PersistableBundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
 
@@ -439,52 +440,6 @@ public class XMediaPlayer extends SessionPlayer2 {
     @RestrictTo(LIBRARY_GROUP)
     public @interface SeekMode {}
 
-    /**
-     * The status codes for {@link PlayerCallback#onDrmPrepared} listener.
-     * <p>
-     *
-     * DRM preparation has succeeded.
-     */
-    public static final int PREPARE_DRM_STATUS_SUCCESS = 0;
-
-    /**
-     * The device required DRM provisioning but couldn't reach the provisioning server.
-     */
-    public static final int PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR = 1;
-
-    /**
-     * The device required DRM provisioning but the provisioning server denied the request.
-     */
-    public static final int PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR = 2;
-
-    /**
-     * The DRM preparation has failed.
-     */
-    public static final int PREPARE_DRM_STATUS_PREPARATION_ERROR = 3;
-
-    /**
-     * The crypto scheme UUID that is not supported by the device.
-     */
-    public static final int PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME = 4;
-
-    /**
-     * The hardware resources are not available, due to being in use.
-     */
-    public static final int PREPARE_DRM_STATUS_RESOURCE_BUSY = 5;
-
-    /** @hide */
-    @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
-            PREPARE_DRM_STATUS_SUCCESS,
-            PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
-            PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
-            PREPARE_DRM_STATUS_PREPARATION_ERROR,
-            PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME,
-            PREPARE_DRM_STATUS_RESOURCE_BUSY,
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
-    public @interface PrepareDrmStatusCode {}
-
     private static final int CALL_COMPLETE_PLAYLIST_BASE = -1000;
     private static final int END_OF_PLAYLIST = -1;
     private static final int NO_MEDIA_ITEM = -2;
@@ -547,17 +502,17 @@ public class XMediaPlayer extends SessionPlayer2 {
 
         sPrepareDrmStatusMap = new ArrayMap<>();
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_SUCCESS,
-                PREPARE_DRM_STATUS_SUCCESS);
+                DrmResult.RESULT_CODE_SUCCESS);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
-                PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR);
+                DrmResult.RESULT_CODE_PROVISIONING_NETWORK_ERROR);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
-                PREPARE_DRM_STATUS_PREPARATION_ERROR);
+                DrmResult.RESULT_CODE_PREPARATION_ERROR);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PREPARATION_ERROR,
-                PREPARE_DRM_STATUS_PREPARATION_ERROR);
+                DrmResult.RESULT_CODE_PREPARATION_ERROR);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME,
-                PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME);
+                DrmResult.RESULT_CODE_UNSUPPORTED_SCHEME);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_RESOURCE_BUSY,
-                PREPARE_DRM_STATUS_RESOURCE_BUSY);
+                DrmResult.RESULT_CODE_RESOURCE_BUSY);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -573,10 +528,10 @@ public class XMediaPlayer extends SessionPlayer2 {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final @MediaPlayer2.CallCompleted int mCallType;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        final SettableFuture<PlayerResult> mFuture;
+        final SettableFuture mFuture;
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        PendingCommand(int mCallType, SettableFuture<PlayerResult> mFuture) {
+        PendingCommand(int mCallType, SettableFuture mFuture) {
             this.mCallType = mCallType;
             this.mFuture = mFuture;
         }
@@ -621,7 +576,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     private void addPendingCommandLocked(
-            int callType, final SettableFuture<PlayerResult> future, final Object token) {
+            int callType, final SettableFuture future, final Object token) {
         final PendingCommand pendingCommand = new PendingCommand(callType, future);
         mPendingCommands.add(pendingCommand);
         future.addListener(new Runnable() {
@@ -1548,18 +1503,24 @@ public class XMediaPlayer extends SessionPlayer2 {
      * which involves accessing the provisioning server and can take a variable time to
      * complete depending on the network connectivity.
      * prepareDrm() runs in non-blocking mode by launching the provisioning in the background and
-     * returning. {@link PlayerCallback#onDrmPrepared} will be called when provisioning and
-     * preparation has finished. The application should check the status code returned with
-     * {@link PlayerCallback#onDrmPrepared} to proceed.
+     * returning. The application should check the {@link DrmResult#getResultCode()} returned with
+     * {@link ListenableFuture} to proceed.
      * <p>
      *
      * @param uuid The UUID of the crypto scheme. If not known beforehand, it can be retrieved
      * from the source through {#link getDrmInfo} or registering
      * {@link PlayerCallback#onDrmInfo}.
+     * @return a {@link ListenableFuture} which represents the pending completion of the command.
+     * {@link DrmResult} will be delivered when the command completes.
      */
     // This is an asynchronous call.
-    public void prepareDrm(@NonNull UUID uuid) {
-        mPlayer.prepareDrm(uuid);
+    public SettableFuture<DrmResult> prepareDrm(@NonNull UUID uuid) {
+        SettableFuture<DrmResult> future = SettableFuture.create();
+        synchronized (mPendingCommands) {
+            Object token = mPlayer._prepareDrm(uuid);
+            addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PREPARE_DRM, future, token);
+        }
+        return future;
     }
 
     /**
@@ -1920,6 +1881,88 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handleCallComplete(MediaPlayer2 mp, final MediaItem2 item, int what, int status) {
+        PendingCommand expected;
+        synchronized (mPendingCommands) {
+            expected = mPendingCommands.pollFirst();
+        }
+        if (expected == null) {
+            Log.i(TAG, "No matching call type for " + what + ". Possibly because of reset().");
+            return;
+        }
+
+        if (what != expected.mCallType) {
+            Log.w(TAG, "Call type does not match. expeced:" + expected.mCallType
+                    + " actual:" + what);
+            status = MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN;
+        }
+        if (status == MediaPlayer2.CALL_STATUS_NO_ERROR) {
+            switch (what) {
+                case MediaPlayer2.CALL_COMPLETED_PREPARE:
+                case MediaPlayer2.CALL_COMPLETED_PAUSE:
+                    setState(PLAYER_STATE_PAUSED);
+                    break;
+                case MediaPlayer2.CALL_COMPLETED_PLAY:
+                    setState(PLAYER_STATE_PLAYING);
+                    break;
+                case MediaPlayer2.CALL_COMPLETED_SEEK_TO:
+                    final long pos = mPlayer.getCurrentPosition();
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(
+                                SessionPlayer2.PlayerCallback callback) {
+                            callback.onSeekCompleted(XMediaPlayer.this, pos);
+                        }
+                    });
+                    break;
+                case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(
+                                SessionPlayer2.PlayerCallback callback) {
+                            callback.onCurrentMediaItemChanged(XMediaPlayer.this, item);
+                        }
+                    });
+                    break;
+                case MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS:
+                    // TODO: Need to check if the speed value is really changed.
+                    final float speed = mPlayer.getPlaybackParams().getSpeed();
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(
+                                SessionPlayer2.PlayerCallback callback) {
+                            callback.onPlaybackSpeedChanged(XMediaPlayer.this, speed);
+                        }
+                    });
+                    break;
+            }
+        }
+        if (what != MediaPlayer2.CALL_COMPLETED_PREPARE_DRM) {
+            Integer resultCode = sResultCodeMap.getOrDefault(status, RESULT_CODE_UNKNOWN_ERROR);
+            expected.mFuture.set(new PlayerResult(resultCode, item));
+        } else {
+            Integer resultCode = sPrepareDrmStatusMap.getOrDefault(
+                    status, DrmResult.RESULT_CODE_PREPARATION_ERROR);
+            expected.mFuture.set(new DrmResult(resultCode, item));
+        }
+
+        PendingCommand command;
+        // TODO: Make commands be executed sequentially
+        while (true) {
+            synchronized (mPendingCommands) {
+                command = mPendingCommands.peekFirst();
+            }
+            if (command == null || command.mCallType > CALL_COMPLETE_PLAYLIST_BASE) {
+                break;
+            }
+            command.mFuture.set(new PlayerResult(
+                    CALL_COMPLETE_PLAYLIST_BASE - command.mCallType, item));
+            synchronized (mPendingCommands) {
+                mPendingCommands.removeFirst();
+            }
+        }
+    }
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     class Mp2DrmCallback extends MediaPlayer2.DrmEventCallback {
         @Override
         public void onDrmInfo(
@@ -1935,14 +1978,7 @@ public class XMediaPlayer extends SessionPlayer2 {
 
         @Override
         public void onDrmPrepared(MediaPlayer2 mp, final MediaItem2 item, final int status) {
-            notifyXMediaPlayerCallback(new XMediaPlayerCallbackNotifier() {
-                @Override
-                public void callCallback(PlayerCallback callback) {
-                    int prepareDrmStatus = sPrepareDrmStatusMap.getOrDefault(
-                            status, PREPARE_DRM_STATUS_PREPARATION_ERROR);
-                    callback.onDrmPrepared(XMediaPlayer.this, item, prepareDrmStatus);
-                }
-            });
+            handleCallComplete(mp, item, MediaPlayer2.CALL_COMPLETED_PREPARE_DRM, status);
         }
     }
 
@@ -2021,80 +2057,7 @@ public class XMediaPlayer extends SessionPlayer2 {
         @Override
         public void onCallCompleted(
                 MediaPlayer2 mp, final MediaItem2 item, int what, int status) {
-            PendingCommand expected;
-            synchronized (mPendingCommands) {
-                expected = mPendingCommands.pollFirst();
-            }
-            if (expected == null) {
-                Log.i(TAG, "No matching call type for " + what + ". Possibly because of reset().");
-                return;
-            }
-
-            if (what != expected.mCallType) {
-                Log.w(TAG, "Call type does not match. expeced:" + expected.mCallType
-                        + " actual:" + what);
-                status = MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN;
-            }
-            if (status == MediaPlayer2.CALL_STATUS_NO_ERROR) {
-                switch (what) {
-                    case MediaPlayer2.CALL_COMPLETED_PREPARE:
-                    case MediaPlayer2.CALL_COMPLETED_PAUSE:
-                        setState(PLAYER_STATE_PAUSED);
-                        break;
-                    case MediaPlayer2.CALL_COMPLETED_PLAY:
-                        setState(PLAYER_STATE_PLAYING);
-                        break;
-                    case MediaPlayer2.CALL_COMPLETED_SEEK_TO:
-                        final long pos = mPlayer.getCurrentPosition();
-                        notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                            @Override
-                            public void callCallback(
-                                    SessionPlayer2.PlayerCallback callback) {
-                                callback.onSeekCompleted(XMediaPlayer.this, pos);
-                            }
-                        });
-                        break;
-                    case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
-                        notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                            @Override
-                            public void callCallback(
-                                    SessionPlayer2.PlayerCallback callback) {
-                                callback.onCurrentMediaItemChanged(XMediaPlayer.this, item);
-                            }
-                        });
-                        break;
-                    case MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS:
-                        // TODO: Need to check if the speed value is really changed.
-                        final float speed = mPlayer.getPlaybackParams().getSpeed();
-                        notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                            @Override
-                            public void callCallback(
-                                    SessionPlayer2.PlayerCallback callback) {
-                                callback.onPlaybackSpeedChanged(XMediaPlayer.this, speed);
-                            }
-                        });
-                        break;
-                }
-            }
-            Integer resultCode = sResultCodeMap.get(status);
-            expected.mFuture.set(new PlayerResult(
-                    resultCode == null ? RESULT_CODE_UNKNOWN_ERROR : resultCode, item));
-
-            PendingCommand command;
-            // TODO: Make commands be executed sequentially
-            while (true) {
-                synchronized (mPendingCommands) {
-                    command = mPendingCommands.peekFirst();
-                }
-                if (command == null || command.mCallType > CALL_COMPLETE_PLAYLIST_BASE) {
-                    break;
-                }
-                command.mFuture.set(new PlayerResult(
-                        CALL_COMPLETE_PLAYLIST_BASE - command.mCallType, item));
-                synchronized (mPendingCommands) {
-                    mPendingCommands.removeFirst();
-                }
-            }
+            handleCallComplete(mp, item, what, status);
         }
 
         @Override
@@ -2227,17 +2190,6 @@ public class XMediaPlayer extends SessionPlayer2 {
          *                of crypto schemes supported by this device
          */
         public void onDrmInfo(XMediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) { }
-
-        /**
-         * Called to notify the client that {@link #prepareDrm} is finished and ready for
-         * key request/response.
-         *
-         * @param mp the {@code MediaPlayer2} associated with this callback
-         * @param item the MediaItem2 of this media item
-         * @param status the result of DRM preparation.
-         */
-        public void onDrmPrepared(
-                XMediaPlayer mp, MediaItem2 item, @PrepareDrmStatusCode int status) { }
     }
 
     /**
@@ -2519,6 +2471,114 @@ public class XMediaPlayer extends SessionPlayer2 {
                     }
                 }, executor);
             }
+        }
+    }
+
+    /**
+     * Result class of the asynchronous DRM APIs.
+     */
+    public static class DrmResult {
+        /**
+         * Result code represents that call is successfully completed.
+         * @see #getResultCode()
+         */
+        public static final int RESULT_CODE_SUCCESS = PlayerResult.RESULT_CODE_SUCCESS;
+
+        /**
+         * The device required DRM provisioning but couldn't reach the provisioning server.
+         */
+        public static final int RESULT_CODE_PROVISIONING_NETWORK_ERROR = -1001;
+
+        /**
+         * The device required DRM provisioning but the provisioning server denied the request.
+         */
+        public static final int RESULT_CODE_PROVISIONING_SERVER_ERROR = -1002;
+
+        /**
+         * The DRM preparation has failed.
+         */
+        public static final int RESULT_CODE_PREPARATION_ERROR = -1003;
+
+        /**
+         * The crypto scheme UUID that is not supported by the device.
+         */
+        public static final int RESULT_CODE_UNSUPPORTED_SCHEME = -1004;
+
+        /**
+         * The hardware resources are not available, due to being in use.
+         */
+        public static final int RESULT_CODE_RESOURCE_BUSY = -1005;
+
+        /** @hide */
+        @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
+                RESULT_CODE_SUCCESS,
+                RESULT_CODE_PROVISIONING_NETWORK_ERROR,
+                RESULT_CODE_PROVISIONING_SERVER_ERROR,
+                RESULT_CODE_PREPARATION_ERROR,
+                RESULT_CODE_UNSUPPORTED_SCHEME,
+                RESULT_CODE_RESOURCE_BUSY,
+        })
+        @Retention(RetentionPolicy.SOURCE)
+        @RestrictTo(LIBRARY_GROUP)
+        public @interface DrmResultCode {}
+
+        private final int mResultCode;
+        private final long mCompletionTime;
+        private final MediaItem2 mItem;
+
+        /**
+         * Constructor that uses the current system clock as the completion time.
+         *
+         * @param resultCode result code. Recommends to use the standard code defined here.
+         * @param item media item when the operation is completed
+         */
+        public DrmResult(int resultCode, @Nullable MediaItem2 item) {
+            this(resultCode, item, SystemClock.elapsedRealtime());
+        }
+
+        private DrmResult(int resultCode, @Nullable MediaItem2 item, long completionTime) {
+            mResultCode = resultCode;
+            mCompletionTime = completionTime;
+            mItem = item;
+        }
+
+        /**
+         * Gets the result code.
+         * <p>
+         * Subclass of the {@link SessionPlayer2} may have defined customized extra code other than
+         * codes defined here. Check the documentation of the class that you're interested in.
+         *
+         * @return result code.
+         * @see #RESULT_CODE_SUCCESS
+         * @see #RESULT_CODE_PROVISIONING_NETWORK_ERROR
+         * @see #RESULT_CODE_PROVISIONING_SERVER_ERROR
+         * @see #RESULT_CODE_PREPARATION_ERROR
+         * @see #RESULT_CODE_UNSUPPORTED_SCHEME
+         * @see #RESULT_CODE_RESOURCE_BUSY
+         */
+        public int getResultCode() {
+            return mResultCode;
+        }
+
+        /**
+         * Gets the completion time of the command. Being more specific, it's the same as
+         * {@link SystemClock#elapsedRealtime()} when the command is completed.
+         *
+         * @return completion time of the command
+         */
+        public long getCompletionTime() {
+            return mCompletionTime;
+        }
+
+        /**
+         * Gets the {@link MediaItem2} for which the command was executed. In other words, this is
+         * the current media item when the command is completed.
+         *
+         * @return media item when the command is completed. Can be {@code null} for error or
+         *         player hasn't intiialized.
+         */
+        public @Nullable MediaItem2 getMediaItem() {
+            return mItem;
         }
     }
 }
