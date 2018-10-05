@@ -480,7 +480,7 @@ public final class TextClassification {
             return new TextClassification.Request.Builder(
                     request.getText(), request.getStartIndex(), request.getEndIndex())
                     .setReferenceTime(ConvertUtils.zonedDateTimeToUtcMs(request.getReferenceTime()))
-                    .setDefaultLocales(LocaleListCompat.wrap(request.getDefaultLocales()))
+                    .setDefaultLocales(ConvertUtils.wrapLocalList(request.getDefaultLocales()))
                     .build();
         }
 
