@@ -26,6 +26,7 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,7 +54,7 @@ public final class Lane implements VersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP)
     Lane(@NonNull List<LaneDirection> directions) {
-        mDirections = new ArrayList<>(directions);
+        mDirections = Collections.unmodifiableList(new ArrayList<>(directions));
     }
 
     /**
@@ -81,7 +82,7 @@ public final class Lane implements VersionedParcelable {
     }
 
     /**
-     * Returns all possible directions a driver can take from this lane.
+     * Returns an unmodifiable list of possible directions a driver can take from this lane.
      */
     @NonNull
     public List<LaneDirection> getDirections() {

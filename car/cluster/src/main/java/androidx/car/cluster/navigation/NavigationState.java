@@ -31,6 +31,7 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,8 +65,8 @@ public final class NavigationState implements VersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP)
     NavigationState(@NonNull List<Step> steps, @NonNull List<Destination> destinations) {
-        mSteps = new ArrayList<>(steps);
-        mDestinations = new ArrayList<>(destinations);
+        mSteps = Collections.unmodifiableList(new ArrayList<>(steps));
+        mDestinations = Collections.unmodifiableList(new ArrayList<>(destinations));
     }
 
     /**
@@ -109,8 +110,8 @@ public final class NavigationState implements VersionedParcelable {
     }
 
     /**
-     * Returns the navigation steps, in order of execution. It is up to the producer to decide how
-     * many steps in advance will be provided. This list should not be mutated.
+     * Returns an unmodifiable list of navigation steps, in order of execution. It is up to the
+     * producer to decide how many steps in advance will be provided.
      */
     @NonNull
     public List<Step> getSteps() {
@@ -118,8 +119,8 @@ public final class NavigationState implements VersionedParcelable {
     }
 
     /**
-     * Returns the destination and intermediate stops in the navigation, sorted from nearest to
-     * furthest. This list should not be mutated.
+     * Returns an unmodifiable list of destinations and intermediate stops in the navigation, sorted
+     * from nearest to furthest.
      */
     @NonNull
     public List<Destination> getDestinations() {
