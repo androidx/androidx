@@ -39,6 +39,9 @@ data class Locale(
     val _countryCode: String? = null
 ) {
 
+    // TODO(Migration/siyamed): I saw this class, and I feel like it  might be too limited.
+    // I think we might want to wrap system locale, or yuse system locale.
+
     // / The primary language subtag for the locale.
     // /
     // / This must not be null.

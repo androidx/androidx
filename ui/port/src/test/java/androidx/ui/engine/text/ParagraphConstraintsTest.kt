@@ -8,14 +8,14 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TextPositionTest {
+class ParagraphConstraintsTest {
 
     @Test
-    fun `toString with empty combined`() {
-        val textPosition = TextPosition(1, TextAffinity.downstream)
+    fun `toString with values`() {
+        val paragraphConstraints = ParagraphConstraints(width = 101.0)
         assertThat(
-            textPosition.toString(),
-            `is`(equalTo("TextPosition(offset: 1, affinity: ${TextAffinity.downstream})"))
+            paragraphConstraints.toString(),
+            `is`(equalTo("ParagraphConstraints(width: 101.0)"))
         )
     }
 }
