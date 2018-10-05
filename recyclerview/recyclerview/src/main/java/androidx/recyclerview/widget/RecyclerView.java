@@ -2228,6 +2228,34 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     }
 
     /**
+     * Tells this RecyclerView to suppress all layout() calls until layout
+     * suppression is disabled with a later call to suppressLayout(false).
+     * When layout suppression is disabled, a requestLayout() call is sent
+     * if layout() was attempted while layout was being suppressed.
+     *
+     * Intentionally overrides hidden method in ViewGroup.
+     * Use {@link #setLayoutFrozen(boolean)} instead with RecyclerView.
+     *
+     * @param suppress true to freeze layout and scroll, false to re-enable.
+     */
+    public void suppressLayout(boolean suppress) {
+        setLayoutFrozen(suppress);
+    }
+
+    /**
+     * Returns whether layout calls on this container are currently being
+     * suppressed, due to an earlier call to {@link #suppressLayout(boolean)}.
+     *
+     * Intentionally overrides hidden method in ViewGroup.
+     * Use {@link #isLayoutFrozen()} instead with RecyclerView.
+     *
+     * @return true if layout and scroll are currently frozen, false otherwise.
+     */
+    public boolean isLayoutSuppressed() {
+        return isLayoutFrozen();
+    }
+
+    /**
      * Animate a scroll by the given amount of pixels along either axis.
      *
      * @param dx Pixels to scroll horizontally
