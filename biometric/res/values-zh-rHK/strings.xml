@@ -18,10 +18,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"請輕觸指紋感應器"</string>
-    <string name="fingerprint_not_recognized" msgid="5491287833813257925">"無法辨識"</string>
+    <string name="fingerprint_not_recognized" msgid="5491287833813257925">"未能識別"</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"說明訊息區域"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"指紋硬體無法使用。"</string>
-    <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"未登錄任何指紋。"</string>
-    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"這個裝置沒有指紋感應器"</string>
-    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"使用者已取消指紋驗證作業。"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"無法使用指紋硬件。"</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"尚未註冊任何指紋。"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"此裝置沒有指紋感應器"</string>
+    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"使用者已取消指紋操作。"</string>
 </resources>
