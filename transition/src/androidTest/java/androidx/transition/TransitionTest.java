@@ -24,6 +24,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -278,7 +279,6 @@ public class TransitionTest extends BaseTest {
         final SyncTransitionListener transitionListener = new SyncTransitionListener(
                 SyncTransitionListener.EVENT_END);
         transition.addListener(transitionListener);
-        transition.addTarget(mViews[0]);
         transition.excludeTarget(mViews[0], true);
         rule.runOnUiThread(new Runnable() {
             @Override
@@ -323,7 +323,43 @@ public class TransitionTest extends BaseTest {
         assertThat(transition.getPropagation(), is(nullValue()));
         final TransitionPropagation propagation = new CircularPropagation();
         transition.setPropagation(propagation);
-        assertThat(propagation, is(sameInstance(propagation)));
+        assertThat(transition.getPropagation(), is(sameInstance(propagation)));
+    }
+
+    @Test
+    public void testPropagationApplied() throws Throwable {
+        showInitialScene();
+        final Animator[] animators = new Animator[3];
+        final Transition transition = new DummyTransition(null) {
+
+            @Override
+            public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+                    TransitionValues startValues, TransitionValues endValues) {
+                View view = startValues.view;
+                int index = view == mViews[0] ? 0 : view == mViews[1] ? 1 : 2;
+                animators[index] = super.createAnimator(sceneRoot, startValues, endValues);
+                return animators[index];
+            }
+        };
+        transition.setPropagation(new FirstViewTransitionPropagation());
+        final SyncTransitionListener transitionListener = new SyncTransitionListener(
+                SyncTransitionListener.EVENT_START);
+        transition.addListener(transitionListener);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(rule.getActivity().getRoot(), transition);
+                mViews[0].setTranslationX(3.f);
+                mViews[1].setTranslationX(3.f);
+                mViews[2].setTranslationX(3.f);
+            }
+        });
+        if (!transitionListener.await()) {
+            fail("Timed out waiting for the TransitionListener");
+        }
+        assertEquals(20, animators[0].getStartDelay());
+        assertEquals(10, animators[1].getStartDelay());
+        assertEquals(0, animators[2].getStartDelay());
     }
 
     @Test
@@ -420,12 +456,16 @@ public class TransitionTest extends BaseTest {
 
         @Override
         public void captureStartValues(@NonNull TransitionValues transitionValues) {
-            transitionValues.values.put("state", 1);
+            captureValues(transitionValues);
         }
 
         @Override
         public void captureEndValues(@NonNull TransitionValues transitionValues) {
-            transitionValues.values.put("state", 2);
+            captureValues(transitionValues);
+        }
+
+        private void captureValues(@NonNull TransitionValues transitionValues) {
+            transitionValues.values.put("state", transitionValues.view.getTranslationX());
         }
 
         @Override
@@ -436,9 +476,32 @@ public class TransitionTest extends BaseTest {
             }
             final ObjectAnimator animator = ObjectAnimator
                     .ofFloat(startValues.view, "translationX", 1.f, 2.f);
-            animator.addListener(mListener);
+            if (mListener != null) {
+                animator.addListener(mListener);
+            }
             return animator;
         }
 
+    }
+
+    /**
+     * A propagation which adds 20 delay for the 1st view and 10 delay for the 2nd view
+     */
+    private class FirstViewTransitionPropagation extends TransitionPropagation {
+        @Override
+        public long getStartDelay(ViewGroup sceneRoot, Transition transition,
+                TransitionValues startValues, TransitionValues endValues) {
+            return startValues.view == mViews[0] ? 20 :
+                    startValues.view == mViews[1] ? 10 : 0;
+        }
+
+        @Override
+        public void captureValues(TransitionValues transitionValues) {
+        }
+
+        @Override
+        public String[] getPropagationProperties() {
+            return new String[0];
+        }
     }
 }
