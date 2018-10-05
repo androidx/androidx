@@ -129,7 +129,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     @Test
     public void testPrepareBySession() throws Exception {
         prepareLooper();
-        mSession.getPlayer().prepare();
+        mSession.getPlayer().prefetch();
         assertTrue(mPlayer.mPrepareCalled);
     }
 

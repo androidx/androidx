@@ -419,7 +419,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         }
         if (player != null) {
             if (player.getPlayerState() == PLAYER_STATE_IDLE) {
-                player.prepare();
+                player.prefetch();
             }
             player.play();
         } else if (DEBUG) {
@@ -452,7 +452,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             player = mPlayer;
         }
         if (player != null) {
-            player.prepare();
+            player.prefetch();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
