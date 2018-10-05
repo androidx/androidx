@@ -18,10 +18,9 @@ package androidx.car.cluster.navigation;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.SuppressLint;
-import android.location.Location;
-
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -29,48 +28,36 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.Objects;
 
 /**
- * A representation of a latitude, longitude that can be serialized as a
- * {@link VersionedParcelable}.
- * <p>
- * Unlike {@link Location}, this class only contains latitude and longitude and not other fields
- * like bearing, speed and so on.
-  */
+ * Information regarding a road, street, highway, etc.
+ */
 @VersionedParcelize
-public final class LatLng implements VersionedParcelable {
+public class Segment implements VersionedParcelable {
     @ParcelField(1)
-    double mLatitude;
-    @ParcelField(2)
-    double mLongitude;
+    String mName;
 
     /**
      * Used by {@link VersionedParcelable}
-     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    LatLng() {
+    Segment() {
     }
 
     /**
-     * Construct a new {@link LatLng} with the given latitude and longitude.
+     * Creates a new {@link Segment} with the given name.
+     *
+     * @param name Name of the segment.
      */
-    public LatLng(double latitude, double longitude) {
-        mLatitude = latitude;
-        mLongitude = longitude;
+    public Segment(@NonNull String name) {
+        mName = Preconditions.checkNotNull(name);
     }
 
     /**
-     * Returns the latitude.
+     * Returns the name of the segment (e.g.: "Wallaby Way", "US-101", "Charleston Rd", etc.)
      */
-    public double getLatitude() {
-        return mLatitude;
-    }
-
-    /**
-     * Returns the longitude.
-     */
-    public double getLongitude() {
-        return mLongitude;
+    @NonNull
+    public String getName() {
+        return Common.nonNullOrEmpty(mName);
     }
 
     @Override
@@ -81,19 +68,17 @@ public final class LatLng implements VersionedParcelable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LatLng latlng = (LatLng) o;
-        return getLatitude() == latlng.getLatitude() && getLongitude() == latlng.getLongitude();
+        Segment segment = (Segment) o;
+        return Objects.equals(getName(), segment.getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getLatitude(), getLongitude());
+        return Objects.hash(getName());
     }
 
-    // DefaultLocale suppressed as this method is only offered for debugging purposes.
-    @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("{%f, %f}", mLatitude, mLongitude);
+        return String.format("{name: %s}", getName());
     }
 }

@@ -202,6 +202,7 @@ public class NavigationStateTest {
                         .setDistance(new Distance(1230, "1.2", Distance.Unit.KILOMETERS))
                         .setLocation(new LatLng(37.4219999, -122.0840575))
                         .build())
+                .setCurrentSegment(new Segment("Main St."))
                 .build();
     }
 
