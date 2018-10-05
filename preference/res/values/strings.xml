@@ -12,4 +12,6 @@
     <string name="preference_copied">
         \"<xliff:g id="summary" example="Version 1.1">%1$s</xliff:g>\" copied to clipboard.
     </string>
+    <!-- Summary for a preference that is displayed to the user when they have not set a value for this preference. -->
+    <string name="not_set">Not set</string>
 </resources>
