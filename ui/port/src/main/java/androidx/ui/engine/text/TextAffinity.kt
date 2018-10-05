@@ -24,6 +24,8 @@ package androidx.ui.engine.text
 // / affinity disambiguates between those cases. (Something similar happens with
 // / between runs of bidirectional text.)
 enum class TextAffinity {
+    // TODO(Migration/siyamed): Afaik we do not currently have support for affinity
+
     // / The position has affinity for the upstream side of the text position.
     // /
     // / For example, if the offset of the text position is a line break, the

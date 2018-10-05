@@ -21,6 +21,7 @@ enum class TextBaseline {
     // / The horizontal line used to align the bottom of glyphs for alphabetic characters.
     alphabetic,
 
+    // TODO(Migration/siyamed): We cannot support this in current system, afaik.
     // / The horizontal line used to align ideographic characters.
     ideographic
 }

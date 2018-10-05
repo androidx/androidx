@@ -10,6 +10,10 @@ fun lerpDouble(a: Double, b: Double, t: Double): Double {
     return a + (b - a) * t
 }
 
+fun lerpInt(a: Int, b: Int, t: Double): Double {
+    return a + (b - a) * t
+}
+
 // Copied from Dart
 fun Double.toStringAsFixed(digits: Int) = java.lang.String.format("%.${digits}f", this)!!
 

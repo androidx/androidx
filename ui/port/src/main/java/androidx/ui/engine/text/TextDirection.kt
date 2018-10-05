@@ -1,19 +1,3 @@
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package androidx.ui.engine.text
 
 // A direction in which text flows.
@@ -102,6 +86,7 @@ package androidx.ui.engine.text
 // visual terms.
 // The order of this enum must match the order of the values in TextDirection.h's TextDirection.
 enum class TextDirection {
+    // TODO(Migration/siyamed): enums are lowercase in other classes, ask ryan@
     // The text flows from right to left (e.g. Arabic, Hebrew).
     LTR,
     // The text flows from left to right (e.g., English, French).
