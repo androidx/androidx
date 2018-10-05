@@ -39,7 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Tests {@link MediaSessionManager2Test}.
@@ -65,7 +65,7 @@ public class MediaSessionManager2Test extends MediaTestBase {
         boolean hasMockSessionService2 = false;
         boolean hasMockLibraryService2 = false;
         MediaSessionManager2 sessionManager2 = MediaSessionManager2.getInstance(mContext);
-        List<SessionToken2> serviceTokens = sessionManager2.getSessionServiceTokens();
+        Set<SessionToken2> serviceTokens = sessionManager2.getSessionServiceTokens();
         for (SessionToken2 token2 : serviceTokens) {
             ComponentName componentName = token2.getComponentName();
             if (MOCK_BROWSER_SERVICE_COMPAT_NAME.equals(componentName)) {
