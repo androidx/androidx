@@ -28,7 +28,7 @@ import androidx.ui.gestures.drag_details.DragUpdateDetails
  * library uses it to notify the [DragScrollActivity] when the user drags the
  * scrollable.
  */
-internal abstract class Drag {
+abstract class Drag {
     /** The pointer has moved. */
     fun update(details: DragUpdateDetails) {}
 
