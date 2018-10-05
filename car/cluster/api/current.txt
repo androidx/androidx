@@ -154,6 +154,7 @@ package androidx.car.cluster.navigation {
     method public static androidx.car.cluster.navigation.NavigationState fromParcelable(android.os.Parcelable);
     method public androidx.car.cluster.navigation.Segment getCurrentSegment();
     method public java.util.List<androidx.car.cluster.navigation.Destination> getDestinations();
+    method public androidx.car.cluster.navigation.NavigationState.ServiceStatus getServiceStatus();
     method public java.util.List<androidx.car.cluster.navigation.Step> getSteps();
     method public android.os.Parcelable toParcelable();
   }
@@ -164,6 +165,14 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.NavigationState.Builder addStep(androidx.car.cluster.navigation.Step);
     method public androidx.car.cluster.navigation.NavigationState build();
     method public androidx.car.cluster.navigation.NavigationState.Builder setCurrentSegment(androidx.car.cluster.navigation.Segment);
+    method public androidx.car.cluster.navigation.NavigationState.Builder setServiceStatus(androidx.car.cluster.navigation.NavigationState.ServiceStatus, androidx.car.cluster.navigation.NavigationState.ServiceStatus...);
+  }
+
+  public static final class NavigationState.ServiceStatus extends java.lang.Enum {
+    method public static androidx.car.cluster.navigation.NavigationState.ServiceStatus valueOf(java.lang.String);
+    method public static final androidx.car.cluster.navigation.NavigationState.ServiceStatus[] values();
+    enum_constant public static final androidx.car.cluster.navigation.NavigationState.ServiceStatus NORMAL;
+    enum_constant public static final androidx.car.cluster.navigation.NavigationState.ServiceStatus REROUTING;
   }
 
   public class Segment implements androidx.versionedparcelable.VersionedParcelable {
