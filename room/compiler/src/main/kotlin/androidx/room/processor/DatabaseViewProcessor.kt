@@ -16,13 +16,11 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
 import androidx.room.vo.DatabaseView
-import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.MoreElements
-import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.TypeElement
 
 class DatabaseViewProcessor(
@@ -35,25 +33,22 @@ class DatabaseViewProcessor(
     fun process(): DatabaseView {
         context.checker.hasAnnotation(element, androidx.room.DatabaseView::class,
                 ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW)
-        val annotation = MoreElements.getAnnotationMirror(element,
-                androidx.room.DatabaseView::class.java).orNull()
+        val annotationBox = element.toAnnotationBox(androidx.room.DatabaseView::class)
 
-        val viewName: String = if (annotation != null) {
-            extractViewName(element, annotation)
+        val viewName: String = if (annotationBox != null) {
+            extractViewName(element, annotationBox.value)
         } else {
             element.simpleName.toString()
         }
-
-        val query: ParsedQuery = if (annotation != null) {
-            val query = SqlParser.parse(
-                    AnnotationMirrors.getAnnotationValue(annotation, "value").value.toString())
-            context.checker.check(query.errors.isEmpty(), element,
-                    query.errors.joinToString("\n"))
-            context.checker.check(query.type == QueryType.SELECT, element,
-                    ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT)
-            context.checker.check(query.bindSections.isEmpty(), element,
-                    ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS)
-            query
+        val query: ParsedQuery = if (annotationBox != null) {
+            SqlParser.parse(annotationBox.value.value).also {
+                context.checker.check(it.errors.isEmpty(), element,
+                        it.errors.joinToString("\n"))
+                context.checker.check(it.type == QueryType.SELECT, element,
+                        ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT)
+                context.checker.check(it.bindSections.isEmpty(), element,
+                        ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS)
+            }
         } else {
             ParsedQuery.MISSING
         }
@@ -80,13 +75,14 @@ class DatabaseViewProcessor(
     }
 
     companion object {
-        private fun extractViewName(element: TypeElement, annotation: AnnotationMirror): String {
-            val annotationValue = AnnotationMirrors
-                    .getAnnotationValue(annotation, "viewName").value.toString()
-            return if (annotationValue == "") {
+        private fun extractViewName(
+            element: TypeElement,
+            annotation: androidx.room.DatabaseView
+        ): String {
+            return if (annotation.viewName == "") {
                 element.simpleName.toString()
             } else {
-                annotationValue
+                annotation.viewName
             }
         }
     }
