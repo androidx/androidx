@@ -786,7 +786,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     @Override
     public void prepareDrm(@NonNull final UUID uuid) {
-        addTask(new Task(CALL_COMPLETED_PREPARE_DRM, false) {
+        _prepareDrm(uuid);
+    }
+    @Override
+    public Object _prepareDrm(@NonNull final UUID uuid) {
+        return addTask(new Task(CALL_COMPLETED_PREPARE_DRM, false) {
             @Override
             void process() {
                 int status = PREPARE_DRM_STATUS_SUCCESS;

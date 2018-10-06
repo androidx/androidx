@@ -46,6 +46,7 @@ import androidx.annotation.CallSuper;
 import androidx.media2.SessionPlayer2.PlayerResult;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.XMediaPlayer.DrmInfo;
+import androidx.media2.XMediaPlayer.DrmResult;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
@@ -564,44 +565,47 @@ public class XMediaPlayerDrmTest {
                 UUID drmScheme = CLEARKEY_SCHEME_UUID;
                 Log.d(TAG, "preparePlayerAndDrm_V3: onDrmInfo: selected " + drmScheme);
 
-                try {
-                    Log.v(TAG, "preparePlayerAndDrm_V3: onDrmInfo: calling prepareDrm");
-                    mp.prepareDrm(drmScheme);
-                    Log.v(TAG, "preparePlayerAndDrm_V3: onDrmInfo: called prepareDrm");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "preparePlayerAndDrm_V3: onDrmInfo: prepareDrm exception " + e);
-                    asyncSetupDrmError.set(true);
-                    mOnDrmInfoCalled.signal();
-                    // need to get passed the wait
-                    mOnDrmPreparedCalled.signal();
-                    return;
-                }
+                Log.v(TAG, "preparePlayerAndDrm_V3: onDrmInfo: calling prepareDrm");
+                final ListenableFuture<DrmResult> future = mp.prepareDrm(drmScheme);
+                Log.v(TAG, "preparePlayerAndDrm_V3: onDrmInfo: called prepareDrm");
+                future.addListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            DrmResult result = future.get();
+                            Log.v(TAG, "preparePlayerAndDrm_V3: prepareDrm status: "
+                                    + result.getResultCode());
+
+                            assertTrue("preparePlayerAndDrm_V3: onDrmPrepared did not succeed",
+                                    result.getResultCode() == DrmResult.RESULT_CODE_SUCCESS);
+
+                            DrmInfo drmInfo = mPlayer.getDrmInfo();
+
+                            // in the callback (async mode) so handling exceptions here
+                            try {
+                                setupDrm(drmInfo, false /* prepareDrm */,
+                                        true /* synchronousNetworking */,
+                                        MediaDrm.KEY_TYPE_STREAMING);
+                            } catch (Exception e) {
+                                Log.v(TAG, "preparePlayerAndDrm_V3: setupDrm EXCEPTION ", e);
+                                asyncSetupDrmError.set(true);
+                            }
+
+                            mOnDrmPreparedCalled.signal();
+                            Log.v(TAG, "preparePlayerAndDrm_V3: onDrmPrepared done!");
+                        } catch (ExecutionException | InterruptedException e) {
+                            Log.e(TAG, "preparePlayerAndDrm_V3: onDrmInfo: prepareDrm exception ",
+                                    e);
+                            asyncSetupDrmError.set(true);
+                            mOnDrmInfoCalled.signal();
+                            // need to get passed the wait
+                            mOnDrmPreparedCalled.signal();
+                        }
+                    }
+                }, mExecutor);
 
                 mOnDrmInfoCalled.signal();
                 Log.v(TAG, "preparePlayerAndDrm_V3: onDrmInfo done!");
-            }
-
-            @Override
-            public void onDrmPrepared(XMediaPlayer mp, MediaItem2 item, int status) {
-                Log.v(TAG, "preparePlayerAndDrm_V3: onDrmPrepared status: " + status);
-
-                assertTrue("preparePlayerAndDrm_V3: onDrmPrepared did not succeed",
-                           status == XMediaPlayer.PREPARE_DRM_STATUS_SUCCESS);
-
-                DrmInfo drmInfo = mPlayer.getDrmInfo();
-
-                // in the callback (async mode) so handling exceptions here
-                try {
-                    setupDrm(drmInfo, false /* prepareDrm */, true /* synchronousNetworking */,
-                            MediaDrm.KEY_TYPE_STREAMING);
-                } catch (Exception e) {
-                    Log.v(TAG, "preparePlayerAndDrm_V3: setupDrm EXCEPTION " + e);
-                    asyncSetupDrmError.set(true);
-                }
-
-                mOnDrmPreparedCalled.signal();
-                Log.v(TAG, "preparePlayerAndDrm_V3: onDrmPrepared done!");
             }
         });
 
@@ -769,17 +773,8 @@ public class XMediaPlayerDrmTest {
                     Log.d(TAG, "setupDrm: selected " + drmScheme);
 
                     if (prepareDrm) {
-                        final Monitor drmPrepared = new Monitor();
-                        mPlayer.registerPlayerCallback(
-                                mExecutor, new XMediaPlayer.PlayerCallback() {
-                                    @Override
-                                    public void onDrmPrepared(
-                                            XMediaPlayer mp, MediaItem2 item, int status) {
-                                        drmPrepared.signal();
-                                    }
-                                });
-                        mPlayer.prepareDrm(drmScheme);
-                        drmPrepared.waitForSignal();
+                        ListenableFuture<DrmResult> future = mPlayer.prepareDrm(drmScheme);
+                        assertEquals(DrmResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
                     }
 
                     byte[] psshData = drmInfo.getPssh().get(drmScheme);
@@ -861,7 +856,8 @@ public class XMediaPlayerDrmTest {
                 UUID drmScheme = CLEARKEY_SCHEME_UUID;
                 Log.d(TAG, "setupDrmRestore: selected " + drmScheme);
 
-                mPlayer.prepareDrm(drmScheme);
+                ListenableFuture<DrmResult> future = mPlayer.prepareDrm(drmScheme);
+                assertEquals(DrmResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
             }
 
             if (mKeySetId == null) {
