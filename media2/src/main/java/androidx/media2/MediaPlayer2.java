@@ -1685,6 +1685,12 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void prepareDrm(@NonNull UUID uuid);
+    /**
+     * @return a token which can be used to cancel the operation later with {@link #cancel}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Object _prepareDrm(@NonNull UUID uuid);
 
     /**
      * Releases the DRM session
