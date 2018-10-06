@@ -664,6 +664,11 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    public Object _prepareDrm(@NonNull final UUID uuid) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void releaseDrm() {
         throw new UnsupportedOperationException();
     }
