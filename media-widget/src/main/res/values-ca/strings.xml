@@ -74,7 +74,7 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Rebobina 10 segons"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Avança 30 segons"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Enllaç d\'inici"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Silenciat. Fes clic per activar el so."</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Silenciat. Fes clic per deixar de silenciar."</string>
     <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Fes clic per silenciar"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Pantalla completa"</string>
 </resources>

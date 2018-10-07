@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="3321397713117065638">"சிஸ்டம்"</string>
+    <string name="mr_user_route_category_name" msgid="1627840233801992496">"சாதனங்கள்"</string>
+    <string name="mr_button_content_description" msgid="2563900737284462162">"அலைபரப்பும் பட்டன்"</string>
+    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"அலைபரப்பும் பட்டன். துண்டிக்கப்பட்டது"</string>
+    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"அலைபரப்பும் பட்டன். இணைக்கிறது"</string>
+    <string name="mr_cast_button_connected" msgid="938609484693891555">"அலைபரப்பும் பட்டன். இணைக்கப்பட்டது"</string>
+    <string name="mr_chooser_title" msgid="8588921739112945317">"இதில் அலைபரப்பு:"</string>
+    <string name="mr_chooser_searching" msgid="3620017600129578274">"சாதனங்களைத் தேடுகிறது"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"இணைப்பைத் துண்டி"</string>
+    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"அலைபரப்புவதை நிறுத்து"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"மூடுவதற்கான பட்டன்"</string>
+    <string name="mr_controller_play" msgid="4438243775726932620">"இயக்கும் பட்டன்"</string>
+    <string name="mr_controller_pause" msgid="2836364020975903659">"இடைநிறுத்தும் பட்டன்"</string>
+    <string name="mr_controller_stop" msgid="2946921829587351729">"நிறுத்தும் பட்டன்"</string>
+    <string name="mr_controller_expand_group" msgid="6419866561073332299">"விரிவாக்கும் பட்டன்"</string>
+    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"சுருக்குவதற்கான பட்டன்"</string>
+    <string name="mr_controller_album_art" msgid="3247329727731601009">"ஆல்பம் ஆர்ட் பட்டன்"</string>
+    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"ஒலியளவு ஸ்லைடர்"</string>
+    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"மீடியா எதுவும் தேர்ந்தெடுக்கப்படவில்லை"</string>
+    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"தகவல் எதுவுமில்லை"</string>
+    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"திரையை அலைபரப்புகிறீர்கள்"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"<xliff:g id="WAIT_TIME">%1$d</xliff:g> விநாடிகளில் விளம்பரத்தைத் தவிர்க்கலாம்"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"விளம்பரம் முடிய · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> உள்ளது"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"விளம்பரதாரர் இணையதளம்"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"விரிவான வசனம்"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"ஆஃப்"</string>
+    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ஆடியோ டிராக்"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"ஏதுமில்லை"</string>
+    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"வீடியோ தரம்"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"தானியங்கு"</string>
+    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"உதவி &amp; கருத்து"</string>
+    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"வீடியோ இயக்க வேகம்"</string>
+    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"இயல்பு"</string>
+    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"டிராக் <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"டிராக் <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"டிராக் <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"பாடல் தலைப்பு தெரியவில்லை"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"கலைஞர் பெயர் தெரியவில்லை"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"நீங்கள் கோரிய வீடியோவை இயக்க இயலவில்லை"</string>
+    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"சரி"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"பின்செல்"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"முந்தைய பட்டன்களின் பட்டியலுக்குச் செல்லும்"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"மேலும் பட்டன்களைக் காட்டும்"</string>
+    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"வீடியோவின் இயக்கம்"</string>
+    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"அமைப்புகள்"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"வீடியோ தரத்தைத் தேர்வுசெய்யும் பட்டன்"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"வசனம் ஆனில் உள்ளது. மறைப்பதற்குக் கிளிக் செய்யவும்."</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"வசனம் ஆஃபில் உள்ளது. காட்டுவதற்குக் கிளிக் செய்யவும்."</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"மீண்டும் இயக்கும்"</string>
+    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"இயக்கும் பட்டன்"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"இடைநிறுத்தும் பட்டன்"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"முந்தைய மீடியா"</string>
+    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"அடுத்த மீடியா"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 வினாடிகள் பின்செல்லும்"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 விநாடிகள் முன்னனுப்பு"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Launch Link"</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"ஒலியடக்கப்பட்டுள்ளது. ஒலியை இயக்குவதற்குக் கிளிக் செய்க"</string>
+    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"ஒலியடக்க, கிளிக் செய்ய வேண்டிய பட்டன்"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"முழுத்திரை"</string>
+</resources>

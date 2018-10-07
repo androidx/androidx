@@ -41,7 +41,7 @@
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"<xliff:g id="WAIT_TIME">%1$d</xliff:g>-ൽ പരസ്യം ഒഴിവാക്കാം"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"പരസ്യം · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> സമയം ശേഷിക്കുന്നു"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"പരസ്യദാതാവിന്റെ വെബ്‌സൈറ്റ് സന്ദർശിക്കുക"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"അടച്ച തലക്കെട്ടുകൾ"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"സബ്‌ടൈറ്റിലുകൾ"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"ഓഫ്"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ഓഡിയോ ട്രാക്ക്"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"ഒന്നുമില്ല"</string>
@@ -71,8 +71,8 @@
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"തൽക്കാലം നിർത്തുക"</string>
     <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"മുമ്പത്തെ മീഡിയ"</string>
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"അടുത്ത മീഡിയ"</string>
-    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 സെക്കൻഡ് പിന്നിലേക്ക് പോവുക"</string>
-    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 സെക്കൻഡ് മുന്നിലേക്ക് പോവുക"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 സെക്കൻഡ് പിന്നോട്ട് പോവുക"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 സെക്കൻഡ് മുന്നോട്ട് പോവുക"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"ലോഞ്ച് ലിങ്ക്"</string>
     <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"മ്യൂട്ട് ചെയ്‌തു. അൺമ്യൂട്ട് ചെയ്യാൻ ക്ലിക്ക് ചെയ്യുക"</string>
     <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"മ്യൂട്ട് ചെയ്യാൻ ക്ലിക്ക് ചെയ്യുക"</string>

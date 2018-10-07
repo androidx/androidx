@@ -26,7 +26,7 @@
     <string name="mr_chooser_title" msgid="8588921739112945317">"Cast ke"</string>
     <string name="mr_chooser_searching" msgid="3620017600129578274">"Mencari perangkat"</string>
     <string name="mr_controller_disconnect" msgid="5986039731202257800">"Putuskan sambungan"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Hentikan cast"</string>
+    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Hentikan transmisi"</string>
     <string name="mr_controller_close_description" msgid="8012662266390041495">"Tutup"</string>
     <string name="mr_controller_play" msgid="4438243775726932620">"Putar"</string>
     <string name="mr_controller_pause" msgid="2836364020975903659">"Jeda"</string>
@@ -37,14 +37,14 @@
     <string name="mr_controller_volume_slider" msgid="3744355133696779358">"Penggeser volume"</string>
     <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"Tidak ada media yang dipilih"</string>
     <string name="mr_controller_no_info_available" msgid="3503984261752778785">"Info tidak tersedia"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Meng-cast layar"</string>
-    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Anda bisa melewati Iklan dalam <xliff:g id="WAIT_TIME">%1$d</xliff:g>"</string>
+    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Mentransmisikan layar"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Anda dapat melewati Iklan dalam <xliff:g id="WAIT_TIME">%1$d</xliff:g>"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Sisa waktu iklan · <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Kunjungi Pengiklan"</string>
     <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Subtitel"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Nonaktif"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Trek audio"</string>
-    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Tak Ada"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Tidak Ada"</string>
     <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"Kualitas video"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Otomatis"</string>
     <string name="MediaControlView2_help_text" msgid="1371398883793579836">"Bantuan &amp; masukan"</string>

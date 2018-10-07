@@ -25,7 +25,7 @@
     <string name="mr_cast_button_connected" msgid="938609484693891555">"कास्ट बटन. कनेक्ट हो गया"</string>
     <string name="mr_chooser_title" msgid="8588921739112945317">"इस पर कास्‍ट करें"</string>
     <string name="mr_chooser_searching" msgid="3620017600129578274">"डिवाइस ढूंढे जा रहे हैं"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"कनेक्शन हटाएं"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"डिसकनेक्ट करें"</string>
     <string name="mr_controller_stop_casting" msgid="3150290496374335427">"कास्ट करना रोकें"</string>
     <string name="mr_controller_close_description" msgid="8012662266390041495">"बंद करें"</string>
     <string name="mr_controller_play" msgid="4438243775726932620">"चलाएं"</string>
@@ -55,7 +55,7 @@
     <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"ट्रैक <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
     <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"ट्रैक <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"गाने का शीर्षक पता नहीं है"</string>
-    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"कलाकार अनजान है"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"कलाकार का नाम नहीं पता"</string>
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"आपका अनुरोध किया गया आइटम नहीं चलाया जा सका"</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"ठीक है"</string>
     <string name="mcv2_back_button_desc" msgid="3840841379369664026">"वापस जाएं"</string>

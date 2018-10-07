@@ -59,7 +59,7 @@
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Não foi possível reproduzir o item solicitado."</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"OK"</string>
     <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Anterior"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Lista de botões Voltar ao anterior"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Voltar à lista de botões anterior"</string>
     <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Ver mais botões"</string>
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Progresso da reprodução"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Definições"</string>

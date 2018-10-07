@@ -59,8 +59,8 @@
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Не удалось воспроизвести выбранное видео."</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"ОК"</string>
     <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Назад"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Вернуться к предыдущему списку"</string>
-    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Ещё"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Вернуться к предыдущему списку кнопок"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Ещё кнопки"</string>
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Воспроизведение"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Настройки"</string>
     <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"Выбрать качество видео"</string>

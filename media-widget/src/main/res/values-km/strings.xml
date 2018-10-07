@@ -38,7 +38,7 @@
     <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"មិនបាន​ជ្រើសរើស​មេឌៀ​ទេ"</string>
     <string name="mr_controller_no_info_available" msgid="3503984261752778785">"មិនមានព័ត៌មានទេ"</string>
     <string name="mr_controller_casting_screen" msgid="4277060472882643702">"កំពុង​បញ្ជូន​អេក្រង់"</string>
-    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"អ្នក​អាច​រំលង​ការផ្សាយពាណិជ្ជកម្ម​នេះក្នុងរយៈពេល <xliff:g id="WAIT_TIME">%1$d</xliff:g>s ទៀត"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"អ្នក​អាច​រំលង​ការផ្សាយពាណិជ្ជកម្ម​នេះក្នុងរយៈពេល <xliff:g id="WAIT_TIME">%1$d</xliff:g>វិ ទៀត"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"ការ​ផ្សាយពាណិជ្ជកម្ម​ · នៅសល់ <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ទៀត"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ចូលមើល​អ្នក​ផ្សាយ​ពាណិជ្ជកម្ម"</string>
     <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"អក្សររត់"</string>
@@ -51,12 +51,12 @@
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"ល្បឿន​ចាក់"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"ធម្មតា"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
-    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"សំនៀង​ទី <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"សំនៀង​ទី <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
-    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"សំនៀងទី <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"បទលេខ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"បទលេខ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"បទលេខ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"ចំណងជើងចម្រៀងមិនស្គាល់"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"សិល្បករមិនស្គាល់"</string>
-    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"មិន​អាច​ចាក់ធាតុ​ដែលអ្នក​បា​ន​ស្នើទេ"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"មិន​អាច​ចាក់​វីដេអូ ដែលអ្នក​បាន​ស្នើទេ"</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"យល់ព្រម"</string>
     <string name="mcv2_back_button_desc" msgid="3840841379369664026">"ថយក្រោយ"</string>
     <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"ត្រឡប់ទៅ​បញ្ជី​ប៊ូតុង​ពីមុនវិញ"</string>
@@ -66,13 +66,13 @@
     <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"ការជ្រើសរើសគុណភាពវីដេអូ"</string>
     <string name="mcv2_cc_is_on" msgid="2833324927553141685">"អក្សររត់បានបើក សូម​ចុច​ដើម្បីលាក់។"</string>
     <string name="mcv2_cc_is_off" msgid="7400772738891461543">"អក្សររត់បានបិទ សូម​ចុច​ដើម្បីបង្ហាញ។"</string>
-    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"លេង​​ឡើងវិញ"</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"ចាក់​ឡើងវិញ"</string>
     <string name="mcv2_play_button_desc" msgid="2034430009829871366">"ចាក់"</string>
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"ផ្អាក"</string>
     <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"មេឌៀពីមុន"</string>
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"មេឌៀបន្ទាប់"</string>
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"ខាថយក្រោយ 10 វិនាទី"</string>
-    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"ខាទៅមុខ​ 30 វិនាទី"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"ទៅមុខ​ 30 វិនាទី"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"តំណចាប់ផ្ដើម"</string>
     <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"បាន​បិទសំឡេង។ សូមចុច​ដើម្បីបើកសំឡេង"</string>
     <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"ចុច​ដើម្បី​បិទសំឡេង"</string>

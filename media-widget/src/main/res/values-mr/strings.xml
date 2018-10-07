@@ -33,7 +33,7 @@
     <string name="mr_controller_stop" msgid="2946921829587351729">"थांबवा"</string>
     <string name="mr_controller_expand_group" msgid="6419866561073332299">"विस्तार करा"</string>
     <string name="mr_controller_collapse_group" msgid="2245585614410697821">"कोलॅप्स करा"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"कलाअल्बम"</string>
+    <string name="mr_controller_album_art" msgid="3247329727731601009">"अल्बम आर्ट"</string>
     <string name="mr_controller_volume_slider" msgid="3744355133696779358">"व्हॉल्यूम स्लायडर"</string>
     <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"मीडिया निवडला नाही"</string>
     <string name="mr_controller_no_info_available" msgid="3503984261752778785">"कोणतीही माहिती उपलब्ध नाही"</string>
@@ -76,5 +76,5 @@
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"लिंक लाँच करा"</string>
     <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"म्यूट केलेले. अनम्यूट करण्यासाठी क्लिक करा"</string>
     <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"म्यूट करण्यासाठी क्लिक करा"</string>
-    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"पूर्ण स्क्रीन"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"फुल स्क्रीन"</string>
 </resources>
