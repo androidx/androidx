@@ -7,4 +7,6 @@
     <string name="summary_collapsed_preference_list" msgid="5190123168583152844">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>, <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
     <string name="copy" msgid="3209159573327985035">"Kopiëren"</string>
     <string name="preference_copied" msgid="7961817945132860002">"\'<xliff:g id="SUMMARY">%1$s</xliff:g>\' is gekopieerd naar het klembord."</string>
+    <!-- no translation found for not_set (478774118347071097) -->
+    <skip />
 </resources>
