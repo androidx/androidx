@@ -27,6 +27,6 @@ limitations under the License.
     <string name="add_contact" msgid="9005634177208282449">"Gehitu"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"Gehitu kontaktuetan"</string>
     <string name="floating_toolbar_open_overflow_description" msgid="1187148927509077545">"Aukera gehiago"</string>
-    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"Itxi gainfluxua"</string>
+    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"Itxi luzapena"</string>
     <string name="abc_share" msgid="7091841667818715717">"Partekatu"</string>
 </resources>
