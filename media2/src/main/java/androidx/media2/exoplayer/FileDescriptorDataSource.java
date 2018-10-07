@@ -22,10 +22,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.net.Uri;
 import android.os.Build;
-import android.system.Os;
-import android.system.OsConstants;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
@@ -39,8 +36,6 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 /**
  * An ExoPayer {@link DataSource} for reading from a file descriptor.
@@ -51,21 +46,6 @@ import java.lang.reflect.Method;
 @RestrictTo(LIBRARY_GROUP)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class FileDescriptorDataSource extends BaseDataSource {
-
-    // TODO(b/80232248): Move into core ExoPlayer library and delete this class.
-
-    /**
-     * {@link OsConstants} was added in API 21 and initializes its fields lazily, so we directly
-     * specify the constant for the {@code lseek} {@code whence} argument for earlier API versions.
-     */
-    private static final int SEEK_SET = 0;
-
-    // Before API 21 we access the hidden Posix.lseek API using reflection.
-    private static final Object sPosixLockV14 = new Object();
-    @GuardedBy("sPosixLockV14")
-    private static @Nullable Object sPosixObjectV14;
-    @GuardedBy("sPosixLockV14")
-    private static @Nullable Method sLseekMethodV14;
 
     /**
      * Returns a factory for {@link FileDescriptorDataSource}s.
@@ -85,10 +65,13 @@ import java.lang.reflect.Method;
         };
     }
 
-    private final FileDescriptor mFileDescriptor;
+    // TODO(b/80232248): Move into core ExoPlayer library and delete this class.
+
+    private final FileDescriptor mFactoryFileDescriptor;
     private final long mOffset;
     private final long mLength;
 
+    private @Nullable FileDescriptor mFileDescriptor;
     private @Nullable Uri mUri;
     private @Nullable InputStream mInputStream;
     private long mBytesRemaining;
@@ -96,7 +79,7 @@ import java.lang.reflect.Method;
 
     public FileDescriptorDataSource(FileDescriptor fileDescriptor, long offset, long length) {
         super(/* isNetwork= */ false);
-        mFileDescriptor = fileDescriptor;
+        mFactoryFileDescriptor = fileDescriptor;
         mOffset = offset;
         mLength = length;
     }
@@ -105,7 +88,8 @@ import java.lang.reflect.Method;
     public long open(DataSpec dataSpec) throws IOException {
         mUri = dataSpec.uri;
         transferInitializing(dataSpec);
-        seekFileDescriptor(mFileDescriptor, mOffset + dataSpec.position);
+        mFileDescriptor = FileDescriptorUtil.dup(mFactoryFileDescriptor);
+        FileDescriptorUtil.seek(mFileDescriptor, mOffset + dataSpec.position);
         mInputStream = new FileInputStream(mFileDescriptor);
         if (dataSpec.length != C.LENGTH_UNSET) {
             mBytesRemaining = dataSpec.length;
@@ -157,53 +141,15 @@ import java.lang.reflect.Method;
             }
         } finally {
             mInputStream = null;
-            if (mOpened) {
-                mOpened = false;
-                transferEnded();
-            }
-        }
-    }
-
-    private static void seekFileDescriptor(FileDescriptor fileDescriptor, long position)
-            throws IOException {
-        if (Build.VERSION.SDK_INT >= 21) {
-            seekFileDescriptorV21(fileDescriptor, position);
-        } else {
-            seekFileDescriptorV14(fileDescriptor, position);
-        }
-    }
-
-    @TargetApi(21)
-    private static void seekFileDescriptorV21(FileDescriptor fileDescriptor, long position)
-            throws IOException {
-        try {
-            Os.lseek(fileDescriptor, position, /* whence= */ OsConstants.SEEK_SET);
-        } catch (Exception e) {
-            throw new IOException("Failed to seek the file descriptor", e);
-        }
-    }
-
-    @SuppressLint("PrivateApi")
-    private static void seekFileDescriptorV14(FileDescriptor fileDescriptor, long position)
-            throws IOException {
-        try {
-            Method method;
-            Object object;
-            synchronized (sPosixLockV14) {
-                if (sPosixObjectV14 == null) {
-                    Class<?> posixClass = Class.forName("libcore.io.Posix");
-                    Constructor<?> constructor = posixClass.getDeclaredConstructor();
-                    constructor.setAccessible(true);
-                    sLseekMethodV14 = posixClass.getMethod(
-                            "lseek", FileDescriptor.class, Long.TYPE, Integer.TYPE);
-                    sPosixObjectV14 = constructor.newInstance();
+            try {
+                FileDescriptorUtil.close(mFileDescriptor);
+            } finally {
+                if (mOpened) {
+                    mOpened = false;
+                    transferEnded();
                 }
-                object = sPosixObjectV14;
-                method = sLseekMethodV14;
             }
-            method.invoke(object, fileDescriptor, position, /* whence= */ SEEK_SET);
-        } catch (Exception e) {
-            throw new IOException("Failed to seek the file descriptor", e);
         }
     }
+
 }
