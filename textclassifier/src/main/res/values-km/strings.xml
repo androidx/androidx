@@ -27,6 +27,6 @@ limitations under the License.
     <string name="add_contact" msgid="9005634177208282449">"បញ្ចូល"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"បញ្ចូល​ទៅ​ក្នុង​ទំនាក់ទំនង"</string>
     <string name="floating_toolbar_open_overflow_description" msgid="1187148927509077545">"ជម្រើសច្រើនទៀត"</string>
-    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"បិទរបារ​បន្ថែម"</string>
+    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"បិទរបារ​លើសចំណុះ"</string>
     <string name="abc_share" msgid="7091841667818715717">"ចែករំលែក"</string>
 </resources>

@@ -16,7 +16,7 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"Email"</string>
+    <string name="email" msgid="5568050657313893478">"Invia email"</string>
     <string name="email_desc" msgid="6941280589171810022">"Invia un\'email all\'indirizzo selezionato"</string>
     <string name="dial" msgid="7317293545368448453">"Chiama"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Chiama il numero di telefono selezionato"</string>
@@ -27,6 +27,6 @@ limitations under the License.
     <string name="add_contact" msgid="9005634177208282449">"Aggiungi"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"Aggiungi ai contatti"</string>
     <string name="floating_toolbar_open_overflow_description" msgid="1187148927509077545">"Altre opzioni"</string>
-    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"Chiudi overflow"</string>
+    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"Chiudi menu extra"</string>
     <string name="abc_share" msgid="7091841667818715717">"Condividi"</string>
 </resources>
