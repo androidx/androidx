@@ -16,8 +16,8 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="speed_bump_lockout_message" msgid="444412252084688703">"सड़क पर ध्यान दें"</string>
-    <string name="action_bar_expand_collapse_button" msgid="1874508980662961036">"बड़ा/छोटा करने वाला बटन"</string>
-    <string name="scroll_bar_page_up_button" msgid="465102831431294180">"ऊपर स्क्रोल करें"</string>
-    <string name="scroll_bar_page_down_button" msgid="635940284003824276">"नीचे स्क्रोल करें"</string>
+    <string name="speed_bump_lockout_message" msgid="444412252084688703">"ផ្តោតលើ​ការបើកបរ"</string>
+    <string name="action_bar_expand_collapse_button" msgid="1874508980662961036">"ប៊ូតុង​ពង្រីក/បង្រួម"</string>
+    <string name="scroll_bar_page_up_button" msgid="465102831431294180">"រំកិល​​ឡើង​លើ"</string>
+    <string name="scroll_bar_page_down_button" msgid="635940284003824276">"រំកិលចុះក្រោម"</string>
 </resources>
