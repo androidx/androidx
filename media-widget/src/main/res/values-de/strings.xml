@@ -31,7 +31,7 @@
     <string name="mr_controller_play" msgid="4438243775726932620">"Wiedergeben"</string>
     <string name="mr_controller_pause" msgid="2836364020975903659">"Pause"</string>
     <string name="mr_controller_stop" msgid="2946921829587351729">"Stopp"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"Erweitern"</string>
+    <string name="mr_controller_expand_group" msgid="6419866561073332299">"Maximieren"</string>
     <string name="mr_controller_collapse_group" msgid="2245585614410697821">"Minimieren"</string>
     <string name="mr_controller_album_art" msgid="3247329727731601009">"Albumcover"</string>
     <string name="mr_controller_volume_slider" msgid="3744355133696779358">"Schieberegler für die Lautstärke"</string>
@@ -52,7 +52,7 @@
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Normal"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
     <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"Titel <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Titel <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Titel <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
     <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Titel <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Unbekannter Musiktitel"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Unbekannter Interpret"</string>
@@ -66,7 +66,7 @@
     <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"Auswahl der Videoqualität"</string>
     <string name="mcv2_cc_is_on" msgid="2833324927553141685">"Untertitel ist aktiviert. Zum Verbergen klicken."</string>
     <string name="mcv2_cc_is_off" msgid="7400772738891461543">"Untertitel ist deaktiviert. Zum Anzeigen klicken."</string>
-    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"Wiederholen"</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"Erneut abspielen"</string>
     <string name="mcv2_play_button_desc" msgid="2034430009829871366">"Wiedergeben"</string>
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Pause"</string>
     <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Vorheriges Medium"</string>

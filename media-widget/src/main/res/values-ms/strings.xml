@@ -41,7 +41,7 @@
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Anda boleh melangkau Iklan dalam <xliff:g id="WAIT_TIME">%1$d</xliff:g>s"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Iklan · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> lagi"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Lawati Pengiklan"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Kapsyen tertutup"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Sari kata"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Mati"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Runut audio"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Tiada"</string>
@@ -64,14 +64,14 @@
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Kemajuan main balik"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Tetapan"</string>
     <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"Pilihan Kualiti Video"</string>
-    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"Sari kata dihidupkan. Klik untuk menyembunyikan."</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"Sari kata dihidupkan. Klik untuk menyembunyikan sari kata."</string>
     <string name="mcv2_cc_is_off" msgid="7400772738891461543">"Sari kata dimatikan. Klik untuk menunjukkan sari kata."</string>
     <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"Main semula"</string>
     <string name="mcv2_play_button_desc" msgid="2034430009829871366">"Main"</string>
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Jeda"</string>
     <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Media sebelumnya"</string>
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"Media seterusnya"</string>
-    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Mandir 10 sepuluh saat"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Mandir 10 saat"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Maju ke hadapan sebanyak 30 saat"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Pautan Pelancaran"</string>
     <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Diredamkan. Klik untuk menyahredam"</string>

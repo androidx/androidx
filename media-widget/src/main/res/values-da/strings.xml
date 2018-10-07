@@ -51,9 +51,9 @@
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Afspilningshastighed"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Normal"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
-    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"Spor <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Spor <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
-    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Spor <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"Nummer <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Nummer <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Nummer <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Ukendt sangtitel"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Ukendt musiker"</string>
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Den ønskede video kunne ikke afspilles"</string>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="3321397713117065638">"ប្រព័ន្ធ"</string>
+    <string name="mr_user_route_category_name" msgid="1627840233801992496">"ឧបករណ៍"</string>
+    <string name="mr_button_content_description" msgid="2563900737284462162">"ប៊ូតុង​បញ្ជូន"</string>
+    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"ប៊ូតុង​បញ្ជូន។ បាន​ផ្តាច់"</string>
+    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"ប៊ូតុង​បញ្ជូន។ កំពុង​ភ្ជាប់"</string>
+    <string name="mr_cast_button_connected" msgid="938609484693891555">"ប៊ូតុង​បញ្ជូន។ បាន​ភ្ជាប់​ហើយ"</string>
+    <string name="mr_chooser_title" msgid="8588921739112945317">"បញ្ជូន​ទៅ"</string>
+    <string name="mr_chooser_searching" msgid="3620017600129578274">"កំពុង​ស្វែងរក​ឧបករណ៍"</string>
+    <string name="mr_controller_disconnect" msgid="5986039731202257800">"ផ្ដាច់"</string>
+    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"ឈប់បញ្ជូន"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"បិទ"</string>
+    <string name="mr_controller_play" msgid="4438243775726932620">"ចាក់"</string>
+    <string name="mr_controller_pause" msgid="2836364020975903659">"ផ្អាក"</string>
+    <string name="mr_controller_stop" msgid="2946921829587351729">"ឈប់"</string>
+    <string name="mr_controller_expand_group" msgid="6419866561073332299">"ពង្រីក"</string>
+    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"បង្រួម"</string>
+    <string name="mr_controller_album_art" msgid="3247329727731601009">"រូបភាព​សិល្បៈ​ក្រប​អាល់ប៊ុម"</string>
+    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"របារកម្រិតសំឡេង"</string>
+    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"មិនបាន​ជ្រើសរើស​មេឌៀ​ទេ"</string>
+    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"មិនមានព័ត៌មានទេ"</string>
+    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"កំពុង​បញ្ជូន​អេក្រង់"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"អ្នក​អាច​រំលង​ការផ្សាយពាណិជ្ជកម្ម​នេះក្នុងរយៈពេល <xliff:g id="WAIT_TIME">%1$d</xliff:g>វិ ទៀត"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"ការ​ផ្សាយពាណិជ្ជកម្ម​ · នៅសល់ <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ទៀត"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ចូលមើល​អ្នក​ផ្សាយ​ពាណិជ្ជកម្ម"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"អក្សររត់"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"បិទ"</string>
+    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ភ្លេង"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"គ្មាន"</string>
+    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"គុណភាព​វីដេអូ"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"ស្វ័យប្រវត្តិ"</string>
+    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"ជំនួយ និងមតិកែលម្អ"</string>
+    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"ល្បឿន​ចាក់"</string>
+    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"ធម្មតា"</string>
+    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"បទលេខ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"បទលេខ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"បទលេខ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"ចំណងជើងចម្រៀងមិនស្គាល់"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"សិល្បករមិនស្គាល់"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"មិន​អាច​ចាក់​វីដេអូ ដែលអ្នក​បាន​ស្នើទេ"</string>
+    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"យល់ព្រម"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"ថយក្រោយ"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"ត្រឡប់ទៅ​បញ្ជី​ប៊ូតុង​ពីមុនវិញ"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"មើលប៊ូតុងច្រើនទៀត"</string>
+    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"ការចាក់​កំពុង​ដំណើរការ"</string>
+    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"ការកំណត់"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"ការជ្រើសរើសគុណភាពវីដេអូ"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"អក្សររត់បានបើក សូម​ចុច​ដើម្បីលាក់។"</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"អក្សររត់បានបិទ សូម​ចុច​ដើម្បីបង្ហាញ។"</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"ចាក់​ឡើងវិញ"</string>
+    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"ចាក់"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"ផ្អាក"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"មេឌៀពីមុន"</string>
+    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"មេឌៀបន្ទាប់"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"ខាថយក្រោយ 10 វិនាទី"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"ទៅមុខ​ 30 វិនាទី"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"តំណចាប់ផ្ដើម"</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"បាន​បិទសំឡេង។ សូមចុច​ដើម្បីបើកសំឡេង"</string>
+    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"ចុច​ដើម្បី​បិទសំឡេង"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"ពេញអេក្រង់"</string>
+</resources>

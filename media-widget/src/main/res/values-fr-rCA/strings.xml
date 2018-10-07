@@ -38,7 +38,7 @@
     <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"Aucun média sélectionné"</string>
     <string name="mr_controller_no_info_available" msgid="3503984261752778785">"Aucune donnée trouvée"</string>
     <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Diffusion de l\'écran en cours…"</string>
-    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Vous pourrez ignorer l\'annonce dans <xliff:g id="WAIT_TIME">%1$d</xliff:g> sec"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Vous pourrez ignorer l\'annonce dans <xliff:g id="WAIT_TIME">%1$d</xliff:g> s"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Annonce : il reste <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Visiter le site de l\'annonceur"</string>
     <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Sous-titres"</string>
@@ -51,15 +51,15 @@
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Vitesse de lecture"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Normale"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
-    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"Piste <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Piste <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> (<xliff:g id="LANG">%2$s</xliff:g>)"</string>
-    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Piste <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"Piste <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Piste <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> (<xliff:g id="LANG">%2$s</xliff:g>)"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Piste <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Titre de chanson inconnu"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Artiste inconnu"</string>
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Impossible de lire l\'élément demandé"</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"OK"</string>
     <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Retour"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Liste du bouton Élément précédent"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Retour à la liste de boutons précédente"</string>
     <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Afficher plus de boutons"</string>
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Progression de la lecture"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Paramètres"</string>
@@ -74,7 +74,7 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Reculer de 10 secondes"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Avancer de 30 secondes"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Lancer le lien"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Son désactivé. Cliquez ici pour le réactiver."</string>
+    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Son désactivé. Cliquez ici pour le réactiver"</string>
     <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Cliquer pour désactiver le son"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Plein écran"</string>
 </resources>

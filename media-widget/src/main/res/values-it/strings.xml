@@ -27,7 +27,7 @@
     <string name="mr_chooser_searching" msgid="3620017600129578274">"Ricerca di dispositivi"</string>
     <string name="mr_controller_disconnect" msgid="5986039731202257800">"Scollega"</string>
     <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Interrompi trasmissione"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"Esci"</string>
+    <string name="mr_controller_close_description" msgid="8012662266390041495">"Chiudi"</string>
     <string name="mr_controller_play" msgid="4438243775726932620">"Play"</string>
     <string name="mr_controller_pause" msgid="2836364020975903659">"Pausa"</string>
     <string name="mr_controller_stop" msgid="2946921829587351729">"Stop"</string>
@@ -39,14 +39,14 @@
     <string name="mr_controller_no_info_available" msgid="3503984261752778785">"Nessuna informazione disponibile"</string>
     <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Trasmissione dello schermo"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Puoi saltare l\'annuncio tra <xliff:g id="WAIT_TIME">%1$d</xliff:g> s"</string>
-    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Annuncio · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> tempo rimanente"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Annuncio · Tempo rimanente: <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Visita inserzionista"</string>
     <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Con sottotitoli"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Off"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Traccia audio"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Nessuno"</string>
     <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"Qualità video"</string>
-    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Auto"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Automatica"</string>
     <string name="MediaControlView2_help_text" msgid="1371398883793579836">"Guida e feedback"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Velocità di riproduzione"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Normale"</string>
@@ -56,7 +56,7 @@
     <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"Traccia <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Titolo del brano sconosciuto"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Artista sconosciuto"</string>
-    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Riproduzione dell\'elemento richiesto non riuscita"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Impossibile riprodurre l\'elemento richiesto"</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"OK"</string>
     <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Indietro"</string>
     <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Torna all\'elenco dei pulsanti precedente"</string>
@@ -71,7 +71,7 @@
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Pausa"</string>
     <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Elemento multimediale precedente"</string>
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"Elemento multimediale successivo"</string>
-    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Torna indietro di 10 secondi."</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Torna indietro di 10 secondi"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Vai avanti di 30 secondi"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Link di avvio"</string>
     <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Audio disattivato. Fai clic per riattivarlo"</string>

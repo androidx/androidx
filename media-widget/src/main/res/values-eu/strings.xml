@@ -41,7 +41,7 @@
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"<xliff:g id="WAIT_TIME">%1$d</xliff:g> s barru saltatu ahalko duzu iragarkia"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Iragarkia · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> gelditzen dira"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Joan iragarlearen webgunera"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Azpitituluak"</string>
+    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Aukerako azpitituluak"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Desaktibatu"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Audio-pista"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Bat ere ez"</string>
@@ -59,7 +59,7 @@
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Ezin izan da erreproduzitu eskatu duzun elementua"</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"Ados"</string>
     <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Atzera"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Egin atzera aurreko botoiaren zerrendara"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Itzuli aurreko botoi zerrendara"</string>
     <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Ikusi botoi gehiago"</string>
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Erreprodukzioaren garapena"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Ezarpenak"</string>
