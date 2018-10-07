@@ -522,9 +522,28 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
 
     @Override
     public void reset() {
+        clearPendingCommands();
+        mTaskHandler.removeCallbacksAndMessages(null);
+
+        // Make sure that the current task finishes.
+        Task currentTask;
+        synchronized (mTaskLock) {
+            currentTask = mCurrentTask;
+        }
+        if (currentTask != null) {
+            synchronized (currentTask) {
+                try {
+                    while (!currentTask.mDone) {
+                        currentTask.wait();
+                    }
+                } catch (InterruptedException e) {
+                    // Suppress interruption.
+                }
+            }
+        }
         runPlayerCallableBlocking(new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 mPlayer.reset();
                 return null;
             }
@@ -770,6 +789,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
         final boolean mNeedToWaitForEventToComplete;
 
         MediaItem2 mDSD;
+        @GuardedBy("this")
+        boolean mDone;
 
         Task(int mediaCallType, boolean needToWaitForEventToComplete) {
             mMediaCallType = mediaCallType;
@@ -822,6 +843,11 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
                     mCurrentTask = null;
                     processPendingTask();
                 }
+            }
+            // reset() might be waiting for this task. Notify that the task is done.
+            synchronized (this) {
+                mDone = true;
+                notifyAll();
             }
         }
 
