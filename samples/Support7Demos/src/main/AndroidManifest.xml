@@ -354,6 +354,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.AppCompatNightModeActivityConfigChanges"
+                  android:label="@string/mode_night_activity_config_changes_title"
+                  android:theme="@style/Theme.AppCompat.DayNight"
+                  android:configChanges="uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.AppCompatNightModeDialog"
                   android:label="@string/mode_night_dialog_title"
                   android:theme="@style/Theme.AppCompat">
