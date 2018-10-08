@@ -42,7 +42,7 @@ dependencies {
 supportLibrary {
     name = "Android Lifecycle ViewModel Kotlin Extensions"
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_VIEWMODEL
+    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'viewmodel' artifact"

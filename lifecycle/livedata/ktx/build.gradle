@@ -46,7 +46,7 @@ dependencies {
 supportLibrary {
     name = "LiveData Kotlin Extensions"
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_KTX
+    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'livedata' artifact"
