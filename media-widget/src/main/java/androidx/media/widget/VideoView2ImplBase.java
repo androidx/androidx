@@ -46,6 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlayer2;
@@ -67,6 +68,7 @@ import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.palette.graphics.Palette;
 
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +117,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     View mMusicFullPortraitView;
     View mMusicEmbeddedView;
     private Drawable mMusicAlbumDrawable;
-    private String mMusicTitleText;
     private String mMusicArtistText;
     boolean mIsMusicMediaType;
     private int mPrevWidth;
@@ -693,7 +694,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
             mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleAnchorView);
 
-
             // we don't set the target state here either, but preserve the
             // target state that was there before.
             mCurrentState = STATE_PREPARING;
@@ -761,7 +761,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 null);
     }
 
-    void extractTracks() {
+    // TODO: move this method inside callback to make sure it runs inside the callback thread.
+    Bundle extractTrackInfoData() {
         List<XMediaPlayer.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
         mVideoTrackIndices = new ArrayList<>();
         mAudioTrackIndices = new ArrayList<>();
@@ -780,7 +781,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     mSubtitleTracks.put(i, track);
                     String language =
                             (trackInfos.get(i).getLanguage().equals(SUBTITLE_TRACK_LANG_UNDEFINED))
-                            ? "" : trackInfos.get(i).getLanguage();
+                                    ? "" : trackInfos.get(i).getLanguage();
                     subtitleTracksLanguageList.add(language);
                 }
             }
@@ -799,65 +800,113 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTracks.size());
         data.putStringArrayList(MediaControlView2.KEY_SUBTITLE_TRACK_LANGUAGE_LIST,
                 subtitleTracksLanguageList);
-        mMediaSession.sendCustomCommand(
-                new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, null), data);
+        return data;
     }
 
-    void extractMetadata() {
-        if (mMediaItem.getMetadata() != null) {
-            // If a MediaItem2 instance has its own metadata, then use it.
-            // TODO: merge metadata from metadata retriever
-            return;
-        }
-
-        Uri uri = (mMediaItem != null && mMediaItem instanceof UriMediaItem2)
-                ? ((UriMediaItem2) mMediaItem).getUri() : null;
-        if (uri == null) {
-            // Something wrong.
-            return;
-        }
-
-        // Save file name as title since the file may not have a title Metadata.
-        String scheme = uri.getScheme();
-        if (scheme != null) {
-            if (scheme.equals("file")) {
-                mTitle = uri.getLastPathSegment();
-                mMediaControlView.setRouteSelector(null);
-            } else if (scheme.equals("http") || scheme.equals("https")) {
-                mTitle = uri.getPath();
-                mMediaControlView.setRouteSelector(mRouteSelector);
-            }
-        }
-
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+    // TODO: move this method inside callback to make sure it runs inside the callback thread.
+    MediaMetadata2 extractMetadata() {
+        MediaMetadataRetriever retriever = null;
+        String path = "";
         try {
-            retriever.setDataSource(mInstance.getContext(), uri);
+            if (mMediaItem == null) {
+                return null;
+            } else if (mMediaItem instanceof UriMediaItem2) {
+                Uri uri = ((UriMediaItem2) mMediaItem).getUri();
+
+                // Save file name as title since the file may not have a title Metadata.
+                String scheme = uri.getScheme();
+                if (scheme != null) {
+                    if (scheme.equals("file")) {
+                        path = uri.getLastPathSegment();
+                    } else if (scheme.equals("http") || scheme.equals("https")) {
+                        path = uri.getPath();
+                    }
+                }
+                retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(mInstance.getContext(), uri);
+            } else if (mMediaItem instanceof FileMediaItem2) {
+                FileDescriptor fd = ((FileMediaItem2) mMediaItem).getFileDescriptor();
+                retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(fd);
+            }
         } catch (IllegalArgumentException e) {
             Log.v(TAG, "Cannot retrieve metadata for this media file.");
-            retriever.release();
-            return;
+            retriever = null;
         }
 
-        String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        if (title != null) {
-            mTitle = title;
-        }
-
+        MediaMetadata2 metadata = mMediaItem.getMetadata();
         if (!mIsMusicMediaType) {
-            retriever.release();
-            return;
+            mTitle = extractString(metadata, MediaMetadata2.METADATA_KEY_TITLE, retriever,
+                    MediaMetadataRetriever.METADATA_KEY_TITLE, path);
+        } else {
+            Resources resources = mInstance.getResources();
+            mManager = (WindowManager) mInstance.getContext().getApplicationContext()
+                    .getSystemService(Context.WINDOW_SERVICE);
+
+            mTitle = extractString(metadata, MediaMetadata2.METADATA_KEY_TITLE, retriever,
+                    MediaMetadataRetriever.METADATA_KEY_TITLE,
+                    resources.getString(R.string.mcv2_music_title_unknown_text));
+            mMusicArtistText = extractString(metadata, MediaMetadata2.METADATA_KEY_ARTIST,
+                    retriever, MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                    resources.getString(R.string.mcv2_music_artist_unknown_text));
+            mMusicAlbumDrawable = extractAlbumArt(metadata, retriever,
+                    resources.getDrawable(R.drawable.ic_default_album_image));
         }
 
-        // From here, extract audio metadata for Music UI.
-        Resources resources = mInstance.getResources();
-        mManager = (WindowManager) mInstance.getContext().getApplicationContext()
-                .getSystemService(Context.WINDOW_SERVICE);
+        if (retriever != null) {
+            retriever.release();
+        }
 
-        byte[] album = retriever.getEmbeddedPicture();
-        if (album != null) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(album, 0, album.length);
-            mMusicAlbumDrawable = new BitmapDrawable(bitmap);
+        // Update Music View to reflect the new metadata
+        mInstance.removeView(mSurfaceView);
+        mInstance.removeView(mTextureView);
+        updateCurrentMusicView(mMusicEmbeddedView);
 
+        // Set duration and title values as MediaMetadata2 for MediaControlView2
+        MediaMetadata2.Builder builder = new MediaMetadata2.Builder();
+
+        if (mIsMusicMediaType) {
+            builder.putString(MediaMetadata2.METADATA_KEY_ARTIST, mMusicArtistText);
+        }
+        builder.putString(MediaMetadata2.METADATA_KEY_TITLE, mTitle);
+        builder.putLong(
+                MediaMetadata2.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
+        builder.putString(
+                MediaMetadata2.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
+        return builder.build();
+    }
+
+    // TODO: move this method inside callback to make sure it runs inside the callback thread.
+    private String extractString(MediaMetadata2 metadata, String stringKey,
+            MediaMetadataRetriever retriever, int intKey, String defaultValue) {
+        String value = null;
+
+        if (metadata != null) {
+            value = metadata.getString(stringKey);
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        if (retriever != null) {
+            value = retriever.extractMetadata(intKey);
+        }
+        return value == null ? defaultValue : value;
+    }
+
+    // TODO: move this method inside callback to make sure it runs inside the callback thread.
+    private Drawable extractAlbumArt(MediaMetadata2 metadata, MediaMetadataRetriever retriever,
+            Drawable defaultDrawable) {
+        Bitmap bitmap = null;
+
+        if (metadata != null && metadata.containsKey(MediaMetadata2.METADATA_KEY_ALBUM_ART)) {
+            bitmap = metadata.getBitmap(MediaMetadata2.METADATA_KEY_ALBUM_ART);
+        } else if (retriever != null) {
+            byte[] album = retriever.getEmbeddedPicture();
+            if (album != null) {
+                bitmap = BitmapFactory.decodeByteArray(album, 0, album.length);
+            }
+        }
+        if (bitmap != null) {
             Palette.Builder builder = Palette.from(bitmap);
             builder.generate(new Palette.PaletteAsyncListener() {
                 @Override
@@ -868,49 +917,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                 }
             });
-        } else {
-            mMusicAlbumDrawable = resources.getDrawable(R.drawable.ic_default_album_image);
+            return new BitmapDrawable(bitmap);
         }
-
-        title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        if (title != null) {
-            mMusicTitleText = title;
-        } else {
-            mMusicTitleText = resources.getString(R.string.mcv2_music_title_unknown_text);
-        }
-
-        String artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        if (artist != null) {
-            mMusicArtistText = artist;
-        } else {
-            mMusicArtistText = resources.getString(R.string.mcv2_music_artist_unknown_text);
-        }
-
-        retriever.release();
-
-        // Display Embedded mode as default
-        mInstance.removeView(mSurfaceView);
-        mInstance.removeView(mTextureView);
-        updateCurrentMusicView(mMusicEmbeddedView);
+        return defaultDrawable;
     }
 
-    void sendMetadata() {
-        // Get and set duration and title values as MediaMetadata for MediaControlView2
-        MediaMetadata2.Builder builder = new MediaMetadata2.Builder();
-
-        if (mIsMusicMediaType) {
-            builder.putString(MediaMetadata2.METADATA_KEY_TITLE, mMusicTitleText);
-            builder.putString(MediaMetadata2.METADATA_KEY_ARTIST, mMusicArtistText);
-        } else {
-            builder.putString(MediaMetadata2.METADATA_KEY_TITLE, mTitle);
-        }
-        builder.putLong(
-                MediaMetadata2.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
-        builder.putString(
-                MediaMetadata2.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
-        mMediaItem.setMetadata(builder.build());
-        mMediaSession.getPlayer().replacePlaylistItem(0, mMediaItem);
-    }
 
     private int retrieveOrientation() {
         DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
@@ -932,7 +943,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         TextView titleView = newMusicView.findViewById(R.id.title);
         if (titleView != null) {
-            titleView.setText(mMusicTitleText);
+            titleView.setText(mTitle);
         }
 
         TextView artistView = newMusicView.findViewById(R.id.artist);
@@ -983,7 +994,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         return;
                     }
                     if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
-                        extractTracks();
+                        Bundle data = extractTrackInfoData();
+                        if (data != null) {
+                            mMediaSession.sendCustomCommand(
+                                    new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS,
+                                            null), data);
+                        }
                     } else if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                         this.onPrepared(mp, dsd);
                     } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
@@ -1037,6 +1053,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 }
 
                 private void onPrepared(XMediaPlayer mp, MediaItem2 dsd) {
+                    // TODO: Move code below inside onPlayerStateChange (b/116765554)
                     if (DEBUG) {
                         Log.d(TAG, "OnPreparedListener(): "
                                 + ", mCurrentState=" + mCurrentState
@@ -1045,13 +1062,35 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     mCurrentState = STATE_PREPARED;
 
                     if (mMediaSession != null) {
-                        extractTracks();
-                        extractMetadata();
-                        sendMetadata();
+                        Bundle data = extractTrackInfoData();
+                        if (data != null) {
+                            mMediaSession.sendCustomCommand(
+                                    new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS,
+                                            null), data);
+                        }
+
+                        MediaMetadata2 metadata = extractMetadata();
+                        if (metadata != null) {
+                            mMediaItem.setMetadata(metadata);
+                            mMediaSession.getPlayer().replacePlaylistItem(0, mMediaItem);
+                        }
                     }
 
                     if (mMediaControlView != null) {
                         mMediaControlView.setEnabled(true);
+
+                        Uri uri = (mMediaItem != null && mMediaItem instanceof UriMediaItem2)
+                                ? ((UriMediaItem2) mMediaItem).getUri() : null;
+                        if (uri != null) {
+                            String scheme = uri.getScheme();
+                            if (scheme != null) {
+                                if (scheme.equals("file")) {
+                                    mMediaControlView.setRouteSelector(null);
+                                } else if (scheme.equals("http") || scheme.equals("https")) {
+                                    mMediaControlView.setRouteSelector(mRouteSelector);
+                                }
+                            }
+                        }
                     }
                     int videoWidth = mp.getVideoWidth();
                     int videoHeight = mp.getVideoHeight();
