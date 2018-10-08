@@ -89,7 +89,6 @@
             <view class="androidx.mediarouter.app.MediaRouteButton"
                 android:id="@+id/cast"
                 android:visibility="gone"
-                android:contentDescription="@string/mr_button_content_description"
                 style="@style/TitleBarButton" />
         </LinearLayout>
 

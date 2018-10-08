@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"පද්ධතිය"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"උපාංග"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"විකාශ බොත්තම"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"විකාශ බොත්තම. විසන්ධි කරන ලදී"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"විකාශ බොත්තම සම්බන්ධ කරමින්"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"විකාශ බොත්තම සම්බන්ධ කරන ලදී"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"විකාශය"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"උපාංග සෙවීම"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"විසන්ධි කරන්න"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"විකාශය නවතන්න"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"වසන්න"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"වාදනය"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"විරාමය"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"නවත්වන්න"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"දිග හරින්න"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"හකුළන්න"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"ඇල්බම කලාව"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"හඬ පරිමා ස්ලයිඩරය"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"මාධ්‍ය තෝරා නැත"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"ලබා ගත හැකි තොරතුරු නොමැත"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"විකාශ තිරය"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"ඔබට වෙළඳ දැන්වීම <xliff:g id="WAIT_TIME">%1$d</xliff:g>කින් මග හැරිය හැකිය"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"වෙළඳ දැන්වීම · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ඉතිරිව ඇත"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ප්‍රචාරක වෙත පැමිණෙන්න"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"වසන ලද ශිර්ෂය"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"අක්‍රිය"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ශ්‍රව්‍ය ඛණ්ඩය"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"කිසිවක් නැත"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"වීඩියෝ ගුණත්වය"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"ස්වයං"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"උදවු සහ ප්‍රතිපෝෂණ"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"පසුධාවන වේගය"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"සාමාන්‍ය"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"තත්පර 10කින් ආපස්සට"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"තත්පර 30කින් ඉදිරියට යන්න"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"දියත් කිරීමේ සබැඳිය"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"නිහඬයි. නිහඬ කිරීම ඉවත් කිරීමට ක්ලික් කරන්න"</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"නිහඬ කිරීමට ක්ලික් කරන්න"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"පූර්ණ තිරය"</string>
 </resources>

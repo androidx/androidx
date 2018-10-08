@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"Жүйе"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"Құрылғылар"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"Трансляциялау түймесі"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"Трансляциялау түймесі. Ажыратылды"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"Трансляциялау түймесі. Қосылуда"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"Трансляциялау түймесі. Қосылды"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"Трансляция:"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"Құрылғылар ізделуде"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"Ажырату"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Трансляцияны тоқтату"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"Жабу"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"Ойнату"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"Тоқтата тұру"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"Тоқтату"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"Жаю"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"Жию"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"Альбомның мұқабасы"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"Дыбыс деңгейінің жүгірткісі"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"Ешқандай медиафайл таңдалмаған"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"Ешқандай ақпарат жоқ"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Экран трансляциялануда"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Жарнаманы <xliff:g id="WAIT_TIME">%1$d</xliff:g> с кейін өткізіп жіберуіңізге болады"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Жарнама · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> қалды"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Жарнама берушінің веб-сайтына кіру"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Субтитр"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Өшіру"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Аудиотрек"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Жоқ"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"Бейне сапасы"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Авто"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"Анықтама және пікір"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Ойнату жылдамдығы"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Орташа"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 секунд артқа өткізу"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 секунд алға өткізу"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Сілтемені іске қосу"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Дыбысы өшірілді. Дыбысын шығару үшін басыңыз"</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Дыбысын өшіру үшін басыңыз"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Толық экран"</string>
 </resources>

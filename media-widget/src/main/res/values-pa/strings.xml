@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"ਸਿਸਟਮ"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"ਡੀਵਾਈਸ"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"ਕਾਸਟ ਬਟਨ"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"ਕਾਸਟ ਬਟਨ। ਡਿਸਕਨੈਕਟ ਕੀਤਾ ਗਿਆ"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"ਕਾਸਟ ਬਟਨ। ਕਨੈਕਟ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"ਕਾਸਟ ਬਟਨ। ਕਨੈਕਟ ਕੀਤਾ ਗਿਆ"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"ਇੱਥੇ ਕਾਸਟ ਕਰੋ"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"ਡੀਵਾਈਸ ਲੱਭੇ ਜਾ ਰਹੇ ਹਨ"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"ਡਿਸਕਨੈਕਟ ਕਰੋ"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"ਕਾਸਟ ਕਰਨਾ ਬੰਦ ਕਰੋ"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"ਬੰਦ ਕਰੋ"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"ਚਲਾਓ"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"ਰੋਕੋ"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"ਬੰਦ ਕਰੋ"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"ਵਿਸਤਾਰ ਕਰੋ"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"ਸਮੇਟੋ"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"ਐਲਬਮ ਕਲਾ"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"ਵੌਲਿਊਮ ਸਲਾਈਡਰ"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"ਕੋਈ ਮੀਡੀਆ ਨਹੀਂ ਚੁਣਿਆ ਗਿਆ"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"ਕੋਈ ਜਾਣਕਾਰੀ ਉਪਲਬਧ ਨਹੀਂ"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"ਸਕ੍ਰੀਨ \'ਤੇ ਕਾਸਟ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"ਤੁਸੀਂ <xliff:g id="WAIT_TIME">%1$d</xliff:g>ਸਕਿੰ ਤੋਂ ਬਾਅਦ ਵਿਗਿਆਪਨ ਨੂੰ ਛੱਡ ਸਕਦੇ ਹੋ"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"ਵਿਗਿਆਪਨ · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ਬਾਕੀ"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ਵਿਗਿਆਪਨਦਾਤਾ ਦੀ ਵੈੱਬਸਾਈਟ \'ਤੇ ਜਾਓ"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"ਬੰਦ ਸੁਰਖੀ"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"ਬੰਦ"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ਆਡੀਓ ਟਰੈਕ"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"ਕੋਈ ਨਹੀਂ"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"ਵੀਡੀਓ ਕੁਆਲਿਟੀ"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"ਸਵੈਚਲਿਤ"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"ਮਦਦ ਅਤੇ ਵਿਚਾਰ"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"ਪਲੇਬੈਕ ਦੀ ਗਤੀ"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"ਸਧਾਰਨ"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 ਸਕਿੰਟ ਪਿੱਛੇ ਕਰੋ"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 ਸਕਿੰਟ ਅੱਗੇ ਜਾਓ"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"ਲਾਂਚ ਕਰਨ ਦਾ ਲਿੰਕ"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"ਮਿਊਟ ਕੀਤਾ ਗਿਆ। ਅਣਮਿਊਟ ਕਰਨ ਲਈ ਕਲਿੱਕ ਕਰੋ"</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"ਮਿਊਟ ਕਰਨ ਲਈ ਕਲਿੱਕ ਕਰੋ"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"ਪੂਰੀ-ਸਕ੍ਰੀਨ"</string>
 </resources>
