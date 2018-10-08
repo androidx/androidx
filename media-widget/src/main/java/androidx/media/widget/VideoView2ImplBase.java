@@ -151,9 +151,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     MediaRouter.RouteInfo mRoute;
     RoutePlayer2 mRoutePlayer;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final SessionPlayerCallback mSessionPlayerCallback = new SessionPlayerCallback();
-
     private final MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
         @Override
         public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
@@ -634,7 +631,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (oldPlayer == player) {
                 return;
             }
-            oldPlayer.unregisterPlayerCallback(mSessionPlayerCallback);
+            oldPlayer.unregisterPlayerCallback(mMediaPlayerCallback);
             mMediaSession.updatePlayer(player);
         } else {
             final Context context = mInstance.getContext();
@@ -643,7 +640,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                     .build();
         }
-        player.registerPlayerCallback(mCallbackExecutor, mSessionPlayerCallback);
+        player.registerPlayerCallback(mCallbackExecutor, mMediaPlayerCallback);
     }
 
     private boolean isMediaPrepared() {
@@ -682,7 +679,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
                 Log.w(TAG, "failed to assign surface");
             }
-            mMediaPlayer.registerPlayerCallback(mCallbackExecutor, mMediaPlayerCallback);
             mMediaPlayer.setAudioAttributes(mAudioAttributes);
 
             ensureSessionWithPlayer(mMediaPlayer);
@@ -858,9 +854,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
 
         // Update Music View to reflect the new metadata
-        mInstance.removeView(mSurfaceView);
-        mInstance.removeView(mTextureView);
-        updateCurrentMusicView(mMusicEmbeddedView);
+        if (mIsMusicMediaType) {
+            mInstance.removeView(mSurfaceView);
+            mInstance.removeView(mTextureView);
+            updateCurrentMusicView(mMusicEmbeddedView);
+        }
 
         // Set duration and title values as MediaMetadata2 for MediaControlView2
         MediaMetadata2.Builder builder = new MediaMetadata2.Builder();
@@ -921,7 +919,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
         return defaultDrawable;
     }
-
 
     private int retrieveOrientation() {
         DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
@@ -1000,10 +997,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                                     new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS,
                                             null), data);
                         }
-                    } else if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
-                        this.onPrepared(mp, dsd);
-                    } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
-                        this.onCompletion(mp, dsd);
                     }
                 }
 
@@ -1052,8 +1045,29 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                 }
 
-                private void onPrepared(XMediaPlayer mp, MediaItem2 dsd) {
-                    // TODO: Move code below inside onPlayerStateChange (b/116765554)
+                @Override
+                public void onPlayerStateChanged(@NonNull SessionPlayer2 player,
+                        @SessionPlayer2.PlayerState int state) {
+                    switch (state) {
+                        case SessionPlayer2.PLAYER_STATE_IDLE:
+                            mCurrentState = STATE_IDLE;
+                            break;
+                        case SessionPlayer2.PLAYER_STATE_PLAYING:
+                            mCurrentState = STATE_PLAYING;
+                            break;
+                        case SessionPlayer2.PLAYER_STATE_PAUSED:
+                            if (mCurrentState == STATE_PREPARING) {
+                                onPrepared(player);
+                            }
+                            mCurrentState = STATE_PAUSED;
+                            break;
+                        case SessionPlayer2.PLAYER_STATE_ERROR:
+                            mCurrentState = STATE_ERROR;
+                            break;
+                    }
+                }
+
+                private void onPrepared(SessionPlayer2 player) {
                     if (DEBUG) {
                         Log.d(TAG, "OnPreparedListener(): "
                                 + ", mCurrentState=" + mCurrentState
@@ -1092,8 +1106,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                             }
                         }
                     }
-                    int videoWidth = mp.getVideoWidth();
-                    int videoHeight = mp.getVideoHeight();
 
                     // mSeekWhenPrepared may be changed after seekTo() call
                     long seekToPosition = mSeekWhenPrepared;
@@ -1101,20 +1113,17 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         mMediaSession.getPlayer().seekTo(seekToPosition);
                     }
 
-                    if (videoWidth != 0 && videoHeight != 0) {
-                        if (videoWidth != mVideoWidth || videoHeight != mVideoHeight) {
-                            mVideoWidth = videoWidth;
-                            mVideoHeight = videoHeight;
-                            mInstance.requestLayout();
-                        }
+                    if (player instanceof VideoView2Player) {
+                        int videoWidth = ((VideoView2Player) player).getVideoWidth();
+                        int videoHeight = ((VideoView2Player) player).getVideoHeight();
 
-                        if (needToStart()) {
-                            mMediaSession.getPlayer().play();
+                        if (videoWidth != 0 && videoHeight != 0) {
+                            if (videoWidth != mVideoWidth || videoHeight != mVideoHeight) {
+                                mVideoWidth = videoWidth;
+                                mVideoHeight = videoHeight;
+                                mInstance.requestLayout();
+                            }
                         }
-
-                    } else {
-                        // We don't know the video size yet, but should start anyway.
-                        // The video size might be reported to us later.
                         if (needToStart()) {
                             mMediaSession.getPlayer().play();
                         }
@@ -1230,28 +1239,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     break;
             }
             return true;
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    class SessionPlayerCallback extends SessionPlayer2.PlayerCallback {
-        @Override
-        public void onPlayerStateChanged(@NonNull SessionPlayer2 player,
-                @SessionPlayer2.PlayerState int state) {
-            switch (state) {
-                case SessionPlayer2.PLAYER_STATE_IDLE:
-                    mCurrentState = STATE_IDLE;
-                    break;
-                case SessionPlayer2.PLAYER_STATE_PLAYING:
-                    mCurrentState = STATE_PLAYING;
-                    break;
-                case SessionPlayer2.PLAYER_STATE_PAUSED:
-                    mCurrentState = STATE_PAUSED;
-                    break;
-                case SessionPlayer2.PLAYER_STATE_ERROR:
-                    mCurrentState = STATE_ERROR;
-                    break;
-            }
         }
     }
 }
