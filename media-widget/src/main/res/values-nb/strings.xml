@@ -59,7 +59,7 @@
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Kunne ikke spille av elementet du har bedt om"</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"OK"</string>
     <string name="mcv2_back_button_desc" msgid="3840841379369664026">"Tilbake"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Tilbake til forrige-knappeliste"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"Tilbake til forrige knappeliste"</string>
     <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"Se flere knapper"</string>
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"Avspillingsfremdrift"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"Innstillinger"</string>
@@ -73,7 +73,7 @@
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"Neste media"</string>
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Spol tilbake 10 sekunder"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Gå 30 sekunder fremover"</string>
-    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Start linken"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Startlink"</string>
     <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Ignorert. Klikk for å slutte å ignorere"</string>
     <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Klikk for å ignorere"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Fullskjerm"</string>
