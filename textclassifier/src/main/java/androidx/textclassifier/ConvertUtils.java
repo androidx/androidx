@@ -48,7 +48,7 @@ final class ConvertUtils {
     }
 
     @Nullable
-    @RequiresApi(26)
+    @RequiresApi(24)
     static LocaleList unwrapLocalListCompat(@Nullable LocaleListCompat localeListCompat) {
         if (localeListCompat == null) {
             return null;
@@ -57,7 +57,7 @@ final class ConvertUtils {
     }
 
     @Nullable
-    @RequiresApi(26)
+    @RequiresApi(24)
     static LocaleListCompat wrapLocalList(@Nullable LocaleList localeList) {
         if (localeList == null) {
             return null;
