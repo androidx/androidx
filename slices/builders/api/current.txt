@@ -104,6 +104,18 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction, boolean);
   }
 
+  public class SelectionBuilder {
+    ctor public SelectionBuilder();
+    method public androidx.slice.builders.SelectionBuilder addOption(java.lang.String, java.lang.CharSequence);
+    method public androidx.slice.builders.SelectionBuilder setContentDescription(java.lang.CharSequence);
+    method public androidx.slice.builders.SelectionBuilder setInputAction(android.app.PendingIntent);
+    method public androidx.slice.builders.SelectionBuilder setLayoutDirection(int);
+    method public androidx.slice.builders.SelectionBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
+    method public androidx.slice.builders.SelectionBuilder setSelectedOption(java.lang.String);
+    method public androidx.slice.builders.SelectionBuilder setSubtitle(java.lang.CharSequence);
+    method public androidx.slice.builders.SelectionBuilder setTitle(java.lang.CharSequence);
+  }
+
   public class SliceAction implements androidx.slice.core.SliceAction {
     method public static androidx.slice.builders.SliceAction create(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, java.lang.CharSequence);
     method public static androidx.slice.builders.SliceAction createDeeplink(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, java.lang.CharSequence);

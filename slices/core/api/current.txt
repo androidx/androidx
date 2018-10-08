@@ -4,6 +4,7 @@ package androidx.slice {
     method public java.util.List<java.lang.String> getHints();
     method public java.util.List<androidx.slice.SliceItem> getItems();
     method public android.net.Uri getUri();
+    field public static final java.lang.String EXTRA_SELECTION = "android.app.slice.extra.SELECTION";
   }
 
   public class SliceConvert {
