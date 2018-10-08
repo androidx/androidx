@@ -78,6 +78,27 @@ data class ParagraphStyle constructor(
             "locale: ${locale ?: "unspecified"}" +
             ")"
     }
+
+    fun getTextStyle(): TextStyle {
+        return TextStyle(
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontFamily = fontFamily,
+            fontSize = fontSize,
+            locale = locale,
+            height = lineHeight
+        )
+    }
+    // TextStyle ParagraphStyle::GetTextStyle() const {
+    //     TextStyle result;
+    //     result.font_weight = font_weight;
+    //     result.font_style = font_style;
+    //     result.font_family = font_family;
+    //     result.font_size = font_size;
+    //     result.locale = locale;
+    //     result.height = line_height;
+    //     return result;
+    // }
 }
 
 // TODO(Migration/siyamed): this is implemented to communicate with C++, we probably don't need it.
@@ -194,3 +215,101 @@ data class ParagraphStyle constructor(
 //    }
 //    return result;
 // }
+
+// TODO(Migration/siyamed): native paragraph_style.h
+// #ifndef LIB_TXT_SRC_PARAGRAPH_STYLE_H_
+// #define LIB_TXT_SRC_PARAGRAPH_STYLE_H_
+//
+// #include <climits>
+// #include <string>
+//
+// #include "font_style.h"
+// #include "font_weight.h"
+// #include "minikin/LineBreaker.h"
+// #include "text_style.h"
+//
+// namespace txt {
+//
+//     enum class TextAlign {
+//         left,
+//         right,
+//         center,
+//         justify,
+//         start,
+//         end,
+//     };
+//
+//     enum class TextDirection {
+//         rtl,
+//         ltr,
+//     };
+//
+//     class ParagraphStyle {
+//         public:
+//         FontWeight font_weight = FontWeight::w400;
+//         FontStyle font_style = FontStyle::normal;
+//         std::string font_family = "";
+//         double font_size = 14;
+//
+//         TextAlign text_align = TextAlign::start;
+//         TextDirection text_direction = TextDirection::ltr;
+//         size_t max_lines = std::numeric_limits<size_t>::max();
+//         double line_height = 1.0;
+//         std::u16string ellipsis;
+//         std::string locale;
+//
+//         // Default strategy is kBreakStrategy_Greedy. Sometimes,
+//         // kBreakStrategy_HighQuality will produce more desireable layouts (eg, very
+//         // long words are more likely to be reasonably placed).
+//         // kBreakStrategy_Balanced will balance between the two.
+//         minikin::BreakStrategy break_strategy =
+//         minikin::BreakStrategy::kBreakStrategy_Greedy;
+//
+//         TextStyle GetTextStyle() const;
+//
+//         bool unlimited_lines() const;
+//         bool ellipsized() const;
+//
+//         // Return a text alignment value that is not dependent on the text direction.
+//         TextAlign effective_align() const;
+//     };
+//
+// }  // namespace txt
+//
+// #endif  // LIB_TXT_SRC_PARAGRAPH_STYLE_H_
+
+//  TODO(Migration/siyamed): native paragraph_style.cc
+// namespace txt {
+//
+//     TextStyle ParagraphStyle::GetTextStyle() const {
+//         TextStyle result;
+//         result.font_weight = font_weight;
+//         result.font_style = font_style;
+//         result.font_family = font_family;
+//         result.font_size = font_size;
+//         result.locale = locale;
+//         result.height = line_height;
+//         return result;
+//     }
+//
+//     bool ParagraphStyle::unlimited_lines() const {
+//         return max_lines == std::numeric_limits<size_t>::max();
+//     };
+//
+//     bool ParagraphStyle::ellipsized() const {
+//         return !ellipsis.empty();
+//     }
+//
+//     TextAlign ParagraphStyle::effective_align() const {
+//         if (text_align == TextAlign::start) {
+//             return (text_direction == TextDirection::ltr) ? TextAlign::left
+//             : TextAlign::right;
+//         } else if (text_align == TextAlign::end) {
+//             return (text_direction == TextDirection::ltr) ? TextAlign::right
+//             : TextAlign::left;
+//         } else {
+//             return text_align;
+//         }
+//     }
+//
+// }  // namespace txt

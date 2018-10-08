@@ -73,6 +73,68 @@ data class TextStyle constructor(
     }
 }
 
+// TODO(Migration/siyamed) Native defaults
+// class TextStyle {
+//     public:
+//     SkColor color = SK_ColorWHITE;
+//     int decoration = TextDecoration::kNone;
+//     // Does not make sense to draw a transparent object, so we use it as a default
+//     // value to indicate no decoration color was set.
+//     SkColor decoration_color = SK_ColorTRANSPARENT;
+//     TextDecorationStyle decoration_style = TextDecorationStyle::kSolid;
+//     // Thickness is applied as a multiplier to the default thickness of the font.
+//     double decoration_thickness_multiplier = 1.0;
+//     FontWeight font_weight = FontWeight::w400;
+//     FontStyle font_style = FontStyle::normal;
+//     TextBaseline text_baseline = TextBaseline::kAlphabetic;
+//     std::string font_family;
+//     double font_size = 14.0;
+//     double letter_spacing = 0.0;
+//     double word_spacing = 0.0;
+//     double height = 1.0;
+//     std::string locale;
+//     bool has_background = false;
+//     SkPaint background;
+//     bool has_foreground = false;
+//     SkPaint foreground;
+//
+//     TextStyle();
+//
+//     bool equals(const TextStyle& other) const;
+// };
+
+// TODO(Migration/siyamed) Native equals
+// bool TextStyle::equals(const TextStyle& other) const {
+//    if (color != other.color)
+//        return false;
+//    if (decoration != other.decoration)
+//        return false;
+//    if (decoration_color != other.decoration_color)
+//        return false;
+//    if (decoration_style != other.decoration_style)
+//        return false;
+//    if (decoration_thickness_multiplier != other.decoration_thickness_multiplier)
+//        return false;
+//    if (font_weight != other.font_weight)
+//        return false;
+//    if (font_style != other.font_style)
+//        return false;
+//    if (font_family != other.font_family)
+//        return false;
+//    if (letter_spacing != other.letter_spacing)
+//        return false;
+//    if (word_spacing != other.word_spacing)
+//        return false;
+//    if (height != other.height)
+//        return false;
+//    if (locale != other.locale)
+//        return false;
+//    if (foreground != other.foreground)
+//        return false;
+//
+//    return true;
+// }
+
 // TODO(Migration/siyamed): this is implemented to communicate with C++, we probably don't need it.
 //    val _encoded: IntArray
 //        _encoded = _encodeTextStyle(
