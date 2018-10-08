@@ -54,7 +54,7 @@ dependencies {
     compile(KOTLIN_METADATA)
     compile(APACHE_COMMONS_CODEC)
     testCompile(GOOGLE_COMPILE_TESTING)
-    testCompile(ROOM_PAGING_COMMON)
+    testCompile project(":paging:paging-common")
     testCompile(JUNIT)
     testCompile(INTELLIJ_ANNOTATIONS)
     testCompile(JSR250)
