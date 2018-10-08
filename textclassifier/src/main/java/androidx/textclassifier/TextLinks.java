@@ -650,7 +650,7 @@ public final class TextLinks {
 
         private LocaleListCompat getLocales(TextView textView) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                return LocaleListCompat.wrap(textView.getTextLocales());
+                return ConvertUtils.wrapLocalList(textView.getTextLocales());
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 return LocaleListCompat.create(textView.getTextLocale());
             }
