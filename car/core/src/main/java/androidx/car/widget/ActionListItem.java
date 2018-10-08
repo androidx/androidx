@@ -100,13 +100,6 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
     private static final int PRIMARY_ACTION_TYPE_EMPTY_ICON = 1;
     private static final int PRIMARY_ACTION_TYPE_ICON = 2;
 
-    @Retention(SOURCE)
-    @IntDef({ SUPPLEMENTAL_ACTION_ONE_ACTION, SUPPLEMENTAL_ACTION_TWO_ACTIONS })
-    private @interface SupplementalActionType {}
-
-    private static final int SUPPLEMENTAL_ACTION_ONE_ACTION = 0;
-    private static final int SUPPLEMENTAL_ACTION_TWO_ACTIONS = 1;
-
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
     private Drawable mPrimaryActionIconDrawable;
     @PrimaryActionIconSize private int mPrimaryActionIconSize = PRIMARY_ACTION_ICON_SIZE_SMALL;
@@ -117,8 +110,6 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
 
     private CharSequence mTitle;
     private CharSequence mBody;
-
-    @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_ONE_ACTION;
 
     @Dimension
     private final int mSupplementalGuidelineBegin;
@@ -157,21 +148,22 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
     }
 
     /**
-     * Hides all views in {@link ActionListItem.ViewHolder} then applies ViewBinders to
+     * Resets all views in {@link ActionListItem.ViewHolder} then applies ViewBinders to
      * adjust view layout params.
      */
     @Override
     public void onBind(ActionListItem.ViewHolder viewHolder) {
-        hideSubViews(viewHolder);
+        for (View v : viewHolder.getWidgetViews()) {
+            v.setEnabled(mIsEnabled);
+            v.setVisibility(View.GONE);
+        }
+
+        // ActionListItem supports clicking on the item so we also update the entire itemView.
+        viewHolder.itemView.setEnabled(mIsEnabled);
+
         for (ViewBinder<ViewHolder> binder : mBinders) {
             binder.bind(viewHolder);
         }
-
-        for (View v : viewHolder.getWidgetViews()) {
-            v.setEnabled(mIsEnabled);
-        }
-        // ActionListItem supports clicking on the item so we also update the entire itemView.
-        viewHolder.itemView.setEnabled(mIsEnabled);
     }
 
     @Override
@@ -424,50 +416,50 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
      * Sets up view(s) for supplemental action.
      */
     private void setSupplementalActions() {
-        switch (mSupplementalActionType) {
-            case SUPPLEMENTAL_ACTION_TWO_ACTIONS:
-                mBinders.add(vh -> {
-                    vh.setActionBorderless(mIsActionBorderless);
+        boolean hasPrimaryAction = !TextUtils.isEmpty(mPrimaryActionText);
+        boolean hasSecondaryAction = !TextUtils.isEmpty(mSecondaryActionText);
 
-                    Button secondaryAction = vh.getSecondaryAction();
-
-                    secondaryAction.setVisibility(View.VISIBLE);
-                    if (mShowSecondaryActionDivider) {
-                        vh.getSecondaryActionDivider().setVisibility(View.VISIBLE);
-                    }
-
-                    secondaryAction.setText(mSecondaryActionText);
-                    secondaryAction.setOnClickListener(mSecondaryActionOnClickListener);
-
-                    Button primaryAction = vh.getPrimaryAction();
-
-                    primaryAction.setVisibility(View.VISIBLE);
-                    if (mShowPrimaryActionDivider) {
-                        vh.getPrimaryActionDivider().setVisibility(View.VISIBLE);
-                    }
-
-                    primaryAction.setText(mPrimaryActionText);
-                    primaryAction.setOnClickListener(mPrimaryActionOnClickListener);
-                });
-                break;
-            case SUPPLEMENTAL_ACTION_ONE_ACTION:
-                mBinders.add(vh -> {
-                    vh.setActionBorderless(mIsActionBorderless);
-
-                    Button primaryAction = vh.getPrimaryAction();
-
-                    primaryAction.setVisibility(View.VISIBLE);
-                    if (mShowPrimaryActionDivider) {
-                        vh.getPrimaryActionDivider().setVisibility(View.VISIBLE);
-                    }
-
-                    primaryAction.setText(mPrimaryActionText);
-                    primaryAction.setOnClickListener(mPrimaryActionOnClickListener);
-                });
-                break;
-            default:
-                throw new IllegalStateException("Unknown supplemental action type.");
+        if (!hasPrimaryAction && !hasSecondaryAction) {
+            return;
         }
+
+        mBinders.add(vh -> {
+            vh.setActionBorderless(mIsActionBorderless);
+
+            if (hasSecondaryAction) {
+                Button secondaryAction = vh.getSecondaryAction();
+
+                secondaryAction.setVisibility(View.VISIBLE);
+                if (mShowSecondaryActionDivider) {
+                    vh.getSecondaryActionDivider().setVisibility(View.VISIBLE);
+                }
+
+                secondaryAction.setText(mSecondaryActionText);
+                secondaryAction.setOnClickListener(mSecondaryActionOnClickListener);
+
+                // Add spacing between the buttons if there is a primary action.
+                int endMargin = hasPrimaryAction
+                        ? mContext.getResources().getDimensionPixelSize(R.dimen.car_padding_4)
+                        : 0;
+
+                ViewGroup.MarginLayoutParams layoutParams =
+                        (ViewGroup.MarginLayoutParams) secondaryAction.getLayoutParams();
+                layoutParams.setMarginEnd(endMargin);
+                secondaryAction.requestLayout();
+            }
+
+            if (hasPrimaryAction) {
+                Button primaryAction = vh.getPrimaryAction();
+
+                primaryAction.setVisibility(View.VISIBLE);
+                if (mShowPrimaryActionDivider) {
+                    vh.getPrimaryActionDivider().setVisibility(View.VISIBLE);
+                }
+
+                primaryAction.setText(mPrimaryActionText);
+                primaryAction.setOnClickListener(mPrimaryActionOnClickListener);
+            }
+        });
     }
 
     /**
@@ -555,22 +547,14 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
      * @param showDivider whether to display a vertical bar that separates {@code Text} and
      *                    {@code Action Button}.
      * @param listener the callback that will run when action button is clicked.
+     * @deprecated Use {@link #setPrimaryAction(String, boolean, View.OnClickListener)} or
+     * {@link #setSecondaryAction(String, boolean, View.OnClickListener)} instead to individually
+     * set the actions.
      */
+    @Deprecated
     public void setAction(@NonNull String text, boolean showDivider,
             @NonNull View.OnClickListener listener) {
-        if (TextUtils.isEmpty(text)) {
-            throw new IllegalArgumentException("Action text cannot be empty.");
-        }
-        if (listener == null) {
-            throw new IllegalArgumentException("Action OnClickListener cannot be null.");
-        }
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_ONE_ACTION;
-
-        mPrimaryActionText = text;
-        mPrimaryActionOnClickListener = listener;
-        mShowPrimaryActionDivider = showDivider;
-
-        markDirty();
+        setPrimaryAction(text, showDivider, listener);
     }
 
     /**
@@ -585,22 +569,70 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
      *                                   action.
      * @param secondaryActionOnClickListener The listener to be invoked when the secondary action is
      *                                       triggered.
+     * @deprecated Use {@link #setPrimaryAction(String, boolean, View.OnClickListener)} and
+     * {@link #setSecondaryAction(String, boolean, View.OnClickListener)} to set both actions.
      */
+    @Deprecated
     public void setActions(@NonNull String primaryActionText, boolean showPrimaryActionDivider,
             @NonNull View.OnClickListener primaryActionOnClickListener,
             @NonNull String secondaryActionText, boolean showSecondaryActionDivider,
             @NonNull View.OnClickListener secondaryActionOnClickListener) {
-        if (TextUtils.isEmpty(primaryActionText) || TextUtils.isEmpty(secondaryActionText)) {
+        setPrimaryAction(primaryActionText, showPrimaryActionDivider, primaryActionOnClickListener);
+        setSecondaryAction(secondaryActionText, showSecondaryActionDivider,
+                secondaryActionOnClickListener);
+    }
+
+    /**
+     * Sets the primary action of this {@code ListItem}.
+     *
+     * @param primaryActionText Action text to display.
+     * @param showPrimaryActionDivider Whether or not to display a vertical bar before the primary
+     *                                 action.
+     * @param primaryActionOnClickListener The callback that will run when the action is clicked.
+     *
+     * @throws IllegalArgumentException If {@code primaryActionText} is {@code null} or empty.
+     * @throws IllegalArgumentException If {@code primaryActionOnClickListener} is {@code null}.
+     */
+    public void setPrimaryAction(@NonNull String primaryActionText,
+            boolean showPrimaryActionDivider,
+            @NonNull View.OnClickListener primaryActionOnClickListener) {
+        if (TextUtils.isEmpty(primaryActionText)) {
             throw new IllegalArgumentException("Action text cannot be empty.");
         }
-        if (primaryActionOnClickListener == null || secondaryActionOnClickListener == null) {
+        if (primaryActionOnClickListener == null) {
             throw new IllegalArgumentException("Action OnClickListener cannot be null.");
         }
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_TWO_ACTIONS;
 
         mPrimaryActionText = primaryActionText;
         mPrimaryActionOnClickListener = primaryActionOnClickListener;
         mShowPrimaryActionDivider = showPrimaryActionDivider;
+
+        markDirty();
+    }
+
+    /**
+     * Sets the secondary action of this {@code ListItem}.
+     *
+     * <p>The secondary action will appear before the primary action if both are set.
+     *
+     * @param secondaryActionText Action text to display.
+     * @param showSecondaryActionDivider Whether or not to display a vertical bar before the
+     *                                   secondary action.
+     * @param secondaryActionOnClickListener The callback that will run when the action is clicked.
+     *
+     * @throws IllegalArgumentException If {@code secondaryActionText} is {@code null} or empty.
+     * @throws IllegalArgumentException If {@code secondaryActionOnClickListener} is {@code null}.
+     */
+    public void setSecondaryAction(@NonNull String secondaryActionText,
+            boolean showSecondaryActionDivider,
+            @NonNull View.OnClickListener secondaryActionOnClickListener) {
+        if (TextUtils.isEmpty(secondaryActionText)) {
+            throw new IllegalArgumentException("Action text cannot be empty.");
+        }
+        if (secondaryActionOnClickListener == null) {
+            throw new IllegalArgumentException("Action OnClickListener cannot be null.");
+        }
+
         mSecondaryActionText = secondaryActionText;
         mSecondaryActionOnClickListener = secondaryActionOnClickListener;
         mShowSecondaryActionDivider = showSecondaryActionDivider;
@@ -618,12 +650,6 @@ public final class ActionListItem extends ListItem<ActionListItem.ViewHolder> {
      */
     public void setActionBorderless(boolean isActionBorderless) {
         mIsActionBorderless = isActionBorderless;
-    }
-
-    private void hideSubViews(ViewHolder vh) {
-        for (View v : vh.getWidgetViews()) {
-            v.setVisibility(View.GONE);
-        }
     }
 
     /**
