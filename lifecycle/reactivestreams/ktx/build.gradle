@@ -37,7 +37,7 @@ dependencies {
 supportLibrary {
   name = "Android Lifecycle ReactiveStreams KTX"
   publish = true
-  mavenVersion = LibraryVersions.LIFECYCLES_EXT
+  mavenVersion = LibraryVersions.LIFECYCLE
   mavenGroup = LibraryGroups.LIFECYCLE
   inceptionYear = "2018"
   description = "Kotlin extensions for Lifecycle ReactiveStreams"

@@ -47,7 +47,7 @@ dependencies {
 supportLibrary {
     name = "Android Lifecycle Reactivestreams"
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_EXT
+    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle Reactivestreams"

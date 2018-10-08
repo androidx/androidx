@@ -43,7 +43,7 @@ dependencies {
 supportLibrary {
     name = "Android Lifecycle LiveData"
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_LIVEDATA
+    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData"
