@@ -36,10 +36,14 @@ limitations under the License.
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
         <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/car_double_line_list_item_height</item>
+        <item name="android:listPreferredItemPaddingStart">@dimen/car_keyline_1</item>
+        <item name="android:listPreferredItemPaddingEnd">@dimen/car_keyline_1</item>
         <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
         <item name="android:progressBackgroundTint">@color/car_seekbar_track_background_dark</item>
         <item name="android:progressTint">?attr/android:colorControlActivated</item>
         <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
+        <item name="android:selectableItemBackground">@drawable/car_card_ripple_background</item>
         <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="android:textColorHint">@color/car_body2_light</item>
         <item name="android:spinnerStyle">@style/Widget.Spinner.Car</item>
@@ -61,7 +65,7 @@ limitations under the License.
         <item name="editTextStyle">@style/Widget.Car.EditText</item>
         <item name="listItemActionDividerColor">@color/car_list_divider_light</item>
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
-        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body3.Light</item>
         <item name="listItemPrimaryIconTint">@null</item>
         <item name="listItemSupplementalIconTint">@null</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
@@ -89,10 +93,14 @@ limitations under the License.
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
         <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/car_double_line_list_item_height</item>
+        <item name="android:listPreferredItemPaddingStart">@dimen/car_keyline_1</item>
+        <item name="android:listPreferredItemPaddingEnd">@dimen/car_keyline_1</item>
         <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
         <item name="android:progressBackgroundTint">@color/car_seekbar_track_background</item>
         <item name="android:progressTint">?attr/android:colorControlActivated</item>
         <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
+        <item name="android:selectableItemBackground">@drawable/car_card_ripple_background</item>
         <item name="android:spinnerStyle">@style/Widget.Spinner.Car</item>
         <item name="android:spinnerItemStyle">@style/CarSpinnerItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
@@ -117,7 +125,7 @@ limitations under the License.
         <item name="listItemActionDividerColor">@color/car_list_divider</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
-        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body3</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
         <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar</item>
@@ -301,6 +309,5 @@ limitations under the License.
         <item name="editTextPreferenceStyle">@style/CarPreference.DialogPreference.EditTextPreference</item>
         <item name="dropdownPreferenceStyle">@style/CarPreference.DropDown</item>
         <item name="preferenceFragmentListStyle">@style/CarPreferenceFragmentList</item>
-        <item name="android:preferenceLayoutChild">@layout/preference_material_car_child</item>
     </style>
 </resources>
