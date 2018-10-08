@@ -163,7 +163,9 @@ class GestureArenaManager {
         assert(!state.isOpen)
         val eagerWinner = state.eagerWinner
         if (state.members.size == 1) {
-            // TODO(Migration/shepshapard): need scheduleMicrotask...
+            // TODO(Migration/shepshapard): need scheduleMicrotask? for now just calling
+            // what's needed synchrounously.
+            _resolveByDefault(pointer, state)
             // scheduleMicrotask(() => _resolveByDefault(pointer, state))
         } else if (state.members.isEmpty()) {
             _arenas.remove(pointer)

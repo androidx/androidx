@@ -38,7 +38,6 @@ import androidx.ui.gestures.recognizer.PrimaryPointerGestureRecognizer
 // / See also:
 // /
 // /  * [MultiTapGestureRecognizer]
-// TODO(Migration/shepshapard): Needs tests, which rely on some Mixin stuff.
 class TapGestureRecognizer(debugOwner: Any? = null) : PrimaryPointerGestureRecognizer(
     kPressTimeout,
     debugOwner
@@ -75,8 +74,9 @@ class TapGestureRecognizer(debugOwner: Any? = null) : PrimaryPointerGestureRecog
         if (_wonArenaForPrimaryPointer && disposition == GestureDisposition.rejected) {
             // This can happen if the superclass decides the primary pointer
             // exceeded the touch slop, or if the recognizer is disposed.
-            if (onTapCancel != null)
-                invokeCallback("spontaneous onTapCancel", ::onTapCancel)
+            onTapCancel?.let {
+                invokeCallback("spontaneous onTapCancel", it)
+            }
             _reset()
         }
         super.resolve(disposition)
@@ -100,8 +100,9 @@ class TapGestureRecognizer(debugOwner: Any? = null) : PrimaryPointerGestureRecog
         if (pointer == primaryPointer) {
             // Another gesture won the arena.
             assert(state != GestureRecognizerState.possible)
-            if (onTapCancel != null)
-                invokeCallback("forced onTapCancel", ::onTapCancel)
+            onTapCancel?.let {
+                invokeCallback("forced onTapCancel", it)
+            }
             _reset()
         }
     }
@@ -127,12 +128,14 @@ class TapGestureRecognizer(debugOwner: Any? = null) : PrimaryPointerGestureRecog
                 // tap callbacks.
                 return
             }
-            if (onTapUp != null)
+            onTapUp?.let {
                 invokeCallback("onTapUp", callback = {
-                    onTapUp?.invoke(TapUpDetails(globalPosition = _finalPosition!!))
+                    it.invoke(TapUpDetails(globalPosition = _finalPosition!!))
                 })
-            if (onTap != null)
-                invokeCallback("onTap", ::onTap)
+            }
+            onTap?.let {
+                invokeCallback("onTap", it)
+            }
             _reset()
         }
     }
