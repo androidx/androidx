@@ -19,10 +19,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="@dimen/car_double_line_list_item_height"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:gravity="center_vertical"
-    android:layout_marginStart="@dimen/car_keyline_1"
-    android:layout_marginEnd="@dimen/car_keyline_1"
+    android:layout_marginStart="?android:attr/listPreferredItemPaddingStart"
+    android:layout_marginEnd="?android:attr/listPreferredItemPaddingEnd"
     android:orientation="horizontal">
 
     <androidx.preference.internal.PreferenceImageView
@@ -31,7 +31,7 @@
         android:layout_height="@dimen/car_primary_icon_size"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="@dimen/car_padding_2"
-        android:layout_marginEnd="@dimen/car_keyline_1"
+        android:layout_marginEnd="?android:attr/listPreferredItemPaddingEnd"
         android:layout_marginBottom="@dimen/car_padding_2"/>
 
     <RelativeLayout
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="end"
-            android:textAppearance="@style/TextAppearance.Car.Body1"/>
+            android:textAppearance="?attr/listItemTitleTextAppearance"/>
 
         <TextView
             android:id="@android:id/summary"
@@ -55,7 +55,7 @@
             android:layout_below="@android:id/title"
             android:layout_alignStart="@android:id/title"
             android:paddingBottom="@dimen/car_padding_1"
-            android:textAppearance="@style/TextAppearance.Car.Body3"/>
+            android:textAppearance="?attr/listItemBodyTextAppearance"/>
 
         <!-- Using UnPressableLinearLayout as a workaround to disable the pressed state propagation
         to the children of this container layout. Otherwise, the animated pressed state will also
@@ -85,7 +85,7 @@
                 android:layout_width="@dimen/preference_seekbar_value_width"
                 android:layout_height="wrap_content"
                 android:gravity="right|center_vertical"
-                android:textAppearance="@style/TextAppearance.Car.Body3"
+                android:textAppearance="?attr/listItemBodyTextAppearance"
                 android:fadingEdge="horizontal"
                 android:scrollbars="none"/>
         </androidx.preference.UnPressableLinearLayout>
