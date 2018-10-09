@@ -48,8 +48,9 @@ abstract class AbstractAppBarOnNavigatedListener
     private ValueAnimator mAnimator;
 
     AbstractAppBarOnNavigatedListener(@NonNull Context context,
-            @Nullable DrawerLayout drawerLayout) {
+            @NonNull AppBarConfiguration configuration) {
         mContext = context;
+        DrawerLayout drawerLayout = configuration.getDrawerLayout();
         if (drawerLayout != null) {
             mDrawerLayoutWeakReference = new WeakReference<>(drawerLayout);
         } else {
