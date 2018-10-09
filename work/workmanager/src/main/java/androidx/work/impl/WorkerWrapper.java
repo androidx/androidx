@@ -54,6 +54,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -88,6 +89,10 @@ public class WorkerWrapper implements Runnable {
     private String mWorkDescription;
 
     private @NonNull SettableFuture<Boolean> mFuture = SettableFuture.create();
+
+    // Package-private for synthetic accessor.
+    @Nullable ListenableFuture<ListenableWorker.Payload> mInnerFuture = null;
+
 
     private volatile boolean mInterrupted;
 
@@ -217,9 +222,8 @@ public class WorkerWrapper implements Runnable {
                         @Override
                         public void run() {
                             try {
-                                final ListenableFuture<ListenableWorker.Payload> innerFuture =
-                                        mWorker.onStartWork();
-                                future.setFuture(innerFuture);
+                                mInnerFuture = mWorker.onStartWork();
+                                future.setFuture(mInnerFuture);
                             } catch (Throwable e) {
                                 future.setException(e);
                             }
@@ -234,7 +238,10 @@ public class WorkerWrapper implements Runnable {
                 public void run() {
                     try {
                         mPayload = future.get();
-                    } catch (InterruptedException | ExecutionException exception) {
+                    } catch (CancellationException | InterruptedException | ExecutionException
+                            exception) {
+                        // We need to handle CancellationExceptions here because innerFuture
+                        // cancellations will bubble up, and we need to gracefully handle that.
                         Logger.error(TAG,
                                 String.format("%s failed because it threw an exception/error",
                                         workDescription),
@@ -301,6 +308,14 @@ public class WorkerWrapper implements Runnable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void interrupt(boolean cancelled) {
         mInterrupted = true;
+        // Resolve WorkerWrapper's future so we do the right thing and setup a reschedule
+        // if necessary. mInterrupted is always true here, we don't really care about the return
+        // value.
+        tryCheckForInterruptionAndResolve();
+        if (mInnerFuture != null) {
+            // Propagate the cancellations to the inner future.
+            mInnerFuture.cancel(true);
+        }
         // Worker can be null if run() hasn't been called yet.
         if (mWorker != null) {
             mWorker.stop(cancelled);

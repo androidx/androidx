@@ -19,8 +19,10 @@ package androidx.work.impl.background.systemjob;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -48,6 +50,8 @@ import androidx.work.WorkManagerTest;
 import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.Processor;
+import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
@@ -59,6 +63,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
@@ -66,8 +72,10 @@ import java.util.concurrent.Executors;
 public class SystemJobServiceTest extends WorkManagerTest {
 
     private WorkManagerImpl mWorkManagerImpl;
+    private Processor mProcessor;
     private WorkDatabase mDatabase;
     private SystemJobService mSystemJobServiceSpy;
+    private Scheduler mScheduler;
 
     @Before
     public void setUp() {
@@ -94,13 +102,32 @@ public class SystemJobServiceTest extends WorkManagerTest {
         });
 
         Context context = InstrumentationRegistry.getTargetContext();
+        mDatabase = WorkDatabase.create(context, true);
+        InstantWorkTaskExecutor taskExecutor = new InstantWorkTaskExecutor();
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
-        mWorkManagerImpl =
-                new WorkManagerImpl(context, configuration, new InstantWorkTaskExecutor());
+        mScheduler = mock(Scheduler.class);
+        mProcessor = new Processor(
+                context,
+                configuration,
+                taskExecutor,
+                mDatabase,
+                Collections.singletonList(mScheduler));
+        mWorkManagerImpl = mock(WorkManagerImpl.class);
+        when(mWorkManagerImpl.getApplicationContext()).thenReturn(context);
+        when(mWorkManagerImpl.getConfiguration()).thenReturn(configuration);
+        when(mWorkManagerImpl.getProcessor()).thenReturn(mProcessor);
+        when(mWorkManagerImpl.getWorkDatabase()).thenReturn(mDatabase);
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
+        when(mWorkManagerImpl.getWorkTaskExecutor()).thenReturn(taskExecutor);
+        // Delegate to the underlying implementations of methods used in tests.
+        doCallRealMethod().when(mWorkManagerImpl).cancelWorkById(any(UUID.class));
+        doCallRealMethod().when(mWorkManagerImpl).startWork(anyString());
+        doCallRealMethod().when(mWorkManagerImpl).startWork(anyString(),
+                any(WorkerParameters.RuntimeExtras.class));
+        doCallRealMethod().when(mWorkManagerImpl).stopWork(anyString());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
-        mDatabase = mWorkManagerImpl.getWorkDatabase();
         mSystemJobServiceSpy = spy(new SystemJobService());
         doNothing().when(mSystemJobServiceSpy).onExecuted(anyString(), anyBoolean());
         mSystemJobServiceSpy.onCreate();
