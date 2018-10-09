@@ -71,6 +71,12 @@ public final class TextClassificationManager {
     /**
      * Returns the text classifier set through {@link #setTextClassifier(TextClassifier)},
      * a default text classifier is returned if it is not ever set, or a {@code null} is set.
+     * <p>
+     * If you are implementing a text classifier, and want to delegate requests to the default
+     * text classifier provided by this library, you may want to use
+     * {@link #getDefaultTextClassifier()} instead.
+     *
+     * @see #getDefaultTextClassifier()
      */
     @NonNull
     public TextClassifier getTextClassifier() {
@@ -123,5 +129,22 @@ public final class TextClassificationManager {
             return PlatformTextClassifierWrapper.create(context);
         }
         return LegacyTextClassifier.of(context);
+    }
+
+    /**
+     * Returns the default text classifier provided by this library.
+     * <p>
+     * This is mainly for text classifier implementation to delegate the request to the default
+     * text classifier. Otherwise, in most cases, you shuold consider
+     * {@link #getTextClassifier()} instead.
+     * <p>
+     * Note that the returned text classifier should be only used within the same context that is
+     * passed to {@link TextClassificationManager#of(Context)}.
+     *
+     * @see #getTextClassifier()
+     */
+    @NonNull
+    public TextClassifier getDefaultTextClassifier() {
+        return mDefaultTextClassifier;
     }
 }

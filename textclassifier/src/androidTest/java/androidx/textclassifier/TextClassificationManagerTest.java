@@ -100,6 +100,22 @@ public class TextClassificationManagerTest {
                 .isInstanceOf(PlatformTextClassifier.class);
     }
 
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
+    @Test
+    public void testGetDefaultTextClassifier_preO() {
+        TextClassifier textClassifier = mTextClassificationManager.getDefaultTextClassifier();
+
+        assertThat(textClassifier).isInstanceOf(LegacyTextClassifier.class);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    public void testGetDefaultTextClassifier_postO() {
+        TextClassifier textClassifier = mTextClassificationManager.getDefaultTextClassifier();
+
+        assertThat(textClassifier).isInstanceOf(PlatformTextClassifierWrapper.class);
+    }
+
     private static class DummyTextClassifier extends TextClassifier {
         DummyTextClassifier() {
             super();
