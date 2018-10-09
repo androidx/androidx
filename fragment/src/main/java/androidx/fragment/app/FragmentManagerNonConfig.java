@@ -22,7 +22,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelStore;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -35,11 +35,11 @@ import java.util.Map;
  * {@link FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)}.</p>
  */
 public class FragmentManagerNonConfig {
-    private final @Nullable List<Fragment> mFragments;
+    private final @Nullable Collection<Fragment> mFragments;
     private final @Nullable Map<String, FragmentManagerNonConfig> mChildNonConfigs;
     private final @Nullable Map<String, ViewModelStore> mViewModelStores;
 
-    FragmentManagerNonConfig(@Nullable List<Fragment> fragments,
+    FragmentManagerNonConfig(@Nullable Collection<Fragment> fragments,
             @Nullable Map<String, FragmentManagerNonConfig> childNonConfigs,
             @Nullable Map<String, ViewModelStore> viewModelStores) {
         mFragments = fragments;
@@ -59,7 +59,7 @@ public class FragmentManagerNonConfig {
      * @return the retained instance fragments returned by a FragmentManager
      */
     @Nullable
-    List<Fragment> getFragments() {
+    Collection<Fragment> getFragments() {
         return mFragments;
     }
 

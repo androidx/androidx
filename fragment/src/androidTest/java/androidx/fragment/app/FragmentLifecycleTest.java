@@ -338,6 +338,14 @@ public class FragmentLifecycleTest {
 
         // Configure fragments.
 
+        // This retained fragment will be added, then removed. After being removed, it
+        // should no longer be retained by the FragmentManager
+        final StateSaveFragment removedFragment = new StateSaveFragment("Removed",
+                "UnsavedRemoved");
+        removedFragment.setRetainInstance(true);
+        fm1.beginTransaction().add(removedFragment, "tag:removed").commitNow();
+        fm1.beginTransaction().remove(removedFragment).commitNow();
+
         // Grandparent fragment will not retain instance
         final StateSaveFragment grandparentFragment = new StateSaveFragment("Grandparent",
                 "UnsavedGrandparent");
@@ -398,6 +406,10 @@ public class FragmentLifecycleTest {
         fc2.dispatchCreate();
 
         // Confirm that the restored fragments are available and in the expected states
+        final StateSaveFragment restoredRemovedFragment = (StateSaveFragment)
+                fm2.findFragmentByTag("tag:removed");
+        assertNull(restoredRemovedFragment);
+
         final StateSaveFragment restoredGrandparent = (StateSaveFragment) fm2.findFragmentByTag(
                 "tag:grandparent");
         assertNotNull("grandparent fragment not restored", restoredGrandparent);

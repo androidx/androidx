@@ -181,6 +181,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // configuration changes.
     boolean mRetainInstance;
 
+    // If set this fragment changed its mRetainInstance while it was detached
+    boolean mRetainInstanceChangedWhileDetached;
+
     // If set this fragment has menu items to contribute.
     boolean mHasMenu;
 
@@ -953,6 +956,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     public void setRetainInstance(boolean retain) {
         mRetainInstance = retain;
+        if (mFragmentManager != null) {
+            if (retain) {
+                mFragmentManager.mRetainedFragments.add(this);
+            } else {
+                mFragmentManager.mRetainedFragments.remove(this);
+            }
+        } else {
+            mRetainInstanceChangedWhileDetached = true;
+        }
     }
 
     final public boolean getRetainInstance() {

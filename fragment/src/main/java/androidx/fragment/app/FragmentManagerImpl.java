@@ -67,6 +67,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -142,6 +143,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     // Saved FragmentManagerNonConfig during saveAllState() and cleared in noteStateNotSaved()
     FragmentManagerNonConfig mSavedNonConfig;
+    final HashSet<Fragment> mRetainedFragments = new HashSet<>();
     final HashMap<String, ViewModelStore> mViewModelStores = new HashMap<>();
 
     Runnable mExecCommit = new Runnable() {
@@ -1334,6 +1336,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             mActive = new HashMap<>();
         }
         mActive.put(f.mWho, f);
+        if (f.mRetainInstanceChangedWhileDetached) {
+            if (f.mRetainInstance) {
+                mRetainedFragments.add(f);
+            } else {
+                mRetainedFragments.remove(f);
+            }
+            f.mRetainInstanceChangedWhileDetached = false;
+        }
         if (DEBUG) Log.v(TAG, "Added fragment to active set " + f);
     }
 
@@ -1346,6 +1356,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         // Don't remove yet. That happens in burpActive(). This prevents
         // concurrent modification while iterating over mActive
         mActive.put(f.mWho, null);
+        mRetainedFragments.remove(f);
 
         f.initState();
     }
@@ -2234,18 +2245,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     FragmentManagerNonConfig retainNonConfig() {
-        ArrayList<Fragment> fragments = null;
         HashMap<String, FragmentManagerNonConfig> childFragments = null;
         if (mActive != null) {
             for (Fragment f : mActive.values()) {
                 if (f != null) {
-                    if (f.mRetainInstance) {
-                        if (fragments == null) {
-                            fragments = new ArrayList<>();
-                        }
-                        fragments.add(f);
-                        if (DEBUG) Log.v(TAG, "retainNonConfig: keeping retained " + f);
-                    }
                     FragmentManagerNonConfig child;
                     if (f.mChildFragmentManager != null) {
                         child = f.mChildFragmentManager.retainNonConfig();
@@ -2264,10 +2267,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 }
             }
         }
-        if (fragments == null && childFragments == null && mViewModelStores.isEmpty()) {
+        if (mRetainedFragments.isEmpty() && childFragments == null && mViewModelStores.isEmpty()) {
             mSavedNonConfig = null;
         } else {
-            mSavedNonConfig = new FragmentManagerNonConfig(fragments, childFragments,
+            mSavedNonConfig = new FragmentManagerNonConfig(
+                    new ArrayList<>(mRetainedFragments),
+                    childFragments,
                     mViewModelStores);
         }
         return mSavedNonConfig;
@@ -2447,13 +2452,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         // First re-attach any non-config instances we are retaining back
         // to their saved state, so we don't try to instantiate them again.
         if (nonConfig != null) {
-            List<Fragment> nonConfigFragments = nonConfig.getFragments();
+            Collection<Fragment> nonConfigFragments = nonConfig.getFragments();
             childNonConfigs = nonConfig.getChildNonConfigs();
             mViewModelStores.clear();
             mViewModelStores.putAll(nonConfig.getViewModelStores());
             final int count = nonConfigFragments != null ? nonConfigFragments.size() : 0;
-            for (int i = 0; i < count; i++) {
-                Fragment f = nonConfigFragments.get(i);
+            for (Fragment f : nonConfigFragments) {
                 if (DEBUG) Log.v(TAG, "restoreAllState: re-attaching retained " + f);
                 FragmentState fs = null;
                 for (FragmentState fragmentState : fms.mActive) {
