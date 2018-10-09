@@ -259,6 +259,7 @@ package androidx.appcompat.app {
     method public abstract androidx.appcompat.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
     method public abstract android.view.MenuInflater getMenuInflater();
     method public abstract androidx.appcompat.app.ActionBar getSupportActionBar();
+    method public abstract android.content.Context getThemedContext();
     method public abstract boolean hasWindowFeature(int);
     method public abstract void installViewFactory();
     method public abstract void invalidateOptionsMenu();
@@ -270,6 +271,7 @@ package androidx.appcompat.app {
     method public abstract void onPostCreate(android.os.Bundle);
     method public abstract void onPostResume();
     method public abstract void onSaveInstanceState(android.os.Bundle);
+    method public abstract void onSetTheme(int);
     method public abstract void onStart();
     method public abstract void onStop();
     method public abstract boolean requestWindowFeature(int);

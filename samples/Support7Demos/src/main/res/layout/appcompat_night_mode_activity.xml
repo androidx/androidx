@@ -40,21 +40,24 @@
                 android:text="@string/mode_night_auto"
                 android:onClick="setModeNightAuto"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp" />
-
-        <TextView
-            android:id="@+id/text_night_mode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/night_mode" />
+        <Button android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mode_night_load_webview"
+                android:onClick="loadWebView"/>
 
         <View
-            android:id="@+id/view_background"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@drawable/test_night_color_conversion_background" />
+                android:layout_width="match_parent"
+                android:layout_height="100dp"/>
+
+        <FrameLayout
+                android:id="@+id/night_mode_indicator_parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <include layout="@layout/appcompat_night_mode_indicator"/>
+            <include layout="@layout/appcompat_night_mode_indicator"/>
+
+        </FrameLayout>
 
     </LinearLayout>
 
