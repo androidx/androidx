@@ -60,7 +60,7 @@ fun persistableBundleOf(vararg pairs: Pair<String, Any?>) = PersistableBundle(pa
 
             // Reference arrays
             is Array<*> -> {
-                val componentType = value::class.java.componentType
+                val componentType = value::class.java.componentType!!
                 @Suppress("UNCHECKED_CAST") // Checked by reflection.
                 when {
                     String::class.java.isAssignableFrom(componentType) -> {
