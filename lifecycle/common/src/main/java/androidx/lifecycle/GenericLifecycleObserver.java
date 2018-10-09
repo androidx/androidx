@@ -16,14 +16,9 @@
 
 package androidx.lifecycle;
 
-import androidx.annotation.RestrictTo;
-
 /**
- * Internal class that can receive any lifecycle change and dispatch it to the receiver.
- * @hide
+ * Class that can receive any lifecycle change and dispatch it to the receiver.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings({"WeakerAccess", "unused"})
 public interface GenericLifecycleObserver extends LifecycleObserver {
     /**
      * Called when a state transition event happens.
