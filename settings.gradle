@@ -197,6 +197,8 @@ includeProject(":legacy-preference-v14", "legacy/preference-v14")
 
 File samplesRoot = new File(rootDir, "samples")
 
+// Note: don't add new samples/ apps. Instead, Create
+// <module>/integration-tests/testapp in the "Libraries" section above.
 includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"))
 includeProject(":support-app-navigation", new File(samplesRoot, "SupportAppNavigation"))
 includeProject(":support-biometric-demos", new File(samplesRoot, "BiometricDemos"))
