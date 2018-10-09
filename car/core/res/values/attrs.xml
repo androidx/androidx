@@ -110,6 +110,8 @@ limitations under the License.
         <!-- The background for the buttons in the PagedListView. This background should provide
              the ripple. -->
         <attr name="buttonRippleBackground" format="reference" />
+        <!-- Whether to display the scrollthumb or not. Defaults to true. -->
+        <attr name="showScrollBarThumb" format="boolean" />
     </declare-styleable>
 
     <!-- The configuration for modifying the ListItem. These ListItems are only intended to be used
