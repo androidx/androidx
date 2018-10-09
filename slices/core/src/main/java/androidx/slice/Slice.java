@@ -87,6 +87,11 @@ import java.util.Set;
 @RequiresApi(19)
 public final class Slice extends CustomVersionedParcelable implements VersionedParcelable {
 
+    /**
+     * Key to retrieve an extra added to an intent when an item in a selection is selected.
+     */
+    public static final String EXTRA_SELECTION = "android.app.slice.extra.SELECTION";
+
     private static final String HINTS = "hints";
     private static final String ITEMS = "items";
     private static final String URI = "uri";
