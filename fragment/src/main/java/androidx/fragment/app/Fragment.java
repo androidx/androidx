@@ -617,7 +617,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                         + this + " would create a target cycle");
             }
         }
-        mTarget = fragment;
+        if (fragment != null && fragment.mWho != null) {
+            // Just save the reference to the Fragment
+            mTargetWho = fragment.mWho;
+        } else {
+            // Save the Fragment itself, waiting until we're attached
+            mTarget = fragment;
+        }
         mTargetRequestCode = requestCode;
     }
 
@@ -626,7 +632,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Nullable
     final public Fragment getTargetFragment() {
-        return mTarget;
+        if (mTarget != null) {
+            // Ensure that any Fragment set with setTargetFragment is immediately
+            // available here
+            return mTarget;
+        } else if (mFragmentManager != null && mTargetWho != null) {
+            // Look up the target Fragment from the FragmentManager
+            return mFragmentManager.mActive.get(mTargetWho);
+        }
+        return null;
     }
 
     /**
@@ -2300,8 +2314,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             writer.print(prefix); writer.print("mSavedViewState=");
                     writer.println(mSavedViewState);
         }
-        if (mTarget != null) {
-            writer.print(prefix); writer.print("mTarget="); writer.print(mTarget);
+        Fragment target = getTargetFragment();
+        if (target != null) {
+            writer.print(prefix); writer.print("mTarget="); writer.print(target);
                     writer.print(" mTargetRequestCode=");
                     writer.println(mTargetRequestCode);
         }

@@ -777,9 +777,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                     .getClassLoader());
                             f.mSavedViewState = f.mSavedFragmentState.getSparseParcelableArray(
                                     FragmentManagerImpl.VIEW_STATE_TAG);
-                            f.mTarget = getFragment(f.mSavedFragmentState,
+                            Fragment target = getFragment(f.mSavedFragmentState,
                                     FragmentManagerImpl.TARGET_STATE_TAG);
-                            if (f.mTarget != null) {
+                            f.mTargetWho = target != null ? target.mWho : null;
+                            if (f.mTargetWho != null) {
                                 f.mTargetRequestCode = f.mSavedFragmentState.getInt(
                                         FragmentManagerImpl.TARGET_REQUEST_CODE_STATE_TAG, 0);
                             }
@@ -813,6 +814,19 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             }
                             if (f.mTarget.mState < Fragment.CREATED) {
                                 moveToState(f.mTarget, Fragment.CREATED, 0, 0, true);
+                            }
+                            f.mTargetWho = f.mTarget.mWho;
+                            f.mTarget = null;
+                        }
+                        if (f.mTargetWho != null) {
+                            Fragment target = mActive.get(f.mTargetWho);
+                            if (target == null) {
+                                throw new IllegalStateException("Fragment " + f
+                                        + " declared target fragment " + f.mTargetWho
+                                        + " that does not belong to this FragmentManager!");
+                            }
+                            if (target.mState < Fragment.CREATED) {
+                                moveToState(target, Fragment.CREATED, 0, 0, true);
                             }
                         }
 
@@ -2230,7 +2244,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             fragments = new ArrayList<>();
                         }
                         fragments.add(f);
-                        f.mTargetWho = f.mTarget != null ? f.mTarget.mTargetWho : null;
                         if (DEBUG) Log.v(TAG, "retainNonConfig: keeping retained " + f);
                     }
                     FragmentManagerNonConfig child;
@@ -2343,17 +2356,19 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (f.mState > Fragment.INITIALIZING && fs.mSavedFragmentState == null) {
                     fs.mSavedFragmentState = saveFragmentBasicState(f);
 
-                    if (f.mTarget != null) {
-                        if (f.mTarget.mWho == null) {
+                    if (f.mTargetWho != null) {
+                        Fragment target = mActive.get(f.mTargetWho);
+                        if (target == null) {
                             throwException(new IllegalStateException(
                                     "Failure saving state: " + f
-                                            + " has target not in fragment manager: " + f.mTarget));
+                                            + " has target not in fragment manager: "
+                                            + f.mTargetWho));
                         }
                         if (fs.mSavedFragmentState == null) {
                             fs.mSavedFragmentState = new Bundle();
                         }
                         putFragment(fs.mSavedFragmentState,
-                                FragmentManagerImpl.TARGET_STATE_TAG, f.mTarget);
+                                FragmentManagerImpl.TARGET_STATE_TAG, target);
                         if (f.mTargetRequestCode != 0) {
                             fs.mSavedFragmentState.putInt(
                                     FragmentManagerImpl.TARGET_REQUEST_CODE_STATE_TAG,
@@ -2456,7 +2471,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 f.mBackStackNesting = 0;
                 f.mInLayout = false;
                 f.mAdded = false;
-                f.mTarget = null;
+                f.mTargetWho = null;
                 if (fs.mSavedFragmentState != null) {
                     fs.mSavedFragmentState.setClassLoader(mHost.getContext().getClassLoader());
                     f.mSavedViewState = fs.mSavedFragmentState.getSparseParcelableArray(
@@ -2482,22 +2497,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 // retained above), clear mInstance in case we end up re-restoring
                 // from this FragmentState again.
                 fs.mInstance = null;
-            }
-        }
-
-        // Update the target of all retained fragments.
-        if (nonConfig != null) {
-            List<Fragment> nonConfigFragments = nonConfig.getFragments();
-            final int count = nonConfigFragments != null ? nonConfigFragments.size() : 0;
-            for (int i = 0; i < count; i++) {
-                Fragment f = nonConfigFragments.get(i);
-                if (f.mTargetWho != null) {
-                    f.mTarget = mActive.get(f.mTargetWho);
-                    if (f.mTarget == null) {
-                        Log.w(TAG, "Re-attaching retained fragment " + f
-                                + " target no longer exists: " + f.mTargetWho);
-                    }
-                }
             }
         }
 
