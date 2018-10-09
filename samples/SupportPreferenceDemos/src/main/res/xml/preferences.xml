@@ -64,7 +64,7 @@
                 android:key="dropdown"
                 android:title="@string/title_dropdown_preference"
                 android:entries="@array/entries"
-                app:setDefaultSummaryProvider="true"
+                app:useSimpleSummaryProvider="true"
                 android:entryValues="@array/entry_values"/>
 
         <SeekBarPreference
@@ -81,13 +81,13 @@
         <EditTextPreference
                 android:key="edittext"
                 android:title="@string/title_edittext_preference"
-                app:setDefaultSummaryProvider="true"
+                app:useSimpleSummaryProvider="true"
                 android:dialogTitle="@string/dialog_title_edittext_preference"/>
 
         <ListPreference
                 android:key="list"
                 android:title="@string/title_list_preference"
-                app:setDefaultSummaryProvider="true"
+                app:useSimpleSummaryProvider="true"
                 android:entries="@array/entries"
                 android:entryValues="@array/entry_values"
                 android:dialogTitle="@string/dialog_title_list_preference"/>

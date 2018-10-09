@@ -2155,11 +2155,11 @@ public class Preference implements Comparable<Preference> {
      * the SummaryProvider will be used instead whenever {@link #getSummary()} is called on this
      * preference.
      *
-     * <p> Default implementations are provided for {@link EditTextPreference} and
-     * {@link ListPreference}. To enable these default implementations, use
+     * <p> Simple implementations are provided for {@link EditTextPreference} and
+     * {@link ListPreference}. To enable these implementations, use
      * {@link #setSummaryProvider(SummaryProvider)} with
-     * {@link EditTextPreference.DefaultProvider#getInstance()} or
-     * {@link ListPreference.DefaultProvider#getInstance()}.
+     * {@link EditTextPreference.SimpleSummaryProvider#getInstance()} or
+     * {@link ListPreference.SimpleSummaryProvider#getInstance()}.
      *
      * @param <T> The Preference class that a summary is being requested for
      */
