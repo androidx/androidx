@@ -19,7 +19,7 @@
 <CheckBox
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/checkbox"
-    android:layout_width="@dimen/car_primary_icon_size"
-    android:layout_height="@dimen/car_primary_icon_size"
-    android:button="@null"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:button="@drawable/car_checkbox"
     android:background="?android:attr/listChoiceIndicatorMultiple" />
