@@ -126,7 +126,6 @@
     </codeStyleSettings>
     <codeStyleSettings language="kotlin">
       <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
-      <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
     </codeStyleSettings>
   </code_scheme>
 </component>
