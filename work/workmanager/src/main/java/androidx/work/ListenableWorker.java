@@ -177,7 +177,8 @@ public abstract class ListenableWorker {
      * Override this method to start your actual background processing. This method is called on
      * the main thread.
      *
-     * @return A {@link ListenableFuture} with the {@link Payload} of the computation
+     * @return A {@link ListenableFuture} with the {@link Payload} of the computation.  If you
+     *         cancel this Future, WorkManager will treat this unit of work as failed.
      */
     @MainThread
     public abstract @NonNull ListenableFuture<Payload> onStartWork();
