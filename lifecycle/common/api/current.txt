@@ -1,5 +1,9 @@
 package androidx.lifecycle {
 
+  public abstract interface GenericLifecycleObserver implements androidx.lifecycle.LifecycleObserver {
+    method public abstract void onStateChanged(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event);
+  }
+
   public abstract class Lifecycle {
     ctor public Lifecycle();
     method public abstract void addObserver(androidx.lifecycle.LifecycleObserver);
