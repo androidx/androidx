@@ -118,7 +118,7 @@ fun TypedArray.getDimensionPixelSizeOrThrow(@StyleableRes index: Int): Int {
  */
 fun TypedArray.getDrawableOrThrow(@StyleableRes index: Int): Drawable {
     checkAttribute(index)
-    return getDrawable(index)
+    return getDrawable(index)!!
 }
 
 /**
@@ -143,7 +143,7 @@ fun TypedArray.getFloatOrThrow(@StyleableRes index: Int): Float {
 @RequiresApi(26)
 fun TypedArray.getFontOrThrow(@StyleableRes index: Int): Typeface {
     checkAttribute(index)
-    return getFont(index)
+    return getFont(index)!!
 }
 
 /**
