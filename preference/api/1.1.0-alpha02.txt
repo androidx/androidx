@@ -33,7 +33,7 @@ package androidx.preference {
   }
 
   public static interface DialogPreference.TargetFragment {
-    method public androidx.preference.Preference! findPreference(CharSequence!);
+    method public <T extends androidx.preference.Preference> T! findPreference(CharSequence!);
   }
 
   public class DropDownPreference extends androidx.preference.ListPreference {
@@ -150,7 +150,7 @@ package androidx.preference {
     ctor public Preference(android.content.Context!);
     method public boolean callChangeListener(Object!);
     method public int compareTo(androidx.preference.Preference);
-    method protected androidx.preference.Preference! findPreferenceInHierarchy(String!);
+    method protected <T extends androidx.preference.Preference> T! findPreferenceInHierarchy(String!);
     method public android.content.Context! getContext();
     method public String! getDependency();
     method public android.os.Bundle! getExtras();
@@ -314,7 +314,7 @@ package androidx.preference {
   @Deprecated public abstract class PreferenceFragment extends android.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
     ctor @Deprecated public PreferenceFragment();
     method @Deprecated public void addPreferencesFromResource(@XmlRes int);
-    method @Deprecated public androidx.preference.Preference! findPreference(CharSequence!);
+    method @Deprecated public <T extends androidx.preference.Preference> T! findPreference(CharSequence!);
     method @Deprecated public final androidx.recyclerview.widget.RecyclerView! getListView();
     method @Deprecated public androidx.preference.PreferenceManager! getPreferenceManager();
     method @Deprecated public androidx.preference.PreferenceScreen! getPreferenceScreen();
@@ -356,7 +356,7 @@ package androidx.preference {
   public abstract class PreferenceFragmentCompat extends androidx.fragment.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
     ctor public PreferenceFragmentCompat();
     method public void addPreferencesFromResource(@XmlRes int);
-    method public androidx.preference.Preference! findPreference(CharSequence!);
+    method public <T extends androidx.preference.Preference> T! findPreference(CharSequence!);
     method public final androidx.recyclerview.widget.RecyclerView! getListView();
     method public androidx.preference.PreferenceManager! getPreferenceManager();
     method public androidx.preference.PreferenceScreen! getPreferenceScreen();
@@ -396,7 +396,7 @@ package androidx.preference {
     method public boolean addPreference(androidx.preference.Preference!);
     method protected void dispatchRestoreInstanceState(android.os.Bundle!);
     method protected void dispatchSaveInstanceState(android.os.Bundle!);
-    method public androidx.preference.Preference! findPreference(CharSequence!);
+    method public <T extends androidx.preference.Preference> T! findPreference(CharSequence!);
     method public int getInitialExpandedChildrenCount();
     method public androidx.preference.Preference! getPreference(int);
     method public int getPreferenceCount();
@@ -417,7 +417,7 @@ package androidx.preference {
 
   public class PreferenceManager {
     method public androidx.preference.PreferenceScreen! createPreferenceScreen(android.content.Context!);
-    method public androidx.preference.Preference! findPreference(CharSequence!);
+    method public <T extends androidx.preference.Preference> T! findPreference(CharSequence!);
     method public android.content.Context! getContext();
     method public static android.content.SharedPreferences! getDefaultSharedPreferences(android.content.Context!);
     method public androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener! getOnDisplayPreferenceDialogListener();

@@ -362,22 +362,22 @@ public abstract class PreferenceGroup extends Preference {
      * @param key The key of the preference to retrieve
      * @return The {@link Preference} with the key, or null
      */
-    public Preference findPreference(CharSequence key) {
+    @SuppressWarnings("TypeParameterUnusedInFormals")
+    public <T extends Preference> T findPreference(CharSequence key) {
         if (TextUtils.equals(getKey(), key)) {
-            return this;
+            return (T) this;
         }
         final int preferenceCount = getPreferenceCount();
         for (int i = 0; i < preferenceCount; i++) {
             final Preference preference = getPreference(i);
             final String curKey = preference.getKey();
 
-            if (curKey != null && curKey.equals(key)) {
-                return preference;
+            if (curKey != null && curKey.contentEquals(key)) {
+                return (T) preference;
             }
 
             if (preference instanceof PreferenceGroup) {
-                final Preference returnedPreference = ((PreferenceGroup) preference)
-                        .findPreference(key);
+                final T returnedPreference = ((PreferenceGroup) preference).findPreference(key);
                 if (returnedPreference != null) {
                     return returnedPreference;
                 }
