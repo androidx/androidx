@@ -22,6 +22,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingEnd="@dimen/car_keyline_1"
     android:minHeight="@dimen/car_single_line_list_item_height"
     android:foreground="@drawable/car_card_ripple_background" >
 
@@ -107,7 +108,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="start"
-        app:barrierAllowsGoneWidgets="false"
+        app:barrierAllowsGoneWidgets="true"
         app:constraint_referenced_ids="secondary_action_borderless,secondary_action" />
 
     <Button
@@ -150,14 +151,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="start"
-        app:barrierAllowsGoneWidgets="false"
+        app:barrierAllowsGoneWidgets="true"
         app:constraint_referenced_ids="primary_action_borderless,primary_action" />
 
     <Button
         android:id="@+id/primary_action_borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/car_keyline_1"
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
@@ -169,7 +169,6 @@
         android:id="@+id/primary_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/car_keyline_1"
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
