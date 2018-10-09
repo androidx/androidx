@@ -18,9 +18,7 @@ package androidx.navigation.ui;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -35,9 +33,9 @@ import android.support.v7.app.AppCompatActivity;
 class ActionBarOnNavigatedListener extends AbstractAppBarOnNavigatedListener {
     private final AppCompatActivity mActivity;
 
-    ActionBarOnNavigatedListener(
-            @NonNull AppCompatActivity activity, @Nullable DrawerLayout drawerLayout) {
-        super(activity.getDrawerToggleDelegate().getActionBarThemedContext(), drawerLayout);
+    ActionBarOnNavigatedListener(@NonNull AppCompatActivity activity,
+            @NonNull AppBarConfiguration configuration) {
+        super(activity.getDrawerToggleDelegate().getActionBarThemedContext(), configuration);
         mActivity = activity;
     }
 
