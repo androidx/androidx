@@ -23,7 +23,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -119,10 +118,9 @@ import java.util.List;
     private static final String USER_AGENT_NAME = "MediaPlayer2";
 
     private final Context mContext;
-    private final Looper mLooper;
     private final Listener mListener;
+    private final Looper mLooper;
 
-    private HandlerThread mHandlerThread;
     private SimpleExoPlayer mPlayer;
     private DefaultAudioSink mAudioSink;
     private MediaItemQueue mMediaItemQueue;
@@ -141,13 +139,12 @@ import java.util.List;
      *
      * @param context The context for accessing system components.
      * @param listener A listener for player wrapper events.
+     * @param looper The looper that will be used for player events.
      */
-    ExoPlayerWrapper(Context context, Listener listener) {
+    ExoPlayerWrapper(Context context, Listener listener, Looper looper) {
         mContext = context.getApplicationContext();
         mListener = listener;
-        mHandlerThread = new HandlerThread("ExoMediaPlayer2Thread");
-        mHandlerThread.start();
-        mLooper = mHandlerThread.getLooper();
+        mLooper = looper;
     }
 
     public Looper getLooper() {
@@ -356,7 +353,7 @@ import java.util.List;
     }
 
     public void close() {
-        if (mHandlerThread != null) {
+        if (mPlayer != null) {
             mPlayer.release();
             mPlayer = null;
             mMediaItemQueue.clear();
