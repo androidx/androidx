@@ -28,4 +28,5 @@ dependencies {
 
 supportLibrary {
     failOnUncheckedWarnings = false
+    toolingProject = true
 }

@@ -24,3 +24,7 @@ dependencies {
     compile(KOTLIN_STDLIB)
     compile(TRUTH)
 }
+
+supportLibrary {
+    toolingProject = true
+}
