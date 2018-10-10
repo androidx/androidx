@@ -52,7 +52,6 @@ import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
 
-import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,11 +83,6 @@ import java.util.List;
                         .createMediaSource(uri);
             }
         } else if (mediaItem2 instanceof FileMediaItem2) {
-            FileMediaItem2 fileMediaItem2 = (FileMediaItem2) mediaItem2;
-            FileDescriptor fileDescriptor = fileMediaItem2.getFileDescriptor();
-            long offset = fileMediaItem2.getFileDescriptorOffset();
-            long length = fileMediaItem2.getFileDescriptorLength();
-            dataSourceFactory = FileDescriptorDataSource.getFactory(fileDescriptor, offset, length);
             return new ExtractorMediaSource.Factory(dataSourceFactory)
                     .setTag(mediaItem2)
                     .createMediaSource(Uri.EMPTY);
