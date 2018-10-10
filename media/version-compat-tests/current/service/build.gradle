@@ -26,3 +26,7 @@ dependencies {
 
     androidTestImplementation(TEST_RUNNER)
 }
+
+supportLibrary {
+    toolingProject = true
+}
