@@ -14,7 +14,7 @@ android {
 
 dependencies {
     api(project(":core"))
-    api(project(":legacy-support-core-utils"))
+    api(project(":collection"))
 
     annotationProcessor(NULLAWAY)
 
@@ -24,7 +24,7 @@ dependencies {
 supportLibrary {
     name = "Android Support Palette v7"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.PALETTE
     mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2014"
     description = "Android Support Palette v7"
