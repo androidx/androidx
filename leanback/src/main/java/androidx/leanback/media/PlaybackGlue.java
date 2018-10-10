@@ -198,25 +198,25 @@ public abstract class PlaybackGlue {
     }
 
     /**
-     * This method is called when {@link PlaybackGlueHost is started. Subclass may override.
+     * This method is called when {@link PlaybackGlueHost} is started. Subclass may override.
      */
     protected void onHostStart() {
     }
 
     /**
-     * This method is called when {@link PlaybackGlueHost is stopped. Subclass may override.
+     * This method is called when {@link PlaybackGlueHost} is stopped. Subclass may override.
      */
     protected void onHostStop() {
     }
 
     /**
-     * This method is called when {@link PlaybackGlueHost is resumed. Subclass may override.
+     * This method is called when {@link PlaybackGlueHost} is resumed. Subclass may override.
      */
     protected void onHostResume() {
     }
 
     /**
-     * This method is called when {@link PlaybackGlueHost is paused. Subclass may override.
+     * This method is called when {@link PlaybackGlueHost} is paused. Subclass may override.
      */
     protected void onHostPause() {
     }

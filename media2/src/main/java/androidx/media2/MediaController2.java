@@ -703,7 +703,7 @@ public class MediaController2 implements AutoCloseable {
 
     /**
      * Gets the lastly cached playlist playlist metadata either from
-     * {@link ControllerCallback#onPlaylistMetadataChanged or
+     * {@link ControllerCallback#onPlaylistMetadataChanged} or
      * {@link ControllerCallback#onPlaylistChanged}.
      *
      * @return metadata metadata of the playlist, or null if none is set or the controller is not

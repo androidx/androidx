@@ -44,7 +44,7 @@ public final class LiveDataReactiveStreams {
      *
      * <p>
      * On subscription to the publisher, the observer will attach to the given {@link LiveData}.
-     * Once {@link Subscription#request) is called on the subscription object, an observer will be
+     * Once {@link Subscription#request} is called on the subscription object, an observer will be
      * connected to the data stream. Calling request(Long.MAX_VALUE) is equivalent to creating an
      * unbounded stream with no backpressure. If request with a finite count reaches 0, the observer
      * will buffer the latest item and emit it to the subscriber when data is again requested. Any

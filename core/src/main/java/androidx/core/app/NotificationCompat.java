@@ -587,7 +587,7 @@ public class NotificationCompat {
 
     /**
      * If this notification is being shown as a badge, use the icon provided to
-     * {@link Builder#setLargeIcon(Bitmap) to represent this notification.
+     * {@link Builder#setLargeIcon(Bitmap)} to represent this notification.
      */
     public static final int BADGE_ICON_LARGE = Notification.BADGE_ICON_LARGE;
 
