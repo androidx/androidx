@@ -12,7 +12,6 @@ dependencies {
     api(project(":core"))
     api(project(":collection"))
     api(project(":cursoradapter"))
-    api(project(":legacy-support-core-utils"))
     api(project(":fragment"))
     api(project(":vectordrawable"))
     api(project(":vectordrawable-animated"))
