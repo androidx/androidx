@@ -132,5 +132,14 @@
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".widget.RecyclerViewUsage"
+                  android:label="@string/recycler_view"
+                  android:theme="@style/Theme.Transition">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

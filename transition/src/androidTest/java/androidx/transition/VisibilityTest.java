@@ -20,6 +20,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -156,6 +157,51 @@ public class VisibilityTest extends BaseTest {
 
         // This value confirms that onDisappear, not onAppear, was called
         assertThat((float) animator.getAnimatedValue(), is(0.25f));
+    }
+
+    @Test
+    public void testViewDetachedFromOverlayWhilePaused() throws Throwable {
+        // create fake transition and listener
+        final Visibility visibility = new Visibility() {
+            @Override
+            public Animator onDisappear(ViewGroup sceneRoot, View view,
+                    TransitionValues startValues, TransitionValues endValues) {
+                return ValueAnimator.ofFloat(0, 1);
+            }
+        };
+        Transition.TransitionListener listener = mock(Transition.TransitionListener.class);
+        visibility.addListener(listener);
+
+        // remove view
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(mRoot, visibility);
+                mRoot.removeView(mView);
+            }
+        });
+
+        // wait for the transition to start
+        verify(listener, timeout(3000)).onTransitionStart(any(Transition.class));
+
+        // test pause/resume logic
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // The view attached to the overlay
+                assertNotNull(mView.getParent());
+
+                visibility.pause(mRoot);
+
+                // The view detached from the overlay while paused
+                assertNull(mView.getParent());
+
+                visibility.resume(mRoot);
+
+                // The view attached to the overlay after resume
+                assertNotNull(mView.getParent());
+            }
+        });
     }
 
     /**
