@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"Систем"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"Уређаји"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"Дугме Пребаци"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"Дугме Пребаци. Веза је прекинута"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"Дугме Пребаци. Повезује се"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"Дугме Пребаци. Повезан је"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"Пребаците на"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"Траже се уређаји"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"Прекини везу"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Заустави пребацивање"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"Затворите"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"Пустите"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"Паузирајте"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"Зауставите"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"Проширите"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"Скупите"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"Омот албума"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"Клизач за јачину звука"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"Нема изабраних медија"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"Нема доступних информација"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Пребацује се екран"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Можете да прескочите оглас за <xliff:g id="WAIT_TIME">%1$d</xliff:g> сек"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Оглас · Преостало је још <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Посетите оглашавача"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Опционални титл"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Искључено"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Аудио снимак"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Ништа"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"Квалитет видеа"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Аутоматски"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"Помоћ и повратне информације"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Брзина репродукције"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Нормално"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Премотај уназад 10 секунди"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Премотај 30 секунди унапред"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Покрени линк"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Звук је искључен. Кликните да бисте укључили звук"</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Кликните да бисте искључили звук"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Цео екран"</string>
 </resources>

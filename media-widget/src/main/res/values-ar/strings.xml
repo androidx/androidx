@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"النظام"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"الأجهزة"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"زر الإرسال"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"زر الإرسال. تم قطع الاتصال"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"زر الإرسال. جارٍ الاتصال"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"زر الإرسال. تم الاتصال"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"إرسال إلى"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"جارٍ البحث عن أجهزة"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"قطع اتصال"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"إيقاف البث"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"إغلاق"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"تشغيل"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"إيقاف مؤقت"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"إيقاف"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"توسيع"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"تصغير"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"صورة الألبوم"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"شريط تمرير مستوى الصوت"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"لم يتم اختيار أي وسائط"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"لا تتوفر أي معلومات"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"جارٍ إرسال الشاشة"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"يمكنك تخطي الإعلان خلال <xliff:g id="WAIT_TIME">%1$d</xliff:g>"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"يتبقى من الإعلان <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"زيارة صفحة المعلن"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"ترجمة وشرح"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"إيقاف"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"مقطع صوتي"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"بلا"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"جودة الفيديو"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"تلقائي"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"المساعدة والتعليقات"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"سرعة التشغيل"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"عادي"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"إرجاع الفيديو بمقدار 10 ثوانٍ"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"تقديم بمقدار 30 ثانية"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"رابط الإطلاق"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"تمّ كتم الصوت. انقُر لإلغاء كتم الصوت."</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"انقُر لإلغاء كتم الصوت"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"ملء الشاشة"</string>
 </resources>

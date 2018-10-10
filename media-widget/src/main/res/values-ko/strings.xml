@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"시스템"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"기기"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"전송 버튼"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"전송 버튼. 연결 해제됨"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"전송 버튼. 연결 중"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"전송 버튼. 연결됨"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"전송 대상"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"기기를 찾는 중"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"연결 해제"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"전송 중지"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"닫기"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"재생"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"일시중지"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"중지"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"펼치기"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"접기"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"앨범 아트"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"볼륨 슬라이더"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"선택된 미디어 없음"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"사용할 수 있는 정보 없음"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"화면 전송 중"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"<xliff:g id="WAIT_TIME">%1$d</xliff:g>초 후에 광고를 건너뛸 수 있음"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"광고 · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> 남음"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"광고주 사이트 방문"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"자막"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"사용 중지"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"오디오 트랙"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"없음"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"동영상 화질"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"자동"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"고객센터"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"재생 속도"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"보통"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10초 되감기"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30초 앞으로 이동"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"링크 실행"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"음소거되었습니다. 음소거를 해제하려면 클릭하세요."</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"클릭하여 음소거"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"전체화면"</string>
 </resources>

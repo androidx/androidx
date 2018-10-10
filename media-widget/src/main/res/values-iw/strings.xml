@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"מערכת"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"מכשירים"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"‏לחצן הפעלת Cast"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"‏לחצן הפעלת Cast. מנותק"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"‏לחצן הפעלת Cast. מתחבר"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"‏לחצן הפעלת Cast. מחובר"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"העברה אל"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"מחפש מכשירים"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"ניתוק"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"עצירת העברה"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"סגירה"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"הפעלה"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"השהיה"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"הפסקה"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"הרחבה"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"כיווץ"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"עטיפת אלבום"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"מחוון עוצמה"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"לא נבחרה מדיה"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"אין מידע זמין"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"העברת מסך מתבצעת"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"ניתן יהיה לדלג על המודעה בעוד <xliff:g id="WAIT_TIME">%1$d</xliff:g> שניות"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"הזמן שנותר למודעה: <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"לאתר המפרסם"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"כתוביות"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"כבוי"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"רצועת אודיו"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"ללא"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"איכות הווידאו"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"אוטומטי"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"עזרה ומשוב"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"מהירות הפעלה"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"רגיל"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"הרצה אחורה של 10 שניות"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"דילוג קדימה של 30 שניות"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"הפעלת קישור"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"בוצעה השתקה. יש ללחוץ כדי לבטל את ההשתקה"</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"יש ללחוץ כדי להשתיק"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"מסך מלא"</string>
 </resources>
