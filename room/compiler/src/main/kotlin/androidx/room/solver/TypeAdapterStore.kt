@@ -18,6 +18,7 @@ package androidx.room.solver
 
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
+import androidx.room.ext.isAssignableWithoutVariance
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
@@ -518,7 +519,7 @@ class TypeAdapterStore private constructor(
         val queue = LinkedList<TypeConverter>()
         fun exactMatch(candidates: List<TypeConverter>): TypeConverter? {
             return candidates.firstOrNull {
-                outputs.any { output -> types.isSameType(output, it.to) }
+                outputs.any { output -> types.isAssignableWithoutVariance(output, it.to) }
             }
         }
         inputs.forEach { input ->
