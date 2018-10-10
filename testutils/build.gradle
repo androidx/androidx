@@ -42,4 +42,5 @@ android {
 
 supportLibrary {
     failOnUncheckedWarnings = false
+    toolingProject = true
 }
