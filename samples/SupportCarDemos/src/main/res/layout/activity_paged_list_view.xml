@@ -27,8 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         app:navigationIcon="@drawable/ic_arrow_back_grey_50"
-        app:titleTextAppearance="@style/TextAppearance.Car.Body1.Light"
-        app:title="@string/car_alpha_jump_toolbar_title"/>
+        app:titleTextAppearance="@style/TextAppearance.Car.Body1.Light" />
     <androidx.car.widget.PagedListView
         android:id="@+id/paged_list_view"
         android:layout_width="match_parent"

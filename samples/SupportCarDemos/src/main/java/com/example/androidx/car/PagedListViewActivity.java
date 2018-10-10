@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.car.widget.CarToolbar;
 import androidx.car.widget.PagedListView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,6 +41,10 @@ public class PagedListViewActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paged_list_view);
+
+        CarToolbar toolbar = findViewById(R.id.car_toolbar);
+        toolbar.setTitle(R.string.paged_list_view_title);
+        toolbar.setNavigationIconOnClickListener(v -> finish());
 
         PagedListView pagedListView = findViewById(R.id.paged_list_view);
         pagedListView.setAdapter(new DemoAdapter(ITEM_COUNT));
