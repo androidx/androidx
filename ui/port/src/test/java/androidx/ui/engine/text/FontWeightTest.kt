@@ -1,6 +1,8 @@
 package androidx.ui.engine.text
 
-import org.junit.Assert
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -10,45 +12,51 @@ class FontWeightTest {
 
     @Test
     fun `lerp with null parameters`() {
-        Assert.assertEquals(FontWeight.normal, FontWeight.lerp(null, null, 0.0))
+        assertThat(FontWeight.lerp(null, null, 0.0), `is`(equalTo(FontWeight.normal)))
     }
 
     @Test
-    fun `lerp with one null parameter`() {
-        Assert.assertEquals(FontWeight.w300, FontWeight.lerp(FontWeight.w200, null, 0.5))
-        Assert.assertEquals(FontWeight.w300, FontWeight.lerp(null, FontWeight.w200, 0.5))
+    fun `lerp with one null parameter should use normal for null value`() {
+        assertThat(FontWeight.lerp(FontWeight.w200, null, 0.5), `is`(equalTo(FontWeight.w300)))
+        assertThat(FontWeight.lerp(null, FontWeight.w200, 0.5), `is`(equalTo(FontWeight.w300)))
     }
 
     @Test
-    fun `lerp at start`() {
-        Assert.assertEquals(
-            FontWeight.w200,
-            FontWeight.lerp(FontWeight.w200, FontWeight.normal, 0.0)
+    fun `lerp at start returns start value`() {
+        assertThat(
+            FontWeight.lerp(FontWeight.w200, FontWeight.w400, 0.0),
+            `is`(equalTo(FontWeight.w200))
         )
     }
 
     @Test
-    fun `lerp at end`() {
-        Assert.assertEquals(
-            FontWeight.w400,
-            FontWeight.lerp(FontWeight.w200, FontWeight.normal, 1.0)
+    fun `lerp at end returns end value`() {
+        assertThat(
+            FontWeight.lerp(FontWeight.w200, FontWeight.w400, 1.0),
+            `is`(equalTo(FontWeight.w400))
         )
     }
 
     @Test
     fun `lerp in the mid-time`() {
-        Assert.assertEquals(FontWeight.w500, FontWeight.lerp(FontWeight.w200, FontWeight.w800, 0.5))
+        assertThat(
+            FontWeight.lerp(FontWeight.w200, FontWeight.w800, 0.5),
+            `is`(equalTo(FontWeight.w500))
+        )
     }
 
     @Test
     fun `lerp in the mid-time with odd distance should be rounded to up`() {
-        Assert.assertEquals(FontWeight.w600, FontWeight.lerp(FontWeight.w200, FontWeight.w900, 0.5))
+        assertThat(
+            FontWeight.lerp(FontWeight.w200, FontWeight.w900, 0.5),
+            `is`(equalTo(FontWeight.w600))
+        )
     }
 
     @Test
     fun `toString return FontsWeight`() {
-        Assert.assertEquals("FontWeight.w100", FontWeight.w100.toString())
-        Assert.assertEquals("FontWeight.w900", FontWeight.w900.toString())
+        assertThat(FontWeight.w100.toString(), `is`(equalTo("FontWeight.w100")))
+        assertThat(FontWeight.w900.toString(), `is`(equalTo("FontWeight.w900")))
     }
 
     @Test
@@ -64,6 +72,6 @@ class FontWeightTest {
             FontWeight.w800,
             FontWeight.w900
         )
-        Assert.assertEquals(expectedValues, FontWeight.values)
+        assertThat(FontWeight.values, `is`(equalTo(expectedValues)))
     }
 }
