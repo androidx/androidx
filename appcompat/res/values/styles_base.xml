@@ -376,13 +376,13 @@
     </style>
 
     <style name="Base.Widget.AppCompat.CompoundButton.CheckBox" parent="android:Widget.CompoundButton.CheckBox">
-        <item name="android:button">@null</item>
+        <item name="android:button">?android:attr/listChoiceIndicatorMultiple</item>
         <item name="buttonCompat">?attr/listChoiceIndicatorMultipleAnimated</item>
         <item name="android:background">?attr/controlBackground</item>
     </style>
 
     <style name="Base.Widget.AppCompat.CompoundButton.RadioButton" parent="android:Widget.CompoundButton.RadioButton">
-        <item name="android:button">@null</item>
+        <item name="android:button">?android:attr/listChoiceIndicatorSingle</item>
         <item name="buttonCompat">?attr/listChoiceIndicatorSingleAnimated</item>
         <item name="android:background">?attr/controlBackground</item>
     </style>
