@@ -45,7 +45,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
-import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
@@ -196,12 +195,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             mp.prepare();
             onPrepareCalled.waitForSignal();
             mp.clearEventCallback();
-            afd.close();
             executor.shutdown();
             return mp;
-        } catch (IOException ex) {
-            LOG.warning("create failed:" + ex);
-            // fall through
         } catch (IllegalArgumentException ex) {
             LOG.warning("create failed:" + ex);
             // fall through
