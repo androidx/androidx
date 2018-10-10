@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"Тутум"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"Түзмөктөр"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"Тышкы экранга чыгаруу баскычы"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"Тышкы экранга чыгаруу баскычы. Түзмөк ажырап турат."</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"Тышкы экранга чыгаруу баскычы. Түзмөк туташууда"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"Тышкы экранга чыгаруу баскычы. Түзмөк туташып турат"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"Түзмөккө чыгаруу"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"Түзмөктөр изделүүдө"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"Ажыратуу"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"Тышкы экранга чыгарууну токтотуу"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"Жабуу"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"Ойнотуу"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"Тындыруу"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"Токтотуу"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"Жайып көрсөтүү"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"Жыйыштыруу"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"Альбом мукабасы"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"Үн башкаруучу сыдырма"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"Эч нерсе тандалган жок"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"Эч маалымат жок"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"Тышкы экранга чыгарылууда"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Жарнаманы <xliff:g id="WAIT_TIME">%1$d</xliff:g>сек. кийин өткөрүп жиберсеңиз болот"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Жарнама · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> калды"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Жарнама берүүчүгө баш багыңыз"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"Коштомо жазуулар"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Өчүк"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"Аудиотрек"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"Жок"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"Видеонун сапаты"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"Авто"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"Жардам/Пикир билдирүү"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"Ойнотуу ылдамдыгы"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"Орточо"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 секунд артка түрдүрүү"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 секунд алдыга түрдүрүү"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Иштетүү шилтемеси"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"Үнсүз. Үнүн чыгаруу үчүн чыкылдатыңыз"</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"Үнүн басуу үчүн чыкылдатыңыз"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Толук экран"</string>
 </resources>

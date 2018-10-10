@@ -17,37 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="3321397713117065638">"系统"</string>
-    <string name="mr_user_route_category_name" msgid="1627840233801992496">"设备"</string>
-    <string name="mr_button_content_description" msgid="2563900737284462162">"投射按钮"</string>
-    <string name="mr_cast_button_disconnected" msgid="7199258625648884184">"投射按钮。已断开连接"</string>
-    <string name="mr_cast_button_connecting" msgid="6875383380167803570">"投射按钮。正在连接"</string>
-    <string name="mr_cast_button_connected" msgid="938609484693891555">"投射按钮。已连接"</string>
-    <string name="mr_chooser_title" msgid="8588921739112945317">"投射到"</string>
-    <string name="mr_chooser_searching" msgid="3620017600129578274">"正在查找设备"</string>
-    <string name="mr_controller_disconnect" msgid="5986039731202257800">"断开连接"</string>
-    <string name="mr_controller_stop_casting" msgid="3150290496374335427">"停止投射"</string>
-    <string name="mr_controller_close_description" msgid="8012662266390041495">"关闭"</string>
-    <string name="mr_controller_play" msgid="4438243775726932620">"播放"</string>
-    <string name="mr_controller_pause" msgid="2836364020975903659">"暂停"</string>
-    <string name="mr_controller_stop" msgid="2946921829587351729">"停止"</string>
-    <string name="mr_controller_expand_group" msgid="6419866561073332299">"展开"</string>
-    <string name="mr_controller_collapse_group" msgid="2245585614410697821">"收起"</string>
-    <string name="mr_controller_album_art" msgid="3247329727731601009">"专辑封面"</string>
-    <string name="mr_controller_volume_slider" msgid="3744355133696779358">"音量滑块"</string>
-    <string name="mr_controller_no_media_selected" msgid="7340587509819143839">"未选择任何媒体内容"</string>
-    <string name="mr_controller_no_info_available" msgid="3503984261752778785">"没有任何相关信息"</string>
-    <string name="mr_controller_casting_screen" msgid="4277060472882643702">"正在投射屏幕"</string>
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"您可以在 <xliff:g id="WAIT_TIME">%1$d</xliff:g> 秒后跳过广告"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"广告剩余时间：<xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"访问广告主网站"</string>
-    <string name="MediaControlView2_subtitle_text" msgid="2068787597283905021">"字幕"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"关闭"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"音轨"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"无"</string>
-    <string name="MediaControlView2_video_quality_text" msgid="2650835967245139959">"视频画质"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"自动"</string>
-    <string name="MediaControlView2_help_text" msgid="1371398883793579836">"帮助和反馈"</string>
     <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"播放速度"</string>
     <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"正常"</string>
     <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
@@ -74,7 +50,5 @@
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"快退 10 秒"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"快进 30 秒"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"启动链接"</string>
-    <string name="mcv2_muted_button_desc" msgid="4916437192334906866">"已静音。点击即可取消静音"</string>
-    <string name="mcv2_unmuted_button_desc" msgid="6131431563422276746">"点击即可静音"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"全屏"</string>
 </resources>
