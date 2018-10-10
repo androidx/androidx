@@ -32,6 +32,8 @@ import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -548,6 +550,7 @@ public abstract class MediaRouteProvider {
                     SELECTING,
                     SELECTED
             })
+            @Retention(RetentionPolicy.SOURCE)
             public @interface SelectionState {}
             /**
              * After a user unselects a route, it might take some time for a provider to complete
