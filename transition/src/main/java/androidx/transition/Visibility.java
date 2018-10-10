@@ -437,12 +437,27 @@ public abstract class Visibility extends Transition {
                 } else {
                     startView.setTag(R.id.save_overlay_view, overlayView);
                     final View finalOverlayView = overlayView;
-                    animator.addListener(new AnimatorListenerAdapter() {
+                    addListener(new TransitionListenerAdapter() {
 
                         @Override
-                        public void onAnimationEnd(Animator animation) {
+                        public void onTransitionPause(@NonNull Transition transition) {
+                            overlay.remove(finalOverlayView);
+                        }
+
+                        @Override
+                        public void onTransitionResume(@NonNull Transition transition) {
+                            if (finalOverlayView.getParent() == null) {
+                                overlay.add(finalOverlayView);
+                            } else {
+                                cancel();
+                            }
+                        }
+
+                        @Override
+                        public void onTransitionEnd(@NonNull Transition transition) {
                             startView.setTag(R.id.save_overlay_view, null);
                             overlay.remove(finalOverlayView);
+                            transition.removeListener(this);
                         }
                     });
                 }
