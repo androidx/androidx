@@ -31,7 +31,7 @@
         </activity>
 
         <activity android:name=".PagedListViewActivity"
-                  android:label="PagedListView"
+                  android:label="@string/paged_list_view_title"
                   android:parentActivityName=".SupportCarDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -53,7 +53,7 @@
         </activity>
 
         <activity android:name=".TextListItemActivity"
-                  android:label="TextListItem"
+                  android:label="@string/text_list_item_title"
                   android:parentActivityName=".SupportCarDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,7 +64,7 @@
         </activity>
 
         <activity android:name=".SeekbarListItemActivity"
-                  android:label="SeekbarListItem"
+                  android:label="@string/seekbar_list_item_title"
                   android:parentActivityName=".SupportCarDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -86,7 +86,7 @@
         </activity>
 
         <activity android:name=".AlphaJumpActivity"
-                  android:label="Alpha Jump"
+                  android:label="@string/alpha_jump_title"
                   android:parentActivityName=".SupportCarDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -121,7 +121,7 @@
         </activity>
 
         <activity android:name=".SubheaderListItemActivity"
-                  android:label="SubheaderListItem"
+                  android:label="@string/sub_header_list_item_title"
                   android:parentActivityName=".SupportCarDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
