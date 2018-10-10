@@ -24,6 +24,7 @@ import android.content.Context;
 import android.media.MediaDrm;
 import android.os.Build;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.PersistableBundle;
 import android.util.Log;
 import android.util.Pair;
@@ -85,10 +86,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     @SuppressWarnings("unused")
     @GuardedBy("mLock")
     private Pair<Executor, DrmEventCallback> mExecutorAndDrmEventCallback;
+    @GuardedBy("mLock")
+    private HandlerThread mHandlerThread;
 
     /** Creates a new ExoPlayer wrapper using the specified context. */
     public ExoPlayerMediaPlayer2Impl(@NonNull Context context) {
-        mPlayer = new ExoPlayerWrapper(context.getApplicationContext(), /* listener= */ this);
+        mHandlerThread = new HandlerThread("ExoMediaPlayer2Thread");
+        mHandlerThread.start();
+        mPlayer = new ExoPlayerWrapper(
+                context.getApplicationContext(),
+                /* listener= */ this,
+                mHandlerThread.getLooper());
         // Player callbacks will be called on the task handler thread.
         mTaskHandler = new Handler(mPlayer.getLooper());
         mPendingTasks = new ArrayDeque<>();
@@ -606,16 +614,23 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
 
     @Override
     public void close() {
+        clearEventCallback();
+        HandlerThread handlerThread;
         synchronized (mLock) {
-            clearEventCallback();
-            runPlayerCallableBlocking(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    mPlayer.close();
-                    return null;
-                }
-            });
+            handlerThread = mHandlerThread;
+            if (handlerThread == null) {
+                return;
+            }
+            mHandlerThread = null;
         }
+        runPlayerCallableBlocking(new Callable<Void>() {
+            @Override
+            public Void call() {
+                mPlayer.close();
+                return null;
+            }
+        });
+        handlerThread.quit();
     }
 
     @Override
