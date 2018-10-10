@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.transition.Fade;
+import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -81,6 +83,10 @@ public class ActionBar extends RelativeLayout {
     private int mNumColumns;
     // Maximum number of rows to use.
     private int mNumRows;
+    // Fade-in Transition used for the icons entering the secondary bar.
+    private final Fade mFadeIn = new Fade(Fade.IN);
+    // Fade-out Transition used for the icons exiting the secondary bar.
+    private final Fade mFadeOut = new Fade(Fade.OUT);
 
     @Retention(SOURCE)
     @IntDef({SLOT_MAIN, SLOT_LEFT, SLOT_RIGHT, SLOT_EXPAND_COLLAPSE})
@@ -179,25 +185,29 @@ public class ActionBar extends RelativeLayout {
 
         int collapseScaleDuration = res
                 .getInteger(R.integer.car_action_bar_collapse_scale_duration_ms);
-        int collapseOpacityDelay = res
-                .getInteger(R.integer.car_action_bar_collapse_opacity_delay_ms);
         int collapseOpacityDuration = res
                 .getInteger(R.integer.car_action_bar_collapse_opacity_duration_ms);
 
         // Get the default LayoutTransition set by animateLayoutChanges="true"
         LayoutTransition transition = mRowsContainer.getLayoutTransition();
 
-        // Replace the durations and delays
-        transition.setStartDelay(LayoutTransition.APPEARING, expandOpacityDelay);
-        transition.setDuration(LayoutTransition.APPEARING, expandOpacityDuration);
+        // Set the durations for expanding and collapsing the secondary Action Bar.
         transition.setDuration(LayoutTransition.CHANGE_APPEARING, expandScaleDuration);
-
-        transition.setStartDelay(LayoutTransition.DISAPPEARING, collapseOpacityDelay);
-        transition.setDuration(LayoutTransition.DISAPPEARING, collapseOpacityDuration);
         transition.setDuration(LayoutTransition.CHANGE_DISAPPEARING, collapseScaleDuration);
+
+        // Disable bar icons' default transitions so we can apply our custom Fade transitions.
+        transition.disableTransitionType(LayoutTransition.APPEARING);
+        transition.disableTransitionType(LayoutTransition.DISAPPEARING);
 
         //  Set the new LayoutTransition
         mRowsContainer.setLayoutTransition(transition);
+
+        // Customize Fade-in transition for secondary Action Bar icons.
+        mFadeIn.setStartDelay(expandOpacityDelay);
+        mFadeIn.setDuration(expandOpacityDuration);
+
+        // Customize Fade-out transition for secondary Action Bar icons.
+        mFadeOut.setDuration(collapseOpacityDuration);
     }
 
     /**
@@ -326,6 +336,9 @@ public class ActionBar extends RelativeLayout {
     private void onExpandCollapse() {
         mIsExpanded = !mIsExpanded;
         mSlots[getSlotIndex(SLOT_EXPAND_COLLAPSE)].setActivated(mIsExpanded);
+
+        // Start proper Fade transition upon expanding or collapsing the secondary Action Bar.
+        TransitionManager.beginDelayedTransition(mRowsContainer, mIsExpanded ? mFadeIn : mFadeOut);
 
         for (int i = 0; i < mNumExtraRowsInUse; i++) {
             mRowsContainer.getChildAt(i).setVisibility(mIsExpanded ? View.VISIBLE : View.GONE);
