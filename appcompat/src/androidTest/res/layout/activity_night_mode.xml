@@ -31,11 +31,4 @@
         android:layout_height="100dp"
         android:background="@drawable/test_night_color_conversion_background" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onButtonClicked"
-        android:text="@string/night_mode" />
-
 </LinearLayout>
