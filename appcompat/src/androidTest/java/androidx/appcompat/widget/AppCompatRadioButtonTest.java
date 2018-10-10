@@ -16,6 +16,8 @@
 package androidx.appcompat.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Typeface;
@@ -26,6 +28,7 @@ import android.view.ViewGroup;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -72,5 +75,21 @@ public class AppCompatRadioButtonTest {
         // Then this drawable should be an animated-selector
         assertTrue(button instanceof AnimatedStateListDrawableCompat
                 || button instanceof AnimatedStateListDrawable);
+    }
+
+    /* Max SDK as we use this test to verify the fallback behavior in situations where the ASLD
+       backport should not be used (e.g. building with AAPT1). */
+    @SdkSuppress(maxSdkVersion = 20)
+    @Test
+    public void testNullCompatButton() {
+        // Given an ACRB which specifies a null app:buttonCompat
+        final AppCompatRadioButtonSpy radio = mContainer.findViewById(
+                R.id.radiobutton_null_button_compat);
+        final Drawable button = radio.mButton;
+        boolean isAnimated = button instanceof AnimatedStateListDrawableCompat;
+
+        // Then the drawable should be present but not animated
+        assertNotNull(button);
+        assertFalse(isAnimated);
     }
 }

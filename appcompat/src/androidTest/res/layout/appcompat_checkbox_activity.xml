@@ -31,7 +31,13 @@
 
     <androidx.appcompat.widget.AppCompatCheckBoxSpy
         android:id="@+id/checkbox_button_compat"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <androidx.appcompat.widget.AppCompatCheckBoxSpy
+        android:id="@+id/checkbox_null_button_compat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:buttonCompat="@null" />
 
 </LinearLayout>
