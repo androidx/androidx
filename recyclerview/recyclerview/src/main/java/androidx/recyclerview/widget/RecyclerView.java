@@ -5527,7 +5527,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             final ScrapData scrapData = mScrap.get(viewType);
             if (scrapData != null && !scrapData.mScrapHeap.isEmpty()) {
                 final ArrayList<ViewHolder> scrapHeap = scrapData.mScrapHeap;
-                return scrapHeap.remove(scrapHeap.size() - 1);
+                for (int i = scrapHeap.size() - 1; i >= 0; i--) {
+                    if (!scrapHeap.get(i).isAttachedToTransitionOverlay()) {
+                        return scrapHeap.remove(i);
+                    }
+                }
             }
             return null;
         }
@@ -6496,7 +6500,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 final ViewHolder holder = mCachedViews.get(i);
                 // invalid view holders may be in cache if adapter has stable ids as they can be
                 // retrieved via getScrapOrCachedViewForId
-                if (!holder.isInvalid() && holder.getLayoutPosition() == position) {
+                if (!holder.isInvalid() && holder.getLayoutPosition() == position
+                        && !holder.isAttachedToTransitionOverlay()) {
                     if (!dryRun) {
                         mCachedViews.remove(i);
                     }
@@ -6548,7 +6553,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             final int cacheSize = mCachedViews.size();
             for (int i = cacheSize - 1; i >= 0; i--) {
                 final ViewHolder holder = mCachedViews.get(i);
-                if (holder.getItemId() == id) {
+                if (holder.getItemId() == id && !holder.isAttachedToTransitionOverlay()) {
                     if (type == holder.getItemViewType()) {
                         if (!dryRun) {
                             mCachedViews.remove(i);
@@ -11084,6 +11089,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         boolean isTmpDetached() {
             return (mFlags & FLAG_TMP_DETACHED) != 0;
+        }
+
+        boolean isAttachedToTransitionOverlay() {
+            return itemView.getParent() != null && itemView.getParent() != mOwnerRecyclerView;
         }
 
         boolean isAdapterPositionUnknown() {
