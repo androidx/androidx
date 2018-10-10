@@ -141,6 +141,9 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
                 buffer = TypefaceCompatUtil.mmap(context, cancellationSignal, uri);
                 bufferCache.put(uri, buffer);
             }
+            if (buffer == null) {
+                return null;
+            }
             if (!addFontWeightStyle(family, buffer, font.getTtcIndex(), font.getWeight(),
                     font.isItalic())) {
                 return null;
