@@ -435,7 +435,13 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
                         vh.getSupplementalIconDivider().setVisibility(View.VISIBLE);
                     }
 
-                    vh.getSupplementalIcon().setImageDrawable(mSupplementalIconDrawable);
+                    if (mSupplementalIcon != null) {
+                        mSupplementalIcon.loadDrawableAsync(getContext(),
+                                drawable -> vh.getSupplementalIcon().setImageDrawable(drawable),
+                                new Handler(Looper.getMainLooper()));
+                    } else {
+                        vh.getSupplementalIcon().setImageDrawable(mSupplementalIconDrawable);
+                    }
 
                     vh.getSupplementalIcon().setOnClickListener(
                             mSupplementalIconOnClickListener);
