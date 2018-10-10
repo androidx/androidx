@@ -3107,7 +3107,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testClose() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
