@@ -404,6 +404,15 @@ class AsyncPagedListDifferTest {
     }
 
     @Test
+    fun emptyPagedLists() {
+        val differ = createDiffer()
+        differ.submitList(StringPagedList(0, 0, "a", "b"))
+        differ.submitList(StringPagedList(0, 0))
+        // verify that committing a diff with a empty final list doesn't crash
+        drain()
+    }
+
+    @Test
     fun pagedListListener() {
         val differ = createDiffer()
 

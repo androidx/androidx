@@ -372,20 +372,22 @@ public class AsyncPagedListDiffer<T> {
 
         newList.addWeakCallback(diffSnapshot, mPagedListCallback);
 
-        // Transform the last loadAround() index from the old list to the new list by passing it
-        // through the DiffResult. This ensures the lastKey of a positional PagedList is carried
-        // to new list even if no in-viewport item changes (AsyncPagedListDiffer#get not called).
-        // Note: we don't take into account loads between new list snapshot and new list, but this
-        // is only a problem in rare cases when placeholders are disabled, and a load starts (for
-        // some reason) and finishes before diff completes.
-        int newPosition = PagedStorageDiffHelper.transformAnchorIndex(
-                diffResult, previousSnapshot.mStorage, diffSnapshot.mStorage, lastAccessIndex);
+        if (!mPagedList.isEmpty()) {
+            // Transform the last loadAround() index from the old list to the new list by passing it
+            // through the DiffResult. This ensures the lastKey of a positional PagedList is carried
+            // to new list even if no in-viewport item changes (AsyncPagedListDiffer#get not called)
+            // Note: we don't take into account loads between new list snapshot and new list, but
+            // this is only a problem in rare cases when placeholders are disabled, and a load
+            // starts (for some reason) and finishes before diff completes.
+            int newPosition = PagedStorageDiffHelper.transformAnchorIndex(
+                    diffResult, previousSnapshot.mStorage, diffSnapshot.mStorage, lastAccessIndex);
 
-        // Trigger load in new list at this position, clamped to list bounds.
-        // This is a load, not just an update of last load position, since the new list may be
-        // incomplete. If new list is subset of old list, but doesn't fill the viewport, this will
-        // likely trigger a load of new data.
-        mPagedList.loadAround(Math.max(0, Math.min(mPagedList.size() - 1, newPosition)));
+            // Trigger load in new list at this position, clamped to list bounds.
+            // This is a load, not just an update of last load position, since the new list may be
+            // incomplete. If new list is subset of old list, but doesn't fill the viewport, this
+            // will likely trigger a load of new data.
+            mPagedList.loadAround(Math.max(0, Math.min(mPagedList.size() - 1, newPosition)));
+        }
 
         onCurrentListChanged(previousSnapshot, mPagedList, commitCallback);
     }
