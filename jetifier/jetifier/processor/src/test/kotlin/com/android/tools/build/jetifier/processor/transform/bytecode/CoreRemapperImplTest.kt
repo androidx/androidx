@@ -31,15 +31,23 @@ class CoreRemapperImplTest {
         val remapper = prepareRemapper(
             TypesMap(mapOf(
                 JavaType.fromDotVersion("androidx.test.InputConnectionCompat")
-                    to JavaType.fromDotVersion(
-                    "androidx.test.InputConnectionCompat")
+                    to JavaType.fromDotVersion("androidx.test.InputConnectionCompat")
             )),
-            "androidx/")
+            restrictToPackagePrefix = "androidx/")
 
         val given = "androidx.test.InputConnectionCompat.CONTENT_URI"
         val expected = "androidx.test.InputConnectionCompat.CONTENT_URI"
 
         Truth.assertThat(remapper.rewriteString(given)).isEqualTo(expected)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun remapString_ambiguousPackageGiven_throwsException() {
+        val remapper = prepareRemapper(
+            TypesMap.EMPTY,
+            restrictToPackagePrefix = "android/")
+
+        remapper.rewriteString("android.support.v4.content")
     }
 
     private fun prepareRemapper(

@@ -76,6 +76,8 @@ class Processor private constructor(
          * @param rewritingSupportLib Whether we are rewriting the support library itself
          * @param useFallbackIfTypeIsMissing Use fallback for types resolving instead of crashing
          * @param versionsMap Versions map for dependencies rewriting
+         * @param allowAmbiguousPackages Whether Jetifier should not crash when it attempts to
+         * rewrite ambiguous package reference such as android.support.v4.
          * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
          */
         fun createProcessor(
@@ -83,6 +85,7 @@ class Processor private constructor(
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
             useFallbackIfTypeIsMissing: Boolean = true,
+            allowAmbiguousPackages: Boolean = false,
             dataBindingVersion: String? = null
         ): Processor {
             var newConfig = config
@@ -115,6 +118,7 @@ class Processor private constructor(
                 rewritingSupportLib = rewritingSupportLib,
                 isInReversedMode = reversedMode,
                 useFallbackIfTypeIsMissing = useFallbackIfTypeIsMissing,
+                allowAmbiguousPackages = allowAmbiguousPackages,
                 versions = versionsMap)
             val transformers = if (rewritingSupportLib) {
                 createSLTransformers(context)
