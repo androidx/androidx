@@ -341,6 +341,13 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         public String getDataPattern() {
             return mDataPattern;
         }
+
+        @Override
+        public void putAction(int actionId, @NonNull NavAction action) {
+            throw new UnsupportedOperationException("Cannot add action " + actionId + " to "
+                    + getIntent() + ": Activity destinations are terminal"
+                    + " destinations in your navigation graph and will never trigger actions");
+        }
     }
 
     /**
