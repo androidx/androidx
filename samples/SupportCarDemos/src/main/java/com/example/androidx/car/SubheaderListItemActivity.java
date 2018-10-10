@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.car.widget.CarToolbar;
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
@@ -41,6 +42,10 @@ public class SubheaderListItemActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paged_list_view);
+
+        CarToolbar toolbar = findViewById(R.id.car_toolbar);
+        toolbar.setTitle(R.string.sub_header_list_item_title);
+        toolbar.setNavigationIconOnClickListener(v -> finish());
 
         mPagedListView = findViewById(R.id.paged_list_view);
 

@@ -16,6 +16,14 @@
 -->
 <resources>
     <string name="activity_sample_code">Support Car Demos</string>
+
+    <!-- Demo titles -->
+    <string name="paged_list_view_title">PagedListView</string>
+    <string name="text_list_item_title">TextListItem</string>
+    <string name="seekbar_list_item_title">SeekbarListItem</string>
+    <string name="sub_header_list_item_title">SubheaderListItem</string>
+    <string name="alpha_jump_title">Alpha Jump Demo</string>
+
     <string name="long_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
     <string name="super_long_text">
         line 0\n
@@ -108,9 +116,6 @@
 
     <!-- Strings for CarToolbarActivity Demo. -->
     <string name="car_toolbar_title">CarToolbar demo title</string>
-
-    <!-- Strings for AlphaJumpActivity Demo-->
-    <string name="car_alpha_jump_toolbar_title">Alphabetical List View</string>
 
     <!-- Spinner sample entries -->
     <string-array name="spinner_entries">

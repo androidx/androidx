@@ -79,6 +79,7 @@ public class AlphaJumpActivity extends Activity {
         setContentView(R.layout.activity_paged_list_view);
 
         CarToolbar toolbar = findViewById(R.id.car_toolbar);
+        toolbar.setTitle(R.string.alpha_jump_title);
         toolbar.setNavigationIconOnClickListener(v -> onNavigateUp());
 
         PagedListView pagedListView = findViewById(R.id.paged_list_view);
