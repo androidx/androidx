@@ -16,6 +16,8 @@
 
 package androidx.paging;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +43,7 @@ public final class LivePagedListBuilder<Key, Value> {
     private PagedList.Config mConfig;
     private DataSource.Factory<Key, Value> mDataSourceFactory;
     private PagedList.BoundaryCallback mBoundaryCallback;
+    @SuppressLint("RestrictedApi")
     private Executor mFetchExecutor = ArchTaskExecutor.getIOThreadExecutor();
 
     /**
@@ -149,6 +152,7 @@ public final class LivePagedListBuilder<Key, Value> {
      * @return The LiveData of PagedLists
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public LiveData<PagedList<Value>> build() {
         return create(mInitialLoadKey, mConfig, mBoundaryCallback, mDataSourceFactory,
                 ArchTaskExecutor.getMainThreadExecutor(), mFetchExecutor);
@@ -156,6 +160,7 @@ public final class LivePagedListBuilder<Key, Value> {
 
     @AnyThread
     @NonNull
+    @SuppressLint("RestrictedApi")
     private static <Key, Value> LiveData<PagedList<Value>> create(
             @Nullable final Key initialLoadKey,
             @NonNull final PagedList.Config config,
