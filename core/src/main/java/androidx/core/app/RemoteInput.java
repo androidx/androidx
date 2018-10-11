@@ -112,7 +112,7 @@ public final class RemoteInput {
 
     /**
      * Returns true if the input only accepts data, meaning {@link #getAllowFreeFormInput}
-     * is false, {@link #getChoices} is null or empty, and {@link #getAllowedDataTypes is
+     * is false, {@link #getChoices} is null or empty, and {@link #getAllowedDataTypes} is
      * non-null and not empty.
      */
     public boolean isDataOnly() {
