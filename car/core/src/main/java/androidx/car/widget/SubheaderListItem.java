@@ -45,6 +45,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     /**
      * Creates a {@link SubheaderListItem.ViewHolder}.
      */
+    @NonNull
     public static ViewHolder createViewHolder(View itemView) {
         return new ViewHolder(itemView);
     }
@@ -172,7 +173,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     /**
      * Holds views of SubHeaderListItem.
      */
-    public static class ViewHolder extends ListItem.ViewHolder {
+    public static final class ViewHolder extends ListItem.ViewHolder {
         private TextView mText;
 
         public ViewHolder(View itemView) {
