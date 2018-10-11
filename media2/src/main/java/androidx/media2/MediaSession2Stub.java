@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.ParcelUuid;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
@@ -48,10 +47,10 @@ import androidx.media2.MediaSession2.MediaSession2Impl;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Handles incoming commands from {@link MediaController2} and {@link MediaBrowser2}
@@ -275,6 +274,27 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 }
             }
         });
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable MediaItem2 convertMediaItem2OnExecutor(ControllerInfo controller,
+            @NonNull ParcelImpl itemParcelImpl) {
+        if (itemParcelImpl == null) {
+            return null;
+        }
+        MediaItem2 item = ParcelUtils.fromParcelable(itemParcelImpl);
+        if (item == null) {
+            Log.w(TAG, "Couldn't convert incoming parcelable to MediaItem2 ");
+            return null;
+        }
+        MediaItem2 newItem = mSessionImpl.getCallback().onCreateMediaItem(
+                mSessionImpl.getInstance(), controller, item);
+        if (newItem == null) {
+            Log.w(TAG, "onCreateMediaItem(" + newItem + ") returned null");
+            return null;
+        }
+        newItem.mParcelUuid = item.mParcelUuid;
+        return newItem;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -552,9 +572,15 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "setPlaylist(): Ignoring null playlist from " + controller);
                             return;
                         }
-                        mSessionImpl.setPlaylist(
-                                MediaUtils2.convertParcelImplListToMediaItem2List(playlist),
-                                MediaMetadata2.fromBundle(metadata));
+                        List<MediaItem2> list = new ArrayList<>();
+                        for (int i = 0; i < playlist.size(); i++) {
+                            MediaItem2 item = convertMediaItem2OnExecutor(controller,
+                                    playlist.get(i));
+                            if (item != null) {
+                                list.add(item);
+                            }
+                        }
+                        mSessionImpl.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
                     }
                 });
     }
@@ -569,8 +595,11 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             Log.w(TAG, "setMediaItem(): Ignoring null item from " + controller);
                             return;
                         }
-                        mSessionImpl.setMediaItem(
-                                (MediaItem2) ParcelUtils.fromParcelable(mediaItem));
+                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
+                        if (item == null) {
+                            return;
+                        }
+                        mSessionImpl.setMediaItem(item);
                     }
                 });
     }
@@ -594,10 +623,14 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
-                        // Resets the UUID from the incoming media id, so controller may reuse a
-                        // media item multiple times for addPlaylistItem.
-                        item.mParcelUuid = new ParcelUuid(UUID.randomUUID());
+                        if (mediaItem == null) {
+                            Log.w(TAG, "addPlaylistItem(): Ignoring null item from " + controller);
+                            return;
+                        }
+                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
+                        if (item == null) {
+                            return;
+                        }
                         mSessionImpl.addPlaylistItem(index, item);
                     }
                 });
@@ -623,10 +656,15 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
-                        // Resets the UUID from the incoming media id, so controller may reuse a
-                        // media item multiple times for replacePlaylistItem.
-                        item.mParcelUuid = new ParcelUuid(UUID.randomUUID());
+                        if (mediaItem == null) {
+                            Log.w(TAG, "replacePlaylistItem(): Ignoring null item from "
+                                    + controller);
+                            return;
+                        }
+                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
+                        if (item == null) {
+                            return;
+                        }
                         mSessionImpl.replacePlaylistItem(index, item);
                     }
                 });
