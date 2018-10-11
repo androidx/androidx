@@ -49,7 +49,6 @@
     <string name="summary_switch_preference">Tap anywhere in this preference to toggle state</string>
 
     <string name="title_dropdown_preference">Dropdown preference</string>
-    <string name="summary_dropdown_preference">Displays a list of options in a dropdown menu</string>
 
     <string name="title_seekbar_preference">Seekbar preference</string>
     <string name="summary_seekbar_preference">This seekbar has a default value of 5 and a max value of 10</string>
@@ -58,11 +57,9 @@
     <string name="dialogs">Dialogs</string>
 
     <string name="title_edittext_preference">EditText preference</string>
-    <string name="summary_edittext_preference">Shows a dialog with an editable field</string>
     <string name="dialog_title_edittext_preference">This title can be changed!</string>
 
     <string name="title_list_preference">List preference</string>
-    <string name="summary_list_preference">Shows a dialog with a list of options</string>
     <string name="dialog_title_list_preference">Choose one option!</string>
 
     <string name="title_multi_list_preference">Multi-select list preference</string>
