@@ -915,6 +915,9 @@ public class AccessibilityNodeInfoCompat {
     private static final String SPANS_FLAGS_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.SPANS_FLAGS_KEY";
 
+    private static final String SPANS_ACTION_ID_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.SPANS_ACTION_ID_KEY";
+
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
     private static final int BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE = 0x00000001;
@@ -2322,7 +2325,8 @@ public class AccessibilityNodeInfoCompat {
             Spannable spannable = new SpannableString(TextUtils.substring(mInfo.getText(),
                     0, mInfo.getText().length()));
             for (int i = 0; i < starts.size(); i++) {
-                spannable.setSpan(new AccessibilityClickableSpanCompat(ids.get(i), this),
+                spannable.setSpan(new AccessibilityClickableSpanCompat(ids.get(i), this,
+                                getExtras().getInt(SPANS_ACTION_ID_KEY)),
                         starts.get(i), ends.get(i), flags.get(i));
             }
             return spannable;
@@ -2356,6 +2360,7 @@ public class AccessibilityNodeInfoCompat {
             removeCollectedSpans(view);
             ClickableSpan[] spans = getClickableSpans(text);
             if (spans != null && spans.length > 0) {
+                getExtras().putInt(SPANS_ACTION_ID_KEY, R.id.accessibility_action_clickable_span);
                 SparseArray<WeakReference<ClickableSpan>> tagSpans =
                         getOrCreateSpansFromViewTags(view);
                 for (int i = 0; spans != null && i < spans.length; i++) {
