@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.net.Uri;
 import android.os.Build;
@@ -30,8 +31,10 @@ import android.os.ResultReceiver;
 
 import androidx.annotation.NonNull;
 import androidx.media.test.lib.TestUtils;
+import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaController2;
+import androidx.media2.MediaItem2;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.Rating2;
@@ -48,6 +51,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -102,6 +107,45 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             assertEquals(2, callback.commands.size());
             assertEquals(SessionCommand2.COMMAND_CODE_PLAYER_PLAY,
                     (long) callback.commands.get(1).getCommandCode());
+        }
+    }
+
+
+    @Test
+    public void testOnCreateMediaItem() throws InterruptedException {
+        prepareLooper();
+        mPlayer = new MockPlayer(1);
+
+        final List<MediaItem2> list = MediaTestUtils.createPlaylist(3);
+        final List<MediaItem2> convertedList = MediaTestUtils.createPlaylist(list.size());
+
+        final MockOnCommandCallback callback = new MockOnCommandCallback() {
+            @Override
+            public MediaItem2 onCreateMediaItem(MediaSession2 session,
+                    ControllerInfo controller, MediaItem2 item) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (Objects.equals(item, list.get(i))) {
+                        return convertedList.get(i);
+                    }
+                }
+                fail();
+                return null;
+            }
+        };
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnCreateMediaItem")
+                .build()) {
+            mController2 = createRemoteController2(session.getToken());
+
+            mController2.setPlaylist(list, null);
+            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+            List<MediaItem2> playerList = mPlayer.getPlaylist();
+            assertEquals(convertedList.size(), playerList.size());
+            for (int i = 0; i < playerList.size(); i++) {
+                assertEquals(convertedList.get(i), playerList.get(i));
+            }
         }
     }
 

@@ -447,7 +447,6 @@ package androidx.media2 {
   }
 
   public class MediaSession2 implements java.lang.AutoCloseable {
-    method public void clearOnDataSourceMissingHelper();
     method public void close();
     method public java.util.List<androidx.media2.MediaSession2.ControllerInfo> getConnectedControllers();
     method public java.lang.String getId();
@@ -458,7 +457,6 @@ package androidx.media2 {
     method public void sendCustomCommand(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void setAllowedCommands(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommandGroup2);
     method public void setCustomLayout(androidx.media2.MediaSession2.ControllerInfo, java.util.List<androidx.media2.MediaSession2.CommandButton>);
-    method public void setOnDataSourceMissingHelper(androidx.media2.MediaSession2.OnDataSourceMissingHelper);
     method public void updatePlayer(androidx.media2.SessionPlayer2);
     field public static final int ERROR_CODE_ACTION_ABORTED = 10; // 0xa
     field public static final int ERROR_CODE_APP_ERROR = 1; // 0x1
@@ -506,14 +504,11 @@ package androidx.media2 {
     method public int getUid();
   }
 
-  public static abstract interface MediaSession2.OnDataSourceMissingHelper {
-    method public abstract androidx.media2.MediaItem2 onDataSourceMissing(androidx.media2.MediaSession2, androidx.media2.MediaItem2);
-  }
-
   public static abstract class MediaSession2.SessionCallback {
     ctor public MediaSession2.SessionCallback();
     method public boolean onCommandRequest(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2);
     method public androidx.media2.SessionCommandGroup2 onConnect(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
+    method public androidx.media2.MediaItem2 onCreateMediaItem(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.MediaItem2);
     method public void onCustomCommand(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void onDisconnected(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public void onFastForward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);

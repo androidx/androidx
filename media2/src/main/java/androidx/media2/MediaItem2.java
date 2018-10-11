@@ -35,10 +35,23 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
 /**
- * A class with information on a single media item with the metadata information.
- * Media item are application dependent so we cannot guarantee that they contain the right values.
+ * A class with information on a single media item with the metadata information. Here are use
+ * cases.
+ * <ul>
+ * <li>Specify media items to {@link SessionPlayer2} for playback.
+ * <li>Share media items across the processes.
+ * </ul>
  * <p>
- * When it's sent to a controller or browser, it's anonymized and data descriptor wouldn't be sent.
+ * Subclasses of the session player may only accept certain subclasses of the media items. Check
+ * the player documentation that you're interested in.
+ * <p>
+ * When it's shared across the processes, we cannot guarantee that they contain the right values
+ * because media items are application dependent especially for the metadata.
+ * <p>
+ * When its subclass is sent between {@link MediaSession2}/{@link MediaController2} or
+ * {@link androidx.media2.MediaLibraryService2.MediaLibrarySession}/{@link MediaBrowser2}, the
+ * subclass' data will be anonymized. The recipient need to translate if it's interested in playback
+ * with it. See {@link MediaSession2.SessionCallback#onCreateMediaItem} for the detail.
  * <p>
  * This object isn't a thread safe.
  */
