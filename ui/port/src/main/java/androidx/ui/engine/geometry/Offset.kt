@@ -222,15 +222,25 @@ data class Offset(override val dx: Double, override val dy: Double) : OffsetBase
 
     override fun toString() = "Offset(${dx?.toStringAsFixed(1)}, ${dy?.toStringAsFixed(1)})"
 
-    // TODO(Migration/Filip): Hopefully not needed as we are using a data class
-//    override fun equals(other: Any?): Boolean {
-//
-//        if (other !is Offset)
-//            return false;
-//        val typedOther = other;
-//        return dx == typedOther.dx && dy == typedOther.dy;
-//    }
-//
-//    @override
-//    int get hashCode => hashValues(dx, dy);
+    // We need to manually override equals (and thus also hashCode) because the auto generated
+    // equals was treating Offset(0.0, 0.0) != Offset(0.0, -0.0).
+    // Filed as https://youtrack.jetbrains.com/issue/KT-27343
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Offset
+
+        if (dx != other.dx) return false
+        if (dy != other.dy) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = dx.hashCode()
+        result = 31 * result + dy.hashCode()
+        return result
+    }
 }
