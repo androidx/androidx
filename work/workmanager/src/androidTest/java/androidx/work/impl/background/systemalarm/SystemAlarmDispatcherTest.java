@@ -20,6 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -537,16 +539,38 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(mLatch.getCount(), is(0L));
 
         List<String> intentActions = mSpyDispatcher.getIntentActions();
-        // Assert order of events
-        assertThat(intentActions,
-                IsIterableContainingInOrder.contains(
-                        CommandHandler.ACTION_CONSTRAINTS_CHANGED,
-                        CommandHandler.ACTION_DELAY_MET,
-                        CommandHandler.ACTION_DELAY_MET,
-                        CommandHandler.ACTION_EXECUTION_COMPLETED,
-                        CommandHandler.ACTION_EXECUTION_COMPLETED,
-                        // Update proxies
-                        CommandHandler.ACTION_CONSTRAINTS_CHANGED));
+
+        // Ordering of events can change slightly due to timing, so this test can become flaky if we
+        // don't compare the relative order of things.
+
+        assertThat(intentActions.size(), is(6));
+        // The last action must be a constraints changed event to update proxies.
+        assertThat(intentActions.get(5), is(CommandHandler.ACTION_CONSTRAINTS_CHANGED));
+
+        int numConstraintsChanged = 0;
+        int numDelayMet = 0;
+        int numExecutionCompleted = 0;
+        for (int i = 0; i < intentActions.size() - 1; ++i) {
+            switch (intentActions.get(i)) {
+                case CommandHandler.ACTION_CONSTRAINTS_CHANGED: {
+                    ++numConstraintsChanged;
+                    break;
+                }
+
+                case CommandHandler.ACTION_DELAY_MET: {
+                    ++numDelayMet;
+                    break;
+                }
+
+                case CommandHandler.ACTION_EXECUTION_COMPLETED: {
+                    ++numExecutionCompleted;
+                    assertThat(numConstraintsChanged, greaterThan(0));
+                    assertThat(numDelayMet, greaterThanOrEqualTo(numExecutionCompleted));
+                    break;
+                }
+            }
+        }
+        assertThat(numExecutionCompleted, is(2));
     }
 
     // Marking it public for mocking
