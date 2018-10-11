@@ -53,6 +53,7 @@ import androidx.annotation.GuardedBy;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.test.R;
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
@@ -253,6 +254,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
     }
 
     @Test
+    @FlakyTest(bugId = 117352673)
     public void testNoisyIntent_pausePlaybackForMedia() throws Exception {
         prepareLooper();
 
@@ -267,6 +269,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
     }
 
     @Test
+    @FlakyTest(bugId = 117107087)
     public void testNoisyIntent_lowerVolumeForGame() throws Exception {
         prepareLooper();
 
