@@ -27,19 +27,26 @@ import androidx.navigation.NavController
  * the destination changes (assuming there is a valid
  * [label][androidx.navigation.NavDestination.getLabel]).
  *
- * The Toolbar will also display the Up button when you are on a non-root destination and
- * the drawer icon when on the root destination, automatically animating between them. This
- * method will call [DrawerLayout.navigateUp] when the navigation icon
- * is clicked.
+ * The Toolbar will automatically animate between a drawer icon (if `drawerLayout` is non-null)
+ * and the Up button when transitioning between one of the `topLevelDestinations` and other
+ * destinations in your graph.
+ *
+ * This method will call [NavController.navigateUp] when the navigation icon is clicked.
  *
  * @param navController The NavController whose navigation actions will be reflected
  *                      in the title of the Toolbar.
  * @param drawerLayout The DrawerLayout that should be toggled from the home button
+ * @param topLevelDestinations The set of destinations by id considered at the top level of your
+ * information hierarchy. The Up button will not be displayed when on these destinations.
  */
 fun Toolbar.setupWithNavController(
     navController: NavController,
-    drawerLayout: DrawerLayout? = null
+    drawerLayout: DrawerLayout? = null,
+    topLevelDestinations: Set<Int> = setOf(
+        NavigationUI.findStartDestination(navController.graph).id)
 ) {
     NavigationUI.setupWithNavController(this, navController,
-            AppBarConfiguration.Builder().setDrawerLayout(drawerLayout).build())
+            AppBarConfiguration.Builder(topLevelDestinations)
+                    .setDrawerLayout(drawerLayout)
+                    .build())
 }

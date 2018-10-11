@@ -16,7 +16,13 @@
 
 package androidx.navigation.ui
 
+import android.content.Context
 import android.support.v4.widget.DrawerLayout
+import androidx.navigation.NavController
+import androidx.navigation.createGraph
+import androidx.navigation.plusAssign
+import androidx.navigation.testing.TestNavigator
+import androidx.navigation.testing.test
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -27,6 +33,33 @@ import org.mockito.Mockito.mock
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class AppBarConfigurationTest {
+
+    @Test
+    fun testTopLevelFromGraph() {
+        val navGraph = NavController(mock(Context::class.java)).apply {
+            navigatorProvider += TestNavigator()
+        }.createGraph(startDestination = 1) {
+            test(1)
+            test(2)
+        }
+        val builder = AppBarConfiguration.Builder(navGraph)
+        val appBarConfiguration = builder.build()
+        assertThat(appBarConfiguration.topLevelDestinations).containsExactly(1)
+    }
+
+    @Test
+    fun testTopLevelFromVarargs() {
+        val builder = AppBarConfiguration.Builder(1)
+        val appBarConfiguration = builder.build()
+        assertThat(appBarConfiguration.topLevelDestinations).containsExactly(1)
+    }
+
+    @Test
+    fun testTopLevelFromSet() {
+        val builder = AppBarConfiguration.Builder(setOf(1, 2))
+        val appBarConfiguration = builder.build()
+        assertThat(appBarConfiguration.topLevelDestinations).containsExactly(1, 2)
+    }
 
     @Test
     fun testSetDrawerLayout() {
