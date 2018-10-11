@@ -155,7 +155,6 @@ package androidx.fragment.app {
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method public deprecated androidx.loader.app.LoaderManager getSupportLoaderManager();
-    method public android.content.Context getThemedContext();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method public void onAttachFragment(androidx.fragment.app.Fragment);
     method public void onMultiWindowModeChanged(boolean);
