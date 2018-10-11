@@ -1,0 +1,14 @@
+// Signature format: 2.0
+package androidx.lifecycle {
+
+  public final class ViewModelKt {
+    ctor public ViewModelKt();
+    method public static kotlinx.coroutines.experimental.CoroutineScope getViewModelScope(androidx.lifecycle.ViewModel);
+  }
+
+  public final class ViewModelProviderKt {
+    ctor public ViewModelProviderKt();
+  }
+
+}
+

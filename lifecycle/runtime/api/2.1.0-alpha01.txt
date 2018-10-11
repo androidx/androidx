@@ -1,0 +1,18 @@
+package androidx.lifecycle {
+
+  public class LifecycleRegistry extends androidx.lifecycle.Lifecycle {
+    ctor public LifecycleRegistry(androidx.lifecycle.LifecycleOwner);
+    method public void addObserver(androidx.lifecycle.LifecycleObserver);
+    method public androidx.lifecycle.Lifecycle.State getCurrentState();
+    method public int getObserverCount();
+    method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event);
+    method public void markState(androidx.lifecycle.Lifecycle.State);
+    method public void removeObserver(androidx.lifecycle.LifecycleObserver);
+  }
+
+  public abstract deprecated interface LifecycleRegistryOwner implements androidx.lifecycle.LifecycleOwner {
+    method public abstract androidx.lifecycle.LifecycleRegistry getLifecycle();
+  }
+
+}
+

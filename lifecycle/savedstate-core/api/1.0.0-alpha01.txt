@@ -1,0 +1,29 @@
+package androidx.lifecycle {
+
+  public abstract interface SavedState {
+    method public abstract android.os.Bundle consumeRestoredStateForKey(java.lang.String);
+    method public abstract boolean isRestored();
+    method public abstract void registerSaveStateCallback(java.lang.String, androidx.lifecycle.SavedState.Callback);
+    method public abstract void unregisterSaveStateCallback(java.lang.String);
+  }
+
+  public static abstract interface SavedState.Callback {
+    method public abstract android.os.Bundle saveState();
+  }
+
+  public abstract interface SavedStateOwner {
+    method public abstract androidx.lifecycle.SavedState getSavedState();
+  }
+
+  public class SavedStateRegistry implements androidx.lifecycle.SavedState {
+    ctor public SavedStateRegistry();
+    method public android.os.Bundle consumeRestoredStateForKey(java.lang.String);
+    method public boolean isRestored();
+    method public void performRestore(android.os.Bundle);
+    method public void performSave(android.os.Bundle);
+    method public void registerSaveStateCallback(java.lang.String, androidx.lifecycle.SavedState.Callback);
+    method public void unregisterSaveStateCallback(java.lang.String);
+  }
+
+}
+
