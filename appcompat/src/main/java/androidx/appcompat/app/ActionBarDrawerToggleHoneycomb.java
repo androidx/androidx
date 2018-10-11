@@ -46,11 +46,9 @@ class ActionBarDrawerToggleHoneycomb {
             R.attr.homeAsUpIndicator
     };
 
-    public static SetIndicatorInfo setActionBarUpIndicator(SetIndicatorInfo info, Activity activity,
+    public static SetIndicatorInfo setActionBarUpIndicator(Activity activity,
             Drawable drawable, int contentDescRes) {
-        if (true || info == null) {
-            info = new SetIndicatorInfo(activity);
-        }
+        SetIndicatorInfo info = new SetIndicatorInfo(activity);
         if (info.setHomeAsUpIndicator != null) {
             try {
                 final ActionBar actionBar = activity.getActionBar();
