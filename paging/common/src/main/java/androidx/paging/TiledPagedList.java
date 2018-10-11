@@ -99,10 +99,10 @@ class TiledPagedList<T> extends PagedList<T>
             detach();
         } else {
             final int firstLoadSize =
-                    (Math.max(Math.round(mConfig.initialLoadSizeHint / pageSize), 2)) * pageSize;
+                    (Math.max(mConfig.initialLoadSizeHint / pageSize, 2)) * pageSize;
 
             final int idealStart = position - firstLoadSize / 2;
-            final int roundedPageStart = Math.max(0, Math.round(idealStart / pageSize) * pageSize);
+            final int roundedPageStart = Math.max(0, idealStart / pageSize * pageSize);
 
             mDataSource.dispatchLoadInitial(true, roundedPageStart, firstLoadSize,
                     pageSize, mMainThreadExecutor, mReceiver);
