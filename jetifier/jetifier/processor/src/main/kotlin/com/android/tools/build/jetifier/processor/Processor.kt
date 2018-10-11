@@ -181,7 +181,7 @@ class Processor private constructor(
                 throw IllegalArgumentException("There were ${context.errorsTotal()} errors found " +
                     "during the de-jetification. You have probably added new androidx types " +
                     "into support library and dejetifier doesn't know where to move them. " +
-                    "Please update default.config and regenerate default.generated.config via" +
+                    "Please update default.config and regenerate default.generated.config via " +
                     "jetifier/jetifier/preprocessor/scripts/processDefaultConfig.sh")
             }
 
