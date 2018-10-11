@@ -76,7 +76,7 @@ public class WorkerWrapper implements Runnable {
     ListenableWorker mWorker;
 
     // Package-private for synthetic accessor.
-    ListenableWorker.Payload mPayload;
+    @NonNull ListenableWorker.Payload mPayload = new ListenableWorker.Payload(Result.FAILURE);
 
     private Configuration mConfiguration;
     private TaskExecutor mWorkTaskExecutor;
@@ -238,15 +238,15 @@ public class WorkerWrapper implements Runnable {
                 public void run() {
                     try {
                         mPayload = future.get();
-                    } catch (CancellationException | InterruptedException | ExecutionException
-                            exception) {
-                        // We need to handle CancellationExceptions here because innerFuture
+                    } catch (CancellationException exception) {
+                        // Cancellations need to be treated with care here because innerFuture
                         // cancellations will bubble up, and we need to gracefully handle that.
+                        Logger.info(TAG, String.format("%s was cancelled", workDescription),
+                                exception);
+                    } catch (InterruptedException | ExecutionException exception) {
                         Logger.error(TAG,
                                 String.format("%s failed because it threw an exception/error",
-                                        workDescription),
-                                exception);
-                        mPayload = new ListenableWorker.Payload(Result.FAILURE, Data.EMPTY);
+                                        workDescription), exception);
                     } finally {
                         onWorkFinished();
                     }
