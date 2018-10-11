@@ -22,6 +22,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import androidx.annotation.ArrayRes;
 import androidx.annotation.NonNull;
@@ -37,6 +38,7 @@ import androidx.core.content.res.TypedArrayUtils;
  * @attr name android:entryValues
  */
 public class ListPreference extends DialogPreference {
+    private static final String TAG = "ListPreference";
     private CharSequence[] mEntries;
     private CharSequence[] mEntryValues;
     private String mValue;
@@ -159,11 +161,18 @@ public class ListPreference extends DialogPreference {
             return getSummaryProvider().provideSummary(this);
         }
         final CharSequence entry = getEntry();
+        CharSequence summary = super.getSummary();
         if (mSummary == null) {
-            return super.getSummary();
-        } else {
-            return String.format(mSummary, entry == null ? "" : entry);
+            return summary;
         }
+        String formattedString = String.format(mSummary, entry == null ? "" : entry);
+        if (formattedString.contentEquals(summary)) {
+            return summary;
+        }
+        Log.w(TAG,
+                "Setting a summary with a String formatting marker is no longer supported."
+                        + " You should use a SummaryProvider instead.");
+        return formattedString;
     }
 
     /**

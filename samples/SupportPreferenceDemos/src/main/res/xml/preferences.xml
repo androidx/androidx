@@ -63,7 +63,6 @@
         <DropDownPreference
                 android:key="dropdown"
                 android:title="@string/title_dropdown_preference"
-                android:summary="@string/summary_dropdown_preference"
                 android:entries="@array/entries"
                 app:setDefaultSummaryProvider="true"
                 android:entryValues="@array/entry_values"/>
@@ -82,14 +81,12 @@
         <EditTextPreference
                 android:key="edittext"
                 android:title="@string/title_edittext_preference"
-                android:summary="@string/summary_edittext_preference"
                 app:setDefaultSummaryProvider="true"
                 android:dialogTitle="@string/dialog_title_edittext_preference"/>
 
         <ListPreference
                 android:key="list"
                 android:title="@string/title_list_preference"
-                android:summary="@string/summary_list_preference"
                 app:setDefaultSummaryProvider="true"
                 android:entries="@array/entries"
                 android:entryValues="@array/entry_values"
