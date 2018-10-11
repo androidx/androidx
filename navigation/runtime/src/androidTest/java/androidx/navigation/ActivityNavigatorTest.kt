@@ -80,6 +80,12 @@ class ActivityNavigatorTest {
         }
     }
 
+    @Test(expected = UnsupportedOperationException::class)
+    fun throwOnPutAction() {
+        val targetDestination = activityNavigator.createDestination()
+        targetDestination.putAction(TARGET_ID, 0)
+    }
+
     @Test
     fun navigate() {
         val targetDestination = activityNavigator.createDestination().apply {
