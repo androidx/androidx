@@ -41,7 +41,7 @@ abstract class SavedStateVMFactory implements ViewModelProvider.KeyedFactory {
         SavedStateHandle handle = new SavedStateHandle(mInitialArgs, savedState);
         mSavedStateStore.registerSaveStateCallback(key, handle.savedStateComponent());
         T viewmodel = mWrappedFactory.create(key, modelClass, handle);
-        viewmodel.setTag(TAG_SAVED_STATE_HANDLE, handle);
+        viewmodel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE, handle);
         return viewmodel;
     }
 }
