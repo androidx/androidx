@@ -206,8 +206,7 @@ public class AccessibilityDelegateCompatTest extends
             int actionId = integerArgumentCaptor.<Integer>getValue();
 
             //The service would end up calling the same thing ViewCompat calls
-            ViewCompat.performAccessibilityAction(mView,
-                    actionId, args);
+            ViewCompat.performAccessibilityAction(mView, actionId, args);
             verify(span2).onClick(mView);
         }
     }
