@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.biometrics;
+package androidx.biometric;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
