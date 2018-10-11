@@ -271,9 +271,6 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     private int entranceTransitionType = SLIDE_FROM_SIDE;
 
     public GuidedStepFragment() {
-        mGuidanceStylist = onCreateGuidanceStylist();
-        mActionsStylist = onCreateActionsStylist();
-        mButtonActionsStylist = onCreateButtonActionsStylist();
         onProvideFragmentTransitions();
     }
 
@@ -1019,6 +1016,12 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (DEBUG) Log.v(TAG, "onCreate");
+
+        // Initialize stylists
+        mGuidanceStylist = onCreateGuidanceStylist();
+        mActionsStylist = onCreateActionsStylist();
+        mButtonActionsStylist = onCreateButtonActionsStylist();
+
         // Set correct transition from saved arguments.
         onProvideFragmentTransitions();
 
@@ -1395,15 +1398,6 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         } else {
             return inflater.cloneInContext(mThemeWrapper);
         }
-    }
-
-    private int getFirstCheckedAction() {
-        for (int i = 0, size = mActions.size(); i < size; i++) {
-            if (mActions.get(i).isChecked()) {
-                return i;
-            }
-        }
-        return 0;
     }
 
     void runImeAnimations(boolean entering) {
