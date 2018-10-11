@@ -31,6 +31,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 
 import java.lang.ref.WeakReference;
+import java.util.Set;
 
 /**
  * The abstract OnNavigatedListener for keeping any type of app bar updated. This handles both
@@ -42,6 +43,7 @@ import java.lang.ref.WeakReference;
 abstract class AbstractAppBarOnNavigatedListener
         implements NavController.OnNavigatedListener {
     private final Context mContext;
+    private final Set<Integer> mTopLevelDestinations;
     @Nullable
     private final WeakReference<DrawerLayout> mDrawerLayoutWeakReference;
     private DrawerArrowDrawable mArrowDrawable;
@@ -50,6 +52,7 @@ abstract class AbstractAppBarOnNavigatedListener
     AbstractAppBarOnNavigatedListener(@NonNull Context context,
             @NonNull AppBarConfiguration configuration) {
         mContext = context;
+        mTopLevelDestinations = configuration.getTopLevelDestinations();
         DrawerLayout drawerLayout = configuration.getDrawerLayout();
         if (drawerLayout != null) {
             mDrawerLayoutWeakReference = new WeakReference<>(drawerLayout);
@@ -76,12 +79,12 @@ abstract class AbstractAppBarOnNavigatedListener
         if (!TextUtils.isEmpty(title)) {
             setTitle(title);
         }
-        boolean isStartDestination = NavigationUI.findStartDestination(
-                controller.getGraph()) == destination;
-        if (drawerLayout == null && isStartDestination) {
+        boolean isTopLevelDestination = NavigationUI.matchDestinations(destination,
+                mTopLevelDestinations);
+        if (drawerLayout == null && isTopLevelDestination) {
             setNavigationIcon(null);
         } else {
-            setActionBarUpIndicator(drawerLayout != null && isStartDestination);
+            setActionBarUpIndicator(drawerLayout != null && isTopLevelDestination);
         }
     }
 
