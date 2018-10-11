@@ -253,10 +253,11 @@ public final class Constraints {
         }
 
         /**
-         * Specify whether {@link WorkRequest} should run when a content {@link android.net.Uri}
-         * is updated.  This method requires API 24 or higher.
+         * Specify whether {@link WorkRequest} should run when a content: URI is updated.  This
+         * functionality is identical to the one found in {@code JobScheduler} and is described in
+         * {@code JobInfo.Builder#addTriggerContentUri(android.app.job.JobInfo.TriggerContentUri)}.
          *
-         * @param uri {@link android.net.Uri} to observe
+         * @param uri The content: URI to observe
          * @param triggerForDescendants {@code true} if any changes in descendants cause this
          *                              {@link WorkRequest} to run
          * @return The current {@link Builder}
