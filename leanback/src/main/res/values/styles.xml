@@ -583,6 +583,7 @@
         <item name="android:verticalSpacing">@dimen/lb_guidedactions_list_vertical_spacing</item>
         <item name="android:paddingStart">@dimen/lb_guidedactions_list_padding_start</item>
         <item name="android:paddingEnd">@dimen/lb_guidedactions_list_padding_end</item>
+        <item name="android:clipToPadding">false</item>
         <item name="focusOutEnd">false</item>
         <item name="focusOutFront">false</item>
     </style>
