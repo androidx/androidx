@@ -56,18 +56,20 @@ import java.util.Set;
  *
  * <p>The list of terms used in this document:
  *
- * <ol>"The provider" is a {@link android.content.ContentProvider} supplying data identified
+ * <ul>
+ * <li>"The provider" is a {@link android.content.ContentProvider} supplying data identified
  * by a specific content {@link Uri}. A provider is the source of data, and for the sake of
  * this documents, the provider resides in a remote process.
 
- * <ol>"supports paging" A provider supports paging when it returns a pre-paged {@link Cursor}
- * that honors the paging contract. See @link ContentResolver#QUERY_ARG_OFFSET} and
+ * <li>"supports paging" A provider supports paging when it returns a pre-paged {@link Cursor}
+ * that honors the paging contract. See {@link ContentResolver#QUERY_ARG_OFFSET} and
  * {@link ContentResolver#QUERY_ARG_LIMIT} for details on the contract.
 
- * <ol>"CursorWindow swaps" The process by which new data is loaded into a shared memory
+ * <li>"CursorWindow swaps" The process by which new data is loaded into a shared memory
  * via a CursorWindow instance. This is a prominent contributor to UI jank in applications
  * that use Cursor as backing data for UI elements like {@code RecyclerView}.
  *
+ * </ul>
  * <p><b>Details</b>
  *
  * <p>Data will be loaded from a content uri in one of two ways, depending on the runtime
