@@ -394,16 +394,16 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         int initialLoadSize = params.requestedLoadSize;
         int pageSize = params.pageSize;
 
-        int roundedPageStart = Math.round(position / pageSize) * pageSize;
+        int pageStart = position / pageSize * pageSize;
 
         // maximum start pos is that which will encompass end of list
         int maximumLoadPage = ((totalCount - initialLoadSize + pageSize - 1) / pageSize) * pageSize;
-        roundedPageStart = Math.min(maximumLoadPage, roundedPageStart);
+        pageStart = Math.min(maximumLoadPage, pageStart);
 
         // minimum start position is 0
-        roundedPageStart = Math.max(0, roundedPageStart);
+        pageStart = Math.max(0, pageStart);
 
-        return roundedPageStart;
+        return pageStart;
     }
 
     /**

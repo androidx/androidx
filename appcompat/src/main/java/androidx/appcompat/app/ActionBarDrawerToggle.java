@@ -559,7 +559,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
                 } else {
                     actionBar.setDisplayShowHomeEnabled(true);
                     mSetIndicatorInfo = ActionBarDrawerToggleHoneycomb.setActionBarUpIndicator(
-                        mSetIndicatorInfo, mActivity, themeImage, contentDescRes);
+                            mActivity, themeImage, contentDescRes);
                     actionBar.setDisplayShowHomeEnabled(false);
                 }
             }
