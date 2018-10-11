@@ -16,6 +16,8 @@
 
 package androidx.paging;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
@@ -207,6 +209,7 @@ public final class RxPagedListBuilder<Key, Value> {
      * @return The Observable of PagedLists
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public Observable<PagedList<Value>> buildObservable() {
         if (mNotifyExecutor == null) {
             mNotifyExecutor = ArchTaskExecutor.getMainThreadExecutor();

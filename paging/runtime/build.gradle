@@ -31,10 +31,11 @@ android {
 }
 
 dependencies {
-    api(project(":arch:core-runtime"))
     api(project(":paging:paging-common"))
-    api(project(":lifecycle:lifecycle-runtime"))
-    api(project(":lifecycle:lifecycle-livedata"))
+
+    api("androidx.arch.core:core-runtime:2.0.0")
+    api("androidx.lifecycle:lifecycle-runtime:2.0.0")
+    api("androidx.lifecycle:lifecycle-livedata:2.0.0")
 
     api(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
 
