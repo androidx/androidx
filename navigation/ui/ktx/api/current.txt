@@ -3,7 +3,7 @@ package androidx.navigation.ui {
 
   public final class ActivityKt {
     ctor public ActivityKt();
-    method public static void setupActionBarWithNavController(android.support.v7.app.AppCompatActivity, androidx.navigation.NavController navController, android.support.v4.widget.DrawerLayout? drawerLayout = null);
+    method public static void setupActionBarWithNavController(android.support.v7.app.AppCompatActivity, androidx.navigation.NavController navController, android.support.v4.widget.DrawerLayout? drawerLayout = null, java.util.Set<java.lang.Integer> topLevelDestinations = setOf(NavigationUI.findStartDestination(navController.graph).id));
   }
 
   public final class BottomNavigationViewKt {
@@ -13,17 +13,23 @@ package androidx.navigation.ui {
 
   public final class CollapsingToolbarLayoutKt {
     ctor public CollapsingToolbarLayoutKt();
-    method public static void setupWithNavController(android.support.design.widget.CollapsingToolbarLayout, android.support.v7.widget.Toolbar toolbar, androidx.navigation.NavController navController, android.support.v4.widget.DrawerLayout? drawerLayout = null);
+    method public static void setupWithNavController(android.support.design.widget.CollapsingToolbarLayout, android.support.v7.widget.Toolbar toolbar, androidx.navigation.NavController navController, android.support.v4.widget.DrawerLayout? drawerLayout = null, java.util.Set<java.lang.Integer> topLevelDestinations = setOf(NavigationUI.findStartDestination(navController.graph).id));
   }
 
   public final class DrawerLayoutKt {
     ctor public DrawerLayoutKt();
-    method public static boolean navigateUp(android.support.v4.widget.DrawerLayout?, androidx.navigation.NavController navController);
+    method @Deprecated public static boolean navigateUp(android.support.v4.widget.DrawerLayout?, androidx.navigation.NavController navController);
   }
 
   public final class MenuItemKt {
     ctor public MenuItemKt();
     method public static boolean onNavDestinationSelected(android.view.MenuItem, androidx.navigation.NavController navController);
+  }
+
+  public final class NavControllerKt {
+    ctor public NavControllerKt();
+    method public static boolean navigateUp(androidx.navigation.NavController, android.support.v4.widget.DrawerLayout? drawerLayout);
+    method public static boolean navigateUp(androidx.navigation.NavController, androidx.navigation.ui.AppBarConfiguration appBarConfiguration);
   }
 
   public final class NavigationViewKt {
@@ -33,7 +39,7 @@ package androidx.navigation.ui {
 
   public final class ToolbarKt {
     ctor public ToolbarKt();
-    method public static void setupWithNavController(android.support.v7.widget.Toolbar, androidx.navigation.NavController navController, android.support.v4.widget.DrawerLayout? drawerLayout = null);
+    method public static void setupWithNavController(android.support.v7.widget.Toolbar, androidx.navigation.NavController navController, android.support.v4.widget.DrawerLayout? drawerLayout = null, java.util.Set<java.lang.Integer> topLevelDestinations = setOf(NavigationUI.findStartDestination(navController.graph).id));
   }
 
 }
