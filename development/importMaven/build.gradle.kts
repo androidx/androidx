@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import java.security.MessageDigest
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 
 // The output folder inside prebuilts
@@ -24,7 +25,6 @@ val configurationName = "fetchArtifacts"
 val fetchArtifacts = configurations.create(configurationName)
 val fetchArtifactsContainer = configurations.getByName(configurationName)
 // Passed in as a project property
-// Set a default here, so we can open this gradle script in an IDE without errors.
 val artifactName = project.findProperty("artifactName")
 
 val internalArtifacts = listOf(
@@ -51,10 +51,12 @@ repositories {
     google()
 }
 
-dependencies {
-    // This is the configuration container that we use to lookup the
-    // transitive closure of all dependencies.
-    fetchArtifacts(artifactName!!)
+if (artifactName != null) {
+    dependencies {
+        // This is the configuration container that we use to lookup the
+        // transitive closure of all dependencies.
+        fetchArtifacts(artifactName)
+    }
 }
 
 /**
@@ -132,6 +134,25 @@ fun supportingArtifacts(artifact: ResolvedArtifact): List<ResolvedArtifactResult
 }
 
 /**
+ * Helps generate digests for the artifacts.
+ */
+fun digest(file: File, algorithm: String): File {
+    val messageDigest = MessageDigest.getInstance(algorithm)
+    val contents = file.readBytes()
+    val digestBytes = messageDigest.digest(contents)
+    val builder = StringBuilder()
+    for (byte in digestBytes) {
+        builder.append(String.format("%02x", byte))
+    }
+    val parent = System.getProperty("java.io.tmpdir")
+    val outputFile = File(parent, "${file.name}.${algorithm.toLowerCase()}")
+    outputFile.deleteOnExit()
+    outputFile.writeText(builder.toString())
+    outputFile.deleteOnExit()
+    return outputFile
+}
+
+/**
  * Copies artifacts to the right locations.
  */
 fun copyLibrary(artifact: ResolvedArtifact, internal: Boolean = false) {
@@ -145,18 +166,29 @@ fun copyLibrary(artifact: ResolvedArtifact, internal: Boolean = false) {
             moduleVersionId.name,
             moduleVersionId.version)
     val location = pathComponents.joinToString("/")
-    println("Copying $artifact to $location")
     val supportingArtifacts = supportingArtifacts(artifact)
     // Copy main artifact
+    println("Copying $artifact to $location")
     copy {
-        from(artifact.file)
+        from(
+            artifact.file,
+            digest(artifact.file, "MD5"),
+            digest(artifact.file, "SHA1")
+        )
+        into(location)
+    }
+    copy {
         into(location)
     }
     // Copy supporting artifacts
     for (supportingArtifact in supportingArtifacts) {
         println("Copying $supportingArtifact to $location")
         copy {
-            from(supportingArtifact.file)
+            from(
+                supportingArtifact.file,
+                digest(supportingArtifact.file, "MD5"),
+                digest(supportingArtifact.file, "SHA1")
+            )
             into(location)
         }
     }
