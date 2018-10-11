@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.biometrics;
+package androidx.biometric;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import androidx.annotation.RestrictTo;
-import androidx.biometric.R;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 import androidx.core.os.CancellationSignal;
 import androidx.fragment.app.Fragment;

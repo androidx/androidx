@@ -31,7 +31,7 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.biometrics.BiometricPrompt;
+import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
 
 import java.io.IOException;

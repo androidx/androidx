@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.biometrics;
+package androidx.biometric;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -36,7 +36,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
-import androidx.biometric.R;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
