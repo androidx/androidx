@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.LocaleList;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -38,6 +39,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.TextViewCompat;
 
 import java.lang.ref.WeakReference;
+import java.util.Locale;
 
 class AppCompatTextHelper {
 
@@ -118,6 +120,7 @@ class AppCompatTextHelper {
         ColorStateList textColorHint = null;
         ColorStateList textColorLink = null;
         String fontVariation = null;
+        String localeListString = null;
 
         // First check TextAppearance's textAllCaps value
         if (ap != -1) {
@@ -142,6 +145,9 @@ class AppCompatTextHelper {
                     textColorLink = a.getColorStateList(
                             R.styleable.TextAppearance_android_textColorLink);
                 }
+            }
+            if (a.hasValue(R.styleable.TextAppearance_textLocale)) {
+                localeListString = a.getString(R.styleable.TextAppearance_textLocale);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                     && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
@@ -172,6 +178,10 @@ class AppCompatTextHelper {
                         R.styleable.TextAppearance_android_textColorLink);
             }
         }
+        if (a.hasValue(R.styleable.TextAppearance_textLocale)) {
+            localeListString = a.getString(R.styleable.TextAppearance_textLocale);
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
             fontVariation = a.getString(R.styleable.TextAppearance_fontVariationSettings);
@@ -204,6 +214,15 @@ class AppCompatTextHelper {
         }
         if (fontVariation != null) {
             mView.setFontVariationSettings(fontVariation);
+        }
+        if (localeListString != null) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                mView.setTextLocales(LocaleList.forLanguageTags(localeListString));
+            } else if (Build.VERSION.SDK_INT >= 21) {
+                final String firstLanTag =
+                        localeListString.substring(0, localeListString.indexOf(','));
+                mView.setTextLocale(Locale.forLanguageTag(firstLanTag));
+            }
         }
 
         mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
