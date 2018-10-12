@@ -102,7 +102,8 @@ class SystemJobInfoConverter {
         }
 
         if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
-            for (ContentUriTriggers.Trigger trigger : constraints.getContentUriTriggers()) {
+            ContentUriTriggers contentUriTriggers = constraints.getContentUriTriggers();
+            for (ContentUriTriggers.Trigger trigger : contentUriTriggers.getTriggers()) {
                 builder.addTriggerContentUri(convertContentUriTrigger(trigger));
             }
         }
