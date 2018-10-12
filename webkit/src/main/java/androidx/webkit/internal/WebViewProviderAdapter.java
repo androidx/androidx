@@ -24,6 +24,7 @@ import android.webkit.WebViewClient;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewRenderer;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -86,5 +87,11 @@ public class WebViewProviderAdapter {
      */
     public WebChromeClient getWebChromeClient() {
         return mImpl.getWebChromeClient();
+    }
+
+    /**
+     */
+    public WebViewRenderer getWebViewRenderer() throws Exception {
+        return WebViewRendererImpl.forInvocationHandler(mImpl.getWebViewRenderer());
     }
 }
