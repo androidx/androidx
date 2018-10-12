@@ -81,6 +81,11 @@ public final class Constraints {
         return mRequiredNetworkType;
     }
 
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setRequiredNetworkType(@NonNull NetworkType requiredNetworkType) {
         mRequiredNetworkType = requiredNetworkType;
     }
@@ -92,6 +97,11 @@ public final class Constraints {
         return mRequiresCharging;
     }
 
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setRequiresCharging(boolean requiresCharging) {
         mRequiresCharging = requiresCharging;
     }
@@ -104,6 +114,11 @@ public final class Constraints {
         return mRequiresDeviceIdle;
     }
 
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(23)
     public void setRequiresDeviceIdle(boolean requiresDeviceIdle) {
         mRequiresDeviceIdle = requiresDeviceIdle;
@@ -116,6 +131,11 @@ public final class Constraints {
         return mRequiresBatteryNotLow;
     }
 
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
         mRequiresBatteryNotLow = requiresBatteryNotLow;
     }
@@ -127,10 +147,20 @@ public final class Constraints {
         return mRequiresStorageNotLow;
     }
 
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setRequiresStorageNotLow(boolean requiresStorageNotLow) {
         mRequiresStorageNotLow = requiresStorageNotLow;
     }
 
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(24)
     public void setContentUriTriggers(@Nullable ContentUriTriggers mContentUriTriggers) {
         this.mContentUriTriggers = mContentUriTriggers;

@@ -19,10 +19,12 @@ package androidx.work;
 import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
 
 import android.os.Build;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
+import androidx.work.impl.Scheduler;
 import androidx.work.impl.utils.IdGenerator;
 
 import java.util.concurrent.Executor;
@@ -121,6 +123,7 @@ public final class Configuration {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntRange(from = Configuration.MIN_SCHEDULER_LIMIT, to = Scheduler.MAX_SCHEDULER_LIMIT)
     public int getMaxSchedulerLimit() {
         // We double schedule jobs in SDK 23. So use half the number of max slots specified.
         if (Build.VERSION.SDK_INT == 23) {
