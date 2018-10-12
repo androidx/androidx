@@ -37,7 +37,7 @@ dependencies {
     compileOnly project(":paging:paging-common")
     compileOnly project(":lifecycle:lifecycle-runtime")
     compileOnly project(":lifecycle:lifecycle-extensions")
-    api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
+    implementation(ANDROIDX_COLLECTION)
 
     testImplementation(project(":arch:core-testing"))
     testImplementation(JUNIT)
