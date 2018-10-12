@@ -18,9 +18,13 @@ package androidx.core.graphics
 
 import android.graphics.Bitmap
 import android.graphics.ColorSpace
+import android.graphics.Point
+import android.graphics.PointF
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @SmallTest
@@ -69,5 +73,18 @@ class BitmapTest {
         val b = createBitmap(2, 2)
         b[1, 1] = 0x40302010
         assertEquals(0x40302010, b[1, 1])
+    }
+
+    @Test fun pointInBitmap() {
+        val b = createBitmap(5, 5)
+        assertTrue(Point(0, 0) in b)
+        assertTrue(Point(2, 2) in b)
+        assertFalse(Point(-1, -1) in b)
+        assertFalse(Point(5, 5) in b)
+
+        assertTrue(PointF(0.0f, 0.0f) in b)
+        assertTrue(PointF(2.0f, 2.0f) in b)
+        assertFalse(PointF(-1.0f, -1.0f) in b)
+        assertFalse(PointF(5.0f, 5.0f) in b)
     }
 }
