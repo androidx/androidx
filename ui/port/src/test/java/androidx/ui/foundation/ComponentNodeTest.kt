@@ -41,18 +41,15 @@ class ComponentNodeTest {
     @Test
     fun componentNodeAttachDetach() {
         val node = LayoutNode { _, _ -> Size(0.0, 0.0) }
-        assertFalse(node.isAttached)
         assertNull(node.owner)
 
         val owner = mock(Owner::class.java)
         node.attach(owner)
-        assertTrue(node.isAttached)
         assertEquals(owner, node.owner)
 
         verify(owner, times(1)).onAttach(node)
 
         node.detach()
-        assertFalse(node.isAttached)
         assertNull(node.owner)
         verify(owner, times(1)).onDetach(node)
     }
@@ -115,9 +112,6 @@ class ComponentNodeTest {
 
         val owner = mock(Owner::class.java)
         node.attach(owner)
-        assertTrue(node.isAttached)
-        assertTrue(child1.isAttached)
-        assertTrue(child2.isAttached)
         assertEquals(owner, node.owner)
         assertEquals(owner, child1.owner)
         assertEquals(owner, child2.owner)
@@ -136,9 +130,6 @@ class ComponentNodeTest {
         reset(owner)
         node.detach()
 
-        assertFalse(node.isAttached)
-        assertFalse(child1.isAttached)
-        assertFalse(child2.isAttached)
         assertEquals(node, child1.parent)
         assertEquals(node, child2.parent)
         assertNull(node.owner)
@@ -158,9 +149,6 @@ class ComponentNodeTest {
         node.attach(owner)
 
         node.remove(0, 1)
-        assertTrue(node.isAttached)
-        assertFalse(child1.isAttached)
-        assertTrue(child2.isAttached)
         assertEquals(owner, node.owner)
         assertNull(child1.owner)
         assertEquals(owner, child2.owner)
@@ -181,9 +169,6 @@ class ComponentNodeTest {
         reset(owner)
 
         node.add(1, child1)
-        assertTrue(node.isAttached)
-        assertTrue(child1.isAttached)
-        assertTrue(child2.isAttached)
         assertEquals(owner, node.owner)
         assertEquals(owner, child1.owner)
         assertEquals(owner, child2.owner)
@@ -239,7 +224,7 @@ class ComponentNodeTest {
         verify(owner, times(1)).onAttach(child)
         assertEquals(1, node.size)
         assertEquals(node, child.parent)
-        assertTrue(child.isAttached)
+        assertEquals(owner, child.owner)
     }
 
     @Test
@@ -277,7 +262,7 @@ class ComponentNodeTest {
         verify(owner, times(1)).onDetach(child)
         assertEquals(0, node.size)
         assertEquals(null, child.parent)
-        assertFalse(child.isAttached)
+        assertNull(child.owner)
     }
 
     // Ensure that depth is as expected

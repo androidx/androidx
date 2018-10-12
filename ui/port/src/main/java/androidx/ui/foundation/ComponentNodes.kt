@@ -79,7 +79,7 @@ internal interface Owner {
 internal sealed class ComponentNode {
     /**
      * The parent node in the ComponentNode hierarchy. This is `null` when the `ComponentNode`
-     * [isAttached] and is the root of the tree or has not had [adoptChild] called for it.
+     * is attached (has an [owner]) and is the root of the tree or has not had [add] called for it.
      */
     var parent: ComponentNode? = null
         private set
@@ -89,12 +89,6 @@ internal sealed class ComponentNode {
      */
     var owner: Owner? = null
         private set
-
-    /**
-     * `true` when this node has an [owner] ([attach] has been called) and `false` otherwise.
-     */
-    val isAttached: Boolean
-        get() = owner != null
 
     /**
      * The tree depth of the ComponentNode. This is valid only when [isAttached] is true.
@@ -135,7 +129,7 @@ internal sealed class ComponentNode {
      * Removes one or more children, starting at [index].
      */
     open fun remove(index: Int, count: Int) {
-        val attached = isAttached
+        val attached = owner != null
         for (i in index until index + count) {
             val child = this[i]
             child.parent = null
@@ -368,7 +362,7 @@ internal class LayoutNode(
     override fun add(index: Int, child: ComponentNode) {
         children.add(index, child)
         super.add(index, child)
-        if (isAttached) {
+        if (owner != null) {
             dirtyLayout()
         }
     }
