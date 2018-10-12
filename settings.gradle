@@ -176,7 +176,7 @@ includeProject(":webkit:integration-tests:testapp", "webkit/integration-tests/te
 includeProject(":work:work-runtime", "work/workmanager")
 includeProject(":work:work-runtime-ktx", "work/workmanager-ktx")
 includeProject(":work:work-firebase", "work/workmanager-firebase")
-includeProject(":work:work-testing", "work/workmanager-test")
+includeProject(":work:work-testing", "work/workmanager-testing")
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp")
 
 /////////////////////////////
