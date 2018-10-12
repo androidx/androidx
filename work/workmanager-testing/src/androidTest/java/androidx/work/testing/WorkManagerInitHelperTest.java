@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.work.test;
+package androidx.work.testing;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
+
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
-
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 

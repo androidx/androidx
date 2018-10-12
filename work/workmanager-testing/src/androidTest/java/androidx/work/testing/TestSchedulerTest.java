@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.work.test;
+package androidx.work.testing;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,8 +32,8 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
-import androidx.work.test.workers.CountingTestWorker;
-import androidx.work.test.workers.TestWorker;
+import androidx.work.testing.workers.CountingTestWorker;
+import androidx.work.testing.workers.TestWorker;
 
 import org.junit.Before;
 import org.junit.Test;
