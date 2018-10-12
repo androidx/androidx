@@ -262,11 +262,35 @@ public enum WebViewFeatureInternal {
     /**
      * This feature covers {@link WebViewCompat#getWebChromeClient(WebView)}.
      */
-    GET_WEB_CHROME_CLIENT(WebViewFeature.GET_WEB_CHROME_CLIENT, Build.VERSION_CODES.O);
+    GET_WEB_CHROME_CLIENT(WebViewFeature.GET_WEB_CHROME_CLIENT, Build.VERSION_CODES.O),
+
+    GET_WEB_VIEW_RENDERER(WebViewFeature.GET_WEB_VIEW_RENDERER),
+    WEB_VIEW_RENDERER_TERMINATE(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE);
+
+    private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;
 
     private final String mFeatureValue;
     private final int mOsVersion;
 
+    /**
+     * Creates a WebViewFeatureInternal that does not correspond to a framework API.
+     *
+     * <p>Features constructed with this constructor can be later converted to use the
+     * other constructor if framework support is added.
+     *
+     * @param featureValue The feature string denoting this feature
+     */
+    WebViewFeatureInternal(String featureValue) {
+        this(featureValue, NOT_SUPPORTED_BY_FRAMEWORK);
+    }
+
+    /**
+     * Creates a WebViewFeatureInternal that is implemented in the framework.
+     *
+     * @param featureValue The feature string denoting this feature
+     * @param osVersion    The Android SDK level after which this feature is implemented in the
+     *                     framework.
+     */
     WebViewFeatureInternal(String featureValue, int osVersion) {
         mFeatureValue = featureValue;
         mOsVersion = osVersion;
@@ -287,6 +311,9 @@ public enum WebViewFeatureInternal {
      * current device.
      */
     public boolean isSupportedByFramework() {
+        if (mOsVersion == NOT_SUPPORTED_BY_FRAMEWORK) {
+            return false;
+        }
         return Build.VERSION.SDK_INT >= mOsVersion;
     }
 
