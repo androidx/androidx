@@ -236,12 +236,12 @@ inline operator fun RectF.minus(xy: PointF): RectF {
 /**
  * Returns the union of two rectangles as a new rectangle.
  */
-inline infix fun Rect.and(r: Rect) = this + r
+inline infix fun Rect.or(r: Rect) = this + r
 
 /**
  * Returns the union of two rectangles as a new rectangle.
  */
-inline infix fun RectF.and(r: RectF) = this + r
+inline infix fun RectF.or(r: RectF) = this + r
 
 /**
  * Returns the intersection of two rectangles as a new rectangle.
@@ -249,7 +249,7 @@ inline infix fun RectF.and(r: RectF) = this + r
  * rectangle.
  */
 @SuppressLint("CheckResult")
-inline infix fun Rect.or(r: Rect): Rect {
+inline infix fun Rect.and(r: Rect): Rect {
     return Rect(this).apply {
         intersect(r)
     }
@@ -261,7 +261,7 @@ inline infix fun Rect.or(r: Rect): Rect {
  * rectangle.
  */
 @SuppressLint("CheckResult")
-inline infix fun RectF.or(r: RectF): RectF {
+inline infix fun RectF.and(r: RectF): RectF {
     return RectF(this).apply {
         intersect(r)
     }
