@@ -32,8 +32,8 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Structure for common playback params.
  *
- * Used by {@link MediaPlayer2} {@link MediaPlayer2#getPlaybackParams()} and
- * {@link MediaPlayer2#setPlaybackParams(PlaybackParams2)}
+ * Used by {@link XMediaPlayer} {@link XMediaPlayer#getPlaybackParams()} and
+ * {@link XMediaPlayer#setPlaybackParams(PlaybackParams2)}
  * to control playback behavior.
  * <p> <strong>audio fallback mode:</strong>
  * select out-of-range parameter handling.

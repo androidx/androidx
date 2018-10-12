@@ -32,7 +32,7 @@ import androidx.annotation.RestrictTo;
  * <li> raw uninterpreted byte-array extracted directly from the container. </li>
  * </ul>
  *
- * @see MediaPlayer2.EventCallback#onTimedMetaDataAvailable
+ * @see XMediaPlayer.PlayerCallback#onTimedMetaDataAvailable
  */
 public class TimedMetaData2 {
     private static final String TAG = "TimedMetaData";

@@ -111,7 +111,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
             }
         });
 
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mPlayer.play();
 
         assertTrue(playing.waitForSignal(SLEEP_TIME));
@@ -134,7 +134,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
                 .build();
         mPlayer.setAudioAttributes(attributes);
 
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
         assertEquals(RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         assertFalse(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
@@ -205,7 +205,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mPlayer.play();
 
         onVideoSizeChangedCalled.waitForSignal();
@@ -269,7 +269,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
         assertEquals(XMediaPlayer.UNKNOWN_TIME, mPlayer.getDuration());
 
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
         assertEquals(RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         assertEquals(XMediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
@@ -311,7 +311,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
         assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
 
         float[] rates = { 0.25f, 0.5f, 1.0f, 2.0f };
@@ -363,7 +363,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
         assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
 
         mPlayer.play();
@@ -435,7 +435,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
+        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
         assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
 
         mPlayer.play();
@@ -537,7 +537,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mPlayer.play().get();
         assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
 
@@ -593,7 +593,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mPlayer.play().get();
         assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
 
@@ -634,7 +634,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mPlayer.play().get();
         assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
 
@@ -671,7 +671,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.prepare();
+        mPlayer.prefetch();
 
         // Timestamp needs to be reported when playback starts.
         mOnMediaTimeDiscontinuityCalled.reset();
@@ -717,7 +717,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         // Test returning -1 from getSize() to indicate unknown size.
         dataSource.returnFromGetSize(-1);
         mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mPlayer.play().get();
         assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
 
@@ -733,7 +733,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.reset();
         mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mPlayer.play().get();
         assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
 
@@ -785,7 +785,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
                 TestDataSourceCallback2.fromAssetFd(mResources.openRawResourceFd(resid));
         mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
-        mPlayer.prepare().get();
+        mPlayer.prefetch().get();
 
         mOnErrorCalled.reset();
         dataSource.throwFromReadAt();
@@ -811,7 +811,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
-        mPlayer.prepare().get();
+        mPlayer.prefetch().get();
 
         dataSource.returnFromReadAt(-2);
         mPlayer.play();
@@ -868,7 +868,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
         mOnPrepareCalled.reset();
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mOnPrepareCalled.waitForSignal();
 
         mOnPlayCalled.reset();
@@ -893,7 +893,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         if (!loadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             fail();
         }
-        mPlayer.prepare().get();
+        mPlayer.prefetch().get();
 
         PlaybackParams2 playbackParams = mPlayer.getPlaybackParams();
         assertEquals(PlaybackParams2.AUDIO_FALLBACK_MODE_DEFAULT,
@@ -947,8 +947,8 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         mOnErrorCalled.reset();
 
-        // prepare() will be pending until readAllowed is signaled.
-        mPlayer.prepare();
+        // prefetch() will be pending until readAllowed is signaled.
+        mPlayer.prefetch();
 
         ListenableFuture<PlayerResult> seekFuture1 = mPlayer.seekTo(3000);
         ListenableFuture<PlayerResult> seekFuture2 = mPlayer.seekTo(2000);
@@ -974,7 +974,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         assertEquals(XMediaPlayer.BUFFERING_STATE_UNKNOWN, mPlayer.getBufferingState());
         assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
 
-        future = mPlayer.prepare();
+        future = mPlayer.prefetch();
         assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
 
         assertEquals(XMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
@@ -1047,7 +1047,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         onPlayerStateChangedCalled.reset();
         onBufferingStateChangedCalled.reset();
-        future = mPlayer.prepare();
+        future = mPlayer.prefetch();
         do {
             assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
         } while (bufferingState.get() != XMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED);
@@ -1085,7 +1085,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                 .build();
         mPlayer.setAudioAttributes(attributes);
-        mPlayer.prepare();
+        mPlayer.prefetch();
         mPlayer.play();
         mPlayer.close();
 
@@ -1150,8 +1150,8 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
-        // prepare() will be pending until readAllowed is signaled.
-        mPlayer.prepare();
+        // prefetch() will be pending until readAllowed is signaled.
+        mPlayer.prefetch();
 
         ListenableFuture<PlayerResult> seekFuture = mPlayer.seekTo(1000);
         ListenableFuture<PlayerResult> volumeFuture = mPlayer.setPlayerVolume(0.7f);
@@ -1162,7 +1162,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         seekFuture.cancel(false);
         volumeFuture.cancel(false);
 
-        // Make the on-going prepare operation resumed and check the results.
+        // Make the on-going prefetch operation resumed and check the results.
         readAllowed.signal();
         mPlayer.setSurface(null).get();
 

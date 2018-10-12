@@ -155,7 +155,7 @@ public class RemoteMediaControllerCompat {
             try {
                 mBinder.prepare(mControllerId);
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call prepare()");
+                Log.e(TAG, "Failed to call prefetch()");
             }
         }
 

@@ -81,7 +81,7 @@ public class MockPlayer extends SessionPlayer2 {
     private MockPlayer(int count, boolean changePlayerStateWithTransportControl) {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
         mChangePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
-        // This prevents MS2#play() from triggering SessionPlayer2#prepare().
+        // This prevents MS2#play() from triggering SessionPlayer2#prefetch().
         mLastPlayerState = PLAYER_STATE_PAUSED;
 
         // Sets default audio attributes to prevent setVolume() from being called with the play().
@@ -119,7 +119,7 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> prepare() {
+    public ListenableFuture<PlayerResult> prefetch() {
         mPrepareCalled = true;
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
