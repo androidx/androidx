@@ -46,6 +46,7 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_QUE
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_VALUE;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
+import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaSessionMethod;
 import static android.support.mediacompat.testlib.util.TestUtil.assertBundleEquals;
@@ -206,7 +207,12 @@ public class MediaControllerCompatCallbackTest {
             new PollingCheck(TIME_OUT_MS) {
                 @Override
                 public boolean check() {
-                    return TEST_FLAGS == mController.getFlags();
+                    int expectedFlags = TEST_FLAGS;
+                    if (VERSION_TOT.equals(mServiceVersion)) {
+                        expectedFlags |= MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS;
+                        expectedFlags |= MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
+                    }
+                    return expectedFlags == mController.getFlags();
                 }
             }.run();
         }

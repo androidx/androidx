@@ -134,9 +134,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         mSessionLegacyStub = new MediaSessionLegacyStub(this);
 
         mSessionCompat.setSessionActivity(sessionActivity);
-        mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-                | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
-                | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
 
         updatePlayer(player);
         // Do followings at the last moment. Otherwise commands through framework would be sent to

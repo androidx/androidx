@@ -331,9 +331,9 @@ package android.support.v4.media.session {
     field public static final java.lang.String ACTION_UNFOLLOW = "android.support.v4.media.session.action.UNFOLLOW";
     field public static final java.lang.String ARGUMENT_MEDIA_ATTRIBUTE = "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE";
     field public static final java.lang.String ARGUMENT_MEDIA_ATTRIBUTE_VALUE = "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
-    field public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
+    field public static final deprecated int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
     field public static final int FLAG_HANDLES_QUEUE_COMMANDS = 4; // 0x4
-    field public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
+    field public static final deprecated int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
     field public static final int MEDIA_ATTRIBUTE_ALBUM = 1; // 0x1
     field public static final int MEDIA_ATTRIBUTE_ARTIST = 0; // 0x0
     field public static final int MEDIA_ATTRIBUTE_PLAYLIST = 2; // 0x2
