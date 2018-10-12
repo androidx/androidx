@@ -88,14 +88,14 @@ public abstract class Worker extends ListenableWorker {
      *                   OneTimeWorkRequest that is dependent on this one, or {@link Data#EMPTY} if
      *                   there is nothing to contribute
      */
-    public void setOutputData(@NonNull Data outputData) {
+    public final void setOutputData(@NonNull Data outputData) {
         mOutputData = outputData;
     }
 
     /**
      * @return the output {@link Data} set by the {@link Worker}.
      */
-    public Data getOutputData() {
+    public final Data getOutputData() {
         return mOutputData;
     }
 }
