@@ -18,6 +18,9 @@ package androidx.core.graphics
 
 import android.graphics.Canvas
 import android.graphics.Matrix
+import android.graphics.Path
+import android.graphics.Rect
+import android.graphics.RectF
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
@@ -125,5 +128,66 @@ class CanvasTest {
 
         assertEquals(originMatrix, canvas.matrix)
         assertEquals(beforeCount, canvas.saveCount)
+    }
+
+    @Test fun withClipRect() {
+        val b = createBitmap(4, 4)
+
+        // clipRect(Int...)
+        // Use white and red
+        b.applyCanvas {
+            drawARGB(255, 255, 255, 255)
+            withClip(0, 0, 2, 2) {
+                drawARGB(255, 255, 0, 0)
+            }
+        }
+        assertEquals(0xff_ff_00_00.toInt(), b[1, 1])
+        assertEquals(0xff_ff_ff_ff.toInt(), b[3, 3])
+
+        // clipRect(Float...)
+        // Use black and green
+        b.applyCanvas {
+            drawARGB(255, 0, 0, 0)
+            withClip(0.0f, 0.0f, 2.0f, 2.0f) {
+                drawARGB(255, 0, 255, 0)
+            }
+        }
+        assertEquals(0xff_00_ff_00.toInt(), b[1, 1])
+        assertEquals(0xff_00_00_00.toInt(), b[3, 3])
+
+        // clipRect(Rect)
+        // Use white and red
+        b.applyCanvas {
+            drawARGB(255, 255, 255, 255)
+            withClip(Rect(0, 0, 2, 2)) {
+                drawARGB(255, 255, 0, 0)
+            }
+        }
+        assertEquals(0xff_ff_00_00.toInt(), b[1, 1])
+        assertEquals(0xff_ff_ff_ff.toInt(), b[3, 3])
+
+        // clipRect(RectF)
+        // Use black and green
+        b.applyCanvas {
+            drawARGB(255, 0, 0, 0)
+            withClip(RectF(0.0f, 0.0f, 2.0f, 2.0f)) {
+                drawARGB(255, 0, 255, 0)
+            }
+        }
+        assertEquals(0xff_00_ff_00.toInt(), b[1, 1])
+        assertEquals(0xff_00_00_00.toInt(), b[3, 3])
+    }
+
+    @Test fun withClipPath() {
+        val b = createBitmap(4, 4)
+
+        b.applyCanvas {
+            drawARGB(255, 255, 255, 255)
+            withClip(Path().apply { addRect(0.0f, 0.0f, 2.0f, 2.0f, Path.Direction.CW) }) {
+                drawARGB(255, 255, 0, 0)
+            }
+        }
+        assertEquals(0xff_ff_00_00.toInt(), b[1, 1])
+        assertEquals(0xff_ff_ff_ff.toInt(), b[3, 3])
     }
 }
