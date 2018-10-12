@@ -18,6 +18,9 @@ package androidx.core.graphics
 
 import android.graphics.Canvas
 import android.graphics.Matrix
+import android.graphics.Path
+import android.graphics.Rect
+import android.graphics.RectF
 
 /**
  * Wrap the specified [block] in calls to [Canvas.save]
@@ -117,6 +120,97 @@ inline fun Canvas.withMatrix(
 ) {
     val checkpoint = save()
     concat(matrix)
+    try {
+        block()
+    } finally {
+        restoreToCount(checkpoint)
+    }
+}
+
+/**
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect]
+ * and [Canvas.restoreToCount].
+ */
+inline fun Canvas.withClip(
+    clipRect: Rect,
+    block: Canvas.() -> Unit
+) {
+    val checkpoint = save()
+    clipRect(clipRect)
+    try {
+        block()
+    } finally {
+        restoreToCount(checkpoint)
+    }
+}
+
+/**
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect]
+ * and [Canvas.restoreToCount].
+ */
+inline fun Canvas.withClip(
+    clipRect: RectF,
+    block: Canvas.() -> Unit
+) {
+    val checkpoint = save()
+    clipRect(clipRect)
+    try {
+        block()
+    } finally {
+        restoreToCount(checkpoint)
+    }
+}
+
+/**
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect]
+ * and [Canvas.restoreToCount].
+ */
+inline fun Canvas.withClip(
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int,
+    block: Canvas.() -> Unit
+) {
+    val checkpoint = save()
+    clipRect(left, top, right, bottom)
+    try {
+        block()
+    } finally {
+        restoreToCount(checkpoint)
+    }
+}
+
+/**
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect]
+ * and [Canvas.restoreToCount].
+ */
+inline fun Canvas.withClip(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    block: Canvas.() -> Unit
+) {
+    val checkpoint = save()
+    clipRect(left, top, right, bottom)
+    try {
+        block()
+    } finally {
+        restoreToCount(checkpoint)
+    }
+}
+
+/**
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipPath]
+ * and [Canvas.restoreToCount].
+ */
+inline fun Canvas.withClip(
+    clipPath: Path,
+    block: Canvas.() -> Unit
+) {
+    val checkpoint = save()
+    clipPath(clipPath)
     try {
         block()
     } finally {

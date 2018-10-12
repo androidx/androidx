@@ -21,6 +21,8 @@ package androidx.core.graphics
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorSpace
+import android.graphics.Point
+import android.graphics.PointF
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 
@@ -111,3 +113,17 @@ inline fun createBitmap(
 ): Bitmap {
     return Bitmap.createBitmap(width, height, config, hasAlpha, colorSpace)
 }
+
+/**
+ * Returns true if the specified point is inside the bitmap.
+ * A point is contained if: 0 <= x < width and 0 <= y < height.
+ * An empty bitmap never contains any point.
+ */
+inline operator fun Bitmap.contains(p: Point) = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height
+
+/**
+ * Returns true if the specified point is inside the bitmap.
+ * A point is contained if: 0 <= x < width and 0 <= y < height.
+ * An empty bitmap never contains any point.
+ */
+inline operator fun Bitmap.contains(p: PointF) = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height
