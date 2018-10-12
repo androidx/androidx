@@ -36,6 +36,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
+import android.os.LocaleList;
 import android.text.Layout;
 import android.text.PrecomputedText;
 import android.view.View;
@@ -60,6 +61,7 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -353,6 +355,42 @@ public class AppCompatTextViewTest
         TextViewCompat.setTextAppearance(textView, R.style.TextView_Typeface_Serif);
 
         assertEquals(Typeface.SERIF, textView.getTypeface());
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    public void testTextLocale_setInXml() {
+        final AppCompatTextView textView = mActivity.findViewById(
+                R.id.textview_textLocale_textView);
+        if (Build.VERSION.SDK_INT >= 24) {
+            assertEquals(LocaleList.forLanguageTags("ja-JP,zh-CN"), textView.getTextLocales());
+        } else {
+            assertEquals(Locale.forLanguageTag("ja-JP"), textView.getTextLocale());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    public void testTextLocale_setInXmlByTextAppearance() {
+        final AppCompatTextView textView = mActivity.findViewById(
+                R.id.textview_textLocale_textAppearance);
+        if (Build.VERSION.SDK_INT >= 24) {
+            assertEquals(LocaleList.forLanguageTags("zh-CN,ja-JP"), textView.getTextLocales());
+        } else {
+            assertEquals(Locale.forLanguageTag("zh-CN"), textView.getTextLocale());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    public void testTextLocalePriority_setInXml() {
+        final AppCompatTextView textView = mActivity.findViewById(
+                R.id.textview_textLocale_textView_and_textAppearance);
+        if (Build.VERSION.SDK_INT >= 24) {
+            assertEquals(LocaleList.forLanguageTags("ja-JP,zh-CN"), textView.getTextLocales());
+        } else {
+            assertEquals(Locale.forLanguageTag("ja-JP"), textView.getTextLocale());
+        }
     }
 
     @Test
