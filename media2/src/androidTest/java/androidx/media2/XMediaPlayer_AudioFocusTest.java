@@ -170,7 +170,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
         loadResource(R.raw.loudsoftogg);
         mPlayer.setAudioAttributes(attr);
         assertEquals(SessionPlayer2.PlayerResult.RESULT_CODE_SUCCESS,
-                mPlayer.prepare().get(WAIT_TIME_MS, TimeUnit.MILLISECONDS).getResultCode());
+                mPlayer.prefetch().get(WAIT_TIME_MS, TimeUnit.MILLISECONDS).getResultCode());
     }
 
     private void testPausedAfterAction(final AudioAttributesCompat attr,
