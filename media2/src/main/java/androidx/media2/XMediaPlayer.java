@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media2.SessionPlayer2.PlayerResult.RESULT_CODE_BAD_VALUE;
 import static androidx.media2.SessionPlayer2.PlayerResult.RESULT_CODE_INVALID_STATE;
@@ -35,7 +34,6 @@ import android.media.MediaDrmException;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.PersistableBundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
 
@@ -50,6 +48,7 @@ import androidx.concurrent.futures.AbstractResolvableFuture;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.SessionPlayer2.PlayerResult;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -69,6 +68,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * A media player which plays {@link MediaItem2}s. The details on playback control and player states
+ * can be found in the documentation of the base class, {@link SessionPlayer2}.
+ * <p>
  * Topic covered here:
  * <ol>
  * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
@@ -126,65 +128,63 @@ import java.util.concurrent.atomic.AtomicInteger;
  * For more information about the audio focus, take a look at
  * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
  * <p>
- * @hide
  */
 @TargetApi(Build.VERSION_CODES.P)
-@RestrictTo(LIBRARY)
 public class XMediaPlayer extends SessionPlayer2 {
     private static final String TAG = "XMediaPlayer";
 
     /**
-     * Unspecified media player error.
+     * Unspecified player error.
      * @see PlayerCallback#onError
      */
-    public static final int MEDIA_ERROR_UNKNOWN = 1;
+    public static final int PLAYER_ERROR_UNKNOWN = 1;
     /**
      * The video is streamed and its container is not valid for progressive
      * playback i.e the video's index (e.g moov atom) is not at the start of the
      * file.
      * @see PlayerCallback#onError
      */
-    public static final int MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200;
+    public static final int PLAYER_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200;
     /**
      * File or network related operation errors.
      * @see PlayerCallback#onError
      */
-    public static final int MEDIA_ERROR_IO = -1004;
+    public static final int PLAYER_ERROR_IO = -1004;
     /**
      * Bitstream is not conforming to the related coding standard or file spec.
      * @see PlayerCallback#onError
      */
-    public static final int MEDIA_ERROR_MALFORMED = -1007;
+    public static final int PLAYER_ERROR_MALFORMED = -1007;
     /**
      * Bitstream is conforming to the related coding standard or file spec, but
      * the media framework does not support the feature.
      * @see PlayerCallback#onError
      */
-    public static final int MEDIA_ERROR_UNSUPPORTED = -1010;
+    public static final int PLAYER_ERROR_UNSUPPORTED = -1010;
     /**
      * Some operation takes too long to complete, usually more than 3-5 seconds.
      * @see PlayerCallback#onError
      */
-    public static final int MEDIA_ERROR_TIMED_OUT = -110;
+    public static final int PLAYER_ERROR_TIMED_OUT = -110;
     /** Unspecified low-level system error. This value originated from UNKNOWN_ERROR in
      * system/core/include/utils/Errors.h
      * @see PlayerCallback#onError
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int MEDIA_ERROR_SYSTEM = -2147483648;
+    public static final int PLAYER_ERROR_SYSTEM = -2147483648;
 
     /**
      * @hide
      */
-    @IntDef(flag = false, /*prefix = "MEDIA_ERROR",*/ value = {
-            MEDIA_ERROR_UNKNOWN,
-            MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
-            MEDIA_ERROR_IO,
-            MEDIA_ERROR_MALFORMED,
-            MEDIA_ERROR_UNSUPPORTED,
-            MEDIA_ERROR_TIMED_OUT,
-            MEDIA_ERROR_SYSTEM
+    @IntDef(flag = false, /*prefix = "PLAYER_ERROR",*/ value = {
+            PLAYER_ERROR_UNKNOWN,
+            PLAYER_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
+            PLAYER_ERROR_IO,
+            PLAYER_ERROR_MALFORMED,
+            PLAYER_ERROR_UNSUPPORTED,
+            PLAYER_ERROR_TIMED_OUT,
+            PLAYER_ERROR_SYSTEM
     })
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP)
@@ -245,11 +245,11 @@ public class XMediaPlayer extends SessionPlayer2 {
     public static final int MEDIA_INFO_MEDIA_ITEM_REPEAT = 7;
 
     /**
-     * The player just prepared a media item.
-     * @see #prepare()
+     * The player just finished prefetching a media item for playback.
+     * @see #prefetch()
      * @see PlayerCallback#onInfo
      */
-    public static final int MEDIA_INFO_PREPARED = 100;
+    public static final int MEDIA_INFO_PREFETCHED = 100;
 
     /**
      * The video is too complex for the decoder: it can't decode frames fast
@@ -376,7 +376,7 @@ public class XMediaPlayer extends SessionPlayer2 {
             MEDIA_INFO_MEDIA_ITEM_END,
             MEDIA_INFO_MEDIA_ITEM_LIST_END,
             MEDIA_INFO_MEDIA_ITEM_REPEAT,
-            MEDIA_INFO_PREPARED,
+            MEDIA_INFO_PREFETCHED,
             MEDIA_INFO_VIDEO_TRACK_LAGGING,
             MEDIA_INFO_BUFFERING_START,
             MEDIA_INFO_BUFFERING_END,
@@ -468,14 +468,14 @@ public class XMediaPlayer extends SessionPlayer2 {
         sResultCodeMap.put(MediaPlayer2.CALL_STATUS_SKIPPED, RESULT_CODE_SKIPPED);
 
         sErrorCodeMap = new ArrayMap<>();
-        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_UNKNOWN, MEDIA_ERROR_UNKNOWN);
+        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_UNKNOWN, PLAYER_ERROR_UNKNOWN);
         sErrorCodeMap.put(
                 MediaPlayer2.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
-                MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK);
-        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_IO, MEDIA_ERROR_IO);
-        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_MALFORMED, MEDIA_ERROR_MALFORMED);
-        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_UNSUPPORTED, MEDIA_ERROR_UNSUPPORTED);
-        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_TIMED_OUT, MEDIA_ERROR_TIMED_OUT);
+                PLAYER_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK);
+        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_IO, PLAYER_ERROR_IO);
+        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_MALFORMED, PLAYER_ERROR_MALFORMED);
+        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_UNSUPPORTED, PLAYER_ERROR_UNSUPPORTED);
+        sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_TIMED_OUT, PLAYER_ERROR_TIMED_OUT);
 
         sInfoCodeMap = new ArrayMap<>();
         sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_UNKNOWN, MEDIA_INFO_UNKNOWN);
@@ -522,6 +522,8 @@ public class XMediaPlayer extends SessionPlayer2 {
     /* A list for tracking the commands submitted to MediaPlayer2.*/
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayDeque<PendingCommand> mPendingCommands = new ArrayDeque<>();
+    @GuardedBy("mPendingCommands")
+    boolean mPreviewEnabled;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final class PendingCommand {
@@ -575,6 +577,7 @@ public class XMediaPlayer extends SessionPlayer2 {
         mAudioFocusHandler = new AudioFocusHandler(context, this);
     }
 
+    @GuardedBy("mPendingCommands")
     private void addPendingCommandLocked(
             int callType, final ResolvableFuture future, final Object token) {
         final PendingCommand pendingCommand = new PendingCommand(callType, future);
@@ -621,17 +624,49 @@ public class XMediaPlayer extends SessionPlayer2 {
         return future;
     }
 
+    /**
+     * Prefetches the media items for playback.
+     *
+     * @return a {@link ListenableFuture} which represents the pending completion of the command.
+     * {@link PlayerResult} will be delivered when the command completes.
+     */
     @Override
-    public ListenableFuture<PlayerResult> prepare() {
-        ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
+    public ListenableFuture<PlayerResult> prefetch() {
+        ListenableFuture ret;
         synchronized (mPendingCommands) {
+            ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
             Object token = mPlayer._prepare();
             addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PREPARE, future, token);
+            if (mPreviewEnabled) {
+                ResolvableFuture<PlayerResult> future2 = ResolvableFuture.create();
+                Object token2 = mPlayer._pause();
+                addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PAUSE, future2, token2);
+                ret = CombindedCommandResultFuture.create(mExecutor, future, future2);
+            } else {
+                ret = future;
+            }
         }
         // TODO: Changing buffering state is not correct. Think about changing MP2 event APIs for
-        // the initial buffering for prepare case.
+        // the initial buffering for prefetch case.
         setBufferingState(mPlayer.getCurrentMediaItem(), BUFFERING_STATE_BUFFERING_AND_STARVED);
-        return future;
+        return ret;
+    }
+
+    /**
+     * Enables or disables the preview when prefetching has been completed.
+     * <p>
+     * If enabled, the player shows the preview of the video, e.g. the first frame of the video,
+     * when prefetching has been completed. By default, preview is disabled.
+     *
+     * @param enabled whether preview is enabled or not.
+     * @return a {@link ListenableFuture} which represents the pending completion of the command.
+     * {@link PlayerResult} will be delivered when the command completes.
+     */
+    public ListenableFuture<PlayerResult> setPreviewEnabled(boolean enabled) {
+        synchronized (mPendingCommands) {
+            mPreviewEnabled = enabled;
+        }
+        return createFutureForResultCodeInternal(RESULT_CODE_SUCCESS);
     }
 
     @Override
@@ -1092,7 +1127,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     /**
      * Resets {@link XMediaPlayer} to its uninitialized state. After calling
      * this method, you will have to initialize it again by setting the
-     * media item and calling {@link #prepare()}.
+     * media item and calling {@link #prefetch()}.
      */
     public void reset() {
         mPlayer.reset();
@@ -1102,6 +1137,7 @@ public class XMediaPlayer extends SessionPlayer2 {
                 c.mFuture.cancel(true);
             }
             mPendingCommands.clear();
+            mPreviewEnabled = false;
         }
         synchronized (mStateLock) {
             mState = PLAYER_STATE_IDLE;
@@ -1210,7 +1246,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      * The attributes are described in {@link MetricsConstants}.
      *
      * Additional vendor-specific fields may also be present in the return value.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public PersistableBundle getMetrics() {
         return mPlayer.getMetrics();
     }
@@ -2201,6 +2239,8 @@ public class XMediaPlayer extends SessionPlayer2 {
         public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
         public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
         public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
+        /** @hide */
+        @RestrictTo(LIBRARY_GROUP)
         public static final int MEDIA_TRACK_TYPE_TIMEDTEXT = 3;
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
         public static final int MEDIA_TRACK_TYPE_METADATA = 5;
@@ -2331,7 +2371,9 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     /**
      * Definitions for the metrics that are reported via the {@link #getMetrics} call.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final class MetricsConstants {
         private MetricsConstants() {}
 
@@ -2477,13 +2519,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     /**
      * Result class of the asynchronous DRM APIs.
      */
-    public static class DrmResult {
-        /**
-         * Result code represents that call is successfully completed.
-         * @see #getResultCode()
-         */
-        public static final int RESULT_CODE_SUCCESS = PlayerResult.RESULT_CODE_SUCCESS;
-
+    public static class DrmResult extends PlayerResult {
         /**
          * The device required DRM provisioning but couldn't reach the provisioning server.
          */
@@ -2522,63 +2558,24 @@ public class XMediaPlayer extends SessionPlayer2 {
         @RestrictTo(LIBRARY_GROUP)
         public @interface DrmResultCode {}
 
-        private final int mResultCode;
-        private final long mCompletionTime;
-        private final MediaItem2 mItem;
-
         /**
          * Constructor that uses the current system clock as the completion time.
          *
          * @param resultCode result code. Recommends to use the standard code defined here.
          * @param item media item when the operation is completed
          */
-        public DrmResult(int resultCode, @Nullable MediaItem2 item) {
-            this(resultCode, item, SystemClock.elapsedRealtime());
-        }
-
-        private DrmResult(int resultCode, @Nullable MediaItem2 item, long completionTime) {
-            mResultCode = resultCode;
-            mCompletionTime = completionTime;
-            mItem = item;
+        public DrmResult(@DrmResultCode int resultCode, @Nullable MediaItem2 item) {
+            super(resultCode, item);
         }
 
         /**
          * Gets the result code.
-         * <p>
-         * Subclass of the {@link SessionPlayer2} may have defined customized extra code other than
-         * codes defined here. Check the documentation of the class that you're interested in.
          *
          * @return result code.
-         * @see #RESULT_CODE_SUCCESS
-         * @see #RESULT_CODE_PROVISIONING_NETWORK_ERROR
-         * @see #RESULT_CODE_PROVISIONING_SERVER_ERROR
-         * @see #RESULT_CODE_PREPARATION_ERROR
-         * @see #RESULT_CODE_UNSUPPORTED_SCHEME
-         * @see #RESULT_CODE_RESOURCE_BUSY
          */
-        public int getResultCode() {
-            return mResultCode;
-        }
-
-        /**
-         * Gets the completion time of the command. Being more specific, it's the same as
-         * {@link SystemClock#elapsedRealtime()} when the command is completed.
-         *
-         * @return completion time of the command
-         */
-        public long getCompletionTime() {
-            return mCompletionTime;
-        }
-
-        /**
-         * Gets the {@link MediaItem2} for which the command was executed. In other words, this is
-         * the current media item when the command is completed.
-         *
-         * @return media item when the command is completed. Can be {@code null} for error or
-         *         player hasn't intiialized.
-         */
-        public @Nullable MediaItem2 getMediaItem() {
-            return mItem;
+        @Override
+        public @DrmResultCode int getResultCode() {
+            return super.getResultCode();
         }
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
@@ -220,8 +221,11 @@ import java.util.concurrent.Executor;
  * <p>In order for callbacks to work, your app must create
  * MediaPlayer2 objects on a thread that has its own running Looper. This can be done on the main UI
  * thread, which has a Looper.</p>
+ *
+ * @hide
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
+@RestrictTo(LIBRARY)
 public abstract class MediaPlayer2 {
 
     /**

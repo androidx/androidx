@@ -657,7 +657,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         return mCurrentState != STATE_PLAYING && mTargetState == STATE_PLAYING;
     }
 
-    // Creates a MediaPlayer instance and prepare playback.
+    // Creates a MediaPlayer instance and prefetch media item.
     void openVideo() {
         if (DEBUG) {
             Log.d(TAG, "openVideo()");
@@ -693,7 +693,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             // we don't set the target state here either, but preserve the
             // target state that was there before.
             mCurrentState = STATE_PREPARING;
-            mMediaSession.getPlayer().prepare();
+            mMediaSession.getPlayer().prefetch();
         } catch (IllegalArgumentException ex) {
             Log.w(TAG, "Unable to open content: " + mMediaItem, ex);
             mCurrentState = STATE_ERROR;
