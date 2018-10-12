@@ -125,5 +125,34 @@ class ColorTest {
         assertEquals(0.75f, a, 1e-2f)
     }
 
+    @SdkSuppress(minSdkVersion = 26)
+    @Test fun colorConversion() {
+        val bt2020 = ColorSpace.get(ColorSpace.Named.BT2020)
+
+        // Test color ints
+        val c1 = 0x7f102030 convertTo ColorSpace.Named.BT2020
+        assertEquals(bt2020, c1.colorSpace)
+
+        val c2 = 0x7f102030 convertTo bt2020
+        assertEquals(bt2020, c2.colorSpace)
+
+        // Test color longs
+        val colorLong =
+                Color.pack(1.0f, 0.0f, 0.0f, 1.0f, ColorSpace.get(ColorSpace.Named.DISPLAY_P3))
+        val c3 = colorLong convertTo ColorSpace.Named.BT2020
+        assertEquals(bt2020, c3.colorSpace)
+
+        val c4 = colorLong convertTo bt2020
+        assertEquals(bt2020, c4.colorSpace)
+
+        // Test colors
+        val color = Color.valueOf(colorLong)
+        val c5 = color convertTo ColorSpace.Named.BT2020
+        assertEquals(bt2020, c5.colorSpace)
+
+        val c6 = color convertTo bt2020
+        assertEquals(bt2020, c6.colorSpace)
+    }
+
     @Test fun stringToColorInt() = assertEquals(Color.GREEN, "#00ff00".toColorInt())
 }
