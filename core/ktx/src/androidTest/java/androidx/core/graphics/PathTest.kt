@@ -65,11 +65,11 @@ class PathTest {
     }
 
     @SdkSuppress(minSdkVersion = 19)
-    @Test fun testAnd() {
+    @Test fun testOr() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
 
-        val p = r1 and r2
+        val p = r1 or r2
         val r = RectF()
         p.computeBounds(r, true)
 
@@ -93,7 +93,7 @@ class PathTest {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
 
-        val p = r1 or r2
+        val p = r1 and r2
         val r = RectF()
         p.computeBounds(r, true)
 
@@ -105,7 +105,7 @@ class PathTest {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 2.0f, 2.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 5.0f, 7.0f, 7.0f, Path.Direction.CW) }
 
-        val p = r1 or r2
+        val p = r1 and r2
         assertTrue(p.isEmpty)
     }
 

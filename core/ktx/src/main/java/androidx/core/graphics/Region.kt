@@ -81,17 +81,17 @@ inline operator fun Region.not() = -this
 /**
  * Return the union of this region and the specified [Rect] as a new region.
  */
-inline infix fun Region.and(r: Rect) = this + r
+inline infix fun Region.or(r: Rect) = this + r
 
 /**
  * Return the union of this region and the specified region as a new region.
  */
-inline infix fun Region.and(r: Region) = this + r
+inline infix fun Region.or(r: Region) = this + r
 
 /**
  * Return the intersection of this region and the specified [Rect] as a new region.
  */
-inline infix fun Region.or(r: Rect): Region {
+inline infix fun Region.and(r: Rect): Region {
     return Region(this).apply {
         op(r, Region.Op.INTERSECT)
     }
@@ -100,7 +100,7 @@ inline infix fun Region.or(r: Rect): Region {
 /**
  * Return the intersection of this region and the specified region as a new region.
  */
-inline infix fun Region.or(r: Region): Region {
+inline infix fun Region.and(r: Region): Region {
     return Region(this).apply {
         op(r, Region.Op.INTERSECT)
     }
