@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.work.test.workers;
+package androidx.work.testing.workers;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
