@@ -53,6 +53,22 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun deepLinkExactMatchWithPlus() {
+        val deepLinkString = "android+app://com.example"
+        val deepLink = NavDeepLink(deepLinkString)
+
+        assertTrue(deepLink.matches(Uri.parse(deepLinkString)))
+    }
+
+    @Test
+    fun deepLinkExactMatchWithPeriods() {
+        val deepLinkString = "android.app://com.example"
+        val deepLink = NavDeepLink(deepLinkString)
+
+        assertTrue(deepLink.matches(Uri.parse(deepLinkString)))
+    }
+
+    @Test
     fun deepLinkExactMatchNoScheme() {
         val deepLink = NavDeepLink(DEEP_LINK_EXACT_NO_SCHEME)
 
@@ -70,6 +86,18 @@ class NavDeepLinkTest {
         val id = "2"
         val matchArgs = deepLink.getMatchingArguments(
                 Uri.parse(deepLinkArgument.replace("{id}", id)))
+        assertNotNull("Args should not be null", matchArgs)
+        assertEquals("Args should contain the id", id, matchArgs?.getString("id"))
+    }
+
+    @Test
+    fun deepLinkQueryParamArgumentMatch() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val id = "2"
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkArgument.replace("{id}", id)))
         assertNotNull("Args should not be null", matchArgs)
         assertEquals("Args should contain the id", id, matchArgs?.getString("id"))
     }
@@ -130,13 +158,29 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun deepLinkWildcardBeforeArgumentMatch() {
+        val deepLinkMultiple = "$DEEP_LINK_EXACT_HTTPS/users/.*/posts/{postId}"
+        val deepLink = NavDeepLink(deepLinkMultiple)
+
+        val postId = "2"
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkMultiple
+                .replace(".*", "test")
+                .replace("{postId}", postId)))
+        assertNotNull("Args should not be null", matchArgs)
+        assertEquals("Args should contain the postId", postId, matchArgs?.getString("postId"))
+    }
+
+    @Test
     fun deepLinkMultipleMatch() {
         val deepLinkMultiple = "$DEEP_LINK_EXACT_HTTPS/users/{id}/posts/.*"
         val deepLink = NavDeepLink(deepLinkMultiple)
 
         val id = "2"
         val matchArgs = deepLink.getMatchingArguments(
-                Uri.parse(deepLinkMultiple.replace("{id}", id)))
+                Uri.parse(deepLinkMultiple
+                    .replace("{id}", id)
+                    .replace(".*", "test")))
         assertNotNull("Args should not be null", matchArgs)
         assertEquals("Args should contain the id", id, matchArgs?.getString("id"))
     }
