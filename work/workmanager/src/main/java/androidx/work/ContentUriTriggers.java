@@ -18,15 +18,15 @@ package androidx.work;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
  * Stores a set of {@link Trigger}s.
  */
-public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> {
+public final class ContentUriTriggers {
 
     private final Set<Trigger> mTriggers = new HashSet<>();
 
@@ -41,10 +41,13 @@ public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Tri
         mTriggers.add(trigger);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    @Override
-    public Iterator<Trigger> iterator() {
-        return mTriggers.iterator();
+    public Set<Trigger> getTriggers() {
+        return mTriggers;
     }
 
     /**
