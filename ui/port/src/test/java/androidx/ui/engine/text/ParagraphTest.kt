@@ -42,14 +42,14 @@ class ParagraphTest {
     fun `alphabeticBaseline default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.alphabeticBaseline, equalTo(0.0))
+        assertThat(paragraph.alphabeticBaseline, equalTo(Double.MAX_VALUE))
     }
 
     @Test
     fun `ideographicBaseline default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.ideographicBaseline, equalTo(0.0))
+        assertThat(paragraph.ideographicBaseline, equalTo(Double.MAX_VALUE))
     }
 
     @Test
@@ -65,7 +65,7 @@ class ParagraphTest {
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val maxLines = 2
-        val fontFamily = "san-serif"
+        val fontFamily = FontFallback()
         val fontSize = 1.0
         val lineHeight = 2.0
         val ellipsis = "dot dot"

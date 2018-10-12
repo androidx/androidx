@@ -16,6 +16,8 @@
 <manifest package="androidx.ui.port" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
-    <application/>
+    <application>
+        <activity android:name="androidx.ui.port.integration.ImageDrawTest$Companion$TestActivity"/>
+    </application>
 </manifest>
 

@@ -33,7 +33,8 @@ data class TextStyle constructor(
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
     val textBaseline: TextBaseline? = null,
-    val fontFamily: String? = null,
+    // TODO(Migration/siyamed): fontFamily was String
+    val fontFamily: FontFallback? = null,
     val fontSize: Double? = null,
     val letterSpacing: Double? = null,
     val wordSpacing: Double? = null,
@@ -42,7 +43,7 @@ data class TextStyle constructor(
     val background: Paint? = null,
     val foreground: Paint? = null
 ) {
-    val _fontFamily: String
+    val _fontFamily: FontFallback
 
     init {
         assert(color == null || foreground == null) {
@@ -51,7 +52,7 @@ data class TextStyle constructor(
                 "'foreground: new Paint()..color = color'."
         }
 
-        _fontFamily = fontFamily ?: ""
+        _fontFamily = fontFamily ?: FontFallback()
     }
 
     override fun toString(): String {
