@@ -83,9 +83,11 @@ class FirebaseJobConverter {
     @RequiresApi(24)
     private static JobTrigger.ContentUriTrigger createContentUriTriggers(WorkSpec workSpec) {
         List<ObservedUri> observedUris = new ArrayList<>();
-        ContentUriTriggers triggers = workSpec.constraints.getContentUriTriggers();
-        for (ContentUriTriggers.Trigger trigger : triggers) {
-            observedUris.add(convertContentUriTrigger(trigger));
+        ContentUriTriggers contentUriTriggers = workSpec.constraints.getContentUriTriggers();
+        if (contentUriTriggers != null) {
+            for (ContentUriTriggers.Trigger trigger : contentUriTriggers.getTriggers()) {
+                observedUris.add(convertContentUriTrigger(trigger));
+            }
         }
         return Trigger.contentUriTrigger(observedUris);
     }
