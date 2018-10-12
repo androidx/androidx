@@ -38,7 +38,7 @@ public abstract class ServiceWorkerClientCompat {
      *
      * <p>This method is called only if {@link
      * WebViewFeature#SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST} is supported. You can check whether
-     * that flag is supported using {@link WebViewFeature#isFeatureSupported(String)}.</p>
+     * that flag is supported using {@link WebViewFeature#isFeatureSupported(String)}.
      *
      * @param request Object containing the details of the request.
      * @return A {@link android.webkit.WebResourceResponse} containing the
