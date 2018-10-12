@@ -60,7 +60,9 @@ public abstract class WorkerFactory {
      * @param workerParameters Parameters for worker initialization
      * @return A new {@link ListenableWorker} instance of type {@code workerClassName}, or
      *         {@code null} if the worker could not be created
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final @Nullable ListenableWorker createWorkerWithDefaultFallback(
             @NonNull Context appContext,
             @NonNull String workerClassName,
