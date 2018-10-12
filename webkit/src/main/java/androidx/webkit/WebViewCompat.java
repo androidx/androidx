@@ -475,6 +475,44 @@ public class WebViewCompat {
         }
     }
 
+    /**
+     * Gets the WebView renderer associated with this WebView.
+     *
+     * <p>In Android O and above, WebView may run in "multiprocess"
+     * mode. In multiprocess mode, rendering of web content is performed by
+     * a sandboxed renderer process separate to the application process.
+     * This renderer process may be shared with other WebViews in the
+     * application, but is not shared with other application processes.
+     *
+     * <p>If WebView is running in multiprocess mode, this method returns a
+     * handle to the renderer process associated with the WebView, which can
+     * be used to control the renderer process.
+     *
+     * <p>This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#GET_WEB_VIEW_RENDERER}.
+     *
+     * @return the {@link WebViewRenderer} renderer handle associated
+     *         with this {@link android.webkit.WebView}, or {@code null} if
+     *         WebView is not runing in multiprocess mode.
+     */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_RENDERER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @Nullable WebViewRenderer getWebViewRenderer(@NonNull WebView webview) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
+        if (feature.isSupportedByWebView()) {
+            try {
+                return getProvider(webview).getWebViewRenderer();
+            } catch (Exception e) {
+                throw WebViewFeatureInternal.getUnsupportedOperationException();
+            }
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
     private static WebViewProviderFactory getFactory() {
         return WebViewGlueCommunicator.getFactory();
     }

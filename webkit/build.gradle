@@ -27,6 +27,7 @@ dependencies {
     api(project(':core'))
 
     androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
 }
 
 ext {

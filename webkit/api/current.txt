@@ -79,6 +79,7 @@ package androidx.webkit {
     method public static android.net.Uri getSafeBrowsingPrivacyPolicyUrl();
     method public static android.webkit.WebChromeClient getWebChromeClient(android.webkit.WebView);
     method public static android.webkit.WebViewClient getWebViewClient(android.webkit.WebView);
+    method public static androidx.webkit.WebViewRenderer getWebViewRenderer(android.webkit.WebView);
     method public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
     method public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
     method public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String>, android.webkit.ValueCallback<java.lang.Boolean>);
@@ -95,6 +96,7 @@ package androidx.webkit {
     field public static final java.lang.String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
     field public static final java.lang.String GET_WEB_CHROME_CLIENT = "GET_WEB_CHROME_CLIENT";
     field public static final java.lang.String GET_WEB_VIEW_CLIENT = "GET_WEB_VIEW_CLIENT";
+    field public static final java.lang.String GET_WEB_VIEW_RENDERER = "GET_WEB_VIEW_RENDERER";
     field public static final java.lang.String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final java.lang.String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
     field public static final java.lang.String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";
@@ -122,6 +124,11 @@ package androidx.webkit {
     field public static final java.lang.String WEB_RESOURCE_ERROR_GET_CODE = "WEB_RESOURCE_ERROR_GET_CODE";
     field public static final java.lang.String WEB_RESOURCE_ERROR_GET_DESCRIPTION = "WEB_RESOURCE_ERROR_GET_DESCRIPTION";
     field public static final java.lang.String WEB_RESOURCE_REQUEST_IS_REDIRECT = "WEB_RESOURCE_REQUEST_IS_REDIRECT";
+    field public static final java.lang.String WEB_VIEW_RENDERER_TERMINATE = "WEB_VIEW_RENDERER_TERMINATE";
+  }
+
+  public abstract class WebViewRenderer {
+    method public abstract boolean terminate();
   }
 
 }

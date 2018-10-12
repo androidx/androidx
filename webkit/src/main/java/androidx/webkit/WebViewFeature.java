@@ -80,7 +80,9 @@ public class WebViewFeature {
             POST_WEB_MESSAGE,
             WEB_MESSAGE_CALLBACK_ON_MESSAGE,
             GET_WEB_VIEW_CLIENT,
-            GET_WEB_CHROME_CLIENT
+            GET_WEB_CHROME_CLIENT,
+            GET_WEB_VIEW_RENDERER,
+            WEB_VIEW_RENDERER_TERMINATE,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -333,6 +335,18 @@ public class WebViewFeature {
      * This feature covers {@link WebViewCompat#getWebChromeClient(WebView)}
      */
     public static final String GET_WEB_CHROME_CLIENT = Features.GET_WEB_CHROME_CLIENT;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#getWebViewRenderer(WebView)}
+     */
+    public static final String GET_WEB_VIEW_RENDERER = Features.GET_WEB_VIEW_RENDERER;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewRenderer#terminate()}
+     */
+    public static final String WEB_VIEW_RENDERER_TERMINATE = Features.WEB_VIEW_RENDERER_TERMINATE;
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
