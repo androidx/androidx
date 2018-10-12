@@ -18,9 +18,9 @@ package androidx.fragment.app;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -31,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.app.test.NewIntentActivity;
@@ -201,7 +202,12 @@ public class FragmentTransactionTest {
         // once it is detached, the getLayoutInflater() will default to throw
         // an exception, but we've made it return null instead.
         assertEquals(2, fragment1.onGetLayoutInflaterCalls);
-        assertNull(fragment1.getLayoutInflater());
+        try {
+            fragment1.getLayoutInflater();
+            fail("getLayoutInflater should throw when the Fragment is detached");
+        } catch (IllegalStateException e) {
+            // Expected
+        }
         assertEquals(3, fragment1.onGetLayoutInflaterCalls);
     }
 
@@ -457,20 +463,17 @@ public class FragmentTransactionTest {
         public int onGetLayoutInflaterCalls = 0;
         public LayoutInflater layoutInflater;
 
+        @NonNull
         @Override
         public LayoutInflater onGetLayoutInflater(Bundle savedInstanceState) {
             onGetLayoutInflaterCalls++;
-            try {
-                layoutInflater = super.onGetLayoutInflater(savedInstanceState);
-            } catch (Exception e) {
-                return null;
-            }
+            layoutInflater = super.onGetLayoutInflater(savedInstanceState);
             return layoutInflater;
         }
 
         @Nullable
         @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                 @Nullable Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_a, container, false);
         }
