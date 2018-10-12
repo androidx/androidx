@@ -31,6 +31,7 @@ import androidx.work.WorkerParameters;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkManagerImpl;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,13 +120,14 @@ public class SystemJobService extends JobService implements ExecutionListener {
         WorkerParameters.RuntimeExtras runtimeExtras = null;
         if (Build.VERSION.SDK_INT >= 24) {
             runtimeExtras = new WorkerParameters.RuntimeExtras();
-            if (params.getTriggeredContentUris() != null
-                    || params.getTriggeredContentAuthorities() != null) {
-                runtimeExtras.triggeredContentUris = params.getTriggeredContentUris();
-                runtimeExtras.triggeredContentAuthorities =
-                        params.getTriggeredContentAuthorities();
+            if (params.getTriggeredContentUris() != null) {
+                runtimeExtras.triggeredContentUris =
+                        Arrays.asList(params.getTriggeredContentUris());
             }
-
+            if (params.getTriggeredContentAuthorities() != null) {
+                runtimeExtras.triggeredContentAuthorities =
+                        Arrays.asList(params.getTriggeredContentAuthorities());
+            }
             if (Build.VERSION.SDK_INT >= 28) {
                 runtimeExtras.network = params.getNetwork();
             }
