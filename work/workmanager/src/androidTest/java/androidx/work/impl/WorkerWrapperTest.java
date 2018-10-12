@@ -27,7 +27,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
@@ -729,8 +728,8 @@ public class WorkerWrapperTest extends DatabaseTest {
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkerParameters.RuntimeExtras runtimeExtras = new WorkerParameters.RuntimeExtras();
-        runtimeExtras.triggeredContentAuthorities = new String[]{"tca1", "tca2", "tca3"};
-        runtimeExtras.triggeredContentUris = new Uri[]{Uri.parse("tcu1"), Uri.parse("tcu2")};
+        runtimeExtras.triggeredContentAuthorities = Arrays.asList("tca1", "tca2", "tca3");
+        runtimeExtras.triggeredContentUris = Arrays.asList(Uri.parse("tcu1"), Uri.parse("tcu2"));
 
         ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
@@ -747,9 +746,9 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getTriggeredContentAuthorities(),
-                arrayContaining(runtimeExtras.triggeredContentAuthorities));
+                containsInAnyOrder(runtimeExtras.triggeredContentAuthorities.toArray()));
         assertThat(worker.getTriggeredContentUris(),
-                arrayContaining(runtimeExtras.triggeredContentUris));
+                containsInAnyOrder(runtimeExtras.triggeredContentUris.toArray()));
     }
 
     @Test

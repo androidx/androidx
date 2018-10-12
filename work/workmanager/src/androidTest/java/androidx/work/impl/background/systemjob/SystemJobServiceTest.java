@@ -19,6 +19,7 @@ package androidx.work.impl.background.systemjob;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -64,6 +65,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -254,8 +256,9 @@ public class SystemJobServiceTest extends WorkManagerTest {
 
         assertThat(ContentUriTriggerLoggingWorker.sTimesUpdated, is(1));
         assertThat(ContentUriTriggerLoggingWorker.sTriggeredContentAuthorities,
-                is(testContentAuthorities));
-        assertThat(ContentUriTriggerLoggingWorker.sTriggeredContentUris, is(testContentUris));
+                containsInAnyOrder(testContentAuthorities));
+        assertThat(ContentUriTriggerLoggingWorker.sTriggeredContentUris,
+                containsInAnyOrder(testContentUris));
     }
 
     @Test
@@ -296,8 +299,8 @@ public class SystemJobServiceTest extends WorkManagerTest {
     public static class ContentUriTriggerLoggingWorker extends Worker {
 
         static int sTimesUpdated = 0;
-        static String[] sTriggeredContentAuthorities;
-        static Uri[] sTriggeredContentUris;
+        static List<String> sTriggeredContentAuthorities;
+        static List<Uri> sTriggeredContentUris;
 
         public ContentUriTriggerLoggingWorker(@NonNull Context context,
                 @NonNull WorkerParameters workerParams) {
