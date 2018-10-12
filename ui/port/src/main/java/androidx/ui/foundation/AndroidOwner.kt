@@ -337,9 +337,8 @@ private class DepthFirstComparison : Comparator<ComponentNode> {
         if (depthDiff != 0) {
             return depthDiff
         }
-        assert(o1.isAttached)
-        assert(o2.isAttached)
         assert(o1.owner === o2.owner)
+        assert(o1.owner != null)
         var o1Child: ComponentNode = o1
         var thatChild: ComponentNode = o2
         var o1Parent = o1.parent!!
