@@ -29,12 +29,12 @@
         android:text="@string/sample_text1"
         app:fontFamily="@font/samplefont" />
 
-    <androidx.appcompat.widget.AppCompatCheckBoxSpy
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/checkbox_button_compat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <androidx.appcompat.widget.AppCompatCheckBoxSpy
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/checkbox_null_button_compat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
