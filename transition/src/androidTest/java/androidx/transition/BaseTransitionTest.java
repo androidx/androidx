@@ -80,7 +80,7 @@ public abstract class BaseTransitionTest extends BaseTest {
         startTransition(loadScene(layoutId));
     }
 
-    private void startTransition(final Scene scene) throws Throwable {
+    void startTransition(final Scene scene) throws Throwable {
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
