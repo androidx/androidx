@@ -848,6 +848,12 @@
     <declare-styleable name="AppCompatTextView">
         <!-- Present the text in ALL CAPS. This may use a small-caps form when available. -->
         <attr name="textAllCaps" format="reference|boolean" />
+        <!-- Set the textLocale by a comma-separated language tag string,
+             for example "ja-JP,zh-CN". This attribute only takes effect on API 21 and above.
+             Before API 24, only the first language tag is used. Starting from API 24,
+             the string will be converted into a {@link android.os.LocaleList} and then used by
+             {@link android.widget.TextView} -->
+        <attr name="textLocale" format="string" />
         <attr name="android:textAppearance" />
         <!-- Specify the type of auto-size. Note that this feature is not supported by EditText,
         works only for TextView. -->
@@ -1159,6 +1165,12 @@
         <attr name="android:fontFamily" />
         <attr name="fontFamily" />
         <attr name="textAllCaps" />
+        <!-- Set the textLocale by a comma-separated language tag string,
+             for example "ja-JP,zh-CN". This attribute only takes effect on API 21 and above.
+             Before API 24, only the first language tag is used. Starting from API 24,
+             the string will be converted into a {@link android.os.LocaleList} and then used by
+             {@link android.widget.TextView} -->
+        <attr name="textLocale"/>
         <attr name="android:shadowColor"/>
         <attr name="android:shadowDy"/>
         <attr name="android:shadowDx"/>

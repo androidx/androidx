@@ -354,6 +354,25 @@
                 android:drawableRight="@drawable/ic_raster"/>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_textLocale_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:textLocale="ja-JP,zh-CN" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_textLocale_textAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextView_TextLocale"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_textLocale_textView_and_textAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:textLocale="ja-JP,zh-CN"
+            android:textAppearance="@style/TextView_TextLocale"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textview_fontVariation_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
