@@ -523,7 +523,7 @@ package android.support.v4.media.session {
 
 package androidx.media {
 
-  public class AudioAttributesCompat {
+  public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
     method public int getContentType();
     method public int getFlags();
     method public int getLegacyStreamType();
@@ -564,6 +564,34 @@ package androidx.media {
     method public androidx.media.AudioAttributesCompat.Builder setFlags(int);
     method public androidx.media.AudioAttributesCompat.Builder setLegacyStreamType(int);
     method public androidx.media.AudioAttributesCompat.Builder setUsage(int);
+  }
+
+  public class AudioFocusRequestCompat {
+    method public androidx.media.AudioAttributesCompat getAudioAttributesCompat();
+    method public android.os.Handler getFocusChangeHandler();
+    method public int getFocusGain();
+    method public android.media.AudioManager.OnAudioFocusChangeListener getOnAudioFocusChangeListener();
+    method public boolean willPauseWhenDucked();
+  }
+
+  public static final class AudioFocusRequestCompat.Builder {
+    ctor public AudioFocusRequestCompat.Builder(int);
+    ctor public AudioFocusRequestCompat.Builder(androidx.media.AudioFocusRequestCompat);
+    method public androidx.media.AudioFocusRequestCompat build();
+    method public androidx.media.AudioFocusRequestCompat.Builder setAudioAttributes(androidx.media.AudioAttributesCompat);
+    method public androidx.media.AudioFocusRequestCompat.Builder setFocusGain(int);
+    method public androidx.media.AudioFocusRequestCompat.Builder setOnAudioFocusChangeListener(android.media.AudioManager.OnAudioFocusChangeListener);
+    method public androidx.media.AudioFocusRequestCompat.Builder setOnAudioFocusChangeListener(android.media.AudioManager.OnAudioFocusChangeListener, android.os.Handler);
+    method public androidx.media.AudioFocusRequestCompat.Builder setWillPauseWhenDucked(boolean);
+  }
+
+  public final class AudioManagerCompat {
+    method public static int abandonAudioFocusRequest(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
+    method public static int requestAudioFocus(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
+    field public static final int AUDIOFOCUS_GAIN = 1; // 0x1
+    field public static final int AUDIOFOCUS_GAIN_TRANSIENT = 2; // 0x2
+    field public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE = 4; // 0x4
+    field public static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK = 3; // 0x3
   }
 
   public abstract class MediaBrowserServiceCompat extends android.app.Service {
