@@ -57,16 +57,16 @@ inline operator fun Path.minus(p: Path): Path {
  * Returns the union of two paths as a new [Path].
  */
 @RequiresApi(19)
-inline infix fun Path.and(p: Path) = this + p
+inline infix fun Path.or(p: Path) = this + p
 
 /**
  * Returns the intersection of two paths as a new [Path].
  * If the paths do not intersect, returns an empty path.
  */
 @RequiresApi(19)
-inline infix fun Path.or(p: Path): Path {
+inline infix fun Path.and(p: Path): Path {
     return Path().apply {
-        op(this@or, p, Path.Op.INTERSECT)
+        op(this@and, p, Path.Op.INTERSECT)
     }
 }
 
