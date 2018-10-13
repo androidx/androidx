@@ -1,4 +1,4 @@
-package androidx.work.test {
+package androidx.work.testing {
 
   public class SynchronousExecutor implements java.util.concurrent.Executor {
     ctor public SynchronousExecutor();
@@ -12,7 +12,7 @@ package androidx.work.test {
   }
 
   public final class WorkManagerTestInitHelper {
-    method public static androidx.work.test.TestDriver getTestDriver();
+    method public static androidx.work.testing.TestDriver getTestDriver();
     method public static void initializeTestWorkManager(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration);
   }
