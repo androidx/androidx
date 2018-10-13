@@ -126,6 +126,12 @@ package androidx.core.graphics {
     method @RequiresApi(26) public static operator float component4(android.graphics.Color);
     method public static operator int component4(int);
     method @RequiresApi(26) public static operator float component4(long);
+    method @RequiresApi(26) @ColorLong public static infix long convertTo(int, android.graphics.ColorSpace.Named colorSpace);
+    method @RequiresApi(26) @ColorLong public static infix long convertTo(int, android.graphics.ColorSpace colorSpace);
+    method @RequiresApi(26) @ColorLong public static infix long convertTo(long, android.graphics.ColorSpace.Named colorSpace);
+    method @RequiresApi(26) @ColorLong public static infix long convertTo(long, android.graphics.ColorSpace colorSpace);
+    method @RequiresApi(26) public static infix android.graphics.Color! convertTo(android.graphics.Color, android.graphics.ColorSpace.Named colorSpace);
+    method @RequiresApi(26) public static infix android.graphics.Color! convertTo(android.graphics.Color, android.graphics.ColorSpace colorSpace);
     method public static int getAlpha(int);
     method @RequiresApi(26) public static float getAlpha(long);
     method public static int getBlue(int);
