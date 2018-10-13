@@ -20,10 +20,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -66,7 +64,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
@@ -110,25 +107,16 @@ public class SystemJobServiceTest extends WorkManagerTest {
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
         mScheduler = mock(Scheduler.class);
+        List<Scheduler> schedulers = Collections.singletonList(mScheduler);
         mProcessor = new Processor(
                 context,
                 configuration,
                 taskExecutor,
                 mDatabase,
-                Collections.singletonList(mScheduler));
-        mWorkManagerImpl = mock(WorkManagerImpl.class);
-        when(mWorkManagerImpl.getApplicationContext()).thenReturn(context);
-        when(mWorkManagerImpl.getConfiguration()).thenReturn(configuration);
-        when(mWorkManagerImpl.getProcessor()).thenReturn(mProcessor);
-        when(mWorkManagerImpl.getWorkDatabase()).thenReturn(mDatabase);
-        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
-        when(mWorkManagerImpl.getWorkTaskExecutor()).thenReturn(taskExecutor);
-        // Delegate to the underlying implementations of methods used in tests.
-        doCallRealMethod().when(mWorkManagerImpl).cancelWorkById(any(UUID.class));
-        doCallRealMethod().when(mWorkManagerImpl).startWork(anyString());
-        doCallRealMethod().when(mWorkManagerImpl).startWork(anyString(),
-                any(WorkerParameters.RuntimeExtras.class));
-        doCallRealMethod().when(mWorkManagerImpl).stopWork(anyString());
+                schedulers);
+
+        mWorkManagerImpl = new WorkManagerImpl(
+                context, configuration, taskExecutor, mDatabase, schedulers, mProcessor);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mSystemJobServiceSpy = spy(new SystemJobService());
         doNothing().when(mSystemJobServiceSpy).onExecuted(anyString(), anyBoolean());
