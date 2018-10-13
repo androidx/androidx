@@ -57,7 +57,7 @@ android {
 supportLibrary {
     name = "Android Car Instrument Cluster Support"
     publish = true
-    mavenVersion = LibraryVersions.CAR
+    mavenVersion = LibraryVersions.CAR_CLUSTER
     mavenGroup = LibraryGroups.CAR
     inceptionYear = "2018"
     description = "Library providing convenient methods to interact with the instrument cluster hardware of Android powered cars."
