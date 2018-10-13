@@ -1687,6 +1687,7 @@ public abstract class Transition implements Cloneable {
         for (int i = 0; i < count; i++) {
             TransitionValues values = lookIn.get(i);
             if (values == null) {
+                // Null values are always added to the end of the list, so we know to stop now.
                 return null;
             }
             if (values.view == view) {
@@ -1791,6 +1792,9 @@ public abstract class Transition implements Cloneable {
                     View oldView = oldInfo.mView;
                     TransitionValues startValues = getTransitionValues(oldView, true);
                     TransitionValues endValues = getMatchedTransitionValues(oldView, true);
+                    if (startValues == null && endValues == null) {
+                        endValues = mEndValues.mViewValues.get(oldView);
+                    }
                     boolean cancel = (startValues != null || endValues != null)
                             && oldInfo.mTransition.isTransitionRequired(oldValues, endValues);
                     if (cancel) {
