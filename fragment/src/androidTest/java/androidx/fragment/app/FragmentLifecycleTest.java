@@ -346,6 +346,14 @@ public class FragmentLifecycleTest {
         fm1.beginTransaction().add(removedFragment, "tag:removed").commitNow();
         fm1.beginTransaction().remove(removedFragment).commitNow();
 
+        // This retained fragment will be added, then detached. After being detached, it
+        // should continue to be retained by the FragmentManager
+        final StateSaveFragment detachedFragment = new StateSaveFragment("Detached",
+                "UnsavedDetached");
+        removedFragment.setRetainInstance(true);
+        fm1.beginTransaction().add(detachedFragment, "tag:detached").commitNow();
+        fm1.beginTransaction().detach(detachedFragment).commitNow();
+
         // Grandparent fragment will not retain instance
         final StateSaveFragment grandparentFragment = new StateSaveFragment("Grandparent",
                 "UnsavedGrandparent");
@@ -409,6 +417,11 @@ public class FragmentLifecycleTest {
         final StateSaveFragment restoredRemovedFragment = (StateSaveFragment)
                 fm2.findFragmentByTag("tag:removed");
         assertNull(restoredRemovedFragment);
+        assertTrue("Removed Fragment should be destroyed", removedFragment.mCalledOnDestroy);
+
+        final StateSaveFragment restoredDetachedFragment = (StateSaveFragment)
+                fm2.findFragmentByTag("tag:detached");
+        assertNotNull(restoredDetachedFragment);
 
         final StateSaveFragment restoredGrandparent = (StateSaveFragment) fm2.findFragmentByTag(
                 "tag:grandparent");
@@ -1064,8 +1077,11 @@ public class FragmentLifecycleTest {
         FragmentTestUtil.resume(mActivityRule, fc, null);
         FragmentManager fm = fc.getSupportFragmentManager();
 
+        Fragment backStackRetainedFragment = new StrictFragment();
+        backStackRetainedFragment.setRetainInstance(true);
         Fragment fragment1 = new StrictFragment();
         fm.beginTransaction()
+                .add(backStackRetainedFragment, "backStack")
                 .add(fragment1, "1")
                 .setPrimaryNavigationFragment(fragment1)
                 .addToBackStack(null)
@@ -1076,6 +1092,7 @@ public class FragmentLifecycleTest {
         fragment2.setTargetFragment(fragment1, 0);
         Fragment fragment3 = new StrictFragment();
         fm.beginTransaction()
+                .remove(backStackRetainedFragment)
                 .remove(fragment1)
                 .add(fragment2, "2")
                 .add(fragment3, "3")
@@ -1099,6 +1116,11 @@ public class FragmentLifecycleTest {
             }
         }
         assertTrue(foundFragment2);
+        fc.getSupportFragmentManager().popBackStackImmediate();
+        Fragment foundBackStackRetainedFragment = fc.getSupportFragmentManager()
+                .findFragmentByTag("backStack");
+        assertEquals("Retained Fragment on the back stack was not retained",
+                backStackRetainedFragment, foundBackStackRetainedFragment);
     }
 
     /**

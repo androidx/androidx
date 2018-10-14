@@ -2707,8 +2707,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // We won't unless we're retaining our instance and if we do,
         // our child FragmentManager instance state will have already been saved.
         if (mChildFragmentManager != null) {
-            FragmentManagerNonConfig nonConfig = mFragmentManager.mSavedNonConfig;
-            if (nonConfig == null || !nonConfig.isRetaining(this)) {
+            if (!mFragmentManager.mHasSavedNonConfig
+                    || !mFragmentManager.mRetainedFragments.contains(this)) {
                 throw new IllegalStateException("Child FragmentManager of " + this + " was not "
                         + " destroyed and this fragment is not retaining instance");
             }
