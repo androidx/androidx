@@ -98,7 +98,8 @@ public final class TrackInfoImpl extends MediaPlayer2.TrackInfo {
                 out.append("UNKNOWN");
                 break;
         }
-        out.append(", " + mFormat.toString());
+        out.append(", ");
+        out.append(mFormat);
         out.append("}");
         return out.toString();
     }
