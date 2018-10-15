@@ -44,6 +44,7 @@ import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.MediaSession2Impl;
+import androidx.media2.SessionCommand2.CommandCode;
 
 import java.util.List;
 import java.util.Set;
@@ -442,7 +443,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         return mConnectedControllersManager;
     }
 
-    private void onSessionCommand(final int commandCode, @NonNull final SessionRunnable runnable) {
+    private void onSessionCommand(@CommandCode final int commandCode,
+            @NonNull final SessionRunnable runnable) {
         onSessionCommandInternal(null, commandCode, runnable);
     }
 
@@ -452,7 +454,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     }
 
     private void onSessionCommandInternal(@Nullable final SessionCommand2 sessionCommand,
-            final int commandCode, @NonNull final SessionRunnable runnable) {
+            @CommandCode final int commandCode,
+            @NonNull final SessionRunnable runnable) {
         if (mSessionImpl.isClosed()) {
             return;
         }
@@ -502,7 +505,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleCommandOnExecutor(@Nullable final ControllerInfo controller,
-            @Nullable final SessionCommand2 sessionCommand, final int commandCode,
+            @Nullable final SessionCommand2 sessionCommand, @CommandCode final int commandCode,
             @NonNull final SessionRunnable runnable) {
         SessionCommand2 command;
         if (sessionCommand != null) {
