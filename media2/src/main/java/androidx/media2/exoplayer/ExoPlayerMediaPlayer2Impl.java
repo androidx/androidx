@@ -71,8 +71,9 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     final ExoPlayerWrapper mPlayer;
 
     private final Handler mTaskHandler;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     @GuardedBy("mTaskLock")
-    private final ArrayDeque<Task> mPendingTasks;
+    final ArrayDeque<Task> mPendingTasks;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Object mTaskLock;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -144,13 +145,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
 
     private Object addTask(Task task) {
         synchronized (mTaskLock) {
-            if (task.mMediaCallType == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
-                Task previous = mPendingTasks.peekLast();
-                if (previous != null && previous.mMediaCallType == task.mMediaCallType) {
-                    // Skip the unnecessary previous seek command.
-                    previous.mSkip = true;
-                }
-            }
             mPendingTasks.add(task);
             processPendingTask();
         }
@@ -901,7 +895,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
         final boolean mNeedToWaitForEventToComplete;
 
         MediaItem2 mDSD;
-        boolean mSkip;
 
         Task(int mediaCallType, boolean needToWaitForEventToComplete) {
             mMediaCallType = mediaCallType;
@@ -913,9 +906,14 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
         @Override
         public void run() {
             int status = CALL_STATUS_NO_ERROR;
-            boolean skip;
-            synchronized (mTaskLock) {
-                skip = mSkip;
+            boolean skip = false;
+            if (mMediaCallType == CALL_COMPLETED_SEEK_TO) {
+                synchronized (mTaskLock) {
+                    Task next = mPendingTasks.peekFirst();
+                    if (next != null && next.mMediaCallType == CALL_COMPLETED_SEEK_TO) {
+                        skip = true;
+                    }
+                }
             }
             if (!skip) {
                 try {
