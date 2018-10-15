@@ -37,12 +37,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test for default {@link androidx.preference.Preference.SummaryProvider} behaviour in
+ * Test for {@link androidx.preference.Preference.SummaryProvider} implementations in
  * {@link ListPreference}, {@link DropDownPreference}, and {@link EditTextPreference}.
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class DefaultSummaryProviderTest {
+public class SummaryProviderTest {
 
     private static final String KEY = "TestPrefKey";
 
@@ -67,7 +67,7 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void listPreference_noValueSet_summaryDisplaysNotSet() {
         ListPreference listPreference = createListPreference();
-        listPreference.setSummaryProvider(ListPreference.DefaultProvider.getInstance());
+        listPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(listPreference);
 
         assertEquals("Not set", listPreference.getSummary());
@@ -77,7 +77,7 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void listPreference_valueSet_summaryCorrectlySet() {
         ListPreference listPreference = createListPreference();
-        listPreference.setSummaryProvider(ListPreference.DefaultProvider.getInstance());
+        listPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         // The user visible entry corresponding to this value is 'New value' - the summary should
         // display this entry, not the internal value.
         listPreference.setValue("key");
@@ -92,7 +92,7 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void listPreference_valueChanged_summaryIsUpdated() {
         ListPreference listPreference = createListPreference();
-        listPreference.setSummaryProvider(ListPreference.DefaultProvider.getInstance());
+        listPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(listPreference);
 
         assertEquals("Not set", listPreference.getSummary());
@@ -112,7 +112,7 @@ public class DefaultSummaryProviderTest {
         listPreference.setPersistent(true);
         listPreference.setKey(KEY);
 
-        listPreference.setSummaryProvider(ListPreference.DefaultProvider.getInstance());
+        listPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(listPreference);
 
         assertEquals("New value", listPreference.getEntry());
@@ -123,7 +123,7 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void dropDownPreference_noValueSet_summaryDisplaysNotSet() {
         DropDownPreference dropDownPreference = createDropDownPreference();
-        dropDownPreference.setSummaryProvider(ListPreference.DefaultProvider.getInstance());
+        dropDownPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(dropDownPreference);
 
         assertEquals("Not set", dropDownPreference.getSummary());
@@ -133,7 +133,7 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void dropDownPreference_valueSet_summaryCorrectlySet() {
         DropDownPreference dropDownPreference = createDropDownPreference();
-        dropDownPreference.setSummaryProvider(ListPreference.DefaultProvider.getInstance());
+        dropDownPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         // The user visible entry corresponding to this value is 'New value' - the summary should
         // display this entry, not the internal value.
         dropDownPreference.setValue("key");
@@ -148,7 +148,7 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void dropDownPreference_valueChanged_summaryIsUpdated() {
         DropDownPreference dropDownPreference = createDropDownPreference();
-        dropDownPreference.setSummaryProvider(ListPreference.DefaultProvider.getInstance());
+        dropDownPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(dropDownPreference);
 
         assertEquals("Not set", dropDownPreference.getSummary());
@@ -168,7 +168,7 @@ public class DefaultSummaryProviderTest {
         dropDownPreference.setPersistent(true);
         dropDownPreference.setKey(KEY);
 
-        dropDownPreference.setSummaryProvider(ListPreference.DefaultProvider.getInstance());
+        dropDownPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(dropDownPreference);
 
         assertEquals("New value", dropDownPreference.getEntry());
@@ -179,7 +179,8 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void editTextPreference_noValueSet_summaryDisplaysNotSet() {
         EditTextPreference editTextPreference = createEditTextPreference();
-        editTextPreference.setSummaryProvider(EditTextPreference.DefaultProvider.getInstance());
+        editTextPreference.setSummaryProvider(
+                EditTextPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(editTextPreference);
 
         assertEquals("Not set", editTextPreference.getSummary());
@@ -189,7 +190,8 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void editTextPreference_valueSet_summaryCorrectlySet() {
         EditTextPreference editTextPreference = createEditTextPreference();
-        editTextPreference.setSummaryProvider(EditTextPreference.DefaultProvider.getInstance());
+        editTextPreference.setSummaryProvider(
+                EditTextPreference.SimpleSummaryProvider.getInstance());
         editTextPreference.setText("New value");
 
         mScreen.addPreference(editTextPreference);
@@ -202,7 +204,8 @@ public class DefaultSummaryProviderTest {
     @UiThreadTest
     public void editTextPreference_valueChanged_summaryIsUpdated() {
         EditTextPreference editTextPreference = createEditTextPreference();
-        editTextPreference.setSummaryProvider(EditTextPreference.DefaultProvider.getInstance());
+        editTextPreference.setSummaryProvider(
+                EditTextPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(editTextPreference);
 
         assertEquals("Not set", editTextPreference.getSummary());
@@ -220,7 +223,8 @@ public class DefaultSummaryProviderTest {
         editTextPreference.setPersistent(true);
         editTextPreference.setKey(KEY);
 
-        editTextPreference.setSummaryProvider(EditTextPreference.DefaultProvider.getInstance());
+        editTextPreference.setSummaryProvider(
+                EditTextPreference.SimpleSummaryProvider.getInstance());
         mScreen.addPreference(editTextPreference);
 
         assertEquals("New value", editTextPreference.getText());

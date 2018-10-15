@@ -57,9 +57,9 @@ public class ListPreference extends DialogPreference {
         mEntryValues = TypedArrayUtils.getTextArray(a, R.styleable.ListPreference_entryValues,
                 R.styleable.ListPreference_android_entryValues);
 
-        if (TypedArrayUtils.getBoolean(a, R.styleable.ListPreference_setDefaultSummaryProvider,
-                R.styleable.ListPreference_setDefaultSummaryProvider, false)) {
-            setSummaryProvider(DefaultProvider.getInstance());
+        if (TypedArrayUtils.getBoolean(a, R.styleable.ListPreference_useSimpleSummaryProvider,
+                R.styleable.ListPreference_useSimpleSummaryProvider, false)) {
+            setSummaryProvider(SimpleSummaryProvider.getInstance());
         }
 
         a.recycle();
@@ -313,29 +313,28 @@ public class ListPreference extends DialogPreference {
     }
 
     /**
-     * A default {@link androidx.preference.Preference.SummaryProvider} implementation for a
+     * A simple {@link androidx.preference.Preference.SummaryProvider} implementation for a
      * {@link ListPreference}. If no value has been set, the summary displayed will be 'Not set',
      * otherwise the summary displayed will be the entry set for this preference.
      */
-    public static final class DefaultProvider implements SummaryProvider<ListPreference> {
+    public static final class SimpleSummaryProvider implements SummaryProvider<ListPreference> {
 
-        private static DefaultProvider sDefaultProvider;
+        private static SimpleSummaryProvider sSimpleSummaryProvider;
 
-        private DefaultProvider(){}
+        private SimpleSummaryProvider() {}
 
         /**
-         * Retrieve a singleton instance of the default
-         * {@link androidx.preference.Preference.SummaryProvider} for a {@link ListPreference}.
+         * Retrieve a singleton instance of this simple
+         * {@link androidx.preference.Preference.SummaryProvider} implementation.
          *
-         * @return a singleton instance of the default
-         * {@link androidx.preference.Preference.SummaryProvider} for a
-         * {@link ListPreference}
+         * @return a singleton instance of this simple
+         * {@link androidx.preference.Preference.SummaryProvider} implementation
          */
-        public static DefaultProvider getInstance() {
-            if (sDefaultProvider == null) {
-                sDefaultProvider = new DefaultProvider();
+        public static SimpleSummaryProvider getInstance() {
+            if (sSimpleSummaryProvider == null) {
+                sSimpleSummaryProvider = new SimpleSummaryProvider();
             }
-            return sDefaultProvider;
+            return sSimpleSummaryProvider;
         }
 
         @Override

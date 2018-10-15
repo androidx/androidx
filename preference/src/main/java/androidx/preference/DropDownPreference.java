@@ -134,8 +134,8 @@ public class DropDownPreference extends ListPreference {
     @Override
     protected void notifyChanged() {
         super.notifyChanged();
-        // When setting a default SummaryProvider for this Preference, this method will be called
-        // once before mAdapter has been set in ListPreference's constructor.
+        // When setting a SummaryProvider for this Preference, this method may be called before
+        // mAdapter has been set in ListPreference's constructor.
         if (mAdapter != null) {
             mAdapter.notifyDataSetChanged();
         }
