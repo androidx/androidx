@@ -51,7 +51,6 @@ public class RemoteMediaControllerCompatTest extends MediaSession2TestBase {
             public void run() {
                 mSessionCompat = new MediaSessionCompat(mContext, DEFAULT_TEST_NAME);
                 mSessionCompat.setActive(true);
-                mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
             }
         });
         mRemoteControllerCompat = new RemoteMediaControllerCompat(

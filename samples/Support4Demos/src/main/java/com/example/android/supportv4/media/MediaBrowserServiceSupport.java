@@ -158,8 +158,6 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
         mSession = new MediaSessionCompat(this, "MusicService");
         setSessionToken(mSession.getSessionToken());
         mSession.setCallback(new MediaSessionCallback());
-        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         mPlayback = new Playback(this, mMusicProvider);
         mPlayback.setState(PlaybackStateCompat.STATE_NONE);

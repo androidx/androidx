@@ -50,8 +50,6 @@ public class MockMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             sInstance = this;
         }
         mSessionCompat = new MediaSessionCompat(this, TAG);
-        mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-                | MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS);
         mSessionCompat.setCallback(new Callback() { });
         mSessionCompat.setActive(true);
         setSessionToken(mSessionCompat.getSessionToken());

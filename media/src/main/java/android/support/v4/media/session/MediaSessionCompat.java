@@ -132,13 +132,21 @@ public class MediaSessionCompat {
     /**
      * Sets this flag on the session to indicate that it can handle media button
      * events.
+     *
+     * @deprecated This flag is no longer used. All media sessions are expected to handle media
+     * button events now. For backward compatibility, this flag will be always set.
      */
+    @Deprecated
     public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1 << 0;
 
     /**
      * Sets this flag on the session to indicate that it handles transport
      * control commands through its {@link Callback}.
+     *
+     * @deprecated This flag is no longer used. All media sessions are expected to handle transport
+     * controls now. For backward compatibility, this flag will be always set.
      */
+    @Deprecated
     public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 1 << 1;
 
     /**
@@ -2106,12 +2114,11 @@ public class MediaSessionCompat {
         private MessageHandler mHandler;
         boolean mDestroyed = false;
         boolean mIsActive = false;
-        private boolean mIsMbrRegistered = false;
-        private boolean mIsRccRegistered = false;
         volatile Callback mCallback;
         private RemoteUserInfo mRemoteUserInfo;
 
-        @SessionFlags int mFlags;
+        // For backward compatibility, these flags are always set.
+        @SessionFlags int mFlags = FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS;
 
         MediaMetadataCompat mMetadata;
         PlaybackStateCompat mState;
@@ -2213,9 +2220,9 @@ public class MediaSessionCompat {
         @Override
         public void setFlags(@SessionFlags int flags) {
             synchronized (mLock) {
-                mFlags = flags;
+                // For backward compatibility, these flags are always set.
+                mFlags = flags | FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS;
             }
-            update();
         }
 
         @Override
@@ -2256,10 +2263,7 @@ public class MediaSessionCompat {
                 return;
             }
             mIsActive = active;
-            if (update()) {
-                setMetadata(mMetadata);
-                setPlaybackState(mState);
-            }
+            updateMbrAndRcc();
         }
 
         @Override
@@ -2276,7 +2280,7 @@ public class MediaSessionCompat {
         public void release() {
             mIsActive = false;
             mDestroyed = true;
-            update();
+            updateMbrAndRcc();
             sendSessionDestroyed();
         }
 
@@ -2562,50 +2566,25 @@ public class MediaSessionCompat {
         }
 
         // Registers/unregisters components as needed.
-        boolean update() {
-            boolean registeredRcc = false;
+        void updateMbrAndRcc() {
             if (mIsActive) {
-                // Register a MBR if it's supported, unregister it if support was removed.
-                if (!mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) != 0) {
-                    registerMediaButtonEventReceiver(mMediaButtonReceiverIntent,
-                            mMediaButtonReceiverComponentName);
-                    mIsMbrRegistered = true;
-                } else if (mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) == 0) {
-                    unregisterMediaButtonEventReceiver(mMediaButtonReceiverIntent,
-                            mMediaButtonReceiverComponentName);
-                    mIsMbrRegistered = false;
-                }
-                // Register a RCC if it's supported, unregister it if support was removed.
-                if (!mIsRccRegistered && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) != 0) {
-                    mAudioManager.registerRemoteControlClient(mRcc);
-                    mIsRccRegistered = true;
-                    registeredRcc = true;
-                } else if (mIsRccRegistered
-                        && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) == 0) {
-                    // RCC keeps the state while the system resets its state internally when
-                    // we register RCC. Reset the state so that the states in RCC and the system
-                    // are in sync when we re-register the RCC.
-                    mRcc.setPlaybackState(0);
-                    mAudioManager.unregisterRemoteControlClient(mRcc);
-                    mIsRccRegistered = false;
-                }
+                // When session becomes active, register MBR and RCC.
+                registerMediaButtonEventReceiver(mMediaButtonReceiverIntent,
+                        mMediaButtonReceiverComponentName);
+                mAudioManager.registerRemoteControlClient(mRcc);
+
+                setMetadata(mMetadata);
+                setPlaybackState(mState);
             } else {
                 // When inactive remove any registered components.
-                if (mIsMbrRegistered) {
-                    unregisterMediaButtonEventReceiver(mMediaButtonReceiverIntent,
-                            mMediaButtonReceiverComponentName);
-                    mIsMbrRegistered = false;
-                }
-                if (mIsRccRegistered) {
-                    // RCC keeps the state while the system resets its state internally when
-                    // we register RCC. Reset the state so that the states in RCC and the system
-                    // are in sync when we re-register the RCC.
-                    mRcc.setPlaybackState(0);
-                    mAudioManager.unregisterRemoteControlClient(mRcc);
-                    mIsRccRegistered = false;
-                }
+                unregisterMediaButtonEventReceiver(mMediaButtonReceiverIntent,
+                        mMediaButtonReceiverComponentName);
+                // RCC keeps the state while the system resets its state internally when
+                // we register RCC. Reset the state so that the states in RCC and the system
+                // are in sync when we re-register the RCC.
+                mRcc.setPlaybackState(0);
+                mAudioManager.unregisterRemoteControlClient(mRcc);
             }
-            return registeredRcc;
         }
 
         void registerMediaButtonEventReceiver(PendingIntent mbrIntent, ComponentName mbrComponent) {
@@ -2779,12 +2758,8 @@ public class MediaSessionCompat {
 
             @Override
             public boolean sendMediaButton(KeyEvent mediaButton) {
-                boolean handlesMediaButtons =
-                        (mFlags & MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS) != 0;
-                if (handlesMediaButtons) {
-                    postToHandler(MessageHandler.MSG_MEDIA_BUTTON, mediaButton);
-                }
-                return handlesMediaButtons;
+                postToHandler(MessageHandler.MSG_MEDIA_BUTTON, mediaButton);
+                return true;
             }
 
             @Override
@@ -3072,7 +3047,8 @@ public class MediaSessionCompat {
 
             @Override
             public boolean isTransportControlEnabled() {
-                return (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) != 0;
+                // All sessions should support transport control commands.
+                return true;
             }
 
             void postToHandler(int what) {
@@ -3505,12 +3481,16 @@ public class MediaSessionCompat {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
             mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj),
                     new ExtraSession(), token2);
+            // For backward compatibility, these flags are always set.
+            setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         }
 
         MediaSessionImplApi21(Object mediaSession) {
             mSessionObj = MediaSessionCompatApi21.verifySession(mediaSession);
             mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj),
                     new ExtraSession());
+            // For backward compatibility, these flags are always set.
+            setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         }
 
         @Override
@@ -3524,7 +3504,9 @@ public class MediaSessionCompat {
 
         @Override
         public void setFlags(@SessionFlags int flags) {
-            MediaSessionCompatApi21.setFlags(mSessionObj, flags);
+            // For backward compatibility, always set these deprecated flags.
+            MediaSessionCompatApi21.setFlags(mSessionObj,
+                    flags | FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         }
 
         @Override
