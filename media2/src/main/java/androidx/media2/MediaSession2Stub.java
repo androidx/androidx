@@ -44,6 +44,7 @@ import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.MediaSession2Impl;
+import androidx.media2.SessionCommand2.CommandCode;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
@@ -103,7 +104,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         return mConnectedControllersManager;
     }
 
-    private void onSessionCommand(@NonNull IMediaController2 caller, final int commandCode,
+    private void onSessionCommand(@NonNull IMediaController2 caller,
+            @CommandCode final int commandCode,
             @NonNull final SessionRunnable runnable) {
         onSessionCommandInternal(caller, null, commandCode, runnable);
     }
@@ -115,7 +117,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     private void onSessionCommandInternal(@NonNull IMediaController2 caller,
-            @Nullable final SessionCommand2 sessionCommand, final int commandCode,
+            @Nullable final SessionCommand2 sessionCommand,
+            @CommandCode final int commandCode,
             @NonNull final SessionRunnable runnable) {
         final ControllerInfo controller = mConnectedControllersManager.getController(
                 caller == null ? null : caller.asBinder());
@@ -167,7 +170,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         });
     }
 
-    private void onBrowserCommand(@NonNull IMediaController2 caller, final int commandCode,
+    private void onBrowserCommand(@NonNull IMediaController2 caller,
+            @CommandCode final int commandCode,
             final @NonNull SessionRunnable runnable) {
         if (!(mSessionImpl instanceof MediaLibrarySessionImpl)) {
             throw new RuntimeException("MediaSession2 cannot handle MediaLibrarySession command");
