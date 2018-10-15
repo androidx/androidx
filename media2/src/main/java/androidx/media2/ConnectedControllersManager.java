@@ -23,6 +23,7 @@ import androidx.collection.ArrayMap;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.MediaSession2Impl;
+import androidx.media2.SessionCommand2.CommandCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,7 +148,7 @@ class ConnectedControllersManager<T> {
         return allowedCommands != null && allowedCommands.hasCommand(command);
     }
 
-    public boolean isAllowedCommand(ControllerInfo controller, int commandCode) {
+    public boolean isAllowedCommand(ControllerInfo controller, @CommandCode int commandCode) {
         SessionCommandGroup2 allowedCommands;
         synchronized (mLock) {
             allowedCommands = mAllowedCommandGroupMap.get(controller);
