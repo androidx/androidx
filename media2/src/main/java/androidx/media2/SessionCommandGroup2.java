@@ -27,6 +27,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
+import androidx.media2.SessionCommand2.CommandCode;
+import androidx.media2.SessionCommand2.CommandVersion;
 import androidx.media2.SessionCommand2.Range;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
@@ -71,6 +73,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
      * @param command A command to add. Shouldn't be {@code null}.
      * @hide TODO remove this method
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void addCommand(@NonNull SessionCommand2 command) {
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
@@ -87,7 +90,8 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
      *                    Shouldn't be {@link SessionCommand2#COMMAND_CODE_CUSTOM}.
      * @hide TODO remove this method
      */
-    public void addCommand(int commandCode) {
+    @RestrictTo(LIBRARY_GROUP)
+    public void addCommand(@CommandCode int commandCode) {
         if (commandCode == COMMAND_CODE_CUSTOM) {
             throw new IllegalArgumentException(
                     "Use addCommand(SessionCommand2) for COMMAND_CODE_CUSTOM.");
@@ -115,7 +119,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
      * @param commandCode A command code to find.
      *                    Shouldn't be {@link SessionCommand2#COMMAND_CODE_CUSTOM}.
      */
-    public boolean hasCommand(int commandCode) {
+    public boolean hasCommand(@CommandCode int commandCode) {
         if (commandCode == COMMAND_CODE_CUSTOM) {
             throw new IllegalArgumentException("Use hasCommand(Command) for custom command");
         }
@@ -215,7 +219,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
          * @param commandCode A command code to add.
          *                    Shouldn't be {@link SessionCommand2#COMMAND_CODE_CUSTOM}.
          */
-        public @NonNull Builder addCommand(int commandCode) {
+        public @NonNull Builder addCommand(@CommandCode int commandCode) {
             if (commandCode == COMMAND_CODE_CUSTOM) {
                 throw new IllegalArgumentException(
                         "Use addCommand(SessionCommand2) for COMMAND_CODE_CUSTOM.");
@@ -237,7 +241,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
          * @see SessionCommand2#COMMAND_VERSION_1
          * @see MediaSession2.SessionCallback#onConnect
          */
-        public @NonNull Builder addAllPredefinedCommands(int version) {
+        public @NonNull Builder addAllPredefinedCommands(@CommandVersion int version) {
             if (version != COMMAND_VERSION_1) {
                 throw new IllegalArgumentException("Unknown command version " + version);
             }
@@ -267,7 +271,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
          * @param commandCode A command code to find.
          *                    Shouldn't be {@link SessionCommand2#COMMAND_CODE_CUSTOM}.
          */
-        public @NonNull Builder removeCommand(int commandCode) {
+        public @NonNull Builder removeCommand(@CommandCode int commandCode) {
             if (commandCode == COMMAND_CODE_CUSTOM) {
                 throw new IllegalArgumentException("commandCode shouldn't be COMMAND_CODE_CUSTOM");
             }
@@ -275,12 +279,13 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
             return this;
         }
 
-        @NonNull Builder addAllPlayerCommands(int version) {
+        @NonNull Builder addAllPlayerCommands(@CommandVersion int version) {
             addCommands(version, SessionCommand2.VERSION_PLAYER_COMMANDS_MAP);
             return this;
         }
 
-        @NonNull Builder addAllPlayerCommands(int version, boolean includePlaylistCommands) {
+        @NonNull Builder addAllPlayerCommands(@CommandVersion int version,
+                boolean includePlaylistCommands) {
             if (includePlaylistCommands) {
                 return addAllPlayerCommands(version);
             }
@@ -296,22 +301,22 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
             return this;
         }
 
-        @NonNull Builder addAllVolumeCommands(int version) {
+        @NonNull Builder addAllVolumeCommands(@CommandVersion int version) {
             addCommands(version, SessionCommand2.VERSION_VOLUME_COMMANDS_MAP);
             return this;
         }
 
-        @NonNull Builder addAllSessionCommands(int version) {
+        @NonNull Builder addAllSessionCommands(@CommandVersion int version) {
             addCommands(version, SessionCommand2.VERSION_SESSION_COMMANDS_MAP);
             return this;
         }
 
-        @NonNull Builder addAllLibraryCommands(int version) {
+        @NonNull Builder addAllLibraryCommands(@CommandVersion int version) {
             addCommands(version, SessionCommand2.VERSION_LIBRARY_COMMANDS_MAP);
             return this;
         }
 
-        private void addCommands(int version, ArrayMap<Integer, Range> map) {
+        private void addCommands(@CommandVersion int version, ArrayMap<Integer, Range> map) {
             for (int i = COMMAND_VERSION_1; i <= version; i++) {
                 Range range = map.get(i);
                 for (int code = range.lower; code <= range.upper; code++) {

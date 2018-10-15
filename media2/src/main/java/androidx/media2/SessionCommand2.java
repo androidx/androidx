@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -34,6 +35,8 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
@@ -61,6 +64,63 @@ public final class SessionCommand2 implements VersionedParcelable {
      */
     @RestrictTo(LIBRARY)
     public static final int COMMAND_VERSION_CURRENT = COMMAND_VERSION_1;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({COMMAND_VERSION_1})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CommandVersion {}
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({COMMAND_CODE_CUSTOM,
+            COMMAND_CODE_PLAYER_PLAY,
+            COMMAND_CODE_PLAYER_PAUSE,
+            COMMAND_CODE_PLAYER_PREPARE,
+            COMMAND_CODE_PLAYER_SEEK_TO,
+            COMMAND_CODE_PLAYER_SET_SPEED,
+            COMMAND_CODE_PLAYER_GET_PLAYLIST,
+            COMMAND_CODE_PLAYER_SET_PLAYLIST,
+            COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
+            COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
+            COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
+            COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
+            COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
+            COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA,
+            COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
+            COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
+            COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
+            COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM,
+            COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
+            COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
+            COMMAND_CODE_VOLUME_SET_VOLUME,
+            COMMAND_CODE_VOLUME_ADJUST_VOLUME,
+            COMMAND_CODE_SESSION_FAST_FORWARD,
+            COMMAND_CODE_SESSION_REWIND,
+            COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
+            COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
+            COMMAND_CODE_SESSION_PLAY_FROM_URI,
+            COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
+            COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
+            COMMAND_CODE_SESSION_PREPARE_FROM_URI,
+            COMMAND_CODE_SESSION_SET_RATING,
+            COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO,
+            COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
+            COMMAND_CODE_SESSION_SELECT_ROUTE,
+            COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
+            COMMAND_CODE_LIBRARY_SUBSCRIBE,
+            COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
+            COMMAND_CODE_LIBRARY_GET_CHILDREN,
+            COMMAND_CODE_LIBRARY_GET_ITEM,
+            COMMAND_CODE_LIBRARY_SEARCH,
+            COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CommandCode {}
 
     /**
      * Command code for the custom command which can be defined by string action in the
@@ -489,7 +549,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     private static final String KEY_COMMAND_EXTRAS = "android.media.session2.command.extras";
 
     @ParcelField(1)
-    int mCommandCode;
+    @CommandCode int mCommandCode;
     // Nonnull if it's custom command
     @ParcelField(2)
     String mCustomCommand;
@@ -507,7 +567,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      *
      * @param commandCode A command code for predefined command.
      */
-    public SessionCommand2(int commandCode) {
+    public SessionCommand2(@CommandCode int commandCode) {
         if (commandCode == COMMAND_CODE_CUSTOM) {
             throw new IllegalArgumentException("commandCode shouldn't be COMMAND_CODE_CUSTOM");
         }
@@ -535,7 +595,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * Gets the command code of a predefined command.
      * This will return {@link #COMMAND_CODE_CUSTOM} for a custom command.
      */
-    public int getCommandCode() {
+    public @CommandCode int getCommandCode() {
         return mCommandCode;
     }
 

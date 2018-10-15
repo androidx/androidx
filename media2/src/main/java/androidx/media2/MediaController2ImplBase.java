@@ -72,6 +72,7 @@ import androidx.media2.MediaController2.MediaController2Impl;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaController2.VolumeDirection;
 import androidx.media2.MediaController2.VolumeFlags;
+import androidx.media2.SessionCommand2.CommandCode;
 import androidx.media2.SessionPlayer2.RepeatMode;
 import androidx.media2.SessionPlayer2.ShuffleMode;
 import androidx.versionedparcelable.ParcelImpl;
@@ -837,7 +838,7 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     // Returns session interface if the controller can send the command.
-    IMediaSession2 getSessionInterfaceIfAble(int commandCode) {
+    IMediaSession2 getSessionInterfaceIfAble(@CommandCode int commandCode) {
         synchronized (mLock) {
             if (!mAllowedCommands.hasCommand(commandCode)) {
                 // Cannot send because isn't allowed to.

@@ -63,6 +63,7 @@ import androidx.media2.MediaController2.MediaController2Impl;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaController2.VolumeDirection;
 import androidx.media2.MediaController2.VolumeFlags;
+import androidx.media2.SessionCommand2.CommandCode;
 import androidx.media2.SessionPlayer2.BuffState;
 import androidx.media2.SessionPlayer2.RepeatMode;
 import androidx.media2.SessionPlayer2.ShuffleMode;
@@ -860,11 +861,11 @@ class MediaController2ImplLegacy implements MediaController2Impl {
         });
     }
 
-    private void sendCommand(int commandCode) {
+    private void sendCommand(@CommandCode int commandCode) {
         sendCommand(commandCode, null);
     }
 
-    private void sendCommand(int commandCode, Bundle args) {
+    private void sendCommand(@CommandCode int commandCode, Bundle args) {
         if (args == null) {
             args = new Bundle();
         }
