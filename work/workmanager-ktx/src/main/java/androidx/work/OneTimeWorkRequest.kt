@@ -23,9 +23,9 @@ import android.support.annotation.NonNull
 import kotlin.reflect.KClass
 
 /**
- * Creates a [OneTimeWorkRequest] with the given [Worker].
+ * Creates a [OneTimeWorkRequest] with the given [ListenableWorker].
  */
-inline fun <reified W : Worker> OneTimeWorkRequestBuilder() =
+inline fun <reified W : ListenableWorker> OneTimeWorkRequestBuilder() =
         OneTimeWorkRequest.Builder(W::class.java)
 
 /**
