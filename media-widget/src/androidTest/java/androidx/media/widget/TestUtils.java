@@ -80,6 +80,27 @@ class TestUtils {
     /**
      * Returns true iff all audio and video tracks are supported
      */
+    static boolean hasCodecsForFileDescriptor(AssetFileDescriptor afd) {
+        try {
+            MediaExtractor ex = null;
+            try {
+                ex = new MediaExtractor();
+                ex.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                return hasCodecsForMedia(ex);
+            } finally {
+                if (ex != null) {
+                    ex.release();
+                }
+            }
+        } catch (IOException e) {
+            Log.i(TAG, "could not open resource");
+        }
+        return false;
+    }
+
+    /**
+     * Returns true iff all audio and video tracks are supported
+     */
     static boolean hasCodecsForMedia(MediaExtractor ex) {
         for (int i = 0; i < ex.getTrackCount(); ++i) {
             MediaFormat format = ex.getTrackFormat(i);
