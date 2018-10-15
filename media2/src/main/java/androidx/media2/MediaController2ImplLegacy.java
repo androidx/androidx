@@ -270,7 +270,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
-    public void prepare() {
+    public void prefetch() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -357,7 +357,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
-    public void prepareFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
+    public void prefetchFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -368,7 +368,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
-    public void prepareFromSearch(@NonNull String query, @Nullable Bundle extras) {
+    public void prefetchFromSearch(@NonNull String query, @Nullable Bundle extras) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -379,7 +379,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
-    public void prepareFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
+    public void prefetchFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());

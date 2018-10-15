@@ -28,7 +28,7 @@ class MediaInterface2 {
 
     // TODO: relocate methods among different interfaces and classes.
     interface SessionPlaybackControl {
-        void prepare();
+        void prefetch();
         void play();
         void pause();
         void reset();

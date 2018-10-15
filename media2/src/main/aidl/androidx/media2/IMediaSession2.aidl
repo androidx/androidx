@@ -39,15 +39,15 @@ import androidx.versionedparcelable.ParcelImpl;
 
     void play(IMediaController2 caller) = 4;
     void pause(IMediaController2 caller) = 5;
-    void prepare(IMediaController2 caller) = 7;
+    void prefetch(IMediaController2 caller) = 7;
     void fastForward(IMediaController2 caller) = 8;
     void rewind(IMediaController2 caller) = 9;
     void seekTo(IMediaController2 caller, long pos) = 10;
     void sendCustomCommand(IMediaController2 caller, in ParcelImpl sessionCommand2,
             in Bundle args, in ResultReceiver receiver) = 11;
-    void prepareFromUri(IMediaController2 caller, in Uri uri, in Bundle extras) = 12;
-    void prepareFromSearch(IMediaController2 caller, String query, in Bundle extras) = 13;
-    void prepareFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras) = 14;
+    void prefetchFromUri(IMediaController2 caller, in Uri uri, in Bundle extras) = 12;
+    void prefetchFromSearch(IMediaController2 caller, String query, in Bundle extras) = 13;
+    void prefetchFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras) = 14;
     void playFromUri(IMediaController2 caller, in Uri uri, in Bundle extras) = 15;
     void playFromSearch(IMediaController2 caller, String query, in Bundle extras) = 16;
     void playFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras) = 17;

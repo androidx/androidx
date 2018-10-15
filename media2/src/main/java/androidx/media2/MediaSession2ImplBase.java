@@ -443,7 +443,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public void prepare() {
+    public void prefetch() {
         SessionPlayer2 player;
         synchronized (mLock) {
             player = mPlayer;

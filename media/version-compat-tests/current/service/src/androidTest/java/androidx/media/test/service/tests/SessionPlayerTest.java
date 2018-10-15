@@ -135,7 +135,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
 
     @Test
     public void testPrepareByController() {
-        mController2.prepare();
+        mController2.prefetch();
         try {
             assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {

@@ -563,7 +563,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     public void testSendCustomCommand() throws InterruptedException {
         prepareLooper();
         final SessionCommand2 testCommand = new SessionCommand2(
-                SessionCommand2.COMMAND_CODE_PLAYER_PREPARE);
+                SessionCommand2.COMMAND_CODE_PLAYER_PREFETCH);
         final Bundle testArgs = new Bundle();
         testArgs.putString("args", "testSendCustomAction");
 

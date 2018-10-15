@@ -97,7 +97,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_PAUSE = 10001;
 
     /**
-     * Command code for {@link MediaController2#prepare()}.
+     * Command code for {@link MediaController2#prefetch()}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo,
@@ -105,7 +105,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-    public static final int COMMAND_CODE_PLAYER_PREPARE = 10002;
+    public static final int COMMAND_CODE_PLAYER_PREFETCH = 10002;
 
     /**
      * Command code for {@link MediaController2#seekTo(long)}.
@@ -363,25 +363,25 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40004;
 
     /**
-     * Command code for {@link MediaController2#prepareFromMediaId(String, Bundle)}.
+     * Command code for {@link MediaController2#prefetchFromMediaId(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID = 40005;
+    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID = 40005;
 
     /**
-     * Command code for {@link MediaController2#prepareFromSearch(String, Bundle)}.
+     * Command code for {@link MediaController2#prefetchFromSearch(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40006;
+    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH = 40006;
 
     /**
-     * Command code for {@link MediaController2#prepareFromUri(Uri, Bundle)}.
+     * Command code for {@link MediaController2#prefetchFromUri(Uri, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40007;
+    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_URI = 40007;
 
     /**
      * Command code for {@link MediaController2#setRating(String, Rating2)}.
