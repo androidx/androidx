@@ -52,8 +52,8 @@ package androidx.preference {
     method public void setText(java.lang.String);
   }
 
-  public static final class EditTextPreference.DefaultProvider implements androidx.preference.Preference.SummaryProvider {
-    method public static androidx.preference.EditTextPreference.DefaultProvider getInstance();
+  public static final class EditTextPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider {
+    method public static androidx.preference.EditTextPreference.SimpleSummaryProvider getInstance();
     method public java.lang.CharSequence provideSummary(androidx.preference.EditTextPreference);
   }
 
@@ -88,8 +88,8 @@ package androidx.preference {
     method public void setValueIndex(int);
   }
 
-  public static final class ListPreference.DefaultProvider implements androidx.preference.Preference.SummaryProvider {
-    method public static androidx.preference.ListPreference.DefaultProvider getInstance();
+  public static final class ListPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider {
+    method public static androidx.preference.ListPreference.SimpleSummaryProvider getInstance();
     method public java.lang.CharSequence provideSummary(androidx.preference.ListPreference);
   }
 

@@ -41,9 +41,9 @@ public class EditTextPreference extends DialogPreference {
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.EditTextPreference, defStyleAttr, defStyleRes);
 
-        if (TypedArrayUtils.getBoolean(a, R.styleable.EditTextPreference_setDefaultSummaryProvider,
-                R.styleable.EditTextPreference_setDefaultSummaryProvider, false)) {
-            setSummaryProvider(DefaultProvider.getInstance());
+        if (TypedArrayUtils.getBoolean(a, R.styleable.EditTextPreference_useSimpleSummaryProvider,
+                R.styleable.EditTextPreference_useSimpleSummaryProvider, false)) {
+            setSummaryProvider(SimpleSummaryProvider.getInstance());
         }
 
         a.recycle();
@@ -165,29 +165,28 @@ public class EditTextPreference extends DialogPreference {
     }
 
     /**
-     * A default {@link androidx.preference.Preference.SummaryProvider} implementation for an
+     * A simple {@link androidx.preference.Preference.SummaryProvider} implementation for an
      * {@link EditTextPreference}. If no value has been set, the summary displayed will be 'Not
      * set', otherwise the summary displayed will be the value set for this preference.
      */
-    public static final class DefaultProvider implements SummaryProvider<EditTextPreference> {
+    public static final class SimpleSummaryProvider implements SummaryProvider<EditTextPreference> {
 
-        private static DefaultProvider sDefaultProvider;
+        private static SimpleSummaryProvider sSimpleSummaryProvider;
 
-        private DefaultProvider() {
-        }
+        private SimpleSummaryProvider() {}
 
         /**
-         * Retrieve a singleton instance of the default
-         * {@link androidx.preference.Preference.SummaryProvider} for a {@link EditTextPreference}.
+         * Retrieve a singleton instance of this simple
+         * {@link androidx.preference.Preference.SummaryProvider} implementation.
          *
-         * @return a singleton instance of the default
-         * {@link androidx.preference.Preference.SummaryProvider} for a {@link EditTextPreference}
+         * @return a singleton instance of this simple
+         * {@link androidx.preference.Preference.SummaryProvider} implementation
          */
-        public static DefaultProvider getInstance() {
-            if (sDefaultProvider == null) {
-                sDefaultProvider = new DefaultProvider();
+        public static SimpleSummaryProvider getInstance() {
+            if (sSimpleSummaryProvider == null) {
+                sSimpleSummaryProvider = new SimpleSummaryProvider();
             }
-            return sDefaultProvider;
+            return sSimpleSummaryProvider;
         }
 
         @Override
