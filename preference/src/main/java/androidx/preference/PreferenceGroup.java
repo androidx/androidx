@@ -262,11 +262,12 @@ public abstract class PreferenceGroup extends Preference {
      *
      * <p>Note: This action is not recursive, and will only remove a preference if it exists in
      * this group, ignoring preferences found in nested groups. Use
-     * {@link #findAndRemovePreference(CharSequence)} to recursively find and remove a preference.
+     * {@link #removePreferenceRecursively(CharSequence)} to recursively find and remove a
+     * preference.
      *
      * @param preference The preference to remove
      * @return Whether the preference was found and removed
-     * @see #findAndRemovePreference(CharSequence)
+     * @see #removePreferenceRecursively(CharSequence)
      */
     public boolean removePreference(Preference preference) {
         final boolean returnValue = removePreferenceInt(preference);
@@ -282,7 +283,7 @@ public abstract class PreferenceGroup extends Preference {
      * @return Whether the preference was found and removed
      * @see #findPreference(CharSequence)
      */
-    public boolean findAndRemovePreference(CharSequence key) {
+    public boolean removePreferenceRecursively(CharSequence key) {
         final Preference preference = findPreference(key);
         if (preference == null) {
             return false;
