@@ -44,26 +44,21 @@ abstract class BaseCardActivity : FragmentActivity() {
     private lateinit var scaleCheckBox: CheckBox
     private lateinit var gotoPage: Button
     private lateinit var orientationSelector: Spinner
+    private var orientation: Int = Orientation.HORIZONTAL
+
+    private val translateX get() = orientation == Orientation.VERTICAL &&
+            translateCheckBox.isChecked
+    private val translateY get() = orientation == Orientation.HORIZONTAL &&
+            translateCheckBox.isChecked
 
     private val mAnimator = ViewPager2.PageTransformer { page, position ->
         val absPos = Math.abs(position)
         page.apply {
-            rotation = if (rotateCheckBox.isChecked) {
-                position * 360
-            } else {
-                0f
-            }
-            translationY = if (translateCheckBox.isChecked) {
-                absPos * 500
-            } else {
-                0f
-            }
+            rotation = if (rotateCheckBox.isChecked) position * 360 else 0f
+            translationY = if (translateY) absPos * 500f else 0f
+            translationX = if (translateX) absPos * 350f else 0f
             if (scaleCheckBox.isChecked) {
-                val scale = if (absPos > 1) {
-                    0F
-                } else {
-                    1 - absPos
-                }
+                val scale = if (absPos > 1) 0F else 1 - absPos
                 scaleX = scale
                 scaleY = scale
             } else {
@@ -101,9 +96,10 @@ abstract class BaseCardActivity : FragmentActivity() {
                 id: Long
             ) {
                 when (parent.selectedItem.toString()) {
-                    HORIZONTAL -> viewPager.orientation = Orientation.HORIZONTAL
-                    VERTICAL -> viewPager.orientation = Orientation.VERTICAL
+                    HORIZONTAL -> orientation = Orientation.HORIZONTAL
+                    VERTICAL -> orientation = Orientation.VERTICAL
                 }
+                viewPager.orientation = orientation
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>) {}
