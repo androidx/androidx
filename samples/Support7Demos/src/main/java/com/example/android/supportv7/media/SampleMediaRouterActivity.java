@@ -414,8 +414,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Create the MediaSession
         mMediaSession = new MediaSessionCompat(this, "SampleMediaRouter", mEventReceiver,
                 mMediaPendingIntent);
-        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-                | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mMediaSession.setCallback(new MediaSessionCompat.Callback() {
             @Override
             public boolean onMediaButtonEvent(Intent mediaButtonEvent) {

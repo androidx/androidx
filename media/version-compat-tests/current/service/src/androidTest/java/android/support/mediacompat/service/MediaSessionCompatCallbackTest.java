@@ -62,6 +62,8 @@ import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaControllerMethod;
 import static android.support.mediacompat.testlib.util.IntentUtil.callTransportControlsMethod;
 import static android.support.mediacompat.testlib.util.TestUtil.assertBundleEquals;
+import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS;
+import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
 import static androidx.test.InstrumentationRegistry.getArguments;
@@ -183,7 +185,8 @@ public class MediaSessionCompatCallbackTest {
         assertNotNull(controller);
 
         final String errorMsg = "New session has unexpected configuration.";
-        assertEquals(errorMsg, 0L, controller.getFlags());
+        assertEquals(errorMsg, FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS,
+                controller.getFlags());
         assertNull(errorMsg, controller.getExtras());
         assertNull(errorMsg, controller.getMetadata());
         assertEquals(errorMsg, getContext().getPackageName(), controller.getPackageName());
@@ -689,7 +692,6 @@ public class MediaSessionCompatCallbackTest {
     @MediumTest
     @FlakyTest (bugId = 111811728)
     public void testCallbackOnMediaButtonEvent() throws Exception {
-        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS);
         mSession.setActive(true);
 
         final long waitTimeForNoResponse = 100L;
