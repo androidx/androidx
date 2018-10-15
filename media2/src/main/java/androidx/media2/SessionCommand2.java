@@ -405,42 +405,54 @@ public final class SessionCommand2 implements VersionedParcelable {
      * Command code for {@link MediaController2#playFromMediaId(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40002;
 
     /**
      * Command code for {@link MediaController2#playFromSearch(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40003;
 
     /**
      * Command code for {@link MediaController2#playFromUri(Uri, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40004;
 
     /**
      * Command code for {@link MediaController2#prefetchFromMediaId(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID = 40005;
 
     /**
      * Command code for {@link MediaController2#prefetchFromSearch(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH = 40006;
 
     /**
      * Command code for {@link MediaController2#prefetchFromUri(Uri, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_URI = 40007;
 
     /**
