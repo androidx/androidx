@@ -18,6 +18,10 @@ package androidx.viewpager2.widget.swipe;
 
 import static androidx.core.util.Preconditions.checkArgumentNonnegative;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.swipeDown;
+import static androidx.test.espresso.action.ViewActions.swipeLeft;
+import static androidx.test.espresso.action.ViewActions.swipeRight;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
@@ -25,7 +29,6 @@ import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 import static org.hamcrest.CoreMatchers.allOf;
 
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.action.ViewActions;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class PageSwiper {
@@ -33,14 +36,19 @@ public class PageSwiper {
     private final ViewAction mActionPrevious;
     private final ViewAction mActionNext;
 
-    public PageSwiper(int totalPages, @ViewPager2.Orientation int orientation) {
+    public PageSwiper(
+            int totalPages,
+            @ViewPager2.Orientation int orientation,
+            boolean isRtl
+    ) {
         mLastPageIx = checkArgumentNonnegative(totalPages - 1);
 
-        // TODO: handle RTL
         mActionPrevious = orientation == ORIENTATION_HORIZONTAL
-                ? ViewActions.swipeRight() : ViewActions.swipeDown();
+                ? (isRtl ? swipeLeft() : swipeRight())
+                : swipeDown();
         mActionNext = orientation == ORIENTATION_HORIZONTAL
-                ? ViewActions.swipeLeft() : ViewActions.swipeUp();
+                ? (isRtl ? swipeRight() : swipeLeft())
+                : swipeUp();
     }
 
     public void swipe(int currentPageIx, int nextPageIx) {

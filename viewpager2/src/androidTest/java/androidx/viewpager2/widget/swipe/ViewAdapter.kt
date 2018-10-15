@@ -26,6 +26,7 @@ class ViewAdapter(private val items: List<String>) : RecyclerView.Adapter<ViewHo
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         PageView.setPageText(holder.itemView, items[position])
+        PageView.setPageColor(holder.itemView, position)
     }
 
     override fun getItemCount(): Int = items.size

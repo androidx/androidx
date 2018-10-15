@@ -16,11 +16,14 @@
 
 package androidx.viewpager2.widget
 
+import android.content.Intent
 import android.os.Build
 import android.view.View
 import android.view.View.OVER_SCROLL_NEVER
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.InstrumentationRegistry
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.CoordinatesProvider
 import androidx.test.espresso.action.GeneralLocation
@@ -35,6 +38,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.FragmentActivityUtils
+import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.test.R
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
@@ -48,14 +52,38 @@ import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
+import org.junit.After
 import org.junit.Assert.assertThat
+import org.junit.Before
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 open class BaseTest {
+    lateinit var localeUtil: LocaleTestUtils
+
+    @Before
+    open fun setUp() {
+        localeUtil = LocaleTestUtils(InstrumentationRegistry.getTargetContext())
+        // Ensure a predictable test environment by explicitly setting a locale
+        localeUtil.setLocale(LocaleTestUtils.DEFAULT_TEST_LANGUAGE)
+    }
+
+    @After
+    open fun tearDown() {
+        localeUtil.resetLocale()
+    }
+
     fun setUpTest(@ViewPager2.Orientation orientation: Int): Context {
-        val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+        val activityTestRule = object : ActivityTestRule<TestActivity>(TestActivity::class.java) {
+            override fun getActivityIntent(): Intent {
+                val intent = Intent()
+                if (localeUtil.isLocaleChangedAndLock()) {
+                    intent.putExtra(TestActivity.EXTRA_LANGUAGE, localeUtil.getLocale().toString())
+                }
+                return intent
+            }
+        }
         activityTestRule.launchActivity(null)
 
         val viewPager: ViewPager2 = activityTestRule.activity.findViewById(R.id.view_pager)
@@ -88,30 +116,37 @@ open class BaseTest {
         val viewPager: ViewPager2 get() = activity.findViewById(R.id.view_pager)
 
         val swiper: PageSwiper
-            get() = PageSwiper(viewPager.adapter.itemCount, viewPager.orientation)
-    }
+            get() = PageSwiper(viewPager.adapter.itemCount, viewPager.orientation, isRtl)
 
-    fun peekForward(@ViewPager2.Orientation orientation: Int) {
-        peek(orientation, -50f)
-    }
+        val isRtl get() = ViewCompat.getLayoutDirection(viewPager) ==
+                ViewCompat.LAYOUT_DIRECTION_RTL
 
-    fun peekBackward(@ViewPager2.Orientation orientation: Int) {
-        peek(orientation, 50f)
-    }
+        fun peekForward(@ViewPager2.Orientation orientation: Int) {
+            peek(orientation, adjustForRtl(orientation, -50f))
+        }
 
-    private fun peek(@ViewPager2.Orientation orientation: Int, offset: Float) {
-        onView(allOf(isDisplayed(), isAssignableFrom(ViewPager2::class.java)))
-            .perform(actionWithAssertions(
-                GeneralSwipeAction(Swipe.SLOW, GeneralLocation.CENTER,
-                    CoordinatesProvider { view ->
-                        val coordinates = GeneralLocation.CENTER.calculateCoordinates(view)
-                        if (orientation == ORIENTATION_HORIZONTAL) {
-                            coordinates[0] += offset
-                        } else {
-                            coordinates[1] += offset
-                        }
-                        coordinates
-                    }, Press.FINGER)))
+        fun peekBackward(@ViewPager2.Orientation orientation: Int) {
+            peek(orientation, adjustForRtl(orientation, 50f))
+        }
+
+        private fun adjustForRtl(@ViewPager2.Orientation orientation: Int, offset: Float): Float {
+            return if (orientation == ORIENTATION_HORIZONTAL && isRtl) -offset else offset
+        }
+
+        private fun peek(@ViewPager2.Orientation orientation: Int, offset: Float) {
+            onView(allOf(isDisplayed(), isAssignableFrom(ViewPager2::class.java)))
+                .perform(actionWithAssertions(
+                    GeneralSwipeAction(Swipe.SLOW, GeneralLocation.CENTER,
+                        CoordinatesProvider { view ->
+                            val coordinates = GeneralLocation.CENTER.calculateCoordinates(view)
+                            if (orientation == ORIENTATION_HORIZONTAL) {
+                                coordinates[0] += offset
+                            } else {
+                                coordinates[1] += offset
+                            }
+                            coordinates
+                        }, Press.FINGER)))
+        }
     }
 
     /**
