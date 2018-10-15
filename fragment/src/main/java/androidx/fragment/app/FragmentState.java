@@ -67,8 +67,7 @@ final class FragmentState implements Parcelable {
         mSavedFragmentState = in.readBundle();
     }
 
-    public Fragment instantiate(FragmentHostCallback host, @NonNull FragmentFactory factory,
-            FragmentManagerNonConfig childNonConfig) {
+    public Fragment instantiate(FragmentHostCallback host, @NonNull FragmentFactory factory) {
         if (mInstance == null) {
             final Context context = host.getContext();
             final ClassLoader classLoader = context.getClassLoader();
@@ -98,7 +97,6 @@ final class FragmentState implements Parcelable {
                 Log.v(FragmentManagerImpl.TAG, "Instantiated fragment " + mInstance);
             }
         }
-        mInstance.mChildNonConfig = childNonConfig;
         return mInstance;
     }
 
