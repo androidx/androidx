@@ -68,7 +68,6 @@ import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.palette.graphics.Palette;
 
-import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -821,9 +820,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(mInstance.getContext(), uri);
             } else if (mMediaItem instanceof FileMediaItem2) {
-                FileDescriptor fd = ((FileMediaItem2) mMediaItem).getFileDescriptor();
                 retriever = new MediaMetadataRetriever();
-                retriever.setDataSource(fd);
+                retriever.setDataSource(
+                        ((FileMediaItem2) mMediaItem).getFileDescriptor(),
+                        ((FileMediaItem2) mMediaItem).getFileDescriptorOffset(),
+                        ((FileMediaItem2) mMediaItem).getFileDescriptorLength());
             }
         } catch (IllegalArgumentException e) {
             Log.v(TAG, "Cannot retrieve metadata for this media file.");
