@@ -28,8 +28,8 @@ import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
-interface EntityProcessor {
-    fun process(): androidx.room.vo.Entity
+interface EntityProcessor : EntityOrViewProcessor {
+    override fun process(): androidx.room.vo.Entity
 
     companion object {
         fun extractTableName(element: TypeElement, annotation: Entity): String {

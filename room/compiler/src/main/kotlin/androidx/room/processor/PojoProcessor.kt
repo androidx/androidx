@@ -37,8 +37,8 @@ import androidx.room.processor.autovalue.AutoValuePojoProcessorDelegate
 import androidx.room.processor.cache.Cache
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
+import androidx.room.vo.EntityOrView
 import androidx.room.vo.EmbeddedField
-import androidx.room.vo.Entity
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
@@ -499,7 +499,7 @@ class PojoProcessor private constructor(
             return null
         }
 
-        val entity = EntityProcessor(context, entityElement, referenceStack).process()
+        val entity = EntityOrViewProcessor(context, entityElement, referenceStack).process()
 
         // now find the field in the entity.
         val entityField = entity.fields.firstOrNull {
@@ -543,7 +543,7 @@ class PojoProcessor private constructor(
 
     private fun validateRelationshipProjection(
         projectionInput: Array<String>,
-        entity: Entity,
+        entity: EntityOrView,
         relationElement: VariableElement
     ) {
         val missingColumns = projectionInput.filterNot { columnName ->
@@ -568,7 +568,7 @@ class PojoProcessor private constructor(
     private fun createRelationshipProjection(
         inferEntity: Boolean,
         typeArg: TypeMirror,
-        entity: Entity,
+        entity: EntityOrView,
         entityField: Field,
         typeArgElement: TypeElement
     ): List<String> {

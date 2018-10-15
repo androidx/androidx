@@ -18,6 +18,7 @@ package androidx.room.vo
 
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
+import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.EntityProcessor
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.TypeElement
@@ -37,7 +38,7 @@ open class Pojo(
     val typeName: TypeName by lazy { type.typeName() }
 
     /**
-     * All table names that are somehow accessed by this Pojo.
+     * All table or view names that are somehow accessed by this Pojo.
      * Might be via Embedded or Relation.
      */
     fun accessedTableNames(): List<String> {
@@ -45,7 +46,12 @@ open class Pojo(
         return if (entityAnnotation != null) {
             listOf(EntityProcessor.extractTableName(element, entityAnnotation.value))
         } else {
-            embeddedFields.flatMap {
+            val viewAnnotation = element.toAnnotationBox(androidx.room.DatabaseView::class)
+            if (viewAnnotation != null) {
+                listOf(DatabaseViewProcessor.extractViewName(element, viewAnnotation.value))
+            } else {
+                emptyList()
+            } + embeddedFields.flatMap {
                 it.pojo.accessedTableNames()
             } + relations.map {
                 it.entity.tableName
