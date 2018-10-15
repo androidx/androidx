@@ -16,25 +16,42 @@
 
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.example.ui.port">
+        xmlns:tools="http://schemas.android.com/tools" package="com.example.ui.port">
 
     <application
-        android:label="Ui port sample"
-        android:supportsRtl="true">
+            android:label="Ui port sample"
+            android:supportsRtl="true" tools:ignore="GoogleAppIndexingWarning"
+            android:allowBackup="false" android:icon="@mipmap/ic_launcher">
 
-        <activity android:name=".SimpleFlutterActivity"
-                  android:configChanges="orientation|screenSize">
-            <!--we currently not support multiple FlutterViews, so lets not recreate activity
-                on a rotation as the view will also be recreated-->
-
+        <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <activity android:name=".ColorChangingActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Color Changing Activity">
+            <!--we currently not support multiple FlutterViews, so lets not recreate activity
+                on a rotation as the view will also be recreated-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".FlippingActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Flipping Activity">
+            <!--we currently not support multiple FlutterViews, so lets not recreate activity
+                on a rotation as the view will also be recreated-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
     </application>
 </manifest>
