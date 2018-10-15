@@ -19,6 +19,7 @@ package androidx.fragment.app;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 
 import java.util.ArrayList;
@@ -33,11 +34,57 @@ import java.util.Map;
  * non configuration state
  */
 class FragmentManagerViewModel extends ViewModel {
+
+    private static final ViewModelProvider.Factory FACTORY = new ViewModelProvider.Factory() {
+        @NonNull
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            FragmentManagerViewModel viewModel = new FragmentManagerViewModel(true);
+            return (T) viewModel;
+        }
+    };
+
+    @NonNull
+    static FragmentManagerViewModel getInstance(ViewModelStore viewModelStore) {
+        ViewModelProvider viewModelProvider = new ViewModelProvider(viewModelStore,
+                FACTORY);
+        return viewModelProvider.get(FragmentManagerViewModel.class);
+    }
+
     private final HashSet<Fragment> mRetainedFragments = new HashSet<>();
     private final HashMap<String, FragmentManagerViewModel> mChildNonConfigs = new HashMap<>();
     private final HashMap<String, ViewModelStore> mViewModelStores = new HashMap<>();
 
+    private final boolean mStateAutomaticallySaved;
+    // Only used when mStateAutomaticallySaved is true
+    private boolean mHasBeenCleared = false;
+    // Only used when mStateAutomaticallySaved is false
     private boolean mHasSavedSnapshot = false;
+
+    /**
+     * FragmentManagerViewModel simultaneously supports two modes:
+     * <ol>
+     *     <li>Automatically saved: in this model, it is assumed that the ViewModel is added to
+     *     an appropriate {@link ViewModelStore} that has the same lifecycle as the
+     *     FragmentManager and that {@link #onCleared()} indicates that the Fragment's host
+     *     is being permanently destroyed.</li>
+     *     <li>Not automatically saved: in this model, the FragmentManager is responsible for
+     *     calling {@link #getSnapshot()} and later restoring the ViewModel with
+     *     {@link #restoreFromSnapshot(FragmentManagerNonConfig)}.</li>
+     * </ol>
+     * These states are mutually exclusive.
+     *
+     * @param stateAutomaticallySaved Whether the ViewModel will be automatically saved.
+     */
+    FragmentManagerViewModel(boolean stateAutomaticallySaved) {
+        mStateAutomaticallySaved = stateAutomaticallySaved;
+    }
+
+    @Override
+    protected void onCleared() {
+        mHasBeenCleared = true;
+    }
 
     void addRetainedFragment(@NonNull Fragment fragment) {
         mRetainedFragments.add(fragment);
@@ -49,7 +96,19 @@ class FragmentManagerViewModel extends ViewModel {
     }
 
     boolean shouldDestroy(@NonNull Fragment fragment) {
-        return !mHasSavedSnapshot || !mRetainedFragments.contains(fragment);
+        if (!mRetainedFragments.contains(fragment)) {
+            // Always destroy non-retained Fragments
+            return true;
+        }
+        if (mStateAutomaticallySaved) {
+            // If we automatically save our state, then only
+            // destroy a retained Fragment when we've been cleared
+            return mHasBeenCleared;
+        } else {
+            // Else, only destroy retained Fragments if they've
+            // been reaped before the state has been saved
+            return !mHasSavedSnapshot;
+        }
     }
 
     void removeRetainedFragment(@NonNull Fragment fragment) {
@@ -60,7 +119,7 @@ class FragmentManagerViewModel extends ViewModel {
     FragmentManagerViewModel getChildNonConfig(@NonNull Fragment f) {
         FragmentManagerViewModel childNonConfig = mChildNonConfigs.get(f.mWho);
         if (childNonConfig == null) {
-            childNonConfig = new FragmentManagerViewModel();
+            childNonConfig = new FragmentManagerViewModel(mStateAutomaticallySaved);
             mChildNonConfigs.put(f.mWho, childNonConfig);
         }
         return childNonConfig;
@@ -91,6 +150,12 @@ class FragmentManagerViewModel extends ViewModel {
         }
     }
 
+    /**
+     * @deprecated Ideally, we only support mStateAutomaticallySaved = true and remove this
+     * code, alongside
+     * {@link FragmentController#restoreAllState(android.os.Parcelable, FragmentManagerNonConfig)}.
+     */
+    @Deprecated
     void restoreFromSnapshot(@Nullable FragmentManagerNonConfig nonConfig) {
         mRetainedFragments.clear();
         mChildNonConfigs.clear();
@@ -104,7 +169,8 @@ class FragmentManagerViewModel extends ViewModel {
             if (childNonConfigs != null) {
                 for (Map.Entry<String, FragmentManagerNonConfig> entry :
                         childNonConfigs.entrySet()) {
-                    FragmentManagerViewModel childViewModel = new FragmentManagerViewModel();
+                    FragmentManagerViewModel childViewModel =
+                            new FragmentManagerViewModel(mStateAutomaticallySaved);
                     childViewModel.restoreFromSnapshot(entry.getValue());
                     mChildNonConfigs.put(entry.getKey(), childViewModel);
                 }
@@ -117,6 +183,11 @@ class FragmentManagerViewModel extends ViewModel {
         mHasSavedSnapshot = false;
     }
 
+    /**
+     * @deprecated Ideally, we only support mStateAutomaticallySaved = true and remove this
+     * code, alongside {@link FragmentController#retainNestedNonConfig()}.
+     */
+    @Deprecated
     @Nullable
     FragmentManagerNonConfig getSnapshot() {
         if (mRetainedFragments.isEmpty() && mChildNonConfigs.isEmpty()

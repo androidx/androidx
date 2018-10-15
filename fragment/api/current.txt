@@ -217,10 +217,11 @@ package androidx.fragment.app {
     method public android.view.View onCreateView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
     method public deprecated void reportLoaderStart();
     method public deprecated void restoreAllState(android.os.Parcelable, java.util.List<androidx.fragment.app.Fragment>);
-    method public void restoreAllState(android.os.Parcelable, androidx.fragment.app.FragmentManagerNonConfig);
+    method public deprecated void restoreAllState(android.os.Parcelable, androidx.fragment.app.FragmentManagerNonConfig);
     method public deprecated void restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String, androidx.loader.app.LoaderManager>);
+    method public void restoreSaveState(android.os.Parcelable);
     method public deprecated androidx.collection.SimpleArrayMap<java.lang.String, androidx.loader.app.LoaderManager> retainLoaderNonConfig();
-    method public androidx.fragment.app.FragmentManagerNonConfig retainNestedNonConfig();
+    method public deprecated androidx.fragment.app.FragmentManagerNonConfig retainNestedNonConfig();
     method public deprecated java.util.List<androidx.fragment.app.Fragment> retainNonConfig();
     method public android.os.Parcelable saveAllState();
   }
@@ -312,7 +313,7 @@ package androidx.fragment.app {
     method public abstract void onBackStackChanged();
   }
 
-  public class FragmentManagerNonConfig {
+  public deprecated class FragmentManagerNonConfig {
   }
 
   public abstract class FragmentPagerAdapter extends androidx.viewpager.widget.PagerAdapter {

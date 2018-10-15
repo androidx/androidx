@@ -31,6 +31,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SimpleArrayMap;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
 
 import java.io.FileDescriptor;
@@ -141,6 +142,8 @@ public class FragmentController {
 
     /**
      * Saves the state for all Fragments.
+     *
+     * @see #restoreSaveState(Parcelable)
      */
     @Nullable
     public Parcelable saveAllState() {
@@ -151,9 +154,9 @@ public class FragmentController {
      * Restores the saved state for all Fragments. The given Fragment list are Fragment
      * instances retained across configuration changes.
      *
-     * @see #retainNonConfig()
-     *
-     * @deprecated use {@link #restoreAllState(Parcelable, FragmentManagerNonConfig)}
+     * @deprecated Have your {@link FragmentHostCallback} implement {@link ViewModelStoreOwner}
+     * to automatically restore the Fragment's non configuration state and use
+     * {@link #restoreSaveState(Parcelable)} to restore the Fragment's save state.
      */
     @Deprecated
     public void restoreAllState(@Nullable Parcelable state,
@@ -166,19 +169,37 @@ public class FragmentController {
      * Restores the saved state for all Fragments. The given FragmentManagerNonConfig are Fragment
      * instances retained across configuration changes, including nested fragments
      *
-     * @see #retainNestedNonConfig()
+     * @deprecated Have your {@link FragmentHostCallback} implement {@link ViewModelStoreOwner}
+     * to automatically restore the Fragment's non configuration state and use
+     * {@link #restoreSaveState(Parcelable)} to restore the Fragment's save state.
      */
+    @Deprecated
     public void restoreAllState(@Nullable Parcelable state,
             @Nullable FragmentManagerNonConfig nonConfig) {
         mHost.mFragmentManager.restoreAllState(state, nonConfig);
     }
 
     /**
+     * Restores the saved state for all Fragments.
+     *
+     * @param state the saved state containing the Parcelable returned by {@link #saveAllState()}
+     * @see #saveAllState()
+     */
+    public void restoreSaveState(@Nullable Parcelable state) {
+        if (!(mHost instanceof ViewModelStoreOwner)) {
+            throw new IllegalStateException("Your FragmentHostCallback must implement "
+                    + "ViewModelStoreOwner to call restoreSaveState(). Call restoreAllState() "
+                    + " if you're still using retainNestedNonConfig().");
+        }
+        mHost.mFragmentManager.restoreSaveState(state);
+    }
+
+    /**
      * Returns a list of Fragments that have opted to retain their instance across
      * configuration changes.
      *
-     * @deprecated use {@link #retainNestedNonConfig()} to also track retained
-     *             nested child fragments
+     * @deprecated Have your {@link FragmentHostCallback} implement {@link ViewModelStoreOwner}
+     * to automatically retain the Fragment's non configuration state.
      */
     @Deprecated
     @Nullable
@@ -192,7 +213,11 @@ public class FragmentController {
     /**
      * Returns a nested tree of Fragments that have opted to retain their instance across
      * configuration changes.
+     *
+     * @deprecated Have your {@link FragmentHostCallback} implement {@link ViewModelStoreOwner}
+     * to automatically retain the Fragment's non configuration state.
      */
+    @Deprecated
     @Nullable
     public FragmentManagerNonConfig retainNestedNonConfig() {
         return mHost.mFragmentManager.retainNonConfig();

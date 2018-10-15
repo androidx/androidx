@@ -113,7 +113,6 @@ public class FragmentActivity extends ComponentActivity implements
     static final class NonConfigurationInstances {
         Object custom;
         ViewModelStore viewModelStore;
-        FragmentManagerNonConfig fragments;
     }
 
     // ------------------------------------------------------------------------
@@ -314,7 +313,7 @@ public class FragmentActivity extends ComponentActivity implements
         }
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
-            mFragments.restoreAllState(p, nc != null ? nc.fragments : null);
+            mFragments.restoreSaveState(p);
 
             // Check if there are any pending onActivityResult calls to descendent Fragments.
             if (savedInstanceState.containsKey(NEXT_CANDIDATE_REQUEST_INDEX_TAG)) {
@@ -539,16 +538,13 @@ public class FragmentActivity extends ComponentActivity implements
     public final Object onRetainNonConfigurationInstance() {
         Object custom = onRetainCustomNonConfigurationInstance();
 
-        FragmentManagerNonConfig fragments = mFragments.retainNestedNonConfig();
-
-        if (fragments == null && mViewModelStore == null && custom == null) {
+        if (mViewModelStore == null && custom == null) {
             return null;
         }
 
         NonConfigurationInstances nci = new NonConfigurationInstances();
         nci.custom = custom;
         nci.viewModelStore = mViewModelStore;
-        nci.fragments = fragments;
         return nci;
     }
 
@@ -933,9 +929,16 @@ public class FragmentActivity extends ComponentActivity implements
         }
     }
 
-    class HostCallbacks extends FragmentHostCallback<FragmentActivity> {
+    class HostCallbacks extends FragmentHostCallback<FragmentActivity>
+            implements ViewModelStoreOwner {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
+        }
+
+        @NonNull
+        @Override
+        public ViewModelStore getViewModelStore() {
+            return FragmentActivity.this.getViewModelStore();
         }
 
         @Override
