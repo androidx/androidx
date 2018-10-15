@@ -66,6 +66,7 @@ import androidx.loader.app.LoaderManager;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 
 /**
  * Static library support version of the framework's {@link android.app.Fragment}.
@@ -103,7 +104,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable Boolean mSavedUserVisibleHint;
 
     // Internal unique name for this fragment;
-    String mWho;
+    @NonNull
+    String mWho = UUID.randomUUID().toString();
 
     // Construction arguments;
     Bundle mArguments;
@@ -501,11 +503,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public String toString() {
         StringBuilder sb = new StringBuilder(128);
         DebugUtils.buildShortClassTag(this, sb);
-        if (mWho != null) {
-            sb.append(" (");
-            sb.append(mWho);
-            sb.append(")");
-        }
+        sb.append(" (");
+        sb.append(mWho);
+        sb.append(")");
         if (mFragmentId != 0) {
             sb.append(" id=0x");
             sb.append(Integer.toHexString(mFragmentId));
@@ -543,8 +543,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * if {@link #isStateSaved()} would return true.</p>
      */
     public void setArguments(@Nullable Bundle args) {
-        if (mWho != null && isStateSaved()) {
-            throw new IllegalStateException("Fragment already active and state has been saved");
+        if (mFragmentManager != null && isStateSaved()) {
+            throw new IllegalStateException("Fragment already added and state has been saved");
         }
         mArguments = args;
     }
@@ -582,8 +582,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param state The state the fragment should be restored from.
      */
     public void setInitialSavedState(@Nullable SavedState state) {
-        if (mWho != null) {
-            throw new IllegalStateException("Fragment already active");
+        if (mFragmentManager != null) {
+            throw new IllegalStateException("Fragment already added");
         }
         mSavedFragmentState = state != null && state.mState != null
                 ? state.mState : null;
@@ -620,7 +620,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                         + this + " would create a target cycle");
             }
         }
-        if (fragment != null && fragment.mWho != null) {
+        if (fragment != null && fragment.mFragmentManager != null) {
             // Just save the reference to the Fragment
             mTargetWho = fragment.mWho;
         } else {
@@ -1733,7 +1733,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * internally manages, not things the application sets.
      */
     void initState() {
-        mWho = null;
+        mWho = UUID.randomUUID().toString();
         mAdded = false;
         mRemoving = false;
         mFromLayout = false;
