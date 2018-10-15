@@ -216,8 +216,6 @@ public class MediaSessionService extends Service {
         // it is null
         if (mMediaSession == null) {
             mMediaSession = new MediaSessionCompat(this, MUSIC_PLAYER_SESSION_TOKEN);
-            mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-                    | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
             mMediaSession.setCallback(new MediaSessionCallback());
         }
 
