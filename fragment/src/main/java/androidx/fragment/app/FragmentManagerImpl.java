@@ -101,7 +101,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     int mNextFragmentIndex = 0;
 
     final ArrayList<Fragment> mAdded = new ArrayList<>();
-    HashMap<String, Fragment> mActive;
+    final HashMap<String, Fragment> mActive = new HashMap<>();
     ArrayList<BackStackRecord> mBackStack;
     ArrayList<Fragment> mCreatedMenus;
 
@@ -389,9 +389,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      */
     @NonNull
     List<Fragment> getActiveFragments() {
-        if (mActive == null) {
-            return Collections.emptyList();
-        }
         return new ArrayList<>(mActive.values());
     }
 
@@ -401,9 +398,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      * @return The number of active fragments.
      */
     int getActiveFragmentCount() {
-        if (mActive == null) {
-            return 0;
-        }
         return mActive.size();
     }
 
@@ -446,23 +440,19 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                      @NonNull PrintWriter writer, @Nullable String[] args) {
         String innerPrefix = prefix + "    ";
 
-        int N;
-        if (mActive != null) {
-            N = mActive.size();
-            if (N > 0) {
-                writer.print(prefix); writer.print("Active Fragments in ");
-                writer.print(Integer.toHexString(System.identityHashCode(this)));
-                writer.println(":");
-                for (Fragment f : mActive.values()) {
-                    writer.print(prefix); writer.println(f);
-                    if (f != null) {
-                        f.dump(innerPrefix, fd, writer, args);
-                    }
+        if (!mActive.isEmpty()) {
+            writer.print(prefix); writer.print("Active Fragments in ");
+            writer.print(Integer.toHexString(System.identityHashCode(this)));
+            writer.println(":");
+            for (Fragment f : mActive.values()) {
+                writer.print(prefix); writer.println(f);
+                if (f != null) {
+                    f.dump(innerPrefix, fd, writer, args);
                 }
             }
         }
 
-        N = mAdded.size();
+        int N = mAdded.size();
         if (N > 0) {
             writer.print(prefix); writer.println("Added Fragments:");
             for (int i = 0; i < N; i++) {
@@ -1290,35 +1280,30 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
         mCurState = newState;
 
-        if (mActive != null) {
+        // Must add them in the proper order. mActive fragments may be out of order
+        final int numAdded = mAdded.size();
+        for (int i = 0; i < numAdded; i++) {
+            Fragment f = mAdded.get(i);
+            moveFragmentToExpectedState(f);
+        }
 
-            // Must add them in the proper order. mActive fragments may be out of order
-            final int numAdded = mAdded.size();
-            for (int i = 0; i < numAdded; i++) {
-                Fragment f = mAdded.get(i);
+        // Now iterate through all active fragments. These will include those that are removed
+        // and detached.
+        for (Fragment f : mActive.values()) {
+            if (f != null && (f.mRemoving || f.mDetached) && !f.mIsNewlyAdded) {
                 moveFragmentToExpectedState(f);
             }
+        }
 
-            // Now iterate through all active fragments. These will include those that are removed
-            // and detached.
-            for (Fragment f : mActive.values()) {
-                if (f != null && (f.mRemoving || f.mDetached) && !f.mIsNewlyAdded) {
-                    moveFragmentToExpectedState(f);
-                }
-            }
+        startPendingDeferredFragments();
 
-            startPendingDeferredFragments();
-
-            if (mNeedMenuInvalidate && mHost != null && mCurState == Fragment.RESUMED) {
-                mHost.onSupportInvalidateOptionsMenu();
-                mNeedMenuInvalidate = false;
-            }
+        if (mNeedMenuInvalidate && mHost != null && mCurState == Fragment.RESUMED) {
+            mHost.onSupportInvalidateOptionsMenu();
+            mNeedMenuInvalidate = false;
         }
     }
 
     void startPendingDeferredFragments() {
-        if (mActive == null) return;
-
         for (Fragment f : mActive.values()) {
             if (f != null) {
                 performPendingDeferredStart(f);
@@ -1332,9 +1317,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
 
         f.mWho = UUID.randomUUID().toString();
-        if (mActive == null) {
-            mActive = new HashMap<>();
-        }
         mActive.put(f.mWho, f);
         if (f.mRetainInstanceChangedWhileDetached) {
             if (f.mRetainInstance) {
@@ -1480,12 +1462,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 return f;
             }
         }
-        if (mActive != null) {
-            // Now for any known fragment.
-            for (Fragment f : mActive.values()) {
-                if (f != null && f.mFragmentId == id) {
-                    return f;
-                }
+        // Now for any known fragment.
+        for (Fragment f : mActive.values()) {
+            if (f != null && f.mFragmentId == id) {
+                return f;
             }
         }
         return null;
@@ -1503,7 +1483,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 }
             }
         }
-        if (mActive != null && tag != null) {
+        if (tag != null) {
             // Now for any known fragment.
             for (Fragment f : mActive.values()) {
                 if (f != null && tag.equals(f.mTag)) {
@@ -1515,11 +1495,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     public Fragment findFragmentByWho(@NonNull String who) {
-        if (mActive != null) {
-            for (Fragment f : mActive.values()) {
-                if (f != null && (f=f.findFragmentByWho(who)) != null) {
-                    return f;
-                }
+        for (Fragment f : mActive.values()) {
+            if (f != null && (f = f.findFragmentByWho(who)) != null) {
+                return f;
             }
         }
         return null;
@@ -1990,21 +1968,19 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             moveToState(mCurState, true);
         }
 
-        if (mActive != null) {
-            for (Fragment fragment : mActive.values()) {
-                // Allow added fragments to be removed during the pop since we aren't going
-                // to move them to the final state with moveToState(mCurState).
-                if (fragment != null && fragment.mView != null && fragment.mIsNewlyAdded
-                        && record.interactsWith(fragment.mContainerId)) {
-                    if (fragment.mPostponedAlpha > 0) {
-                        fragment.mView.setAlpha(fragment.mPostponedAlpha);
-                    }
-                    if (moveToState) {
-                        fragment.mPostponedAlpha = 0;
-                    } else {
-                        fragment.mPostponedAlpha = -1;
-                        fragment.mIsNewlyAdded = false;
-                    }
+        for (Fragment fragment : mActive.values()) {
+            // Allow added fragments to be removed during the pop since we aren't going
+            // to move them to the final state with moveToState(mCurState).
+            if (fragment != null && fragment.mView != null && fragment.mIsNewlyAdded
+                    && record.interactsWith(fragment.mContainerId)) {
+                if (fragment.mPostponedAlpha > 0) {
+                    fragment.mView.setAlpha(fragment.mPostponedAlpha);
+                }
+                if (moveToState) {
+                    fragment.mPostponedAlpha = 0;
+                } else {
+                    fragment.mPostponedAlpha = -1;
+                    fragment.mIsNewlyAdded = false;
                 }
             }
         }
@@ -2112,10 +2088,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      * This is used prior to saving the state so that the correct state is saved.
      */
     private void endAnimatingAwayFragments() {
-        Collection<Fragment> activeFragments = mActive == null
-                ? Collections.<Fragment>emptyList()
-                : mActive.values();
-        for (Fragment fragment : activeFragments) {
+        for (Fragment fragment : mActive.values()) {
             if (fragment != null) {
                 if (fragment.getAnimatingAway() != null) {
                     // Give up waiting for the animation and just end it.
@@ -2247,24 +2220,22 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     FragmentManagerNonConfig retainNonConfig() {
         mHasSavedNonConfig = true;
         HashMap<String, FragmentManagerNonConfig> childFragments = null;
-        if (mActive != null) {
-            for (Fragment f : mActive.values()) {
-                if (f != null) {
-                    FragmentManagerNonConfig child;
-                    if (f.mChildFragmentManager != null) {
-                        child = f.mChildFragmentManager.retainNonConfig();
-                    } else {
-                        // f.mChildNonConfig may be not null, when the parent fragment is
-                        // in the backstack.
-                        child = f.mChildNonConfig;
-                    }
+        for (Fragment f : mActive.values()) {
+            if (f != null) {
+                FragmentManagerNonConfig child;
+                if (f.mChildFragmentManager != null) {
+                    child = f.mChildFragmentManager.retainNonConfig();
+                } else {
+                    // f.mChildNonConfig may be not null, when the parent fragment is
+                    // in the backstack.
+                    child = f.mChildNonConfig;
+                }
 
-                    if (child != null) {
-                        if (childFragments == null) {
-                            childFragments = new HashMap<>();
-                        }
-                        childFragments.put(f.mWho, child);
+                if (child != null) {
+                    if (childFragments == null) {
+                        childFragments = new HashMap<>();
                     }
+                    childFragments.put(f.mWho, child);
                 }
             }
         }
@@ -2337,7 +2308,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
         mStateSaved = true;
 
-        if (mActive == null || mActive.size() <= 0) {
+        if (mActive.isEmpty()) {
             return null;
         }
 
@@ -2491,7 +2462,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
         // Build the full list of active fragments, instantiating them from
         // their saved state.
-        mActive = new HashMap<>();
+        mActive.clear();
         for (FragmentState fs : fms.mActive) {
             if (fs != null) {
                 FragmentManagerNonConfig childNonConfig = null;
@@ -2562,12 +2533,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      * end of executing the transactions.
      */
     private void burpActive() {
-        if (mActive != null) {
-            Collection<Fragment> values = mActive.values();
-            // values() provides a view into the map, so removing elements from it
-            // removes the relevant pairs in the Map
-            values.removeAll(Collections.singleton(null));
-        }
+        Collection<Fragment> values = mActive.values();
+        // values() provides a view into the map, so removing elements from it
+        // removes the relevant pairs in the Map
+        values.removeAll(Collections.singleton(null));
     }
 
     public void attachController(@NonNull FragmentHostCallback host,
