@@ -233,7 +233,7 @@
     <declare-styleable name="EditTextPreference">
         <!-- Whether the preference should automatically set its summary to the value saved for the
              preference, and update the summary when the value is changed. Defaults to false. -->
-        <attr name="setDefaultSummaryProvider" format="boolean"/>
+        <attr name="useSimpleSummaryProvider" format="boolean"/>
     </declare-styleable>
 
     <!-- Base attributes available to ListPreference. -->
@@ -249,7 +249,7 @@
         <attr name="android:entryValues" />
         <!-- Whether the preference should automatically set its summary to the value saved for the
              preference, and update the summary when the value is changed. Defaults to false. -->
-        <attr name="setDefaultSummaryProvider"/>
+        <attr name="useSimpleSummaryProvider"/>
     </declare-styleable>
 
     <declare-styleable name="MultiSelectListPreference">
