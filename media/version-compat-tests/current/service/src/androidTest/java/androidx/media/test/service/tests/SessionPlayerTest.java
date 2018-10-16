@@ -35,6 +35,7 @@ import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -207,6 +208,25 @@ public class SessionPlayerTest extends MediaSession2TestBase {
         for (int i = 0; i < list.size(); i++) {
             // MediaController2.setPlaylist does not ensure the equality of the items.
             assertEquals(list.get(i).getMediaId(), mPlayer.mPlaylist.get(i).getMediaId());
+        }
+    }
+
+    @Test
+    @LargeTest
+    public void testSetPlaylistByControllerWithLongPlaylist() throws InterruptedException {
+        final int listSize = 5000;
+        // Make client app to generate a long list, and call setPlaylist() with it.
+        mController2.setPlaylistWithSize(listSize, null /* metadata */);
+        assertTrue(mPlayer.mCountDownLatch.await(10, TimeUnit.SECONDS));
+
+        assertTrue(mPlayer.mSetPlaylistCalled);
+        assertNull(mPlayer.mMetadata);
+
+        assertNotNull(mPlayer.mPlaylist);
+        assertEquals(listSize, mPlayer.mPlaylist.size());
+        for (int i = 0; i < listSize; i++) {
+            // Each item's media ID will be same as its index.
+            assertEquals(Integer.toString(i), mPlayer.mPlaylist.get(i).getMediaId());
         }
     }
 
