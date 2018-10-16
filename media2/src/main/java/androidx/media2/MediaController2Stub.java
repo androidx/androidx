@@ -109,7 +109,7 @@ class MediaController2Stub extends IMediaController2.Stub {
     }
 
     @Override
-    public void onPlaylistChanged(List<ParcelImpl> parcelList, Bundle metadataBundle) {
+    public void onPlaylistChanged(ParcelImplListSlice listSlice, Bundle metadataBundle) {
         final MediaController2ImplBase controller;
         try {
             controller = getController();
@@ -117,10 +117,11 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        if (parcelList == null) {
-            Log.w(TAG, "onPlaylistChanged(): Ignoring null playlist from " + controller);
+        if (listSlice == null) {
+            Log.w(TAG, "onPlaylistChanged(): Ignoring null listSlice from " + controller);
             return;
         }
+        List<ParcelImpl> parcelList = listSlice.getList();
         List<MediaItem2> playlist = new ArrayList<>();
         for (ParcelImpl parcelImpl : parcelList) {
             MediaItem2 item = ParcelUtils.fromParcelable(parcelImpl);

@@ -34,7 +34,7 @@ interface IRemoteMediaController2 {
     void seekTo(String controllerId, long pos);
     void setPlaybackSpeed(String controllerId, float speed);
     void setPlaylist(String controllerId, in List<Bundle> list, in Bundle metadata);
-    void setPlaylistWithSize(String controllerId, int size, in Bundle metadata);
+    void createAndSetDummyPlaylist(String controllerId, int size, in Bundle metadata);
     void setMediaItem(String controllerId, in Bundle item);
     void updatePlaylistMetadata(String controllerId, in Bundle metadata);
     void addPlaylistItem(String controllerId, int index, in Bundle item);

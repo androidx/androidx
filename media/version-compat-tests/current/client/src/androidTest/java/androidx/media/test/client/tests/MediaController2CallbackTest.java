@@ -378,11 +378,41 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                         latch.countDown();
                     }
                 };
-        mRemoteSession2.getMockPlayer().setPlaylist(testList);
-
         MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+
+        mRemoteSession2.getMockPlayer().setPlaylist(testList);
         mRemoteSession2.getMockPlayer().notifyPlaylistChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(listFromCallback.get(), controller.getPlaylist());
+    }
+
+    @Test
+    @LargeTest
+    public void testOnPlaylistChanged_longList() throws InterruptedException {
+        prepareLooper();
+        final int listSize = 5000;
+        final AtomicReference<List<MediaItem2>> listFromCallback = new AtomicReference<>();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+                    @Override
+                    public void onPlaylistChanged(MediaController2 controller,
+                            List<MediaItem2> playlist, MediaMetadata2 metadata) {
+                        assertNotNull(playlist);
+                        assertEquals(listSize, playlist.size());
+                        for (int i = 0; i < playlist.size(); i++) {
+                            assertEquals(TestUtils.getMediaIdInDummyList(i),
+                                    playlist.get(i).getMediaId());
+                        }
+                        listFromCallback.set(playlist);
+                        latch.countDown();
+                    }
+                };
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.getMockPlayer().createAndSetDummyPlaylist(listSize);
+        mRemoteSession2.getMockPlayer().notifyPlaylistChanged();
+
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
         assertEquals(listFromCallback.get(), controller.getPlaylist());
     }
 

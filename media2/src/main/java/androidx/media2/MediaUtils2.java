@@ -231,6 +231,9 @@ public class MediaUtils2 {
      * Convert a {@link MediaItem2} to a {@link QueueItem}.
      */
     public static QueueItem convertToQueueItem(MediaItem2 item) {
+        if (item == null) {
+            return null;
+        }
         MediaDescriptionCompat description = (item.getMetadata() == null)
                 ? new MediaDescriptionCompat.Builder().setMediaId(item.getMediaId()).build()
                 : convertToMediaMetadataCompat(item.getMetadata()).getDescription();
@@ -246,7 +249,10 @@ public class MediaUtils2 {
         }
         List<QueueItem> result = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
-            result.add(convertToQueueItem(items.get(i)));
+            QueueItem queueItem = convertToQueueItem(items.get(i));
+            if (queueItem != null) {
+                result.add(queueItem);
+            }
         }
         return result;
     }

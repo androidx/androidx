@@ -49,6 +49,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.test.lib.MockActivity;
+import androidx.media.test.lib.TestUtils;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
@@ -381,6 +382,20 @@ public class MediaSession2ProviderService extends Service {
             List<MediaItem2> list = new ArrayList<>();
             for (Bundle bundle : playlist) {
                 list.add(MediaItem2.fromBundle(bundle));
+            }
+            player.mPlaylist = list;
+        }
+
+        @Override
+        public void createAndSetDummyPlaylist(String sessionId, int size) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+
+            List<MediaItem2> list = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                list.add(new MediaItem2.Builder(0)
+                        .setMediaId(TestUtils.getMediaIdInDummyList(i))
+                        .build());
             }
             player.mPlaylist = list;
         }

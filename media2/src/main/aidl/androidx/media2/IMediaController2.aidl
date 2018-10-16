@@ -20,6 +20,7 @@ import android.app.PendingIntent;
 import android.os.Bundle;
 
 import androidx.media2.IMediaSession2;
+import androidx.media2.ParcelImplListSlice;
 import androidx.versionedparcelable.ParcelImpl;
 
 /**
@@ -34,7 +35,7 @@ oneway interface IMediaController2 {
     void onPlayerStateChanged(long eventTimeMs, long positionMs, int state) = 1;
     void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed) = 2;
     void onBufferingStateChanged(in ParcelImpl item, int state, long bufferedPositionMs) = 3;
-    void onPlaylistChanged(in List<ParcelImpl> playlist, in Bundle metadata) = 4;
+    void onPlaylistChanged(in ParcelImplListSlice listSlice, in Bundle metadata) = 4;
     void onPlaylistMetadataChanged(in Bundle metadata) = 5;
     void onPlaybackInfoChanged(in ParcelImpl playbackInfo) = 6;
     void onRepeatModeChanged(int repeatMode) = 7;
