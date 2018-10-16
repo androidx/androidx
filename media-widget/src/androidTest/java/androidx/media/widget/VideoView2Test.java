@@ -275,7 +275,7 @@ public class VideoView2Test {
         Bundle extra = new Bundle();
         extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 0);
         mController.sendCustomCommand(
-                new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra, null);
+                new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra);
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
                 any(MediaController2.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
@@ -285,7 +285,7 @@ public class VideoView2Test {
         // Select the second subtitle track
         extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 1);
         mController.sendCustomCommand(
-                new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra, null);
+                new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra);
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
                 any(MediaController2.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
@@ -294,7 +294,7 @@ public class VideoView2Test {
 
         // Deselect subtitle track
         mController.sendCustomCommand(
-                new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null, null);
+                new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null);
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
                 any(MediaController2.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_DESELECTED)),

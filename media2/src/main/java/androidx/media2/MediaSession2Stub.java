@@ -16,6 +16,11 @@
 
 package androidx.media2;
 
+import static androidx.media2.BaseResult2.RESULT_CODE_UNKNOWN_ERROR;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaUtils2.DIRECT_EXECUTOR;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
@@ -44,14 +49,19 @@ import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.MediaSession2Impl;
+import androidx.media2.MediaSession2.SessionResult;
 import androidx.media2.SessionCommand2.CommandCode;
+import androidx.media2.SessionPlayer2.PlayerResult;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handles incoming commands from {@link MediaController2} and {@link MediaBrowser2}
@@ -64,6 +74,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     private static final String TAG = "MediaSession2Stub";
     private static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean THROW_EXCEPTION_FOR_NULL_RESULT = true;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final SparseArray<SessionCommand2> sCommandsForOnCommandRequest =
@@ -104,22 +115,49 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         return mConnectedControllersManager;
     }
 
-    private void onSessionCommand(@NonNull IMediaController2 caller,
-            @CommandCode final int commandCode,
-            @NonNull final SessionRunnable runnable) {
-        onSessionCommandInternal(caller, null, commandCode, runnable);
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void sendSessionResult(@NonNull ControllerInfo controller, int seq,
+            int resultCode) {
+        sendSessionResult(controller, seq, new SessionResult(resultCode));
     }
 
-    private void onSessionCommand(@NonNull IMediaController2 caller,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void sendSessionResult(@NonNull ControllerInfo controller, int seq,
+            @NonNull SessionResult result) {
+        try {
+            controller.getControllerCb().onSessionResult(seq, result);
+        } catch (RemoteException e) {
+            Log.w(TAG, "Exception in " + controller.toString(), e);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void sendPlayerResult(@NonNull ControllerInfo controller, int seq,
+            @NonNull PlayerResult result) {
+        try {
+            controller.getControllerCb().onPlayerResult(seq, result);
+        } catch (RemoteException e) {
+            Log.w(TAG, "Exception in " + controller.toString(), e);
+        }
+    }
+
+
+    private void onSessionCommand(@NonNull IMediaController2 caller, int seq,
+            final @CommandCode int commandCode,
+            final @NonNull Command command) {
+        onSessionCommandInternal(caller, seq, null, commandCode, command);
+    }
+
+    private void onSessionCommand(@NonNull IMediaController2 caller, int seq,
             @NonNull final SessionCommand2 sessionCommand,
-            @NonNull final SessionRunnable runnable) {
-        onSessionCommandInternal(caller, sessionCommand, COMMAND_CODE_CUSTOM, runnable);
+            @NonNull final Command command) {
+        onSessionCommandInternal(caller, seq, sessionCommand, COMMAND_CODE_CUSTOM, command);
     }
 
-    private void onSessionCommandInternal(@NonNull IMediaController2 caller,
-            @Nullable final SessionCommand2 sessionCommand,
-            @CommandCode final int commandCode,
-            @NonNull final SessionRunnable runnable) {
+    private void onSessionCommandInternal(@NonNull IMediaController2 caller, final int seq,
+            final @Nullable SessionCommand2 sessionCommand,
+            final @CommandCode int commandCode,
+            final @NonNull Command command) {
         final ControllerInfo controller = mConnectedControllersManager.getController(
                 caller == null ? null : caller.asBinder());
         if (mSessionImpl.isClosed() || controller == null) {
@@ -131,33 +169,68 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 if (!mConnectedControllersManager.isConnected(controller)) {
                     return;
                 }
-                SessionCommand2 command;
+                SessionCommand2 commandForOnCommandRequest;
                 if (sessionCommand != null) {
                     if (!mConnectedControllersManager.isAllowedCommand(
                             controller, sessionCommand)) {
                         return;
                     }
-                    command = sCommandsForOnCommandRequest.get(sessionCommand.getCommandCode());
+                    commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
+                            sessionCommand.getCommandCode());
                 } else {
                     if (!mConnectedControllersManager.isAllowedCommand(controller, commandCode)) {
                         return;
                     }
-                    command = sCommandsForOnCommandRequest.get(commandCode);
-                }
-                if (command != null) {
-                    boolean accepted = mSessionImpl.getCallback().onCommandRequest(
-                            mSessionImpl.getInstance(), controller, command);
-                    if (!accepted) {
-                        // Don't run rejected command.
-                        if (DEBUG) {
-                            Log.d(TAG, "Command (" + command + ") from "
-                                    + controller + " was rejected by " + mSessionImpl);
-                        }
-                        return;
-                    }
+                    commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
+                            commandCode);
                 }
                 try {
-                    runnable.run(controller);
+                    if (commandForOnCommandRequest != null) {
+                        int resultCode = mSessionImpl.getCallback().onCommandRequest(
+                                mSessionImpl.getInstance(), controller, commandForOnCommandRequest);
+                        if (resultCode != RESULT_CODE_SUCCESS) {
+                            // Don't run rejected command.
+                            if (DEBUG) {
+                                Log.d(TAG, "Command (" + command + ") from "
+                                        + controller + " was rejected by " + mSessionImpl
+                                        + ", code=" + resultCode);
+                            }
+                            sendSessionResult(controller, seq, resultCode);
+                            return;
+                        }
+                    }
+                    if (command instanceof PlayerCommand) {
+                        final ListenableFuture<PlayerResult> result =
+                                ((PlayerCommand) command).run(controller);
+                        if (result == null) {
+                            if (THROW_EXCEPTION_FOR_NULL_RESULT) {
+                                throw new RuntimeException("SessionPlayer has returned null,"
+                                        + " commandCode=" + commandCode);
+                            } else {
+                                sendSessionResult(controller, seq, RESULT_CODE_UNKNOWN_ERROR);
+                            }
+                        } else {
+                            result.addListener(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        sendPlayerResult(controller, seq, result.get(
+                                                0, TimeUnit.MILLISECONDS));
+                                    } catch (Exception e) {
+                                        Log.w(TAG, "Cannot obtain PlayerResult after the"
+                                                + " command is finished", e);
+                                        sendSessionResult(controller, seq,
+                                                RESULT_CODE_INVALID_STATE);
+                                    }
+                                }
+                            }, DIRECT_EXECUTOR);
+                        }
+                    } else if (command instanceof CallbackCommand) {
+                        int resultCode = ((CallbackCommand) command).run(controller);
+                        sendSessionResult(controller, seq, resultCode);
+                    } else {
+                        ((CustomCommand) command).run(controller);
+                    }
                 } catch (RemoteException e) {
                     // Currently it's TransactionTooLargeException or DeadSystemException.
                     // We'd better to leave log for those cases because
@@ -172,12 +245,12 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     private void onBrowserCommand(@NonNull IMediaController2 caller,
             @CommandCode final int commandCode,
-            final @NonNull SessionRunnable runnable) {
+            final @NonNull Command command) {
         if (!(mSessionImpl instanceof MediaLibrarySessionImpl)) {
             throw new RuntimeException("MediaSession2 cannot handle MediaLibrarySession command");
         }
 
-        onSessionCommandInternal(caller, null, commandCode, runnable);
+        onSessionCommandInternal(caller, -1, null, commandCode, command);
     }
 
     void connect(final IMediaController2 caller, final String callingPackage, final int pid,
@@ -306,275 +379,289 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void connect(final IMediaController2 caller, final String callingPackage)
+    public void connect(final IMediaController2 caller, int seq, final String callingPackage)
             throws RuntimeException {
         connect(caller, callingPackage, Binder.getCallingPid(), Binder.getCallingUid());
     }
 
     @Override
-    public void release(final IMediaController2 caller) throws RemoteException {
+    public void release(final IMediaController2 caller, int seq) throws RemoteException {
         mConnectedControllersManager.removeController(caller == null ? null : caller.asBinder());
     }
 
     @Override
-    public void setVolumeTo(final IMediaController2 caller, final int value, final int flags)
-            throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME,
-                new SessionRunnable() {
+    public void setVolumeTo(final IMediaController2 caller, int seq, final int value,
+            final int flags) throws RuntimeException {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public int run(ControllerInfo controller) {
                         MediaSessionCompat sessionCompat = mSessionImpl.getSessionCompat();
                         if (sessionCompat != null) {
                             sessionCompat.getController().setVolumeTo(value, flags);
                         }
+                        // TODO: Handle remote player case
+                        return RESULT_CODE_SUCCESS;
                     }
                 });
     }
 
     @Override
-    public void adjustVolume(IMediaController2 caller, final int direction, final int flags)
-            throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME,
-                new SessionRunnable() {
+    public void adjustVolume(IMediaController2 caller, int seq, final int direction,
+            final int flags) throws RuntimeException {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public int run(ControllerInfo controller) {
                         MediaSessionCompat sessionCompat = mSessionImpl.getSessionCompat();
                         if (sessionCompat != null) {
                             sessionCompat.getController().adjustVolume(direction, flags);
                         }
+                        // TODO: Handle remote player case
+                        return RESULT_CODE_SUCCESS;
                     }
                 });
     }
 
     @Override
-    public void play(IMediaController2 caller) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_PLAY,
-                new SessionRunnable() {
+    public void play(IMediaController2 caller, int seq) throws RuntimeException {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_PLAY,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.play();
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.play();
                     }
                 });
     }
 
     @Override
-    public void pause(IMediaController2 caller) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_PAUSE,
-                new SessionRunnable() {
+    public void pause(IMediaController2 caller, int seq) throws RuntimeException {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_PAUSE,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.pause();
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.pause();
                     }
                 });
     }
 
     @Override
-    public void prefetch(IMediaController2 caller) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_PREFETCH,
-                new SessionRunnable() {
+    public void prefetch(IMediaController2 caller, int seq) throws RuntimeException {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_PREFETCH,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.prefetch();
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.prefetch();
                     }
                 });
     }
 
     @Override
-    public void fastForward(IMediaController2 caller) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD,
-                new SessionRunnable() {
+    public void fastForward(IMediaController2 caller, int seq) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onFastForward(
+                    public int run(ControllerInfo controller) {
+                        return mSessionImpl.getCallback().onFastForward(
                                 mSessionImpl.getInstance(), controller);
                     }
                 });
     }
 
     @Override
-    public void rewind(IMediaController2 caller) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_REWIND,
-                new SessionRunnable() {
+    public void rewind(IMediaController2 caller, int seq) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_REWIND,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onRewind(mSessionImpl.getInstance(), controller);
+                    public int run(ControllerInfo controller) {
+                        return mSessionImpl.getCallback().onRewind(
+                                mSessionImpl.getInstance(), controller);
                     }
                 });
     }
 
     @Override
-    public void seekTo(IMediaController2 caller, final long pos) throws RuntimeException {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO,
-                new SessionRunnable() {
+    public void seekTo(IMediaController2 caller, int seq, final long pos) throws RuntimeException {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.seekTo(pos);
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.seekTo(pos);
                     }
                 });
     }
 
     @Override
-    public void sendCustomCommand(final IMediaController2 caller, final ParcelImpl command,
-            final Bundle args, final ResultReceiver receiver) {
+    public void sendCustomCommand(final IMediaController2 caller, final int seq,
+            final ParcelImpl command, final Bundle args) {
         final SessionCommand2 sessionCommand = ParcelUtils.fromParcelable(command);
-        onSessionCommand(caller, sessionCommand, new SessionRunnable() {
+        onSessionCommand(caller, seq, sessionCommand, new CustomCommand() {
             @Override
-            public void run(final ControllerInfo controller) throws RemoteException {
-                mSessionImpl.getCallback().onCustomCommand(mSessionImpl.getInstance(), controller,
-                        sessionCommand, args, receiver);
+            public void run(final ControllerInfo controller) {
+                SessionResult result = mSessionImpl.getCallback().onCustomCommand(
+                        mSessionImpl.getInstance(), controller, sessionCommand, args);
+                if (result == null) {
+                    if (THROW_EXCEPTION_FOR_NULL_RESULT) {
+                        throw new RuntimeException("SessionCallback#onCustomCommand has returned"
+                                        + " null, command=" + sessionCommand);
+                    } else {
+                        result = new SessionResult(RESULT_CODE_UNKNOWN_ERROR);
+                    }
+                }
+                sendSessionResult(controller, seq, result);
             }
         });
     }
 
     @Override
-    public void prefetchFromUri(final IMediaController2 caller, final Uri uri,
+    public void prefetchFromUri(final IMediaController2 caller, int seq, final Uri uri,
             final Bundle extras) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_URI,
-                new SessionRunnable() {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_URI,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public int run(ControllerInfo controller) {
                         if (uri == null) {
                             Log.w(TAG, "prefetchFromUri(): Ignoring null uri from " + controller);
-                            return;
+                            return RESULT_CODE_BAD_VALUE;
                         }
-                        mSessionImpl.getCallback().onPrefetchFromUri(
+                        return mSessionImpl.getCallback().onPrefetchFromUri(
                                 mSessionImpl.getInstance(), controller, uri, extras);
                     }
                 });
     }
 
     @Override
-    public void prefetchFromSearch(final IMediaController2 caller, final String query,
+    public void prefetchFromSearch(final IMediaController2 caller, int seq, final String query,
             final Bundle extras) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH,
-                new SessionRunnable() {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public int run(ControllerInfo controller) {
                         if (TextUtils.isEmpty(query)) {
                             Log.w(TAG, "prefetchFromSearch(): Ignoring empty query from "
                                     + controller);
-                            return;
+                            return RESULT_CODE_BAD_VALUE;
                         }
-                        mSessionImpl.getCallback().onPrefetchFromSearch(mSessionImpl.getInstance(),
-                                controller, query, extras);
+                        return mSessionImpl.getCallback().onPrefetchFromSearch(
+                                mSessionImpl.getInstance(), controller, query, extras);
                     }
                 });
     }
 
     @Override
-    public void prefetchFromMediaId(final IMediaController2 caller, final String mediaId,
+    public void prefetchFromMediaId(final IMediaController2 caller, int seq, final String mediaId,
             final Bundle extras) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID,
-                new SessionRunnable() {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public int run(ControllerInfo controller) {
                         if (mediaId == null) {
                             Log.w(TAG, "prefetchFromMediaId(): Ignoring null mediaId from "
                                     + controller);
-                            return;
+                            return RESULT_CODE_BAD_VALUE;
                         }
-                        mSessionImpl.getCallback().onPrefetchFromMediaId(mSessionImpl.getInstance(),
-                                controller, mediaId, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromUri(final IMediaController2 caller, final Uri uri,
-            final Bundle extras) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI,
-                new SessionRunnable() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        if (uri == null) {
-                            Log.w(TAG, "playFromUri(): Ignoring null uri from " + controller);
-                            return;
-                        }
-                        mSessionImpl.getCallback().onPlayFromUri(
-                                mSessionImpl.getInstance(), controller, uri, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromSearch(final IMediaController2 caller, final String query,
-            final Bundle extras) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
-                new SessionRunnable() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        if (TextUtils.isEmpty(query)) {
-                            Log.w(TAG, "playFromSearch(): Ignoring empty query from " + controller);
-                            return;
-                        }
-                        mSessionImpl.getCallback().onPlayFromSearch(mSessionImpl.getInstance(),
-                                controller, query, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromMediaId(final IMediaController2 caller, final String mediaId,
-            final Bundle extras) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
-                new SessionRunnable() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        if (mediaId == null) {
-                            Log.w(TAG,
-                                    "playFromMediaId(): Ignoring null mediaId from " + controller);
-                            return;
-                        }
-                        mSessionImpl.getCallback().onPlayFromMediaId(
+                        return mSessionImpl.getCallback().onPrefetchFromMediaId(
                                 mSessionImpl.getInstance(), controller, mediaId, extras);
                     }
                 });
     }
 
     @Override
-    public void setRating(final IMediaController2 caller, final String mediaId,
+    public void playFromUri(final IMediaController2 caller, int seq, final Uri uri,
+            final Bundle extras) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI,
+                new CallbackCommand() {
+                    @Override
+                    public int run(ControllerInfo controller) {
+                        if (uri == null) {
+                            Log.w(TAG, "playFromUri(): Ignoring null uri from " + controller);
+                            return RESULT_CODE_BAD_VALUE;
+                        }
+                        return mSessionImpl.getCallback().onPlayFromUri(
+                                mSessionImpl.getInstance(), controller, uri, extras);
+                    }
+                });
+    }
+
+    @Override
+    public void playFromSearch(final IMediaController2 caller, int seq, final String query,
+            final Bundle extras) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
+                new CallbackCommand() {
+                    @Override
+                    public int run(ControllerInfo controller) {
+                        if (TextUtils.isEmpty(query)) {
+                            Log.w(TAG, "playFromSearch(): Ignoring empty query from " + controller);
+                            return RESULT_CODE_BAD_VALUE;
+                        }
+                        return mSessionImpl.getCallback().onPlayFromSearch(
+                                mSessionImpl.getInstance(), controller, query, extras);
+                    }
+                });
+    }
+
+    @Override
+    public void playFromMediaId(final IMediaController2 caller, int seq, final String mediaId,
+            final Bundle extras) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
+                new CallbackCommand() {
+                    @Override
+                    public int run(ControllerInfo controller) {
+                        if (mediaId == null) {
+                            Log.w(TAG,
+                                    "playFromMediaId(): Ignoring null mediaId from " + controller);
+                            return RESULT_CODE_BAD_VALUE;
+                        }
+                        return mSessionImpl.getCallback().onPlayFromMediaId(
+                                mSessionImpl.getInstance(), controller, mediaId, extras);
+                    }
+                });
+    }
+
+    @Override
+    public void setRating(final IMediaController2 caller, int seq, final String mediaId,
             final ParcelImpl rating) {
         final Rating2 rating2 = ParcelUtils.fromParcelable(rating);
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_SET_RATING,
-                new SessionRunnable() {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_SET_RATING,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public int run(ControllerInfo controller) {
                         if (mediaId == null) {
                             Log.w(TAG, "setRating(): Ignoring null mediaId from " + controller);
-                            return;
+                            return RESULT_CODE_BAD_VALUE;
                         }
                         if (rating2 == null) {
                             Log.w(TAG,
                                     "setRating(): Ignoring null ratingBundle from " + controller);
-                            return;
+                            return RESULT_CODE_BAD_VALUE;
                         }
-                        mSessionImpl.getCallback().onSetRating(
+                        return mSessionImpl.getCallback().onSetRating(
                                 mSessionImpl.getInstance(), controller, mediaId, rating2);
                     }
                 });
     }
 
     @Override
-    public void setPlaybackSpeed(IMediaController2 caller, final float speed) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_SPEED,
-                new SessionRunnable() {
+    public void setPlaybackSpeed(final IMediaController2 caller, int seq, final float speed) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_SPEED,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.setPlaybackSpeed(speed);
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.setPlaybackSpeed(speed);
                     }
                 });
     }
 
     @Override
-    public void setPlaylist(final IMediaController2 caller, final List<ParcelImpl> playlist,
-            final Bundle metadata) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_PLAYLIST,
-                new SessionRunnable() {
+    public void setPlaylist(final IMediaController2 caller, int seq,
+            final List<ParcelImpl> playlist, final Bundle metadata) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_PLAYLIST,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         if (playlist == null) {
                             Log.w(TAG, "setPlaylist(): Ignoring null playlist from " + controller);
-                            return;
+                            return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
                         List<MediaItem2> list = new ArrayList<>();
                         for (int i = 0; i < playlist.size(); i++) {
@@ -584,191 +671,195 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                 list.add(item);
                             }
                         }
-                        mSessionImpl.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
+                        return mSessionImpl.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
                     }
                 });
     }
 
     @Override
-    public void setMediaItem(final IMediaController2 caller, final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
-                new SessionRunnable() {
+    public void setMediaItem(final IMediaController2 caller, int seq, final ParcelImpl mediaItem) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         if (mediaItem == null) {
                             Log.w(TAG, "setMediaItem(): Ignoring null item from " + controller);
-                            return;
+                            return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
                         MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
                         if (item == null) {
-                            return;
+                            return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
-                        mSessionImpl.setMediaItem(item);
+                        return mSessionImpl.setMediaItem(item);
                     }
                 });
     }
 
     @Override
-    public void updatePlaylistMetadata(final IMediaController2 caller, final Bundle metadata) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
-                new SessionRunnable() {
+    public void updatePlaylistMetadata(final IMediaController2 caller, int seq,
+            final Bundle metadata) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.updatePlaylistMetadata(
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.updatePlaylistMetadata(
                                 MediaMetadata2.fromBundle(metadata));
                     }
                 });
     }
 
     @Override
-    public void addPlaylistItem(IMediaController2 caller, final int index,
+    public void addPlaylistItem(IMediaController2 caller, int seq, final int index,
             final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
-                new SessionRunnable() {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         if (mediaItem == null) {
                             Log.w(TAG, "addPlaylistItem(): Ignoring null item from " + controller);
-                            return;
+                            return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
                         MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
                         if (item == null) {
-                            return;
+                            return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
-                        mSessionImpl.addPlaylistItem(index, item);
+                        return mSessionImpl.addPlaylistItem(index, item);
                     }
                 });
     }
 
     @Override
-    public void removePlaylistItem(IMediaController2 caller, final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
-                new SessionRunnable() {
+    public void removePlaylistItem(IMediaController2 caller, int seq, final ParcelImpl mediaItem) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
                         // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        mSessionImpl.removePlaylistItem(item);
+                        return mSessionImpl.removePlaylistItem(item);
                     }
                 });
     }
 
     @Override
-    public void replacePlaylistItem(IMediaController2 caller, final int index,
+    public void replacePlaylistItem(IMediaController2 caller, int seq, final int index,
             final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
-                new SessionRunnable() {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         if (mediaItem == null) {
                             Log.w(TAG, "replacePlaylistItem(): Ignoring null item from "
                                     + controller);
-                            return;
+                            return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
                         MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
                         if (item == null) {
-                            return;
+                            return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
-                        mSessionImpl.replacePlaylistItem(index, item);
+                        return mSessionImpl.replacePlaylistItem(index, item);
                     }
                 });
     }
 
     @Override
-    public void skipToPlaylistItem(IMediaController2 caller, final ParcelImpl mediaItem) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
-                new SessionRunnable() {
+    public void skipToPlaylistItem(IMediaController2 caller, int seq, final ParcelImpl mediaItem) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         if (mediaItem == null) {
                             Log.w(TAG, "skipToPlaylistItem(): Ignoring null mediaItem from "
                                     + controller);
+                            return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
                         // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        mSessionImpl.skipToPlaylistItem(
+                        return mSessionImpl.skipToPlaylistItem(
                                 (MediaItem2) ParcelUtils.fromParcelable(mediaItem));
                     }
                 });
     }
 
     @Override
-    public void skipToPreviousItem(IMediaController2 caller) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
-                new SessionRunnable() {
+    public void skipToPreviousItem(IMediaController2 caller, int seq) {
+        onSessionCommand(caller, seq,
+                SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.skipToPreviousItem();
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.skipToPreviousItem();
                     }
                 });
     }
 
     @Override
-    public void skipToNextItem(IMediaController2 caller) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
-                new SessionRunnable() {
+    public void skipToNextItem(IMediaController2 caller, int seq) {
+        onSessionCommand(caller, seq,
+                SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.skipToNextItem();
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.skipToNextItem();
                     }
                 });
     }
 
     @Override
-    public void setRepeatMode(IMediaController2 caller, final int repeatMode) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
-                new SessionRunnable() {
+    public void setRepeatMode(IMediaController2 caller, int seq, final int repeatMode) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.setRepeatMode(repeatMode);
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.setRepeatMode(repeatMode);
                     }
                 });
     }
 
     @Override
-    public void setShuffleMode(IMediaController2 caller, final int shuffleMode) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
-                new SessionRunnable() {
+    public void setShuffleMode(IMediaController2 caller, int seq, final int shuffleMode) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
+                new PlayerCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.setShuffleMode(shuffleMode);
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.setShuffleMode(shuffleMode);
                     }
                 });
     }
 
     @Override
-    public void subscribeRoutesInfo(IMediaController2 caller) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO,
-                new SessionRunnable() {
+    public void subscribeRoutesInfo(IMediaController2 caller, int seq) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onSubscribeRoutesInfo(
+                    public int run(ControllerInfo controller) {
+                        return mSessionImpl.getCallback().onSubscribeRoutesInfo(
                                 mSessionImpl.getInstance(), controller);
                     }
                 });
     }
 
     @Override
-    public void unsubscribeRoutesInfo(IMediaController2 caller) {
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
-                new SessionRunnable() {
+    public void unsubscribeRoutesInfo(IMediaController2 caller, int seq) {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onUnsubscribeRoutesInfo(
+                    public int run(ControllerInfo controller) {
+                        return  mSessionImpl.getCallback().onUnsubscribeRoutesInfo(
                                 mSessionImpl.getInstance(), controller);
                     }
                 });
     }
 
     @Override
-    public void selectRoute(IMediaController2 caller, final Bundle route) {
+    public void selectRoute(IMediaController2 caller, int seq, final Bundle route) {
         if (MediaUtils2.isUnparcelableBundle(route)) {
             throw new RuntimeException("Unexpected route bundle: " + route);
         }
-        onSessionCommand(caller, SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
-                new SessionRunnable() {
+        onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
+                new CallbackCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onSelectRoute(mSessionImpl.getInstance(),
+                    public int run(ControllerInfo controller) {
+                        return mSessionImpl.getCallback().onSelectRoute(mSessionImpl.getInstance(),
                                 controller, route);
                     }
                 });
@@ -790,9 +881,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     public void getLibraryRoot(final IMediaController2 caller, final Bundle rootHints)
             throws RuntimeException {
         onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
-                new SessionRunnable() {
+                new CustomCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public void run(ControllerInfo controller) {
                         getLibrarySession().onGetLibraryRootOnExecutor(controller, rootHints);
                     }
                 });
@@ -802,9 +893,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     public void getItem(final IMediaController2 caller, final String mediaId)
             throws RuntimeException {
         onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_ITEM,
-                new SessionRunnable() {
+                new CustomCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public void run(ControllerInfo controller) {
                         if (mediaId == null) {
                             Log.w(TAG, "getItem(): Ignoring null mediaId from " + controller);
                             return;
@@ -818,9 +909,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     public void getChildren(final IMediaController2 caller, final String parentId,
             final int page, final int pageSize, final Bundle extras) throws RuntimeException {
         onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_CHILDREN,
-                new SessionRunnable() {
+                new CustomCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public void run(ControllerInfo controller) {
                         if (parentId == null) {
                             Log.w(TAG, "getChildren(): Ignoring null parentId from " + controller);
                             return;
@@ -843,9 +934,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void search(IMediaController2 caller, final String query, final Bundle extras) {
         onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_SEARCH,
-                new SessionRunnable() {
+                new CustomCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public void run(ControllerInfo controller) {
                         if (TextUtils.isEmpty(query)) {
                             Log.w(TAG, "search(): Ignoring empty query from " + controller);
                             return;
@@ -859,9 +950,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     public void getSearchResult(final IMediaController2 caller, final String query,
             final int page, final int pageSize, final Bundle extras) {
         onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT,
-                new SessionRunnable() {
+                new CustomCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public void run(ControllerInfo controller) {
                         if (TextUtils.isEmpty(query)) {
                             Log.w(TAG, "getSearchResult(): Ignoring empty query from "
                                     + controller);
@@ -887,9 +978,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     public void subscribe(final IMediaController2 caller, final String parentId,
             final Bundle option) {
         onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_SUBSCRIBE,
-                new SessionRunnable() {
+                new CustomCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public void run(ControllerInfo controller) {
                         if (parentId == null) {
                             Log.w(TAG, "subscribe(): Ignoring null parentId from " + controller);
                             return;
@@ -902,9 +993,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void unsubscribe(final IMediaController2 caller, final String parentId) {
         onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
-                new SessionRunnable() {
+                new CustomCommand() {
                     @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
+                    public void run(ControllerInfo controller) {
                         if (parentId == null) {
                             Log.w(TAG, "unsubscribe(): Ignoring null parentId from " + controller);
                             return;
@@ -914,8 +1005,27 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 });
     }
 
+    /**
+     * Common interface for code snippets to handle all incoming commands from the controller.
+     *
+     * @see #onSessionCommand
+     */
+    private interface Command {
+        // Empty interface
+    }
+
     @FunctionalInterface
-    private interface SessionRunnable {
+    private interface PlayerCommand extends Command {
+        ListenableFuture<PlayerResult> run(ControllerInfo controller) throws RemoteException;
+    }
+
+    @FunctionalInterface
+    private interface CallbackCommand extends Command {
+        @SessionResult.ResultCode int run(ControllerInfo controller) throws RemoteException;
+    }
+
+    @FunctionalInterface
+    private interface CustomCommand extends Command {
         void run(ControllerInfo controller) throws RemoteException;
     }
 
@@ -928,6 +1038,20 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
         @NonNull IBinder getCallbackBinder() {
             return mIControllerCallback.asBinder();
+        }
+
+        @Override
+        void onPlayerResult(int seq, @Nullable PlayerResult result) throws RemoteException {
+            onSessionResult(seq, SessionResult.from(result));
+        }
+
+        @Override
+        void onSessionResult(int seq, @Nullable SessionResult result) throws RemoteException {
+            if (result == null) {
+                result = new SessionResult(RESULT_CODE_UNKNOWN_ERROR, null);
+            }
+            mIControllerCallback.onSessionResult(seq,
+                    (ParcelImpl) ParcelUtils.toParcelable(result));
         }
 
         @Override
@@ -978,11 +1102,6 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs)
                 throws RemoteException {
             mIControllerCallback.onSeekCompleted(eventTimeMs, positionMs, seekPositionMs);
-        }
-
-        @Override
-        void onError(int errorCode, Bundle extras) throws RemoteException {
-            mIControllerCallback.onError(errorCode, extras);
         }
 
         @Override

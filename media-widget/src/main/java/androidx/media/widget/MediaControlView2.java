@@ -2193,7 +2193,7 @@ public class MediaControlView2 extends BaseLayout {
                 extra.putInt(KEY_SELECTED_AUDIO_INDEX, trackIndex);
                 mController2.sendCustomCommand(
                         new SessionCommand2(COMMAND_SELECT_AUDIO_TRACK, null),
-                        extra, null);
+                        extra);
             }
         }
         void showSubtitle(int trackIndex) {
@@ -2201,13 +2201,13 @@ public class MediaControlView2 extends BaseLayout {
                 Bundle extra = new Bundle();
                 extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, trackIndex);
                 mController2.sendCustomCommand(
-                        new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra, null);
+                        new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra);
             }
         }
         void hideSubtitle() {
             if (mController2 != null) {
                 mController2.sendCustomCommand(
-                        new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null, null);
+                        new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null);
             }
         }
         long getDurationMs() {
@@ -2337,25 +2337,22 @@ public class MediaControlView2 extends BaseLayout {
             }
 
             @Override
-            public void onError(@NonNull MediaController2 controller,
-                    @MediaSession2.ErrorCode int errorCode, @Nullable Bundle extras) {
+            public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
+                    @NonNull MediaItem2 mediaItem) {
                 if (DEBUG) {
-                    Log.d(TAG, "onError(), errorCode: " + errorCode);
+                    Log.d(TAG, "onCurrentMediaItemChanged(): " + mediaItem);
                 }
             }
 
             @Override
-            public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
-                    @Nullable MediaItem2 mediaItem) {
+            public void onPlaybackCompleted(MediaController2 controller) {
                 if (DEBUG) {
-                    Log.d(TAG, "onCurrentMediaItemChanged(): " + mediaItem);
+                    Log.d(TAG, "onPlaybackCompleted()");
                 }
-                if (mediaItem == null) {
-                    updateForStoppedState(true);
-                    // The progress bar and current time text may not have been updated.
-                    mProgress.setProgress(MAX_PROGRESS);
-                    mCurrentTime.setText(stringForTime(mDuration));
-                }
+                updateForStoppedState(true);
+                // The progress bar and current time text may not have been updated.
+                mProgress.setProgress(MAX_PROGRESS);
+                mCurrentTime.setText(stringForTime(mDuration));
             }
 
             @Override

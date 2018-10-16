@@ -28,6 +28,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.media.AudioAttributesCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -837,51 +838,18 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     /**
      * Result class of the asynchronous APIs.
+     * <p>
+     * Subclass may extend this class for providing more result and/or custom result code. For the
+     * custom result code, follow the convention below to avoid potential code duplication.
+     * <p>
+     * <ul>
+     * <li>Predefined error code: Negative integers greater than -100. (i.e. -100 < code < 0)
+     * <li>Custom error code: Negative integers equal to or less than -1000. (i.e. code < -1000)
+     * <li>Predefined info code: Positive integers less than 100. (i.e. 0 < code < 100)
+     * <li>Custom Info code: Positive integers equal to or greater than 1000. (i.e. code > +1000)
+     * </ul>
      */
-    public static class PlayerResult {
-        /**
-         * Result code represents that call is successfully completed.
-         * @see #getResultCode()
-         */
-        public static final int RESULT_CODE_SUCCESS = 0;
-
-        /**
-         * Result code represents that call is ended with an unknown error.
-         * @see #getResultCode()
-         */
-        public static final int RESULT_CODE_UNKNOWN_ERROR = Integer.MIN_VALUE;
-
-        /**
-         * Result code represents that the player is not in valid state for the operation.
-         * @see #getResultCode()
-         */
-        public static final int RESULT_CODE_INVALID_STATE = -1;
-
-        /**
-         * Result code represents that the argument is illegal.
-         * @see #getResultCode()
-         */
-        public static final int RESULT_CODE_BAD_VALUE = -2;
-
-        /**
-         * Result code represents that the operation is not allowed.
-         * @see #getResultCode()
-         */
-        public static final int RESULT_CODE_PERMISSION_DENIED = -3;
-
-        /**
-         * Result code represents a file or network related operation error.
-         * @see #getResultCode()
-         */
-        public static final int RESULT_CODE_IO_ERROR = -4;
-
-        /**
-         * Result code represents that the player skipped the call. For example, a {@link #seekTo}
-         * request may be skipped if it is followed by another {@link #seekTo} request.
-         * @see #getResultCode()
-         */
-        public static final int RESULT_CODE_SKIPPED = 1;
-
+    public static class PlayerResult implements BaseResult2 {
         /**
          * @hide
          */
@@ -905,7 +873,7 @@ public abstract class SessionPlayer2 implements AutoCloseable {
          * Constructor that uses the current system clock as the completion time.
          *
          * @param resultCode result code. Recommends to use the standard code defined here.
-         * @param item media item when the operation is completed
+         * @param item media item when the command is completed
          */
         // Note: resultCode is intentionally not annotated for subclass to return extra error codes.
         public PlayerResult(int resultCode, @Nullable MediaItem2 item) {
@@ -915,8 +883,14 @@ public abstract class SessionPlayer2 implements AutoCloseable {
         // Note: resultCode is intentionally not annotated for subclass to return extra error codes.
         private PlayerResult(int resultCode, @Nullable MediaItem2 item, long completionTime) {
             mResultCode = resultCode;
-            mCompletionTime = completionTime;
             mItem = item;
+            mCompletionTime = completionTime;
+        }
+
+        static ListenableFuture<PlayerResult> createFuture(int resultCode) {
+            ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
+            result.set(new PlayerResult(resultCode, null));
+            return result;
         }
 
         /**
@@ -933,27 +907,30 @@ public abstract class SessionPlayer2 implements AutoCloseable {
          * @see #RESULT_CODE_IO_ERROR
          * @see #RESULT_CODE_SKIPPED
          */
-        public int getResultCode() {
+        @Override
+        public @ResultCode int getResultCode() {
             return mResultCode;
         }
 
         /**
          * Gets the completion time of the command. Being more specific, it's the same as
-         * {@link SystemClock#elapsedRealtime()} when the command is completed.
+         * {@link android.os.SystemClock#elapsedRealtime()} when the command is completed.
          *
          * @return completion time of the command
          */
+        @Override
         public long getCompletionTime() {
             return mCompletionTime;
         }
 
         /**
          * Gets the {@link MediaItem2} for which the command was executed. In other words, this is
-         * the current media item when the command is completed.
+         * the current media item when the command was completed.
          *
-         * @return media item when the command is completed. Can be {@code null} for error or
-         *         player hasn't intiialized.
+         * @return media item when the command is completed. Can be {@code null} for an error, or
+         *         the current media item was {@code null}.
          */
+        @Override
         public @Nullable MediaItem2 getMediaItem() {
             return mItem;
         }
