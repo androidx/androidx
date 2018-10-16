@@ -16,13 +16,13 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="androidx.fragment.test">
+          package="androidx.fragment.testing">
     <!-- TODO: Remove this override after androidx.test:core lowers the level -->
     <uses-sdk tools:overrideLibrary="androidx.test.core" />
     <uses-permission android:name="android.permission.REORDER_TASKS" />
     <application>
         <activity
-                android:name="androidx.fragment.app.test.FragmentScenario$EmptyFragmentActivity"
+                android:name="androidx.fragment.app.testing.FragmentScenario$EmptyFragmentActivity"
                 android:theme="@style/FragmentScenarioEmptyFragmentActivityTheme"
                 android:taskAffinity=""
                 android:multiprocess="true"
