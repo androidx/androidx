@@ -26,13 +26,18 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Pair;
+import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 /**
  * A class with information on a single media item with the metadata information. Here are use
@@ -103,6 +108,11 @@ public class MediaItem2 implements VersionedParcelable {
     long mEndPositionMs = POSITION_UNKNOWN;
     @ParcelField(7)
     long mDurationMs = SessionPlayer2.UNKNOWN_TIME;
+
+    @NonParcelField
+    private final List<Pair<OnMetadataChangedListener, Executor>> mListeners = new ArrayList<>();
+    @NonParcelField
+    private final Object mLock = new Object();
 
     /**
      * Used for VersionedParcelable
@@ -255,8 +265,9 @@ public class MediaItem2 implements VersionedParcelable {
     }
 
     /**
-     * Sets a metadata. If the metadata is not {@code null}, its id should be matched with this
-     * instance's media id.
+     * Sets a metadata and calls {@link OnMetadataChangedListener#onMetadataChanged(MediaItem2)} to
+     * all connected sessions. If the metadata is not {@code null}, its id should be matched with
+     * this instance's media id.
      *
      * @param metadata metadata to update
      */
@@ -267,6 +278,20 @@ public class MediaItem2 implements VersionedParcelable {
         mMetadata = metadata;
         if (metadata != null) {
             mDurationMs = metadata.getLong(MediaMetadata2.METADATA_KEY_DURATION);
+        }
+        List<Pair<OnMetadataChangedListener, Executor>> listeners = new ArrayList<>();
+        synchronized (mLock) {
+            listeners.addAll(mListeners);
+        }
+
+        for (Pair<OnMetadataChangedListener, Executor> pair : listeners) {
+            final OnMetadataChangedListener listener = pair.first;
+            pair.second.execute(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onMetadataChanged(MediaItem2.this);
+                }
+            });
         }
     }
 
@@ -322,6 +347,28 @@ public class MediaItem2 implements VersionedParcelable {
 
     UUID getUuid() {
         return mParcelUuid.getUuid();
+    }
+
+    void addOnMetadataChangedListener(Executor executor, OnMetadataChangedListener listener) {
+        synchronized (mLock) {
+            for (Pair<OnMetadataChangedListener, Executor> pair : mListeners) {
+                if (pair.first == listener) {
+                    return;
+                }
+            }
+            mListeners.add(new Pair<>(listener, executor));
+        }
+    }
+
+    void removeOnMetadataChangedListener(OnMetadataChangedListener listener) {
+        synchronized (mLock) {
+            for (int i = mListeners.size() - 1; i >= 0; i--) {
+                if (mListeners.get(i).first == listener) {
+                    mListeners.remove(i);
+                    return;
+                }
+            }
+        }
     }
 
     /**
@@ -443,5 +490,9 @@ public class MediaItem2 implements VersionedParcelable {
         public Builder(@Flags int flags) {
             super(flags);
         }
+    }
+
+    interface OnMetadataChangedListener {
+        void onMetadataChanged(MediaItem2 item);
     }
 }

@@ -322,8 +322,7 @@ public class MediaControlView2 extends BaseLayout {
     public void setMediaSessionToken2(SessionToken2 token) {
         mController.setMediaSessionToken2(token);
         if (mController.hasMetadata()) {
-            updateDuration();
-            updateTitle();
+            updateMetadata();
         }
     }
 
@@ -1390,36 +1389,34 @@ public class MediaControlView2 extends BaseLayout {
                 }
             };
 
-    void updateDuration() {
-        if (mController.hasMetadata()) {
-            mTimeView.setVisibility(View.VISIBLE);
-            mDuration = mController.getDurationMs();
-            setProgress();
-        }
-    }
-
-    void updateTitle() {
-        if (mController.hasMetadata()) {
-            mTitleView.setText(mController.getTitle());
-        }
-    }
-
-    void updateAudioMetadata() {
-        if (mMediaType != MEDIA_TYPE_MUSIC) {
+    void updateMetadata() {
+        if (!mController.hasMetadata()) {
             return;
         }
-        if (mController.hasMetadata()) {
-            String titleText = mController.getTitle();
-            String artistText = mController.getArtistText();
-            if (titleText == null) {
-                titleText = mResources.getString(R.string.mcv2_music_title_unknown_text);
-            }
-            if (artistText == null) {
-                artistText = mResources.getString(R.string.mcv2_music_artist_unknown_text);
-            }
 
+        long duration = mController.getDurationMs();
+        if (duration != 0) {
+            mDuration = duration;
+            mTimeView.setVisibility(View.VISIBLE);
+            setProgress();
+        }
+
+        if (mMediaType != MEDIA_TYPE_MUSIC) {
+            String title = mController.getTitle();
+            if (title != null) {
+                mTitleView.setText(title);
+            }
+        } else {
+            String title = mController.getTitle();
+            if (title == null) {
+                title = mResources.getString(R.string.mcv2_music_title_unknown_text);
+            }
+            String artist = mController.getArtistText();
+            if (artist == null) {
+                artist = mResources.getString(R.string.mcv2_music_artist_unknown_text);
+            }
             // Update title for Embedded size type
-            mTitleView.setText(titleText + " - " + artistText);
+            mTitleView.setText(title + " - " + artist);
 
             // Remove unnecessary buttons
             mVideoQualityButton.setVisibility(View.GONE);
@@ -2344,6 +2341,8 @@ public class MediaControlView2 extends BaseLayout {
                 if (DEBUG) {
                     Log.d(TAG, "onCurrentMediaItemChanged(): " + mediaItem);
                 }
+                mMediaMetadata2 = mediaItem.getMetadata();
+                updateMetadata();
             }
 
             @Override
@@ -2360,7 +2359,16 @@ public class MediaControlView2 extends BaseLayout {
             @Override
             public void onConnected(@NonNull MediaController2 controller,
                     @NonNull SessionCommandGroup2 allowedCommands) {
+                if (DEBUG) {
+                    Log.d(TAG, "onConnected(): " + allowedCommands);
+                }
                 updateAllowedCommands(allowedCommands);
+
+                MediaItem2 mediaItem = controller.getCurrentMediaItem();
+                if (mediaItem != null) {
+                    mMediaMetadata2 = mediaItem.getMetadata();
+                    updateMetadata();
+                }
             }
 
             @Override
@@ -2376,12 +2384,6 @@ public class MediaControlView2 extends BaseLayout {
                 if (DEBUG) {
                     Log.d(TAG, "onPlaylistChanged(): list: " + list);
                 }
-                // Note that currently MediaControlView2 assumes single media item to play.
-                MediaItem2 mediaItem = list.isEmpty() ? null : list.get(0);
-                mMediaMetadata2 = (mediaItem != null) ? mediaItem.getMetadata() : null;
-                updateDuration();
-                updateTitle();
-                updateAudioMetadata();
             }
 
             @Override

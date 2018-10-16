@@ -298,24 +298,27 @@ public class MediaControlView2Test {
 
         final long duration = 49056L;
         final String title = "BigBuckBunny";
-        final CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(2);
         final MediaController2 controller =
                 createController(new MediaController2.ControllerCallback() {
                     @Override
-                    public void onPlaylistChanged(@NonNull MediaController2 controller,
-                            @NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-                        MediaMetadata2 itemMetadata = list.get(0).getMetadata();
-                        if (itemMetadata != null) {
-                            if (itemMetadata.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
-                                assertEquals(title, itemMetadata.getString(
-                                        MediaMetadata2.METADATA_KEY_TITLE));
-                            }
-                            if (itemMetadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
-                                assertEquals(duration, itemMetadata.getLong(
-                                        MediaMetadata2.METADATA_KEY_DURATION));
+                    public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
+                            @Nullable MediaItem2 item) {
+                        if (item != null) {
+                            MediaMetadata2 metadata = item.getMetadata();
+                            if (metadata != null) {
+                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
+                                    assertEquals(title, metadata.getString(
+                                            MediaMetadata2.METADATA_KEY_TITLE));
+                                    latch.countDown();
+                                }
+                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
+                                    assertEquals(duration, metadata.getLong(
+                                            MediaMetadata2.METADATA_KEY_DURATION));
+                                    latch.countDown();
+                                }
                             }
                         }
-                        latch.countDown();
                     }
                 });
         mActivityRule.runOnUiThread(new Runnable() {
@@ -345,28 +348,35 @@ public class MediaControlView2Test {
         final MediaItem2 uriMediaItem = createTestMediaItem2(uri);
         final MediaItem2 fileMediaItem = new FileMediaItem2.Builder(afd.getFileDescriptor(),
                 afd.getStartOffset(), afd.getLength()).build();
-        final CountDownLatch latchForUri = new CountDownLatch(1);
-        final CountDownLatch latchForFile = new CountDownLatch(1);
+        final CountDownLatch latchForUri = new CountDownLatch(3);
+        final CountDownLatch latchForFile = new CountDownLatch(3);
         final MediaController2 controller =
                 createController(new MediaController2.ControllerCallback() {
                     @Override
-                    public void onPlaylistChanged(@NonNull MediaController2 controller,
-                            @NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-                        MediaMetadata2 itemMetadata = list.get(0).getMetadata();
-                        if (itemMetadata != null) {
-                            if (itemMetadata.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
-                                assertEquals(title, itemMetadata.getString(
-                                        MediaMetadata2.METADATA_KEY_TITLE));
-                            }
-                            if (itemMetadata.containsKey(MediaMetadata2.METADATA_KEY_ARTIST)) {
-                                assertEquals(artist, itemMetadata.getString(
-                                        MediaMetadata2.METADATA_KEY_ARTIST));
-                            }
-                            if (itemMetadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
-                                assertEquals(duration, itemMetadata.getLong(
-                                        MediaMetadata2.METADATA_KEY_DURATION));
+                    public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
+                            @Nullable MediaItem2 item) {
+                        if (item != null) {
+                            MediaMetadata2 metadata = item.getMetadata();
+                            if (metadata != null) {
+                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
+                                    assertEquals(title, metadata.getString(
+                                            MediaMetadata2.METADATA_KEY_TITLE));
+                                    countDown();
+                                }
+                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_ARTIST)) {
+                                    assertEquals(artist, metadata.getString(
+                                            MediaMetadata2.METADATA_KEY_ARTIST));
+                                    countDown();
+                                }
+                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
+                                    assertEquals(duration, metadata.getLong(
+                                            MediaMetadata2.METADATA_KEY_DURATION));
+                                    countDown();
+                                }
                             }
                         }
+                    }
+                    private void countDown() {
                         if (latchForUri.getCount() != 0) {
                             latchForUri.countDown();
                         } else {
