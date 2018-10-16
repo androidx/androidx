@@ -163,6 +163,7 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_gradient_1_clamp,
             R.drawable.vector_icon_gradient_2_repeat,
             R.drawable.vector_icon_gradient_3_mirror,
+            R.drawable.vector_icon_gradient_then_solid
     };
 
     /* Golden images for vectors with gradients. Note some images have platform level variants:
@@ -176,6 +177,7 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_gradient_1_clamp_golden,
             R.drawable.vector_icon_gradient_2_repeat_golden,
             R.drawable.vector_icon_gradient_3_mirror_golden,
+            R.drawable.vector_icon_gradient_then_solid_golden
     };
 
     private static final int[] STATEFUL_RES_IDS = new int[]{

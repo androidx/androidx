@@ -1327,6 +1327,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                         fillPaint.setShader(shader);
                         fillPaint.setAlpha(Math.round(fullPath.mFillAlpha * 255f));
                     } else {
+                        fillPaint.setShader(null);
+                        fillPaint.setAlpha(255);
                         fillPaint.setColor(applyAlpha(fill.getColor(), fullPath.mFillAlpha));
                     }
                     fillPaint.setColorFilter(filter);
@@ -1358,6 +1360,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                         strokePaint.setShader(shader);
                         strokePaint.setAlpha(Math.round(fullPath.mStrokeAlpha * 255f));
                     } else {
+                        strokePaint.setShader(null);
+                        strokePaint.setAlpha(255);
                         strokePaint.setColor(applyAlpha(strokeColor.getColor(),
                                 fullPath.mStrokeAlpha));
                     }
