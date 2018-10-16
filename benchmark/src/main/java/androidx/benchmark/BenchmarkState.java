@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.test.InstrumentationRegistry;
 
 import java.io.File;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -51,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 public final class BenchmarkState {
     private static final String TAG = "BenchmarkState";
     private static final String CSV_TAG = "BenchmarkCsv";
+    private static final String STUDIO_OUTPUT_KEY = "android.studio.display.benchmark";
     private static final boolean IS_DEBUGGABLE;
 
     private static final boolean ENABLE_PROFILING = false;
@@ -261,6 +263,17 @@ public final class BenchmarkState {
         return sb.toString();
     }
 
+    String ideSummaryLine(@NonNull String key) {
+        // NOTE: this summary line will use default locale to determine separators. As
+        // this line is only meant for human eyes, we don't worry about consistency here.
+        return String.format(
+                // 13 is used for alignment here, because it's enough that 9.99sec will still
+                // align with any other output, without moving data too far to the right
+                "%13s ns %s",
+                NumberFormat.getNumberInstance().format(min()),
+                key);
+    }
+
     private String csvLine() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < mResults.size(); i++) {
@@ -289,6 +302,7 @@ public final class BenchmarkState {
         status.putLong(key + "_min", min());
         status.putLong(key + "_standardDeviation", standardDeviation());
         status.putLong(key + "_count", count());
+        status.putString(STUDIO_OUTPUT_KEY, ideSummaryLine(key));
         instrumentation.sendStatus(Activity.RESULT_OK, status);
     }
 }
