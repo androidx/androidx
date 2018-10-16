@@ -619,7 +619,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     public void testOnCustomCommand() throws InterruptedException {
         prepareLooper();
         final SessionCommand2 testCommand = new SessionCommand2(
-                SessionCommand2.COMMAND_CODE_PLAYER_PREPARE);
+                SessionCommand2.COMMAND_CODE_PLAYER_PREFETCH);
         final Bundle testArgs = TestUtils.createTestBundle();
 
         final CountDownLatch latch = new CountDownLatch(2);
