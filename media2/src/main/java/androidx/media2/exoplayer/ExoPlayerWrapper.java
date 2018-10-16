@@ -35,6 +35,7 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
+import androidx.media2.MediaTimestamp2;
 import androidx.media2.PlaybackParams2;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
@@ -319,6 +320,13 @@ import java.util.List;
                 durationMs == C.TIME_UNSET ? -1 : durationMs);
         bundle.putLong(MediaPlayer2.MetricsConstants.PLAYING, playingTimeMs);
         return bundle;
+    }
+
+    public MediaTimestamp2 getTimestamp() {
+        boolean isPlaying =
+                mPlayer.getPlaybackState() == Player.STATE_READY && mPlayer.getPlayWhenReady();
+        float speed = isPlaying ? mPlayer.getPlaybackParameters().speed : 0f;
+        return new MediaTimestamp2(C.msToUs(getCurrentPosition()), System.nanoTime(), speed);
     }
 
     public void reset() {
