@@ -74,9 +74,6 @@ public class MediaItem2 implements VersionedParcelable {
 
     /**
      * Flag: Indicates that the item is playable.
-     * <p>
-     * The id of this item may be passed to
-     * {@link MediaController2#playFromMediaId(String, Bundle)}
      */
     public static final int FLAG_PLAYABLE = 1 << 1;
 

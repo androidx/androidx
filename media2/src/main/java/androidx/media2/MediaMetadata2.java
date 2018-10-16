@@ -341,9 +341,8 @@ public final class MediaMetadata2 implements VersionedParcelable {
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
      * information about the media ID of the content. This value is specific to the
      * service providing the content. If used, this should be a persistent
-     * unique key for the underlying content.  It may be used with
-     * {@link MediaController2#playFromMediaId(String, Bundle)}
-     * to initiate playback.
+     * unique key for the underlying content. This ID is used by {@link MediaController2} and
+     * {@link MediaBrowser2}.
      *
      * @see Builder#putText(String, CharSequence)
      * @see Builder#putString(String, String)
@@ -355,8 +354,7 @@ public final class MediaMetadata2 implements VersionedParcelable {
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
      * information about the Uri of the content. This value is specific to the service providing the
-     * content. It may be used with {@link MediaController2#playFromUri(Uri, Bundle)}
-     * to initiate playback.
+     * content.
      *
      * @see Builder#putText(String, CharSequence)
      * @see Builder#putString(String, String)
