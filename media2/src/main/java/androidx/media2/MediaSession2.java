@@ -597,7 +597,9 @@ public class MediaSession2 implements AutoCloseable {
          * @param mediaId media id
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onPlayFromMediaId(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
                 @Nullable Bundle extras) { }
@@ -614,7 +616,9 @@ public class MediaSession2 implements AutoCloseable {
          * @param query query string. Can be empty to indicate any suggested media
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PLAY_FROM_SEARCH
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onPlayFromSearch(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull String query,
                 @Nullable Bundle extras) { }
@@ -628,7 +632,9 @@ public class MediaSession2 implements AutoCloseable {
          * @param uri uri
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PLAY_FROM_URI
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onPlayFromUri(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull Uri uri,
                 @Nullable Bundle extras) { }
@@ -652,7 +658,9 @@ public class MediaSession2 implements AutoCloseable {
          * @param mediaId media id to prefetch
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onPrefetchFromMediaId(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
                 @Nullable Bundle extras) { }
@@ -679,7 +687,9 @@ public class MediaSession2 implements AutoCloseable {
          * @param query query string. Can be empty to indicate any suggested media
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onPrefetchFromSearch(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull String query,
                 @Nullable Bundle extras) { }
@@ -703,7 +713,9 @@ public class MediaSession2 implements AutoCloseable {
          * @param uri uri
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PREFETCH_FROM_URI
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onPrefetchFromUri(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) { }
 
