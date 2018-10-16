@@ -79,20 +79,20 @@ public final class MediaTimestamp2 {
     private final float mClockRate;
 
     /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    public MediaTimestamp2(long mediaUs, long systemNs, float rate) {
+        mMediaTimeUs = mediaUs;
+        mNanoTime = systemNs;
+        mClockRate = rate;
+    }
+
+    /** @hide */
     @TargetApi(Build.VERSION_CODES.M)
     @RestrictTo(LIBRARY_GROUP)
     MediaTimestamp2(MediaTimestamp timestamp) {
         mMediaTimeUs = timestamp.getAnchorMediaTimeUs();
         mNanoTime = timestamp.getAnchorSytemNanoTime();
         mClockRate = timestamp.getMediaClockRate();
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    MediaTimestamp2(long mediaUs, long systemNs, float rate) {
-        mMediaTimeUs = mediaUs;
-        mNanoTime = systemNs;
-        mClockRate = rate;
     }
 
     /** @hide */
