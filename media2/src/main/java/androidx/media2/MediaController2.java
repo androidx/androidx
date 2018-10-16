@@ -258,7 +258,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Requests that the player starts or resumes playback.
+     * Requests that the player start or resume playback.
      */
     public void play() {
         if (isConnected()) {
@@ -267,7 +267,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Requests that the player pauses playback.
+     * Requests that the player pause playback.
      */
     public void pause() {
         if (isConnected()) {
@@ -276,15 +276,15 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Request that the player prepare its playback. In other words, other sessions can continue
-     * to play during the preparation of this session. This method can be used to speed up the
-     * start of the playback. Once the preparation is done, the session will change its playback
-     * state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be
-     * called to start playback.
+     * Requests that the player prefetch the media items for playback. In other words, other
+     * sessions can continue to play during the prefetch of this session. This method can be used
+     * to speed up the start of the playback. Once the prefetch is done, the player will change
+     * its playback state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play}
+     * can be called to start playback.
      */
-    public void prepare() {
+    public void prefetch() {
         if (isConnected()) {
-            getImpl().prepare();
+            getImpl().prefetch();
         }
     }
 
@@ -342,7 +342,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Request that the player start playback for a specific media id.
+     * Requests that the player start playback for a specific media id.
      *
      * @param mediaId The id of the requested media.
      * @param extras Optional extras that can include extra information about the media item
@@ -358,7 +358,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Request that the player start playback for a specific search query.
+     * Requests that the player start playback for a specific search query.
      *
      * @param query The search query. Should not be an empty string.
      * @param extras Optional extras that can include extra information about the query.
@@ -373,7 +373,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Request that the player start playback for a specific {@link Uri}.
+     * Requests that the player start playback for a specific {@link Uri}.
      *
      * @param uri The URI of the requested media.
      * @param extras Optional extras that can include extra information about the media item
@@ -389,65 +389,67 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Request that the player prepare playback for a specific media id. In other words, other
-     * sessions can continue to play during the preparation of this session. This method can be
-     * used to speed up the start of the playback. Once the preparation is done, the session
-     * will change its playback state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}.
-     * Afterwards, {@link #play} can be called to start playback. If the preparation is not needed,
-     * {@link #playFromMediaId} can be directly called without this method.
+     * Requests that the player prefetch a media item with the media id for playback.
+     * In other words, other sessions can continue to play during the preparation of this session.
+     * This method can be used to speed up the start of the playback.
+     * Once the prefetch is done, the session will change its playback state to
+     * {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
+     * playback. If the prefetch is not needed, {@link #playFromMediaId} can be directly called
+     * without this method.
      *
      * @param mediaId The id of the requested media.
      * @param extras Optional extras that can include extra information about the media item
      *               to be prepared.
      */
-    public void prepareFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
+    public void prefetchFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
         if (mediaId == null) {
             throw new IllegalArgumentException("mediaId shouldn't be null");
         }
         if (isConnected()) {
-            getImpl().prepareFromMediaId(mediaId, extras);
+            getImpl().prefetchFromMediaId(mediaId, extras);
         }
     }
 
     /**
-     * Request that the player prepare playback for a specific search query.
+     * Requests that the player prefetch a media item with the specific search query for playback.
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
-     * Once the preparation is done, the session will change its playback state to
-     * {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards,
-     * {@link #play} can be called to start playback. If the preparation is not needed,
-     * {@link #playFromSearch} can be directly called without this method.
+     * Once the prefetch is done, the session will change its playback state to
+     * {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
+     * playback. If the prefetch is not needed, {@link #playFromSearch} can be directly called
+     * without this method.
      *
      * @param query The search query. Should not be an empty string.
      * @param extras Optional extras that can include extra information about the query.
      */
-    public void prepareFromSearch(@NonNull String query, @Nullable Bundle extras) {
+    public void prefetchFromSearch(@NonNull String query, @Nullable Bundle extras) {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
         }
         if (isConnected()) {
-            getImpl().prepareFromSearch(query, extras);
+            getImpl().prefetchFromSearch(query, extras);
         }
     }
 
     /**
-     * Request that the player prepare playback for a specific {@link Uri}. In other words,
-     * other sessions can continue to play during the preparation of this session. This method
-     * can be used to speed up the start of the playback. Once the preparation is done, the
-     * session will change its playback state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}.
-     * Afterwards, {@link #play} can be called to start playback. If the preparation is not needed,
-     * {@link #playFromUri} can be directly called without this method.
+     * Requests that the player prefetch a media item with the specific {@link Uri} for playback.
+     * In other words, other sessions can continue to play during the preparation of this session.
+     * This method can be used to speed up the start of the playback.
+     * Once the prefetch is done, the session will change its playback state to
+     * {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
+     * playback. If the prefetch is not needed, {@link #playFromUri} can be directly called
+     * without this method.
      *
      * @param uri The URI of the requested media.
      * @param extras Optional extras that can include extra information about the media item
      *               to be prepared.
      */
-    public void prepareFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
+    public void prefetchFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
         if (uri == null) {
             throw new IllegalArgumentException("uri shouldn't be null");
         }
         if (isConnected()) {
-            getImpl().prepareFromUri(uri, extras);
+            getImpl().prefetchFromUri(uri, extras);
         }
     }
 
@@ -944,7 +946,7 @@ public class MediaController2 implements AutoCloseable {
         void play();
         void pause();
         void reset();
-        void prepare();
+        void prefetch();
         void fastForward();
         void rewind();
         void seekTo(long pos);
@@ -953,9 +955,9 @@ public class MediaController2 implements AutoCloseable {
         void playFromMediaId(@NonNull String mediaId, @Nullable Bundle extras);
         void playFromSearch(@NonNull String query, @Nullable Bundle extras);
         void playFromUri(@NonNull Uri uri, @Nullable Bundle extras);
-        void prepareFromMediaId(@NonNull String mediaId, @Nullable Bundle extras);
-        void prepareFromSearch(@NonNull String query, @Nullable Bundle extras);
-        void prepareFromUri(@NonNull Uri uri, @Nullable Bundle extras);
+        void prefetchFromMediaId(@NonNull String mediaId, @Nullable Bundle extras);
+        void prefetchFromSearch(@NonNull String query, @Nullable Bundle extras);
+        void prefetchFromUri(@NonNull Uri uri, @Nullable Bundle extras);
         void setVolumeTo(int value, @VolumeFlags int flags);
         void adjustVolume(@VolumeDirection int direction, @VolumeFlags int flags);
         @Nullable PendingIntent getSessionActivity();
