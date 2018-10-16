@@ -32,7 +32,6 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
-import androidx.media.test.lib.TestUtils;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
@@ -407,24 +406,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         assertTrue(controllerCallback.await(TIMEOUT_MS));
         assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);
         assertEquals(testSeekPosition, controllerCallback.mPlaybackState.getPosition());
-    }
-
-    @Test
-    public void testNotifyError() throws Exception {
-        prepareLooper();
-        final int errorCode = MediaSession2.ERROR_CODE_NOT_AVAILABLE_IN_REGION;
-        final Bundle extras = new Bundle();
-        extras.putString("args", "testNotifyError");
-
-        final MediaControllerCallback controllerCallback = new MediaControllerCallback();
-        controllerCallback.reset(1);
-        mControllerCompat.registerCallback(controllerCallback, sHandler);
-
-        mSession.notifyError(errorCode, extras);
-        assertTrue(controllerCallback.await(TIMEOUT_MS));
-        assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);
-        assertEquals(errorCode, controllerCallback.mPlaybackState.getErrorCode());
-        assertTrue(TestUtils.equals(extras, controllerCallback.mPlaybackState.getExtras()));
     }
 
     @Test

@@ -18,6 +18,7 @@ package androidx.media.test.service.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_PAUSE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_PLAY;
@@ -592,7 +593,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         }
 
         @Override
-        public boolean onCommandRequest(MediaSession2 session, ControllerInfo controller,
+        public int onCommandRequest(MediaSession2 session, ControllerInfo controller,
                 SessionCommand2 command) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnCommandRequestCalled = true;
@@ -602,87 +603,96 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         }
 
         @Override
-        public void onFastForward(MediaSession2 session, ControllerInfo controller) {
+        public int onFastForward(MediaSession2 session, ControllerInfo controller) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnFastForwardCalled = true;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public void onRewind(MediaSession2 session, ControllerInfo controller) {
+        public int onRewind(MediaSession2 session, ControllerInfo controller) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnRewindCalled = true;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public void onPlayFromMediaId(MediaSession2 session, ControllerInfo controller,
+        public int onPlayFromMediaId(MediaSession2 session, ControllerInfo controller,
                 String mediaId, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPlayFromMediaIdCalled = true;
             mMediaId = mediaId;
             mExtras = extras;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public void onPlayFromSearch(MediaSession2 session, ControllerInfo controller,
+        public int onPlayFromSearch(MediaSession2 session, ControllerInfo controller,
                 String query, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPlayFromSearchCalled = true;
             mQuery = query;
             mExtras = extras;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public void onPlayFromUri(MediaSession2 session, ControllerInfo controller,
+        public int onPlayFromUri(MediaSession2 session, ControllerInfo controller,
                 Uri uri, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPlayFromUriCalled = true;
             mUri = uri;
             mExtras = extras;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public void onPrefetchFromMediaId(MediaSession2 session, ControllerInfo controller,
+        public int onPrefetchFromMediaId(MediaSession2 session, ControllerInfo controller,
                 String mediaId, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPrepareFromMediaIdCalled = true;
             mMediaId = mediaId;
             mExtras = extras;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public void onPrefetchFromSearch(MediaSession2 session, ControllerInfo controller,
+        public int onPrefetchFromSearch(MediaSession2 session, ControllerInfo controller,
                 String query, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPrepareFromSearchCalled = true;
             mQuery = query;
             mExtras = extras;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public void onPrefetchFromUri(MediaSession2 session, ControllerInfo controller,
+        public int onPrefetchFromUri(MediaSession2 session, ControllerInfo controller,
                 Uri uri, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPrepareFromUriCalled = true;
             mUri = uri;
             mExtras = extras;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public void onSetRating(MediaSession2 session, ControllerInfo controller,
+        public int onSetRating(MediaSession2 session, ControllerInfo controller,
                 String mediaId, Rating2 rating) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnSetRatingCalled = true;
             mMediaId = mediaId;
             mRating = rating;
             mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
         }
     }
 }

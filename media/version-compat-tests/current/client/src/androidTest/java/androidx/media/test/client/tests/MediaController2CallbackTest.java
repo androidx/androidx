@@ -563,28 +563,6 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testOnError() throws InterruptedException {
-        prepareLooper();
-        final int errorCode = MediaSession2.ERROR_CODE_NOT_AVAILABLE_IN_REGION;
-        final Bundle extras = TestUtils.createTestBundle();
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController2.ControllerCallback callback =
-                new MediaController2.ControllerCallback() {
-            @Override
-            public void onError(MediaController2 controller, int errorCodeOut, Bundle extrasOut) {
-                assertEquals(errorCode, errorCodeOut);
-                assertTrue(TestUtils.equals(extras, extrasOut));
-                latch.countDown();
-            }
-        };
-
-        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
-        mRemoteSession2.notifyError(errorCode, extras);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
     public void testOnAllowedCommandsChanged() throws InterruptedException {
         prepareLooper();
         final SessionCommandGroup2 commands = new SessionCommandGroup2();

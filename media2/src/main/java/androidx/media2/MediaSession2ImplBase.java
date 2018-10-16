@@ -19,7 +19,8 @@ package androidx.media2;
 import static androidx.media2.MediaSession2.ControllerCb;
 import static androidx.media2.MediaSession2.ControllerInfo;
 import static androidx.media2.MediaSession2.SessionCallback;
-import static androidx.media2.SessionPlayer2.BUFFERING_STATE_UNKNOWN;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.MediaUtils2.DIRECT_EXECUTOR;
 import static androidx.media2.SessionPlayer2.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer2.UNKNOWN_TIME;
 import static androidx.media2.SessionToken2.TYPE_SESSION;
@@ -48,13 +49,16 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController2.PlaybackInfo;
-import androidx.media2.MediaSession2.ErrorCode;
 import androidx.media2.MediaSession2.MediaSession2Impl;
+import androidx.media2.SessionPlayer2.PlayerResult;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -407,83 +411,65 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public void play() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            if (player.getPlayerState() == PLAYER_STATE_IDLE) {
-                player.prefetch();
-            }
-            player.play();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-    }
-
-    @Override
-    public void pause() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.pause();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-    }
-
-    @Override
-    public void reset() {
-        throw new UnsupportedOperationException("This API will be removed");
-    }
-
-    @Override
-    public void prefetch() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.prefetch();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-    }
-
-    @Override
-    public void seekTo(long pos) {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.seekTo(pos);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-    }
-
-    @Override
-    public void skipForward() {
-        // To match with KEYCODE_MEDIA_SKIP_FORWARD
-    }
-
-    @Override
-    public void skipBackward() {
-        // To match with KEYCODE_MEDIA_SKIP_BACKWARD
-    }
-
-    @Override
-    public void notifyError(@ErrorCode final int errorCode, @Nullable final Bundle extras) {
-        notifyToAllControllers(new NotifyRunnable() {
+    public ListenableFuture<PlayerResult> play() {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
             @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onError(errorCode, extras);
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                if (player.getPlayerState() != PLAYER_STATE_IDLE) {
+                    return player.play();
+                }
+                final ListenableFuture<PlayerResult> prepareFuture = player.prefetch();
+                final ListenableFuture<PlayerResult> playFuture = player.play();
+                if (prepareFuture == null || playFuture == null) {
+                    // Let executeCommand() handle such cases.
+                    return null;
+                }
+                return XMediaPlayer.CombindedCommandResultFuture.create(DIRECT_EXECUTOR,
+                        prepareFuture, playFuture);
             }
         });
+    }
+
+    @Override
+    public ListenableFuture<PlayerResult> pause() {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.pause();
+            }
+        });
+    }
+
+    @Override
+    public ListenableFuture<PlayerResult> prefetch() {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.prefetch();
+            }
+        });
+    }
+
+    @Override
+    public ListenableFuture<PlayerResult> seekTo(final long pos) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.seekTo(pos);
+            }
+        });
+    }
+
+    @Override
+    public ListenableFuture<PlayerResult> skipForward() {
+        // To match with KEYCODE_MEDIA_SKIP_FORWARD
+        return null;
+    }
+
+    @Override
+    public ListenableFuture<PlayerResult> skipBackward() {
+        // To match with KEYCODE_MEDIA_SKIP_BACKWARD
+        return null;
     }
 
     @Override
@@ -498,338 +484,275 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override public @SessionPlayer2.PlayerState int getPlayerState() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            return player.getPlayerState();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return SessionPlayer2.PLAYER_STATE_ERROR;
+        return executeCommand(new PlayerCommand<Integer>() {
+            @Override
+            public Integer run(SessionPlayer2 player) throws Exception {
+                return player.getPlayerState();
+            }
+        }, SessionPlayer2.PLAYER_STATE_ERROR);
     }
 
     @Override
     public long getCurrentPosition() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (isInPlaybackState(player)) {
-            return player.getCurrentPosition();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return SessionPlayer2.UNKNOWN_TIME;
+        return executeCommand(new PlayerCommand<Long>() {
+            @Override
+            public Long run(SessionPlayer2 player) throws Exception {
+                if (isInPlaybackState(player)) {
+                    return player.getCurrentPosition();
+                }
+                return null;
+            }
+        }, SessionPlayer2.UNKNOWN_TIME);
     }
 
     @Override
     public long getDuration() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (isInPlaybackState(player)) {
-            // Note: This should be the same as
-            // getCurrentMediaItem().getMetadata().getLong(METADATA_KEY_DURATION)
-            return player.getDuration();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return SessionPlayer2.UNKNOWN_TIME;
+        return executeCommand(new PlayerCommand<Long>() {
+            @Override
+            public Long run(SessionPlayer2 player) throws Exception {
+                if (isInPlaybackState(player)) {
+                    return player.getDuration();
+                }
+                return null;
+            }
+        }, SessionPlayer2.UNKNOWN_TIME);
     }
 
     @Override
     public long getBufferedPosition() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (isInPlaybackState(player)) {
-            return player.getBufferedPosition();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return SessionPlayer2.UNKNOWN_TIME;
+        return executeCommand(new PlayerCommand<Long>() {
+            @Override
+            public Long run(SessionPlayer2 player) throws Exception {
+                if (isInPlaybackState(player)) {
+                    return player.getBufferedPosition();
+                }
+                return null;
+            }
+        }, SessionPlayer2.UNKNOWN_TIME);
     }
 
     @Override
     public @SessionPlayer2.BuffState int getBufferingState() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            return player.getBufferingState();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return BUFFERING_STATE_UNKNOWN;
+        return executeCommand(new PlayerCommand<Integer>() {
+            @Override
+            public Integer run(SessionPlayer2 player) throws Exception {
+                return player.getBufferingState();
+            }
+        }, SessionPlayer2.BUFFERING_STATE_UNKNOWN);
     }
 
     @Override
     public float getPlaybackSpeed() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (isInPlaybackState(player)) {
-            return player.getPlaybackSpeed();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return 1.0f;
+        return executeCommand(new PlayerCommand<Float>() {
+            @Override
+            public Float run(SessionPlayer2 player) throws Exception {
+                if (isInPlaybackState(player)) {
+                    return player.getPlaybackSpeed();
+                }
+                return null;
+            }
+        }, 1.0f);
     }
 
     @Override
-    public void setPlaybackSpeed(float speed) {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.setPlaybackSpeed(speed);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> setPlaybackSpeed(final float speed) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.setPlaybackSpeed(speed);
+            }
+        });
     }
 
     @Override
     public List<MediaItem2> getPlaylist() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            return player.getPlaylist();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return null;
+        return executeCommand(new PlayerCommand<List<MediaItem2>>() {
+            @Override
+            public List<MediaItem2> run(SessionPlayer2 player) throws Exception {
+                return player.getPlaylist();
+            }
+        }, null);
     }
 
     @Override
-    public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        if (list == null) {
-            throw new IllegalArgumentException("list shouldn't be null");
-        }
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.setPlaylist(list, metadata);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> setPlaylist(final @NonNull List<MediaItem2> list,
+            final @Nullable MediaMetadata2 metadata) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                if (list == null) {
+                    throw new IllegalArgumentException("list shouldn't be null");
+                }
+                return player.setPlaylist(list, metadata);
+            }
+        });
     }
 
     @Override
-    public void setMediaItem(@NonNull MediaItem2 item) {
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
-        }
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.setMediaItem(item);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> setMediaItem(final @NonNull MediaItem2 item) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                if (item == null) {
+                    throw new IllegalArgumentException("item shouldn't be null");
+                }
+                return player.setMediaItem(item);
+            }
+        });
     }
 
     @Override
-    public void skipToPlaylistItem(@NonNull MediaItem2 item) {
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
-        }
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.skipToPlaylistItem(item);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(final @NonNull MediaItem2 item) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                if (item == null) {
+                    throw new IllegalArgumentException("item shouldn't be null");
+                }
+                return player.skipToPlaylistItem(item);
+            }
+        });
     }
 
     @Override
-    public void skipToPreviousItem() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.skipToPreviousPlaylistItem();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> skipToPreviousItem() {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.skipToPreviousPlaylistItem();
+            }
+        });
     }
 
     @Override
-    public void skipToNextItem() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.skipToNextPlaylistItem();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> skipToNextItem() {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.skipToNextPlaylistItem();
+            }
+        });
     }
 
     @Override
     public MediaMetadata2 getPlaylistMetadata() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            return player.getPlaylistMetadata();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return null;
+        return executeCommand(new PlayerCommand<MediaMetadata2>() {
+            @Override
+            public MediaMetadata2 run(SessionPlayer2 player) throws Exception {
+                return player.getPlaylistMetadata();
+            }
+        }, null);
     }
 
     @Override
-    public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
-        if (index < 0) {
-            throw new IllegalArgumentException("index shouldn't be negative");
-        }
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
-        }
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.addPlaylistItem(index, item);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> addPlaylistItem(final int index,
+            final @NonNull MediaItem2 item) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                if (index < 0) {
+                    throw new IllegalArgumentException("index shouldn't be negative");
+                }
+                if (item == null) {
+                    throw new IllegalArgumentException("item shouldn't be null");
+                }
+                return player.addPlaylistItem(index, item);
+            }
+        });
     }
 
     @Override
-    public void removePlaylistItem(@NonNull MediaItem2 item) {
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
-        }
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.removePlaylistItem(item);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> removePlaylistItem(final @NonNull MediaItem2 item) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                if (item == null) {
+                    throw new IllegalArgumentException("item shouldn't be null");
+                }
+                return player.removePlaylistItem(item);
+            }
+        });
     }
 
     @Override
-    public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
-        if (index < 0) {
-            throw new IllegalArgumentException("index shouldn't be negative");
-        }
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
-        }
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.replacePlaylistItem(index, item);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> replacePlaylistItem(final int index,
+            final @NonNull MediaItem2 item) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                if (index < 0) {
+                    throw new IllegalArgumentException("index shouldn't be negative");
+                }
+                if (item == null) {
+                    throw new IllegalArgumentException("item shouldn't be null");
+                }
+                return player.replacePlaylistItem(index, item);
+            }
+        });
+
     }
 
     @Override
     public MediaItem2 getCurrentMediaItem() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            return player.getCurrentMediaItem();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return null;
+        return executeCommand(new PlayerCommand<MediaItem2>() {
+            @Override
+            public MediaItem2 run(SessionPlayer2 player) throws Exception {
+                return player.getCurrentMediaItem();
+            }
+        }, null);
     }
 
     @Override
-    public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.updatePlaylistMetadata(metadata);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> updatePlaylistMetadata(
+            final @Nullable MediaMetadata2 metadata) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.updatePlaylistMetadata(metadata);
+            }
+        });
     }
 
     @Override
     public @SessionPlayer2.RepeatMode int getRepeatMode() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            return player.getRepeatMode();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return SessionPlayer2.REPEAT_MODE_NONE;
+        return executeCommand(new PlayerCommand<Integer>() {
+            @Override
+            public Integer run(SessionPlayer2 player) throws Exception {
+                return player.getRepeatMode();
+            }
+        }, SessionPlayer2.REPEAT_MODE_NONE);
     }
 
     @Override
-    public void setRepeatMode(@SessionPlayer2.RepeatMode int repeatMode) {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.setRepeatMode(repeatMode);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> setRepeatMode(
+            final @SessionPlayer2.RepeatMode int repeatMode) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.setRepeatMode(repeatMode);
+            }
+        });
     }
 
     @Override
     public @SessionPlayer2.ShuffleMode int getShuffleMode() {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            return player.getShuffleMode();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return SessionPlayer2.SHUFFLE_MODE_NONE;
+        return executeCommand(new PlayerCommand<Integer>() {
+            @Override
+            public Integer run(SessionPlayer2 player) throws Exception {
+                return player.getShuffleMode();
+            }
+        }, SessionPlayer2.SHUFFLE_MODE_NONE);
     }
 
     @Override
-    public void setShuffleMode(@SessionPlayer2.ShuffleMode int shuffleMode) {
-        SessionPlayer2 player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            player.setShuffleMode(shuffleMode);
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
+    public ListenableFuture<PlayerResult> setShuffleMode(
+            final @SessionPlayer2.ShuffleMode int shuffleMode) {
+        return executeCommand(new PlayerCommand<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
+                return player.setShuffleMode(shuffleMode);
+            }
+        });
     }
 
     ///////////////////////////////////////////////////
@@ -944,8 +867,9 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         }
     }
 
-    private boolean isInPlaybackState(@Nullable SessionPlayer2 player) {
-        return player != null
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean isInPlaybackState(@NonNull SessionPlayer2 player) {
+        return !isClosed()
                 && player.getPlayerState() != SessionPlayer2.PLAYER_STATE_IDLE
                 && player.getPlayerState() != SessionPlayer2.PLAYER_STATE_ERROR;
     }
@@ -964,6 +888,32 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             player = mPlayer;
         }
         return player != null ? player.getPlaylist() : null;
+    }
+
+    private ListenableFuture<PlayerResult> executeCommand(
+            @NonNull PlayerCommand<ListenableFuture<PlayerResult>> command) {
+        ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
+        result.set(new PlayerResult(RESULT_CODE_INVALID_STATE, null));
+        return executeCommand(command, result);
+    }
+
+    private <T> T executeCommand(@NonNull PlayerCommand<T> command, T defaultResult) {
+        final SessionPlayer2 player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        try {
+            if (!isClosed()) {
+                T result = command.run(player);
+                if (result != null) {
+                    return result;
+                }
+            } else if (DEBUG) {
+                Log.d(TAG, "API calls after the close()", new IllegalStateException());
+            }
+        } catch (Exception e) {
+        }
+        return defaultResult;
     }
 
     // TODO(jaewan): Remove SuppressLint when removing duplication session callback.
@@ -1108,6 +1058,11 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     ///////////////////////////////////////////////////
     // Inner classes
     ///////////////////////////////////////////////////
+    @FunctionalInterface
+    interface PlayerCommand<T> {
+        T run(@NonNull SessionPlayer2 player) throws Exception;
+    }
+
     @FunctionalInterface
     interface NotifyRunnable {
         void run(ControllerCb callback) throws RemoteException;

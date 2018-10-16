@@ -39,6 +39,8 @@ import androidx.media2.MediaLibraryService2.LibraryRoot;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaSession2.SessionResult;
+import androidx.media2.SessionPlayer2.PlayerResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -275,10 +277,11 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
                     }
                     return;
                 }
-                CustomActionResultReceiver receiver =
-                        result == null ? null : new CustomActionResultReceiver(result);
-                mLibrarySessionImpl.getCallback().onCustomCommand(mLibrarySessionImpl.getInstance(),
-                        controller, command, extras, receiver);
+                SessionResult sessionResult = mLibrarySessionImpl.getCallback().onCustomCommand(
+                        mLibrarySessionImpl.getInstance(), controller, command, extras);
+                if (sessionResult != null) {
+                    result.sendResult(sessionResult.getCustomCommandResult());
+                }
             }
         });
     }
@@ -296,22 +299,6 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
 
     private ControllerInfo getCurrentController() {
         return getConnectedControllersManager().getController(getCurrentBrowserInfo());
-    }
-
-    private static class CustomActionResultReceiver extends ResultReceiver {
-
-        private Result<Bundle> mResult;
-
-        CustomActionResultReceiver(Result<Bundle> result) {
-            super(null);
-            mResult = result;
-        }
-
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-            super.onReceiveResult(resultCode, resultData);
-            mResult.sendResult(resultData);
-        }
     }
 
     private static class SearchRequest {
@@ -336,6 +323,16 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     //   1) Why some APIs does nothing
     //   2) Why some APIs should throw exception when DEBUG is {@code true}.
     private abstract static class BaseBrowserLegacyCb extends MediaSession2.ControllerCb {
+        @Override
+        void onPlayerResult(int seq, PlayerResult result) throws RemoteException {
+            // No-op. BrowserCompat doesn't understand Controller features.
+        }
+
+        @Override
+        void onSessionResult(int seq, SessionResult result) throws RemoteException {
+            // No-op. BrowserCompat doesn't understand Controller features.
+        }
+
         @Override
         final void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
@@ -378,11 +375,6 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
         @Override
         final void onSeekCompleted(long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
-            // No-op. BrowserCompat doesn't understand Controller features.
-        }
-
-        @Override
-        final void onError(int errorCode, Bundle extras) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 

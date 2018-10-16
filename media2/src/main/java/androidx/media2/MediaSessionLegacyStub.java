@@ -18,6 +18,7 @@ package androidx.media2;
 
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_TITLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
@@ -44,7 +45,9 @@ import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.MediaSession2Impl;
+import androidx.media2.MediaSession2.SessionResult;
 import androidx.media2.SessionCommand2.CommandCode;
+import androidx.media2.SessionPlayer2.PlayerResult;
 
 import java.util.List;
 import java.util.Set;
@@ -100,8 +103,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         onSessionCommand(command, new SessionRunnable() {
             @Override
             public void run(final ControllerInfo controller) throws RemoteException {
-                mSessionImpl.getCallback().onCustomCommand(
-                        mSessionImpl.getInstance(), controller, command, args, cb);
+                SessionResult result = mSessionImpl.getCallback().onCustomCommand(
+                        mSessionImpl.getInstance(), controller, command, args);
+                if (cb != null) {
+                    cb.send(result.getResultCode(), result.getCustomCommandResult());
+                }
             }
         });
     }
@@ -520,9 +526,9 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             command = sCommandsForOnCommandRequest.get(commandCode);
         }
         if (command != null) {
-            boolean accepted = mSessionImpl.getCallback().onCommandRequest(
+            int resultCode = mSessionImpl.getCallback().onCommandRequest(
                     mSessionImpl.getInstance(), controller, command);
-            if (!accepted) {
+            if (resultCode != RESULT_CODE_SUCCESS) {
                 // Don't run rejected command.
                 if (DEBUG) {
                     Log.d(TAG, "Command (" + command + ") from "
@@ -554,6 +560,16 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         ControllerLegacyCb(RemoteUserInfo remoteUserInfo) {
             mRemoteUserInfo = remoteUserInfo;
+        }
+
+        @Override
+        void onPlayerResult(int seq, PlayerResult result) throws RemoteException {
+            // no-op.
+        }
+
+        @Override
+        void onSessionResult(int seq, SessionResult result) throws RemoteException {
+            // no-op.
         }
 
         @Override
@@ -598,11 +614,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onSeekCompleted(long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
-        }
-
-        @Override
-        void onError(int errorCode, Bundle extras) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
@@ -683,8 +694,19 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
     }
 
+    // TODO: Find a way to notify error through PlaybackStateCompat
     final class ControllerLegacyCbForAll extends ControllerCb {
         ControllerLegacyCbForAll() {
+        }
+
+        @Override
+        void onPlayerResult(int seq, PlayerResult result) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onSessionResult(int seq, SessionResult result) throws RemoteException {
+            // no-op
         }
 
         @Override
@@ -739,19 +761,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             // Note: This method does not use any of the given arguments.
             mSessionImpl.getSessionCompat().setPlaybackState(
                     mSessionImpl.createPlaybackStateCompat());
-        }
-
-        @Override
-        void onError(int errorCode, Bundle extras) throws RemoteException {
-            PlaybackStateCompat stateWithoutError = mSessionImpl.createPlaybackStateCompat();
-            // We don't set the state here as PlaybackStateCompat#STATE_ERROR, since
-            // MediaSession2#notifyError() does not affect the player state.
-            // This prevents MediaControllerCompat from remaining long time in error state.
-            PlaybackStateCompat stateWithError = new PlaybackStateCompat.Builder(stateWithoutError)
-                    .setErrorMessage(errorCode, "")
-                    .setExtras(extras)
-                    .build();
-            mSessionImpl.getSessionCompat().setPlaybackState(stateWithError);
         }
 
         @Override

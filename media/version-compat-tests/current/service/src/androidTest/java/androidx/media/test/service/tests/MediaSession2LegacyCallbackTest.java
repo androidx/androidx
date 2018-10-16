@@ -19,10 +19,11 @@ package androidx.media.test.service.tests;
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -35,7 +36,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.util.PollingCheck;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
@@ -469,13 +469,13 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
             }
 
             @Override
-            public void onCustomCommand(MediaSession2 session, ControllerInfo controller,
-                    SessionCommand2 customCommand, Bundle args, ResultReceiver cb) {
+            public MediaSession2.SessionResult onCustomCommand(MediaSession2 session,
+                    ControllerInfo controller, SessionCommand2 customCommand, Bundle args) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(testCommand, customCommand.getCustomCommand());
                 assertTrue(TestUtils.equals(testArgs, args));
-                assertNull(cb);
                 latch.countDown();
+                return new MediaSession2.SessionResult(RESULT_CODE_SUCCESS, null);
             }
         };
         mSession.close();
@@ -519,9 +519,10 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onFastForward(MediaSession2 session, ControllerInfo controller) {
+            public int onFastForward(MediaSession2 session, ControllerInfo controller) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
@@ -540,9 +541,10 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onRewind(MediaSession2 session, ControllerInfo controller) {
+            public int onRewind(MediaSession2 session, ControllerInfo controller) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
@@ -564,13 +566,14 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onPlayFromSearch(MediaSession2 session, ControllerInfo controller,
+            public int onPlayFromSearch(MediaSession2 session, ControllerInfo controller,
                     String query, Bundle extras) {
                 super.onPlayFromSearch(session, controller, query, extras);
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, query);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
@@ -592,12 +595,13 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onPlayFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
+            public int onPlayFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
                     Bundle extras) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, uri);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
@@ -619,12 +623,13 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onPlayFromMediaId(MediaSession2 session, ControllerInfo controller,
+            public int onPlayFromMediaId(MediaSession2 session, ControllerInfo controller,
                     String mediaId, Bundle extras) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, mediaId);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
@@ -646,12 +651,13 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onPrefetchFromSearch(MediaSession2 session, ControllerInfo controller,
+            public int onPrefetchFromSearch(MediaSession2 session, ControllerInfo controller,
                     String query, Bundle extras) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, query);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
@@ -673,12 +679,13 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onPrefetchFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
+            public int onPrefetchFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
                     Bundle extras) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, uri);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
@@ -700,12 +707,13 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onPrefetchFromMediaId(MediaSession2 session, ControllerInfo controller,
+            public int onPrefetchFromMediaId(MediaSession2 session, ControllerInfo controller,
                     String mediaId, Bundle extras) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, mediaId);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
@@ -729,12 +737,13 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onSetRating(MediaSession2 session, ControllerInfo controller,
+            public int onSetRating(MediaSession2 session, ControllerInfo controller,
                     String mediaIdOut, Rating2 ratingOut) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(mediaId, mediaIdOut);
                 assertEquals(MediaUtils2.convertToRating2(rating), ratingOut);
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
 
@@ -756,16 +765,16 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latchForPause = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public boolean onCommandRequest(MediaSession2 session, ControllerInfo controllerInfo,
+            public int onCommandRequest(MediaSession2 session, ControllerInfo controllerInfo,
                     SessionCommand2 command) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controllerInfo.getPackageName());
                 assertFalse(controllerInfo.isTrusted());
                 commands.add(command);
                 if (command.getCommandCode() == SessionCommand2.COMMAND_CODE_PLAYER_PAUSE) {
                     latchForPause.countDown();
-                    return false;
+                    return RESULT_CODE_INVALID_STATE;
                 }
-                return true;
+                return RESULT_CODE_SUCCESS;
             }
         };
 
