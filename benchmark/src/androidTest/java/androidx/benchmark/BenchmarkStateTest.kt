@@ -17,6 +17,7 @@
 package androidx.benchmark
 
 import androidx.test.filters.SmallTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,5 +42,22 @@ class BenchmarkStateTest {
         val median = state.stats.median
         assertTrue("median $median should be between 2ms and 4ms",
                 ms2ns(2) < median && median < ms2ns(4))
+    }
+
+    @Test
+    fun ideSummary() {
+        val summary1 = BenchmarkState().apply {
+            while (keepRunning()) {
+                Thread.sleep(1)
+            }
+        }.ideSummaryLine("foo")
+        val summary2 = BenchmarkState().apply {
+            while (keepRunning()) {
+                // nothing
+            }
+        }.ideSummaryLine("fooBarLongerKey")
+
+        assertEquals(summary1.indexOf("foo"),
+            summary2.indexOf("foo"))
     }
 }
