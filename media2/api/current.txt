@@ -80,13 +80,7 @@ package androidx.media2 {
     method public boolean isConnected();
     method public void pause();
     method public void play();
-    method public void playFromMediaId(java.lang.String, android.os.Bundle);
-    method public void playFromSearch(java.lang.String, android.os.Bundle);
-    method public void playFromUri(android.net.Uri, android.os.Bundle);
     method public void prefetch();
-    method public void prefetchFromMediaId(java.lang.String, android.os.Bundle);
-    method public void prefetchFromSearch(java.lang.String, android.os.Bundle);
-    method public void prefetchFromUri(android.net.Uri, android.os.Bundle);
     method public void removePlaylistItem(androidx.media2.MediaItem2);
     method public void replacePlaylistItem(int, androidx.media2.MediaItem2);
     method public void rewind();
@@ -330,12 +324,6 @@ package androidx.media2 {
     method public void onCustomCommand(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void onDisconnected(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public void onFastForward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public void onPlayFromMediaId(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
-    method public void onPlayFromSearch(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
-    method public void onPlayFromUri(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, android.net.Uri, android.os.Bundle);
-    method public void onPrefetchFromMediaId(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
-    method public void onPrefetchFromSearch(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
-    method public void onPrefetchFromUri(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, android.net.Uri, android.os.Bundle);
     method public void onRewind(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public void onSetRating(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, androidx.media2.Rating2);
   }
@@ -431,12 +419,6 @@ package androidx.media2 {
     field public static final int COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM = 10008; // 0x2718
     field public static final int COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA = 10017; // 0x2721
     field public static final int COMMAND_CODE_SESSION_FAST_FORWARD = 40000; // 0x9c40
-    field public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40002; // 0x9c42
-    field public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40003; // 0x9c43
-    field public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40004; // 0x9c44
-    field public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID = 40005; // 0x9c45
-    field public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH = 40006; // 0x9c46
-    field public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_URI = 40007; // 0x9c47
     field public static final int COMMAND_CODE_SESSION_REWIND = 40001; // 0x9c41
     field public static final int COMMAND_CODE_SESSION_SET_RATING = 40008; // 0x9c48
     field public static final int COMMAND_CODE_VOLUME_ADJUST_VOLUME = 30001; // 0x7531
