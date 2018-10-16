@@ -65,7 +65,6 @@ import java.util.Collection;
  * </ul>
  */
 public class FragmentActivity extends ComponentActivity implements
-        ViewModelStoreOwner,
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
     private static final String TAG = "FragmentActivity";
@@ -77,8 +76,6 @@ public class FragmentActivity extends ComponentActivity implements
     static final int MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS = 0xffff - 1;
 
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
-
-    private ViewModelStore mViewModelStore;
 
     boolean mCreated;
     boolean mResumed;
@@ -109,11 +106,6 @@ public class FragmentActivity extends ComponentActivity implements
     // can dispatch the onActivityResult(...) to the appropriate Fragment. Will only contain entries
     // for startActivityForResult calls where a result has not yet been delivered.
     SparseArrayCompat<String> mPendingFragmentActivityResults;
-
-    static final class NonConfigurationInstances {
-        Object custom;
-        ViewModelStore viewModelStore;
-    }
 
     // ------------------------------------------------------------------------
     // HOOKS INTO ACTIVITY
@@ -269,31 +261,11 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
-     * Returns the {@link ViewModelStore} associated with this activity
-     *
-     * @return a {@code ViewModelStore}
-     * @throws IllegalStateException if called before the Activity is attached to the Application
-     * instance i.e., before onCreate()
+     * Returns the context to be used for inflating any fragment view hierarchies.
      */
     @NonNull
-    @Override
-    public ViewModelStore getViewModelStore() {
-        if (getApplication() == null) {
-            throw new IllegalStateException("Your activity is not yet attached to the "
-                    + "Application instance. You can't request ViewModel before onCreate call.");
-        }
-        if (mViewModelStore == null) {
-            NonConfigurationInstances nc =
-                    (NonConfigurationInstances) getLastNonConfigurationInstance();
-            if (nc != null) {
-                // Restore the ViewModelStore from NonConfigurationInstances
-                mViewModelStore = nc.viewModelStore;
-            }
-            if (mViewModelStore == null) {
-                mViewModelStore = new ViewModelStore();
-            }
-        }
-        return mViewModelStore;
+    public Context getThemedContext() {
+        return this;
     }
 
     /**
@@ -306,11 +278,6 @@ public class FragmentActivity extends ComponentActivity implements
 
         super.onCreate(savedInstanceState);
 
-        NonConfigurationInstances nc =
-                (NonConfigurationInstances) getLastNonConfigurationInstance();
-        if (nc != null && nc.viewModelStore != null && mViewModelStore == null) {
-            mViewModelStore = nc.viewModelStore;
-        }
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
             mFragments.restoreSaveState(p);
@@ -388,11 +355,6 @@ public class FragmentActivity extends ComponentActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (mViewModelStore != null && !isChangingConfigurations()) {
-            mViewModelStore.clear();
-        }
-
         mFragments.dispatchDestroy();
     }
 
@@ -529,26 +491,6 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
-     * Retain all appropriate fragment state.  You can NOT
-     * override this yourself!  Use {@link #onRetainCustomNonConfigurationInstance()}
-     * if you want to retain your own state.
-     */
-    @Override
-    @Nullable
-    public final Object onRetainNonConfigurationInstance() {
-        Object custom = onRetainCustomNonConfigurationInstance();
-
-        if (mViewModelStore == null && custom == null) {
-            return null;
-        }
-
-        NonConfigurationInstances nci = new NonConfigurationInstances();
-        nci.custom = custom;
-        nci.viewModelStore = mViewModelStore;
-        return nci;
-    }
-
-    /**
      * Save all appropriate fragment state.
      */
     @Override
@@ -611,27 +553,6 @@ public class FragmentActivity extends ComponentActivity implements
     // ------------------------------------------------------------------------
     // NEW METHODS
     // ------------------------------------------------------------------------
-
-    /**
-     * Use this instead of {@link #onRetainNonConfigurationInstance()}.
-     * Retrieve later with {@link #getLastCustomNonConfigurationInstance()}.
-     */
-    @Nullable
-    public Object onRetainCustomNonConfigurationInstance() {
-        return null;
-    }
-
-    /**
-     * Return the value previously returned from
-     * {@link #onRetainCustomNonConfigurationInstance()}.
-     */
-    @SuppressWarnings("deprecation")
-    @Nullable
-    public Object getLastCustomNonConfigurationInstance() {
-        NonConfigurationInstances nc = (NonConfigurationInstances)
-                getLastNonConfigurationInstance();
-        return nc != null ? nc.custom : null;
-    }
 
     /**
      * Support library version of {@link Activity#invalidateOptionsMenu}.
