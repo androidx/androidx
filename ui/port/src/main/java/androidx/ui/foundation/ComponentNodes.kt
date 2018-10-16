@@ -128,7 +128,7 @@ internal sealed class ComponentNode {
     /**
      * Removes one or more children, starting at [index].
      */
-    open fun remove(index: Int, count: Int) {
+    open fun remove(index: Int, count: Int = 1) {
         val attached = owner != null
         for (i in index until index + count) {
             val child = this[i]
@@ -298,7 +298,7 @@ internal class LayoutNode(
      * `true` when [dirtyLayout] has been called on this Node and `false` after [layout] has
      * been called.
      */
-    var needsLayout = false
+    var needsLayout = true
 
     /**
      * Flutter hint that the parent node controls the size of this layout instead.
@@ -405,7 +405,7 @@ internal class LayoutNode(
             nodeParent.layoutChildren[node] = this
             parentLayoutNode = nodeParent
         }
-        dirtyLayout()
+        owner.onRequestLayout(this)
     }
 
     override fun detach() {
@@ -434,8 +434,8 @@ internal class LayoutNode(
         val owner = this.owner
         if (!needsLayout && owner != null) {
             owner.onRequestLayout(this)
-            needsLayout = true
         }
+        needsLayout = true
     }
 
     /**
@@ -466,7 +466,11 @@ internal class LayoutNode(
          * This returns the result of the measure call. This code will likely disappear when
          * R4A completes its layout reconciliation.
          */
-        fun measure(node: ComponentNode, constraints: Constraints, parentUsesSize: Boolean): Size {
+        fun measure(
+            node: ComponentNode,
+            constraints: Constraints,
+            parentUsesSize: Boolean = false
+        ): Size {
             System.out.println("Measuring $node")
             var child = node
             while (child !is LayoutNode) {
@@ -493,4 +497,22 @@ internal class LayoutNode(
             return Size(child.width.toDouble(), child.height.toDouble())
         }
     }
+}
+
+/**
+ * Removes all the children within the hierarchy
+ */
+internal fun ComponentNode.removeChildren() {
+    for (i in size - 1 downTo 0) {
+        get(i).removeChildren()
+        remove(i)
+    }
+}
+
+/**
+ * Inserts a child [ComponentNode] at a last index. If this ComponentNode [isAttached]
+ * then [child] will become [attach]ed also. [child] must have a `null` [parent].
+ */
+internal fun ComponentNode.add(child: ComponentNode) {
+    add(size, child)
 }

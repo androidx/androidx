@@ -1,6 +1,7 @@
 package androidx.ui.widgets.binding
 
 import androidx.annotation.CallSuper
+import androidx.ui.VoidCallback
 import androidx.ui.assert
 import androidx.ui.core.Duration
 import androidx.ui.developer.timeline.Timeline
@@ -28,6 +29,8 @@ import kotlinx.coroutines.experimental.launch
 
 interface WidgetsBinding : RendererBinding, SchedulerBinding, ServicesBinding {
     fun attachRootWidget(app: Widget)
+    val renderViewElement: Element?
+    fun setOnRebuildHappenedCallback(callback: VoidCallback)
 }
 
 open class WidgetsMixinsWrapper(
@@ -128,6 +131,10 @@ class WidgetsBindingImpl(
 //        }
 //        return async {};
 //    }
+
+    override fun setOnRebuildHappenedCallback(callback: VoidCallback) {
+        buildOwner.onRebuildHappened = callback
+    }
 
     // / The object in charge of the focus tree.
     // /
@@ -468,7 +475,7 @@ class WidgetsBindingImpl(
     // /
     // / This is initialized the first time [runApp] is called.
     var _renderViewElement: Element? = null
-    val renderViewElement
+    override val renderViewElement
         get() = _renderViewElement
 
     // / Takes a widget and attaches it to the [renderViewElement], creating it if

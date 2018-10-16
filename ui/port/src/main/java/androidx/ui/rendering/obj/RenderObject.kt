@@ -6,6 +6,9 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.AbstractNode
+import androidx.ui.foundation.ComponentNode
+import androidx.ui.foundation.DrawNode
+import androidx.ui.foundation.LayoutNode
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.assertions.debugPrintStack
 import androidx.ui.foundation.debugPrint
@@ -19,12 +22,14 @@ import androidx.ui.foundation.diagnostics.describeIdentity
 import androidx.ui.gestures.events.PointerEvent
 import androidx.ui.gestures.hit_test.HitTestEntry
 import androidx.ui.gestures.hit_test.HitTestTarget
+import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.debugPrintLayouts
 import androidx.ui.rendering.debugPrintMarkNeedsLayoutStacks
 import androidx.ui.rendering.debugPrintMarkNeedsPaintStacks
 import androidx.ui.rendering.layer.ContainerLayer
 import androidx.ui.rendering.layer.OffsetLayer
+import androidx.ui.rendering.layer.PictureLayer
 import androidx.ui.semantics.SemanticsConfiguration
 import androidx.ui.semantics.SemanticsNode
 import androidx.ui.vectormath64.Matrix4
@@ -399,7 +404,17 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             }
             return result
         }
-    internal var _needsLayout = true
+
+    // Using LayoutNode's value internally. It is true when we need to relayout.
+    internal var _needsLayout: Boolean
+        get() = layoutNode.needsLayout
+        set(value) {
+            if (value) {
+                layoutNode.dirtyLayout()
+            } else {
+                layoutNode.needsLayout = value
+            }
+        }
 
     private var _relayoutBoundary: RenderObject? = null
     private var _doingThisLayoutWithCallback = false
@@ -608,6 +623,8 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         markNeedsPaint()
     }
 
+    abstract val size: Size
+
     /**
      * Compute the layout for this render object.
      *
@@ -634,6 +651,10 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * work to update its layout information.
      */
     open fun layout(constraints: Constraints, parentUsesSize: Boolean = false) {
+        LayoutNode.measure(layoutNode, constraints, parentUsesSize)
+    }
+
+    private fun layoutInternal(constraints: Constraints, parentUsesSize: Boolean): Size {
         assert(constraints.debugAssertIsValid(
                 isAppliedConstraint = true,
                 informationCollector = { information: StringBuffer ->
@@ -661,12 +682,13 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         }())
         if (!_needsLayout && constraints == _constraints &&
                 relayoutBoundary == _relayoutBoundary) {
+            val resultSize = size
             assert({
                 // in case parentUsesSize changed since the last invocation, set size
                 // to itself, so it has the right internal debug values.
                 debugDoingThisResize = sizedByParent
                 debugDoingThisLayout = !sizedByParent
-                val debugPreviousActiveLayout = debugActiveLayout as RenderObject
+                val debugPreviousActiveLayout = debugActiveLayout
                 debugActiveLayout = this
                 debugResetSize()
                 debugActiveLayout = debugPreviousActiveLayout
@@ -674,7 +696,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                 debugDoingThisResize = false
                 true
             }())
-            return
+            return resultSize
         }
         _constraints = constraints
         _relayoutBoundary = relayoutBoundary
@@ -721,6 +743,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         } catch (e: Exception) {
             _debugReportException("performLayout", e, e.stackTrace)
         }
+        val resultSize = size
         assert({
             debugActiveLayout = debugPreviousActiveLayout
             debugDoingThisLayout = false
@@ -729,6 +752,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         }())
         _needsLayout = false
         markNeedsPaint()
+        return resultSize
     }
 
     /**
@@ -1030,7 +1054,31 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             return result
         }
 
-    internal var _needsPaint = true
+    internal var _needsPaint: Boolean = true
+        set(value) {
+            // We can't just use DrawNode's value as layout RenderObjects doesn't have it.
+            if (value) {
+                val drawNode = drawNode
+                if (drawNode != null) {
+                    drawNode.invalidate()
+                } else if (inComponentsMode) {
+                    // In Flutter you could mark Layout as needsPaint to redraw all the children.
+                    // To achieve the same behavior we have to invalidate all the children manually
+                    fun invalidateChildrenNodes(it: ComponentNode) {
+                        if (it is DrawNode) {
+                            it.invalidate()
+                        }
+                        it.visitChildren(::invalidateChildrenNodes)
+                    }
+                    invalidateChildrenNodes(layoutNode)
+                    // Paint will never be called for this node as it has no drawNode.
+                    // So we are not assigning true into a field as it will never be cleared.
+                    // Otherwise we won't be able to perform markNeedsPaint twice from layouts
+                    return
+                }
+            }
+            field = value
+        }
 
     /**
      * Mark this render object as having changed its visual appearance.
@@ -1806,6 +1854,73 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
 //            renderParent.showOnScreen(child ?: this);
 //        }
 //    }
+
+    // ComponentNode's logic start
+
+    /**
+     * Layout node for the ComponentNodes hierarchy
+     */
+    internal val layoutNode: LayoutNode =
+        LayoutNode { constraints, parentUsesSize ->
+            val result = layoutInternal(constraints, parentUsesSize)
+            System.out.println("Layout node ${this@RenderObject}. Constraint:$constraints. " +
+                    "parentUsesSize=$parentUsesSize. Result=$result")
+            result
+        }
+
+    /**
+     * Draw node for the ComponentNodes hierarchy. Will be null for not drawing RenderObjects
+     */
+    internal var drawNode: DrawNode? =
+        DrawNode { canvas ->
+            System.out.println("Draw node " + this@RenderObject)
+
+            // It will perform all the drawing into a PictureRecorder
+            PaintingContext.repaintCompositedChild(this)
+
+            // Let's just find PictureLayer and take a layer from it
+            // Later we will simplify it to not have layers and Picture at all.
+            // We can just draw on the original canvas instead
+            assert(layer is ContainerLayer)
+            val pictureLayer = (layer as ContainerLayer).firstChild
+            assert(pictureLayer is PictureLayer)
+            val picture = (pictureLayer as PictureLayer).picture
+            assert(picture != null)
+            canvas.drawPicture(picture!!)
+        }
+        private set
+
+    /**
+     * Now if during the layout you calculated an offset for a child you have to call this.
+     */
+    protected fun onChildPositionChanged(child: RenderObject, offset: Offset) {
+        if (inComponentsMode) {
+            layoutNode.position(child.layoutNode, offset.dx.toInt(), offset.dy.toInt())
+        }
+    }
+
+    /**
+     * If your RenderObject is not drawing anything call this method in init block.
+     */
+    protected fun markAsLayoutOnlyNode() {
+        drawNode = null
+    }
+
+    /**
+     * Will be switched to true when used inside ContainingView
+     */
+    internal var inComponentsMode: Boolean = false
+        set(value) {
+            if (drawNode == null) {
+                // we have to clear _needsPaint as it is true by default and will never
+                // be cleared for layout only nodes. while it is true you can't call
+                // markNeedsPaint again to redraw the children.
+                _needsPaint = false
+            }
+            field = value
+        }
+
+    // ComponentNode's logic end
 }
 
 typealias RenderObjectVisitor = (RenderObject) -> Unit

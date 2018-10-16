@@ -47,7 +47,7 @@ abstract class ViewWidget<T>(key: Key) : LeafRenderObjectWidget(key) where T : V
         return ViewElement<T>(this)
     }
 
-    final override fun createRenderObject(context: BuildContext): ViewRenderObject? {
+    final override fun createRenderObject(context: BuildContext): ViewRenderObject {
         val viewHost = obtainViewHost(context)
         view = createView(viewHost.getContext())
         return ViewRenderObject(view)

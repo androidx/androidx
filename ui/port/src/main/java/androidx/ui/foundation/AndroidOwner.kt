@@ -23,9 +23,15 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import androidx.ui.engine.geometry.Size
+import androidx.ui.engine.window.Window
 import androidx.ui.foundation.LayoutNode.Companion.measure
 import androidx.ui.painting.Canvas
 import androidx.ui.rendering.box.BoxConstraints
+import androidx.ui.widgets.binding.WidgetsFlutterBinding
+import androidx.ui.widgets.framework.Element
+import androidx.ui.widgets.framework.RenderObjectElement
+import androidx.ui.widgets.framework.Widget
+import androidx.ui.widgets.view.ViewHost
 
 /**
  * [ComponentNode.ownerData] under [AndroidOwner] control.
@@ -139,6 +145,9 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
         val nodeView = NodeView(container, node)
         val data = AndroidData(nodeView)
         node.androidData = data
+
+        // node position or size may be changed while the node was detached
+        adjustedLayouts.add(node)
     }
 
     override fun onDetach(node: ComponentNode) {
@@ -355,5 +364,66 @@ private class DepthFirstComparison : Comparator<ComponentNode> {
             child === o1Child || child === thatChild
         }
         return if (firstChild === o1Child) -1 else 1
+    }
+}
+
+/**
+ * Creates a ContainingView to display provided Widget
+ */
+fun ContainingView(context: Context, widget: Widget): ContainingView {
+    val containingView = ContainingView(context)
+    val viewHost = ViewHost(containingView, Key.createKey("viewHost"), widget)
+
+    val bindings = WidgetsFlutterBinding.create(Window())
+    bindings.renderingDrawFrameEnabled = false
+    bindings.attachRootWidget(viewHost)
+
+    val rootNode = containingView.root
+    val rootWidgetElement = bindings.renderViewElement!!
+    val nodesGenerator = ElementNodesGenerator(rootNode, rootWidgetElement)
+    nodesGenerator.regenerate()
+
+    bindings.setOnRebuildHappenedCallback {
+        nodesGenerator.regenerate()
+    }
+
+    return containingView
+}
+
+private class ElementNodesGenerator(
+    private val rootNode: LayoutNode,
+    private val rootWidgetElement: Element
+) {
+
+    fun regenerate() {
+        rootNode.removeChildren()
+        parentNode = rootNode
+        rootWidgetElement.visitChildren(::onElementVisited)
+    }
+
+    private var parentNode: LayoutNode = rootNode
+
+    /**
+     * We traverse through Widget's hierarchy and convert every RenderObject into ComponentNodes
+     * and transform them into nodes hierarchy.
+     *
+     * One RenderObject can be representing or a pair of LayoutNode and DrawNode
+     * or just one LayoutNode for Layout widgets.
+     *
+     * GestureNode is not yet supported.
+     */
+    private fun onElementVisited(element: Element) {
+        if (element is RenderObjectElement) {
+            element.renderObject?.also { renderObject ->
+                renderObject.inComponentsMode = true
+                val newNode = renderObject.layoutNode
+                parentNode.add(newNode)
+                parentNode = newNode
+                renderObject.drawNode?.also { drawNode ->
+                    newNode.add(drawNode)
+                }
+            }
+        }
+        element.visitChildren(::onElementVisited)
     }
 }

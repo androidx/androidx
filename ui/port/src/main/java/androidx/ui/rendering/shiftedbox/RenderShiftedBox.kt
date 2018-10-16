@@ -29,6 +29,7 @@ abstract class RenderShiftedBox(
 
     init {
         this.child = child
+        markAsLayoutOnlyNode()
     }
 
     override fun computeMinIntrinsicWidth(height: Double): Double {

@@ -31,7 +31,11 @@ import androidx.ui.widgets.framework.key.GlobalKey
 class BuildOwner(
         // / Called on each build pass when the first buildable element is marked
         // / dirty.
-    var onBuildScheduled: VoidCallback = {}
+    var onBuildScheduled: VoidCallback = {},
+    /**
+     * Added for ComponentNodes to react on widgets tree rebuilds
+     */
+    var onRebuildHappened: VoidCallback = {}
 ) {
 
     internal val _inactiveElements: _InactiveElements = _InactiveElements()
@@ -168,6 +172,7 @@ class BuildOwner(
     fun buildScope(context: Element, callback: VoidCallback?) {
         if (callback == null && _dirtyElements.isEmpty())
             return
+        var rebuildHappened = false
         assert(context != null)
         assert(_debugStateLockLevel >= 0)
         assert(!debugBuilding)
@@ -214,6 +219,7 @@ class BuildOwner(
                 assert(_dirtyElements[index]._inDirtyList)
                 assert(!_dirtyElements[index]._active ||
                         _dirtyElements[index]._debugIsInScope(context))
+                rebuildHappened = true
                 try {
                     _dirtyElements[index].rebuild()
                 } catch (e: Exception) {
@@ -275,6 +281,9 @@ class BuildOwner(
             }
         }
         assert(_debugStateLockLevel >= 0)
+        if (rebuildHappened) {
+            onRebuildHappened()
+        }
     }
 
     var _debugElementsToBeRebuiltDueToGlobalKeyShenanigans:

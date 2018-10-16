@@ -16,6 +16,7 @@
 
 package androidx.ui.rendering.shiftedbox
 
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
@@ -23,7 +24,6 @@ import androidx.ui.painting.alignment.Alignment
 import androidx.ui.painting.alignment.AlignmentGeometry
 import androidx.ui.rendering.box.BoxParentData
 import androidx.ui.rendering.box.RenderBox
-import androidx.ui.engine.text.TextDirection
 
 // / Abstract class for one-child-layout render boxes that use a
 // / [AlignmentGeometry] to align their children.
@@ -109,12 +109,14 @@ abstract class RenderAligningShiftedBox(
     fun alignChild() {
         _resolve()
         assert(child != null)
-        assert(!child!!.debugNeedsLayout)
-        assert(child!!.hasSize)
+        val child = this.child!!
+        assert(!child.debugNeedsLayout)
+        assert(child.hasSize)
         assert(hasSize)
         assert(_resolvedAlignment != null)
-        val childParentData = child!!.parentData as BoxParentData
-        childParentData.offset = _resolvedAlignment!!.alongOffset(size - child!!.size)
+        val childParentData = child.parentData as BoxParentData
+        childParentData.offset = _resolvedAlignment!!.alongOffset(size - child.size)
+        onChildPositionChanged(child, childParentData.offset)
     }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {

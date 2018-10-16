@@ -80,7 +80,11 @@ class FlutterError(
 //        ///
 //        /// The default behavior for the [onError] handler is to call this function.
         fun dumpErrorToConsole(details: FlutterErrorDetails, forceReport: Boolean = false) {
-            TODO()
+            if (details.exception is kotlin.Throwable) {
+                throw details.exception
+            } else {
+                TODO()
+            }
 //            assert(details != null);
 //            assert(details.exception != null);
 //            val reportError = details.silent != true; // could be null

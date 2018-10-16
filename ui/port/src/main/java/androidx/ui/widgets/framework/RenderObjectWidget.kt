@@ -20,7 +20,7 @@ abstract class RenderObjectWidget(key: Key?) : Widget(key) {
     // / [RenderObjectElement.mount] in the object rendered by this object's
     // / [createElement] method. See, for example,
     // / [SingleChildRenderObjectElement.mount].
-    internal abstract fun createRenderObject(context: BuildContext): RenderObject?
+    internal abstract fun createRenderObject(context: BuildContext): RenderObject
 
     // / Copies the configuration described by this [RenderObjectWidget] to the
     // / given [RenderObject], which will be of the same type as returned by this

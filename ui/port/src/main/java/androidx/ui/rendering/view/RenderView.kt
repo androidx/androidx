@@ -45,10 +45,14 @@ class RenderView(
     configuration: ViewConfiguration
 ) : RenderObjectWithChildMixin<RenderBox>() {
 
+    init {
+        markAsLayoutOnlyNode()
+    }
+
     /**
      * The current layout size of the view.
      */
-    var size: Size = Size.zero
+    override var size: Size = Size.zero
         private set
 
     /**
