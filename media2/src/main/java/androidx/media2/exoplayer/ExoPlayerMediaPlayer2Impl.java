@@ -511,6 +511,16 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    public MediaTimestamp2 getTimestamp() {
+        return runPlayerCallableBlocking(new Callable<MediaTimestamp2>() {
+            @Override
+            public MediaTimestamp2 call() {
+                return mPlayer.getTimestamp();
+            }
+        });
+    }
+
+    @Override
     public void reset() {
         runPlayerCallableBlocking(new Callable<Void>() {
             @Override
@@ -540,11 +550,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             }
         });
         handlerThread.quit();
-    }
-
-    @Override
-    public MediaTimestamp2 getTimestamp() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
