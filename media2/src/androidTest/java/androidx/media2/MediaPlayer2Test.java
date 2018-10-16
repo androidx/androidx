@@ -1346,7 +1346,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetTimestamp() throws Exception {
         final int toleranceUs = 100000;
         final float playbackRate = 1.0f;
