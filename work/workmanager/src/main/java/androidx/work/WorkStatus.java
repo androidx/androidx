@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,10 @@ public final class WorkStatus {
     private @NonNull Data mOutputData;
     private @NonNull Set<String> mTags;
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkStatus(
             @NonNull UUID id,
             @NonNull State state,

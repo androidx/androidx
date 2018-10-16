@@ -81,7 +81,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
 
     @NonNull
     @Override
-    public ListenableFuture<Payload> onStartWork() {
+    public ListenableFuture<Payload> startWork() {
         getBackgroundExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -132,7 +132,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
             // that should cause a retry.
             try {
-                final ListenableFuture<Payload> innerFuture = mDelegate.onStartWork();
+                final ListenableFuture<Payload> innerFuture = mDelegate.startWork();
                 innerFuture.addListener(new Runnable() {
                     @Override
                     public void run() {
@@ -147,7 +147,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
                 }, getBackgroundExecutor());
             } catch (Throwable exception) {
                 Logger.debug(TAG, String.format(
-                        "Delegated worker %s threw exception in onStartWork.", className),
+                        "Delegated worker %s threw exception in startWork.", className),
                         exception);
                 synchronized (mLock) {
                     if (mAreConstraintsUnmet) {
