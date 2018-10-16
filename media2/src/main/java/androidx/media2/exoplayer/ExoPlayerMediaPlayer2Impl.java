@@ -618,18 +618,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     // ExoPlayerWrapper.Listener implementation.
 
     @Override
-    public void onPrepared(final MediaItem2 mediaItem2) {
-        notifyMediaPlayer2Event(new ExoPlayerMediaPlayer2Impl.Mp2EventNotifier() {
-            @Override
-            public void notify(MediaPlayer2.EventCallback callback) {
-                MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
-                callback.onInfo(
-                        mediaPlayer2,
-                        mediaItem2,
-                        MEDIA_INFO_PREPARED,
-                        /* extra= */ 0);
-            }
-        });
+    public void onPrepared(MediaItem2 mediaItem2) {
+        notifyOnInfo(mediaItem2, MEDIA_INFO_PREPARED);
         synchronized (mTaskLock) {
             if (mCurrentTask != null
                     && mCurrentTask.mMediaCallType == CALL_COMPLETED_PREPARE
@@ -656,18 +646,18 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    public void onVideoRenderingStart(final MediaItem2 mediaItem2) {
-        notifyMediaPlayer2Event(new ExoPlayerMediaPlayer2Impl.Mp2EventNotifier() {
-            @Override
-            public void notify(MediaPlayer2.EventCallback callback) {
-                MediaPlayer2 mediaPlayer2 = ExoPlayerMediaPlayer2Impl.this;
-                callback.onInfo(
-                        mediaPlayer2,
-                        mediaItem2,
-                        MEDIA_INFO_VIDEO_RENDERING_START,
-                        /* extra= */ 0);
-            }
-        });
+    public void onBufferingStarted(MediaItem2 mediaItem2) {
+        notifyOnInfo(mediaItem2, MEDIA_INFO_BUFFERING_START);
+    }
+
+    @Override
+    public void onBufferingEnded(MediaItem2 mediaItem2) {
+        notifyOnInfo(mediaItem2, MEDIA_INFO_BUFFERING_END);
+    }
+
+    @Override
+    public void onVideoRenderingStart(MediaItem2 mediaItem2) {
+        notifyOnInfo(mediaItem2, MEDIA_INFO_VIDEO_RENDERING_START);
     }
 
     @Override
@@ -686,58 +676,38 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
 
     @Override
     public void onMediaItem2StartedAsNext(final MediaItem2 mediaItem2) {
-        notifyMediaPlayer2Event(new ExoPlayerMediaPlayer2Impl.Mp2EventNotifier() {
-            @Override
-            public void notify(MediaPlayer2.EventCallback callback) {
-                callback.onInfo(
-                        ExoPlayerMediaPlayer2Impl.this,
-                        mediaItem2,
-                        MEDIA_INFO_DATA_SOURCE_START,
-                        0);
-            }
-        });
+        notifyOnInfo(mediaItem2, MEDIA_INFO_DATA_SOURCE_START);
     }
 
     @Override
-    public void onMediaItem2Ended(final MediaItem2 mediaItem2) {
-        notifyMediaPlayer2Event(new ExoPlayerMediaPlayer2Impl.Mp2EventNotifier() {
-            @Override
-            public void notify(MediaPlayer2.EventCallback callback) {
-                callback.onInfo(
-                        ExoPlayerMediaPlayer2Impl.this,
-                        mediaItem2,
-                        MEDIA_INFO_DATA_SOURCE_END,
-                        0);
-            }
-        });
+    public void onMediaItem2Ended(MediaItem2 mediaItem2) {
+        notifyOnInfo(mediaItem2, MEDIA_INFO_DATA_SOURCE_END);
     }
 
     @Override
-    public void onLoop(final MediaItem2 mediaItem2) {
-        notifyMediaPlayer2Event(new Mp2EventNotifier() {
-            @Override
-            public void notify(EventCallback cb) {
-                cb.onInfo(
-                        ExoPlayerMediaPlayer2Impl.this,
-                        mediaItem2,
-                        MEDIA_INFO_DATA_SOURCE_REPEAT,
-                        0);
-            }
-        });
+    public void onLoop(MediaItem2 mediaItem2) {
+        notifyOnInfo(mediaItem2, MEDIA_INFO_DATA_SOURCE_REPEAT);
     }
 
     @Override
-    public void onPlaybackEnded(final MediaItem2 mediaItem2) {
-        notifyMediaPlayer2Event(new Mp2EventNotifier() {
-            @Override
-            public void notify(EventCallback callback) {
-                callback.onInfo(ExoPlayerMediaPlayer2Impl.this, mediaItem2,
-                        MEDIA_INFO_DATA_SOURCE_LIST_END, 0);
-            }
-        });
+    public void onPlaybackEnded(MediaItem2 mediaItem2) {
+        notifyOnInfo(mediaItem2, MEDIA_INFO_DATA_SOURCE_LIST_END);
     }
 
     // Internal functionality.
+
+    private void notifyOnInfo(MediaItem2 mediaItem2, int what) {
+        notifyOnInfo(mediaItem2, what, /* extra= */ 0);
+    }
+
+    private void notifyOnInfo(final MediaItem2 mediaItem2, final int what, final int extra) {
+        notifyMediaPlayer2Event(new ExoPlayerMediaPlayer2Impl.Mp2EventNotifier() {
+            @Override
+            public void notify(MediaPlayer2.EventCallback callback) {
+                callback.onInfo(ExoPlayerMediaPlayer2Impl.this, mediaItem2, what, extra);
+            }
+        });
+    }
 
     private void resetPlayer() {
         runPlayerCallableBlocking(new Callable<Void>() {

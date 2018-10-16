@@ -96,6 +96,12 @@ import java.util.List;
         /** Called when a seek request has completed. */
         void onSeekCompleted(long positionMs);
 
+        /** Called when the player rebuffers. */
+        void onBufferingStarted(MediaItem2 mediaItem2);
+
+        /** Called when the player becomes ready again after rebuffering. */
+        void onBufferingEnded(MediaItem2 mediaItem2);
+
         /** Called when video rendering of the specified media item has started. */
         void onVideoRenderingStart(MediaItem2 mediaItem2);
 
@@ -130,6 +136,7 @@ import java.util.List;
     private int mAuxEffectId;
     private float mAuxEffectSendLevel;
     private boolean mPrepared;
+    private boolean mRebuffering;
     private boolean mPendingSeek;
     private int mVideoWidth;
     private int mVideoHeight;
@@ -351,6 +358,8 @@ import java.util.List;
         mVideoWidth = 0;
         mVideoHeight = 0;
         mPrepared = false;
+        mRebuffering = false;
+        mPendingSeek = false;
         mAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
         mAuxEffectId = AuxEffectInfo.NO_AUX_EFFECT_ID;
         mAuxEffectSendLevel = 0f;
@@ -393,10 +402,20 @@ import java.util.List;
             maybeUpdateTimerForStopped();
         }
 
-        if (state == Player.STATE_ENDED) {
-            mMediaItemQueue.onPlayerEnded();
-        } else if (state == Player.STATE_READY) {
-            maybeNotifyReadyEvents();
+        switch (state) {
+            case Player.STATE_BUFFERING:
+                maybeNotifyBufferingEvents();
+                break;
+            case Player.STATE_READY:
+                maybeNotifyReadyEvents();
+                break;
+            case Player.STATE_ENDED:
+                mMediaItemQueue.onPlayerEnded();
+                break;
+            case Player.STATE_IDLE:
+            default:
+                // Do nothing.
+                break;
         }
     }
 
@@ -428,6 +447,13 @@ import java.util.List;
         mMediaItemQueue.onStopped();
     }
 
+    private void maybeNotifyBufferingEvents() {
+        if (mPrepared && !mRebuffering) {
+            mRebuffering = true;
+            mListener.onBufferingStarted(getCurrentMediaItem());
+        }
+    }
+
     private void maybeNotifyReadyEvents() {
         MediaItem2 mediaItem2 = mMediaItemQueue.getCurrentMediaItem();
         boolean prepareComplete = !mPrepared;
@@ -444,6 +470,9 @@ import java.util.List;
             // start position.
             mPendingSeek = false;
             mListener.onSeekCompleted(getCurrentPosition());
+        } else if (mRebuffering) {
+            mRebuffering = false;
+            mListener.onBufferingEnded(getCurrentMediaItem());
         }
     }
 
