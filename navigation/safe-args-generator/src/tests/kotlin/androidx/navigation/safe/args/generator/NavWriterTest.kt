@@ -180,6 +180,18 @@ class NavWriterTest {
     }
 
     @Test
+    fun testArgumentsClassGeneration_innerClassName() {
+        val dest = Destination(null, ClassName.get("a.b", "MainFragment\$InnerFragment"),
+            "fragment", listOf(
+                Argument("mainArg", StringType)),
+            listOf())
+
+        val actual = generateArgsJavaFile(dest, false).toJavaFileObject()
+        JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragment\$InnerFragmentArgs")
+        assertCompilesWithoutError(actual)
+    }
+
+    @Test
     fun testGeneratedDirectionEqualsImpl() {
         val nextAction = Action(id("next"), id("destA"), listOf(Argument("main", StringType)))
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),

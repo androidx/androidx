@@ -163,7 +163,7 @@ private class ClassWithArgsSpecs(
                 }
 
                 """.trimIndent())
-        addStatement("${className.simpleName()} that = (${className.simpleName()}) object")
+        addStatement("$T that = ($T) object", className, className)
         args.forEach { (_, type, _, _, sanitizedName) ->
             val compareExpression = when (type) {
                 IntType,
