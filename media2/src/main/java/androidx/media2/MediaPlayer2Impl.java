@@ -219,11 +219,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void play() {
-        _play();
-    }
-    @Override
-    public Object _play() {
+    public Object play() {
         return addTask(new Task(CALL_COMPLETED_PLAY, false) {
             @Override
             void process() {
@@ -233,11 +229,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void prepare() {
-        _prepare();
-    }
-    @Override
-    public Object _prepare() {
+    public Object prepare() {
         return addTask(new Task(CALL_COMPLETED_PREPARE, true) {
             @Override
             void process() throws IOException {
@@ -247,11 +239,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void pause() {
-        _pause();
-    }
-    @Override
-    public Object _pause() {
+    public Object pause() {
         return addTask(new Task(CALL_COMPLETED_PAUSE, false) {
             @Override
             void process() {
@@ -261,11 +249,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void skipToNext() {
-        _skipToNext();
-    }
-    @Override
-    public Object _skipToNext() {
+    public Object skipToNext() {
         return addTask(new Task(CALL_COMPLETED_SKIP_TO_NEXT, false) {
             @Override
             void process() {
@@ -309,11 +293,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setAudioAttributes(@NonNull final AudioAttributesCompat attributes) {
-        _setAudioAttributes(attributes);
-    }
-    @Override
-    public Object _setAudioAttributes(@NonNull final AudioAttributesCompat attributes) {
+    public Object setAudioAttributes(@NonNull final AudioAttributesCompat attributes) {
         return addTask(new Task(CALL_COMPLETED_SET_AUDIO_ATTRIBUTES, false) {
             @Override
             void process() {
@@ -328,11 +308,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setMediaItem(@NonNull final MediaItem2 item) {
-        _setMediaItem(item);
-    }
-    @Override
-    public Object _setMediaItem(@NonNull final MediaItem2 item) {
+    public Object setMediaItem(@NonNull final MediaItem2 item) {
         return addTask(new Task(CALL_COMPLETED_SET_DATA_SOURCE, false) {
             @Override
             void process() {
@@ -348,11 +324,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setNextMediaItem(@NonNull final MediaItem2 item) {
-        _setNextMediaItem(item);
-    }
-    @Override
-    public Object _setNextMediaItem(@NonNull final MediaItem2 item) {
+    public Object setNextMediaItem(@NonNull final MediaItem2 item) {
         return addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCE, false) {
             @Override
             void process() {
@@ -363,12 +335,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void getNextMediaItems(@NonNull final List<MediaItem2> items) {
-        // TODO: fix the typo. s/getNextMediaItems/setNextMediaItems/
-        _setNextMediaItems(items);
-    }
-    @Override
-    public Object _setNextMediaItems(@NonNull final List<MediaItem2> items) {
+    public Object setNextMediaItems(@NonNull final List<MediaItem2> items) {
         return addTask(new Task(CALL_COMPLETED_SET_NEXT_DATA_SOURCES, false) {
             @Override
             void process() {
@@ -392,11 +359,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void loopCurrent(final boolean loop) {
-        _loopCurrent(loop);
-    }
-    @Override
-    public Object _loopCurrent(final boolean loop) {
+    public Object loopCurrent(final boolean loop) {
         return addTask(new Task(CALL_COMPLETED_LOOP_CURRENT, false) {
             @Override
             void process() {
@@ -406,11 +369,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setPlayerVolume(final float volume) {
-        _setPlayerVolume(volume);
-    }
-    @Override
-    public Object _setPlayerVolume(final float volume) {
+    public Object setPlayerVolume(final float volume) {
         return addTask(new Task(CALL_COMPLETED_SET_PLAYER_VOLUME, false) {
             @Override
             void process() {
@@ -430,11 +389,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void notifyWhenCommandLabelReached(final Object label) {
-        _notifyWhenCommandLabelReached(label);
-    }
-    @Override
-    public Object _notifyWhenCommandLabelReached(final Object label) {
+    public Object notifyWhenCommandLabelReached(final Object label) {
         return addTask(new Task(CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED, false) {
             @Override
             void process() {
@@ -449,11 +404,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setSurface(final Surface surface) {
-        _setSurface(surface);
-    }
-    @Override
-    public Object _setSurface(final Surface surface) {
+    public Object setSurface(final Surface surface) {
         return addTask(new Task(CALL_COMPLETED_SET_SURFACE, false) {
             @Override
             void process() {
@@ -560,11 +511,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setPlaybackParams(@NonNull final PlaybackParams2 params) {
-        _setPlaybackParams(params);
-    }
-    @Override
-    public Object _setPlaybackParams(@NonNull final PlaybackParams2 params) {
+    public Object setPlaybackParams(@NonNull final PlaybackParams2 params) {
         return addTask(new Task(CALL_COMPLETED_SET_PLAYBACK_PARAMS, false) {
             @Override
             void process() {
@@ -580,11 +527,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void seekTo(final long msec, @SeekMode final int mode) {
-        _seekTo(msec, mode);
-    }
-    @Override
-    public Object _seekTo(final long msec, @SeekMode final int mode) {
+    public Object seekTo(final long msec, @SeekMode final int mode) {
         return addTask(new Task(CALL_COMPLETED_SEEK_TO, true) {
             @Override
             void process() {
@@ -629,11 +572,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setAudioSessionId(final int sessionId) {
-        _setAudioSessionId(sessionId);
-    }
-    @Override
-    public Object _setAudioSessionId(final int sessionId) {
+    public Object setAudioSessionId(final int sessionId) {
         return addTask(new Task(CALL_COMPLETED_SET_AUDIO_SESSION_ID, false) {
             @Override
             void process() {
@@ -648,11 +587,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void attachAuxEffect(final int effectId) {
-        _attachAuxEffect(effectId);
-    }
-    @Override
-    public Object _attachAuxEffect(final int effectId) {
+    public Object attachAuxEffect(final int effectId) {
         return addTask(new Task(CALL_COMPLETED_ATTACH_AUX_EFFECT, false) {
             @Override
             void process() {
@@ -662,11 +597,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void setAuxEffectSendLevel(final float level) {
-        _setAuxEffectSendLevel(level);
-    }
-    @Override
-    public Object _setAuxEffectSendLevel(final float level) {
+    public Object setAuxEffectSendLevel(final float level) {
         return addTask(new Task(CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL, false) {
             @Override
             void process() {
@@ -691,11 +622,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void selectTrack(final int index) {
-        _selectTrack(index);
-    }
-    @Override
-    public Object _selectTrack(final int index) {
+    public Object selectTrack(final int index) {
         return addTask(new Task(CALL_COMPLETED_SELECT_TRACK, false) {
             @Override
             void process() {
@@ -705,11 +632,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public void deselectTrack(final int index) {
-        _deselectTrack(index);
-    }
-    @Override
-    public Object _deselectTrack(final int index) {
+    public Object deselectTrack(final int index) {
         return addTask(new Task(CALL_COMPLETED_DESELECT_TRACK, false) {
             @Override
             void process() {
@@ -785,11 +708,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
 
     @Override
-    public void prepareDrm(@NonNull final UUID uuid) {
-        _prepareDrm(uuid);
-    }
-    @Override
-    public Object _prepareDrm(@NonNull final UUID uuid) {
+    public Object prepareDrm(@NonNull final UUID uuid) {
         return addTask(new Task(CALL_COMPLETED_PREPARE_DRM, false) {
             @Override
             void process() {
