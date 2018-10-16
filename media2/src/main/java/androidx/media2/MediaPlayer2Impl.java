@@ -1453,10 +1453,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
         }
 
-        synchronized void prepare() {
-            getCurrentPlayer().prepareAsync();
-        }
-
         synchronized void release() {
             getCurrentPlayer().release();
         }
