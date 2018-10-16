@@ -24,6 +24,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
+import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media.test.service.MediaTestUtils;
@@ -35,6 +37,7 @@ import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.SessionCallback;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -218,6 +221,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
      * Test potential deadlock for calls between controller and session.
      */
     @Test
+    @FlakyTest(bugId = 117818390)
     public void testDeadlock() throws InterruptedException {
         prepareLooper();
         sHandler.postAndSync(new Runnable() {
@@ -252,20 +256,60 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 public void run() {
                     final int state = SessionPlayer2.PLAYER_STATE_ERROR;
                     for (int i = 0; i < 100; i++) {
+                        Log.d(TAG, "testDeadlock for-loop started: index=" + i);
+                        long startTime = SystemClock.elapsedRealtime();
+
                         // triggers call from session to controller.
                         player.notifyPlayerStateChanged(state);
+                        long endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "1) Time spent on API call(ms): " + (endTime - startTime));
+
                         // triggers call from controller to session.
+                        startTime = endTime;
                         controller.play();
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "2) Time spent on API call(ms): " + (endTime - startTime));
 
                         // Repeat above
+                        startTime = endTime;
                         player.notifyPlayerStateChanged(state);
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "3) Time spent on API call(ms): " + (endTime - startTime));
+
+                        startTime = endTime;
                         controller.pause();
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "4) Time spent on API call(ms): " + (endTime - startTime));
+
+                        startTime = endTime;
                         player.notifyPlayerStateChanged(state);
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "5) Time spent on API call(ms): " + (endTime - startTime));
+
+                        startTime = endTime;
                         controller.seekTo(0);
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "6) Time spent on API call(ms): " + (endTime - startTime));
+
+                        startTime = endTime;
                         player.notifyPlayerStateChanged(state);
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "7) Time spent on API call(ms): " + (endTime - startTime));
+
+                        startTime = endTime;
                         controller.skipToNextItem();
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "8) Time spent on API call(ms): " + (endTime - startTime));
+
+                        startTime = endTime;
                         player.notifyPlayerStateChanged(state);
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "9) Time spent on API call(ms): " + (endTime - startTime));
+
+                        startTime = endTime;
                         controller.skipToPreviousItem();
+                        endTime = SystemClock.elapsedRealtime();
+                        Log.d(TAG, "10) Time spent on API call(ms): " + (endTime - startTime));
                     }
                     // This may hang if deadlock happens.
                     latch.countDown();
