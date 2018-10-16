@@ -249,14 +249,6 @@ public class RemoteMediaSession2 {
         }
     }
 
-    public void notifyError(@MediaSession2.ErrorCode int errorCode, @Nullable Bundle extras) {
-        try {
-            mBinder.notifyError(mSessionId, errorCode, extras);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call notifyError()");
-        }
-    }
-
     public void setAllowedCommands(@NonNull ControllerInfo controller,
             @NonNull SessionCommandGroup2 commands) {
         try {

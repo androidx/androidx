@@ -355,11 +355,6 @@ abstract class MediaSession2TestBase {
         }
 
         @Override
-        public void onError(MediaController2 controller, int errorCode, Bundle extras) {
-            mCallbackProxy.onError(controller, errorCode, extras);
-        }
-
-        @Override
         public void onCurrentMediaItemChanged(MediaController2 controller, MediaItem2 item) {
             mCallbackProxy.onCurrentMediaItemChanged(controller, item);
         }

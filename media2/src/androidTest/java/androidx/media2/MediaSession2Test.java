@@ -20,6 +20,8 @@ import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -591,28 +593,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
     }
 
     @Test
-    public void testNotifyError() throws InterruptedException {
-        prepareLooper();
-        final int errorCode = MediaSession2.ERROR_CODE_NOT_AVAILABLE_IN_REGION;
-        final Bundle extras = new Bundle();
-        extras.putString("args", "testNotifyError");
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        final ControllerCallback callback = new ControllerCallback() {
-            @Override
-            public void onError(MediaController2 controller, int errorCodeOut, Bundle extrasOut) {
-                assertEquals(errorCode, errorCodeOut);
-                assertTrue(TestUtils.equals(extras, extrasOut));
-                latch.countDown();
-            }
-        };
-        final MediaController2 controller = createController(mSession.getToken(), true, callback);
-        // TODO(jaewan): Test with multiple controllers
-        mSession.notifyError(errorCode, extras);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
     public void testNotifyRoutesInfoChanged() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -661,16 +641,16 @@ public class MediaSession2Test extends MediaSession2TestBase {
         public final ArrayList<SessionCommand2> commands = new ArrayList<>();
 
         @Override
-        public boolean onCommandRequest(MediaSession2 session, ControllerInfo controllerInfo,
+        public int onCommandRequest(MediaSession2 session, ControllerInfo controllerInfo,
                 SessionCommand2 command) {
             assertEquals(mContext.getPackageName(), controllerInfo.getPackageName());
             assertEquals(Process.myUid(), controllerInfo.getUid());
             assertFalse(controllerInfo.isTrusted());
             commands.add(command);
             if (command.getCommandCode() == SessionCommand2.COMMAND_CODE_PLAYER_PAUSE) {
-                return false;
+                return RESULT_CODE_INVALID_STATE;
             }
-            return true;
+            return RESULT_CODE_SUCCESS;
         }
     }
 }

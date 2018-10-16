@@ -59,10 +59,10 @@ package androidx.media2 {
   public class MediaController2 implements java.lang.AutoCloseable {
     ctor public MediaController2(android.content.Context, androidx.media2.SessionToken2, java.util.concurrent.Executor, androidx.media2.MediaController2.ControllerCallback);
     ctor public MediaController2(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token, java.util.concurrent.Executor, androidx.media2.MediaController2.ControllerCallback);
-    method public void addPlaylistItem(int, androidx.media2.MediaItem2);
-    method public void adjustVolume(int, int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> addPlaylistItem(int, androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> adjustVolume(int, int);
     method public void close();
-    method public void fastForward();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> fastForward();
     method public long getBufferedPosition();
     method public int getBufferingState();
     method public androidx.media2.SessionToken2 getConnectedSessionToken();
@@ -78,25 +78,25 @@ package androidx.media2 {
     method public android.app.PendingIntent getSessionActivity();
     method public int getShuffleMode();
     method public boolean isConnected();
-    method public void pause();
-    method public void play();
-    method public void prefetch();
-    method public void removePlaylistItem(androidx.media2.MediaItem2);
-    method public void replacePlaylistItem(int, androidx.media2.MediaItem2);
-    method public void rewind();
-    method public void seekTo(long);
-    method public void sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> pause();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> play();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> prefetch();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> removePlaylistItem(androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> replacePlaylistItem(int, androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> rewind();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> seekTo(long);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle);
     method public void setMediaItem(androidx.media2.MediaItem2);
-    method public void setPlaybackSpeed(float);
-    method public void setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
-    method public void setRating(java.lang.String, androidx.media2.Rating2);
-    method public void setRepeatMode(int);
-    method public void setShuffleMode(int);
-    method public void setVolumeTo(int, int);
-    method public void skipToNextPlaylistItem();
-    method public void skipToPlaylistItem(androidx.media2.MediaItem2);
-    method public void skipToPreviousPlaylistItem();
-    method public void updatePlaylistMetadata(androidx.media2.MediaMetadata2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setPlaybackSpeed(float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setRating(java.lang.String, androidx.media2.Rating2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setRepeatMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setShuffleMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setVolumeTo(int, int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> skipToNextPlaylistItem();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> skipToPlaylistItem(androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> skipToPreviousPlaylistItem();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> updatePlaylistMetadata(androidx.media2.MediaMetadata2);
   }
 
   public static abstract class MediaController2.ControllerCallback {
@@ -108,7 +108,6 @@ package androidx.media2 {
     method public void onCustomCommand(androidx.media2.MediaController2, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void onCustomLayoutChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaSession2.CommandButton>);
     method public void onDisconnected(androidx.media2.MediaController2);
-    method public void onError(androidx.media2.MediaController2, int, android.os.Bundle);
     method public void onPlaybackCompleted(androidx.media2.MediaController2);
     method public void onPlaybackInfoChanged(androidx.media2.MediaController2, androidx.media2.MediaController2.PlaybackInfo);
     method public void onPlaybackSpeedChanged(androidx.media2.MediaController2, float);
@@ -118,6 +117,30 @@ package androidx.media2 {
     method public void onRepeatModeChanged(androidx.media2.MediaController2, int);
     method public void onSeekCompleted(androidx.media2.MediaController2, long);
     method public void onShuffleModeChanged(androidx.media2.MediaController2, int);
+  }
+
+  public static class MediaController2.ControllerResult {
+    ctor public MediaController2.ControllerResult(int, android.os.Bundle);
+    method public long getCompletionTime();
+    method public android.os.Bundle getCustomCommandResult();
+    method public androidx.media2.MediaItem2 getMediaItem();
+    method public int getResultCode();
+    field public static final int RESULT_CODE_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
+    field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_CODE_CONCURRENT_STREAM_LIMIT = -104; // 0xffffff98
+    field public static final int RESULT_CODE_DISCONNECTED = -100; // 0xffffff9c
+    field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_CODE_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_CODE_NOT_AVAILABLE_IN_REGION = -106; // 0xffffff96
+    field public static final int RESULT_CODE_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_CODE_PARENTAL_CONTROL_RESTRICTED = -105; // 0xffffff97
+    field public static final int RESULT_CODE_PERMISSION_DENIED = -4; // 0xfffffffc
+    field public static final int RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
+    field public static final int RESULT_CODE_SETUP_REQUIRED = -108; // 0xffffff94
+    field public static final int RESULT_CODE_SKIPPED = 1; // 0x1
+    field public static final int RESULT_CODE_SKIP_LIMIT_REACHED = -107; // 0xffffff95
+    field public static final int RESULT_CODE_SUCCESS = 0; // 0x0
+    field public static final int RESULT_CODE_UNKNOWN_ERROR = -1; // 0xffffffff
   }
 
   public static final class MediaController2.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
@@ -264,25 +287,11 @@ package androidx.media2 {
     method public java.lang.String getId();
     method public androidx.media2.SessionPlayer2 getPlayer();
     method public androidx.media2.SessionToken2 getToken();
-    method public void notifyError(int, android.os.Bundle);
     method public void sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle);
     method public void sendCustomCommand(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void setAllowedCommands(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommandGroup2);
     method public void setCustomLayout(androidx.media2.MediaSession2.ControllerInfo, java.util.List<androidx.media2.MediaSession2.CommandButton>);
     method public void updatePlayer(androidx.media2.SessionPlayer2);
-    field public static final int ERROR_CODE_ACTION_ABORTED = 10; // 0xa
-    field public static final int ERROR_CODE_APP_ERROR = 1; // 0x1
-    field public static final int ERROR_CODE_AUTHENTICATION_EXPIRED = 3; // 0x3
-    field public static final int ERROR_CODE_CONCURRENT_STREAM_LIMIT = 5; // 0x5
-    field public static final int ERROR_CODE_CONTENT_ALREADY_PLAYING = 8; // 0x8
-    field public static final int ERROR_CODE_END_OF_QUEUE = 11; // 0xb
-    field public static final int ERROR_CODE_NOT_AVAILABLE_IN_REGION = 7; // 0x7
-    field public static final int ERROR_CODE_NOT_SUPPORTED = 2; // 0x2
-    field public static final int ERROR_CODE_PARENTAL_CONTROL_RESTRICTED = 6; // 0x6
-    field public static final int ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED = 4; // 0x4
-    field public static final int ERROR_CODE_SETUP_REQUIRED = 12; // 0xc
-    field public static final int ERROR_CODE_SKIP_LIMIT_REACHED = 9; // 0x9
-    field public static final int ERROR_CODE_UNKNOWN_ERROR = 0; // 0x0
   }
 
   public static final class MediaSession2.Builder {
@@ -318,14 +327,37 @@ package androidx.media2 {
 
   public static abstract class MediaSession2.SessionCallback {
     ctor public MediaSession2.SessionCallback();
-    method public boolean onCommandRequest(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2);
+    method public int onCommandRequest(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2);
     method public androidx.media2.SessionCommandGroup2 onConnect(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public androidx.media2.MediaItem2 onCreateMediaItem(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.MediaItem2);
-    method public void onCustomCommand(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
+    method public androidx.media2.MediaSession2.SessionResult onCustomCommand(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle);
     method public void onDisconnected(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public void onFastForward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public void onRewind(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public void onSetRating(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, androidx.media2.Rating2);
+    method public int onFastForward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
+    method public int onRewind(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
+    method public int onSetRating(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, androidx.media2.Rating2);
+  }
+
+  public static class MediaSession2.SessionResult implements androidx.versionedparcelable.VersionedParcelable {
+    ctor public MediaSession2.SessionResult(int, android.os.Bundle);
+    method public long getCompletionTime();
+    method public android.os.Bundle getCustomCommandResult();
+    method public int getResultCode();
+    field public static final int RESULT_CODE_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
+    field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_CODE_CONCURRENT_STREAM_LIMIT = -104; // 0xffffff98
+    field public static final int RESULT_CODE_DISCONNECTED = -100; // 0xffffff9c
+    field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_CODE_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_CODE_NOT_AVAILABLE_IN_REGION = -106; // 0xffffff96
+    field public static final int RESULT_CODE_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_CODE_PARENTAL_CONTROL_RESTRICTED = -105; // 0xffffff97
+    field public static final int RESULT_CODE_PERMISSION_DENIED = -4; // 0xfffffffc
+    field public static final int RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
+    field public static final int RESULT_CODE_SETUP_REQUIRED = -108; // 0xffffff94
+    field public static final int RESULT_CODE_SKIPPED = 1; // 0x1
+    field public static final int RESULT_CODE_SKIP_LIMIT_REACHED = -107; // 0xffffff95
+    field public static final int RESULT_CODE_SUCCESS = 0; // 0x0
+    field public static final int RESULT_CODE_UNKNOWN_ERROR = -1; // 0xffffffff
   }
 
   public final class MediaSessionManager2 {
@@ -516,13 +548,14 @@ package androidx.media2 {
     method public long getCompletionTime();
     method public androidx.media2.MediaItem2 getMediaItem();
     method public int getResultCode();
-    field public static final int RESULT_CODE_BAD_VALUE = -2; // 0xfffffffe
-    field public static final int RESULT_CODE_INVALID_STATE = -1; // 0xffffffff
-    field public static final int RESULT_CODE_IO_ERROR = -4; // 0xfffffffc
-    field public static final int RESULT_CODE_PERMISSION_DENIED = -3; // 0xfffffffd
+    field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_CODE_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_CODE_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_CODE_PERMISSION_DENIED = -4; // 0xfffffffc
     field public static final int RESULT_CODE_SKIPPED = 1; // 0x1
     field public static final int RESULT_CODE_SUCCESS = 0; // 0x0
-    field public static final int RESULT_CODE_UNKNOWN_ERROR = -2147483648; // 0x80000000
+    field public static final int RESULT_CODE_UNKNOWN_ERROR = -1; // 0xffffffff
   }
 
   public final class SessionToken2 implements androidx.versionedparcelable.VersionedParcelable {
@@ -668,10 +701,18 @@ package androidx.media2 {
 
   public static class XMediaPlayer.DrmResult extends androidx.media2.SessionPlayer2.PlayerResult {
     ctor public XMediaPlayer.DrmResult(int, androidx.media2.MediaItem2);
+    field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_CODE_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_CODE_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_CODE_PERMISSION_DENIED = -4; // 0xfffffffc
     field public static final int RESULT_CODE_PREPARATION_ERROR = -1003; // 0xfffffc15
     field public static final int RESULT_CODE_PROVISIONING_NETWORK_ERROR = -1001; // 0xfffffc17
     field public static final int RESULT_CODE_PROVISIONING_SERVER_ERROR = -1002; // 0xfffffc16
     field public static final int RESULT_CODE_RESOURCE_BUSY = -1005; // 0xfffffc13
+    field public static final int RESULT_CODE_SKIPPED = 1; // 0x1
+    field public static final int RESULT_CODE_SUCCESS = 0; // 0x0
+    field public static final int RESULT_CODE_UNKNOWN_ERROR = -1; // 0xffffffff
     field public static final int RESULT_CODE_UNSUPPORTED_SCHEME = -1004; // 0xfffffc14
   }
 

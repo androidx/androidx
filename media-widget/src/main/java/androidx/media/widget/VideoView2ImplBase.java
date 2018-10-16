@@ -16,6 +16,9 @@
 
 package androidx.media.widget;
 
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
+
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -27,7 +30,6 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -1172,10 +1174,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
 
         @Override
-        public void onCustomCommand(@NonNull MediaSession2 session,
+        public MediaSession2.SessionResult onCustomCommand(@NonNull MediaSession2 session,
                 @NonNull MediaSession2.ControllerInfo controller,
-                @NonNull SessionCommand2 customCommand,
-                @Nullable Bundle args, @Nullable ResultReceiver cb) {
+                @NonNull SessionCommand2 customCommand, @Nullable Bundle args) {
             if (session != mMediaSession) {
                 if (DEBUG) {
                     Log.w(TAG, "onCustomCommand() is ignored. session is already gone.");
@@ -1183,7 +1184,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             }
             if (isRemotePlayback()) {
                 // TODO: call mRoutePlayer.onCommand()
-                return;
+                return new MediaSession2.SessionResult(RESULT_CODE_SUCCESS, null);
             }
             switch (customCommand.getCustomCommand()) {
                 case MediaControlView2.COMMAND_SHOW_SUBTITLE:
@@ -1213,10 +1214,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                     break;
             }
+            return new MediaSession2.SessionResult(RESULT_CODE_SUCCESS, null);
         }
 
         @Override
-        public boolean onCommandRequest(@NonNull MediaSession2 session,
+        public int onCommandRequest(@NonNull MediaSession2 session,
                 @NonNull MediaSession2.ControllerInfo controller,
                 @NonNull SessionCommand2 command) {
             if (session != mMediaSession) {
@@ -1229,7 +1231,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     mTargetState = STATE_PLAYING;
                     if (!mCurrentView.hasAvailableSurface() && !mIsMusicMediaType) {
                         Log.d(TAG, "surface is not available");
-                        return false;
+                        return RESULT_CODE_INVALID_STATE;
                     }
                     break;
                 case SessionCommand2.COMMAND_CODE_PLAYER_PAUSE:
@@ -1239,7 +1241,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     mSeekWhenPrepared = 0;
                     break;
             }
-            return true;
+            return RESULT_CODE_SUCCESS;
         }
     }
 }
