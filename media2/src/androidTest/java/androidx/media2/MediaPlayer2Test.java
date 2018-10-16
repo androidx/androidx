@@ -952,7 +952,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         nextDSDs.add(item2);
         nextDSDs.add(item1);
 
-        mPlayer.getNextMediaItems(nextDSDs);
+        mPlayer.setNextMediaItems(nextDSDs);
 
         final Monitor onCompletion1Called = new Monitor();
         final Monitor onCompletion2Called = new Monitor();
@@ -1048,7 +1048,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
         mPlayer.setMediaItem(item1);
         mPlayer.setNextMediaItem(item1);
-        mPlayer.getNextMediaItems(Arrays.asList(item2, item1));
+        mPlayer.setNextMediaItems(Arrays.asList(item2, item1));
         mPlayer.prepare();
         mPlayer.play();
         onPlaybackCompletedCalled.waitForCountedSignals(3);
@@ -1095,7 +1095,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         assertTrue(onCallCompletedCalled.waitForSignal());
 
         onCallCompletedCalled.reset();
-        mPlayer.getNextMediaItems(Arrays.asList(item2, item1));
+        mPlayer.setNextMediaItems(Arrays.asList(item2, item1));
         assertTrue(onCallCompletedCalled.waitForSignal());
 
         mPlayer.reset();
@@ -3083,8 +3083,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         // prepare() will be pending until readAllowed is signaled.
         mPlayer.prepare();
 
-        Object playToken = mPlayer._play();
-        Object seekToken = mPlayer._seekTo(1000);
+        Object playToken = mPlayer.play();
+        Object seekToken = mPlayer.seekTo(1000);
         mPlayer.pause();
 
         readRequested.waitForSignal();

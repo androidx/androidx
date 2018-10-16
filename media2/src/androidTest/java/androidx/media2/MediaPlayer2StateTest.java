@@ -327,7 +327,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sSetNextDataSourcesOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.getNextMediaItems(Arrays.asList(sDummyDataSource));
+            player.setNextMediaItems(Arrays.asList(sDummyDataSource));
         }
 
         @Override
