@@ -158,7 +158,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.prepare();
+        mController.prefetch();
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPrepareCalled);
     }
@@ -522,7 +522,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.prepareFromSearch(request, bundle);
+        mController.prefetchFromSearch(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPrepareFromSearchCalled);
         assertEquals(request, mSessionCallback.mQuery);
@@ -538,7 +538,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.prepareFromUri(request, bundle);
+        mController.prefetchFromUri(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPrepareFromUriCalled);
         assertEquals(request, mSessionCallback.mUri);
@@ -554,7 +554,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.prepareFromMediaId(request, bundle);
+        mController.prefetchFromMediaId(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPrepareFromMediaIdCalled);
         assertEquals(request, mSessionCallback.mMediaId);

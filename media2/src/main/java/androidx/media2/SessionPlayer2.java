@@ -126,15 +126,13 @@ import java.util.concurrent.Executor;
  * <p>
  * Most methods can be called from any non-Error state. They will either perform their work or
  * silently have no effect. The following table lists the methods that aren't guaranteed to
- * successfully running if they're called from the associated invalid states.</p>
- *
- * <table border="0" cellspacing="0" cellpadding="0">
- * <tr><th>Method Name</th>
- * <th>Invalid States</th></tr>
- *
- * <tr><td>setMediaItem</td> <td>{Prepared, Paused, Playing}</td></tr>
- * <tr><td>setPlaylist</td> <td>{Prepared, Paused, Playing}</td></tr>
- * <tr><td>prefetch</td> <td>{Prepared, Paused, Playing}</td></tr>
+ * successfully running if they're called from the associated invalid states.
+ * <p>
+ * <table>
+ * <tr><th>Method Name</th> <th>Invalid States</th></tr>
+ * <tr><td>setMediaItem</td> <td>{Paused, Playing}</td></tr>
+ * <tr><td>setPlaylist</td> <td>{Paused, Playing}</td></tr>
+ * <tr><td>prefetch</td> <td>{Paused, Playing}</td></tr>
  * <tr><td>play</td> <td>{Idle}</td></tr>
  * <tr><td>pause</td> <td>{Idle}</td></tr>
  * <tr><td>seekTo</td> <td>{Idle}</td></tr>
@@ -299,7 +297,8 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     public abstract @NonNull ListenableFuture<PlayerResult> pause();
 
     /**
-     * Prefetches the media items for playback.
+     * Prefetches the media items for playback. During this time, the player may allocate resources
+     * required to play, such as audio and video decoders.
      * <p>
      * This may be the asynchronous call depending on the implementation. Wait with returned
      * {@link ListenableFuture} or callback for the completion.
