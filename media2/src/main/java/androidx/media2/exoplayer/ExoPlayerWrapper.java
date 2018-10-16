@@ -161,6 +161,7 @@ import java.util.List;
     }
 
     public void prepare() {
+        Preconditions.checkState(!mPrepared);
         mMediaItemQueue.preparePlayer();
     }
 
@@ -341,7 +342,7 @@ import java.util.List;
                 new AudioSinkRenderersFactory(mContext, mAudioSink),
                 new DefaultTrackSelector(),
                 new DefaultLoadControl(),
-                    /* drmSessionManager= */ null,
+                /* drmSessionManager= */ null,
                 mLooper);
         mMediaItemQueue = new MediaItemQueue(mContext, mPlayer, mListener);
         ComponentListener listener = new ComponentListener();
