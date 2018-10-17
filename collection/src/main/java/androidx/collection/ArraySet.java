@@ -734,9 +734,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      */
     @Override
     public boolean containsAll(@NonNull Collection<?> collection) {
-        Iterator<?> it = collection.iterator();
-        while (it.hasNext()) {
-            if (!contains(it.next())) {
+        for (Object item : collection) {
+            if (!contains(item)) {
                 return false;
             }
         }
