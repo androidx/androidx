@@ -19,6 +19,7 @@ package androidx.loader.content;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
@@ -33,11 +34,6 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Static library support version of the framework's {@link android.content.AsyncTaskLoader}.
@@ -49,25 +45,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AsyncTaskLoader<D> extends Loader<D> {
     static final String TAG = "AsyncTaskLoader";
     static final boolean DEBUG = false;
-
-    private static final int CORE_POOL_SIZE = 5;
-    private static final int MAXIMUM_POOL_SIZE = 128;
-    private static final int KEEP_ALIVE = 1;
-
-    static final class CountingThreadFactory extends AtomicInteger implements ThreadFactory {
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r, TAG + " #" + incrementAndGet());
-        }
-    }
-
-    /**
-     * An {@link Executor} that can be used to execute tasks in parallel.
-     */
-    private static final Executor THREAD_POOL_EXECUTOR =
-            new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
-                    TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(10),
-                    new CountingThreadFactory());
 
     final class LoadTask extends ModernAsyncTask<D> implements Runnable {
         private final CountDownLatch mDone = new CountDownLatch(1);
@@ -149,7 +126,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     Handler mHandler;
 
     public AsyncTaskLoader(@NonNull Context context) {
-        this(context, THREAD_POOL_EXECUTOR);
+        this(context, AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private AsyncTaskLoader(@NonNull Context context, @NonNull Executor executor) {
