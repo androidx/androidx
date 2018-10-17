@@ -20,14 +20,14 @@ package androidx.lifecycle;
 import androidx.annotation.NonNull;
 
 /**
- * A scope that owns {@link SavedState}
+ * A scope that owns {@link SavedStateRegistry}
  */
-public interface SavedStateOwner {
+public interface SavedStateRegistryOwner {
     /**
-     * Returns owned {@link SavedState}
+     * Returns owned {@link SavedStateRegistry}
      *
-     * @return a {@link SavedState}
+     * @return a {@link SavedStateRegistry}
      */
     @NonNull
-    SavedState getSavedState();
+    SavedStateRegistry getSavedState();
 }

@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 /**
- * Provides simple accessor for {@link SavedStateRegistry} of Activity and Fragments
+ * Provides simple accessor for {@link BundlableSavedStateRegistry} of Activity and Fragments
  */
 public class SavedStateRegistries {
 
@@ -29,20 +29,20 @@ public class SavedStateRegistries {
     }
 
     /**
-     * Returns {@link SavedStateRegistry} for the given fragment.
-     * @param fragment a fragment whose {@link SavedStateRegistry} is requested
+     * Returns {@link BundlableSavedStateRegistry} for the given fragment.
+     * @param fragment a fragment whose {@link BundlableSavedStateRegistry} is requested
      * @return a {@code SavedStateStore}
      */
-    public static SavedStateRegistry of(Fragment fragment) {
+    public static BundlableSavedStateRegistry of(Fragment fragment) {
         return SavedStateHolderFragmentController.savedStateRegistry(fragment);
     }
 
     /**
-     * Returns {@link SavedStateRegistry} for the given activity.
-     * @param activity a activity whose {@link SavedStateRegistry} is requested
+     * Returns {@link BundlableSavedStateRegistry} for the given activity.
+     * @param activity a activity whose {@link BundlableSavedStateRegistry} is requested
      * @return a {@code SavedStateStore}
      */
-    public static SavedStateRegistry of(FragmentActivity activity) {
+    public static BundlableSavedStateRegistry of(FragmentActivity activity) {
         return SavedStateHolderFragmentController.savedStateRegistry(activity);
     }
 }
