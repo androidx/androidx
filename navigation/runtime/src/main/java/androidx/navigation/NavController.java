@@ -55,7 +55,6 @@ public class NavController {
             "android-support-nav:controller:navigatorState";
     private static final String KEY_NAVIGATOR_STATE_NAMES =
             "android-support-nav:controller:navigatorState:names";
-    private static final String KEY_GRAPH_ID = "android-support-nav:controller:graphId";
     private static final String KEY_BACK_STACK_IDS = "android-support-nav:controller:backStackIds";
     static final String KEY_DEEP_LINK_IDS = "android-support-nav:controller:deepLinkIds";
     static final String KEY_DEEP_LINK_EXTRAS =
@@ -71,7 +70,6 @@ public class NavController {
     private Activity mActivity;
     private NavInflater mInflater;
     private NavGraph mGraph;
-    private int mGraphId;
     private Bundle mNavigatorStateToRestore;
     private int[] mBackStackToRestore;
 
@@ -434,7 +432,6 @@ public class NavController {
      */
     public void setGraph(@NavigationRes int graphResId, @Nullable Bundle startDestinationArgs) {
         mGraph = getNavInflater().inflate(graphResId);
-        mGraphId = graphResId;
         onGraphCreated(startDestinationArgs);
     }
 
@@ -464,7 +461,6 @@ public class NavController {
      */
     public void setGraph(@NonNull NavGraph graph, @Nullable Bundle startDestinationArgs) {
         mGraph = graph;
-        mGraphId = 0;
         onGraphCreated(startDestinationArgs);
     }
 
@@ -786,10 +782,6 @@ public class NavController {
     @Nullable
     public Bundle saveState() {
         Bundle b = null;
-        if (mGraphId != 0) {
-            b = new Bundle();
-            b.putInt(KEY_GRAPH_ID, mGraphId);
-        }
         ArrayList<String> navigatorNames = new ArrayList<>();
         Bundle navigatorState = new Bundle();
         for (Map.Entry<String, Navigator<? extends NavDestination>> entry :
@@ -802,9 +794,7 @@ public class NavController {
             }
         }
         if (!navigatorNames.isEmpty()) {
-            if (b == null) {
-                b = new Bundle();
-            }
+            b = new Bundle();
             navigatorState.putStringArrayList(KEY_NAVIGATOR_STATE_NAMES, navigatorNames);
             b.putBundle(KEY_NAVIGATOR_STATE, navigatorState);
         }
@@ -823,7 +813,8 @@ public class NavController {
     }
 
     /**
-     * Restores all navigation controller state from a bundle.
+     * Restores all navigation controller state from a bundle. This should be called before any
+     * call to {@link #setGraph}.
      *
      * <p>State may be saved to a bundle by calling {@link #saveState()}.
      * Restoring controller state is the responsibility of a {@link NavHost}.</p>
@@ -835,13 +826,7 @@ public class NavController {
             return;
         }
 
-        mGraphId = navState.getInt(KEY_GRAPH_ID);
         mNavigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE);
         mBackStackToRestore = navState.getIntArray(KEY_BACK_STACK_IDS);
-        if (mGraphId != 0) {
-            // Set the graph right away, onGraphCreated will handle restoring the
-            // rest of the saved state
-            setGraph(mGraphId);
-        }
     }
 }

@@ -154,9 +154,12 @@ class NavControllerTest {
         navController = NavController(context)
         navController.navigatorProvider.addNavigator(navigator)
 
-        // Restore state should automatically re-inflate the graph
-        // Since the graph has a set id
+        // Restore state doesn't recreate any graph
         navController.restoreState(savedState)
+        assertNull(navController.currentDestination)
+
+        // Explicitly setting a graph then restores the state
+        navController.setGraph(R.navigation.nav_simple)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         assertEquals(2, navigator.backStack.size)
         // Save state should be called on the navigator exactly once
