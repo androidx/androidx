@@ -37,7 +37,7 @@ dependencies {
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":navigation:navigation-common-ktx"))
     api(KOTLIN_STDLIB)
-    androidTestImplementation(project(":navigation:navigation-testing-ktx"))
+    androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)

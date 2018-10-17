@@ -38,7 +38,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
 
-    androidTestImplementation(project(":navigation:navigation-testing-ktx"))
+    androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)

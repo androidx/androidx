@@ -20,8 +20,6 @@ import android.support.annotation.IdRes
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.TestNavigatorProvider
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -30,7 +28,10 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class NavGraphBuilderTest {
-    private val provider = TestNavigatorProvider(InstrumentationRegistry.getTargetContext())
+    private val provider = SimpleNavigatorProvider().apply {
+        addNavigator(NavGraphNavigator(InstrumentationRegistry.getTargetContext()))
+        addNavigator(NoOpNavigator())
+    }
 
     @Test
     fun navigation() {
@@ -44,7 +45,7 @@ class NavGraphBuilderTest {
     @Test
     fun navigationUnaryPlus() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
-            +NavDestination(provider[TestNavigator::class]).apply {
+            +NavDestination(provider[NoOpNavigator::class]).apply {
                 id = DESTINATION_ID
             }
         }
@@ -55,7 +56,7 @@ class NavGraphBuilderTest {
     @Test
     fun navigationAddDestination() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
-            val destination = NavDestination(provider[TestNavigator::class]).apply {
+            val destination = NavDestination(provider[NoOpNavigator::class]).apply {
                 id = DESTINATION_ID
             }
             addDestination(destination)
@@ -92,6 +93,6 @@ private const val SECOND_DESTINATION_ID = 2
  * added to a NavGraph (hence why this is not in the common-ktx library)
  */
 fun NavGraphBuilder.navDestination(
-        @IdRes id: Int,
-        block: NavDestinationBuilder<NavDestination>.() -> Unit
-) = destination(NavDestinationBuilder(provider[TestNavigator::class], id).apply(block))
+    @IdRes id: Int,
+    block: NavDestinationBuilder<NavDestination>.() -> Unit
+) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], id).apply(block))

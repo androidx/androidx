@@ -35,10 +35,8 @@ android {
 dependencies {
     api(project(":navigation:navigation-common"))
     api(KOTLIN_STDLIB)
-    testImplementation(project(":navigation:navigation-testing"))
     testImplementation(JUNIT)
     testImplementation(TEST_RUNNER)
-    androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
 }

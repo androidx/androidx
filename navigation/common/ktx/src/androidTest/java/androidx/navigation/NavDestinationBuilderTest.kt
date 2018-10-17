@@ -21,8 +21,6 @@ import android.support.annotation.IdRes
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.TestNavigatorProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -31,7 +29,10 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class NavDestinationTest {
-    private val provider = TestNavigatorProvider(InstrumentationRegistry.getTargetContext())
+    private val provider = SimpleNavigatorProvider().apply {
+        addNavigator(NavGraphNavigator(InstrumentationRegistry.getTargetContext()))
+        addNavigator(NoOpNavigator())
+    }
 
     @Test
     fun navDestination() {
@@ -86,6 +87,6 @@ private const val ACTION_ID = 1
  * isolation.
  */
 fun NavigatorProvider.navDestination(
-        @IdRes id: Int,
-        block: NavDestinationBuilder<NavDestination>.() -> Unit
-): NavDestination = NavDestinationBuilder(this[TestNavigator::class], id).apply(block).build()
+    @IdRes id: Int,
+    block: NavDestinationBuilder<NavDestination>.() -> Unit
+): NavDestination = NavDestinationBuilder(this[NoOpNavigator::class], id).apply(block).build()
