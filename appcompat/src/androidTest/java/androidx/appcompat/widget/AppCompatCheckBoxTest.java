@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.widget.CompoundButtonCompat;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
@@ -68,8 +69,8 @@ public class AppCompatCheckBoxTest {
     @Test
     public void testDefaultButton_isAnimated() {
         // Given an ACCB with the theme's button drawable
-        final AppCompatCheckBoxSpy checkBox = mContainer.findViewById(R.id.checkbox_button_compat);
-        final Drawable button = checkBox.mButton;
+        final AppCompatCheckBox checkBox = mContainer.findViewById(R.id.checkbox_button_compat);
+        final Drawable button = CompoundButtonCompat.getButtonDrawable(checkBox);
 
         // Then this drawable should be an animated-selector
         assertTrue(button instanceof AnimatedStateListDrawableCompat
@@ -82,9 +83,9 @@ public class AppCompatCheckBoxTest {
     @Test
     public void testNullCompatButton() {
         // Given an ACCB which specifies a null app:buttonCompat
-        final AppCompatCheckBoxSpy checkBox = mContainer.findViewById(
+        final AppCompatCheckBox checkBox = mContainer.findViewById(
                 R.id.checkbox_null_button_compat);
-        final Drawable button = checkBox.mButton;
+        final Drawable button = CompoundButtonCompat.getButtonDrawable(checkBox);
         boolean isAnimated = button instanceof AnimatedStateListDrawableCompat;
 
         // Then the drawable should be present but not animated
