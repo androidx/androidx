@@ -105,12 +105,12 @@ package androidx.car.drawer {
 package androidx.car.util {
 
   public class ColumnCalculator {
-    method public int getColumnCount();
-    method public int getColumnSpanWidth(int);
     method public int getColumnWidth();
-    method public int getGutterCount();
-    method public int getGutterWidth();
+    method public int getGutterSize();
     method public static androidx.car.util.ColumnCalculator getInstance(android.content.Context);
+    method public int getNumOfColumns();
+    method public int getNumOfGutters();
+    method public int getSizeForColumnSpan(int);
   }
 
 }
