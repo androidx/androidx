@@ -575,7 +575,8 @@ class MediaController2ImplBase implements MediaController2Impl {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.setPlaylist(mControllerStub, seq,
-                        MediaUtils2.convertMediaItem2ListToParcelImplList(list),
+                        new ParcelImplListSlice(
+                                MediaUtils2.convertMediaItem2ListToParcelImplList(list)),
                         (metadata == null) ? null : metadata.toBundle());
             }
         });
