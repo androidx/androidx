@@ -18,6 +18,7 @@ package androidx.webkit.internal;
 
 import android.webkit.WebView;
 
+import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
 import org.chromium.support_lib_boundary.TracingControllerBoundaryInterface;
@@ -96,5 +97,15 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     public TracingControllerBoundaryInterface getTracingController() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 TracingControllerBoundaryInterface.class, mImpl.getTracingController());
+    }
+
+    /**
+     * Adapter method for fetching the support library class representing
+     * {@link android.webkit.ProxyController}.
+     */
+    @Override
+    public ProxyControllerBoundaryInterface getProxyController() {
+        return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                ProxyControllerBoundaryInterface.class, mImpl.getProxyController());
     }
 }
