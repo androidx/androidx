@@ -89,17 +89,6 @@ class SparseArrayCompatTest {
         assertTrue(array.isNotEmpty())
     }
 
-    @Test fun removeValue() {
-        val array = SparseArrayCompat<String>()
-        array.put(1, "one")
-        assertFalse(array.remove(0, "one"))
-        assertEquals(1, array.size())
-        assertFalse(array.remove(1, "two"))
-        assertEquals(1, array.size())
-        assertTrue(array.remove(1, "one"))
-        assertEquals(0, array.size())
-    }
-
     @Test fun forEach() {
         val array = SparseArrayCompat<String>()
         array.forEach { _, _ -> fail() }

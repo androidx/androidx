@@ -47,14 +47,9 @@ inline fun <T> SparseArrayCompat<T>.getOrElse(key: Int, defaultValue: () -> T) =
 inline fun <T> SparseArrayCompat<T>.isNotEmpty() = size() != 0
 
 /** Removes the entry for [key] only if it is mapped to [value]. */
-fun <T> SparseArrayCompat<T>.remove(key: Int, value: T): Boolean {
-    val index = indexOfKey(key)
-    if (index != -1 && value == valueAt(index)) {
-        removeAt(index)
-        return true
-    }
-    return false
-}
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // Binary API compatibility.
+@Deprecated("Replaced with member function. Remove extension import!")
+fun <T> SparseArrayCompat<T>.remove(key: Int, value: T) = remove(key, value)
 
 /** Performs the given [action] for each key/value entry. */
 inline fun <T> SparseArrayCompat<T>.forEach(action: (key: Int, value: T) -> Unit) {
