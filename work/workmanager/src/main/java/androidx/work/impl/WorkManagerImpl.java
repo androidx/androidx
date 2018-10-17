@@ -279,7 +279,8 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public ListenableFuture<Void> enqueue(@NonNull List<? extends WorkRequest> workRequests) {
+    public @NonNull ListenableFuture<Void> enqueue(
+            @NonNull List<? extends WorkRequest> workRequests) {
         // This error is not being propagated as part of the ListenableFuture, as we want the
         // app to crash during development. Having no workRequests is always a developer error.
         if (workRequests.isEmpty()) {
@@ -311,7 +312,7 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public ListenableFuture<Void> enqueueUniquePeriodicWork(
+    public @NonNull ListenableFuture<Void> enqueueUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {
@@ -341,28 +342,28 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public ListenableFuture<Void> cancelWorkById(@NonNull UUID id) {
+    public @NonNull ListenableFuture<Void> cancelWorkById(@NonNull UUID id) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forId(id, this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
     }
 
     @Override
-    public ListenableFuture<Void> cancelAllWorkByTag(@NonNull final String tag) {
+    public @NonNull ListenableFuture<Void> cancelAllWorkByTag(@NonNull final String tag) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forTag(tag, this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
     }
 
     @Override
-    public ListenableFuture<Void> cancelUniqueWork(@NonNull String uniqueWorkName) {
+    public @NonNull ListenableFuture<Void> cancelUniqueWork(@NonNull String uniqueWorkName) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forName(uniqueWorkName, this, true);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
     }
 
     @Override
-    public ListenableFuture<Void> cancelAllWork() {
+    public @NonNull ListenableFuture<Void> cancelAllWork() {
         CancelWorkRunnable runnable = CancelWorkRunnable.forAll(this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
@@ -373,9 +374,8 @@ public class WorkManagerImpl extends WorkManager {
         return mPreferences.getLastCancelAllTimeMillisLiveData();
     }
 
-    @NonNull
     @Override
-    public ListenableFuture<Long> getLastCancelAllTimeMillis() {
+    public @NonNull ListenableFuture<Long> getLastCancelAllTimeMillis() {
         final SettableFuture<Long> future = SettableFuture.create();
         // Avoiding synthetic accessors.
         final Preferences preferences = mPreferences;
@@ -393,7 +393,7 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public ListenableFuture<Void> pruneWork() {
+    public @NonNull ListenableFuture<Void> pruneWork() {
         PruneWorkRunnable runnable = new PruneWorkRunnable(this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
@@ -444,8 +444,8 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    @NonNull
-    public LiveData<List<WorkStatus>> getStatusesForUniqueWorkLiveData(@NonNull String name) {
+    public @NonNull LiveData<List<WorkStatus>> getStatusesForUniqueWorkLiveData(
+            @NonNull String name) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForName(name);
@@ -456,8 +456,8 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    @NonNull
-    public ListenableFuture<List<WorkStatus>> getStatusesForUniqueWork(@NonNull String name) {
+    public @NonNull ListenableFuture<List<WorkStatus>> getStatusesForUniqueWork(
+            @NonNull String name) {
         StatusRunnable<List<WorkStatus>> runnable =
                 StatusRunnable.forUniqueWork(this, name);
         mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
