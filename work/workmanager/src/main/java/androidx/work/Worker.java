@@ -95,7 +95,7 @@ public abstract class Worker extends ListenableWorker {
     /**
      * @return the output {@link Data} set by the {@link Worker}.
      */
-    public final Data getOutputData() {
+    public final @NonNull Data getOutputData() {
         return mOutputData;
     }
 }
