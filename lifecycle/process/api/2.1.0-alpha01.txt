@@ -1,0 +1,9 @@
+package androidx.lifecycle {
+
+  public class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
+    method public static androidx.lifecycle.LifecycleOwner get();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+  }
+
+}
+

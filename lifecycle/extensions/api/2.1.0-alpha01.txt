@@ -1,0 +1,21 @@
+package androidx.lifecycle {
+
+  public class ViewModelProviders {
+    ctor public deprecated ViewModelProviders();
+    method public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment);
+    method public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity);
+    method public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment, androidx.lifecycle.ViewModelProvider.Factory);
+    method public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity, androidx.lifecycle.ViewModelProvider.Factory);
+  }
+
+  public static deprecated class ViewModelProviders.DefaultFactory extends androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory {
+    ctor public deprecated ViewModelProviders.DefaultFactory(android.app.Application);
+  }
+
+  public deprecated class ViewModelStores {
+    method public static deprecated androidx.lifecycle.ViewModelStore of(androidx.fragment.app.FragmentActivity);
+    method public static deprecated androidx.lifecycle.ViewModelStore of(androidx.fragment.app.Fragment);
+  }
+
+}
+
