@@ -39,6 +39,7 @@ import androidx.media2.SessionToken2;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,6 +178,19 @@ public class MediaController2ProviderService extends Service {
             controller2.setPlaylist(
                     MediaTestUtils.mediaItem2ListFromBundleList(list),
                     MediaMetadata2.fromBundle(metadata));
+        }
+
+        @Override
+        public void setPlaylistWithSize(String controllerId, int size, Bundle metadata)
+                throws RemoteException {
+            MediaController2 controller2 = mMediaController2Map.get(controllerId);
+            List<MediaItem2> list = new ArrayList<>();
+            MediaItem2.Builder builder = new MediaItem2.Builder(0 /* flags */);
+            for (int i = 0; i < size; i++) {
+                // Make media ID of each item same with its index.
+                list.add(builder.setMediaId(Integer.toString(i)).build());
+            }
+            controller2.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
         }
 
         @Override

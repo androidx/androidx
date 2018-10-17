@@ -148,6 +148,22 @@ public class RemoteMediaController2 {
         }
     }
 
+    /**
+     * Client app will automatically create a playlist of size {@param size},
+     * and call setPlaylist() with the list. Each item's media ID will be its index.
+     *
+     * Note: This is introduced for testing large data transaction. It can prevent test helper
+     *       classes from sending/receiving large data between them.
+     */
+    public void setPlaylistWithSize(int size, @Nullable MediaMetadata2 metadata) {
+        try {
+            mBinder.setPlaylistWithSize(mControllerId, size,
+                    metadata == null ? null : metadata.toBundle());
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call setPlaylistWithSize()");
+        }
+    }
+
     public void setMediaItem(@NonNull MediaItem2 item) {
         try {
             mBinder.setMediaItem(mControllerId, item.toBundle());

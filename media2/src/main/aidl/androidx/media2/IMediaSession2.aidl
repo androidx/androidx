@@ -21,6 +21,7 @@ import android.os.ResultReceiver;
 import android.net.Uri;
 
 import androidx.media2.IMediaController2;
+import androidx.media2.ParcelImplListSlice;
 import androidx.versionedparcelable.ParcelImpl;
 
 /**
@@ -55,7 +56,7 @@ oneway interface IMediaSession2 {
     void setRating(IMediaController2 caller, int seq, String mediaId, in ParcelImpl rating2) = 18;
     void setPlaybackSpeed(IMediaController2 caller, int seq, float speed) = 19;
 
-    void setPlaylist(IMediaController2 caller, int seq, in List<ParcelImpl> playlist,
+    void setPlaylist(IMediaController2 caller, int seq, in ParcelImplListSlice listSlice,
             in Bundle metadata) = 20;
     void setMediaItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 40;
     void updatePlaylistMetadata(IMediaController2 caller, int seq, in Bundle metadata) = 21;

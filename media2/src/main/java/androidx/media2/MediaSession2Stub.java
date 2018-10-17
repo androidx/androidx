@@ -654,15 +654,16 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void setPlaylist(final IMediaController2 caller, int seq,
-            final List<ParcelImpl> playlist, final Bundle metadata) {
+            final ParcelImplListSlice listSlice, final Bundle metadata) {
         onSessionCommand(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_PLAYLIST,
                 new PlayerCommand() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        if (playlist == null) {
+                        if (listSlice == null || listSlice.getList() == null) {
                             Log.w(TAG, "setPlaylist(): Ignoring null playlist from " + controller);
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
+                        List<ParcelImpl> playlist = listSlice.getList();
                         List<MediaItem2> list = new ArrayList<>();
                         for (int i = 0; i < playlist.size(); i++) {
                             MediaItem2 item = convertMediaItem2OnExecutor(controller,
