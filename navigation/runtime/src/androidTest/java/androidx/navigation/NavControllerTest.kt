@@ -63,8 +63,8 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_start_destination, args)
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
-        val foundArgs = navigator.mBackStack.first.second
+        assertEquals(1, navigator.backStack.size)
+        val foundArgs = navigator.current.second
         assertNotNull(foundArgs)
         assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
     }
@@ -84,8 +84,8 @@ class NavControllerTest {
         navController.setGraph(navGraph, args)
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
-        val foundArgs = navigator.mBackStack.first.second
+        assertEquals(1, navigator.backStack.size)
+        val foundArgs = navigator.current.second
         assertNotNull(foundArgs)
         assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
     }
@@ -134,11 +134,11 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
     }
 
     @Test
@@ -158,7 +158,7 @@ class NavControllerTest {
         // Since the graph has a set id
         navController.restoreState(savedState)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
         // Save state should be called on the navigator exactly once
         assertEquals(1, navigator.saveStateCount)
     }
@@ -185,7 +185,7 @@ class NavControllerTest {
         // Explicitly setting a graph then restores the state
         navController.graph = graph
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
     }
 
     @Test
@@ -232,7 +232,7 @@ class NavControllerTest {
         navController.navigate(R.id.second_test, args)
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val returnedArgs = navigator.mBackStack.peekLast().second
+        val returnedArgs = navigator.current.second
         assertNotNull(returnedArgs)
 
         return returnedArgs!!
@@ -244,11 +244,11 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.popBackStack()
         assertNull(navController.currentDestination)
-        assertEquals(0, navigator.mBackStack.size)
+        assertEquals(0, navigator.backStack.size)
     }
 
     @Test
@@ -257,11 +257,11 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.popBackStack()
         assertNull(navController.currentDestination)
-        assertEquals(0, navigator.mBackStack.size)
+        assertEquals(0, navigator.backStack.size)
 
         val popped = navController.popBackStack()
         assertFalse(popped)
@@ -273,15 +273,15 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
 
         navController.popBackStack()
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
     }
 
     @Test
@@ -290,16 +290,16 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
 
         val popped = navController.popBackStack(UNKNOWN_DESTINATION_ID, false)
         assertFalse(popped)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
     }
 
     @Test
@@ -308,21 +308,21 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_nested_start_destination)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertEquals(R.id.nested_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
 
         // A Navigator can pop a destination off its own back stack
         // then inform the NavController via dispatchOnNavigatorNavigated
-        navigator.mBackStack.removeLast()
-        val newDestination = navigator.mBackStack.peekLast().first
+        navigator.backStack.removeLast()
+        val newDestination = navigator.current.first
         assertNotNull(newDestination)
-        navigator.dispatchOnNavigatorNavigated(newDestination!!.id,
+        navigator.dispatchOnNavigatorNavigated(newDestination.id,
                 Navigator.BACK_STACK_DESTINATION_POPPED)
         assertEquals(R.id.nested_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
     }
 
     @Test
@@ -331,13 +331,13 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.navigate(R.id.second_test, null, navOptions {
             popUpTo(R.id.start_test) { inclusive = true }
         })
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
     }
 
     @Test
@@ -346,16 +346,16 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
 
         // This should function identically to popBackStack()
         navController.navigateUp()
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
     }
 
     @Test
@@ -364,11 +364,11 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
 
         navController.navigate(R.id.second)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
     }
 
     @Test
@@ -378,11 +378,11 @@ class NavControllerTest {
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
 
         navController.navigate(R.id.self)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
     }
 
     @Test
@@ -392,11 +392,11 @@ class NavControllerTest {
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
 
         navController.navigate(R.id.finish)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
     }
 
     @Test
@@ -406,7 +406,7 @@ class NavControllerTest {
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
 
         val navOptions = navOptions {
             popUpTo = R.id.start_test
@@ -415,7 +415,7 @@ class NavControllerTest {
         navController.navigate(0, null, navOptions)
 
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
     }
 
     @Test
@@ -438,11 +438,11 @@ class NavControllerTest {
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(2, navigator.mBackStack.size)
+        assertEquals(2, navigator.backStack.size)
 
         navController.navigate(R.id.finish_self)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.mBackStack.size)
+        assertEquals(1, navigator.backStack.size)
     }
 
     @Test
@@ -456,7 +456,7 @@ class NavControllerTest {
         navController.navigate(R.id.second, args)
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val returnedArgs = navigator.mBackStack.peekLast().second
+        val returnedArgs = navigator.current.second
         assertNotNull(returnedArgs)
 
         // Test that arguments without a default value aren't passed through at all

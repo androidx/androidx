@@ -26,7 +26,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))
-    implementation(project(":navigation:navigation-testing-ktx"))
+    implementation(project(":navigation:navigation-testing"))
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])
