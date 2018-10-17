@@ -84,7 +84,7 @@ public final class ColumnCardView extends CardView {
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Override any specified width so that the width is one that is calculated based on
         // column and gutter span.
-        int width = mColumnCalculator.getSizeForColumnSpan(mColumnSpan);
+        int width = mColumnCalculator.getColumnSpanWidth(mColumnSpan);
         super.onMeasure(
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 heightMeasureSpec);
@@ -97,7 +97,7 @@ public final class ColumnCardView extends CardView {
      * @param columnSpan The number of columns this {@code ColumnCardView} will span across.
      */
     public void setColumnSpan(int columnSpan) {
-        if (columnSpan <= 0 || columnSpan > mColumnCalculator.getNumOfColumns()) {
+        if (columnSpan <= 0 || columnSpan > mColumnCalculator.getColumnCount()) {
             return;
         }
 

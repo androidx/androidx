@@ -19,7 +19,7 @@ limitations under the License.
     <dimen name="car_margin">20dp</dimen>
 
     <!-- Gutters -->
-    <dimen name="car_gutter_size">16dp</dimen>
+    <dimen name="car_gutter_width">16dp</dimen>
 
     <!-- Keylines -->
     <dimen name="car_keyline_1">24dp</dimen>
