@@ -117,7 +117,7 @@ public class SavedStateHolderFragmentController {
 
         mNotCommittedStores.put(owner, registry);
 
-        owner.getLifecycle().addObserver(new GenericLifecycleObserver() {
+        owner.getLifecycle().addObserver(new LifecycleEventObserver() {
             @Override
             public void onStateChanged(final LifecycleOwner source, Lifecycle.Event event) {
                 final LifecycleObserver thisObserver = this;

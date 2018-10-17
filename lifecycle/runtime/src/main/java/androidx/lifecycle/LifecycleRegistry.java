@@ -342,7 +342,7 @@ public class LifecycleRegistry extends Lifecycle {
 
     static class ObserverWithState {
         State mState;
-        GenericLifecycleObserver mLifecycleObserver;
+        LifecycleEventObserver mLifecycleObserver;
 
         ObserverWithState(LifecycleObserver observer, State initialState) {
             mLifecycleObserver = Lifecycling.getCallback(observer);

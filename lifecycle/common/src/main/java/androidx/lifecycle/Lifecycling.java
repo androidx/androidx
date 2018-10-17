@@ -44,13 +44,19 @@ public class Lifecycling {
             new HashMap<>();
 
     @NonNull
-    static GenericLifecycleObserver getCallback(Object object) {
-        if (object instanceof FullLifecycleObserver) {
-            return new FullLifecycleObserverAdapter((FullLifecycleObserver) object);
+    static LifecycleEventObserver getCallback(Object object) {
+        boolean isLifecycleEventObserver = object instanceof LifecycleEventObserver;
+        boolean isFullLifecycleObserver = object instanceof FullLifecycleObserver;
+        if (isLifecycleEventObserver && isFullLifecycleObserver) {
+            return new FullLifecycleObserverAdapter((FullLifecycleObserver) object,
+                    (LifecycleEventObserver) object);
+        }
+        if (isFullLifecycleObserver) {
+            return new FullLifecycleObserverAdapter((FullLifecycleObserver) object, null);
         }
 
-        if (object instanceof GenericLifecycleObserver) {
-            return (GenericLifecycleObserver) object;
+        if (isLifecycleEventObserver) {
+            return (LifecycleEventObserver) object;
         }
 
         final Class<?> klass = object.getClass();
