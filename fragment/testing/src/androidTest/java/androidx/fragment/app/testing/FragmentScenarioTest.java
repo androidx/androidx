@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app.test;
+package androidx.fragment.app.testing;
 
 import static com.google.common.truth.Truth.assertThat;
 

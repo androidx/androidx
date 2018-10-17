@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app.test;
+package androidx.fragment.app.testing;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
