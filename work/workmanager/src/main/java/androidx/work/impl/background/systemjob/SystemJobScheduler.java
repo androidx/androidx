@@ -104,8 +104,8 @@ public class SystemJobScheduler implements Scheduler {
                         .getSystemIdInfo(workSpec.id);
 
                 int jobId = info != null ? info.systemId : mIdGenerator.nextJobSchedulerIdWithRange(
-                        mWorkManager.getConfiguration().getMinJobSchedulerID(),
-                        mWorkManager.getConfiguration().getMaxJobSchedulerID());
+                        mWorkManager.getConfiguration().getMinJobSchedulerId(),
+                        mWorkManager.getConfiguration().getMaxJobSchedulerId());
 
                 if (info == null) {
                     SystemIdInfo newSystemIdInfo = new SystemIdInfo(workSpec.id, jobId);
@@ -123,8 +123,8 @@ public class SystemJobScheduler implements Scheduler {
                 // in SystemJobService as needed.
                 if (Build.VERSION.SDK_INT == 23) {
                     int nextJobId = mIdGenerator.nextJobSchedulerIdWithRange(
-                            mWorkManager.getConfiguration().getMinJobSchedulerID(),
-                            mWorkManager.getConfiguration().getMaxJobSchedulerID());
+                            mWorkManager.getConfiguration().getMinJobSchedulerId(),
+                            mWorkManager.getConfiguration().getMaxJobSchedulerId());
 
                     scheduleInternal(workSpec, nextJobId);
                 }

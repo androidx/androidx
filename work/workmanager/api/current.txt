@@ -14,8 +14,8 @@ package androidx.work {
 
   public final class Configuration {
     method public java.util.concurrent.Executor getExecutor();
-    method public int getMaxJobSchedulerID();
-    method public int getMinJobSchedulerID();
+    method public int getMaxJobSchedulerId();
+    method public int getMinJobSchedulerId();
     method public androidx.work.WorkerFactory getWorkerFactory();
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
   }

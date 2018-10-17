@@ -95,11 +95,11 @@ public final class Configuration {
      * creating new instances of {@link android.app.job.JobInfo}s.
      *
      * If the current {@code jobId} goes beyond the bounds of the defined range of
-     * ({@link Configuration.Builder#getMinJobSchedulerID()},
-     *  {@link Configuration.Builder#getMaxJobSchedulerID()}), it is reset to
-     *  ({@link Configuration.Builder#getMinJobSchedulerID()}).
+     * ({@link Configuration.Builder#getMinJobSchedulerId()},
+     *  {@link Configuration.Builder#getMaxJobSchedulerId()}), it is reset to
+     *  ({@link Configuration.Builder#getMinJobSchedulerId()}).
      */
-    public int getMinJobSchedulerID() {
+    public int getMinJobSchedulerId() {
         return mMinJobSchedulerId;
     }
 
@@ -108,11 +108,11 @@ public final class Configuration {
      * creating new instances of {@link android.app.job.JobInfo}s.
      *
      * If the current {@code jobId} goes beyond the bounds of the defined range of
-     * ({@link Configuration.Builder#getMinJobSchedulerID()},
-     *  {@link Configuration.Builder#getMaxJobSchedulerID()}), it is reset to
-     *  ({@link Configuration.Builder#getMinJobSchedulerID()}).
+     * ({@link Configuration.Builder#getMinJobSchedulerId()},
+     *  {@link Configuration.Builder#getMaxJobSchedulerId()}), it is reset to
+     *  ({@link Configuration.Builder#getMinJobSchedulerId()}).
      */
-    public int getMaxJobSchedulerID() {
+    public int getMaxJobSchedulerId() {
         return mMaxJobSchedulerId;
     }
 
