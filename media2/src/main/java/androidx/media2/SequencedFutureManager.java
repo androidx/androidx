@@ -34,6 +34,7 @@ import java.util.List;
  */
 @TargetApi(Build.VERSION_CODES.P)
 class SequencedFutureManager<T> implements AutoCloseable {
+    private static final boolean DEBUG = false;
     private static final String TAG = "SequencedFutureManager";
     private final Object mLock = new Object();
     private final T mResultWhenClosed;
@@ -94,8 +95,12 @@ class SequencedFutureManager<T> implements AutoCloseable {
             if (future != null) {
                 future.set(result);
             } else {
-                Log.w(TAG, "Unexpected sequence number, seq=" + seq,
-                        new IllegalArgumentException());
+                if (DEBUG) {
+                    // Note: May not be an error if the caller doesn't return ListenableFuture
+                    //       e.g. MediaSession2#broadcastCustomCommand
+                    Log.d(TAG, "Unexpected sequence number, seq=" + seq,
+                            new IllegalArgumentException());
+                }
             }
         }
     }

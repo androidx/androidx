@@ -31,7 +31,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
@@ -140,7 +139,6 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             Log.w(TAG, "Exception in " + controller.toString(), e);
         }
     }
-
 
     private void onSessionCommand(@NonNull IMediaController2 caller, int seq,
             final @CommandCode int commandCode,
@@ -387,6 +385,18 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void release(final IMediaController2 caller, int seq) throws RemoteException {
         mConnectedControllersManager.removeController(caller == null ? null : caller.asBinder());
+    }
+
+    @Override
+    public void onControllerResult(final IMediaController2 caller, int seq,
+            final ParcelImpl controllerResult) {
+        SequencedFutureManager manager = mConnectedControllersManager.getSequencedFutureManager(
+                caller.asBinder());
+        if (manager == null) {
+            return;
+        }
+        MediaController2.ControllerResult result = ParcelUtils.fromParcelable(controllerResult);
+        manager.setFutureResult(seq, SessionResult.from(result));
     }
 
     @Override
@@ -1031,6 +1041,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     final class Controller2Cb extends ControllerCb {
+        // TODO: Drop 'Callback' from the name.
         private final IMediaController2 mIControllerCallback;
 
         Controller2Cb(@NonNull IMediaController2 callback) {
@@ -1056,8 +1067,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         }
 
         @Override
-        void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
-            mIControllerCallback.onCustomLayoutChanged(
+        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
+            mIControllerCallback.onSetCustomLayout(seq,
                     MediaUtils2.convertCommandButtonListToParcelImplList(layout));
         }
 
@@ -1073,10 +1084,10 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         }
 
         @Override
-        void onCustomCommand(SessionCommand2 command, Bundle args, ResultReceiver receiver)
+        void sendCustomCommand(int seq, SessionCommand2 command, Bundle args)
                 throws RemoteException {
-            mIControllerCallback.onCustomCommand((ParcelImpl) ParcelUtils.toParcelable(command),
-                    args, receiver);
+            mIControllerCallback.onCustomCommand(seq,
+                    (ParcelImpl) ParcelUtils.toParcelable(command), args);
         }
 
         @Override

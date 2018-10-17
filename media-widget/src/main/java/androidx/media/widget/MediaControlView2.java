@@ -16,6 +16,9 @@
 
 package androidx.media.widget;
 
+import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_NOT_SUPPORTED;
+import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_SUCCESS;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -31,7 +34,6 @@ import android.graphics.drawable.ScaleDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -2426,9 +2428,9 @@ public class MediaControlView2 extends BaseLayout {
             }
 
             @Override
-            public void onCustomCommand(@NonNull MediaController2 controller,
-                    @NonNull SessionCommand2 command, @Nullable Bundle args,
-                    @Nullable ResultReceiver receiver) {
+            public MediaController2.ControllerResult onCustomCommand(
+                    @NonNull MediaController2 controller, @NonNull SessionCommand2 command,
+                    @Nullable Bundle args) {
                 if (DEBUG) {
                     Log.d(TAG, "onCustomCommand(): command: " + command);
                 }
@@ -2519,7 +2521,11 @@ public class MediaControlView2 extends BaseLayout {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex);
                         }
                         break;
+                    default:
+                        return new MediaController2.ControllerResult(
+                                RESULT_CODE_NOT_SUPPORTED, null);
                 }
+                return new MediaController2.ControllerResult(RESULT_CODE_SUCCESS, null);
             }
         }
     }

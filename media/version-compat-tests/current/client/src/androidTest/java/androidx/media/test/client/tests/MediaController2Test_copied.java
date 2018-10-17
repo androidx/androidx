@@ -94,7 +94,7 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
 //        assertTrue(mPlayer.mPlayCalled);
 //
 //        // Test command from session service to controller.
-//        mSession.sendCustomCommand(testCommand, null);
+//        mSession.broadcastCustomCommand(testCommand, null);
 //        assertTrue(controllerLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 //    }
 
