@@ -67,9 +67,8 @@ public class SimpleTextClassifier extends TextClassifier {
 
     @Override
     public TextLinks generateLinks(TextLinks.Request request) {
-        TextLinks.Builder builder = new TextLinks.Builder(request.getText().toString());
-        CharSequence text = request.getText();
-
+        String text = request.getText().toString();
+        TextLinks.Builder builder = new TextLinks.Builder(text);
         final Spannable spannable = new SpannableString(text);
         if (LinkifyCompat.addLinks(spannable, Pattern.compile("android", Pattern.CASE_INSENSITIVE),
                 null, null, (matcher, s) -> "https://www.android.com")) {
