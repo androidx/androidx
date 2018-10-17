@@ -44,6 +44,8 @@ import androidx.slice.SliceViewManager;
 import androidx.slice.core.SliceQuery;
 
 import java.io.InputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -359,6 +361,7 @@ public final class SliceLiveData {
 
         @IntDef({ERROR_UNKNOWN, ERROR_STRUCTURE_CHANGED, ERROR_SLICE_NO_LONGER_PRESENT,
                 ERROR_INVALID_INPUT})
+        @Retention(RetentionPolicy.SOURCE)
         @interface ErrorType {
 
         }
