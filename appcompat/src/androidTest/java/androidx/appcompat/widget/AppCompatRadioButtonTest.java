@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.widget.CompoundButtonCompat;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
@@ -68,9 +69,9 @@ public class AppCompatRadioButtonTest {
     @Test
     public void testDefaultButton_isAnimated() {
         // Given an ACRB with the theme's button drawable
-        final AppCompatRadioButtonSpy radio = mContainer.findViewById(
+        final AppCompatRadioButton radio = mContainer.findViewById(
                 R.id.radiobutton_button_compat);
-        final Drawable button = radio.mButton;
+        final Drawable button = CompoundButtonCompat.getButtonDrawable(radio);
 
         // Then this drawable should be an animated-selector
         assertTrue(button instanceof AnimatedStateListDrawableCompat
@@ -83,9 +84,9 @@ public class AppCompatRadioButtonTest {
     @Test
     public void testNullCompatButton() {
         // Given an ACRB which specifies a null app:buttonCompat
-        final AppCompatRadioButtonSpy radio = mContainer.findViewById(
+        final AppCompatRadioButton radio = mContainer.findViewById(
                 R.id.radiobutton_null_button_compat);
-        final Drawable button = radio.mButton;
+        final Drawable button = CompoundButtonCompat.getButtonDrawable(radio);
         boolean isAnimated = button instanceof AnimatedStateListDrawableCompat;
 
         // Then the drawable should be present but not animated
