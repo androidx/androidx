@@ -21,7 +21,7 @@
     <public type="dimen" name="car_margin" />
 
     <!-- Gutters -->
-    <public type="dimen" name="car_gutter_width" />
+    <public type="dimen" name="car_gutter_size" />
 
     <!-- Keylines -->
     <public type="dimen" name="car_keyline_1" />
