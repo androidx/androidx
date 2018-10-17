@@ -36,10 +36,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The basic object that performs work.  Worker classes are instantiated at runtime by the
- * {@link WorkerFactory} specified in the {@link Configuration}.  The {@link #onStartWork()} method
+ * {@link WorkerFactory} specified in the {@link Configuration}.  The {@link #startWork()} method
  * is called on the background thread.  In case the work is preempted and later restarted for any
  * reason, a new instance of {@link ListenableWorker} is created. This means that
- * {@code onStartWork} is called exactly once per {@link ListenableWorker} instance.
+ * {@code startWork} is called exactly once per {@link ListenableWorker} instance.
  */
 public abstract class ListenableWorker {
 
@@ -182,7 +182,7 @@ public abstract class ListenableWorker {
      *         cancel this Future, WorkManager will treat this unit of work as failed.
      */
     @MainThread
-    public abstract @NonNull ListenableFuture<Payload> onStartWork();
+    public abstract @NonNull ListenableFuture<Payload> startWork();
 
     /**
      * Returns {@code true} if this Worker has been told to stop.  This could be because of an
@@ -274,7 +274,7 @@ public abstract class ListenableWorker {
 
 
     /**
-     * The payload of an {@link #onStartWork()} computation that contains both the result and the
+     * The payload of an {@link #startWork()} computation that contains both the result and the
      * output data.
      */
     public static final class Payload {
@@ -285,7 +285,7 @@ public abstract class ListenableWorker {
         /**
          * Constructs a Payload with the given {@link Result} and an empty output.
          *
-         * @param result The result of the {@link #onStartWork()} computation
+         * @param result The result of the {@link #startWork()} computation
          */
         public Payload(@NonNull Result result) {
             this(result, Data.EMPTY);
@@ -294,8 +294,8 @@ public abstract class ListenableWorker {
         /**
          * Constructs a Payload with the given {@link Result} and output.
          *
-         * @param result The result of the {@link #onStartWork()} computation
-         * @param output The output {@link Data} of the {@link #onStartWork()} computation
+         * @param result The result of the {@link #startWork()} computation
+         * @param output The output {@link Data} of the {@link #startWork()} computation
          */
         public Payload(@NonNull Result result, @NonNull Data output) {
             mResult = result;
