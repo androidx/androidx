@@ -16,7 +16,6 @@
 
 package androidx.textclassifier;
 
-import android.content.Context;
 import android.text.Spannable;
 import android.text.style.ClickableSpan;
 
@@ -31,7 +30,7 @@ import androidx.textclassifier.TextLinks.TextLinkSpan;
 
 /**
  * Used to specify how to apply links when using
- * {@link TextLinks#apply(Context, Spannable, TextLinksParams)} APIs.
+ * {@link TextLinks#apply(Spannable, TextClassifier, TextLinksParams)} APIs.
  */
 public final class TextLinksParams {
 
@@ -49,7 +48,7 @@ public final class TextLinksParams {
     /**
      * Default configuration of applying a TextLinks to a spannable or a TextView.
      *
-     * @see TextLinks#apply(Context, Spannable, TextLinksParams)
+     * @see TextLinks#apply(Spannable, TextClassifier, TextLinksParams)
      */
     public static final TextLinksParams DEFAULT_PARAMS = new TextLinksParams.Builder().build();
 

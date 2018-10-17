@@ -18,9 +18,9 @@ package androidx.textclassifier.integration.testapp;
 
 import android.os.Bundle;
 import android.text.Spannable;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -44,20 +44,15 @@ public class MainActivity extends AppCompatActivity {
     private static final Executor sWorkerThreadExecutor = Executors.newSingleThreadExecutor();
     private static final Executor sMainThreadExecutor = new MainThreadExecutor();
 
-    private EditText mInput;
-
+    private TextView mInput;
     private TextView mStatusTextView;
-
-    private TextClassificationManager mTextClassificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mTextClassificationManager = TextClassificationManager.of(this);
-
         setContentView(R.layout.activity_main);
         mInput = findViewById(R.id.textView_input);
+        setLinkMovementMethod(mInput);
         mStatusTextView = findViewById(R.id.textView_tc);
         findViewById(R.id.button_generate_links).setOnClickListener(v -> linkifyAsync(mInput));
         updateStatusText();
@@ -70,18 +65,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
                 if (pos == DEFAULT) {
-                    mTextClassificationManager.setTextClassifier(null);
+                    setTextClassifier(null);
                 } else {
-                    mTextClassificationManager.setTextClassifier(
-                            new SimpleTextClassifier(MainActivity.this));
+                    setTextClassifier(new SimpleTextClassifier(MainActivity.this));
                 }
                 updateStatusText();
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
+            public void onNothingSelected(AdapterView<?> adapterView) {}
         });
     }
 
@@ -107,12 +99,23 @@ public class MainActivity extends AppCompatActivity {
         sWorkerThreadExecutor.execute(() -> {
             TextLinks.Request request = new TextLinks.Request.Builder(textView.getText()).build();
             TextLinks textLinks = getTextClassifier().generateLinks(request);
-            sMainThreadExecutor.execute(
-                    () -> textLinks.apply(textView, TextLinksParams.DEFAULT_PARAMS));
+            sMainThreadExecutor.execute(() ->
+                    textLinks.apply(
+                            (Spannable) textView.getText(),
+                            getTextClassifier(),
+                            TextLinksParams.DEFAULT_PARAMS));
         });
     }
 
     private TextClassifier getTextClassifier() {
-        return mTextClassificationManager.getTextClassifier();
+        return TextClassificationManager.of(this).getTextClassifier();
+    }
+
+    private void setTextClassifier(TextClassifier textClassifier) {
+        TextClassificationManager.of(this).setTextClassifier(textClassifier);
+    }
+
+    private void setLinkMovementMethod(TextView textView) {
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 }
