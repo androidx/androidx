@@ -1,0 +1,9 @@
+package androidx.lifecycle {
+
+  public final class LiveDataReactiveStreams {
+    method public static <T> androidx.lifecycle.LiveData<T> fromPublisher(org.reactivestreams.Publisher<T>);
+    method public static <T> org.reactivestreams.Publisher<T> toPublisher(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.LiveData<T>);
+  }
+
+}
+
