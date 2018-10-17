@@ -105,6 +105,8 @@ public class RxRoom {
         Scheduler scheduler = Schedulers.from(database.getQueryExecutor());
         final Maybe<T> maybe = Maybe.fromCallable(callable);
         return createFlowable(database, tableNames)
+                .subscribeOn(scheduler)
+                .unsubscribeOn(scheduler)
                 .observeOn(scheduler)
                 .flatMapMaybe(new Function<Object, MaybeSource<T>>() {
                     @Override
@@ -167,6 +169,8 @@ public class RxRoom {
         Scheduler scheduler = Schedulers.from(database.getQueryExecutor());
         final Maybe<T> maybe = Maybe.fromCallable(callable);
         return createObservable(database, tableNames)
+                .subscribeOn(scheduler)
+                .unsubscribeOn(scheduler)
                 .observeOn(scheduler)
                 .flatMapMaybe(new Function<Object, MaybeSource<T>>() {
                     @Override

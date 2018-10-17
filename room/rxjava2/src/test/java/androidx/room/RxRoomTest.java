@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.JunitTaskExecutorRule;
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.Flowable;
@@ -56,7 +57,7 @@ import io.reactivex.subscribers.TestSubscriber;
 @RunWith(JUnit4.class)
 public class RxRoomTest {
     @Rule
-    public JunitTaskExecutorRule mExecutor = new JunitTaskExecutorRule(1, false);
+    public CountingTaskExecutorRule mExecutor = new CountingTaskExecutorRule();
 
     private RoomDatabase mDatabase;
     private InvalidationTracker mInvalidationTracker;
@@ -175,8 +176,8 @@ public class RxRoomTest {
                 });
         final CountingConsumer consumer = new CountingConsumer();
         flowable.subscribe(consumer);
-        InvalidationTracker.Observer observer = mAddedObservers.get(0);
         drain();
+        InvalidationTracker.Observer observer = mAddedObservers.get(0);
         // no value because it is null
         assertThat(consumer.mCount, CoreMatchers.is(0));
         value.set("bla");
@@ -209,8 +210,8 @@ public class RxRoomTest {
                 });
         final CountingConsumer consumer = new CountingConsumer();
         flowable.subscribe(consumer);
-        InvalidationTracker.Observer observer = mAddedObservers.get(0);
         drain();
+        InvalidationTracker.Observer observer = mAddedObservers.get(0);
         // no value because it is null
         assertThat(consumer.mCount, CoreMatchers.is(0));
         value.set("bla");
@@ -262,7 +263,7 @@ public class RxRoomTest {
     }
 
     private void drain() throws Exception {
-        mExecutor.drainTasks(2);
+        mExecutor.drainTasks(10, TimeUnit.SECONDS);
     }
 
     private static class CountingConsumer implements Consumer<Object> {
