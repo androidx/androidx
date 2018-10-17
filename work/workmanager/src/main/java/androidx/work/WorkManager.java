@@ -174,8 +174,8 @@ public abstract class WorkManager {
      * @param requests One or more {@link WorkRequest} to enqueue
      * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
-    public abstract @NonNull
-            ListenableFuture<Void> enqueue(@NonNull List<? extends WorkRequest> requests);
+    public abstract @NonNull ListenableFuture<Void> enqueue(
+            @NonNull List<? extends WorkRequest> requests);
 
     /**
      * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
@@ -334,7 +334,7 @@ public abstract class WorkManager {
      * @return A {@link ListenableFuture} that completes when the pruneWork operation is
      * completed
      */
-    public abstract ListenableFuture<Void> pruneWork();
+    public abstract @NonNull ListenableFuture<Void> pruneWork();
 
     /**
      * Gets a {@link LiveData} of the last time all work was cancelled.  This method is intended for
