@@ -29,9 +29,9 @@ interface IRemoteMediaSession2 {
     ParcelImpl getToken(String sessionId);
     Bundle getCompatToken(String sessionId);
     void updatePlayer(String sessionId, in Bundle playerBundle);
-    void sendCustomCommand(String sessionId, in Bundle command, in Bundle args);
-    void sendCustomCommand2(String sessionId, in Bundle controller, in Bundle command,
-            in Bundle args, in ResultReceiver receiver);
+    void broadcastCustomCommand(String sessionId, in Bundle command, in Bundle args);
+    void sendCustomCommand(String sessionId, in Bundle controller, in Bundle command,
+            in Bundle args);
     void close(String sessionId);
     void setAllowedCommands(String sessionId, in Bundle controller, in Bundle commands);
     void notifyRoutesInfoChanged(String sessionId, in Bundle controller, in List<Bundle> routes);

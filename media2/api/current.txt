@@ -105,8 +105,7 @@ package androidx.media2 {
     method public void onBufferingStateChanged(androidx.media2.MediaController2, androidx.media2.MediaItem2, int);
     method public void onConnected(androidx.media2.MediaController2, androidx.media2.SessionCommandGroup2);
     method public void onCurrentMediaItemChanged(androidx.media2.MediaController2, androidx.media2.MediaItem2);
-    method public void onCustomCommand(androidx.media2.MediaController2, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
-    method public void onCustomLayoutChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaSession2.CommandButton>);
+    method public androidx.media2.MediaController2.ControllerResult onCustomCommand(androidx.media2.MediaController2, androidx.media2.SessionCommand2, android.os.Bundle);
     method public void onDisconnected(androidx.media2.MediaController2);
     method public void onPlaybackCompleted(androidx.media2.MediaController2);
     method public void onPlaybackInfoChanged(androidx.media2.MediaController2, androidx.media2.MediaController2.PlaybackInfo);
@@ -116,10 +115,11 @@ package androidx.media2 {
     method public void onPlaylistMetadataChanged(androidx.media2.MediaController2, androidx.media2.MediaMetadata2);
     method public void onRepeatModeChanged(androidx.media2.MediaController2, int);
     method public void onSeekCompleted(androidx.media2.MediaController2, long);
+    method public int onSetCustomLayout(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaSession2.CommandButton>);
     method public void onShuffleModeChanged(androidx.media2.MediaController2, int);
   }
 
-  public static class MediaController2.ControllerResult {
+  public static class MediaController2.ControllerResult implements androidx.versionedparcelable.VersionedParcelable {
     ctor public MediaController2.ControllerResult(int, android.os.Bundle);
     method public long getCompletionTime();
     method public android.os.Bundle getCustomCommandResult();
@@ -282,15 +282,15 @@ package androidx.media2 {
   }
 
   public class MediaSession2 implements java.lang.AutoCloseable {
+    method public void broadcastCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle);
     method public void close();
     method public java.util.List<androidx.media2.MediaSession2.ControllerInfo> getConnectedControllers();
     method public java.lang.String getId();
     method public androidx.media2.SessionPlayer2 getPlayer();
     method public androidx.media2.SessionToken2 getToken();
-    method public void sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle);
-    method public void sendCustomCommand(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaSession2.SessionResult> sendCustomCommand(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle);
     method public void setAllowedCommands(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommandGroup2);
-    method public void setCustomLayout(androidx.media2.MediaSession2.ControllerInfo, java.util.List<androidx.media2.MediaSession2.CommandButton>);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaSession2.SessionResult> setCustomLayout(androidx.media2.MediaSession2.ControllerInfo, java.util.List<androidx.media2.MediaSession2.CommandButton>);
     method public void updatePlayer(androidx.media2.SessionPlayer2);
   }
 

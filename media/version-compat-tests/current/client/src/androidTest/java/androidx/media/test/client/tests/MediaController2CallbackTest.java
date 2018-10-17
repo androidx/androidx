@@ -23,7 +23,9 @@ import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_ITEM;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_ITEM;
 import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
-import static androidx.media.test.lib.MediaSession2Constants.TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
+import static androidx.media.test.lib.MediaSession2Constants
+        .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
+import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,7 +36,6 @@ import static org.junit.Assert.assertTrue;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -604,21 +605,21 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         final MediaController2.ControllerCallback callback =
                 new MediaController2.ControllerCallback() {
             @Override
-            public void onCustomCommand(MediaController2 controller, SessionCommand2 command,
-                    Bundle args, ResultReceiver receiver) {
+            public MediaController2.ControllerResult onCustomCommand(MediaController2 controller,
+                    SessionCommand2 command, Bundle args) {
                 assertEquals(testCommand, command);
                 assertTrue(TestUtils.equals(testArgs, args));
-                assertNull(receiver);
                 latch.countDown();
+                return new MediaController2.ControllerResult(RESULT_CODE_SUCCESS, null);
             }
         };
         MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
 
         // TODO(jaewan): Test with multiple controllers
-        mRemoteSession2.sendCustomCommand(testCommand, testArgs);
+        mRemoteSession2.broadcastCustomCommand(testCommand, testArgs);
 
         // TODO(jaewan): Test receivers as well.
-        mRemoteSession2.sendCustomCommand(TEST_CONTROLLER_INFO, testCommand, testArgs, null);
+        mRemoteSession2.sendCustomCommand(TEST_CONTROLLER_INFO, testCommand, testArgs);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -637,7 +638,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         final MediaController2.ControllerCallback callback =
                 new MediaController2.ControllerCallback() {
             @Override
-            public void onCustomLayoutChanged(MediaController2 controller2,
+            public int onSetCustomLayout(MediaController2 controller2,
                     List<MediaSession2.CommandButton> layout) {
                 assertEquals(layout.size(), buttons.size());
                 for (int i = 0; i < layout.size(); i++) {
@@ -645,6 +646,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     assertEquals(layout.get(i).getDisplayName(), buttons.get(i).getDisplayName());
                 }
                 latch.countDown();
+                return RESULT_CODE_SUCCESS;
             }
         };
         final MediaController2 controller =
@@ -701,7 +703,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         });
         SessionCommand2 customCommand = new SessionCommand2("testNoInteraction", null);
 
-        mRemoteSession2.sendCustomCommand(customCommand, null);
+        mRemoteSession2.broadcastCustomCommand(customCommand, null);
 
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         setRunnableForOnCustomCommand(mController, null);

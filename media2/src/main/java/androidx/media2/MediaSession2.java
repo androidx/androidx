@@ -30,7 +30,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -40,9 +39,11 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
+import androidx.media2.MediaController2.ControllerResult;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaSession2.SessionResult.ResultCode;
 import androidx.media2.SessionPlayer2.BuffState;
@@ -128,7 +129,7 @@ import java.util.concurrent.Executor;
  *             {@link SessionPlayer2#PLAYER_STATE_PLAYING}</li>
  *             <li>{@link SessionPlayer2#play()} otherwise</li></ul>
  *             <li>For a double tap, {@link SessionPlayer2#skipToNextPlaylistItem()}</li></ul></td>
- *     </td>
+ *     </tr>
  * </table>
  * @see MediaSessionService2
  */
@@ -235,15 +236,23 @@ public class MediaSession2 implements AutoCloseable {
      * Sets ordered list of {@link CommandButton} for controllers to build UI with it.
      * <p>
      * It's up to controller's decision how to represent the layout in its own UI.
-     * Here's the same way
-     * (layout[i] means a CommandButton at index i in the given list)
-     * For 5 icons row
-     *      layout[3] layout[1] layout[0] layout[2] layout[4]
-     * For 3 icons row
-     *      layout[1] layout[0] layout[2]
-     * For 5 icons row with overflow icon (can show +5 extra buttons with overflow button)
-     *      expanded row:   layout[5] layout[6] layout[7] layout[8] layout[9]
-     *      main row:       layout[3] layout[1] layout[0] layout[2] layout[4]
+     * Here are some examples.
+     * <p>
+     * Note: <code>layout[i]</code> means a CommandButton at index i in the given list
+     * <table>
+     * <tr><th>Controller UX layout</th><th>Layout example</th></tr>
+     * <tr><td>Row with 3 icons</td>
+     *     <td><code>layout[1]</code> <code>layout[0]</code> <code>layout[2]</code></td></tr>
+     * <tr><td>Row with 5 icons</td>
+     *     <td><code>layout[3]</code> <code>layout[1]</code> <code>layout[0]</code>
+     *         <code>layout[2]</code> <code>layout[4]</code></td></tr>
+     * <tr><td rowspan=2>Row with 5 icons and an overflow icon, and another expandable row with 5
+     *         extra icons</td>
+     *     <td><code>layout[3]</code> <code>layout[1]</code> <code>layout[0]</code>
+     *         <code>layout[2]</code> <code>layout[4]</code></td></tr>
+     * <tr><td><code>layout[3]</code> <code>layout[1]</code> <code>layout[0]</code>
+     *         <code>layout[2]</code> <code>layout[4]</code></td></tr>
+     * </table>
      * <p>
      * This API can be called in the
      * {@link SessionCallback#onConnect(MediaSession2, ControllerInfo)}.
@@ -251,13 +260,18 @@ public class MediaSession2 implements AutoCloseable {
      * @param controller controller to specify layout.
      * @param layout ordered list of layout.
      */
-    public void setCustomLayout(@NonNull ControllerInfo controller,
-            @NonNull List<CommandButton> layout) {
-        mImpl.setCustomLayout(controller, layout);
+    public @NonNull ListenableFuture<SessionResult> setCustomLayout(
+            @NonNull ControllerInfo controller, @NonNull List<CommandButton> layout) {
+        return mImpl.setCustomLayout(controller, layout);
     }
 
     /**
-     * Set the new allowed command group for the controller
+     * Sets the new allowed command group for the controller.
+     * <p>
+     * This is synchronous call. Changes in the allowed commands take effect immediately regardless
+     * of the controller notified about the change through
+     * {@link MediaController2.ControllerCallback
+     * #onAllowedCommandsChanged(MediaController2, SessionCommandGroup2)}
      *
      * @param controller controller to change allowed commands
      * @param commands new allowed commands
@@ -268,13 +282,17 @@ public class MediaSession2 implements AutoCloseable {
     }
 
     /**
-     * Send custom command to all connected controllers.
+     * Broadcasts custom command to all connected controllers.
+     * <p>
+     * This is synchronous call and doesn't wait for result from the controller. Use
+     * {@link #sendCustomCommand(ControllerInfo, SessionCommand2, Bundle)} for getting the result.
      *
      * @param command a command
      * @param args optional argument
+     * @see #sendCustomCommand(ControllerInfo, SessionCommand2, Bundle)
      */
-    public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
-        mImpl.sendCustomCommand(command, args);
+    public void broadcastCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
+        mImpl.broadcastCustomCommand(command, args);
     }
 
     /**
@@ -282,12 +300,12 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @param command a command
      * @param args optional argument
-     * @param receiver result receiver for the session
+     * @see #broadcastCustomCommand(SessionCommand2, Bundle)
      */
-    public void sendCustomCommand(@NonNull ControllerInfo controller,
-            @NonNull SessionCommand2 command, @Nullable Bundle args,
-            @Nullable ResultReceiver receiver) {
-        mImpl.sendCustomCommand(controller, command, args, receiver);
+    public @NonNull ListenableFuture<SessionResult> sendCustomCommand(
+            @NonNull ControllerInfo controller, @NonNull SessionCommand2 command,
+            @Nullable Bundle args) {
+        return mImpl.sendCustomCommand(controller, command, args);
     }
 
     /**
@@ -1097,18 +1115,19 @@ public class MediaSession2 implements AutoCloseable {
         }
     }
 
+    // TODO: Drop 'Cb' from the name.
     abstract static class ControllerCb {
         abstract void onPlayerResult(int seq, PlayerResult result) throws RemoteException;
         abstract void onSessionResult(int seq, SessionResult result) throws RemoteException;
 
         // Mostly matched with the methods in MediaController2.ControllerCallback
-        abstract void onCustomLayoutChanged(@NonNull List<CommandButton> layout)
+        abstract void setCustomLayout(int seq, @NonNull List<CommandButton> layout)
                 throws RemoteException;
+        abstract void sendCustomCommand(int seq, @NonNull SessionCommand2 command,
+                @Nullable Bundle args) throws RemoteException;
         abstract void onPlaybackInfoChanged(@NonNull PlaybackInfo info) throws RemoteException;
         abstract void onAllowedCommandsChanged(@NonNull SessionCommandGroup2 commands)
                 throws RemoteException;
-        abstract void onCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args,
-                @Nullable ResultReceiver receiver) throws RemoteException;
         abstract void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException;
         abstract void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
@@ -1155,14 +1174,13 @@ public class MediaSession2 implements AutoCloseable {
         @NonNull List<ControllerInfo> getConnectedControllers();
         boolean isConnected(@NonNull ControllerInfo controller);
 
-        void setCustomLayout(@NonNull ControllerInfo controller,
+        ListenableFuture<SessionResult> setCustomLayout(@NonNull ControllerInfo controller,
                 @NonNull List<CommandButton> layout);
         void setAllowedCommands(@NonNull ControllerInfo controller,
                 @NonNull SessionCommandGroup2 commands);
-        void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args);
-        void sendCustomCommand(@NonNull ControllerInfo controller,
-                @NonNull SessionCommand2 command, @Nullable Bundle args,
-                @Nullable ResultReceiver receiver);
+        void broadcastCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args);
+        ListenableFuture<SessionResult> sendCustomCommand(@NonNull ControllerInfo controller,
+                @NonNull SessionCommand2 command, @Nullable Bundle args);
         void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
                 @Nullable List<Bundle> routes);
 
@@ -1355,6 +1373,20 @@ public class MediaSession2 implements AutoCloseable {
                     result.getCompletionTime());
         }
 
+        static @Nullable SessionResult from(@Nullable ControllerResult result) {
+            if (result == null) {
+                return null;
+            }
+            return new SessionResult(result.getResultCode(), result.getCustomCommandResult(),
+                    result.getMediaItem(), result.getCompletionTime());
+        }
+
+        static ListenableFuture<SessionResult> createFutureWithResult(@ResultCode int resultCode) {
+            ResolvableFuture<SessionResult> result = ResolvableFuture.create();
+            result.set(new SessionResult(resultCode));
+            return result;
+        }
+
         /**
          * Gets the result code.
          *
@@ -1382,11 +1414,12 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         /**
-         * Gets the result of {@link #sendCustomCommand(SessionCommand2, Bundle)}. This is only
-         * valid when it's returned by the {@link #sendCustomCommand(SessionCommand2, Bundle)} and
-         * will be {@code null} otherwise.
+         * Gets the result of {@link #sendCustomCommand(ControllerInfo, SessionCommand2, Bundle)}.
+         * This is only valid when it's returned by the
+         * {@link #sendCustomCommand(ControllerInfo, SessionCommand2, Bundle)} and will be
+         * {@code null} otherwise.
          *
-         * @see #sendCustomCommand(SessionCommand2, Bundle)
+         * @see #sendCustomCommand(ControllerInfo, SessionCommand2, Bundle)
          * @return result of send custom command
          */
         public @Nullable Bundle getCustomCommandResult() {

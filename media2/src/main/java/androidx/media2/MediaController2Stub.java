@@ -18,7 +18,6 @@ package androidx.media2;
 
 import android.app.PendingIntent;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -272,9 +271,9 @@ class MediaController2Stub extends IMediaController2.Stub {
     }
 
     @Override
-    public void onCustomLayoutChanged(List<ParcelImpl> commandButtonlist) {
-        if (commandButtonlist == null) {
-            Log.w(TAG, "onCustomLayoutChanged(): Ignoring null commandButtonlist");
+    public void onSetCustomLayout(int seq, List<ParcelImpl> commandButtonList) {
+        if (commandButtonList == null) {
+            Log.w(TAG, "setCustomLayout(): Ignoring null commandButtonList");
             return;
         }
         final MediaController2ImplBase controller;
@@ -289,13 +288,13 @@ class MediaController2Stub extends IMediaController2.Stub {
             return;
         }
         List<CommandButton> layout = new ArrayList<>();
-        for (int i = 0; i < commandButtonlist.size(); i++) {
-            CommandButton button = ParcelUtils.fromParcelable(commandButtonlist.get(i));
+        for (int i = 0; i < commandButtonList.size(); i++) {
+            CommandButton button = ParcelUtils.fromParcelable(commandButtonList.get(i));
             if (button != null) {
                 layout.add(button);
             }
         }
-        controller.onCustomLayoutChanged(layout);
+        controller.onSetCustomLayout(seq, layout);
     }
 
     @Override
@@ -320,7 +319,7 @@ class MediaController2Stub extends IMediaController2.Stub {
     }
 
     @Override
-    public void onCustomCommand(ParcelImpl commandParcel, Bundle args, ResultReceiver receiver) {
+    public void onCustomCommand(int seq, ParcelImpl commandParcel, Bundle args) {
         final MediaController2ImplBase controller;
         try {
             controller = getController();
@@ -330,10 +329,10 @@ class MediaController2Stub extends IMediaController2.Stub {
         }
         SessionCommand2 command = ParcelUtils.fromParcelable(commandParcel);
         if (command == null) {
-            Log.w(TAG, "onCustomCommand(): Ignoring null command");
+            Log.w(TAG, "sendCustomCommand(): Ignoring null command");
             return;
         }
-        controller.onCustomCommand(command, args, receiver);
+        controller.onCustomCommand(seq, command, args);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////

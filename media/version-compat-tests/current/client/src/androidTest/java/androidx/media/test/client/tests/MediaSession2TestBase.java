@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.CallSuper;
@@ -306,14 +305,14 @@ abstract class MediaSession2TestBase {
         }
 
         @Override
-        public void onCustomCommand(MediaController2 controller, SessionCommand2 command,
-                Bundle args, ResultReceiver receiver) {
-            mCallbackProxy.onCustomCommand(controller, command, args, receiver);
+        public MediaController2.ControllerResult onCustomCommand(MediaController2 controller,
+                SessionCommand2 command, Bundle args) {
             synchronized (this) {
                 if (mOnCustomCommandRunnable != null) {
                     mOnCustomCommandRunnable.run();
                 }
             }
+            return mCallbackProxy.onCustomCommand(controller, command, args);
         }
 
         @Override
@@ -323,8 +322,8 @@ abstract class MediaSession2TestBase {
         }
 
         @Override
-        public void onCustomLayoutChanged(MediaController2 controller, List<CommandButton> layout) {
-            mCallbackProxy.onCustomLayoutChanged(controller, layout);
+        public int onSetCustomLayout(MediaController2 controller, List<CommandButton> layout) {
+            return mCallbackProxy.onSetCustomLayout(controller, layout);
         }
 
         @Override
