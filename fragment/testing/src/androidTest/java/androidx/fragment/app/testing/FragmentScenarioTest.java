@@ -46,7 +46,7 @@ public final class FragmentScenarioTest {
                         assertThat(fragment.getState()).isEqualTo(State.RESUMED);
                         // FragmentScenario#launch doesn't attach view to the hierarchy.
                         // To test graphical Fragment, use FragmentScenario#launchInContainer.
-                        assertThat(fragment.getView().isAttachedToWindow()).isFalse();
+                        assertThat(fragment.isViewAttachedToWindow()).isFalse();
                         assertThat(fragment.getNumberOfRecreations()).isEqualTo(0);
                     }
                 });
@@ -68,7 +68,7 @@ public final class FragmentScenarioTest {
                                 "androidx");
                         // FragmentScenario#launch doesn't attach view to the hierarchy.
                         // To test graphical Fragment, use FragmentScenario#launchInContainer.
-                        assertThat(fragment.getView().isAttachedToWindow()).isFalse();
+                        assertThat(fragment.isViewAttachedToWindow()).isFalse();
                         assertThat(fragment.getNumberOfRecreations()).isEqualTo(0);
                     }
                 });
@@ -84,7 +84,7 @@ public final class FragmentScenarioTest {
                     @Override
                     public void perform(@NonNull StateRecordingFragment fragment) {
                         assertThat(fragment.getState()).isEqualTo(State.RESUMED);
-                        assertThat(fragment.getView().isAttachedToWindow()).isTrue();
+                        assertThat(fragment.isViewAttachedToWindow()).isTrue();
                         assertThat(fragment.getNumberOfRecreations()).isEqualTo(0);
                     }
                 });
@@ -104,7 +104,7 @@ public final class FragmentScenarioTest {
                     public void perform(@NonNull StateRecordingFragment fragment) {
                         assertThat(fragment.getArguments().getString("my_arg_is")).isEqualTo(
                                 "androidx");
-                        assertThat(fragment.getView().isAttachedToWindow()).isTrue();
+                        assertThat(fragment.isViewAttachedToWindow()).isTrue();
                         assertThat(fragment.getNumberOfRecreations()).isEqualTo(0);
                     }
                 });

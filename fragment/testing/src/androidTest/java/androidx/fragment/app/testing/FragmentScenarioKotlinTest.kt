@@ -29,10 +29,11 @@ import org.junit.runner.RunWith
 class FragmentScenarioKotlinTest {
     @Test
     fun testFragmentLifecycle_withFragmentScenario() {
-        val scenario = FragmentScenario.launch(StateRecordingFragment::class.java)
+        val scenario = FragmentScenario.launchInContainer(StateRecordingFragment::class.java)
         scenario.onFragment {
             assertThat(it.numberOfRecreations).isEqualTo(0)
             assertThat(it.state).isEqualTo(State.RESUMED)
+            assertThat(it.isViewAttachedToWindow).isTrue()
         }
 
         scenario.recreate()
