@@ -49,7 +49,7 @@ public abstract class Worker extends ListenableWorker {
     public abstract @NonNull Result doWork();
 
     @Override
-    public final @NonNull ListenableFuture<Payload> onStartWork() {
+    public final @NonNull ListenableFuture<Payload> startWork() {
         mFuture = SettableFuture.create();
         getBackgroundExecutor().execute(new Runnable() {
             @Override
@@ -70,7 +70,7 @@ public abstract class Worker extends ListenableWorker {
      * {@link OverwritingInputMerger}, unless otherwise specified using the
      * {@link OneTimeWorkRequest.Builder#setInputMerger(Class)} method.
      * <p>
-     * This method is invoked after {@code onStartWork} and returns
+     * This method is invoked after {@code startWork} and returns
      * {@link ListenableWorker.Result#SUCCESS} or a
      * {@link ListenableWorker.Result#FAILURE}.
      * <p>

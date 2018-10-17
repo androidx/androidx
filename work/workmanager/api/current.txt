@@ -135,8 +135,8 @@ package androidx.work {
     method public final java.util.List<android.net.Uri> getTriggeredContentUris();
     method public final boolean isCancelled();
     method public final boolean isStopped();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> onStartWork();
     method public void onStopped(boolean);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> startWork();
   }
 
   public static final class ListenableWorker.Payload {
@@ -261,7 +261,6 @@ package androidx.work {
   }
 
   public final class WorkStatus {
-    ctor public WorkStatus(java.util.UUID, androidx.work.State, androidx.work.Data, java.util.List<java.lang.String>);
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();
     method public androidx.work.State getState();
@@ -272,8 +271,8 @@ package androidx.work {
     ctor public Worker(android.content.Context, androidx.work.WorkerParameters);
     method public abstract androidx.work.ListenableWorker.Result doWork();
     method public final androidx.work.Data getOutputData();
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> onStartWork();
     method public final void setOutputData(androidx.work.Data);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> startWork();
   }
 
   public abstract class WorkerFactory {

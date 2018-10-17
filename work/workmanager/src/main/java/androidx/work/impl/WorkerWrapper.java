@@ -216,13 +216,13 @@ public class WorkerWrapper implements Runnable {
             }
 
             final SettableFuture<ListenableWorker.Payload> future = SettableFuture.create();
-            // Call mWorker.onStartWork() on the main thread.
+            // Call mWorker.startWork() on the main thread.
             mWorkTaskExecutor.getMainThreadExecutor()
                     .execute(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                mInnerFuture = mWorker.onStartWork();
+                                mInnerFuture = mWorker.startWork();
                                 future.setFuture(mInnerFuture);
                             } catch (Throwable e) {
                                 future.setException(e);
