@@ -56,6 +56,8 @@ import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -93,6 +95,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     @RestrictTo(Scope.LIBRARY)
     @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,
             FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SliceType {
     }
 

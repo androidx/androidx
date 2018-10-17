@@ -70,6 +70,8 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -126,6 +128,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
             HINT_ACTIVITY,
             HINT_CACHED
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SliceHint{ }
 
     @ParcelField(value = 1, defaultValue = "null")
